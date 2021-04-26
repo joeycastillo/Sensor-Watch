@@ -1,0 +1,169 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Store xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns="AtmelPackComponentManagement">
+	<ProjectComponents>
+		<ProjectComponent z:Id="i1" xmlns:z="http://schemas.microsoft.com/2003/10/Serialization/">
+			<CApiVersion></CApiVersion>
+			<CBundle></CBundle>
+			<CClass>CMSIS</CClass>
+			<CGroup>CORE</CGroup>
+			<CSub></CSub>
+			<CVariant></CVariant>
+			<CVendor>ARM</CVendor>
+			<CVersion>5.1.2</CVersion>
+			<DefaultRepoPath>C:/Program Files (x86)\Atmel\Studio\7.0\Packs</DefaultRepoPath>
+			<DependentComponents xmlns:d4p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+			<Description></Description>
+			<Files xmlns:d4p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays">
+				<d4p1:anyType i:type="FileInfo">
+					<AbsolutePath>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\arm\CMSIS\5.4.0\CMSIS\Documentation\Core\html\index.html</AbsolutePath>
+					<Attribute></Attribute>
+					<Category>doc</Category>
+					<Condition></Condition>
+					<FileContentHash i:nil="true" />
+					<FileVersion></FileVersion>
+					<Name>CMSIS/Documentation/Core/html/index.html</Name>
+					<SelectString></SelectString>
+					<SourcePath></SourcePath>
+				</d4p1:anyType>
+				<d4p1:anyType i:type="FileInfo">
+					<AbsolutePath>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\arm\CMSIS\5.4.0\CMSIS\Core\Include\</AbsolutePath>
+					<Attribute></Attribute>
+					<Category>include</Category>
+					<Condition></Condition>
+					<FileContentHash i:nil="true" />
+					<FileVersion></FileVersion>
+					<Name>CMSIS/Core/Include/</Name>
+					<SelectString></SelectString>
+					<SourcePath></SourcePath>
+				</d4p1:anyType>
+			</Files>
+			<PackName>CMSIS</PackName>
+			<PackPath>C:/Program Files (x86)/Atmel/Studio/7.0/Packs/arm/CMSIS/5.4.0/ARM.CMSIS.pdsc</PackPath>
+			<PackVersion>5.4.0</PackVersion>
+			<PresentInProject>true</PresentInProject>
+			<ReferenceConditionId>ARMv6_7_8-M Device</ReferenceConditionId>
+			<RteComponents xmlns:d4p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays">
+				<d4p1:string></d4p1:string>
+			</RteComponents>
+			<Status>Resolved</Status>
+			<VersionMode>Fixed</VersionMode>
+			<IsComponentInAtProject>true</IsComponentInAtProject>
+		</ProjectComponent>
+		<ProjectComponent z:Id="i2" xmlns:z="http://schemas.microsoft.com/2003/10/Serialization/">
+			<CApiVersion></CApiVersion>
+			<CBundle></CBundle>
+			<CClass>Device</CClass>
+			<CGroup>Startup</CGroup>
+			<CSub></CSub>
+			<CVariant></CVariant>
+			<CVendor>Atmel</CVendor>
+			<CVersion>1.2.0</CVersion>
+			<DefaultRepoPath>C:/Program Files (x86)\Atmel\Studio\7.0\Packs</DefaultRepoPath>
+			<DependentComponents xmlns:d4p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays">
+				<d4p1:anyType z:Ref="i1" />
+			</DependentComponents>
+			<Description></Description>
+			<Files xmlns:d4p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays">
+				<d4p1:anyType i:type="FileInfo">
+					<AbsolutePath>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\SAML22_DFP\1.2.77\include</AbsolutePath>
+					<Attribute></Attribute>
+					<Category>include</Category>
+					<Condition>C</Condition>
+					<FileContentHash i:nil="true" />
+					<FileVersion></FileVersion>
+					<Name>include</Name>
+					<SelectString></SelectString>
+					<SourcePath></SourcePath>
+				</d4p1:anyType>
+				<d4p1:anyType i:type="FileInfo">
+					<AbsolutePath>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\SAML22_DFP\1.2.77\include\sam.h</AbsolutePath>
+					<Attribute></Attribute>
+					<Category>header</Category>
+					<Condition>C</Condition>
+					<FileContentHash>hIYDkoKMf0OfmYW7d/j2kw==</FileContentHash>
+					<FileVersion></FileVersion>
+					<Name>include/sam.h</Name>
+					<SelectString></SelectString>
+					<SourcePath></SourcePath>
+				</d4p1:anyType>
+				<d4p1:anyType i:type="FileInfo">
+					<AbsolutePath>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\SAML22_DFP\1.2.77\templates\main.c</AbsolutePath>
+					<Attribute>template</Attribute>
+					<Category>source</Category>
+					<Condition>C Exe</Condition>
+					<FileContentHash>D8GE7XTFu2b4QutVWp6lCg==</FileContentHash>
+					<FileVersion></FileVersion>
+					<Name>templates/main.c</Name>
+					<SelectString>Main file (.c)</SelectString>
+					<SourcePath></SourcePath>
+				</d4p1:anyType>
+				<d4p1:anyType i:type="FileInfo">
+					<AbsolutePath>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\SAML22_DFP\1.2.77\templates\main.cpp</AbsolutePath>
+					<Attribute>template</Attribute>
+					<Category>source</Category>
+					<Condition>C Exe</Condition>
+					<FileContentHash>nU+WlKcYaWh0AWBBS+WVpA==</FileContentHash>
+					<FileVersion></FileVersion>
+					<Name>templates/main.cpp</Name>
+					<SelectString>Main file (.cpp)</SelectString>
+					<SourcePath></SourcePath>
+				</d4p1:anyType>
+				<d4p1:anyType i:type="FileInfo">
+					<AbsolutePath>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\SAML22_DFP\1.2.77\gcc\system_saml22.c</AbsolutePath>
+					<Attribute>config</Attribute>
+					<Category>source</Category>
+					<Condition>GCC Exe</Condition>
+					<FileContentHash>PrvYHyBfxNZHSGYPLxcSug==</FileContentHash>
+					<FileVersion></FileVersion>
+					<Name>gcc/system_saml22.c</Name>
+					<SelectString></SelectString>
+					<SourcePath></SourcePath>
+				</d4p1:anyType>
+				<d4p1:anyType i:type="FileInfo">
+					<AbsolutePath>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\SAML22_DFP\1.2.77\gcc\gcc\startup_saml22.c</AbsolutePath>
+					<Attribute>config</Attribute>
+					<Category>source</Category>
+					<Condition>GCC Exe</Condition>
+					<FileContentHash>BLzyJq7J25P7XTztxvVwNw==</FileContentHash>
+					<FileVersion></FileVersion>
+					<Name>gcc/gcc/startup_saml22.c</Name>
+					<SelectString></SelectString>
+					<SourcePath></SourcePath>
+				</d4p1:anyType>
+				<d4p1:anyType i:type="FileInfo">
+					<AbsolutePath>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\SAML22_DFP\1.2.77\gcc\gcc\saml22j18a_flash.ld</AbsolutePath>
+					<Attribute>config</Attribute>
+					<Category>linkerScript</Category>
+					<Condition>GCC Exe</Condition>
+					<FileContentHash>Ys4aTlim2ZJU0Qo003K8VQ==</FileContentHash>
+					<FileVersion></FileVersion>
+					<Name>gcc/gcc/saml22j18a_flash.ld</Name>
+					<SelectString></SelectString>
+					<SourcePath></SourcePath>
+				</d4p1:anyType>
+				<d4p1:anyType i:type="FileInfo">
+					<AbsolutePath>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\SAML22_DFP\1.2.77\gcc\gcc\saml22j18a_sram.ld</AbsolutePath>
+					<Attribute>config</Attribute>
+					<Category>other</Category>
+					<Condition>GCC Exe</Condition>
+					<FileContentHash>hDqTHEM9gCdn4WKPS2tHzg==</FileContentHash>
+					<FileVersion></FileVersion>
+					<Name>gcc/gcc/saml22j18a_sram.ld</Name>
+					<SelectString></SelectString>
+					<SourcePath></SourcePath>
+				</d4p1:anyType>
+			</Files>
+			<PackName>SAML22_DFP</PackName>
+			<PackPath>C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/SAML22_DFP/1.2.77/Atmel.SAML22_DFP.pdsc</PackPath>
+			<PackVersion>1.2.77</PackVersion>
+			<PresentInProject>true</PresentInProject>
+			<ReferenceConditionId>ATSAML22J18A</ReferenceConditionId>
+			<RteComponents xmlns:d4p1="http://schemas.microsoft.com/2003/10/Serialization/Arrays">
+				<d4p1:string></d4p1:string>
+			</RteComponents>
+			<Status>Resolved</Status>
+			<VersionMode>Fixed</VersionMode>
+			<IsComponentInAtProject>true</IsComponentInAtProject>
+		</ProjectComponent>
+	</ProjectComponents>
+</Store>
