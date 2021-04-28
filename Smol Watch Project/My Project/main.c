@@ -43,10 +43,12 @@ int main(void)
 			last = date_time.time.sec;
 			if (last % 2 == 0) {
 				watch_set_led_color(50, 0);
-				watch_display_string(&watch, watch.main_display, " Hello");
+				watch_display_string(&watch, "0123456789", 0);
 			} else {
 				watch_set_led_color(0, 50);
-				watch_display_string(&watch, watch.main_display, " there");
+				watch_display_string(&watch, "01", 0);
+				watch_display_string(&watch, "23", 2);
+				watch_display_string(&watch, "456789", 4);
 			}
 		}
 	}

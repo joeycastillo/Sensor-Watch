@@ -11,17 +11,7 @@
 #include <stdint.h>
 #include "hpl_calendar.h"
 
-typedef struct WatchDisplay {
-	uint8_t num_chars;
-	uint8_t* chars;
-	const uint64_t* segment_map;
-} WatchDisplay;
-
 typedef struct Watch {
-	struct WatchDisplay main_display; // 6 chars, main line.
-	struct WatchDisplay day_display;  // 2 chars, alphanumeric-ish. top center.
-	struct WatchDisplay date_display; // 2 chars, only supports numbers 0-39. top right.
-
 	bool display_enabled;
 	bool led_enabled;
 	bool buzzer_enabled;
@@ -30,13 +20,16 @@ typedef struct Watch {
 	bool i2c_enabled;
 	bool spi_enabled;
 	bool eic_enabled;
+
+	uint8_t num_chars;
+	const uint64_t* segment_map;
 } Watch;
 
 void watch_init(Watch *watch);
 
 void watch_enable_display(Watch *watch);
-void watch_display_pixel(Watch *watch, WatchDisplay display, uint8_t com, uint8_t seg);
-void watch_display_string(Watch *watch, WatchDisplay display, char *string);
+void watch_display_pixel(Watch *watch, uint8_t com, uint8_t seg);
+void watch_display_string(Watch *watch, char *string, uint8_t position);
 
 void watch_enable_led(Watch *watch);
 void watch_disable_led(Watch *watch);

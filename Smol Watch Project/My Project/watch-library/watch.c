@@ -116,7 +116,11 @@ const uint8_t Character_Set[] =
 void watch_enable_display(Watch *watch) {
 	if (watch->display_enabled) return;
 
-	static const uint64_t main_segmap[] = {
+	static const uint64_t segmap[] = {
+		0x4e4f0e8e8f8d4d0d, // Position 8
+		0xc8c4c4c8b4b4b0b,  // Position 9
+		0xc049c00a49890949, // Position 6
+		0xc048088886874707, // Position 7
 		0xc053921252139352, // Position 0
 		0xc054511415559594, // Position 1
 		0xc057965616179716, // Position 2
@@ -124,65 +128,48 @@ void watch_enable_display(Watch *watch) {
 		0xc043420203048382, // Position 4
 		0xc045440506468584, // Position 5
 	};
-	watch->main_display.num_chars = 6;
-	watch->main_display.chars = malloc(6);
-	watch->main_display.segment_map = &main_segmap[0];
-
-	static const uint64_t day_segmap[] = {
-		0xc049c00a49890949, // Position 6
-		0xc048088886874707, // Position 7
-	};
-	watch->day_display.num_chars = 2;
-	watch->day_display.chars = malloc(2);
-	watch->day_display.segment_map = &day_segmap[0];
-
-	static const uint64_t date_segmap[] = {
-		0x4e4f0e8e8f8d4d0d, // Position 8
-		0xc8c4c4c8b4b4b0b, // Position 9
-	};
-	watch->date_display.num_chars = 2;
-	watch->date_display.chars = malloc(2);
-	watch->date_display.segment_map = &date_segmap[0];
+	watch->num_chars = 10;
+	watch->segment_map = &segmap[0];
 
 	SEGMENT_LCD_0_init();
 	slcd_sync_enable(&SEGMENT_LCD_0);
 	watch->display_enabled = true;
 }
 
-void watch_display_pixel(Watch *watch, WatchDisplay display, uint8_t com, uint8_t seg) {
+void watch_display_pixel(Watch *watch, uint8_t com, uint8_t seg) {
 	slcd_sync_seg_on(&SEGMENT_LCD_0, SLCD_SEGID(com, seg));
 }
 
-void watch_clear_pixel(Watch *watch, WatchDisplay display, uint8_t com, uint8_t seg) {
+void watch_clear_pixel(Watch *watch, uint8_t com, uint8_t seg) {
 	slcd_sync_seg_off(&SEGMENT_LCD_0, SLCD_SEGID(com, seg));
 }
 
-void watch_display_character(Watch *watch, WatchDisplay display, uint8_t character, uint8_t position) {
-    uint64_t segmap = display.segment_map[position];
-    uint64_t segdata = Character_Set[character - 0x20];
-    
-    for (int i = 0; i < 8; i++) {
-	    uint8_t com = (segmap & 0xFF) >> 6;
-	    if (com > 2) {
+void watch_display_character(Watch *watch, uint8_t character, uint8_t position) {
+	uint64_t segmap = watch->segment_map[position];
+	uint64_t segdata = Character_Set[character - 0x20];
+
+	for (int i = 0; i < 8; i++) {
+		uint8_t com = (segmap & 0xFF) >> 6;
+		if (com > 2) {
 			// COM3 means no segment exists; skip it.
-		    segmap = segmap >> 8;
-		    segdata = segdata >> 1;
-		    continue;
-	    }
-	    uint8_t seg = segmap & 0x3F;
+			segmap = segmap >> 8;
+			segdata = segdata >> 1;
+			continue;
+		}
+		uint8_t seg = segmap & 0x3F;
 		slcd_sync_seg_off(&SEGMENT_LCD_0, SLCD_SEGID(com, seg));
-	    if (segdata & 1) slcd_sync_seg_on(&SEGMENT_LCD_0, SLCD_SEGID(com, seg));
-	    segmap = segmap >> 8;
-	    segdata = segdata >> 1;
-    }
+		if (segdata & 1) slcd_sync_seg_on(&SEGMENT_LCD_0, SLCD_SEGID(com, seg));
+		segmap = segmap >> 8;
+		segdata = segdata >> 1;
+	}
 }
 
-void watch_display_string(Watch *watch, WatchDisplay display, char *string) {
+void watch_display_string(Watch *watch, char *string, uint8_t position) {
 	size_t i = 0;
 	while(string[i] != 0) {
-		watch_display_character(watch, display, string[i], i);
+		watch_display_character(watch, string[i], position + i);
 		i++;
-		if (i >= display.num_chars) break;
+		if (i >= watch->num_chars) break;
 	}
 }
 
