@@ -3,3 +3,13 @@
 *.b#*
 *.pro
 *.job
+
+*.bin
+*.elf
+*.hex
+*.lss
+*.map
+*srec
+*.o
+*.d
+.vs
