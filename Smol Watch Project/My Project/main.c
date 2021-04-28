@@ -15,13 +15,18 @@ int main(void)
 	date_time.time.sec = 0;
 
 	watch_init(&watch);
-	watch_enable_led();
-	watch_enable_date_time();
+
+	watch_enable_led(&watch);
+
+	watch_enable_date_time(&watch);
 	watch_set_date_time(date_time);
+
 	watch_enable_digital_output(A0);
 	gpio_set_pin_level(A0, true);
-	watch_enable_i2c();
-	
+
+	watch_enable_display(&watch);
+/*	
+	watch_enable_i2c(&watch);
 	uint8_t chipID = 0;
 	uint8_t ChipIdRegister = 0xD0;
 	watch_i2c_send(0x77, &ChipIdRegister, 1);
@@ -29,7 +34,7 @@ int main(void)
 	if (chipID == 0x60) {
 		watch_set_led_green();
 	}
-
+*/
 	uint8_t last = date_time.time.sec;
 	
 	while (1) {
@@ -37,9 +42,11 @@ int main(void)
 		if (date_time.time.sec != last) {
 			last = date_time.time.sec;
 			if (last % 2 == 0) {
-				watch_set_led_red();
+				watch_set_led_color(50, 0);
+				watch_display_string(&watch, watch.main_display, " Hello");
 			} else {
-				watch_set_led_green();
+				watch_set_led_color(0, 50);
+				watch_display_string(&watch, watch.main_display, " there");
 			}
 		}
 	}

@@ -69,6 +69,8 @@ void PWM_1_PORT_init(void);
 void PWM_1_CLOCK_init(void);
 void PWM_1_init(void);
 
+void SEGMENT_LCD_0_init(void);
+
 /**
  * \brief Perform system initialization, initialize pins and clocks for
  * peripherals
