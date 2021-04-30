@@ -10,6 +10,7 @@
 #define WATCH_H_
 #include <stdint.h>
 #include "hpl_calendar.h"
+#include "hal_ext_irq.h"
 
 typedef struct Watch {
 	bool display_enabled;
@@ -42,6 +43,9 @@ void watch_set_date_time(struct calendar_date_time date_time);
 void watch_get_date_time(struct calendar_date_time *date_time);
 
 void watch_enable_analog(Watch *watch, const uint8_t pin);
+
+void watch_enable_interrupts(Watch *watch);
+void watch_register_interrupt_callback(Watch *watch, const uint32_t pin, ext_irq_cb_t callback);
 
 void watch_enable_digital_input(const uint8_t pin);
 void watch_enable_digital_output(const uint8_t pin);

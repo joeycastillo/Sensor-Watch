@@ -1,56 +1,66 @@
 #include <atmel_start.h>
+#include <hpl_sleep.h>
 #include "watch-library/watch.h"
+#include "mars_clock.h"
+
+Watch watch;
+bool local = true;
+
+void calendar_callback(struct calendar_descriptor *const calendar) {
+	struct calendar_date_time date_time;
+	calendar_get_date_time(&CALENDAR_0, &date_time);
+
+	update_display(&watch, date_time, true);
+/*
+	if (date_time.time.min % 2 == 0) {
+		watch_set_led_color(50, 0);
+	} else {
+		watch_set_led_color(0, 50);
+	}
+*/
+}
+
+static void mode_callback() {
+//	local = !local;
+	struct calendar_date_time date_time;
+	calendar_get_date_time(&CALENDAR_0, &date_time);
+	update_display(&watch, date_time, local);
+}
 
 int main(void)
 {
 	atmel_start_init();
 	
-	Watch watch;
+	watch_init(&watch);
+
+//	watch_enable_led(&watch);
+
+	watch_enable_display(&watch);
+	watch_display_pixel(&watch, 1, 16);
+
+	watch_enable_interrupts(&watch);
+	watch_register_interrupt_callback(&watch, BTN_MODE, &mode_callback);
+
+	watch_enable_date_time(&watch);
 	struct calendar_date_time date_time;
 	date_time.date.year = 2021;
 	date_time.date.month = 4;
-	date_time.date.day = 25;
-	date_time.time.hour = 4;
-	date_time.time.min = 0;
+	date_time.date.day = 30;
+	date_time.time.hour = 9;
+	date_time.time.min = 40;
 	date_time.time.sec = 0;
-
-	watch_init(&watch);
-
-	watch_enable_led(&watch);
-
-	watch_enable_date_time(&watch);
 	watch_set_date_time(date_time);
+	struct calendar_alarm alarm;
+	alarm.cal_alarm.mode = REPEAT;
+	alarm.cal_alarm.datetime = date_time;
+	alarm.cal_alarm.datetime.time.sec = 0;
+	alarm.cal_alarm.option = CALENDAR_ALARM_MATCH_SEC;
+	alarm.callback = calendar_callback;
+	update_display(&watch, date_time, local);
+	calendar_set_alarm(&CALENDAR_0, &alarm, &calendar_callback);
 
-	watch_enable_digital_output(A0);
-	gpio_set_pin_level(A0, true);
-
-	watch_enable_display(&watch);
-/*	
-	watch_enable_i2c(&watch);
-	uint8_t chipID = 0;
-	uint8_t ChipIdRegister = 0xD0;
-	watch_i2c_send(0x77, &ChipIdRegister, 1);
-	watch_i2c_receive(0x77, &chipID, 1);
-	if (chipID == 0x60) {
-		watch_set_led_green();
-	}
-*/
-	uint8_t last = date_time.time.sec;
-	
 	while (1) {
-		watch_get_date_time(&date_time);
-		if (date_time.time.sec != last) {
-			last = date_time.time.sec;
-			if (last % 2 == 0) {
-				watch_set_led_color(50, 0);
-				watch_display_string(&watch, "0123456789", 0);
-			} else {
-				watch_set_led_color(0, 50);
-				watch_display_string(&watch, "01", 0);
-				watch_display_string(&watch, "23", 2);
-				watch_display_string(&watch, "456789", 4);
-			}
-		}
+		//sleep(4);
 	}
 	
 	return 0;

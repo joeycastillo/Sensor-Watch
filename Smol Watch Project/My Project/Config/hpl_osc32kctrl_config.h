@@ -81,7 +81,7 @@
 // <0x6=>8000092us
 // <id> xosc32k_arch_startup
 #ifndef CONF_XOSC32K_STARTUP
-#define CONF_XOSC32K_STARTUP 0x0
+#define CONF_XOSC32K_STARTUP 0x4
 #endif
 
 // <q> On Demand Control
@@ -95,7 +95,7 @@
 // <i> Indicates whether Run in Standby is enabled or not
 // <id> xosc32k_arch_runstdby
 #ifndef CONF_XOSC32K_RUNSTDBY
-#define CONF_XOSC32K_RUNSTDBY 0
+#define CONF_XOSC32K_RUNSTDBY 1
 #endif
 
 // <q> 1kHz Output Enable

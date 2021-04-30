@@ -173,6 +173,14 @@ void watch_display_string(Watch *watch, char *string, uint8_t position) {
 	}
 }
 
+void watch_enable_interrupts(Watch *watch) {
+	EXTERNAL_IRQ_0_init();
+}
+
+void watch_register_interrupt_callback(Watch *watch, const uint32_t pin, ext_irq_cb_t callback) {
+	ext_irq_register(pin, callback);
+}
+
 void watch_enable_led(Watch *watch) {
 	if (watch->led_enabled) return;
 

@@ -270,7 +270,7 @@ void SEGMENT_LCD_0_init(void)
 void system_init(void)
 {
 	init_mcu();
-
+/*
 	// GPIO on PA02
 
 	// Set pin direction to input
@@ -314,10 +314,6 @@ void system_init(void)
 
 	gpio_set_pin_function(D0, GPIO_PIN_FUNCTION_OFF);
 
-	delay_driver_init();
-
-
-/*
 	ADC_0_init();
 
 	EXTERNAL_IRQ_0_init();
@@ -325,6 +321,8 @@ void system_init(void)
 	CALENDAR_0_init();
 
 	I2C_0_init();
+
+	delay_driver_init();
 
 	PWM_0_init();
 

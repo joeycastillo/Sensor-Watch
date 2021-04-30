@@ -201,7 +201,7 @@
           <AcmeProjectActionInfo Action="File" Source="config/hpl_eic_config.h" IsConfig="true" Hash="U9WSM5Hq8sGLa8ysciEfCg" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_gclk_config.h" IsConfig="true" Hash="VW757Ebgq5TyYTRcpY8M7w" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_mclk_config.h" IsConfig="true" Hash="CLrsNUvv74/qlHdF8aFndg" />
-          <AcmeProjectActionInfo Action="File" Source="config/hpl_osc32kctrl_config.h" IsConfig="true" Hash="ylDzEsTDHvv+guzMsTa+sg" />
+          <AcmeProjectActionInfo Action="File" Source="config/hpl_osc32kctrl_config.h" IsConfig="true" Hash="b7mSwnFOSDceVn9b3TT9kA" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_oscctrl_config.h" IsConfig="true" Hash="Vc5u27WzT+UPF5aLAxl2lQ" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_port_config.h" IsConfig="true" Hash="rMTNR+5FXtu+wfT1NbfRRA" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_rtc_config.h" IsConfig="true" Hash="oTcobT9ydLDOqfpwUidHvg" />
@@ -410,6 +410,7 @@
     </ListValues>
   </armgcc.linker.libraries.LibrarySearchPaths>
   <armgcc.linker.optimization.GarbageCollectUnusedSections>True</armgcc.linker.optimization.GarbageCollectUnusedSections>
+  <armgcc.linker.memorysettings.ExternalRAM />
   <armgcc.linker.miscellaneous.LinkerFlags>-Tsaml22j18a_flash.ld</armgcc.linker.miscellaneous.LinkerFlags>
   <armgcc.assembler.general.IncludePaths>
     <ListValues>
@@ -950,6 +951,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hri\hri_wdt_l22.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="mars_clock.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="mars_clock.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="main.c">
