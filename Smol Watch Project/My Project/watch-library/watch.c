@@ -173,11 +173,11 @@ void watch_display_string(Watch *watch, char *string, uint8_t position) {
 	}
 }
 
-void watch_enable_interrupts(Watch *watch) {
+void watch_enable_buttons(Watch *watch) {
 	EXTERNAL_IRQ_0_init();
 }
 
-void watch_register_interrupt_callback(Watch *watch, const uint32_t pin, ext_irq_cb_t callback) {
+void watch_register_button_callback(Watch *watch, const uint32_t pin, ext_irq_cb_t callback) {
 	ext_irq_register(pin, callback);
 }
 
@@ -189,6 +189,7 @@ void watch_enable_led(Watch *watch) {
 	pwm_enable(&PWM_0);
 	
 	watch->led_enabled = true;
+	watch_set_led_off();
 }
 
 void watch_disable_led(Watch *watch) {
@@ -215,6 +216,10 @@ void watch_set_led_green() {
 	watch_set_led_color(0, 65535);
 }
 
+void watch_set_led_off() {
+	watch_set_led_color(0, 0);
+}
+
 void watch_enable_date_time(Watch *watch) {
 	if (watch->calendar_enabled) return;
 	CALENDAR_0_init();
@@ -230,6 +235,26 @@ void watch_set_date_time(struct calendar_date_time date_time) {
 
 void watch_get_date_time(struct calendar_date_time *date_time) {
 	calendar_get_date_time(&CALENDAR_0, date_time);
+}
+
+static ext_irq_cb_t tick_user_callback;
+
+static void tick_callback(const struct timer_task *const timer_task) {
+	tick_user_callback();
+}
+
+static struct timer_task tick_task;
+
+void watch_enable_tick(ext_irq_cb_t callback) {
+	TIMER_0_init();
+
+	tick_task.interval = 16384;
+	tick_task.cb = tick_callback;
+	tick_task.mode = TIMER_TASK_REPEAT;
+	tick_user_callback = callback;
+
+	timer_add_task(&TIMER_0, &tick_task);
+	timer_start(&TIMER_0);
 }
 
 void watch_enable_analog(Watch *watch, const uint8_t pin) {

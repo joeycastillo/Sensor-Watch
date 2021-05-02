@@ -81,14 +81,14 @@
 // <0x6=>8000092us
 // <id> xosc32k_arch_startup
 #ifndef CONF_XOSC32K_STARTUP
-#define CONF_XOSC32K_STARTUP 0x4
+#define CONF_XOSC32K_STARTUP 0x3
 #endif
 
 // <q> On Demand Control
 // <i> Indicates whether On Demand Control is enabled or not
 // <id> xosc32k_arch_ondemand
 #ifndef CONF_XOSC32K_ONDEMAND
-#define CONF_XOSC32K_ONDEMAND 1
+#define CONF_XOSC32K_ONDEMAND 0
 #endif
 
 // <q> Run in Standby

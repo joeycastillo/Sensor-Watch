@@ -138,16 +138,15 @@
           <AcmeProjectActionInfo Action="File" Source="hri/hri_trng_l22.h" IsConfig="false" Hash="+6CMfjfAU62WldJAEU8JTg" />
           <AcmeProjectActionInfo Action="File" Source="hri/hri_usb_l22.h" IsConfig="false" Hash="dPDK2Dcf/T+0icIbtTF0yg" />
           <AcmeProjectActionInfo Action="File" Source="hri/hri_wdt_l22.h" IsConfig="false" Hash="KpOZJ+68Hzj/dOLfx94n5g" />
-          <AcmeProjectActionInfo Action="File" Source="sleep_manager/sleep_manager.c" IsConfig="false" Hash="Y0V7+lcjJKIdSeL4ueYZ6w" />
-          <AcmeProjectActionInfo Action="File" Source="sleep_manager/sleep_manager.h" IsConfig="false" Hash="wbQ70QzJlJHL0fiCXAXTpQ" />
           <AcmeProjectActionInfo Action="File" Source="main.c" IsConfig="false" Hash="k0AH7j+BrmdFhBPzCCMptA" />
-          <AcmeProjectActionInfo Action="File" Source="driver_init.c" IsConfig="false" Hash="RTBFCGfRONzW/m85hpe4IA" />
-          <AcmeProjectActionInfo Action="File" Source="driver_init.h" IsConfig="false" Hash="4Dd+xLQL3xA5bugP6hkjbg" />
+          <AcmeProjectActionInfo Action="File" Source="driver_init.c" IsConfig="false" Hash="Zw9TBuFm3x3YlHbeguapNQ" />
+          <AcmeProjectActionInfo Action="File" Source="driver_init.h" IsConfig="false" Hash="jGwg9E39uUvuPsyqQD0HpA" />
           <AcmeProjectActionInfo Action="File" Source="atmel_start_pins.h" IsConfig="false" Hash="5lmo1agoLOJW6nYY8SQiUQ" />
-          <AcmeProjectActionInfo Action="File" Source="examples/driver_examples.h" IsConfig="false" Hash="vA0AOZ9ZthDRQ3WRx2TPBA" />
-          <AcmeProjectActionInfo Action="File" Source="examples/driver_examples.c" IsConfig="false" Hash="tLQq4aGf9J1UF19OmI/x/Q" />
+          <AcmeProjectActionInfo Action="File" Source="examples/driver_examples.h" IsConfig="false" Hash="0DI0D6jkFhuGhaDnKmEnXA" />
+          <AcmeProjectActionInfo Action="File" Source="examples/driver_examples.c" IsConfig="false" Hash="YRl/+3+qtVZNdSNNmpcdgA" />
           <AcmeProjectActionInfo Action="File" Source="hal/include/hal_adc_sync.h" IsConfig="false" Hash="ez1X5T9kpYwT+1+5x4Pxqg" />
           <AcmeProjectActionInfo Action="File" Source="hal/include/hal_pwm.h" IsConfig="false" Hash="br6uNoL0TWVIiQVzPc8hPA" />
+          <AcmeProjectActionInfo Action="File" Source="hal/include/hal_timer.h" IsConfig="false" Hash="5pZVthtMl40VMvofOld2ng" />
           <AcmeProjectActionInfo Action="File" Source="hal/include/hpl_adc_async.h" IsConfig="false" Hash="kKbVmqgGDUkuWZYErBwgVA" />
           <AcmeProjectActionInfo Action="File" Source="hal/include/hpl_adc_sync.h" IsConfig="false" Hash="dCWrizZn0RtcCM73jZ/k6A" />
           <AcmeProjectActionInfo Action="File" Source="hal/include/hpl_calendar.h" IsConfig="false" Hash="E2gwBBatdcqZegUjH8HtWg" />
@@ -166,6 +165,7 @@
           <AcmeProjectActionInfo Action="File" Source="hal/src/hal_calendar.c" IsConfig="false" Hash="lYVRpDSx+np+02xVeQ9HHQ" />
           <AcmeProjectActionInfo Action="File" Source="hal/src/hal_ext_irq.c" IsConfig="false" Hash="l6Jmb4zu10+HvXQ0Iej4dQ" />
           <AcmeProjectActionInfo Action="File" Source="hal/src/hal_pwm.c" IsConfig="false" Hash="BSJaZa+fyJkrV3upQM/zBw" />
+          <AcmeProjectActionInfo Action="File" Source="hal/src/hal_timer.c" IsConfig="false" Hash="F2MrEXhHq4umI9xpONnlGg" />
           <AcmeProjectActionInfo Action="File" Source="hal/utils/include/parts.h" IsConfig="false" Hash="WeBzxZ+YnHMwGm/905+44Q" />
           <AcmeProjectActionInfo Action="File" Source="hpl/adc/hpl_adc.c" IsConfig="false" Hash="7Fex3op00XgU9E7Lp0VEUg" />
           <AcmeProjectActionInfo Action="File" Source="hpl/adc/hpl_adc_base.h" IsConfig="false" Hash="19A6ERNtsVVhqvnpGbR3Lg" />
@@ -188,30 +188,27 @@
           <AcmeProjectActionInfo Action="File" Source="hpl/slcd/hpl_slcd_cm_14_seg_mapping.h" IsConfig="false" Hash="rYmxchucbzcdRRtphbbizw" />
           <AcmeProjectActionInfo Action="File" Source="hpl/slcd/hpl_slcd_cm_7_seg_mapping.h" IsConfig="false" Hash="hcaiqS+ibM0/3hPBICykuw" />
           <AcmeProjectActionInfo Action="File" Source="hpl/systick/hpl_systick.c" IsConfig="false" Hash="YYWQVH26EDBDzYTUwepAcA" />
-          <AcmeProjectActionInfo Action="File" Source="hpl/tc/hpl_tc.c" IsConfig="false" Hash="q1uHBcnbo2uDnGnq/yDLUA" />
+          <AcmeProjectActionInfo Action="File" Source="hpl/tc/hpl_tc.c" IsConfig="false" Hash="Cu7R+CLmxZgQ2gv6L3xHbQ" />
           <AcmeProjectActionInfo Action="File" Source="hpl/tc/hpl_tc_base.h" IsConfig="false" Hash="Eb0LuGB6ltGJO9QC3fi2Sw" />
           <AcmeProjectActionInfo Action="File" Source="hpl/tcc/hpl_tcc.c" IsConfig="false" Hash="NHgO5jvkjzWYJ00X3I85jQ" />
           <AcmeProjectActionInfo Action="File" Source="hpl/tcc/hpl_tcc.h" IsConfig="false" Hash="vHpM8WwxGAodLqLXX56hlg" />
-          <AcmeProjectActionInfo Action="File" Source="sleep_manager_main.c" IsConfig="false" Hash="/h7lw4TySqB1SNXNvE2bcA" />
-          <AcmeProjectActionInfo Action="File" Source="sleep_manager_main.h" IsConfig="false" Hash="qmr52536J7oYjSRDqK5qCA" />
-          <AcmeProjectActionInfo Action="File" Source="atmel_start.h" IsConfig="false" Hash="2tV6NS3zLO6lMZTeJ1WQ+Q" />
-          <AcmeProjectActionInfo Action="File" Source="atmel_start.c" IsConfig="false" Hash="M7JixrvrHLkEpjzV6VcZdg" />
+          <AcmeProjectActionInfo Action="File" Source="atmel_start.h" IsConfig="false" Hash="9RBG5E2ViQiSP2Gn4/FGpA" />
+          <AcmeProjectActionInfo Action="File" Source="atmel_start.c" IsConfig="false" Hash="1RHIE7zTtYK4DURNPUqF9w" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_adc_config.h" IsConfig="true" Hash="P0t7GiKrHMHBCBrKOSfEnQ" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_dmac_config.h" IsConfig="true" Hash="w3WBXNAk4X2Eyml3c7tQSQ" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_eic_config.h" IsConfig="true" Hash="U9WSM5Hq8sGLa8ysciEfCg" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_gclk_config.h" IsConfig="true" Hash="VW757Ebgq5TyYTRcpY8M7w" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_mclk_config.h" IsConfig="true" Hash="CLrsNUvv74/qlHdF8aFndg" />
-          <AcmeProjectActionInfo Action="File" Source="config/hpl_osc32kctrl_config.h" IsConfig="true" Hash="b7mSwnFOSDceVn9b3TT9kA" />
+          <AcmeProjectActionInfo Action="File" Source="config/hpl_osc32kctrl_config.h" IsConfig="true" Hash="LayjFcrIUjhOQ+E6G5sHRA" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_oscctrl_config.h" IsConfig="true" Hash="Vc5u27WzT+UPF5aLAxl2lQ" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_port_config.h" IsConfig="true" Hash="rMTNR+5FXtu+wfT1NbfRRA" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_rtc_config.h" IsConfig="true" Hash="oTcobT9ydLDOqfpwUidHvg" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_sercom_config.h" IsConfig="true" Hash="x/EmsaDJwEm2EI8zXUSlWw" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_slcd_config.h" IsConfig="true" Hash="ErbI2VSUDy3ufREFJTO9Uw" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_systick_config.h" IsConfig="true" Hash="tlT3lNDKWFe82MiGWfQzcA" />
-          <AcmeProjectActionInfo Action="File" Source="config/hpl_tc_config.h" IsConfig="true" Hash="s9fqdoBaH2BH7Id2JoCHTg" />
+          <AcmeProjectActionInfo Action="File" Source="config/hpl_tc_config.h" IsConfig="true" Hash="ttsCFzSNH+7C39wCjBDTKg" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_tcc_config.h" IsConfig="true" Hash="5OifPvGmHqsckywrqS3ctQ" />
-          <AcmeProjectActionInfo Action="File" Source="config/peripheral_clk_config.h" IsConfig="true" Hash="qGv3tsNPPKYSGfAxyoGOsg" />
-          <AcmeProjectActionInfo Action="File" Source="config/sleep_manager_config.h" IsConfig="true" Hash="DOAee9YybT6XYwA7idJl4g" />
+          <AcmeProjectActionInfo Action="File" Source="config/peripheral_clk_config.h" IsConfig="true" Hash="6S9yz6YklqQ4b9txk3kYDw" />
         </AcmeActionInfos>
         <NonsecureFilesInfo />
       </AcmeProjectConfig>
@@ -232,6 +229,30 @@
       <ToolName>Power Debugger</ToolName>
     </com_atmel_avrdbg_tool_powerdebugger>
     <avrtoolinterfaceclock>2000000</avrtoolinterfaceclock>
+    <com_atmel_avrdbg_tool_samice>
+      <ToolOptions>
+        <InterfaceProperties>
+          <SwdClock>4000000</SwdClock>
+        </InterfaceProperties>
+        <InterfaceName>SWD</InterfaceName>
+      </ToolOptions>
+      <ToolType>com.atmel.avrdbg.tool.samice</ToolType>
+      <ToolNumber>801012234</ToolNumber>
+      <ToolName>J-Link</ToolName>
+    </com_atmel_avrdbg_tool_samice>
+    <custom>
+      <ToolOptions>
+        <InterfaceProperties>
+          <SwdClock>4000000</SwdClock>
+        </InterfaceProperties>
+        <InterfaceName>
+        </InterfaceName>
+      </ToolOptions>
+      <ToolType>custom</ToolType>
+      <ToolNumber>
+      </ToolNumber>
+      <ToolName>Custom Programming Tool</ToolName>
+    </custom>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <ToolchainSettings>
@@ -271,7 +292,6 @@
       <Value>../hpl/tc</Value>
       <Value>../hpl/tcc</Value>
       <Value>../hri</Value>
-      <Value>../sleep_manager</Value>
       <Value>%24(PackRepoDir)\atmel\SAML22_DFP\1.2.77\include</Value>
     </ListValues>
   </armgcc.compiler.directories.IncludePaths>
@@ -316,7 +336,6 @@
       <Value>../hpl/tc</Value>
       <Value>../hpl/tcc</Value>
       <Value>../hri</Value>
-      <Value>../sleep_manager</Value>
       <Value>%24(PackRepoDir)\atmel\SAML22_DFP\1.2.77\include</Value>
     </ListValues>
   </armgcc.assembler.general.IncludePaths>
@@ -345,7 +364,6 @@
       <Value>../hpl/tc</Value>
       <Value>../hpl/tcc</Value>
       <Value>../hri</Value>
-      <Value>../sleep_manager</Value>
       <Value>%24(PackRepoDir)\atmel\SAML22_DFP\1.2.77\include</Value>
     </ListValues>
   </armgcc.preprocessingassembler.general.IncludePaths>
@@ -390,7 +408,6 @@
       <Value>../hpl/tc</Value>
       <Value>../hpl/tcc</Value>
       <Value>../hri</Value>
-      <Value>../sleep_manager</Value>
       <Value>%24(PackRepoDir)\atmel\SAML22_DFP\1.2.77\include</Value>
     </ListValues>
   </armgcc.compiler.directories.IncludePaths>
@@ -437,7 +454,6 @@
       <Value>../hpl/tc</Value>
       <Value>../hpl/tcc</Value>
       <Value>../hri</Value>
-      <Value>../sleep_manager</Value>
       <Value>%24(PackRepoDir)\atmel\SAML22_DFP\1.2.77\include</Value>
     </ListValues>
   </armgcc.assembler.general.IncludePaths>
@@ -467,7 +483,6 @@
       <Value>../hpl/tc</Value>
       <Value>../hpl/tcc</Value>
       <Value>../hri</Value>
-      <Value>../sleep_manager</Value>
       <Value>%24(PackRepoDir)\atmel\SAML22_DFP\1.2.77\include</Value>
     </ListValues>
   </armgcc.preprocessingassembler.general.IncludePaths>
@@ -533,9 +548,6 @@
     <Compile Include="Config\RTE_Components.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Config\sleep_manager_config.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="Device_Startup\startup_saml22.c">
       <SubType>compile</SubType>
     </Compile>
@@ -588,6 +600,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hal\include\hal_sleep.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hal\include\hal_timer.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hal\include\hpl_adc_async.h">
@@ -726,6 +741,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hal\src\hal_sleep.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="hal\src\hal_timer.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="hal\utils\include\compiler.h">
@@ -962,18 +980,6 @@
     <Compile Include="main.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="sleep_manager\sleep_manager.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="sleep_manager\sleep_manager.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="sleep_manager_main.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="sleep_manager_main.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="watch-library\watch.c">
       <SubType>compile</SubType>
     </Compile>
@@ -984,7 +990,6 @@
   <ItemGroup>
     <Folder Include="Config\" />
     <Folder Include="Device_Startup\" />
-    <Folder Include="documentation\" />
     <Folder Include="examples\" />
     <Folder Include="hal\" />
     <Folder Include="hal\documentation\" />
@@ -1011,7 +1016,6 @@
     <Folder Include="hpl\tcc\" />
     <Folder Include="hpl\tc\" />
     <Folder Include="hri\" />
-    <Folder Include="sleep_manager\" />
     <Folder Include="watch-library" />
   </ItemGroup>
   <ItemGroup>
@@ -1019,9 +1023,6 @@
       <SubType>compile</SubType>
     </None>
     <None Include="Device_Startup\saml22j18a_sram.ld">
-      <SubType>compile</SubType>
-    </None>
-    <None Include="documentation\sleep_manager.rst">
       <SubType>compile</SubType>
     </None>
     <None Include="hal\documentation\adc_sync.rst">
@@ -1040,6 +1041,9 @@
       <SubType>compile</SubType>
     </None>
     <None Include="hal\documentation\slcd_sync.rst">
+      <SubType>compile</SubType>
+    </None>
+    <None Include="hal\documentation\timer.rst">
       <SubType>compile</SubType>
     </None>
   </ItemGroup>

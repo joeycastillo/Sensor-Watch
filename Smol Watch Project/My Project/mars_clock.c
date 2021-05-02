@@ -10,7 +10,7 @@
 
 // note: mars time not working, committing just the earth clock.
 
-void update_display(Watch *watch, struct calendar_date_time date_time, bool local) {
+void update_display(Watch *watch, struct calendar_date_time date_time) {
 	char buf[6];
 	sprintf(&buf[0], "TE  %02d%02d", date_time.time.hour, date_time.time.min);
 	watch_display_string(watch, buf, 0);

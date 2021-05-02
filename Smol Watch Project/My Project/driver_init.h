@@ -30,6 +30,8 @@ extern "C" {
 #include <hal_i2c_m_sync.h>
 
 #include <hal_delay.h>
+#include <hal_timer.h>
+#include <hpl_tc_base.h>
 #include <hal_pwm.h>
 #include <hpl_tc_base.h>
 
@@ -42,6 +44,8 @@ extern struct adc_sync_descriptor ADC_0;
 extern struct calendar_descriptor CALENDAR_0;
 
 extern struct i2c_m_sync_desc I2C_0;
+
+extern struct timer_descriptor TIMER_0;
 
 extern struct pwm_descriptor PWM_0;
 
@@ -60,6 +64,8 @@ void I2C_0_init(void);
 void I2C_0_PORT_init(void);
 
 void delay_driver_init(void);
+
+void TIMER_0_init(void);
 
 void PWM_0_PORT_init(void);
 void PWM_0_CLOCK_init(void);

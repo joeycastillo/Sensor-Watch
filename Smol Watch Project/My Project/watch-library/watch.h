@@ -11,6 +11,9 @@
 #include <stdint.h>
 #include "hpl_calendar.h"
 #include "hal_ext_irq.h"
+#include "hal_timer.h"
+
+typedef void (*watch_tick_cb)(void);
 
 typedef struct Watch {
 	bool display_enabled;
@@ -37,15 +40,18 @@ void watch_disable_led(Watch *watch);
 void watch_set_led_color(uint16_t red, uint16_t green);
 void watch_set_led_red();
 void watch_set_led_green();
+void watch_set_led_off();
 
 void watch_enable_date_time(Watch *watch);
 void watch_set_date_time(struct calendar_date_time date_time);
 void watch_get_date_time(struct calendar_date_time *date_time);
 
+void watch_enable_tick(ext_irq_cb_t callback);
+
 void watch_enable_analog(Watch *watch, const uint8_t pin);
 
-void watch_enable_interrupts(Watch *watch);
-void watch_register_interrupt_callback(Watch *watch, const uint32_t pin, ext_irq_cb_t callback);
+void watch_enable_buttons(Watch *watch);
+void watch_register_button_callback(Watch *watch, const uint32_t pin, ext_irq_cb_t callback);
 
 void watch_enable_digital_input(const uint8_t pin);
 void watch_enable_digital_output(const uint8_t pin);

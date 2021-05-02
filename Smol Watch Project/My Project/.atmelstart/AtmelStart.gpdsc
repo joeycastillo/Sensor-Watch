@@ -48,6 +48,7 @@
         <file category="doc" condition="ARMCC, GCC, IAR" name="hal/documentation/i2c_master_sync.rst"/>
         <file category="doc" condition="ARMCC, GCC, IAR" name="hal/documentation/pwm.rst"/>
         <file category="doc" condition="ARMCC, GCC, IAR" name="hal/documentation/slcd_sync.rst"/>
+        <file category="doc" condition="ARMCC, GCC, IAR" name="hal/documentation/timer.rst"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="hal/include/hal_atomic.h"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="hal/include/hal_calendar.h"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="hal/include/hal_delay.h"/>
@@ -135,9 +136,6 @@
         <file category="header" condition="ARMCC, GCC, IAR" name="hri/hri_trng_l22.h"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="hri/hri_usb_l22.h"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="hri/hri_wdt_l22.h"/>
-        <file category="doc" condition="ARMCC, GCC, IAR" name="documentation/sleep_manager.rst"/>
-        <file category="source" condition="ARMCC, GCC, IAR" name="sleep_manager/sleep_manager.c"/>
-        <file category="header" condition="ARMCC, GCC, IAR" name="sleep_manager/sleep_manager.h"/>
         <file category="source" condition="ARMCC, GCC, IAR" name="main.c"/>
         <file category="source" condition="ARMCC, GCC, IAR" name="driver_init.c"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="driver_init.h"/>
@@ -146,6 +144,7 @@
         <file category="source" condition="ARMCC, GCC, IAR" name="examples/driver_examples.c"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="hal/include/hal_adc_sync.h"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="hal/include/hal_pwm.h"/>
+        <file category="header" condition="ARMCC, GCC, IAR" name="hal/include/hal_timer.h"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="hal/include/hpl_adc_async.h"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="hal/include/hpl_adc_sync.h"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="hal/include/hpl_calendar.h"/>
@@ -164,6 +163,7 @@
         <file category="source" condition="ARMCC, GCC, IAR" name="hal/src/hal_calendar.c"/>
         <file category="source" condition="ARMCC, GCC, IAR" name="hal/src/hal_ext_irq.c"/>
         <file category="source" condition="ARMCC, GCC, IAR" name="hal/src/hal_pwm.c"/>
+        <file category="source" condition="ARMCC, GCC, IAR" name="hal/src/hal_timer.c"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="hal/utils/include/parts.h"/>
         <file category="source" condition="ARMCC, GCC, IAR" name="hpl/adc/hpl_adc.c"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="hpl/adc/hpl_adc_base.h"/>
@@ -190,8 +190,6 @@
         <file category="header" condition="ARMCC, GCC, IAR" name="hpl/tc/hpl_tc_base.h"/>
         <file category="source" condition="ARMCC, GCC, IAR" name="hpl/tcc/hpl_tcc.c"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="hpl/tcc/hpl_tcc.h"/>
-        <file category="source" condition="ARMCC, GCC, IAR" name="sleep_manager_main.c"/>
-        <file category="header" condition="ARMCC, GCC, IAR" name="sleep_manager_main.h"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="atmel_start.h"/>
         <file category="source" condition="ARMCC, GCC, IAR" name="atmel_start.c"/>
         <file attr="config" category="header" condition="ARMCC, GCC, IAR" name="config/hpl_adc_config.h"/>
@@ -209,7 +207,6 @@
         <file attr="config" category="header" condition="ARMCC, GCC, IAR" name="config/hpl_tc_config.h"/>
         <file attr="config" category="header" condition="ARMCC, GCC, IAR" name="config/hpl_tcc_config.h"/>
         <file attr="config" category="header" condition="ARMCC, GCC, IAR" name="config/peripheral_clk_config.h"/>
-        <file attr="config" category="header" condition="ARMCC, GCC, IAR" name="config/sleep_manager_config.h"/>
         <file category="include" condition="ARMCC, GCC, IAR" name=""/>
         <file category="include" condition="ARMCC, GCC, IAR" name="config"/>
         <file category="include" condition="ARMCC, GCC, IAR" name="examples"/>
@@ -232,9 +229,6 @@
         <file category="include" condition="ARMCC, GCC, IAR" name="hpl/tc"/>
         <file category="include" condition="ARMCC, GCC, IAR" name="hpl/tcc"/>
         <file category="include" condition="ARMCC, GCC, IAR" name="hri"/>
-        <file category="include" condition="ARMCC, GCC, IAR" name=""/>
-        <file category="include" condition="ARMCC, GCC, IAR" name="config"/>
-        <file category="include" condition="ARMCC, GCC, IAR" name="sleep_manager"/>
         <file category="include" condition="ARMCC, GCC, IAR" name=""/>
       </files>
     </component>

@@ -18,14 +18,7 @@ board:
   device: SAML22J18A-AN
 details: null
 application: null
-middlewares:
-  SLEEP_MANAGER_0:
-    user_label: SLEEP_MANAGER_0
-    configuration: {}
-    definition: Atmel:Sleep_Manager:0.0.1::Sleep_manager
-    functionality: Sleep_Manager
-    api: Sleep-Manager:Sleep-Manager:API
-    dependencies: {}
+middlewares: {}
 drivers:
   ADC_0:
     user_label: ADC_0
@@ -524,10 +517,10 @@ drivers:
     functionality: System
     api: HAL:HPL:GCLK
     configuration:
-      $input: 32768
-      $input_id: 32kHz External Crystal Oscillator (XOSC32K)
-      RESERVED_InputFreq: 32768
-      RESERVED_InputFreq_id: 32kHz External Crystal Oscillator (XOSC32K)
+      $input: 400000
+      $input_id: External Crystal Oscillator 0.4-32MHz (XOSC)
+      RESERVED_InputFreq: 400000
+      RESERVED_InputFreq_id: External Crystal Oscillator 0.4-32MHz (XOSC)
       _$freq_output_Generic clock generator 0: 4000000
       _$freq_output_Generic clock generator 1: 400000
       _$freq_output_Generic clock generator 2: 400000
@@ -638,9 +631,9 @@ drivers:
       xosc32k_arch_en1k: true
       xosc32k_arch_en32k: true
       xosc32k_arch_enable: true
-      xosc32k_arch_ondemand: true
+      xosc32k_arch_ondemand: false
       xosc32k_arch_runstdby: true
-      xosc32k_arch_startup: 2000092us
+      xosc32k_arch_startup: 1000092us
       xosc32k_arch_swben: false
       xosc32k_arch_xtalen: true
     optional_signals: []
@@ -866,6 +859,37 @@ drivers:
     variant: null
     clocks:
       domain_group: null
+  TIMER_0:
+    user_label: TIMER_0
+    definition: Atmel:SAML22_Drivers:0.0.1::SAML22J18A-AN::TC0::driver_config_definition::Timer::HAL:Driver:Timer
+    functionality: Timer
+    api: HAL:Driver:Timer
+    configuration:
+      tc_arch_dbgrun: false
+      tc_arch_evact: Event action disabled
+      tc_arch_mceo0: false
+      tc_arch_mceo1: false
+      tc_arch_ondemand: false
+      tc_arch_ovfeo: false
+      tc_arch_presync: Reload or reset counter on next GCLK
+      tc_arch_runstdby: true
+      tc_arch_tcei: false
+      tc_arch_tcinv: false
+      timer_advanced_configuration: true
+      timer_event_control: false
+      timer_prescaler: Divide by 2
+      timer_tick: 61
+    optional_signals: []
+    variant: null
+    clocks:
+      domain_group:
+        nodes:
+        - name: TC
+          input: Generic clock generator 3
+          external: false
+          external_frequency: 0
+        configuration:
+          tc_gclk_selection: Generic clock generator 3
   PWM_0:
     user_label: PWM_0
     definition: Atmel:SAML22_Drivers:0.0.1::SAML22J18A-AN::TC3::driver_config_definition::PWM::HAL:Driver:PWM
