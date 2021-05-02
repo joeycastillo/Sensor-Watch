@@ -13,7 +13,6 @@
 
 #include <hpl_adc_base.h>
 
-struct timer_descriptor     TIMER_0;
 struct slcd_sync_descriptor SEGMENT_LCD_0;
 
 struct adc_sync_descriptor ADC_0;
@@ -157,19 +156,6 @@ void I2C_0_init(void)
 void delay_driver_init(void)
 {
 	delay_init(SysTick);
-}
-
-/**
- * \brief Timer initialization function
- *
- * Enables Timer peripheral, clocks and initializes Timer driver
- */
-void TIMER_0_init(void)
-{
-	hri_mclk_set_APBCMASK_TC0_bit(MCLK);
-	hri_gclk_write_PCHCTRL_reg(GCLK, TC0_GCLK_ID, CONF_GCLK_TC0_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-
-	timer_init(&TIMER_0, TC0, _tc_get_timer());
 }
 
 void PWM_0_PORT_init(void)

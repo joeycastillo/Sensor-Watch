@@ -22,8 +22,6 @@ void I2C_0_example(void);
 
 void delay_example(void);
 
-void TIMER_0_example(void);
-
 void PWM_0_example(void);
 
 void PWM_1_example(void);

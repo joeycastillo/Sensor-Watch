@@ -239,22 +239,14 @@ void watch_get_date_time(struct calendar_date_time *date_time) {
 
 static ext_irq_cb_t tick_user_callback;
 
-static void tick_callback(const struct timer_task *const timer_task) {
+static void tick_callback(struct calendar_dev *const dev) {
 	tick_user_callback();
 }
 
-static struct timer_task tick_task;
-
 void watch_enable_tick(ext_irq_cb_t callback) {
-	TIMER_0_init();
-
-	tick_task.interval = 16384;
-	tick_task.cb = tick_callback;
-	tick_task.mode = TIMER_TASK_REPEAT;
 	tick_user_callback = callback;
-
-	timer_add_task(&TIMER_0, &tick_task);
-	timer_start(&TIMER_0);
+	// TODO: rename this method to reflect that it now sets the PER7 interrupt.
+	_tamper_register_callback(&CALENDAR_0.device, &tick_callback);
 }
 
 void watch_enable_analog(Watch *watch, const uint8_t pin) {

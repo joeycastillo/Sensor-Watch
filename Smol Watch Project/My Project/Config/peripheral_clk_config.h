@@ -146,32 +146,6 @@
 // <GCLK_PCHCTRL_GEN_GCLK4_Val"> Generic clock generator 4
 
 // <i> Select the clock source for TC.
-#ifndef CONF_GCLK_TC0_SRC
-#define CONF_GCLK_TC0_SRC GCLK_PCHCTRL_GEN_GCLK3_Val
-#endif
-
-/**
- * \def CONF_GCLK_TC0_FREQUENCY
- * \brief TC0's Clock frequency
- */
-#ifndef CONF_GCLK_TC0_FREQUENCY
-#define CONF_GCLK_TC0_FREQUENCY 32768
-#endif
-
-// <y> TC Clock Source
-// <id> tc_gclk_selection
-
-// <GCLK_PCHCTRL_GEN_GCLK0_Val"> Generic clock generator 0
-
-// <GCLK_PCHCTRL_GEN_GCLK1_Val"> Generic clock generator 1
-
-// <GCLK_PCHCTRL_GEN_GCLK2_Val"> Generic clock generator 2
-
-// <GCLK_PCHCTRL_GEN_GCLK3_Val"> Generic clock generator 3
-
-// <GCLK_PCHCTRL_GEN_GCLK4_Val"> Generic clock generator 4
-
-// <i> Select the clock source for TC.
 #ifndef CONF_GCLK_TC3_SRC
 #define CONF_GCLK_TC3_SRC GCLK_PCHCTRL_GEN_GCLK0_Val
 #endif

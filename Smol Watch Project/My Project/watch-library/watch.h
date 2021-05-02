@@ -11,9 +11,6 @@
 #include <stdint.h>
 #include "hpl_calendar.h"
 #include "hal_ext_irq.h"
-#include "hal_timer.h"
-
-typedef void (*watch_tick_cb)(void);
 
 typedef struct Watch {
 	bool display_enabled;

@@ -29,9 +29,11 @@ static void light_callback() {
 static void alarm_callback() {
 }
 
+int lightOn = 0;
+
 static void tick_callback() {
-	gpio_set_pin_level(GREEN, true);
-	gpio_set_pin_level(GREEN, false);
+	gpio_set_pin_level(GREEN, lightOn == 0);
+	lightOn = (lightOn + 1) % 10;
 }
 
 int main(void)
@@ -55,8 +57,6 @@ int main(void)
 	watch_register_button_callback(&watch, BTN_ALARM, &alarm_callback);
 	watch_register_button_callback(&watch, BTN_LIGHT, &light_callback);
 
-	watch_enable_tick(tick_callback);
-/*
 	watch_enable_date_time(&watch);
 	struct calendar_date_time date_time;
 	date_time.date.year = 2021;
@@ -74,7 +74,8 @@ int main(void)
 	alarm.callback = calendar_callback;
 	update_display(&watch, date_time);
 	calendar_set_alarm(&CALENDAR_0, &alarm, &calendar_callback);
-*/
+	watch_enable_tick(tick_callback);
+
 	while (1) {
 		sleep(2);
 	}

@@ -859,37 +859,6 @@ drivers:
     variant: null
     clocks:
       domain_group: null
-  TIMER_0:
-    user_label: TIMER_0
-    definition: Atmel:SAML22_Drivers:0.0.1::SAML22J18A-AN::TC0::driver_config_definition::Timer::HAL:Driver:Timer
-    functionality: Timer
-    api: HAL:Driver:Timer
-    configuration:
-      tc_arch_dbgrun: false
-      tc_arch_evact: Event action disabled
-      tc_arch_mceo0: false
-      tc_arch_mceo1: false
-      tc_arch_ondemand: false
-      tc_arch_ovfeo: false
-      tc_arch_presync: Reload or reset counter on next GCLK
-      tc_arch_runstdby: true
-      tc_arch_tcei: false
-      tc_arch_tcinv: false
-      timer_advanced_configuration: true
-      timer_event_control: false
-      timer_prescaler: Divide by 2
-      timer_tick: 61
-    optional_signals: []
-    variant: null
-    clocks:
-      domain_group:
-        nodes:
-        - name: TC
-          input: Generic clock generator 3
-          external: false
-          external_frequency: 0
-        configuration:
-          tc_gclk_selection: Generic clock generator 3
   PWM_0:
     user_label: PWM_0
     definition: Atmel:SAML22_Drivers:0.0.1::SAML22J18A-AN::TC3::driver_config_definition::PWM::HAL:Driver:PWM

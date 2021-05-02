@@ -316,10 +316,10 @@ int32_t _tamper_register_callback(struct calendar_dev *const dev, tamper_drv_cb_
 		NVIC_EnableIRQ(RTC_IRQn);
 
 		/* enable tamper interrupt */
-		hri_rtcmode0_set_INTEN_TAMPER_bit(dev->hw);
+		hri_rtcmode0_set_INTEN_PER7_bit(dev->hw);
 	} else {
 		/* disable tamper interrupt */
-		hri_rtcmode0_clear_INTEN_TAMPER_bit(dev->hw);
+		hri_rtcmode0_clear_INTEN_PER7_bit(dev->hw);
 
 		/* disable RTC_IRQn */
 		NVIC_DisableIRQ(RTC_IRQn);
@@ -372,11 +372,11 @@ static void _rtc_interrupt_handler(struct calendar_dev *dev)
 
 		/* Clear interrupt flag */
 		hri_rtcmode0_clear_interrupt_CMP0_bit(dev->hw);
-	} else if ((interrupt_status & interrupt_enabled) & RTC_MODE2_INTFLAG_TAMPER) {
+	} else if ((interrupt_status & interrupt_enabled) & RTC_MODE2_INTFLAG_PER7) {
 		dev->callback_tamper(dev);
 
 		/* Clear interrupt flag */
-		hri_rtcmode0_clear_interrupt_TAMPER_bit(dev->hw);
+		hri_rtcmode0_clear_interrupt_PER7_bit(dev->hw);
 	}
 }
 /**
