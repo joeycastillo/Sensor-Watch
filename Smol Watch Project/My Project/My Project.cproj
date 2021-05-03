@@ -202,7 +202,7 @@
           <AcmeProjectActionInfo Action="File" Source="config/hpl_port_config.h" IsConfig="true" Hash="rMTNR+5FXtu+wfT1NbfRRA" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_rtc_config.h" IsConfig="true" Hash="oTcobT9ydLDOqfpwUidHvg" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_sercom_config.h" IsConfig="true" Hash="x/EmsaDJwEm2EI8zXUSlWw" />
-          <AcmeProjectActionInfo Action="File" Source="config/hpl_slcd_config.h" IsConfig="true" Hash="ErbI2VSUDy3ufREFJTO9Uw" />
+          <AcmeProjectActionInfo Action="File" Source="config/hpl_slcd_config.h" IsConfig="true" Hash="dUpqyZg3KRMbt3sjYhNt1Q" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_systick_config.h" IsConfig="true" Hash="tlT3lNDKWFe82MiGWfQzcA" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_tc_config.h" IsConfig="true" Hash="s9fqdoBaH2BH7Id2JoCHTg" />
           <AcmeProjectActionInfo Action="File" Source="config/hpl_tcc_config.h" IsConfig="true" Hash="5OifPvGmHqsckywrqS3ctQ" />

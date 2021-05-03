@@ -12,6 +12,6 @@
 
 void update_display(Watch *watch, struct calendar_date_time date_time) {
 	char buf[6];
-	sprintf(&buf[0], "TE  %02d%02d", date_time.time.hour, date_time.time.min);
+	sprintf(&buf[0], "TE  %02d%02d%02d", date_time.time.hour, date_time.time.min, date_time.time.sec);
 	watch_display_string(watch, buf, 0);
 }

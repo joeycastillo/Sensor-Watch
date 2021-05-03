@@ -979,7 +979,7 @@ drivers:
     functionality: Segment_LCD
     api: HAL:Driver:SLCD_Sync
     configuration:
-      slcd_arch_advanced_settings: false
+      slcd_arch_advanced_settings: true
       slcd_arch_bbd: 2
       slcd_arch_bben: true
       slcd_arch_bias: THIRD
@@ -1233,7 +1233,7 @@ drivers:
       slcd_arch_presc: '64'
       slcd_arch_prf: 250Hz
       slcd_arch_rrf: 2kHz
-      slcd_arch_runstdby: false
+      slcd_arch_runstdby: true
       slcd_arch_seg_num: 24
       slcd_arch_wmod: Low Power Waveform(frame-inversion)
       slcd_arch_xvlcd: false

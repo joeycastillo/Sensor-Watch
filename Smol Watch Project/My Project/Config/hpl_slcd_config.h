@@ -169,14 +169,14 @@
 // <e> Advanced configuration
 // <id> slcd_arch_advanced_settings
 #ifndef CONF_SLCD_ADVANCED_SETTINGS
-#define CONF_SLCD_ADVANCED_SETTINGS 0
+#define CONF_SLCD_ADVANCED_SETTINGS 1
 #endif
 
 // <q> Run in standby
 // <i> Indicates whether the SLCD will continue running in standby sleep mode or not
 // <id> slcd_arch_runstdby
 #ifndef CONF_SLCD_RUNSTDBY
-#define CONF_SLCD_RUNSTDBY 0
+#define CONF_SLCD_RUNSTDBY 1
 #endif
 
 // </e>

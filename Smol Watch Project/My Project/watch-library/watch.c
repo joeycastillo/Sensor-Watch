@@ -12,6 +12,8 @@
 
 void watch_init(Watch *watch) {
 	memset(watch, 0, sizeof(*watch));
+	SUPC->VREG.bit.SEL = 1;
+	while(!SUPC->STATUS.bit.VREGRDY);
 }
 
 const uint8_t Character_Set[] =
