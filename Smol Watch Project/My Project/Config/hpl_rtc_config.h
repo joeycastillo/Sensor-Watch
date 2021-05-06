@@ -15,7 +15,7 @@
 // <i> Note that the previous power down data in RTC is lost if it's enabled.
 // <id> rtc_arch_init_reset
 #ifndef CONF_RTC_INIT_RESET
-#define CONF_RTC_INIT_RESET 1
+#define CONF_RTC_INIT_RESET 0
 #endif
 
 // <o> Prescaler configuration
