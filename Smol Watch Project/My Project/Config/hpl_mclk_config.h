@@ -48,7 +48,7 @@
 // <MCLK_BUPDIV_BUPDIV_DIV128_Val"> Divide by 128
 // <id> mclk_arch_bupdiv
 #ifndef CONF_MCLK_BUPDIV
-#define CONF_MCLK_BUPDIV MCLK_BUPDIV_BUPDIV_DIV8_Val
+#define CONF_MCLK_BUPDIV MCLK_BUPDIV_BUPDIV_DIV1_Val
 #endif
 // </h>
 

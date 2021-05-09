@@ -517,10 +517,10 @@ drivers:
     functionality: System
     api: HAL:HPL:GCLK
     configuration:
-      $input: 32768
-      $input_id: 32kHz External Crystal Oscillator (XOSC32K)
-      RESERVED_InputFreq: 32768
-      RESERVED_InputFreq_id: 32kHz External Crystal Oscillator (XOSC32K)
+      $input: 400000
+      $input_id: External Crystal Oscillator 0.4-32MHz (XOSC)
+      RESERVED_InputFreq: 400000
+      RESERVED_InputFreq_id: External Crystal Oscillator 0.4-32MHz (XOSC)
       _$freq_output_Generic clock generator 0: 4000000
       _$freq_output_Generic clock generator 1: 400000
       _$freq_output_Generic clock generator 2: 400000
@@ -594,7 +594,7 @@ drivers:
       cpu_clock_source: Generic clock generator 0
       cpu_div: '1'
       enable_cpu_clock: true
-      mclk_arch_bupdiv: Divide by 8
+      mclk_arch_bupdiv: Divide by 1
       nvm_wait_states: '0'
     optional_signals: []
     variant: null
@@ -646,9 +646,9 @@ drivers:
     functionality: System
     api: HAL:HPL:OSCCTRL
     configuration:
-      $input: 32768
+      $input: 16000000
       $input_id: 32kHz External Crystal Oscillator (XOSC32K)
-      RESERVED_InputFreq: 32768
+      RESERVED_InputFreq: 16000000
       RESERVED_InputFreq_id: 32kHz External Crystal Oscillator (XOSC32K)
       _$freq_output_16MHz Internal Oscillator (OSC16M): 4000000
       _$freq_output_Digital Frequency Locked Loop (DFLL48M): 48000000

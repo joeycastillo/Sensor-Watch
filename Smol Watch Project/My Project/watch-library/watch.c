@@ -12,8 +12,12 @@
 
 void watch_init(Watch *watch) {
 	memset(watch, 0, sizeof(*watch));
+	// use switching regulator
 	SUPC->VREG.bit.SEL = 1;
 	while(!SUPC->STATUS.bit.VREGRDY);
+	// TODO: use performance level 0
+//	_set_performance_level(0);
+//	hri_pm_write_PLCFG_PLDIS_bit(PM, true);
 }
 
 const uint8_t Character_Set[] =
