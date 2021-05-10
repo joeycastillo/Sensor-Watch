@@ -646,9 +646,9 @@ drivers:
     functionality: System
     api: HAL:HPL:OSCCTRL
     configuration:
-      $input: 16000000
+      $input: 32768
       $input_id: 32kHz External Crystal Oscillator (XOSC32K)
-      RESERVED_InputFreq: 16000000
+      RESERVED_InputFreq: 32768
       RESERVED_InputFreq_id: 32kHz External Crystal Oscillator (XOSC32K)
       _$freq_output_16MHz Internal Oscillator (OSC16M): 4000000
       _$freq_output_Digital Frequency Locked Loop (DFLL48M): 48000000

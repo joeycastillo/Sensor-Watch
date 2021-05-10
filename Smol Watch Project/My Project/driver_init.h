@@ -30,7 +30,6 @@ extern "C" {
 #include <hal_i2c_m_sync.h>
 
 #include <hal_delay.h>
-#include <hpl_tc_base.h>
 #include <hal_pwm.h>
 #include <hpl_tc_base.h>
 

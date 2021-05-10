@@ -139,8 +139,8 @@
           <AcmeProjectActionInfo Action="File" Source="hri/hri_usb_l22.h" IsConfig="false" Hash="dPDK2Dcf/T+0icIbtTF0yg" />
           <AcmeProjectActionInfo Action="File" Source="hri/hri_wdt_l22.h" IsConfig="false" Hash="KpOZJ+68Hzj/dOLfx94n5g" />
           <AcmeProjectActionInfo Action="File" Source="main.c" IsConfig="false" Hash="k0AH7j+BrmdFhBPzCCMptA" />
-          <AcmeProjectActionInfo Action="File" Source="driver_init.c" IsConfig="false" Hash="Zw9TBuFm3x3YlHbeguapNQ" />
-          <AcmeProjectActionInfo Action="File" Source="driver_init.h" IsConfig="false" Hash="jGwg9E39uUvuPsyqQD0HpA" />
+          <AcmeProjectActionInfo Action="File" Source="driver_init.c" IsConfig="false" Hash="RTBFCGfRONzW/m85hpe4IA" />
+          <AcmeProjectActionInfo Action="File" Source="driver_init.h" IsConfig="false" Hash="4Dd+xLQL3xA5bugP6hkjbg" />
           <AcmeProjectActionInfo Action="File" Source="atmel_start_pins.h" IsConfig="false" Hash="5lmo1agoLOJW6nYY8SQiUQ" />
           <AcmeProjectActionInfo Action="File" Source="examples/driver_examples.h" IsConfig="false" Hash="vA0AOZ9ZthDRQ3WRx2TPBA" />
           <AcmeProjectActionInfo Action="File" Source="examples/driver_examples.c" IsConfig="false" Hash="tLQq4aGf9J1UF19OmI/x/Q" />

@@ -324,7 +324,6 @@ void system_init(void)
 
 	delay_driver_init();
 
-	TIMER_0_init();
 	PWM_0_init();
 
 	PWM_1_init();

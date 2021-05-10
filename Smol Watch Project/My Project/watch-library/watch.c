@@ -205,7 +205,8 @@ void watch_disable_led(Watch *watch) {
 	gpio_set_pin_function(GREEN, GPIO_PIN_FUNCTION_OFF);
 
 	pwm_disable(&PWM_0);
-	
+	hri_mclk_clear_APBCMASK_TC3_bit(MCLK);
+
 	watch->led_enabled = false;
 }
 
