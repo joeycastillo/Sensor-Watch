@@ -861,27 +861,53 @@ drivers:
       domain_group: null
   PWM_0:
     user_label: PWM_0
-    definition: Atmel:SAML22_Drivers:0.0.1::SAML22J18A-AN::TC3::driver_config_definition::PWM::HAL:Driver:PWM
+    definition: Atmel:SAML22_Drivers:0.0.1::SAML22J18A-AN::TC3::driver_config_definition::8-bit.Waveform.Mode::Lite:TC:PWM
     functionality: PWM
-    api: HAL:Driver:PWM
+    api: Lite:TC:PWM
     configuration:
-      tc_arch_alock: The Lock Update bit is not affected on overflow/underflow and
-        re-trigger event
-      tc_arch_dbgrun: false
-      tc_arch_evact: Event action disabled
-      tc_arch_mceo0: false
-      tc_arch_mceo1: false
-      tc_arch_ondemand: false
-      tc_arch_ovfeo: false
-      tc_arch_presync: Reload or reset counter on next GCLK
-      tc_arch_runstdby: false
-      tc_arch_tcei: false
-      tc_arch_tcinv: false
-      tc_arch_wave_duty_val: 500
-      tc_arch_wave_per_val: 1000
-      tc_mode: Counter in 16-bit mode
-      tc_prescaler: No division
-      timer_event_control: false
+      cc_cc0: 0
+      cc_cc1: 0
+      cc_control: false
+      count_control: false
+      count_count: 0
+      ctrla_alock: false
+      ctrla_capten0: false
+      ctrla_capten1: false
+      ctrla_control: false
+      ctrla_copen0: false
+      ctrla_copen1: false
+      ctrla_enable: true
+      ctrla_mode: 1
+      ctrla_ondemand: false
+      ctrla_prescaler: DIV1
+      ctrla_prescsync: GCLK
+      ctrla_runstdby: false
+      ctrlbset_cmd: NONE
+      ctrlbset_control: false
+      ctrlbset_dir: false
+      ctrlbset_lupd: false
+      ctrlbset_oneshot: false
+      ctrlc_inven0: false
+      ctrlc_inven1: false
+      dbgctrl_control: false
+      dbgctrl_dbgrun: false
+      drvctrl_control: false
+      evctrl_control: false
+      evctrl_evact: 'OFF'
+      evctrl_mceo0: false
+      evctrl_mceo1: false
+      evctrl_ovfeo: false
+      evctrl_tcei: false
+      evctrl_tcinv: false
+      intenset_control: false
+      intenset_err: false
+      intenset_mc0: false
+      intenset_mc1: false
+      intenset_ovf: false
+      per_control: false
+      per_per: 0
+      wave_control: false
+      wave_wavegen: NFRQ
     optional_signals:
     - identifier: PWM_0:WO/0
       pad: PA20

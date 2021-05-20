@@ -190,10 +190,15 @@ void watch_register_button_callback(Watch *watch, const uint32_t pin, ext_irq_cb
 void watch_enable_led(Watch *watch) {
 	if (watch->led_enabled) return;
 
+	PWM_0_CLOCK_init();
+	PWM_0_PORT_init();
 	PWM_0_init();
-	pwm_set_parameters(&PWM_0, 10000, 0);
-	pwm_enable(&PWM_0);
-	
+	TC3->COUNT8.CTRLA.reg = TC_CTRLA_SWRST;
+	TC3->COUNT8.CTRLA.bit.MODE |= TC_CTRLA_MODE_COUNT8_Val;
+	TC3->COUNT8.PER.reg = 255;
+	TC3->COUNT8.WAVE.reg = TC_WAVE_WAVEGEN_NPWM;
+	TC3->COUNT8.CTRLA.reg |= TC_CTRLA_ENABLE;
+
 	watch->led_enabled = true;
 	watch_set_led_off();
 }
@@ -204,23 +209,23 @@ void watch_disable_led(Watch *watch) {
 	gpio_set_pin_function(RED, GPIO_PIN_FUNCTION_OFF);
 	gpio_set_pin_function(GREEN, GPIO_PIN_FUNCTION_OFF);
 
-	pwm_disable(&PWM_0);
+	hri_tc_clear_CTRLA_ENABLE_bit(TC3);
 	hri_mclk_clear_APBCMASK_TC3_bit(MCLK);
 
 	watch->led_enabled = false;
 }
 
-void watch_set_led_color(uint16_t red, uint16_t green) {
-	TC3->COUNT16.CC[0].reg = red;
-	TC3->COUNT16.CC[1].reg = green;
+void watch_set_led_color(uint8_t red, uint8_t green) {
+	TC3->COUNT8.CC[0].reg = red;
+	TC3->COUNT8.CC[1].reg = green;
 }
 
 void watch_set_led_red() {
-	watch_set_led_color(65535, 0);
+	watch_set_led_color(255, 0);
 }
 
 void watch_set_led_green() {
-	watch_set_led_color(0, 65535);
+	watch_set_led_color(0, 255);
 }
 
 void watch_set_led_off() {

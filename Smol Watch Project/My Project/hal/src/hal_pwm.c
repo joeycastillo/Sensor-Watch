@@ -48,9 +48,8 @@ static void pwm_detect_fault(struct _pwm_device *device);
  */
 int32_t pwm_init(struct pwm_descriptor *const descr, void *const hw, struct _pwm_hpl_interface *const func)
 {
-	ASSERT(descr && hw && func);
-	descr->func = func;
-	descr->func->init(&descr->device, hw);
+	ASSERT(descr && hw);
+	_pwm_init(&descr->device, hw);
 	descr->device.callback.pwm_period_cb = pwm_period_expired;
 	descr->device.callback.pwm_error_cb  = pwm_detect_fault;
 	return ERR_NONE;
@@ -61,8 +60,8 @@ int32_t pwm_init(struct pwm_descriptor *const descr, void *const hw, struct _pwm
  */
 int32_t pwm_deinit(struct pwm_descriptor *const descr)
 {
-	ASSERT(descr && descr->func);
-	descr->func->deinit(&descr->device);
+	ASSERT(descr);
+	_pwm_deinit(&descr->device);
 
 	return ERR_NONE;
 }
@@ -72,11 +71,11 @@ int32_t pwm_deinit(struct pwm_descriptor *const descr)
  */
 int32_t pwm_enable(struct pwm_descriptor *const descr)
 {
-	ASSERT(descr && descr->func);
-	if (descr->func->is_pwm_enabled(&descr->device)) {
+	ASSERT(descr);
+	if (_pwm_is_enabled(&descr->device)) {
 		return ERR_DENIED;
 	}
-	descr->func->start_pwm(&descr->device);
+	_pwm_enable(&descr->device);
 
 	return ERR_NONE;
 }
@@ -86,11 +85,11 @@ int32_t pwm_enable(struct pwm_descriptor *const descr)
  */
 int32_t pwm_disable(struct pwm_descriptor *const descr)
 {
-	ASSERT(descr && descr->func);
-	if (!descr->func->is_pwm_enabled(&descr->device)) {
+	ASSERT(descr);
+	if (!_pwm_is_enabled(&descr->device)) {
 		return ERR_DENIED;
 	}
-	descr->func->stop_pwm(&descr->device);
+	_pwm_disable(&descr->device);
 
 	return ERR_NONE;
 }
@@ -112,8 +111,8 @@ int32_t pwm_register_callback(struct pwm_descriptor *const descr, enum pwm_callb
 	default:
 		return ERR_INVALID_ARG;
 	}
-	ASSERT(descr && descr->func);
-	descr->func->set_irq_state(&descr->device, (enum _pwm_callback_type)type, NULL != cb);
+	ASSERT(descr);
+	_pwm_set_irq_state(&descr->device, (enum _pwm_callback_type)type, NULL != cb);
 	return ERR_NONE;
 }
 
@@ -122,8 +121,8 @@ int32_t pwm_register_callback(struct pwm_descriptor *const descr, enum pwm_callb
  */
 int32_t pwm_set_parameters(struct pwm_descriptor *const descr, const pwm_period_t period, const pwm_period_t duty_cycle)
 {
-	ASSERT(descr && descr->func);
-	descr->func->set_pwm_param(&descr->device, period, duty_cycle);
+	ASSERT(descr);
+	_pwm_set_param(&descr->device, period, duty_cycle);
 	return ERR_NONE;
 }
 

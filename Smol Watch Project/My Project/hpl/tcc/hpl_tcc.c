@@ -124,21 +124,6 @@ static struct tcc_pwm_cfg _cfgs_pwm[1] = {
 static struct _pwm_device *_tcc0_dev = NULL;
 
 /**
- * \brief Set of pointer to hal_pwm helper functions
- */
-static struct _pwm_hpl_interface _tcc_pwm_functions = {
-    _tcc_pwm_init,
-    _tcc_pwm_deinit,
-    _tcc_start_pwm,
-    _tcc_stop_pwm,
-    _tcc_set_pwm_param,
-    _tcc_is_pwm_enabled,
-    _tcc_pwm_get_period,
-    _tcc_pwm_get_duty,
-    _tcc_pwm_set_irq_state,
-};
-
-/**
  * \brief Init irq param with the given tcc hardware instance
  */
 static void _tcc_init_irq_param(const void *const hw, void *dev)
@@ -150,7 +135,7 @@ static void _tcc_init_irq_param(const void *const hw, void *dev)
 /**
  * \brief Initialize TCC for PWM mode
  */
-int32_t _tcc_pwm_init(struct _pwm_device *const device, void *const hw)
+int32_t _pwm_init(struct _pwm_device *const device, void *const hw)
 {
 	struct tcc_cfg *cfg = _get_tcc_cfg(hw);
 	if (cfg == NULL) {
@@ -213,7 +198,7 @@ int32_t _tcc_pwm_init(struct _pwm_device *const device, void *const hw)
 /**
  * \brief De-initialize TCC for PWM mode
  */
-void _tcc_pwm_deinit(struct _pwm_device *const device)
+void _pwm_deinit(struct _pwm_device *const device)
 {
 	void *const         hw      = device->hw;
 	struct tcc_pwm_cfg *cfg_pwm = _get_tcc_pwm_cfg(hw);
@@ -226,21 +211,21 @@ void _tcc_pwm_deinit(struct _pwm_device *const device)
 /**
  * \brief Start PWM
  */
-void _tcc_start_pwm(struct _pwm_device *const device)
+void _pwm_enable(struct _pwm_device *const device)
 {
 	hri_tcc_set_CTRLA_ENABLE_bit(device->hw);
 }
 /**
  * \brief Stop PWM
  */
-void _tcc_stop_pwm(struct _pwm_device *const device)
+void _pwm_disable(struct _pwm_device *const device)
 {
 	hri_tcc_clear_CTRLA_ENABLE_bit(device->hw);
 }
 /**
  * \brief Set PWM parameter
  */
-void _tcc_set_pwm_param(struct _pwm_device *const device, const pwm_period_t period, const pwm_period_t duty_cycle)
+void _pwm_set_param(struct _pwm_device *const device, const pwm_period_t period, const pwm_period_t duty_cycle)
 {
 	void *const         hw      = device->hw;
 	struct tcc_pwm_cfg *cfg_pwm = _get_tcc_pwm_cfg(hw);
@@ -253,14 +238,14 @@ void _tcc_set_pwm_param(struct _pwm_device *const device, const pwm_period_t per
 /**
  * \brief Get pwm waveform period value
  */
-pwm_period_t _tcc_pwm_get_period(const struct _pwm_device *const device)
+pwm_period_t _pwm_get_period(const struct _pwm_device *const device)
 {
 	return (pwm_period_t)(hri_tcc_read_PERB_reg(device->hw));
 }
 /**
  * \brief Get pwm waveform duty cycle
  */
-uint32_t _tcc_pwm_get_duty(const struct _pwm_device *const device)
+uint32_t _pwm_get_duty(const struct _pwm_device *const device)
 {
 	void *const         hw      = device->hw;
 	struct tcc_pwm_cfg *cfg_pwm = _get_tcc_pwm_cfg(hw);
@@ -275,14 +260,14 @@ uint32_t _tcc_pwm_get_duty(const struct _pwm_device *const device)
 /**
  * \brief Check if PWM is running
  */
-bool _tcc_is_pwm_enabled(const struct _pwm_device *const device)
+bool _pwm_is_enabled(const struct _pwm_device *const device)
 {
 	return hri_tcc_get_CTRLA_ENABLE_bit(device->hw);
 }
 /**
  * \brief Enable/disable PWM interrupt
  */
-void _tcc_pwm_set_irq_state(struct _pwm_device *const device, const enum _pwm_callback_type type, const bool disable)
+void _pwm_set_irq_state(struct _pwm_device *const device, const enum _pwm_callback_type type, const bool disable)
 {
 	ASSERT(device);
 
@@ -306,7 +291,7 @@ struct _timer_hpl_interface *_tcc_get_timer(void)
  */
 struct _pwm_hpl_interface *_tcc_get_pwm(void)
 {
-	return &_tcc_pwm_functions;
+	return NULL;
 }
 /**
  * \internal TC interrupt handler for PWM

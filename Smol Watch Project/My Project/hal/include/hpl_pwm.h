@@ -97,6 +97,94 @@ struct _pwm_hpl_interface {
 	uint32_t (*pwm_get_duty)(const struct _pwm_device *const device);
 	void (*set_irq_state)(struct _pwm_device *const device, const enum _pwm_callback_type type, const bool disable);
 };
+/**
+ * \brief Initialize TC
+ *
+ * This function does low level TC configuration.
+ *
+ * \param[in] device The pointer to PWM device instance
+ * \param[in] hw The pointer to hardware instance
+ *
+ * \return Initialization status.
+ */
+int32_t _pwm_init(struct _pwm_device *const device, void *const hw);
+
+/**
+ * \brief Deinitialize TC
+ *
+ * \param[in] device The pointer to PWM device instance
+ */
+void _pwm_deinit(struct _pwm_device *const device);
+
+/**
+ * \brief Retrieve offset of the given tc hardware instance
+ *
+ * \param[in] device The pointer to PWM device instance
+ *
+ * \return The offset of the given tc hardware instance
+ */
+uint8_t _pwm_get_hardware_offset(const struct _pwm_device *const device);
+
+/**
+ * \brief Start hardware pwm
+ *
+ * \param[in] device The pointer to PWM device instance
+ */
+void _pwm_enable(struct _pwm_device *const device);
+
+/**
+ * \brief Stop hardware pwm
+ *
+ * \param[in] device The pointer to PWM device instance
+ */
+void _pwm_disable(struct _pwm_device *const device);
+
+/**
+ * \brief Set pwm parameter
+ *
+ * \param[in] device The pointer to PWM device instance
+ * \param[in] period Total period of one PWM cycle.
+ * \param[in] duty_cycle Period of PWM first half during one cycle.
+ */
+void _pwm_set_param(struct _pwm_device *const device, const pwm_period_t period, const pwm_period_t duty_cycle);
+
+/**
+ * \brief Check if pwm is working
+ *
+ * \param[in] device The pointer to PWM device instance
+ *
+ * \return Check status.
+ * \retval true The given pwm is working
+ * \retval false The given pwm is not working
+ */
+bool _pwm_is_enabled(const struct _pwm_device *const device);
+
+/**
+ * \brief Get pwm waveform period value
+ *
+ * \param[in] device The pointer to PWM device instance
+ *
+ * \return Period value.
+ */
+pwm_period_t _pwm_get_period(const struct _pwm_device *const device);
+
+/**
+ * \brief Get pwm waveform duty cycle value
+ *
+ * \param[in] device The pointer to PWM device instance
+ *
+ * \return Duty cycle value
+ */
+uint32_t _pwm_get_duty(const struct _pwm_device *const device);
+
+/**
+ * \brief Enable/disable PWM interrupt
+ *
+ * param[in] device The pointer to PWM device instance
+ * param[in] type The type of interrupt to disable/enable if applicable
+ * param[in] disable Enable or disable
+ */
+void _pwm_set_irq_state(struct _pwm_device *const device, const enum _pwm_callback_type type, const bool disable);
 
 #ifdef __cplusplus
 }

@@ -34,7 +34,7 @@ void watch_display_string(Watch *watch, char *string, uint8_t position);
 
 void watch_enable_led(Watch *watch);
 void watch_disable_led(Watch *watch);
-void watch_set_led_color(uint16_t red, uint16_t green);
+void watch_set_led_color(uint8_t red, uint8_t green);
 void watch_set_led_red();
 void watch_set_led_green();
 void watch_set_led_off();

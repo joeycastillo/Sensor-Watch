@@ -21,8 +21,6 @@ struct calendar_descriptor CALENDAR_0;
 
 struct i2c_m_sync_desc I2C_0;
 
-struct pwm_descriptor PWM_0;
-
 struct pwm_descriptor PWM_1;
 
 void ADC_0_PORT_init(void)
@@ -169,14 +167,8 @@ void PWM_0_PORT_init(void)
 void PWM_0_CLOCK_init(void)
 {
 	hri_mclk_set_APBCMASK_TC3_bit(MCLK);
-	hri_gclk_write_PCHCTRL_reg(GCLK, TC3_GCLK_ID, CONF_GCLK_TC3_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-}
 
-void PWM_0_init(void)
-{
-	PWM_0_CLOCK_init();
-	PWM_0_PORT_init();
-	pwm_init(&PWM_0, TC3, _tc_get_pwm());
+	hri_gclk_write_PCHCTRL_reg(GCLK, TC3_GCLK_ID, CONF_GCLK_TC3_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 }
 
 void PWM_1_PORT_init(void)
@@ -323,6 +315,10 @@ void system_init(void)
 	I2C_0_init();
 
 	delay_driver_init();
+
+	PWM_0_CLOCK_init();
+
+	PWM_0_PORT_init();
 
 	PWM_0_init();
 
