@@ -78,8 +78,6 @@ struct pwm_descriptor {
 	struct _pwm_device device;
 	/** PWM callback structure */
 	struct pwm_callbacks pwm_cb;
-	/** PWM HPL interface pointer */
-	struct _pwm_hpl_interface *func;
 };
 
 /** \brief Initialize the PWM HAL instance and hardware

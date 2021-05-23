@@ -3,7 +3,6 @@
 #include "watch-library/watch.h"
 #include "mars_clock.h"
 
-Watch watch;
 bool local = true;
 
 void calendar_callback(struct calendar_descriptor *const calendar) {
@@ -34,9 +33,9 @@ int main(void)
 {
 	atmel_start_init();
 
-	watch_init(&watch);
+	watch_init();
 
-	watch_enable_date_time(&watch);
+	watch_enable_date_time();
 	struct calendar_date_time date_time;
 	date_time.date.year = 2021;
 	date_time.date.month = 5;
@@ -45,29 +44,28 @@ int main(void)
 	date_time.time.min = 40;
 	date_time.time.sec = 0;
 	watch_set_date_time(date_time);
-	update_display(&watch, date_time, local);
+	update_display(date_time, local);
 	watch_enable_tick(tick_callback);
 
-	gpio_set_pin_level(RED, false);
-	gpio_set_pin_direction(RED, GPIO_DIRECTION_OUT);
-	gpio_set_pin_function(RED, GPIO_PIN_FUNCTION_OFF);
-	gpio_set_pin_level(GREEN, false);
-	gpio_set_pin_direction(GREEN, GPIO_DIRECTION_OUT);
-	gpio_set_pin_function(GREEN, GPIO_PIN_FUNCTION_OFF);
+	watch_enable_led();
 
-	watch_enable_buttons(&watch);
-	watch_register_button_callback(&watch, BTN_MODE, &mode_callback);
-	watch_register_button_callback(&watch, BTN_ALARM, &alarm_callback);
-	watch_register_button_callback(&watch, BTN_LIGHT, &light_callback);
+	watch_enable_buttons();
+	watch_register_button_callback(BTN_MODE, &mode_callback);
+	watch_register_button_callback(BTN_ALARM, &alarm_callback);
+	watch_register_button_callback(BTN_LIGHT, &light_callback);
 
-	watch_enable_display(&watch);
-	watch_display_pixel(&watch, 1, 16);
+	watch_enable_display();
+	watch_display_pixel(1, 16);
 
 	while (1) {
-		sleep(4);
+		if (watch_can_enter_standby()) {
+			sleep(4);
+		} else {
+			sleep(2);
+		}
 		struct calendar_date_time date_time;
 		calendar_get_date_time(&CALENDAR_0, &date_time);
-		update_display(&watch, date_time, local);
+		update_display(date_time, local);
 	}
 	
 	return 0;

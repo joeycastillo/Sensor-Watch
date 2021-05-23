@@ -98,15 +98,6 @@ void delay_example(void)
 }
 
 /**
- * Example of using PWM_0.
- */
-void PWM_0_example(void)
-{
-	pwm_set_parameters(&PWM_0, 10000, 5000);
-	pwm_enable(&PWM_0);
-}
-
-/**
  * Example of using PWM_1.
  */
 void PWM_1_example(void)

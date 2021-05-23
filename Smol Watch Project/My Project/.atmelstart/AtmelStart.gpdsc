@@ -101,6 +101,7 @@
         <file category="source" condition="ARMCC, GCC, IAR" name="hal/utils/src/utils_event.c"/>
         <file category="source" condition="ARMCC, GCC, IAR" name="hal/utils/src/utils_list.c"/>
         <file category="source" condition="GCC" name="hal/utils/src/utils_syscalls.c"/>
+        <file category="doc" condition="ARMCC, GCC, IAR" name="hpl/doc_lite/tc.rst"/>
         <file category="source" condition="ARMCC, GCC, IAR" name="hpl/slcd/hpl_slcd.c"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="hpl/slcd/hpl_slcd_cm.h"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="hri/hri_ac_l22.h"/>
@@ -183,8 +184,8 @@
         <file category="header" condition="ARMCC, GCC, IAR" name="hpl/slcd/hpl_slcd_cm_14_seg_mapping.h"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="hpl/slcd/hpl_slcd_cm_7_seg_mapping.h"/>
         <file category="source" condition="ARMCC, GCC, IAR" name="hpl/systick/hpl_systick.c"/>
-        <file category="source" condition="ARMCC, GCC, IAR" name="hpl/tc/hpl_tc.c"/>
-        <file category="header" condition="ARMCC, GCC, IAR" name="hpl/tc/hpl_tc_base.h"/>
+        <file category="source" condition="ARMCC, GCC, IAR" name="hpl/tc/tc_lite.c"/>
+        <file category="header" condition="ARMCC, GCC, IAR" name="hpl/tc/tc_lite.h"/>
         <file category="source" condition="ARMCC, GCC, IAR" name="hpl/tcc/hpl_tcc.c"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="hpl/tcc/hpl_tcc.h"/>
         <file category="header" condition="ARMCC, GCC, IAR" name="atmel_start.h"/>
@@ -201,7 +202,6 @@
         <file attr="config" category="header" condition="ARMCC, GCC, IAR" name="config/hpl_sercom_config.h"/>
         <file attr="config" category="header" condition="ARMCC, GCC, IAR" name="config/hpl_slcd_config.h"/>
         <file attr="config" category="header" condition="ARMCC, GCC, IAR" name="config/hpl_systick_config.h"/>
-        <file attr="config" category="header" condition="ARMCC, GCC, IAR" name="config/hpl_tc_config.h"/>
         <file attr="config" category="header" condition="ARMCC, GCC, IAR" name="config/hpl_tcc_config.h"/>
         <file attr="config" category="header" condition="ARMCC, GCC, IAR" name="config/peripheral_clk_config.h"/>
         <file category="include" condition="ARMCC, GCC, IAR" name=""/>

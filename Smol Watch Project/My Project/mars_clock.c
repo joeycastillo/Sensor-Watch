@@ -67,7 +67,7 @@ void h_to_hms(struct calendar_date_time *date_time, double h) {
 }
 
 
-void update_display(Watch *watch, struct calendar_date_time date_time, bool local) {
+void update_display(struct calendar_date_time date_time, bool local) {
 	char buf[6];
 	if (local) {
 		sprintf(&buf[0], "TE  %02d%02d%02d", date_time.time.hour, date_time.time.min, date_time.time.sec);
@@ -82,5 +82,5 @@ void update_display(Watch *watch, struct calendar_date_time date_time, bool loca
 		h_to_hms(&mars_time, mtc);
 		sprintf(&buf[0], "MA  %02d%02d%02d", mars_time.time.hour, mars_time.time.min, mars_time.time.sec);
 	}
-	watch_display_string(watch, buf, 0);
+	watch_display_string(buf, 0);
 }
