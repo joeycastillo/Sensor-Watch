@@ -3,39 +3,25 @@
  *
  * \brief Instance description for EVSYS
  *
- * Copyright (c) 2015 Atmel Corporation. All rights reserved.
+ * Copyright (c) 2018 Microchip Technology Inc.
  *
  * \asf_license_start
  *
  * \page License
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ * SPDX-License-Identifier: Apache-2.0
  *
- * 1. Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- * 3. The name of Atmel may not be used to endorse or promote products derived
- *    from this software without specific prior written permission.
- *
- * 4. This software may only be redistributed and used in connection with an
- *    Atmel microcontroller product.
- *
- * THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR IMPLIED
- * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
- * EXPRESSLY AND SPECIFICALLY DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
- * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
- * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the Licence at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * \asf_license_stop
  *
@@ -46,97 +32,97 @@
 
 /* ========== Register definition for EVSYS peripheral ========== */
 #if (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
-#define REG_EVSYS_CTRLA            (0x42000000U) /**< \brief (EVSYS) Control */
-#define REG_EVSYS_CHSTATUS         (0x4200000CU) /**< \brief (EVSYS) Channel Status */
-#define REG_EVSYS_INTENCLR         (0x42000010U) /**< \brief (EVSYS) Interrupt Enable Clear */
-#define REG_EVSYS_INTENSET         (0x42000014U) /**< \brief (EVSYS) Interrupt Enable Set */
-#define REG_EVSYS_INTFLAG          (0x42000018U) /**< \brief (EVSYS) Interrupt Flag Status and Clear */
-#define REG_EVSYS_SWEVT            (0x4200001CU) /**< \brief (EVSYS) Software Event */
-#define REG_EVSYS_CHANNEL0         (0x42000020U) /**< \brief (EVSYS) Channel 0 */
-#define REG_EVSYS_CHANNEL1         (0x42000024U) /**< \brief (EVSYS) Channel 1 */
-#define REG_EVSYS_CHANNEL2         (0x42000028U) /**< \brief (EVSYS) Channel 2 */
-#define REG_EVSYS_CHANNEL3         (0x4200002CU) /**< \brief (EVSYS) Channel 3 */
-#define REG_EVSYS_CHANNEL4         (0x42000030U) /**< \brief (EVSYS) Channel 4 */
-#define REG_EVSYS_CHANNEL5         (0x42000034U) /**< \brief (EVSYS) Channel 5 */
-#define REG_EVSYS_CHANNEL6         (0x42000038U) /**< \brief (EVSYS) Channel 6 */
-#define REG_EVSYS_CHANNEL7         (0x4200003CU) /**< \brief (EVSYS) Channel 7 */
-#define REG_EVSYS_USER0            (0x42000080U) /**< \brief (EVSYS) User Multiplexer 0 */
-#define REG_EVSYS_USER1            (0x42000084U) /**< \brief (EVSYS) User Multiplexer 1 */
-#define REG_EVSYS_USER2            (0x42000088U) /**< \brief (EVSYS) User Multiplexer 2 */
-#define REG_EVSYS_USER3            (0x4200008CU) /**< \brief (EVSYS) User Multiplexer 3 */
-#define REG_EVSYS_USER4            (0x42000090U) /**< \brief (EVSYS) User Multiplexer 4 */
-#define REG_EVSYS_USER5            (0x42000094U) /**< \brief (EVSYS) User Multiplexer 5 */
-#define REG_EVSYS_USER6            (0x42000098U) /**< \brief (EVSYS) User Multiplexer 6 */
-#define REG_EVSYS_USER7            (0x4200009CU) /**< \brief (EVSYS) User Multiplexer 7 */
-#define REG_EVSYS_USER8            (0x420000A0U) /**< \brief (EVSYS) User Multiplexer 8 */
-#define REG_EVSYS_USER9            (0x420000A4U) /**< \brief (EVSYS) User Multiplexer 9 */
-#define REG_EVSYS_USER10           (0x420000A8U) /**< \brief (EVSYS) User Multiplexer 10 */
-#define REG_EVSYS_USER11           (0x420000ACU) /**< \brief (EVSYS) User Multiplexer 11 */
-#define REG_EVSYS_USER12           (0x420000B0U) /**< \brief (EVSYS) User Multiplexer 12 */
-#define REG_EVSYS_USER13           (0x420000B4U) /**< \brief (EVSYS) User Multiplexer 13 */
-#define REG_EVSYS_USER14           (0x420000B8U) /**< \brief (EVSYS) User Multiplexer 14 */
-#define REG_EVSYS_USER15           (0x420000BCU) /**< \brief (EVSYS) User Multiplexer 15 */
-#define REG_EVSYS_USER16           (0x420000C0U) /**< \brief (EVSYS) User Multiplexer 16 */
-#define REG_EVSYS_USER17           (0x420000C4U) /**< \brief (EVSYS) User Multiplexer 17 */
-#define REG_EVSYS_USER18           (0x420000C8U) /**< \brief (EVSYS) User Multiplexer 18 */
-#define REG_EVSYS_USER19           (0x420000CCU) /**< \brief (EVSYS) User Multiplexer 19 */
-#define REG_EVSYS_USER20           (0x420000D0U) /**< \brief (EVSYS) User Multiplexer 20 */
-#define REG_EVSYS_USER21           (0x420000D4U) /**< \brief (EVSYS) User Multiplexer 21 */
-#define REG_EVSYS_USER22           (0x420000D8U) /**< \brief (EVSYS) User Multiplexer 22 */
-#define REG_EVSYS_USER23           (0x420000DCU) /**< \brief (EVSYS) User Multiplexer 23 */
-#define REG_EVSYS_USER24           (0x420000E0U) /**< \brief (EVSYS) User Multiplexer 24 */
-#define REG_EVSYS_USER25           (0x420000E4U) /**< \brief (EVSYS) User Multiplexer 25 */
-#define REG_EVSYS_USER26           (0x420000E8U) /**< \brief (EVSYS) User Multiplexer 26 */
-#define REG_EVSYS_USER27           (0x420000ECU) /**< \brief (EVSYS) User Multiplexer 27 */
-#define REG_EVSYS_USER28           (0x420000F0U) /**< \brief (EVSYS) User Multiplexer 28 */
-#define REG_EVSYS_USER29           (0x420000F4U) /**< \brief (EVSYS) User Multiplexer 29 */
-#define REG_EVSYS_USER30           (0x420000F8U) /**< \brief (EVSYS) User Multiplexer 30 */
+#define REG_EVSYS_CTRLA            (0x42000000) /**< \brief (EVSYS) Control */
+#define REG_EVSYS_CHSTATUS         (0x4200000C) /**< \brief (EVSYS) Channel Status */
+#define REG_EVSYS_INTENCLR         (0x42000010) /**< \brief (EVSYS) Interrupt Enable Clear */
+#define REG_EVSYS_INTENSET         (0x42000014) /**< \brief (EVSYS) Interrupt Enable Set */
+#define REG_EVSYS_INTFLAG          (0x42000018) /**< \brief (EVSYS) Interrupt Flag Status and Clear */
+#define REG_EVSYS_SWEVT            (0x4200001C) /**< \brief (EVSYS) Software Event */
+#define REG_EVSYS_CHANNEL0         (0x42000020) /**< \brief (EVSYS) Channel 0 */
+#define REG_EVSYS_CHANNEL1         (0x42000024) /**< \brief (EVSYS) Channel 1 */
+#define REG_EVSYS_CHANNEL2         (0x42000028) /**< \brief (EVSYS) Channel 2 */
+#define REG_EVSYS_CHANNEL3         (0x4200002C) /**< \brief (EVSYS) Channel 3 */
+#define REG_EVSYS_CHANNEL4         (0x42000030) /**< \brief (EVSYS) Channel 4 */
+#define REG_EVSYS_CHANNEL5         (0x42000034) /**< \brief (EVSYS) Channel 5 */
+#define REG_EVSYS_CHANNEL6         (0x42000038) /**< \brief (EVSYS) Channel 6 */
+#define REG_EVSYS_CHANNEL7         (0x4200003C) /**< \brief (EVSYS) Channel 7 */
+#define REG_EVSYS_USER0            (0x42000080) /**< \brief (EVSYS) User Multiplexer 0 */
+#define REG_EVSYS_USER1            (0x42000084) /**< \brief (EVSYS) User Multiplexer 1 */
+#define REG_EVSYS_USER2            (0x42000088) /**< \brief (EVSYS) User Multiplexer 2 */
+#define REG_EVSYS_USER3            (0x4200008C) /**< \brief (EVSYS) User Multiplexer 3 */
+#define REG_EVSYS_USER4            (0x42000090) /**< \brief (EVSYS) User Multiplexer 4 */
+#define REG_EVSYS_USER5            (0x42000094) /**< \brief (EVSYS) User Multiplexer 5 */
+#define REG_EVSYS_USER6            (0x42000098) /**< \brief (EVSYS) User Multiplexer 6 */
+#define REG_EVSYS_USER7            (0x4200009C) /**< \brief (EVSYS) User Multiplexer 7 */
+#define REG_EVSYS_USER8            (0x420000A0) /**< \brief (EVSYS) User Multiplexer 8 */
+#define REG_EVSYS_USER9            (0x420000A4) /**< \brief (EVSYS) User Multiplexer 9 */
+#define REG_EVSYS_USER10           (0x420000A8) /**< \brief (EVSYS) User Multiplexer 10 */
+#define REG_EVSYS_USER11           (0x420000AC) /**< \brief (EVSYS) User Multiplexer 11 */
+#define REG_EVSYS_USER12           (0x420000B0) /**< \brief (EVSYS) User Multiplexer 12 */
+#define REG_EVSYS_USER13           (0x420000B4) /**< \brief (EVSYS) User Multiplexer 13 */
+#define REG_EVSYS_USER14           (0x420000B8) /**< \brief (EVSYS) User Multiplexer 14 */
+#define REG_EVSYS_USER15           (0x420000BC) /**< \brief (EVSYS) User Multiplexer 15 */
+#define REG_EVSYS_USER16           (0x420000C0) /**< \brief (EVSYS) User Multiplexer 16 */
+#define REG_EVSYS_USER17           (0x420000C4) /**< \brief (EVSYS) User Multiplexer 17 */
+#define REG_EVSYS_USER18           (0x420000C8) /**< \brief (EVSYS) User Multiplexer 18 */
+#define REG_EVSYS_USER19           (0x420000CC) /**< \brief (EVSYS) User Multiplexer 19 */
+#define REG_EVSYS_USER20           (0x420000D0) /**< \brief (EVSYS) User Multiplexer 20 */
+#define REG_EVSYS_USER21           (0x420000D4) /**< \brief (EVSYS) User Multiplexer 21 */
+#define REG_EVSYS_USER22           (0x420000D8) /**< \brief (EVSYS) User Multiplexer 22 */
+#define REG_EVSYS_USER23           (0x420000DC) /**< \brief (EVSYS) User Multiplexer 23 */
+#define REG_EVSYS_USER24           (0x420000E0) /**< \brief (EVSYS) User Multiplexer 24 */
+#define REG_EVSYS_USER25           (0x420000E4) /**< \brief (EVSYS) User Multiplexer 25 */
+#define REG_EVSYS_USER26           (0x420000E8) /**< \brief (EVSYS) User Multiplexer 26 */
+#define REG_EVSYS_USER27           (0x420000EC) /**< \brief (EVSYS) User Multiplexer 27 */
+#define REG_EVSYS_USER28           (0x420000F0) /**< \brief (EVSYS) User Multiplexer 28 */
+#define REG_EVSYS_USER29           (0x420000F4) /**< \brief (EVSYS) User Multiplexer 29 */
+#define REG_EVSYS_USER30           (0x420000F8) /**< \brief (EVSYS) User Multiplexer 30 */
 #else
-#define REG_EVSYS_CTRLA            (*(RwReg8 *)0x42000000U) /**< \brief (EVSYS) Control */
-#define REG_EVSYS_CHSTATUS         (*(RoReg  *)0x4200000CU) /**< \brief (EVSYS) Channel Status */
-#define REG_EVSYS_INTENCLR         (*(RwReg  *)0x42000010U) /**< \brief (EVSYS) Interrupt Enable Clear */
-#define REG_EVSYS_INTENSET         (*(RwReg  *)0x42000014U) /**< \brief (EVSYS) Interrupt Enable Set */
-#define REG_EVSYS_INTFLAG          (*(RwReg  *)0x42000018U) /**< \brief (EVSYS) Interrupt Flag Status and Clear */
-#define REG_EVSYS_SWEVT            (*(WoReg  *)0x4200001CU) /**< \brief (EVSYS) Software Event */
-#define REG_EVSYS_CHANNEL0         (*(RwReg  *)0x42000020U) /**< \brief (EVSYS) Channel 0 */
-#define REG_EVSYS_CHANNEL1         (*(RwReg  *)0x42000024U) /**< \brief (EVSYS) Channel 1 */
-#define REG_EVSYS_CHANNEL2         (*(RwReg  *)0x42000028U) /**< \brief (EVSYS) Channel 2 */
-#define REG_EVSYS_CHANNEL3         (*(RwReg  *)0x4200002CU) /**< \brief (EVSYS) Channel 3 */
-#define REG_EVSYS_CHANNEL4         (*(RwReg  *)0x42000030U) /**< \brief (EVSYS) Channel 4 */
-#define REG_EVSYS_CHANNEL5         (*(RwReg  *)0x42000034U) /**< \brief (EVSYS) Channel 5 */
-#define REG_EVSYS_CHANNEL6         (*(RwReg  *)0x42000038U) /**< \brief (EVSYS) Channel 6 */
-#define REG_EVSYS_CHANNEL7         (*(RwReg  *)0x4200003CU) /**< \brief (EVSYS) Channel 7 */
-#define REG_EVSYS_USER0            (*(RwReg  *)0x42000080U) /**< \brief (EVSYS) User Multiplexer 0 */
-#define REG_EVSYS_USER1            (*(RwReg  *)0x42000084U) /**< \brief (EVSYS) User Multiplexer 1 */
-#define REG_EVSYS_USER2            (*(RwReg  *)0x42000088U) /**< \brief (EVSYS) User Multiplexer 2 */
-#define REG_EVSYS_USER3            (*(RwReg  *)0x4200008CU) /**< \brief (EVSYS) User Multiplexer 3 */
-#define REG_EVSYS_USER4            (*(RwReg  *)0x42000090U) /**< \brief (EVSYS) User Multiplexer 4 */
-#define REG_EVSYS_USER5            (*(RwReg  *)0x42000094U) /**< \brief (EVSYS) User Multiplexer 5 */
-#define REG_EVSYS_USER6            (*(RwReg  *)0x42000098U) /**< \brief (EVSYS) User Multiplexer 6 */
-#define REG_EVSYS_USER7            (*(RwReg  *)0x4200009CU) /**< \brief (EVSYS) User Multiplexer 7 */
-#define REG_EVSYS_USER8            (*(RwReg  *)0x420000A0U) /**< \brief (EVSYS) User Multiplexer 8 */
-#define REG_EVSYS_USER9            (*(RwReg  *)0x420000A4U) /**< \brief (EVSYS) User Multiplexer 9 */
-#define REG_EVSYS_USER10           (*(RwReg  *)0x420000A8U) /**< \brief (EVSYS) User Multiplexer 10 */
-#define REG_EVSYS_USER11           (*(RwReg  *)0x420000ACU) /**< \brief (EVSYS) User Multiplexer 11 */
-#define REG_EVSYS_USER12           (*(RwReg  *)0x420000B0U) /**< \brief (EVSYS) User Multiplexer 12 */
-#define REG_EVSYS_USER13           (*(RwReg  *)0x420000B4U) /**< \brief (EVSYS) User Multiplexer 13 */
-#define REG_EVSYS_USER14           (*(RwReg  *)0x420000B8U) /**< \brief (EVSYS) User Multiplexer 14 */
-#define REG_EVSYS_USER15           (*(RwReg  *)0x420000BCU) /**< \brief (EVSYS) User Multiplexer 15 */
-#define REG_EVSYS_USER16           (*(RwReg  *)0x420000C0U) /**< \brief (EVSYS) User Multiplexer 16 */
-#define REG_EVSYS_USER17           (*(RwReg  *)0x420000C4U) /**< \brief (EVSYS) User Multiplexer 17 */
-#define REG_EVSYS_USER18           (*(RwReg  *)0x420000C8U) /**< \brief (EVSYS) User Multiplexer 18 */
-#define REG_EVSYS_USER19           (*(RwReg  *)0x420000CCU) /**< \brief (EVSYS) User Multiplexer 19 */
-#define REG_EVSYS_USER20           (*(RwReg  *)0x420000D0U) /**< \brief (EVSYS) User Multiplexer 20 */
-#define REG_EVSYS_USER21           (*(RwReg  *)0x420000D4U) /**< \brief (EVSYS) User Multiplexer 21 */
-#define REG_EVSYS_USER22           (*(RwReg  *)0x420000D8U) /**< \brief (EVSYS) User Multiplexer 22 */
-#define REG_EVSYS_USER23           (*(RwReg  *)0x420000DCU) /**< \brief (EVSYS) User Multiplexer 23 */
-#define REG_EVSYS_USER24           (*(RwReg  *)0x420000E0U) /**< \brief (EVSYS) User Multiplexer 24 */
-#define REG_EVSYS_USER25           (*(RwReg  *)0x420000E4U) /**< \brief (EVSYS) User Multiplexer 25 */
-#define REG_EVSYS_USER26           (*(RwReg  *)0x420000E8U) /**< \brief (EVSYS) User Multiplexer 26 */
-#define REG_EVSYS_USER27           (*(RwReg  *)0x420000ECU) /**< \brief (EVSYS) User Multiplexer 27 */
-#define REG_EVSYS_USER28           (*(RwReg  *)0x420000F0U) /**< \brief (EVSYS) User Multiplexer 28 */
-#define REG_EVSYS_USER29           (*(RwReg  *)0x420000F4U) /**< \brief (EVSYS) User Multiplexer 29 */
-#define REG_EVSYS_USER30           (*(RwReg  *)0x420000F8U) /**< \brief (EVSYS) User Multiplexer 30 */
+#define REG_EVSYS_CTRLA            (*(RwReg8 *)0x42000000UL) /**< \brief (EVSYS) Control */
+#define REG_EVSYS_CHSTATUS         (*(RoReg  *)0x4200000CUL) /**< \brief (EVSYS) Channel Status */
+#define REG_EVSYS_INTENCLR         (*(RwReg  *)0x42000010UL) /**< \brief (EVSYS) Interrupt Enable Clear */
+#define REG_EVSYS_INTENSET         (*(RwReg  *)0x42000014UL) /**< \brief (EVSYS) Interrupt Enable Set */
+#define REG_EVSYS_INTFLAG          (*(RwReg  *)0x42000018UL) /**< \brief (EVSYS) Interrupt Flag Status and Clear */
+#define REG_EVSYS_SWEVT            (*(WoReg  *)0x4200001CUL) /**< \brief (EVSYS) Software Event */
+#define REG_EVSYS_CHANNEL0         (*(RwReg  *)0x42000020UL) /**< \brief (EVSYS) Channel 0 */
+#define REG_EVSYS_CHANNEL1         (*(RwReg  *)0x42000024UL) /**< \brief (EVSYS) Channel 1 */
+#define REG_EVSYS_CHANNEL2         (*(RwReg  *)0x42000028UL) /**< \brief (EVSYS) Channel 2 */
+#define REG_EVSYS_CHANNEL3         (*(RwReg  *)0x4200002CUL) /**< \brief (EVSYS) Channel 3 */
+#define REG_EVSYS_CHANNEL4         (*(RwReg  *)0x42000030UL) /**< \brief (EVSYS) Channel 4 */
+#define REG_EVSYS_CHANNEL5         (*(RwReg  *)0x42000034UL) /**< \brief (EVSYS) Channel 5 */
+#define REG_EVSYS_CHANNEL6         (*(RwReg  *)0x42000038UL) /**< \brief (EVSYS) Channel 6 */
+#define REG_EVSYS_CHANNEL7         (*(RwReg  *)0x4200003CUL) /**< \brief (EVSYS) Channel 7 */
+#define REG_EVSYS_USER0            (*(RwReg  *)0x42000080UL) /**< \brief (EVSYS) User Multiplexer 0 */
+#define REG_EVSYS_USER1            (*(RwReg  *)0x42000084UL) /**< \brief (EVSYS) User Multiplexer 1 */
+#define REG_EVSYS_USER2            (*(RwReg  *)0x42000088UL) /**< \brief (EVSYS) User Multiplexer 2 */
+#define REG_EVSYS_USER3            (*(RwReg  *)0x4200008CUL) /**< \brief (EVSYS) User Multiplexer 3 */
+#define REG_EVSYS_USER4            (*(RwReg  *)0x42000090UL) /**< \brief (EVSYS) User Multiplexer 4 */
+#define REG_EVSYS_USER5            (*(RwReg  *)0x42000094UL) /**< \brief (EVSYS) User Multiplexer 5 */
+#define REG_EVSYS_USER6            (*(RwReg  *)0x42000098UL) /**< \brief (EVSYS) User Multiplexer 6 */
+#define REG_EVSYS_USER7            (*(RwReg  *)0x4200009CUL) /**< \brief (EVSYS) User Multiplexer 7 */
+#define REG_EVSYS_USER8            (*(RwReg  *)0x420000A0UL) /**< \brief (EVSYS) User Multiplexer 8 */
+#define REG_EVSYS_USER9            (*(RwReg  *)0x420000A4UL) /**< \brief (EVSYS) User Multiplexer 9 */
+#define REG_EVSYS_USER10           (*(RwReg  *)0x420000A8UL) /**< \brief (EVSYS) User Multiplexer 10 */
+#define REG_EVSYS_USER11           (*(RwReg  *)0x420000ACUL) /**< \brief (EVSYS) User Multiplexer 11 */
+#define REG_EVSYS_USER12           (*(RwReg  *)0x420000B0UL) /**< \brief (EVSYS) User Multiplexer 12 */
+#define REG_EVSYS_USER13           (*(RwReg  *)0x420000B4UL) /**< \brief (EVSYS) User Multiplexer 13 */
+#define REG_EVSYS_USER14           (*(RwReg  *)0x420000B8UL) /**< \brief (EVSYS) User Multiplexer 14 */
+#define REG_EVSYS_USER15           (*(RwReg  *)0x420000BCUL) /**< \brief (EVSYS) User Multiplexer 15 */
+#define REG_EVSYS_USER16           (*(RwReg  *)0x420000C0UL) /**< \brief (EVSYS) User Multiplexer 16 */
+#define REG_EVSYS_USER17           (*(RwReg  *)0x420000C4UL) /**< \brief (EVSYS) User Multiplexer 17 */
+#define REG_EVSYS_USER18           (*(RwReg  *)0x420000C8UL) /**< \brief (EVSYS) User Multiplexer 18 */
+#define REG_EVSYS_USER19           (*(RwReg  *)0x420000CCUL) /**< \brief (EVSYS) User Multiplexer 19 */
+#define REG_EVSYS_USER20           (*(RwReg  *)0x420000D0UL) /**< \brief (EVSYS) User Multiplexer 20 */
+#define REG_EVSYS_USER21           (*(RwReg  *)0x420000D4UL) /**< \brief (EVSYS) User Multiplexer 21 */
+#define REG_EVSYS_USER22           (*(RwReg  *)0x420000D8UL) /**< \brief (EVSYS) User Multiplexer 22 */
+#define REG_EVSYS_USER23           (*(RwReg  *)0x420000DCUL) /**< \brief (EVSYS) User Multiplexer 23 */
+#define REG_EVSYS_USER24           (*(RwReg  *)0x420000E0UL) /**< \brief (EVSYS) User Multiplexer 24 */
+#define REG_EVSYS_USER25           (*(RwReg  *)0x420000E4UL) /**< \brief (EVSYS) User Multiplexer 25 */
+#define REG_EVSYS_USER26           (*(RwReg  *)0x420000E8UL) /**< \brief (EVSYS) User Multiplexer 26 */
+#define REG_EVSYS_USER27           (*(RwReg  *)0x420000ECUL) /**< \brief (EVSYS) User Multiplexer 27 */
+#define REG_EVSYS_USER28           (*(RwReg  *)0x420000F0UL) /**< \brief (EVSYS) User Multiplexer 28 */
+#define REG_EVSYS_USER29           (*(RwReg  *)0x420000F4UL) /**< \brief (EVSYS) User Multiplexer 29 */
+#define REG_EVSYS_USER30           (*(RwReg  *)0x420000F8UL) /**< \brief (EVSYS) User Multiplexer 30 */
 #endif /* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
 /* ========== Instance parameters for EVSYS peripheral ========== */
@@ -219,8 +205,6 @@
 #define EVSYS_ID_GEN_AC_COMP_0      56
 #define EVSYS_ID_GEN_AC_COMP_1      57
 #define EVSYS_ID_GEN_AC_WIN_0       58
-#define EVSYS_ID_GEN_PTC_EOC        59
-#define EVSYS_ID_GEN_PTC_WCOMP      60
 #define EVSYS_ID_GEN_SLCD_FC0OVERFLOW 61
 #define EVSYS_ID_GEN_SLCD_FC1OVERFLOW 62
 #define EVSYS_ID_GEN_SLCD_FC2OVERFLOW 63
@@ -231,7 +215,6 @@
 #define EVSYS_ID_GEN_CCL_LUTOUT_2   68
 #define EVSYS_ID_GEN_CCL_LUTOUT_3   69
 #define EVSYS_ID_GEN_PAC_ACCERR     70
-#define EVSYS_ID_GEN_TAL_BRK        71
 
 // USERS
 #define EVSYS_ID_USER_RTC_TAMPER    0
@@ -257,12 +240,10 @@
 #define EVSYS_ID_USER_ADC_SYNC      20
 #define EVSYS_ID_USER_AC_SOC_0      21
 #define EVSYS_ID_USER_AC_SOC_1      22
-#define EVSYS_ID_USER_PTC_STCONV    23
 #define EVSYS_ID_USER_CCL_LUTIN_0   24
 #define EVSYS_ID_USER_CCL_LUTIN_1   25
 #define EVSYS_ID_USER_CCL_LUTIN_2   26
 #define EVSYS_ID_USER_CCL_LUTIN_3   27
-#define EVSYS_ID_USER_TAL_BRK       28
 #define EVSYS_ID_USER_MTB_START     29
 #define EVSYS_ID_USER_MTB_STOP      30
 

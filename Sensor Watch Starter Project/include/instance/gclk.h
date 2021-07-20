@@ -3,39 +3,25 @@
  *
  * \brief Instance description for GCLK
  *
- * Copyright (c) 2015 Atmel Corporation. All rights reserved.
+ * Copyright (c) 2018 Microchip Technology Inc.
  *
  * \asf_license_start
  *
  * \page License
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ * SPDX-License-Identifier: Apache-2.0
  *
- * 1. Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- * 3. The name of Atmel may not be used to endorse or promote products derived
- *    from this software without specific prior written permission.
- *
- * 4. This software may only be redistributed and used in connection with an
- *    Atmel microcontroller product.
- *
- * THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR IMPLIED
- * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
- * EXPRESSLY AND SPECIFICALLY DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
- * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
- * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the Licence at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * \asf_license_stop
  *
@@ -46,81 +32,81 @@
 
 /* ========== Register definition for GCLK peripheral ========== */
 #if (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
-#define REG_GCLK_CTRLA             (0x40001C00U) /**< \brief (GCLK) Control */
-#define REG_GCLK_SYNCBUSY          (0x40001C04U) /**< \brief (GCLK) Synchronization Busy */
-#define REG_GCLK_GENCTRL0          (0x40001C20U) /**< \brief (GCLK) Generic Clock Generator Control 0 */
-#define REG_GCLK_GENCTRL1          (0x40001C24U) /**< \brief (GCLK) Generic Clock Generator Control 1 */
-#define REG_GCLK_GENCTRL2          (0x40001C28U) /**< \brief (GCLK) Generic Clock Generator Control 2 */
-#define REG_GCLK_GENCTRL3          (0x40001C2CU) /**< \brief (GCLK) Generic Clock Generator Control 3 */
-#define REG_GCLK_GENCTRL4          (0x40001C30U) /**< \brief (GCLK) Generic Clock Generator Control 4 */
-#define REG_GCLK_PCHCTRL0          (0x40001C80U) /**< \brief (GCLK) Peripheral Clock Control 0 */
-#define REG_GCLK_PCHCTRL1          (0x40001C84U) /**< \brief (GCLK) Peripheral Clock Control 1 */
-#define REG_GCLK_PCHCTRL2          (0x40001C88U) /**< \brief (GCLK) Peripheral Clock Control 2 */
-#define REG_GCLK_PCHCTRL3          (0x40001C8CU) /**< \brief (GCLK) Peripheral Clock Control 3 */
-#define REG_GCLK_PCHCTRL4          (0x40001C90U) /**< \brief (GCLK) Peripheral Clock Control 4 */
-#define REG_GCLK_PCHCTRL5          (0x40001C94U) /**< \brief (GCLK) Peripheral Clock Control 5 */
-#define REG_GCLK_PCHCTRL6          (0x40001C98U) /**< \brief (GCLK) Peripheral Clock Control 6 */
-#define REG_GCLK_PCHCTRL7          (0x40001C9CU) /**< \brief (GCLK) Peripheral Clock Control 7 */
-#define REG_GCLK_PCHCTRL8          (0x40001CA0U) /**< \brief (GCLK) Peripheral Clock Control 8 */
-#define REG_GCLK_PCHCTRL9          (0x40001CA4U) /**< \brief (GCLK) Peripheral Clock Control 9 */
-#define REG_GCLK_PCHCTRL10         (0x40001CA8U) /**< \brief (GCLK) Peripheral Clock Control 10 */
-#define REG_GCLK_PCHCTRL11         (0x40001CACU) /**< \brief (GCLK) Peripheral Clock Control 11 */
-#define REG_GCLK_PCHCTRL12         (0x40001CB0U) /**< \brief (GCLK) Peripheral Clock Control 12 */
-#define REG_GCLK_PCHCTRL13         (0x40001CB4U) /**< \brief (GCLK) Peripheral Clock Control 13 */
-#define REG_GCLK_PCHCTRL14         (0x40001CB8U) /**< \brief (GCLK) Peripheral Clock Control 14 */
-#define REG_GCLK_PCHCTRL15         (0x40001CBCU) /**< \brief (GCLK) Peripheral Clock Control 15 */
-#define REG_GCLK_PCHCTRL16         (0x40001CC0U) /**< \brief (GCLK) Peripheral Clock Control 16 */
-#define REG_GCLK_PCHCTRL17         (0x40001CC4U) /**< \brief (GCLK) Peripheral Clock Control 17 */
-#define REG_GCLK_PCHCTRL18         (0x40001CC8U) /**< \brief (GCLK) Peripheral Clock Control 18 */
-#define REG_GCLK_PCHCTRL19         (0x40001CCCU) /**< \brief (GCLK) Peripheral Clock Control 19 */
-#define REG_GCLK_PCHCTRL20         (0x40001CD0U) /**< \brief (GCLK) Peripheral Clock Control 20 */
-#define REG_GCLK_PCHCTRL21         (0x40001CD4U) /**< \brief (GCLK) Peripheral Clock Control 21 */
-#define REG_GCLK_PCHCTRL22         (0x40001CD8U) /**< \brief (GCLK) Peripheral Clock Control 22 */
-#define REG_GCLK_PCHCTRL23         (0x40001CDCU) /**< \brief (GCLK) Peripheral Clock Control 23 */
-#define REG_GCLK_PCHCTRL24         (0x40001CE0U) /**< \brief (GCLK) Peripheral Clock Control 24 */
-#define REG_GCLK_PCHCTRL25         (0x40001CE4U) /**< \brief (GCLK) Peripheral Clock Control 25 */
-#define REG_GCLK_PCHCTRL26         (0x40001CE8U) /**< \brief (GCLK) Peripheral Clock Control 26 */
-#define REG_GCLK_PCHCTRL27         (0x40001CECU) /**< \brief (GCLK) Peripheral Clock Control 27 */
-#define REG_GCLK_PCHCTRL28         (0x40001CF0U) /**< \brief (GCLK) Peripheral Clock Control 28 */
-#define REG_GCLK_PCHCTRL29         (0x40001CF4U) /**< \brief (GCLK) Peripheral Clock Control 29 */
+#define REG_GCLK_CTRLA             (0x40001C00) /**< \brief (GCLK) Control */
+#define REG_GCLK_SYNCBUSY          (0x40001C04) /**< \brief (GCLK) Synchronization Busy */
+#define REG_GCLK_GENCTRL0          (0x40001C20) /**< \brief (GCLK) Generic Clock Generator Control 0 */
+#define REG_GCLK_GENCTRL1          (0x40001C24) /**< \brief (GCLK) Generic Clock Generator Control 1 */
+#define REG_GCLK_GENCTRL2          (0x40001C28) /**< \brief (GCLK) Generic Clock Generator Control 2 */
+#define REG_GCLK_GENCTRL3          (0x40001C2C) /**< \brief (GCLK) Generic Clock Generator Control 3 */
+#define REG_GCLK_GENCTRL4          (0x40001C30) /**< \brief (GCLK) Generic Clock Generator Control 4 */
+#define REG_GCLK_PCHCTRL0          (0x40001C80) /**< \brief (GCLK) Peripheral Clock Control 0 */
+#define REG_GCLK_PCHCTRL1          (0x40001C84) /**< \brief (GCLK) Peripheral Clock Control 1 */
+#define REG_GCLK_PCHCTRL2          (0x40001C88) /**< \brief (GCLK) Peripheral Clock Control 2 */
+#define REG_GCLK_PCHCTRL3          (0x40001C8C) /**< \brief (GCLK) Peripheral Clock Control 3 */
+#define REG_GCLK_PCHCTRL4          (0x40001C90) /**< \brief (GCLK) Peripheral Clock Control 4 */
+#define REG_GCLK_PCHCTRL5          (0x40001C94) /**< \brief (GCLK) Peripheral Clock Control 5 */
+#define REG_GCLK_PCHCTRL6          (0x40001C98) /**< \brief (GCLK) Peripheral Clock Control 6 */
+#define REG_GCLK_PCHCTRL7          (0x40001C9C) /**< \brief (GCLK) Peripheral Clock Control 7 */
+#define REG_GCLK_PCHCTRL8          (0x40001CA0) /**< \brief (GCLK) Peripheral Clock Control 8 */
+#define REG_GCLK_PCHCTRL9          (0x40001CA4) /**< \brief (GCLK) Peripheral Clock Control 9 */
+#define REG_GCLK_PCHCTRL10         (0x40001CA8) /**< \brief (GCLK) Peripheral Clock Control 10 */
+#define REG_GCLK_PCHCTRL11         (0x40001CAC) /**< \brief (GCLK) Peripheral Clock Control 11 */
+#define REG_GCLK_PCHCTRL12         (0x40001CB0) /**< \brief (GCLK) Peripheral Clock Control 12 */
+#define REG_GCLK_PCHCTRL13         (0x40001CB4) /**< \brief (GCLK) Peripheral Clock Control 13 */
+#define REG_GCLK_PCHCTRL14         (0x40001CB8) /**< \brief (GCLK) Peripheral Clock Control 14 */
+#define REG_GCLK_PCHCTRL15         (0x40001CBC) /**< \brief (GCLK) Peripheral Clock Control 15 */
+#define REG_GCLK_PCHCTRL16         (0x40001CC0) /**< \brief (GCLK) Peripheral Clock Control 16 */
+#define REG_GCLK_PCHCTRL17         (0x40001CC4) /**< \brief (GCLK) Peripheral Clock Control 17 */
+#define REG_GCLK_PCHCTRL18         (0x40001CC8) /**< \brief (GCLK) Peripheral Clock Control 18 */
+#define REG_GCLK_PCHCTRL19         (0x40001CCC) /**< \brief (GCLK) Peripheral Clock Control 19 */
+#define REG_GCLK_PCHCTRL20         (0x40001CD0) /**< \brief (GCLK) Peripheral Clock Control 20 */
+#define REG_GCLK_PCHCTRL21         (0x40001CD4) /**< \brief (GCLK) Peripheral Clock Control 21 */
+#define REG_GCLK_PCHCTRL22         (0x40001CD8) /**< \brief (GCLK) Peripheral Clock Control 22 */
+#define REG_GCLK_PCHCTRL23         (0x40001CDC) /**< \brief (GCLK) Peripheral Clock Control 23 */
+#define REG_GCLK_PCHCTRL24         (0x40001CE0) /**< \brief (GCLK) Peripheral Clock Control 24 */
+#define REG_GCLK_PCHCTRL25         (0x40001CE4) /**< \brief (GCLK) Peripheral Clock Control 25 */
+#define REG_GCLK_PCHCTRL26         (0x40001CE8) /**< \brief (GCLK) Peripheral Clock Control 26 */
+#define REG_GCLK_PCHCTRL27         (0x40001CEC) /**< \brief (GCLK) Peripheral Clock Control 27 */
+#define REG_GCLK_PCHCTRL28         (0x40001CF0) /**< \brief (GCLK) Peripheral Clock Control 28 */
+#define REG_GCLK_PCHCTRL29         (0x40001CF4) /**< \brief (GCLK) Peripheral Clock Control 29 */
 #else
-#define REG_GCLK_CTRLA             (*(RwReg8 *)0x40001C00U) /**< \brief (GCLK) Control */
-#define REG_GCLK_SYNCBUSY          (*(RoReg  *)0x40001C04U) /**< \brief (GCLK) Synchronization Busy */
-#define REG_GCLK_GENCTRL0          (*(RwReg  *)0x40001C20U) /**< \brief (GCLK) Generic Clock Generator Control 0 */
-#define REG_GCLK_GENCTRL1          (*(RwReg  *)0x40001C24U) /**< \brief (GCLK) Generic Clock Generator Control 1 */
-#define REG_GCLK_GENCTRL2          (*(RwReg  *)0x40001C28U) /**< \brief (GCLK) Generic Clock Generator Control 2 */
-#define REG_GCLK_GENCTRL3          (*(RwReg  *)0x40001C2CU) /**< \brief (GCLK) Generic Clock Generator Control 3 */
-#define REG_GCLK_GENCTRL4          (*(RwReg  *)0x40001C30U) /**< \brief (GCLK) Generic Clock Generator Control 4 */
-#define REG_GCLK_PCHCTRL0          (*(RwReg  *)0x40001C80U) /**< \brief (GCLK) Peripheral Clock Control 0 */
-#define REG_GCLK_PCHCTRL1          (*(RwReg  *)0x40001C84U) /**< \brief (GCLK) Peripheral Clock Control 1 */
-#define REG_GCLK_PCHCTRL2          (*(RwReg  *)0x40001C88U) /**< \brief (GCLK) Peripheral Clock Control 2 */
-#define REG_GCLK_PCHCTRL3          (*(RwReg  *)0x40001C8CU) /**< \brief (GCLK) Peripheral Clock Control 3 */
-#define REG_GCLK_PCHCTRL4          (*(RwReg  *)0x40001C90U) /**< \brief (GCLK) Peripheral Clock Control 4 */
-#define REG_GCLK_PCHCTRL5          (*(RwReg  *)0x40001C94U) /**< \brief (GCLK) Peripheral Clock Control 5 */
-#define REG_GCLK_PCHCTRL6          (*(RwReg  *)0x40001C98U) /**< \brief (GCLK) Peripheral Clock Control 6 */
-#define REG_GCLK_PCHCTRL7          (*(RwReg  *)0x40001C9CU) /**< \brief (GCLK) Peripheral Clock Control 7 */
-#define REG_GCLK_PCHCTRL8          (*(RwReg  *)0x40001CA0U) /**< \brief (GCLK) Peripheral Clock Control 8 */
-#define REG_GCLK_PCHCTRL9          (*(RwReg  *)0x40001CA4U) /**< \brief (GCLK) Peripheral Clock Control 9 */
-#define REG_GCLK_PCHCTRL10         (*(RwReg  *)0x40001CA8U) /**< \brief (GCLK) Peripheral Clock Control 10 */
-#define REG_GCLK_PCHCTRL11         (*(RwReg  *)0x40001CACU) /**< \brief (GCLK) Peripheral Clock Control 11 */
-#define REG_GCLK_PCHCTRL12         (*(RwReg  *)0x40001CB0U) /**< \brief (GCLK) Peripheral Clock Control 12 */
-#define REG_GCLK_PCHCTRL13         (*(RwReg  *)0x40001CB4U) /**< \brief (GCLK) Peripheral Clock Control 13 */
-#define REG_GCLK_PCHCTRL14         (*(RwReg  *)0x40001CB8U) /**< \brief (GCLK) Peripheral Clock Control 14 */
-#define REG_GCLK_PCHCTRL15         (*(RwReg  *)0x40001CBCU) /**< \brief (GCLK) Peripheral Clock Control 15 */
-#define REG_GCLK_PCHCTRL16         (*(RwReg  *)0x40001CC0U) /**< \brief (GCLK) Peripheral Clock Control 16 */
-#define REG_GCLK_PCHCTRL17         (*(RwReg  *)0x40001CC4U) /**< \brief (GCLK) Peripheral Clock Control 17 */
-#define REG_GCLK_PCHCTRL18         (*(RwReg  *)0x40001CC8U) /**< \brief (GCLK) Peripheral Clock Control 18 */
-#define REG_GCLK_PCHCTRL19         (*(RwReg  *)0x40001CCCU) /**< \brief (GCLK) Peripheral Clock Control 19 */
-#define REG_GCLK_PCHCTRL20         (*(RwReg  *)0x40001CD0U) /**< \brief (GCLK) Peripheral Clock Control 20 */
-#define REG_GCLK_PCHCTRL21         (*(RwReg  *)0x40001CD4U) /**< \brief (GCLK) Peripheral Clock Control 21 */
-#define REG_GCLK_PCHCTRL22         (*(RwReg  *)0x40001CD8U) /**< \brief (GCLK) Peripheral Clock Control 22 */
-#define REG_GCLK_PCHCTRL23         (*(RwReg  *)0x40001CDCU) /**< \brief (GCLK) Peripheral Clock Control 23 */
-#define REG_GCLK_PCHCTRL24         (*(RwReg  *)0x40001CE0U) /**< \brief (GCLK) Peripheral Clock Control 24 */
-#define REG_GCLK_PCHCTRL25         (*(RwReg  *)0x40001CE4U) /**< \brief (GCLK) Peripheral Clock Control 25 */
-#define REG_GCLK_PCHCTRL26         (*(RwReg  *)0x40001CE8U) /**< \brief (GCLK) Peripheral Clock Control 26 */
-#define REG_GCLK_PCHCTRL27         (*(RwReg  *)0x40001CECU) /**< \brief (GCLK) Peripheral Clock Control 27 */
-#define REG_GCLK_PCHCTRL28         (*(RwReg  *)0x40001CF0U) /**< \brief (GCLK) Peripheral Clock Control 28 */
-#define REG_GCLK_PCHCTRL29         (*(RwReg  *)0x40001CF4U) /**< \brief (GCLK) Peripheral Clock Control 29 */
+#define REG_GCLK_CTRLA             (*(RwReg8 *)0x40001C00UL) /**< \brief (GCLK) Control */
+#define REG_GCLK_SYNCBUSY          (*(RoReg  *)0x40001C04UL) /**< \brief (GCLK) Synchronization Busy */
+#define REG_GCLK_GENCTRL0          (*(RwReg  *)0x40001C20UL) /**< \brief (GCLK) Generic Clock Generator Control 0 */
+#define REG_GCLK_GENCTRL1          (*(RwReg  *)0x40001C24UL) /**< \brief (GCLK) Generic Clock Generator Control 1 */
+#define REG_GCLK_GENCTRL2          (*(RwReg  *)0x40001C28UL) /**< \brief (GCLK) Generic Clock Generator Control 2 */
+#define REG_GCLK_GENCTRL3          (*(RwReg  *)0x40001C2CUL) /**< \brief (GCLK) Generic Clock Generator Control 3 */
+#define REG_GCLK_GENCTRL4          (*(RwReg  *)0x40001C30UL) /**< \brief (GCLK) Generic Clock Generator Control 4 */
+#define REG_GCLK_PCHCTRL0          (*(RwReg  *)0x40001C80UL) /**< \brief (GCLK) Peripheral Clock Control 0 */
+#define REG_GCLK_PCHCTRL1          (*(RwReg  *)0x40001C84UL) /**< \brief (GCLK) Peripheral Clock Control 1 */
+#define REG_GCLK_PCHCTRL2          (*(RwReg  *)0x40001C88UL) /**< \brief (GCLK) Peripheral Clock Control 2 */
+#define REG_GCLK_PCHCTRL3          (*(RwReg  *)0x40001C8CUL) /**< \brief (GCLK) Peripheral Clock Control 3 */
+#define REG_GCLK_PCHCTRL4          (*(RwReg  *)0x40001C90UL) /**< \brief (GCLK) Peripheral Clock Control 4 */
+#define REG_GCLK_PCHCTRL5          (*(RwReg  *)0x40001C94UL) /**< \brief (GCLK) Peripheral Clock Control 5 */
+#define REG_GCLK_PCHCTRL6          (*(RwReg  *)0x40001C98UL) /**< \brief (GCLK) Peripheral Clock Control 6 */
+#define REG_GCLK_PCHCTRL7          (*(RwReg  *)0x40001C9CUL) /**< \brief (GCLK) Peripheral Clock Control 7 */
+#define REG_GCLK_PCHCTRL8          (*(RwReg  *)0x40001CA0UL) /**< \brief (GCLK) Peripheral Clock Control 8 */
+#define REG_GCLK_PCHCTRL9          (*(RwReg  *)0x40001CA4UL) /**< \brief (GCLK) Peripheral Clock Control 9 */
+#define REG_GCLK_PCHCTRL10         (*(RwReg  *)0x40001CA8UL) /**< \brief (GCLK) Peripheral Clock Control 10 */
+#define REG_GCLK_PCHCTRL11         (*(RwReg  *)0x40001CACUL) /**< \brief (GCLK) Peripheral Clock Control 11 */
+#define REG_GCLK_PCHCTRL12         (*(RwReg  *)0x40001CB0UL) /**< \brief (GCLK) Peripheral Clock Control 12 */
+#define REG_GCLK_PCHCTRL13         (*(RwReg  *)0x40001CB4UL) /**< \brief (GCLK) Peripheral Clock Control 13 */
+#define REG_GCLK_PCHCTRL14         (*(RwReg  *)0x40001CB8UL) /**< \brief (GCLK) Peripheral Clock Control 14 */
+#define REG_GCLK_PCHCTRL15         (*(RwReg  *)0x40001CBCUL) /**< \brief (GCLK) Peripheral Clock Control 15 */
+#define REG_GCLK_PCHCTRL16         (*(RwReg  *)0x40001CC0UL) /**< \brief (GCLK) Peripheral Clock Control 16 */
+#define REG_GCLK_PCHCTRL17         (*(RwReg  *)0x40001CC4UL) /**< \brief (GCLK) Peripheral Clock Control 17 */
+#define REG_GCLK_PCHCTRL18         (*(RwReg  *)0x40001CC8UL) /**< \brief (GCLK) Peripheral Clock Control 18 */
+#define REG_GCLK_PCHCTRL19         (*(RwReg  *)0x40001CCCUL) /**< \brief (GCLK) Peripheral Clock Control 19 */
+#define REG_GCLK_PCHCTRL20         (*(RwReg  *)0x40001CD0UL) /**< \brief (GCLK) Peripheral Clock Control 20 */
+#define REG_GCLK_PCHCTRL21         (*(RwReg  *)0x40001CD4UL) /**< \brief (GCLK) Peripheral Clock Control 21 */
+#define REG_GCLK_PCHCTRL22         (*(RwReg  *)0x40001CD8UL) /**< \brief (GCLK) Peripheral Clock Control 22 */
+#define REG_GCLK_PCHCTRL23         (*(RwReg  *)0x40001CDCUL) /**< \brief (GCLK) Peripheral Clock Control 23 */
+#define REG_GCLK_PCHCTRL24         (*(RwReg  *)0x40001CE0UL) /**< \brief (GCLK) Peripheral Clock Control 24 */
+#define REG_GCLK_PCHCTRL25         (*(RwReg  *)0x40001CE4UL) /**< \brief (GCLK) Peripheral Clock Control 25 */
+#define REG_GCLK_PCHCTRL26         (*(RwReg  *)0x40001CE8UL) /**< \brief (GCLK) Peripheral Clock Control 26 */
+#define REG_GCLK_PCHCTRL27         (*(RwReg  *)0x40001CECUL) /**< \brief (GCLK) Peripheral Clock Control 27 */
+#define REG_GCLK_PCHCTRL28         (*(RwReg  *)0x40001CF0UL) /**< \brief (GCLK) Peripheral Clock Control 28 */
+#define REG_GCLK_PCHCTRL29         (*(RwReg  *)0x40001CF4UL) /**< \brief (GCLK) Peripheral Clock Control 29 */
 #endif /* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
 /* ========== Instance parameters for GCLK peripheral ========== */
@@ -132,7 +118,7 @@
 #define GCLK_NUM                    30       // Number of Generic Clock Users
 #define GCLK_SOURCE_BITS            3       
 #define GCLK_SOURCE_DFLL48M         6       
-#define GCLK_SOURCE_FDPLL           7       
+#define GCLK_SOURCE_DPLL96M         7       
 #define GCLK_SOURCE_GCLKGEN1        2       
 #define GCLK_SOURCE_GCLKIN          1       
 #define GCLK_SOURCE_NUM             8        // Number of Generic Clock Sources

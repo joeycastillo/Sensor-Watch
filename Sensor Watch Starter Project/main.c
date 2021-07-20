@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2014-2017, Alex Taradov <alex@taradov.com>
+ * Copyright (c) 2021, Joey Castillo
+ * SAML22 starter project is Copyright (c) 2014-2017, Alex Taradov <alex@taradov.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

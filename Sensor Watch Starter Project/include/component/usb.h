@@ -3,39 +3,25 @@
  *
  * \brief Component description for USB
  *
- * Copyright (c) 2015 Atmel Corporation. All rights reserved.
+ * Copyright (c) 2018 Microchip Technology Inc.
  *
  * \asf_license_start
  *
  * \page License
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ * SPDX-License-Identifier: Apache-2.0
  *
- * 1. Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- * 3. The name of Atmel may not be used to endorse or promote products derived
- *    from this software without specific prior written permission.
- *
- * 4. This software may only be redistributed and used in connection with an
- *    Atmel microcontroller product.
- *
- * THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR IMPLIED
- * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
- * EXPRESSLY AND SPECIFICALLY DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
- * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
- * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the Licence at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * \asf_license_stop
  *
@@ -68,19 +54,19 @@ typedef union {
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
 #define USB_CTRLA_OFFSET            0x000        /**< \brief (USB_CTRLA offset) Control A */
-#define USB_CTRLA_RESETVALUE        0x00ul       /**< \brief (USB_CTRLA reset_value) Control A */
+#define USB_CTRLA_RESETVALUE        _U_(0x00)    /**< \brief (USB_CTRLA reset_value) Control A */
 
 #define USB_CTRLA_SWRST_Pos         0            /**< \brief (USB_CTRLA) Software Reset */
-#define USB_CTRLA_SWRST             (0x1ul << USB_CTRLA_SWRST_Pos)
+#define USB_CTRLA_SWRST             (_U_(0x1) << USB_CTRLA_SWRST_Pos)
 #define USB_CTRLA_ENABLE_Pos        1            /**< \brief (USB_CTRLA) Enable */
-#define USB_CTRLA_ENABLE            (0x1ul << USB_CTRLA_ENABLE_Pos)
+#define USB_CTRLA_ENABLE            (_U_(0x1) << USB_CTRLA_ENABLE_Pos)
 #define USB_CTRLA_RUNSTDBY_Pos      2            /**< \brief (USB_CTRLA) Run in Standby Mode */
-#define USB_CTRLA_RUNSTDBY          (0x1ul << USB_CTRLA_RUNSTDBY_Pos)
+#define USB_CTRLA_RUNSTDBY          (_U_(0x1) << USB_CTRLA_RUNSTDBY_Pos)
 #define USB_CTRLA_MODE_Pos          7            /**< \brief (USB_CTRLA) Operating Mode */
-#define USB_CTRLA_MODE              (0x1ul << USB_CTRLA_MODE_Pos)
-#define   USB_CTRLA_MODE_DEVICE_Val       0x0ul  /**< \brief (USB_CTRLA) Device Mode */
+#define USB_CTRLA_MODE              (_U_(0x1) << USB_CTRLA_MODE_Pos)
+#define   USB_CTRLA_MODE_DEVICE_Val       _U_(0x0)   /**< \brief (USB_CTRLA) Device Mode */
 #define USB_CTRLA_MODE_DEVICE       (USB_CTRLA_MODE_DEVICE_Val     << USB_CTRLA_MODE_Pos)
-#define USB_CTRLA_MASK              0x87ul       /**< \brief (USB_CTRLA) MASK Register */
+#define USB_CTRLA_MASK              _U_(0x87)    /**< \brief (USB_CTRLA) MASK Register */
 
 /* -------- USB_SYNCBUSY : (USB Offset: 0x002) (R/   8) Synchronization Busy -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
@@ -95,13 +81,36 @@ typedef union {
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
 #define USB_SYNCBUSY_OFFSET         0x002        /**< \brief (USB_SYNCBUSY offset) Synchronization Busy */
-#define USB_SYNCBUSY_RESETVALUE     0x00ul       /**< \brief (USB_SYNCBUSY reset_value) Synchronization Busy */
+#define USB_SYNCBUSY_RESETVALUE     _U_(0x00)    /**< \brief (USB_SYNCBUSY reset_value) Synchronization Busy */
 
 #define USB_SYNCBUSY_SWRST_Pos      0            /**< \brief (USB_SYNCBUSY) Software Reset Synchronization Busy */
-#define USB_SYNCBUSY_SWRST          (0x1ul << USB_SYNCBUSY_SWRST_Pos)
+#define USB_SYNCBUSY_SWRST          (_U_(0x1) << USB_SYNCBUSY_SWRST_Pos)
 #define USB_SYNCBUSY_ENABLE_Pos     1            /**< \brief (USB_SYNCBUSY) Enable Synchronization Busy */
-#define USB_SYNCBUSY_ENABLE         (0x1ul << USB_SYNCBUSY_ENABLE_Pos)
-#define USB_SYNCBUSY_MASK           0x03ul       /**< \brief (USB_SYNCBUSY) MASK Register */
+#define USB_SYNCBUSY_ENABLE         (_U_(0x1) << USB_SYNCBUSY_ENABLE_Pos)
+#define USB_SYNCBUSY_MASK           _U_(0x03)    /**< \brief (USB_SYNCBUSY) MASK Register */
+
+/* -------- USB_QOSCTRL : (USB Offset: 0x003) (R/W  8) USB Quality Of Service -------- */
+#if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
+typedef union {
+  struct {
+    uint8_t  CQOS:2;           /*!< bit:  0.. 1  Configuration Quality of Service   */
+    uint8_t  DQOS:2;           /*!< bit:  2.. 3  Data Quality of Service            */
+    uint8_t  :4;               /*!< bit:  4.. 7  Reserved                           */
+  } bit;                       /*!< Structure used for bit  access                  */
+  uint8_t reg;                 /*!< Type      used for register access              */
+} USB_QOSCTRL_Type;
+#endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
+
+#define USB_QOSCTRL_OFFSET          0x003        /**< \brief (USB_QOSCTRL offset) USB Quality Of Service */
+#define USB_QOSCTRL_RESETVALUE      _U_(0x0F)    /**< \brief (USB_QOSCTRL reset_value) USB Quality Of Service */
+
+#define USB_QOSCTRL_CQOS_Pos        0            /**< \brief (USB_QOSCTRL) Configuration Quality of Service */
+#define USB_QOSCTRL_CQOS_Msk        (_U_(0x3) << USB_QOSCTRL_CQOS_Pos)
+#define USB_QOSCTRL_CQOS(value)     (USB_QOSCTRL_CQOS_Msk & ((value) << USB_QOSCTRL_CQOS_Pos))
+#define USB_QOSCTRL_DQOS_Pos        2            /**< \brief (USB_QOSCTRL) Data Quality of Service */
+#define USB_QOSCTRL_DQOS_Msk        (_U_(0x3) << USB_QOSCTRL_DQOS_Pos)
+#define USB_QOSCTRL_DQOS(value)     (USB_QOSCTRL_DQOS_Msk & ((value) << USB_QOSCTRL_DQOS_Pos))
+#define USB_QOSCTRL_MASK            _U_(0x0F)    /**< \brief (USB_QOSCTRL) MASK Register */
 
 /* -------- USB_DEVICE_CTRLB : (USB Offset: 0x008) (R/W 16) DEVICE DEVICE Control B -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
@@ -124,47 +133,47 @@ typedef union {
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
 #define USB_DEVICE_CTRLB_OFFSET     0x008        /**< \brief (USB_DEVICE_CTRLB offset) DEVICE Control B */
-#define USB_DEVICE_CTRLB_RESETVALUE 0x0001ul     /**< \brief (USB_DEVICE_CTRLB reset_value) DEVICE Control B */
+#define USB_DEVICE_CTRLB_RESETVALUE _U_(0x0001)  /**< \brief (USB_DEVICE_CTRLB reset_value) DEVICE Control B */
 
 #define USB_DEVICE_CTRLB_DETACH_Pos 0            /**< \brief (USB_DEVICE_CTRLB) Detach */
-#define USB_DEVICE_CTRLB_DETACH     (0x1ul << USB_DEVICE_CTRLB_DETACH_Pos)
+#define USB_DEVICE_CTRLB_DETACH     (_U_(0x1) << USB_DEVICE_CTRLB_DETACH_Pos)
 #define USB_DEVICE_CTRLB_UPRSM_Pos  1            /**< \brief (USB_DEVICE_CTRLB) Upstream Resume */
-#define USB_DEVICE_CTRLB_UPRSM      (0x1ul << USB_DEVICE_CTRLB_UPRSM_Pos)
+#define USB_DEVICE_CTRLB_UPRSM      (_U_(0x1) << USB_DEVICE_CTRLB_UPRSM_Pos)
 #define USB_DEVICE_CTRLB_SPDCONF_Pos 2            /**< \brief (USB_DEVICE_CTRLB) Speed Configuration */
-#define USB_DEVICE_CTRLB_SPDCONF_Msk (0x3ul << USB_DEVICE_CTRLB_SPDCONF_Pos)
+#define USB_DEVICE_CTRLB_SPDCONF_Msk (_U_(0x3) << USB_DEVICE_CTRLB_SPDCONF_Pos)
 #define USB_DEVICE_CTRLB_SPDCONF(value) (USB_DEVICE_CTRLB_SPDCONF_Msk & ((value) << USB_DEVICE_CTRLB_SPDCONF_Pos))
-#define   USB_DEVICE_CTRLB_SPDCONF_FS_Val 0x0ul  /**< \brief (USB_DEVICE_CTRLB) FS : Full Speed */
-#define   USB_DEVICE_CTRLB_SPDCONF_LS_Val 0x1ul  /**< \brief (USB_DEVICE_CTRLB) LS : Low Speed */
-#define   USB_DEVICE_CTRLB_SPDCONF_HS_Val 0x2ul  /**< \brief (USB_DEVICE_CTRLB) HS : High Speed capable */
-#define   USB_DEVICE_CTRLB_SPDCONF_HSTM_Val 0x3ul  /**< \brief (USB_DEVICE_CTRLB) HSTM: High Speed Test Mode (force high-speed mode for test mode) */
+#define   USB_DEVICE_CTRLB_SPDCONF_FS_Val _U_(0x0)   /**< \brief (USB_DEVICE_CTRLB) FS : Full Speed */
+#define   USB_DEVICE_CTRLB_SPDCONF_LS_Val _U_(0x1)   /**< \brief (USB_DEVICE_CTRLB) LS : Low Speed */
+#define   USB_DEVICE_CTRLB_SPDCONF_HS_Val _U_(0x2)   /**< \brief (USB_DEVICE_CTRLB) HS : High Speed capable */
+#define   USB_DEVICE_CTRLB_SPDCONF_HSTM_Val _U_(0x3)   /**< \brief (USB_DEVICE_CTRLB) HSTM: High Speed Test Mode (force high-speed mode for test mode) */
 #define USB_DEVICE_CTRLB_SPDCONF_FS (USB_DEVICE_CTRLB_SPDCONF_FS_Val << USB_DEVICE_CTRLB_SPDCONF_Pos)
 #define USB_DEVICE_CTRLB_SPDCONF_LS (USB_DEVICE_CTRLB_SPDCONF_LS_Val << USB_DEVICE_CTRLB_SPDCONF_Pos)
 #define USB_DEVICE_CTRLB_SPDCONF_HS (USB_DEVICE_CTRLB_SPDCONF_HS_Val << USB_DEVICE_CTRLB_SPDCONF_Pos)
 #define USB_DEVICE_CTRLB_SPDCONF_HSTM (USB_DEVICE_CTRLB_SPDCONF_HSTM_Val << USB_DEVICE_CTRLB_SPDCONF_Pos)
 #define USB_DEVICE_CTRLB_NREPLY_Pos 4            /**< \brief (USB_DEVICE_CTRLB) No Reply */
-#define USB_DEVICE_CTRLB_NREPLY     (0x1ul << USB_DEVICE_CTRLB_NREPLY_Pos)
+#define USB_DEVICE_CTRLB_NREPLY     (_U_(0x1) << USB_DEVICE_CTRLB_NREPLY_Pos)
 #define USB_DEVICE_CTRLB_TSTJ_Pos   5            /**< \brief (USB_DEVICE_CTRLB) Test mode J */
-#define USB_DEVICE_CTRLB_TSTJ       (0x1ul << USB_DEVICE_CTRLB_TSTJ_Pos)
+#define USB_DEVICE_CTRLB_TSTJ       (_U_(0x1) << USB_DEVICE_CTRLB_TSTJ_Pos)
 #define USB_DEVICE_CTRLB_TSTK_Pos   6            /**< \brief (USB_DEVICE_CTRLB) Test mode K */
-#define USB_DEVICE_CTRLB_TSTK       (0x1ul << USB_DEVICE_CTRLB_TSTK_Pos)
+#define USB_DEVICE_CTRLB_TSTK       (_U_(0x1) << USB_DEVICE_CTRLB_TSTK_Pos)
 #define USB_DEVICE_CTRLB_TSTPCKT_Pos 7            /**< \brief (USB_DEVICE_CTRLB) Test packet mode */
-#define USB_DEVICE_CTRLB_TSTPCKT    (0x1ul << USB_DEVICE_CTRLB_TSTPCKT_Pos)
+#define USB_DEVICE_CTRLB_TSTPCKT    (_U_(0x1) << USB_DEVICE_CTRLB_TSTPCKT_Pos)
 #define USB_DEVICE_CTRLB_OPMODE2_Pos 8            /**< \brief (USB_DEVICE_CTRLB) Specific Operational Mode */
-#define USB_DEVICE_CTRLB_OPMODE2    (0x1ul << USB_DEVICE_CTRLB_OPMODE2_Pos)
+#define USB_DEVICE_CTRLB_OPMODE2    (_U_(0x1) << USB_DEVICE_CTRLB_OPMODE2_Pos)
 #define USB_DEVICE_CTRLB_GNAK_Pos   9            /**< \brief (USB_DEVICE_CTRLB) Global NAK */
-#define USB_DEVICE_CTRLB_GNAK       (0x1ul << USB_DEVICE_CTRLB_GNAK_Pos)
+#define USB_DEVICE_CTRLB_GNAK       (_U_(0x1) << USB_DEVICE_CTRLB_GNAK_Pos)
 #define USB_DEVICE_CTRLB_LPMHDSK_Pos 10           /**< \brief (USB_DEVICE_CTRLB) Link Power Management Handshake */
-#define USB_DEVICE_CTRLB_LPMHDSK_Msk (0x3ul << USB_DEVICE_CTRLB_LPMHDSK_Pos)
+#define USB_DEVICE_CTRLB_LPMHDSK_Msk (_U_(0x3) << USB_DEVICE_CTRLB_LPMHDSK_Pos)
 #define USB_DEVICE_CTRLB_LPMHDSK(value) (USB_DEVICE_CTRLB_LPMHDSK_Msk & ((value) << USB_DEVICE_CTRLB_LPMHDSK_Pos))
-#define   USB_DEVICE_CTRLB_LPMHDSK_NO_Val 0x0ul  /**< \brief (USB_DEVICE_CTRLB) No handshake. LPM is not supported */
-#define   USB_DEVICE_CTRLB_LPMHDSK_ACK_Val 0x1ul  /**< \brief (USB_DEVICE_CTRLB) ACK */
-#define   USB_DEVICE_CTRLB_LPMHDSK_NYET_Val 0x2ul  /**< \brief (USB_DEVICE_CTRLB) NYET */
-#define   USB_DEVICE_CTRLB_LPMHDSK_STALL_Val 0x3ul  /**< \brief (USB_DEVICE_CTRLB) STALL */
+#define   USB_DEVICE_CTRLB_LPMHDSK_NO_Val _U_(0x0)   /**< \brief (USB_DEVICE_CTRLB) No handshake. LPM is not supported */
+#define   USB_DEVICE_CTRLB_LPMHDSK_ACK_Val _U_(0x1)   /**< \brief (USB_DEVICE_CTRLB) ACK */
+#define   USB_DEVICE_CTRLB_LPMHDSK_NYET_Val _U_(0x2)   /**< \brief (USB_DEVICE_CTRLB) NYET */
+#define   USB_DEVICE_CTRLB_LPMHDSK_STALL_Val _U_(0x3)   /**< \brief (USB_DEVICE_CTRLB) STALL */
 #define USB_DEVICE_CTRLB_LPMHDSK_NO (USB_DEVICE_CTRLB_LPMHDSK_NO_Val << USB_DEVICE_CTRLB_LPMHDSK_Pos)
 #define USB_DEVICE_CTRLB_LPMHDSK_ACK (USB_DEVICE_CTRLB_LPMHDSK_ACK_Val << USB_DEVICE_CTRLB_LPMHDSK_Pos)
 #define USB_DEVICE_CTRLB_LPMHDSK_NYET (USB_DEVICE_CTRLB_LPMHDSK_NYET_Val << USB_DEVICE_CTRLB_LPMHDSK_Pos)
 #define USB_DEVICE_CTRLB_LPMHDSK_STALL (USB_DEVICE_CTRLB_LPMHDSK_STALL_Val << USB_DEVICE_CTRLB_LPMHDSK_Pos)
-#define USB_DEVICE_CTRLB_MASK       0x0FFFul     /**< \brief (USB_DEVICE_CTRLB) MASK Register */
+#define USB_DEVICE_CTRLB_MASK       _U_(0x0FFF)  /**< \brief (USB_DEVICE_CTRLB) MASK Register */
 
 /* -------- USB_DEVICE_DADD : (USB Offset: 0x00A) (R/W  8) DEVICE DEVICE Device Address -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
@@ -178,14 +187,14 @@ typedef union {
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
 #define USB_DEVICE_DADD_OFFSET      0x00A        /**< \brief (USB_DEVICE_DADD offset) DEVICE Device Address */
-#define USB_DEVICE_DADD_RESETVALUE  0x00ul       /**< \brief (USB_DEVICE_DADD reset_value) DEVICE Device Address */
+#define USB_DEVICE_DADD_RESETVALUE  _U_(0x00)    /**< \brief (USB_DEVICE_DADD reset_value) DEVICE Device Address */
 
 #define USB_DEVICE_DADD_DADD_Pos    0            /**< \brief (USB_DEVICE_DADD) Device Address */
-#define USB_DEVICE_DADD_DADD_Msk    (0x7Ful << USB_DEVICE_DADD_DADD_Pos)
+#define USB_DEVICE_DADD_DADD_Msk    (_U_(0x7F) << USB_DEVICE_DADD_DADD_Pos)
 #define USB_DEVICE_DADD_DADD(value) (USB_DEVICE_DADD_DADD_Msk & ((value) << USB_DEVICE_DADD_DADD_Pos))
 #define USB_DEVICE_DADD_ADDEN_Pos   7            /**< \brief (USB_DEVICE_DADD) Device Address Enable */
-#define USB_DEVICE_DADD_ADDEN       (0x1ul << USB_DEVICE_DADD_ADDEN_Pos)
-#define USB_DEVICE_DADD_MASK        0xFFul       /**< \brief (USB_DEVICE_DADD) MASK Register */
+#define USB_DEVICE_DADD_ADDEN       (_U_(0x1) << USB_DEVICE_DADD_ADDEN_Pos)
+#define USB_DEVICE_DADD_MASK        _U_(0xFF)    /**< \brief (USB_DEVICE_DADD) MASK Register */
 
 /* -------- USB_DEVICE_STATUS : (USB Offset: 0x00C) (R/   8) DEVICE DEVICE Status -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
@@ -201,52 +210,52 @@ typedef union {
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
 #define USB_DEVICE_STATUS_OFFSET    0x00C        /**< \brief (USB_DEVICE_STATUS offset) DEVICE Status */
-#define USB_DEVICE_STATUS_RESETVALUE 0x40ul       /**< \brief (USB_DEVICE_STATUS reset_value) DEVICE Status */
+#define USB_DEVICE_STATUS_RESETVALUE _U_(0x40)    /**< \brief (USB_DEVICE_STATUS reset_value) DEVICE Status */
 
 #define USB_DEVICE_STATUS_SPEED_Pos 2            /**< \brief (USB_DEVICE_STATUS) Speed Status */
-#define USB_DEVICE_STATUS_SPEED_Msk (0x3ul << USB_DEVICE_STATUS_SPEED_Pos)
+#define USB_DEVICE_STATUS_SPEED_Msk (_U_(0x3) << USB_DEVICE_STATUS_SPEED_Pos)
 #define USB_DEVICE_STATUS_SPEED(value) (USB_DEVICE_STATUS_SPEED_Msk & ((value) << USB_DEVICE_STATUS_SPEED_Pos))
-#define   USB_DEVICE_STATUS_SPEED_FS_Val  0x0ul  /**< \brief (USB_DEVICE_STATUS) Full-speed mode */
-#define   USB_DEVICE_STATUS_SPEED_HS_Val  0x1ul  /**< \brief (USB_DEVICE_STATUS) High-speed mode */
-#define   USB_DEVICE_STATUS_SPEED_LS_Val  0x2ul  /**< \brief (USB_DEVICE_STATUS) Low-speed mode */
+#define   USB_DEVICE_STATUS_SPEED_FS_Val  _U_(0x0)   /**< \brief (USB_DEVICE_STATUS) Full-speed mode */
+#define   USB_DEVICE_STATUS_SPEED_HS_Val  _U_(0x1)   /**< \brief (USB_DEVICE_STATUS) High-speed mode */
+#define   USB_DEVICE_STATUS_SPEED_LS_Val  _U_(0x2)   /**< \brief (USB_DEVICE_STATUS) Low-speed mode */
 #define USB_DEVICE_STATUS_SPEED_FS  (USB_DEVICE_STATUS_SPEED_FS_Val << USB_DEVICE_STATUS_SPEED_Pos)
 #define USB_DEVICE_STATUS_SPEED_HS  (USB_DEVICE_STATUS_SPEED_HS_Val << USB_DEVICE_STATUS_SPEED_Pos)
 #define USB_DEVICE_STATUS_SPEED_LS  (USB_DEVICE_STATUS_SPEED_LS_Val << USB_DEVICE_STATUS_SPEED_Pos)
 #define USB_DEVICE_STATUS_LINESTATE_Pos 6            /**< \brief (USB_DEVICE_STATUS) USB Line State Status */
-#define USB_DEVICE_STATUS_LINESTATE_Msk (0x3ul << USB_DEVICE_STATUS_LINESTATE_Pos)
+#define USB_DEVICE_STATUS_LINESTATE_Msk (_U_(0x3) << USB_DEVICE_STATUS_LINESTATE_Pos)
 #define USB_DEVICE_STATUS_LINESTATE(value) (USB_DEVICE_STATUS_LINESTATE_Msk & ((value) << USB_DEVICE_STATUS_LINESTATE_Pos))
-#define   USB_DEVICE_STATUS_LINESTATE_0_Val 0x0ul  /**< \brief (USB_DEVICE_STATUS) SE0/RESET */
-#define   USB_DEVICE_STATUS_LINESTATE_1_Val 0x1ul  /**< \brief (USB_DEVICE_STATUS) FS-J or LS-K State */
-#define   USB_DEVICE_STATUS_LINESTATE_2_Val 0x2ul  /**< \brief (USB_DEVICE_STATUS) FS-K or LS-J State */
+#define   USB_DEVICE_STATUS_LINESTATE_0_Val _U_(0x0)   /**< \brief (USB_DEVICE_STATUS) SE0/RESET */
+#define   USB_DEVICE_STATUS_LINESTATE_1_Val _U_(0x1)   /**< \brief (USB_DEVICE_STATUS) FS-J or LS-K State */
+#define   USB_DEVICE_STATUS_LINESTATE_2_Val _U_(0x2)   /**< \brief (USB_DEVICE_STATUS) FS-K or LS-J State */
 #define USB_DEVICE_STATUS_LINESTATE_0 (USB_DEVICE_STATUS_LINESTATE_0_Val << USB_DEVICE_STATUS_LINESTATE_Pos)
 #define USB_DEVICE_STATUS_LINESTATE_1 (USB_DEVICE_STATUS_LINESTATE_1_Val << USB_DEVICE_STATUS_LINESTATE_Pos)
 #define USB_DEVICE_STATUS_LINESTATE_2 (USB_DEVICE_STATUS_LINESTATE_2_Val << USB_DEVICE_STATUS_LINESTATE_Pos)
-#define USB_DEVICE_STATUS_MASK      0xCCul       /**< \brief (USB_DEVICE_STATUS) MASK Register */
+#define USB_DEVICE_STATUS_MASK      _U_(0xCC)    /**< \brief (USB_DEVICE_STATUS) MASK Register */
 
 /* -------- USB_FSMSTATUS : (USB Offset: 0x00D) (R/   8) Finite State Machine Status -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
   struct {
-    uint8_t  FSMSTATE:6;       /*!< bit:  0.. 5  Fine State Machine Status          */
-    uint8_t  :2;               /*!< bit:  6.. 7  Reserved                           */
+    uint8_t  FSMSTATE:7;       /*!< bit:  0.. 6  Fine State Machine Status          */
+    uint8_t  :1;               /*!< bit:      7  Reserved                           */
   } bit;                       /*!< Structure used for bit  access                  */
   uint8_t reg;                 /*!< Type      used for register access              */
 } USB_FSMSTATUS_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
 #define USB_FSMSTATUS_OFFSET        0x00D        /**< \brief (USB_FSMSTATUS offset) Finite State Machine Status */
-#define USB_FSMSTATUS_RESETVALUE    0x01ul       /**< \brief (USB_FSMSTATUS reset_value) Finite State Machine Status */
+#define USB_FSMSTATUS_RESETVALUE    _U_(0x01)    /**< \brief (USB_FSMSTATUS reset_value) Finite State Machine Status */
 
 #define USB_FSMSTATUS_FSMSTATE_Pos  0            /**< \brief (USB_FSMSTATUS) Fine State Machine Status */
-#define USB_FSMSTATUS_FSMSTATE_Msk  (0x3Ful << USB_FSMSTATUS_FSMSTATE_Pos)
+#define USB_FSMSTATUS_FSMSTATE_Msk  (_U_(0x7F) << USB_FSMSTATUS_FSMSTATE_Pos)
 #define USB_FSMSTATUS_FSMSTATE(value) (USB_FSMSTATUS_FSMSTATE_Msk & ((value) << USB_FSMSTATUS_FSMSTATE_Pos))
-#define   USB_FSMSTATUS_FSMSTATE_OFF_Val  0x1ul  /**< \brief (USB_FSMSTATUS) OFF (L3). It corresponds to the powered-off, disconnected, and disabled state */
-#define   USB_FSMSTATUS_FSMSTATE_ON_Val   0x2ul  /**< \brief (USB_FSMSTATUS) ON (L0). It corresponds to the Idle and Active states */
-#define   USB_FSMSTATUS_FSMSTATE_SUSPEND_Val 0x4ul  /**< \brief (USB_FSMSTATUS) SUSPEND (L2) */
-#define   USB_FSMSTATUS_FSMSTATE_SLEEP_Val 0x8ul  /**< \brief (USB_FSMSTATUS) SLEEP (L1) */
-#define   USB_FSMSTATUS_FSMSTATE_DNRESUME_Val 0x10ul  /**< \brief (USB_FSMSTATUS) DNRESUME. Down Stream Resume. */
-#define   USB_FSMSTATUS_FSMSTATE_UPRESUME_Val 0x20ul  /**< \brief (USB_FSMSTATUS) UPRESUME. Up Stream Resume. */
-#define   USB_FSMSTATUS_FSMSTATE_RESET_Val 0x40ul  /**< \brief (USB_FSMSTATUS) RESET. USB lines Reset. */
+#define   USB_FSMSTATUS_FSMSTATE_OFF_Val  _U_(0x1)   /**< \brief (USB_FSMSTATUS) OFF (L3). It corresponds to the powered-off, disconnected, and disabled state */
+#define   USB_FSMSTATUS_FSMSTATE_ON_Val   _U_(0x2)   /**< \brief (USB_FSMSTATUS) ON (L0). It corresponds to the Idle and Active states */
+#define   USB_FSMSTATUS_FSMSTATE_SUSPEND_Val _U_(0x4)   /**< \brief (USB_FSMSTATUS) SUSPEND (L2) */
+#define   USB_FSMSTATUS_FSMSTATE_SLEEP_Val _U_(0x8)   /**< \brief (USB_FSMSTATUS) SLEEP (L1) */
+#define   USB_FSMSTATUS_FSMSTATE_DNRESUME_Val _U_(0x10)   /**< \brief (USB_FSMSTATUS) DNRESUME. Down Stream Resume. */
+#define   USB_FSMSTATUS_FSMSTATE_UPRESUME_Val _U_(0x20)   /**< \brief (USB_FSMSTATUS) UPRESUME. Up Stream Resume. */
+#define   USB_FSMSTATUS_FSMSTATE_RESET_Val _U_(0x40)   /**< \brief (USB_FSMSTATUS) RESET. USB lines Reset. */
 #define USB_FSMSTATUS_FSMSTATE_OFF  (USB_FSMSTATUS_FSMSTATE_OFF_Val << USB_FSMSTATUS_FSMSTATE_Pos)
 #define USB_FSMSTATUS_FSMSTATE_ON   (USB_FSMSTATUS_FSMSTATE_ON_Val << USB_FSMSTATUS_FSMSTATE_Pos)
 #define USB_FSMSTATUS_FSMSTATE_SUSPEND (USB_FSMSTATUS_FSMSTATE_SUSPEND_Val << USB_FSMSTATUS_FSMSTATE_Pos)
@@ -254,7 +263,7 @@ typedef union {
 #define USB_FSMSTATUS_FSMSTATE_DNRESUME (USB_FSMSTATUS_FSMSTATE_DNRESUME_Val << USB_FSMSTATUS_FSMSTATE_Pos)
 #define USB_FSMSTATUS_FSMSTATE_UPRESUME (USB_FSMSTATUS_FSMSTATE_UPRESUME_Val << USB_FSMSTATUS_FSMSTATE_Pos)
 #define USB_FSMSTATUS_FSMSTATE_RESET (USB_FSMSTATUS_FSMSTATE_RESET_Val << USB_FSMSTATUS_FSMSTATE_Pos)
-#define USB_FSMSTATUS_MASK          0x3Ful       /**< \brief (USB_FSMSTATUS) MASK Register */
+#define USB_FSMSTATUS_MASK          _U_(0x7F)    /**< \brief (USB_FSMSTATUS) MASK Register */
 
 /* -------- USB_DEVICE_FNUM : (USB Offset: 0x010) (R/  16) DEVICE DEVICE Device Frame Number -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
@@ -270,17 +279,17 @@ typedef union {
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
 #define USB_DEVICE_FNUM_OFFSET      0x010        /**< \brief (USB_DEVICE_FNUM offset) DEVICE Device Frame Number */
-#define USB_DEVICE_FNUM_RESETVALUE  0x0000ul     /**< \brief (USB_DEVICE_FNUM reset_value) DEVICE Device Frame Number */
+#define USB_DEVICE_FNUM_RESETVALUE  _U_(0x0000)  /**< \brief (USB_DEVICE_FNUM reset_value) DEVICE Device Frame Number */
 
 #define USB_DEVICE_FNUM_MFNUM_Pos   0            /**< \brief (USB_DEVICE_FNUM) Micro Frame Number */
-#define USB_DEVICE_FNUM_MFNUM_Msk   (0x7ul << USB_DEVICE_FNUM_MFNUM_Pos)
+#define USB_DEVICE_FNUM_MFNUM_Msk   (_U_(0x7) << USB_DEVICE_FNUM_MFNUM_Pos)
 #define USB_DEVICE_FNUM_MFNUM(value) (USB_DEVICE_FNUM_MFNUM_Msk & ((value) << USB_DEVICE_FNUM_MFNUM_Pos))
 #define USB_DEVICE_FNUM_FNUM_Pos    3            /**< \brief (USB_DEVICE_FNUM) Frame Number */
-#define USB_DEVICE_FNUM_FNUM_Msk    (0x7FFul << USB_DEVICE_FNUM_FNUM_Pos)
+#define USB_DEVICE_FNUM_FNUM_Msk    (_U_(0x7FF) << USB_DEVICE_FNUM_FNUM_Pos)
 #define USB_DEVICE_FNUM_FNUM(value) (USB_DEVICE_FNUM_FNUM_Msk & ((value) << USB_DEVICE_FNUM_FNUM_Pos))
 #define USB_DEVICE_FNUM_FNCERR_Pos  15           /**< \brief (USB_DEVICE_FNUM) Frame Number CRC Error */
-#define USB_DEVICE_FNUM_FNCERR      (0x1ul << USB_DEVICE_FNUM_FNCERR_Pos)
-#define USB_DEVICE_FNUM_MASK        0xBFFFul     /**< \brief (USB_DEVICE_FNUM) MASK Register */
+#define USB_DEVICE_FNUM_FNCERR      (_U_(0x1) << USB_DEVICE_FNUM_FNCERR_Pos)
+#define USB_DEVICE_FNUM_MASK        _U_(0xBFFF)  /**< \brief (USB_DEVICE_FNUM) MASK Register */
 
 /* -------- USB_DEVICE_INTENCLR : (USB Offset: 0x014) (R/W 16) DEVICE DEVICE Device Interrupt Enable Clear -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
@@ -303,29 +312,29 @@ typedef union {
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
 #define USB_DEVICE_INTENCLR_OFFSET  0x014        /**< \brief (USB_DEVICE_INTENCLR offset) DEVICE Device Interrupt Enable Clear */
-#define USB_DEVICE_INTENCLR_RESETVALUE 0x0000ul     /**< \brief (USB_DEVICE_INTENCLR reset_value) DEVICE Device Interrupt Enable Clear */
+#define USB_DEVICE_INTENCLR_RESETVALUE _U_(0x0000)  /**< \brief (USB_DEVICE_INTENCLR reset_value) DEVICE Device Interrupt Enable Clear */
 
 #define USB_DEVICE_INTENCLR_SUSPEND_Pos 0            /**< \brief (USB_DEVICE_INTENCLR) Suspend Interrupt Enable */
-#define USB_DEVICE_INTENCLR_SUSPEND (0x1ul << USB_DEVICE_INTENCLR_SUSPEND_Pos)
+#define USB_DEVICE_INTENCLR_SUSPEND (_U_(0x1) << USB_DEVICE_INTENCLR_SUSPEND_Pos)
 #define USB_DEVICE_INTENCLR_MSOF_Pos 1            /**< \brief (USB_DEVICE_INTENCLR) Micro Start of Frame Interrupt Enable in High Speed Mode */
-#define USB_DEVICE_INTENCLR_MSOF    (0x1ul << USB_DEVICE_INTENCLR_MSOF_Pos)
+#define USB_DEVICE_INTENCLR_MSOF    (_U_(0x1) << USB_DEVICE_INTENCLR_MSOF_Pos)
 #define USB_DEVICE_INTENCLR_SOF_Pos 2            /**< \brief (USB_DEVICE_INTENCLR) Start Of Frame Interrupt Enable */
-#define USB_DEVICE_INTENCLR_SOF     (0x1ul << USB_DEVICE_INTENCLR_SOF_Pos)
+#define USB_DEVICE_INTENCLR_SOF     (_U_(0x1) << USB_DEVICE_INTENCLR_SOF_Pos)
 #define USB_DEVICE_INTENCLR_EORST_Pos 3            /**< \brief (USB_DEVICE_INTENCLR) End of Reset Interrupt Enable */
-#define USB_DEVICE_INTENCLR_EORST   (0x1ul << USB_DEVICE_INTENCLR_EORST_Pos)
+#define USB_DEVICE_INTENCLR_EORST   (_U_(0x1) << USB_DEVICE_INTENCLR_EORST_Pos)
 #define USB_DEVICE_INTENCLR_WAKEUP_Pos 4            /**< \brief (USB_DEVICE_INTENCLR) Wake Up Interrupt Enable */
-#define USB_DEVICE_INTENCLR_WAKEUP  (0x1ul << USB_DEVICE_INTENCLR_WAKEUP_Pos)
+#define USB_DEVICE_INTENCLR_WAKEUP  (_U_(0x1) << USB_DEVICE_INTENCLR_WAKEUP_Pos)
 #define USB_DEVICE_INTENCLR_EORSM_Pos 5            /**< \brief (USB_DEVICE_INTENCLR) End Of Resume Interrupt Enable */
-#define USB_DEVICE_INTENCLR_EORSM   (0x1ul << USB_DEVICE_INTENCLR_EORSM_Pos)
+#define USB_DEVICE_INTENCLR_EORSM   (_U_(0x1) << USB_DEVICE_INTENCLR_EORSM_Pos)
 #define USB_DEVICE_INTENCLR_UPRSM_Pos 6            /**< \brief (USB_DEVICE_INTENCLR) Upstream Resume Interrupt Enable */
-#define USB_DEVICE_INTENCLR_UPRSM   (0x1ul << USB_DEVICE_INTENCLR_UPRSM_Pos)
+#define USB_DEVICE_INTENCLR_UPRSM   (_U_(0x1) << USB_DEVICE_INTENCLR_UPRSM_Pos)
 #define USB_DEVICE_INTENCLR_RAMACER_Pos 7            /**< \brief (USB_DEVICE_INTENCLR) Ram Access Interrupt Enable */
-#define USB_DEVICE_INTENCLR_RAMACER (0x1ul << USB_DEVICE_INTENCLR_RAMACER_Pos)
+#define USB_DEVICE_INTENCLR_RAMACER (_U_(0x1) << USB_DEVICE_INTENCLR_RAMACER_Pos)
 #define USB_DEVICE_INTENCLR_LPMNYET_Pos 8            /**< \brief (USB_DEVICE_INTENCLR) Link Power Management Not Yet Interrupt Enable */
-#define USB_DEVICE_INTENCLR_LPMNYET (0x1ul << USB_DEVICE_INTENCLR_LPMNYET_Pos)
+#define USB_DEVICE_INTENCLR_LPMNYET (_U_(0x1) << USB_DEVICE_INTENCLR_LPMNYET_Pos)
 #define USB_DEVICE_INTENCLR_LPMSUSP_Pos 9            /**< \brief (USB_DEVICE_INTENCLR) Link Power Management Suspend Interrupt Enable */
-#define USB_DEVICE_INTENCLR_LPMSUSP (0x1ul << USB_DEVICE_INTENCLR_LPMSUSP_Pos)
-#define USB_DEVICE_INTENCLR_MASK    0x03FFul     /**< \brief (USB_DEVICE_INTENCLR) MASK Register */
+#define USB_DEVICE_INTENCLR_LPMSUSP (_U_(0x1) << USB_DEVICE_INTENCLR_LPMSUSP_Pos)
+#define USB_DEVICE_INTENCLR_MASK    _U_(0x03FF)  /**< \brief (USB_DEVICE_INTENCLR) MASK Register */
 
 /* -------- USB_DEVICE_INTENSET : (USB Offset: 0x018) (R/W 16) DEVICE DEVICE Device Interrupt Enable Set -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
@@ -348,29 +357,29 @@ typedef union {
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
 #define USB_DEVICE_INTENSET_OFFSET  0x018        /**< \brief (USB_DEVICE_INTENSET offset) DEVICE Device Interrupt Enable Set */
-#define USB_DEVICE_INTENSET_RESETVALUE 0x0000ul     /**< \brief (USB_DEVICE_INTENSET reset_value) DEVICE Device Interrupt Enable Set */
+#define USB_DEVICE_INTENSET_RESETVALUE _U_(0x0000)  /**< \brief (USB_DEVICE_INTENSET reset_value) DEVICE Device Interrupt Enable Set */
 
 #define USB_DEVICE_INTENSET_SUSPEND_Pos 0            /**< \brief (USB_DEVICE_INTENSET) Suspend Interrupt Enable */
-#define USB_DEVICE_INTENSET_SUSPEND (0x1ul << USB_DEVICE_INTENSET_SUSPEND_Pos)
+#define USB_DEVICE_INTENSET_SUSPEND (_U_(0x1) << USB_DEVICE_INTENSET_SUSPEND_Pos)
 #define USB_DEVICE_INTENSET_MSOF_Pos 1            /**< \brief (USB_DEVICE_INTENSET) Micro Start of Frame Interrupt Enable in High Speed Mode */
-#define USB_DEVICE_INTENSET_MSOF    (0x1ul << USB_DEVICE_INTENSET_MSOF_Pos)
+#define USB_DEVICE_INTENSET_MSOF    (_U_(0x1) << USB_DEVICE_INTENSET_MSOF_Pos)
 #define USB_DEVICE_INTENSET_SOF_Pos 2            /**< \brief (USB_DEVICE_INTENSET) Start Of Frame Interrupt Enable */
-#define USB_DEVICE_INTENSET_SOF     (0x1ul << USB_DEVICE_INTENSET_SOF_Pos)
+#define USB_DEVICE_INTENSET_SOF     (_U_(0x1) << USB_DEVICE_INTENSET_SOF_Pos)
 #define USB_DEVICE_INTENSET_EORST_Pos 3            /**< \brief (USB_DEVICE_INTENSET) End of Reset Interrupt Enable */
-#define USB_DEVICE_INTENSET_EORST   (0x1ul << USB_DEVICE_INTENSET_EORST_Pos)
+#define USB_DEVICE_INTENSET_EORST   (_U_(0x1) << USB_DEVICE_INTENSET_EORST_Pos)
 #define USB_DEVICE_INTENSET_WAKEUP_Pos 4            /**< \brief (USB_DEVICE_INTENSET) Wake Up Interrupt Enable */
-#define USB_DEVICE_INTENSET_WAKEUP  (0x1ul << USB_DEVICE_INTENSET_WAKEUP_Pos)
+#define USB_DEVICE_INTENSET_WAKEUP  (_U_(0x1) << USB_DEVICE_INTENSET_WAKEUP_Pos)
 #define USB_DEVICE_INTENSET_EORSM_Pos 5            /**< \brief (USB_DEVICE_INTENSET) End Of Resume Interrupt Enable */
-#define USB_DEVICE_INTENSET_EORSM   (0x1ul << USB_DEVICE_INTENSET_EORSM_Pos)
+#define USB_DEVICE_INTENSET_EORSM   (_U_(0x1) << USB_DEVICE_INTENSET_EORSM_Pos)
 #define USB_DEVICE_INTENSET_UPRSM_Pos 6            /**< \brief (USB_DEVICE_INTENSET) Upstream Resume Interrupt Enable */
-#define USB_DEVICE_INTENSET_UPRSM   (0x1ul << USB_DEVICE_INTENSET_UPRSM_Pos)
+#define USB_DEVICE_INTENSET_UPRSM   (_U_(0x1) << USB_DEVICE_INTENSET_UPRSM_Pos)
 #define USB_DEVICE_INTENSET_RAMACER_Pos 7            /**< \brief (USB_DEVICE_INTENSET) Ram Access Interrupt Enable */
-#define USB_DEVICE_INTENSET_RAMACER (0x1ul << USB_DEVICE_INTENSET_RAMACER_Pos)
+#define USB_DEVICE_INTENSET_RAMACER (_U_(0x1) << USB_DEVICE_INTENSET_RAMACER_Pos)
 #define USB_DEVICE_INTENSET_LPMNYET_Pos 8            /**< \brief (USB_DEVICE_INTENSET) Link Power Management Not Yet Interrupt Enable */
-#define USB_DEVICE_INTENSET_LPMNYET (0x1ul << USB_DEVICE_INTENSET_LPMNYET_Pos)
+#define USB_DEVICE_INTENSET_LPMNYET (_U_(0x1) << USB_DEVICE_INTENSET_LPMNYET_Pos)
 #define USB_DEVICE_INTENSET_LPMSUSP_Pos 9            /**< \brief (USB_DEVICE_INTENSET) Link Power Management Suspend Interrupt Enable */
-#define USB_DEVICE_INTENSET_LPMSUSP (0x1ul << USB_DEVICE_INTENSET_LPMSUSP_Pos)
-#define USB_DEVICE_INTENSET_MASK    0x03FFul     /**< \brief (USB_DEVICE_INTENSET) MASK Register */
+#define USB_DEVICE_INTENSET_LPMSUSP (_U_(0x1) << USB_DEVICE_INTENSET_LPMSUSP_Pos)
+#define USB_DEVICE_INTENSET_MASK    _U_(0x03FF)  /**< \brief (USB_DEVICE_INTENSET) MASK Register */
 
 /* -------- USB_DEVICE_INTFLAG : (USB Offset: 0x01C) (R/W 16) DEVICE DEVICE Device Interrupt Flag -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
@@ -393,29 +402,29 @@ typedef union { // __I to avoid read-modify-write on write-to-clear register
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
 #define USB_DEVICE_INTFLAG_OFFSET   0x01C        /**< \brief (USB_DEVICE_INTFLAG offset) DEVICE Device Interrupt Flag */
-#define USB_DEVICE_INTFLAG_RESETVALUE 0x0000ul     /**< \brief (USB_DEVICE_INTFLAG reset_value) DEVICE Device Interrupt Flag */
+#define USB_DEVICE_INTFLAG_RESETVALUE _U_(0x0000)  /**< \brief (USB_DEVICE_INTFLAG reset_value) DEVICE Device Interrupt Flag */
 
 #define USB_DEVICE_INTFLAG_SUSPEND_Pos 0            /**< \brief (USB_DEVICE_INTFLAG) Suspend */
-#define USB_DEVICE_INTFLAG_SUSPEND  (0x1ul << USB_DEVICE_INTFLAG_SUSPEND_Pos)
+#define USB_DEVICE_INTFLAG_SUSPEND  (_U_(0x1) << USB_DEVICE_INTFLAG_SUSPEND_Pos)
 #define USB_DEVICE_INTFLAG_MSOF_Pos 1            /**< \brief (USB_DEVICE_INTFLAG) Micro Start of Frame in High Speed Mode */
-#define USB_DEVICE_INTFLAG_MSOF     (0x1ul << USB_DEVICE_INTFLAG_MSOF_Pos)
+#define USB_DEVICE_INTFLAG_MSOF     (_U_(0x1) << USB_DEVICE_INTFLAG_MSOF_Pos)
 #define USB_DEVICE_INTFLAG_SOF_Pos  2            /**< \brief (USB_DEVICE_INTFLAG) Start Of Frame */
-#define USB_DEVICE_INTFLAG_SOF      (0x1ul << USB_DEVICE_INTFLAG_SOF_Pos)
+#define USB_DEVICE_INTFLAG_SOF      (_U_(0x1) << USB_DEVICE_INTFLAG_SOF_Pos)
 #define USB_DEVICE_INTFLAG_EORST_Pos 3            /**< \brief (USB_DEVICE_INTFLAG) End of Reset */
-#define USB_DEVICE_INTFLAG_EORST    (0x1ul << USB_DEVICE_INTFLAG_EORST_Pos)
+#define USB_DEVICE_INTFLAG_EORST    (_U_(0x1) << USB_DEVICE_INTFLAG_EORST_Pos)
 #define USB_DEVICE_INTFLAG_WAKEUP_Pos 4            /**< \brief (USB_DEVICE_INTFLAG) Wake Up */
-#define USB_DEVICE_INTFLAG_WAKEUP   (0x1ul << USB_DEVICE_INTFLAG_WAKEUP_Pos)
+#define USB_DEVICE_INTFLAG_WAKEUP   (_U_(0x1) << USB_DEVICE_INTFLAG_WAKEUP_Pos)
 #define USB_DEVICE_INTFLAG_EORSM_Pos 5            /**< \brief (USB_DEVICE_INTFLAG) End Of Resume */
-#define USB_DEVICE_INTFLAG_EORSM    (0x1ul << USB_DEVICE_INTFLAG_EORSM_Pos)
+#define USB_DEVICE_INTFLAG_EORSM    (_U_(0x1) << USB_DEVICE_INTFLAG_EORSM_Pos)
 #define USB_DEVICE_INTFLAG_UPRSM_Pos 6            /**< \brief (USB_DEVICE_INTFLAG) Upstream Resume */
-#define USB_DEVICE_INTFLAG_UPRSM    (0x1ul << USB_DEVICE_INTFLAG_UPRSM_Pos)
+#define USB_DEVICE_INTFLAG_UPRSM    (_U_(0x1) << USB_DEVICE_INTFLAG_UPRSM_Pos)
 #define USB_DEVICE_INTFLAG_RAMACER_Pos 7            /**< \brief (USB_DEVICE_INTFLAG) Ram Access */
-#define USB_DEVICE_INTFLAG_RAMACER  (0x1ul << USB_DEVICE_INTFLAG_RAMACER_Pos)
+#define USB_DEVICE_INTFLAG_RAMACER  (_U_(0x1) << USB_DEVICE_INTFLAG_RAMACER_Pos)
 #define USB_DEVICE_INTFLAG_LPMNYET_Pos 8            /**< \brief (USB_DEVICE_INTFLAG) Link Power Management Not Yet */
-#define USB_DEVICE_INTFLAG_LPMNYET  (0x1ul << USB_DEVICE_INTFLAG_LPMNYET_Pos)
+#define USB_DEVICE_INTFLAG_LPMNYET  (_U_(0x1) << USB_DEVICE_INTFLAG_LPMNYET_Pos)
 #define USB_DEVICE_INTFLAG_LPMSUSP_Pos 9            /**< \brief (USB_DEVICE_INTFLAG) Link Power Management Suspend */
-#define USB_DEVICE_INTFLAG_LPMSUSP  (0x1ul << USB_DEVICE_INTFLAG_LPMSUSP_Pos)
-#define USB_DEVICE_INTFLAG_MASK     0x03FFul     /**< \brief (USB_DEVICE_INTFLAG) MASK Register */
+#define USB_DEVICE_INTFLAG_LPMSUSP  (_U_(0x1) << USB_DEVICE_INTFLAG_LPMSUSP_Pos)
+#define USB_DEVICE_INTFLAG_MASK     _U_(0x03FF)  /**< \brief (USB_DEVICE_INTFLAG) MASK Register */
 
 /* -------- USB_DEVICE_EPINTSMRY : (USB Offset: 0x020) (R/  16) DEVICE DEVICE End Point Interrupt Summary -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
@@ -440,28 +449,28 @@ typedef union {
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
 #define USB_DEVICE_EPINTSMRY_OFFSET 0x020        /**< \brief (USB_DEVICE_EPINTSMRY offset) DEVICE End Point Interrupt Summary */
-#define USB_DEVICE_EPINTSMRY_RESETVALUE 0x0000ul     /**< \brief (USB_DEVICE_EPINTSMRY reset_value) DEVICE End Point Interrupt Summary */
+#define USB_DEVICE_EPINTSMRY_RESETVALUE _U_(0x0000)  /**< \brief (USB_DEVICE_EPINTSMRY reset_value) DEVICE End Point Interrupt Summary */
 
 #define USB_DEVICE_EPINTSMRY_EPINT0_Pos 0            /**< \brief (USB_DEVICE_EPINTSMRY) End Point 0 Interrupt */
-#define USB_DEVICE_EPINTSMRY_EPINT0 (1 << USB_DEVICE_EPINTSMRY_EPINT0_Pos)
+#define USB_DEVICE_EPINTSMRY_EPINT0 (_U_(1) << USB_DEVICE_EPINTSMRY_EPINT0_Pos)
 #define USB_DEVICE_EPINTSMRY_EPINT1_Pos 1            /**< \brief (USB_DEVICE_EPINTSMRY) End Point 1 Interrupt */
-#define USB_DEVICE_EPINTSMRY_EPINT1 (1 << USB_DEVICE_EPINTSMRY_EPINT1_Pos)
+#define USB_DEVICE_EPINTSMRY_EPINT1 (_U_(1) << USB_DEVICE_EPINTSMRY_EPINT1_Pos)
 #define USB_DEVICE_EPINTSMRY_EPINT2_Pos 2            /**< \brief (USB_DEVICE_EPINTSMRY) End Point 2 Interrupt */
-#define USB_DEVICE_EPINTSMRY_EPINT2 (1 << USB_DEVICE_EPINTSMRY_EPINT2_Pos)
+#define USB_DEVICE_EPINTSMRY_EPINT2 (_U_(1) << USB_DEVICE_EPINTSMRY_EPINT2_Pos)
 #define USB_DEVICE_EPINTSMRY_EPINT3_Pos 3            /**< \brief (USB_DEVICE_EPINTSMRY) End Point 3 Interrupt */
-#define USB_DEVICE_EPINTSMRY_EPINT3 (1 << USB_DEVICE_EPINTSMRY_EPINT3_Pos)
+#define USB_DEVICE_EPINTSMRY_EPINT3 (_U_(1) << USB_DEVICE_EPINTSMRY_EPINT3_Pos)
 #define USB_DEVICE_EPINTSMRY_EPINT4_Pos 4            /**< \brief (USB_DEVICE_EPINTSMRY) End Point 4 Interrupt */
-#define USB_DEVICE_EPINTSMRY_EPINT4 (1 << USB_DEVICE_EPINTSMRY_EPINT4_Pos)
+#define USB_DEVICE_EPINTSMRY_EPINT4 (_U_(1) << USB_DEVICE_EPINTSMRY_EPINT4_Pos)
 #define USB_DEVICE_EPINTSMRY_EPINT5_Pos 5            /**< \brief (USB_DEVICE_EPINTSMRY) End Point 5 Interrupt */
-#define USB_DEVICE_EPINTSMRY_EPINT5 (1 << USB_DEVICE_EPINTSMRY_EPINT5_Pos)
+#define USB_DEVICE_EPINTSMRY_EPINT5 (_U_(1) << USB_DEVICE_EPINTSMRY_EPINT5_Pos)
 #define USB_DEVICE_EPINTSMRY_EPINT6_Pos 6            /**< \brief (USB_DEVICE_EPINTSMRY) End Point 6 Interrupt */
-#define USB_DEVICE_EPINTSMRY_EPINT6 (1 << USB_DEVICE_EPINTSMRY_EPINT6_Pos)
+#define USB_DEVICE_EPINTSMRY_EPINT6 (_U_(1) << USB_DEVICE_EPINTSMRY_EPINT6_Pos)
 #define USB_DEVICE_EPINTSMRY_EPINT7_Pos 7            /**< \brief (USB_DEVICE_EPINTSMRY) End Point 7 Interrupt */
-#define USB_DEVICE_EPINTSMRY_EPINT7 (1 << USB_DEVICE_EPINTSMRY_EPINT7_Pos)
+#define USB_DEVICE_EPINTSMRY_EPINT7 (_U_(1) << USB_DEVICE_EPINTSMRY_EPINT7_Pos)
 #define USB_DEVICE_EPINTSMRY_EPINT_Pos 0            /**< \brief (USB_DEVICE_EPINTSMRY) End Point x Interrupt */
-#define USB_DEVICE_EPINTSMRY_EPINT_Msk (0xFFul << USB_DEVICE_EPINTSMRY_EPINT_Pos)
+#define USB_DEVICE_EPINTSMRY_EPINT_Msk (_U_(0xFF) << USB_DEVICE_EPINTSMRY_EPINT_Pos)
 #define USB_DEVICE_EPINTSMRY_EPINT(value) (USB_DEVICE_EPINTSMRY_EPINT_Msk & ((value) << USB_DEVICE_EPINTSMRY_EPINT_Pos))
-#define USB_DEVICE_EPINTSMRY_MASK   0x00FFul     /**< \brief (USB_DEVICE_EPINTSMRY) MASK Register */
+#define USB_DEVICE_EPINTSMRY_MASK   _U_(0x00FF)  /**< \brief (USB_DEVICE_EPINTSMRY) MASK Register */
 
 /* -------- USB_DESCADD : (USB Offset: 0x024) (R/W 32) Descriptor Address -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
@@ -474,12 +483,12 @@ typedef union {
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
 #define USB_DESCADD_OFFSET          0x024        /**< \brief (USB_DESCADD offset) Descriptor Address */
-#define USB_DESCADD_RESETVALUE      0x00000000ul /**< \brief (USB_DESCADD reset_value) Descriptor Address */
+#define USB_DESCADD_RESETVALUE      _U_(0x00000000) /**< \brief (USB_DESCADD reset_value) Descriptor Address */
 
 #define USB_DESCADD_DESCADD_Pos     0            /**< \brief (USB_DESCADD) Descriptor Address Value */
-#define USB_DESCADD_DESCADD_Msk     (0xFFFFFFFFul << USB_DESCADD_DESCADD_Pos)
+#define USB_DESCADD_DESCADD_Msk     (_U_(0xFFFFFFFF) << USB_DESCADD_DESCADD_Pos)
 #define USB_DESCADD_DESCADD(value)  (USB_DESCADD_DESCADD_Msk & ((value) << USB_DESCADD_DESCADD_Pos))
-#define USB_DESCADD_MASK            0xFFFFFFFFul /**< \brief (USB_DESCADD) MASK Register */
+#define USB_DESCADD_MASK            _U_(0xFFFFFFFF) /**< \brief (USB_DESCADD) MASK Register */
 
 /* -------- USB_PADCAL : (USB Offset: 0x028) (R/W 16) USB PAD Calibration -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
@@ -497,18 +506,18 @@ typedef union {
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
 #define USB_PADCAL_OFFSET           0x028        /**< \brief (USB_PADCAL offset) USB PAD Calibration */
-#define USB_PADCAL_RESETVALUE       0x0000ul     /**< \brief (USB_PADCAL reset_value) USB PAD Calibration */
+#define USB_PADCAL_RESETVALUE       _U_(0x0000)  /**< \brief (USB_PADCAL reset_value) USB PAD Calibration */
 
 #define USB_PADCAL_TRANSP_Pos       0            /**< \brief (USB_PADCAL) USB Pad Transp calibration */
-#define USB_PADCAL_TRANSP_Msk       (0x1Ful << USB_PADCAL_TRANSP_Pos)
+#define USB_PADCAL_TRANSP_Msk       (_U_(0x1F) << USB_PADCAL_TRANSP_Pos)
 #define USB_PADCAL_TRANSP(value)    (USB_PADCAL_TRANSP_Msk & ((value) << USB_PADCAL_TRANSP_Pos))
 #define USB_PADCAL_TRANSN_Pos       6            /**< \brief (USB_PADCAL) USB Pad Transn calibration */
-#define USB_PADCAL_TRANSN_Msk       (0x1Ful << USB_PADCAL_TRANSN_Pos)
+#define USB_PADCAL_TRANSN_Msk       (_U_(0x1F) << USB_PADCAL_TRANSN_Pos)
 #define USB_PADCAL_TRANSN(value)    (USB_PADCAL_TRANSN_Msk & ((value) << USB_PADCAL_TRANSN_Pos))
 #define USB_PADCAL_TRIM_Pos         12           /**< \brief (USB_PADCAL) USB Pad Trim calibration */
-#define USB_PADCAL_TRIM_Msk         (0x7ul << USB_PADCAL_TRIM_Pos)
+#define USB_PADCAL_TRIM_Msk         (_U_(0x7) << USB_PADCAL_TRIM_Pos)
 #define USB_PADCAL_TRIM(value)      (USB_PADCAL_TRIM_Msk & ((value) << USB_PADCAL_TRIM_Pos))
-#define USB_PADCAL_MASK             0x77DFul     /**< \brief (USB_PADCAL) MASK Register */
+#define USB_PADCAL_MASK             _U_(0x77DF)  /**< \brief (USB_PADCAL) MASK Register */
 
 /* -------- USB_DEVICE_EPCFG : (USB Offset: 0x100) (R/W  8) DEVICE DEVICE_ENDPOINT End Point Configuration -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
@@ -524,17 +533,17 @@ typedef union {
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
 #define USB_DEVICE_EPCFG_OFFSET     0x100        /**< \brief (USB_DEVICE_EPCFG offset) DEVICE_ENDPOINT End Point Configuration */
-#define USB_DEVICE_EPCFG_RESETVALUE 0x00ul       /**< \brief (USB_DEVICE_EPCFG reset_value) DEVICE_ENDPOINT End Point Configuration */
+#define USB_DEVICE_EPCFG_RESETVALUE _U_(0x00)    /**< \brief (USB_DEVICE_EPCFG reset_value) DEVICE_ENDPOINT End Point Configuration */
 
 #define USB_DEVICE_EPCFG_EPTYPE0_Pos 0            /**< \brief (USB_DEVICE_EPCFG) End Point Type0 */
-#define USB_DEVICE_EPCFG_EPTYPE0_Msk (0x7ul << USB_DEVICE_EPCFG_EPTYPE0_Pos)
+#define USB_DEVICE_EPCFG_EPTYPE0_Msk (_U_(0x7) << USB_DEVICE_EPCFG_EPTYPE0_Pos)
 #define USB_DEVICE_EPCFG_EPTYPE0(value) (USB_DEVICE_EPCFG_EPTYPE0_Msk & ((value) << USB_DEVICE_EPCFG_EPTYPE0_Pos))
 #define USB_DEVICE_EPCFG_EPTYPE1_Pos 4            /**< \brief (USB_DEVICE_EPCFG) End Point Type1 */
-#define USB_DEVICE_EPCFG_EPTYPE1_Msk (0x7ul << USB_DEVICE_EPCFG_EPTYPE1_Pos)
+#define USB_DEVICE_EPCFG_EPTYPE1_Msk (_U_(0x7) << USB_DEVICE_EPCFG_EPTYPE1_Pos)
 #define USB_DEVICE_EPCFG_EPTYPE1(value) (USB_DEVICE_EPCFG_EPTYPE1_Msk & ((value) << USB_DEVICE_EPCFG_EPTYPE1_Pos))
 #define USB_DEVICE_EPCFG_NYETDIS_Pos 7            /**< \brief (USB_DEVICE_EPCFG) NYET Token Disable */
-#define USB_DEVICE_EPCFG_NYETDIS    (0x1ul << USB_DEVICE_EPCFG_NYETDIS_Pos)
-#define USB_DEVICE_EPCFG_MASK       0xF7ul       /**< \brief (USB_DEVICE_EPCFG) MASK Register */
+#define USB_DEVICE_EPCFG_NYETDIS    (_U_(0x1) << USB_DEVICE_EPCFG_NYETDIS_Pos)
+#define USB_DEVICE_EPCFG_MASK       _U_(0xF7)    /**< \brief (USB_DEVICE_EPCFG) MASK Register */
 
 /* -------- USB_DEVICE_EPSTATUSCLR : (USB Offset: 0x104) ( /W  8) DEVICE DEVICE_ENDPOINT End Point Pipe Status Clear -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
@@ -559,26 +568,26 @@ typedef union {
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
 #define USB_DEVICE_EPSTATUSCLR_OFFSET 0x104        /**< \brief (USB_DEVICE_EPSTATUSCLR offset) DEVICE_ENDPOINT End Point Pipe Status Clear */
-#define USB_DEVICE_EPSTATUSCLR_RESETVALUE 0x00ul       /**< \brief (USB_DEVICE_EPSTATUSCLR reset_value) DEVICE_ENDPOINT End Point Pipe Status Clear */
+#define USB_DEVICE_EPSTATUSCLR_RESETVALUE _U_(0x00)    /**< \brief (USB_DEVICE_EPSTATUSCLR reset_value) DEVICE_ENDPOINT End Point Pipe Status Clear */
 
 #define USB_DEVICE_EPSTATUSCLR_DTGLOUT_Pos 0            /**< \brief (USB_DEVICE_EPSTATUSCLR) Data Toggle OUT Clear */
-#define USB_DEVICE_EPSTATUSCLR_DTGLOUT (0x1ul << USB_DEVICE_EPSTATUSCLR_DTGLOUT_Pos)
+#define USB_DEVICE_EPSTATUSCLR_DTGLOUT (_U_(0x1) << USB_DEVICE_EPSTATUSCLR_DTGLOUT_Pos)
 #define USB_DEVICE_EPSTATUSCLR_DTGLIN_Pos 1            /**< \brief (USB_DEVICE_EPSTATUSCLR) Data Toggle IN Clear */
-#define USB_DEVICE_EPSTATUSCLR_DTGLIN (0x1ul << USB_DEVICE_EPSTATUSCLR_DTGLIN_Pos)
+#define USB_DEVICE_EPSTATUSCLR_DTGLIN (_U_(0x1) << USB_DEVICE_EPSTATUSCLR_DTGLIN_Pos)
 #define USB_DEVICE_EPSTATUSCLR_CURBK_Pos 2            /**< \brief (USB_DEVICE_EPSTATUSCLR) Current Bank Clear */
-#define USB_DEVICE_EPSTATUSCLR_CURBK (0x1ul << USB_DEVICE_EPSTATUSCLR_CURBK_Pos)
+#define USB_DEVICE_EPSTATUSCLR_CURBK (_U_(0x1) << USB_DEVICE_EPSTATUSCLR_CURBK_Pos)
 #define USB_DEVICE_EPSTATUSCLR_STALLRQ0_Pos 4            /**< \brief (USB_DEVICE_EPSTATUSCLR) Stall 0 Request Clear */
-#define USB_DEVICE_EPSTATUSCLR_STALLRQ0 (1 << USB_DEVICE_EPSTATUSCLR_STALLRQ0_Pos)
+#define USB_DEVICE_EPSTATUSCLR_STALLRQ0 (_U_(1) << USB_DEVICE_EPSTATUSCLR_STALLRQ0_Pos)
 #define USB_DEVICE_EPSTATUSCLR_STALLRQ1_Pos 5            /**< \brief (USB_DEVICE_EPSTATUSCLR) Stall 1 Request Clear */
-#define USB_DEVICE_EPSTATUSCLR_STALLRQ1 (1 << USB_DEVICE_EPSTATUSCLR_STALLRQ1_Pos)
+#define USB_DEVICE_EPSTATUSCLR_STALLRQ1 (_U_(1) << USB_DEVICE_EPSTATUSCLR_STALLRQ1_Pos)
 #define USB_DEVICE_EPSTATUSCLR_STALLRQ_Pos 4            /**< \brief (USB_DEVICE_EPSTATUSCLR) Stall x Request Clear */
-#define USB_DEVICE_EPSTATUSCLR_STALLRQ_Msk (0x3ul << USB_DEVICE_EPSTATUSCLR_STALLRQ_Pos)
+#define USB_DEVICE_EPSTATUSCLR_STALLRQ_Msk (_U_(0x3) << USB_DEVICE_EPSTATUSCLR_STALLRQ_Pos)
 #define USB_DEVICE_EPSTATUSCLR_STALLRQ(value) (USB_DEVICE_EPSTATUSCLR_STALLRQ_Msk & ((value) << USB_DEVICE_EPSTATUSCLR_STALLRQ_Pos))
 #define USB_DEVICE_EPSTATUSCLR_BK0RDY_Pos 6            /**< \brief (USB_DEVICE_EPSTATUSCLR) Bank 0 Ready Clear */
-#define USB_DEVICE_EPSTATUSCLR_BK0RDY (0x1ul << USB_DEVICE_EPSTATUSCLR_BK0RDY_Pos)
+#define USB_DEVICE_EPSTATUSCLR_BK0RDY (_U_(0x1) << USB_DEVICE_EPSTATUSCLR_BK0RDY_Pos)
 #define USB_DEVICE_EPSTATUSCLR_BK1RDY_Pos 7            /**< \brief (USB_DEVICE_EPSTATUSCLR) Bank 1 Ready Clear */
-#define USB_DEVICE_EPSTATUSCLR_BK1RDY (0x1ul << USB_DEVICE_EPSTATUSCLR_BK1RDY_Pos)
-#define USB_DEVICE_EPSTATUSCLR_MASK 0xF7ul       /**< \brief (USB_DEVICE_EPSTATUSCLR) MASK Register */
+#define USB_DEVICE_EPSTATUSCLR_BK1RDY (_U_(0x1) << USB_DEVICE_EPSTATUSCLR_BK1RDY_Pos)
+#define USB_DEVICE_EPSTATUSCLR_MASK _U_(0xF7)    /**< \brief (USB_DEVICE_EPSTATUSCLR) MASK Register */
 
 /* -------- USB_DEVICE_EPSTATUSSET : (USB Offset: 0x105) ( /W  8) DEVICE DEVICE_ENDPOINT End Point Pipe Status Set -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
@@ -603,26 +612,26 @@ typedef union {
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
 #define USB_DEVICE_EPSTATUSSET_OFFSET 0x105        /**< \brief (USB_DEVICE_EPSTATUSSET offset) DEVICE_ENDPOINT End Point Pipe Status Set */
-#define USB_DEVICE_EPSTATUSSET_RESETVALUE 0x00ul       /**< \brief (USB_DEVICE_EPSTATUSSET reset_value) DEVICE_ENDPOINT End Point Pipe Status Set */
+#define USB_DEVICE_EPSTATUSSET_RESETVALUE _U_(0x00)    /**< \brief (USB_DEVICE_EPSTATUSSET reset_value) DEVICE_ENDPOINT End Point Pipe Status Set */
 
 #define USB_DEVICE_EPSTATUSSET_DTGLOUT_Pos 0            /**< \brief (USB_DEVICE_EPSTATUSSET) Data Toggle OUT Set */
-#define USB_DEVICE_EPSTATUSSET_DTGLOUT (0x1ul << USB_DEVICE_EPSTATUSSET_DTGLOUT_Pos)
+#define USB_DEVICE_EPSTATUSSET_DTGLOUT (_U_(0x1) << USB_DEVICE_EPSTATUSSET_DTGLOUT_Pos)
 #define USB_DEVICE_EPSTATUSSET_DTGLIN_Pos 1            /**< \brief (USB_DEVICE_EPSTATUSSET) Data Toggle IN Set */
-#define USB_DEVICE_EPSTATUSSET_DTGLIN (0x1ul << USB_DEVICE_EPSTATUSSET_DTGLIN_Pos)
+#define USB_DEVICE_EPSTATUSSET_DTGLIN (_U_(0x1) << USB_DEVICE_EPSTATUSSET_DTGLIN_Pos)
 #define USB_DEVICE_EPSTATUSSET_CURBK_Pos 2            /**< \brief (USB_DEVICE_EPSTATUSSET) Current Bank Set */
-#define USB_DEVICE_EPSTATUSSET_CURBK (0x1ul << USB_DEVICE_EPSTATUSSET_CURBK_Pos)
+#define USB_DEVICE_EPSTATUSSET_CURBK (_U_(0x1) << USB_DEVICE_EPSTATUSSET_CURBK_Pos)
 #define USB_DEVICE_EPSTATUSSET_STALLRQ0_Pos 4            /**< \brief (USB_DEVICE_EPSTATUSSET) Stall 0 Request Set */
-#define USB_DEVICE_EPSTATUSSET_STALLRQ0 (1 << USB_DEVICE_EPSTATUSSET_STALLRQ0_Pos)
+#define USB_DEVICE_EPSTATUSSET_STALLRQ0 (_U_(1) << USB_DEVICE_EPSTATUSSET_STALLRQ0_Pos)
 #define USB_DEVICE_EPSTATUSSET_STALLRQ1_Pos 5            /**< \brief (USB_DEVICE_EPSTATUSSET) Stall 1 Request Set */
-#define USB_DEVICE_EPSTATUSSET_STALLRQ1 (1 << USB_DEVICE_EPSTATUSSET_STALLRQ1_Pos)
+#define USB_DEVICE_EPSTATUSSET_STALLRQ1 (_U_(1) << USB_DEVICE_EPSTATUSSET_STALLRQ1_Pos)
 #define USB_DEVICE_EPSTATUSSET_STALLRQ_Pos 4            /**< \brief (USB_DEVICE_EPSTATUSSET) Stall x Request Set */
-#define USB_DEVICE_EPSTATUSSET_STALLRQ_Msk (0x3ul << USB_DEVICE_EPSTATUSSET_STALLRQ_Pos)
+#define USB_DEVICE_EPSTATUSSET_STALLRQ_Msk (_U_(0x3) << USB_DEVICE_EPSTATUSSET_STALLRQ_Pos)
 #define USB_DEVICE_EPSTATUSSET_STALLRQ(value) (USB_DEVICE_EPSTATUSSET_STALLRQ_Msk & ((value) << USB_DEVICE_EPSTATUSSET_STALLRQ_Pos))
 #define USB_DEVICE_EPSTATUSSET_BK0RDY_Pos 6            /**< \brief (USB_DEVICE_EPSTATUSSET) Bank 0 Ready Set */
-#define USB_DEVICE_EPSTATUSSET_BK0RDY (0x1ul << USB_DEVICE_EPSTATUSSET_BK0RDY_Pos)
+#define USB_DEVICE_EPSTATUSSET_BK0RDY (_U_(0x1) << USB_DEVICE_EPSTATUSSET_BK0RDY_Pos)
 #define USB_DEVICE_EPSTATUSSET_BK1RDY_Pos 7            /**< \brief (USB_DEVICE_EPSTATUSSET) Bank 1 Ready Set */
-#define USB_DEVICE_EPSTATUSSET_BK1RDY (0x1ul << USB_DEVICE_EPSTATUSSET_BK1RDY_Pos)
-#define USB_DEVICE_EPSTATUSSET_MASK 0xF7ul       /**< \brief (USB_DEVICE_EPSTATUSSET) MASK Register */
+#define USB_DEVICE_EPSTATUSSET_BK1RDY (_U_(0x1) << USB_DEVICE_EPSTATUSSET_BK1RDY_Pos)
+#define USB_DEVICE_EPSTATUSSET_MASK _U_(0xF7)    /**< \brief (USB_DEVICE_EPSTATUSSET) MASK Register */
 
 /* -------- USB_DEVICE_EPSTATUS : (USB Offset: 0x106) (R/   8) DEVICE DEVICE_ENDPOINT End Point Pipe Status -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
@@ -647,26 +656,26 @@ typedef union {
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
 #define USB_DEVICE_EPSTATUS_OFFSET  0x106        /**< \brief (USB_DEVICE_EPSTATUS offset) DEVICE_ENDPOINT End Point Pipe Status */
-#define USB_DEVICE_EPSTATUS_RESETVALUE 0x00ul       /**< \brief (USB_DEVICE_EPSTATUS reset_value) DEVICE_ENDPOINT End Point Pipe Status */
+#define USB_DEVICE_EPSTATUS_RESETVALUE _U_(0x00)    /**< \brief (USB_DEVICE_EPSTATUS reset_value) DEVICE_ENDPOINT End Point Pipe Status */
 
 #define USB_DEVICE_EPSTATUS_DTGLOUT_Pos 0            /**< \brief (USB_DEVICE_EPSTATUS) Data Toggle Out */
-#define USB_DEVICE_EPSTATUS_DTGLOUT (0x1ul << USB_DEVICE_EPSTATUS_DTGLOUT_Pos)
+#define USB_DEVICE_EPSTATUS_DTGLOUT (_U_(0x1) << USB_DEVICE_EPSTATUS_DTGLOUT_Pos)
 #define USB_DEVICE_EPSTATUS_DTGLIN_Pos 1            /**< \brief (USB_DEVICE_EPSTATUS) Data Toggle In */
-#define USB_DEVICE_EPSTATUS_DTGLIN  (0x1ul << USB_DEVICE_EPSTATUS_DTGLIN_Pos)
+#define USB_DEVICE_EPSTATUS_DTGLIN  (_U_(0x1) << USB_DEVICE_EPSTATUS_DTGLIN_Pos)
 #define USB_DEVICE_EPSTATUS_CURBK_Pos 2            /**< \brief (USB_DEVICE_EPSTATUS) Current Bank */
-#define USB_DEVICE_EPSTATUS_CURBK   (0x1ul << USB_DEVICE_EPSTATUS_CURBK_Pos)
+#define USB_DEVICE_EPSTATUS_CURBK   (_U_(0x1) << USB_DEVICE_EPSTATUS_CURBK_Pos)
 #define USB_DEVICE_EPSTATUS_STALLRQ0_Pos 4            /**< \brief (USB_DEVICE_EPSTATUS) Stall 0 Request */
-#define USB_DEVICE_EPSTATUS_STALLRQ0 (1 << USB_DEVICE_EPSTATUS_STALLRQ0_Pos)
+#define USB_DEVICE_EPSTATUS_STALLRQ0 (_U_(1) << USB_DEVICE_EPSTATUS_STALLRQ0_Pos)
 #define USB_DEVICE_EPSTATUS_STALLRQ1_Pos 5            /**< \brief (USB_DEVICE_EPSTATUS) Stall 1 Request */
-#define USB_DEVICE_EPSTATUS_STALLRQ1 (1 << USB_DEVICE_EPSTATUS_STALLRQ1_Pos)
+#define USB_DEVICE_EPSTATUS_STALLRQ1 (_U_(1) << USB_DEVICE_EPSTATUS_STALLRQ1_Pos)
 #define USB_DEVICE_EPSTATUS_STALLRQ_Pos 4            /**< \brief (USB_DEVICE_EPSTATUS) Stall x Request */
-#define USB_DEVICE_EPSTATUS_STALLRQ_Msk (0x3ul << USB_DEVICE_EPSTATUS_STALLRQ_Pos)
+#define USB_DEVICE_EPSTATUS_STALLRQ_Msk (_U_(0x3) << USB_DEVICE_EPSTATUS_STALLRQ_Pos)
 #define USB_DEVICE_EPSTATUS_STALLRQ(value) (USB_DEVICE_EPSTATUS_STALLRQ_Msk & ((value) << USB_DEVICE_EPSTATUS_STALLRQ_Pos))
 #define USB_DEVICE_EPSTATUS_BK0RDY_Pos 6            /**< \brief (USB_DEVICE_EPSTATUS) Bank 0 ready */
-#define USB_DEVICE_EPSTATUS_BK0RDY  (0x1ul << USB_DEVICE_EPSTATUS_BK0RDY_Pos)
+#define USB_DEVICE_EPSTATUS_BK0RDY  (_U_(0x1) << USB_DEVICE_EPSTATUS_BK0RDY_Pos)
 #define USB_DEVICE_EPSTATUS_BK1RDY_Pos 7            /**< \brief (USB_DEVICE_EPSTATUS) Bank 1 ready */
-#define USB_DEVICE_EPSTATUS_BK1RDY  (0x1ul << USB_DEVICE_EPSTATUS_BK1RDY_Pos)
-#define USB_DEVICE_EPSTATUS_MASK    0xF7ul       /**< \brief (USB_DEVICE_EPSTATUS) MASK Register */
+#define USB_DEVICE_EPSTATUS_BK1RDY  (_U_(0x1) << USB_DEVICE_EPSTATUS_BK1RDY_Pos)
+#define USB_DEVICE_EPSTATUS_MASK    _U_(0xF7)    /**< \brief (USB_DEVICE_EPSTATUS) MASK Register */
 
 /* -------- USB_DEVICE_EPINTFLAG : (USB Offset: 0x107) (R/W  8) DEVICE DEVICE_ENDPOINT End Point Interrupt Flag -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
@@ -693,32 +702,32 @@ typedef union { // __I to avoid read-modify-write on write-to-clear register
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
 #define USB_DEVICE_EPINTFLAG_OFFSET 0x107        /**< \brief (USB_DEVICE_EPINTFLAG offset) DEVICE_ENDPOINT End Point Interrupt Flag */
-#define USB_DEVICE_EPINTFLAG_RESETVALUE 0x00ul       /**< \brief (USB_DEVICE_EPINTFLAG reset_value) DEVICE_ENDPOINT End Point Interrupt Flag */
+#define USB_DEVICE_EPINTFLAG_RESETVALUE _U_(0x00)    /**< \brief (USB_DEVICE_EPINTFLAG reset_value) DEVICE_ENDPOINT End Point Interrupt Flag */
 
 #define USB_DEVICE_EPINTFLAG_TRCPT0_Pos 0            /**< \brief (USB_DEVICE_EPINTFLAG) Transfer Complete 0 */
-#define USB_DEVICE_EPINTFLAG_TRCPT0 (1 << USB_DEVICE_EPINTFLAG_TRCPT0_Pos)
+#define USB_DEVICE_EPINTFLAG_TRCPT0 (_U_(1) << USB_DEVICE_EPINTFLAG_TRCPT0_Pos)
 #define USB_DEVICE_EPINTFLAG_TRCPT1_Pos 1            /**< \brief (USB_DEVICE_EPINTFLAG) Transfer Complete 1 */
-#define USB_DEVICE_EPINTFLAG_TRCPT1 (1 << USB_DEVICE_EPINTFLAG_TRCPT1_Pos)
+#define USB_DEVICE_EPINTFLAG_TRCPT1 (_U_(1) << USB_DEVICE_EPINTFLAG_TRCPT1_Pos)
 #define USB_DEVICE_EPINTFLAG_TRCPT_Pos 0            /**< \brief (USB_DEVICE_EPINTFLAG) Transfer Complete x */
-#define USB_DEVICE_EPINTFLAG_TRCPT_Msk (0x3ul << USB_DEVICE_EPINTFLAG_TRCPT_Pos)
+#define USB_DEVICE_EPINTFLAG_TRCPT_Msk (_U_(0x3) << USB_DEVICE_EPINTFLAG_TRCPT_Pos)
 #define USB_DEVICE_EPINTFLAG_TRCPT(value) (USB_DEVICE_EPINTFLAG_TRCPT_Msk & ((value) << USB_DEVICE_EPINTFLAG_TRCPT_Pos))
 #define USB_DEVICE_EPINTFLAG_TRFAIL0_Pos 2            /**< \brief (USB_DEVICE_EPINTFLAG) Error Flow 0 */
-#define USB_DEVICE_EPINTFLAG_TRFAIL0 (1 << USB_DEVICE_EPINTFLAG_TRFAIL0_Pos)
+#define USB_DEVICE_EPINTFLAG_TRFAIL0 (_U_(1) << USB_DEVICE_EPINTFLAG_TRFAIL0_Pos)
 #define USB_DEVICE_EPINTFLAG_TRFAIL1_Pos 3            /**< \brief (USB_DEVICE_EPINTFLAG) Error Flow 1 */
-#define USB_DEVICE_EPINTFLAG_TRFAIL1 (1 << USB_DEVICE_EPINTFLAG_TRFAIL1_Pos)
+#define USB_DEVICE_EPINTFLAG_TRFAIL1 (_U_(1) << USB_DEVICE_EPINTFLAG_TRFAIL1_Pos)
 #define USB_DEVICE_EPINTFLAG_TRFAIL_Pos 2            /**< \brief (USB_DEVICE_EPINTFLAG) Error Flow x */
-#define USB_DEVICE_EPINTFLAG_TRFAIL_Msk (0x3ul << USB_DEVICE_EPINTFLAG_TRFAIL_Pos)
+#define USB_DEVICE_EPINTFLAG_TRFAIL_Msk (_U_(0x3) << USB_DEVICE_EPINTFLAG_TRFAIL_Pos)
 #define USB_DEVICE_EPINTFLAG_TRFAIL(value) (USB_DEVICE_EPINTFLAG_TRFAIL_Msk & ((value) << USB_DEVICE_EPINTFLAG_TRFAIL_Pos))
 #define USB_DEVICE_EPINTFLAG_RXSTP_Pos 4            /**< \brief (USB_DEVICE_EPINTFLAG) Received Setup */
-#define USB_DEVICE_EPINTFLAG_RXSTP  (0x1ul << USB_DEVICE_EPINTFLAG_RXSTP_Pos)
+#define USB_DEVICE_EPINTFLAG_RXSTP  (_U_(0x1) << USB_DEVICE_EPINTFLAG_RXSTP_Pos)
 #define USB_DEVICE_EPINTFLAG_STALL0_Pos 5            /**< \brief (USB_DEVICE_EPINTFLAG) Stall 0 In/out */
-#define USB_DEVICE_EPINTFLAG_STALL0 (1 << USB_DEVICE_EPINTFLAG_STALL0_Pos)
+#define USB_DEVICE_EPINTFLAG_STALL0 (_U_(1) << USB_DEVICE_EPINTFLAG_STALL0_Pos)
 #define USB_DEVICE_EPINTFLAG_STALL1_Pos 6            /**< \brief (USB_DEVICE_EPINTFLAG) Stall 1 In/out */
-#define USB_DEVICE_EPINTFLAG_STALL1 (1 << USB_DEVICE_EPINTFLAG_STALL1_Pos)
+#define USB_DEVICE_EPINTFLAG_STALL1 (_U_(1) << USB_DEVICE_EPINTFLAG_STALL1_Pos)
 #define USB_DEVICE_EPINTFLAG_STALL_Pos 5            /**< \brief (USB_DEVICE_EPINTFLAG) Stall x In/out */
-#define USB_DEVICE_EPINTFLAG_STALL_Msk (0x3ul << USB_DEVICE_EPINTFLAG_STALL_Pos)
+#define USB_DEVICE_EPINTFLAG_STALL_Msk (_U_(0x3) << USB_DEVICE_EPINTFLAG_STALL_Pos)
 #define USB_DEVICE_EPINTFLAG_STALL(value) (USB_DEVICE_EPINTFLAG_STALL_Msk & ((value) << USB_DEVICE_EPINTFLAG_STALL_Pos))
-#define USB_DEVICE_EPINTFLAG_MASK   0x7Ful       /**< \brief (USB_DEVICE_EPINTFLAG) MASK Register */
+#define USB_DEVICE_EPINTFLAG_MASK   _U_(0x7F)    /**< \brief (USB_DEVICE_EPINTFLAG) MASK Register */
 
 /* -------- USB_DEVICE_EPINTENCLR : (USB Offset: 0x108) (R/W  8) DEVICE DEVICE_ENDPOINT End Point Interrupt Clear Flag -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
@@ -745,32 +754,32 @@ typedef union {
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
 #define USB_DEVICE_EPINTENCLR_OFFSET 0x108        /**< \brief (USB_DEVICE_EPINTENCLR offset) DEVICE_ENDPOINT End Point Interrupt Clear Flag */
-#define USB_DEVICE_EPINTENCLR_RESETVALUE 0x00ul       /**< \brief (USB_DEVICE_EPINTENCLR reset_value) DEVICE_ENDPOINT End Point Interrupt Clear Flag */
+#define USB_DEVICE_EPINTENCLR_RESETVALUE _U_(0x00)    /**< \brief (USB_DEVICE_EPINTENCLR reset_value) DEVICE_ENDPOINT End Point Interrupt Clear Flag */
 
 #define USB_DEVICE_EPINTENCLR_TRCPT0_Pos 0            /**< \brief (USB_DEVICE_EPINTENCLR) Transfer Complete 0 Interrupt Disable */
-#define USB_DEVICE_EPINTENCLR_TRCPT0 (1 << USB_DEVICE_EPINTENCLR_TRCPT0_Pos)
+#define USB_DEVICE_EPINTENCLR_TRCPT0 (_U_(1) << USB_DEVICE_EPINTENCLR_TRCPT0_Pos)
 #define USB_DEVICE_EPINTENCLR_TRCPT1_Pos 1            /**< \brief (USB_DEVICE_EPINTENCLR) Transfer Complete 1 Interrupt Disable */
-#define USB_DEVICE_EPINTENCLR_TRCPT1 (1 << USB_DEVICE_EPINTENCLR_TRCPT1_Pos)
+#define USB_DEVICE_EPINTENCLR_TRCPT1 (_U_(1) << USB_DEVICE_EPINTENCLR_TRCPT1_Pos)
 #define USB_DEVICE_EPINTENCLR_TRCPT_Pos 0            /**< \brief (USB_DEVICE_EPINTENCLR) Transfer Complete x Interrupt Disable */
-#define USB_DEVICE_EPINTENCLR_TRCPT_Msk (0x3ul << USB_DEVICE_EPINTENCLR_TRCPT_Pos)
+#define USB_DEVICE_EPINTENCLR_TRCPT_Msk (_U_(0x3) << USB_DEVICE_EPINTENCLR_TRCPT_Pos)
 #define USB_DEVICE_EPINTENCLR_TRCPT(value) (USB_DEVICE_EPINTENCLR_TRCPT_Msk & ((value) << USB_DEVICE_EPINTENCLR_TRCPT_Pos))
 #define USB_DEVICE_EPINTENCLR_TRFAIL0_Pos 2            /**< \brief (USB_DEVICE_EPINTENCLR) Error Flow 0 Interrupt Disable */
-#define USB_DEVICE_EPINTENCLR_TRFAIL0 (1 << USB_DEVICE_EPINTENCLR_TRFAIL0_Pos)
+#define USB_DEVICE_EPINTENCLR_TRFAIL0 (_U_(1) << USB_DEVICE_EPINTENCLR_TRFAIL0_Pos)
 #define USB_DEVICE_EPINTENCLR_TRFAIL1_Pos 3            /**< \brief (USB_DEVICE_EPINTENCLR) Error Flow 1 Interrupt Disable */
-#define USB_DEVICE_EPINTENCLR_TRFAIL1 (1 << USB_DEVICE_EPINTENCLR_TRFAIL1_Pos)
+#define USB_DEVICE_EPINTENCLR_TRFAIL1 (_U_(1) << USB_DEVICE_EPINTENCLR_TRFAIL1_Pos)
 #define USB_DEVICE_EPINTENCLR_TRFAIL_Pos 2            /**< \brief (USB_DEVICE_EPINTENCLR) Error Flow x Interrupt Disable */
-#define USB_DEVICE_EPINTENCLR_TRFAIL_Msk (0x3ul << USB_DEVICE_EPINTENCLR_TRFAIL_Pos)
+#define USB_DEVICE_EPINTENCLR_TRFAIL_Msk (_U_(0x3) << USB_DEVICE_EPINTENCLR_TRFAIL_Pos)
 #define USB_DEVICE_EPINTENCLR_TRFAIL(value) (USB_DEVICE_EPINTENCLR_TRFAIL_Msk & ((value) << USB_DEVICE_EPINTENCLR_TRFAIL_Pos))
 #define USB_DEVICE_EPINTENCLR_RXSTP_Pos 4            /**< \brief (USB_DEVICE_EPINTENCLR) Received Setup Interrupt Disable */
-#define USB_DEVICE_EPINTENCLR_RXSTP (0x1ul << USB_DEVICE_EPINTENCLR_RXSTP_Pos)
+#define USB_DEVICE_EPINTENCLR_RXSTP (_U_(0x1) << USB_DEVICE_EPINTENCLR_RXSTP_Pos)
 #define USB_DEVICE_EPINTENCLR_STALL0_Pos 5            /**< \brief (USB_DEVICE_EPINTENCLR) Stall 0 In/Out Interrupt Disable */
-#define USB_DEVICE_EPINTENCLR_STALL0 (1 << USB_DEVICE_EPINTENCLR_STALL0_Pos)
+#define USB_DEVICE_EPINTENCLR_STALL0 (_U_(1) << USB_DEVICE_EPINTENCLR_STALL0_Pos)
 #define USB_DEVICE_EPINTENCLR_STALL1_Pos 6            /**< \brief (USB_DEVICE_EPINTENCLR) Stall 1 In/Out Interrupt Disable */
-#define USB_DEVICE_EPINTENCLR_STALL1 (1 << USB_DEVICE_EPINTENCLR_STALL1_Pos)
+#define USB_DEVICE_EPINTENCLR_STALL1 (_U_(1) << USB_DEVICE_EPINTENCLR_STALL1_Pos)
 #define USB_DEVICE_EPINTENCLR_STALL_Pos 5            /**< \brief (USB_DEVICE_EPINTENCLR) Stall x In/Out Interrupt Disable */
-#define USB_DEVICE_EPINTENCLR_STALL_Msk (0x3ul << USB_DEVICE_EPINTENCLR_STALL_Pos)
+#define USB_DEVICE_EPINTENCLR_STALL_Msk (_U_(0x3) << USB_DEVICE_EPINTENCLR_STALL_Pos)
 #define USB_DEVICE_EPINTENCLR_STALL(value) (USB_DEVICE_EPINTENCLR_STALL_Msk & ((value) << USB_DEVICE_EPINTENCLR_STALL_Pos))
-#define USB_DEVICE_EPINTENCLR_MASK  0x7Ful       /**< \brief (USB_DEVICE_EPINTENCLR) MASK Register */
+#define USB_DEVICE_EPINTENCLR_MASK  _U_(0x7F)    /**< \brief (USB_DEVICE_EPINTENCLR) MASK Register */
 
 /* -------- USB_DEVICE_EPINTENSET : (USB Offset: 0x109) (R/W  8) DEVICE DEVICE_ENDPOINT End Point Interrupt Set Flag -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
@@ -797,32 +806,32 @@ typedef union {
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
 #define USB_DEVICE_EPINTENSET_OFFSET 0x109        /**< \brief (USB_DEVICE_EPINTENSET offset) DEVICE_ENDPOINT End Point Interrupt Set Flag */
-#define USB_DEVICE_EPINTENSET_RESETVALUE 0x00ul       /**< \brief (USB_DEVICE_EPINTENSET reset_value) DEVICE_ENDPOINT End Point Interrupt Set Flag */
+#define USB_DEVICE_EPINTENSET_RESETVALUE _U_(0x00)    /**< \brief (USB_DEVICE_EPINTENSET reset_value) DEVICE_ENDPOINT End Point Interrupt Set Flag */
 
 #define USB_DEVICE_EPINTENSET_TRCPT0_Pos 0            /**< \brief (USB_DEVICE_EPINTENSET) Transfer Complete 0 Interrupt Enable */
-#define USB_DEVICE_EPINTENSET_TRCPT0 (1 << USB_DEVICE_EPINTENSET_TRCPT0_Pos)
+#define USB_DEVICE_EPINTENSET_TRCPT0 (_U_(1) << USB_DEVICE_EPINTENSET_TRCPT0_Pos)
 #define USB_DEVICE_EPINTENSET_TRCPT1_Pos 1            /**< \brief (USB_DEVICE_EPINTENSET) Transfer Complete 1 Interrupt Enable */
-#define USB_DEVICE_EPINTENSET_TRCPT1 (1 << USB_DEVICE_EPINTENSET_TRCPT1_Pos)
+#define USB_DEVICE_EPINTENSET_TRCPT1 (_U_(1) << USB_DEVICE_EPINTENSET_TRCPT1_Pos)
 #define USB_DEVICE_EPINTENSET_TRCPT_Pos 0            /**< \brief (USB_DEVICE_EPINTENSET) Transfer Complete x Interrupt Enable */
-#define USB_DEVICE_EPINTENSET_TRCPT_Msk (0x3ul << USB_DEVICE_EPINTENSET_TRCPT_Pos)
+#define USB_DEVICE_EPINTENSET_TRCPT_Msk (_U_(0x3) << USB_DEVICE_EPINTENSET_TRCPT_Pos)
 #define USB_DEVICE_EPINTENSET_TRCPT(value) (USB_DEVICE_EPINTENSET_TRCPT_Msk & ((value) << USB_DEVICE_EPINTENSET_TRCPT_Pos))
 #define USB_DEVICE_EPINTENSET_TRFAIL0_Pos 2            /**< \brief (USB_DEVICE_EPINTENSET) Error Flow 0 Interrupt Enable */
-#define USB_DEVICE_EPINTENSET_TRFAIL0 (1 << USB_DEVICE_EPINTENSET_TRFAIL0_Pos)
+#define USB_DEVICE_EPINTENSET_TRFAIL0 (_U_(1) << USB_DEVICE_EPINTENSET_TRFAIL0_Pos)
 #define USB_DEVICE_EPINTENSET_TRFAIL1_Pos 3            /**< \brief (USB_DEVICE_EPINTENSET) Error Flow 1 Interrupt Enable */
-#define USB_DEVICE_EPINTENSET_TRFAIL1 (1 << USB_DEVICE_EPINTENSET_TRFAIL1_Pos)
+#define USB_DEVICE_EPINTENSET_TRFAIL1 (_U_(1) << USB_DEVICE_EPINTENSET_TRFAIL1_Pos)
 #define USB_DEVICE_EPINTENSET_TRFAIL_Pos 2            /**< \brief (USB_DEVICE_EPINTENSET) Error Flow x Interrupt Enable */
-#define USB_DEVICE_EPINTENSET_TRFAIL_Msk (0x3ul << USB_DEVICE_EPINTENSET_TRFAIL_Pos)
+#define USB_DEVICE_EPINTENSET_TRFAIL_Msk (_U_(0x3) << USB_DEVICE_EPINTENSET_TRFAIL_Pos)
 #define USB_DEVICE_EPINTENSET_TRFAIL(value) (USB_DEVICE_EPINTENSET_TRFAIL_Msk & ((value) << USB_DEVICE_EPINTENSET_TRFAIL_Pos))
 #define USB_DEVICE_EPINTENSET_RXSTP_Pos 4            /**< \brief (USB_DEVICE_EPINTENSET) Received Setup Interrupt Enable */
-#define USB_DEVICE_EPINTENSET_RXSTP (0x1ul << USB_DEVICE_EPINTENSET_RXSTP_Pos)
+#define USB_DEVICE_EPINTENSET_RXSTP (_U_(0x1) << USB_DEVICE_EPINTENSET_RXSTP_Pos)
 #define USB_DEVICE_EPINTENSET_STALL0_Pos 5            /**< \brief (USB_DEVICE_EPINTENSET) Stall 0 In/out Interrupt enable */
-#define USB_DEVICE_EPINTENSET_STALL0 (1 << USB_DEVICE_EPINTENSET_STALL0_Pos)
+#define USB_DEVICE_EPINTENSET_STALL0 (_U_(1) << USB_DEVICE_EPINTENSET_STALL0_Pos)
 #define USB_DEVICE_EPINTENSET_STALL1_Pos 6            /**< \brief (USB_DEVICE_EPINTENSET) Stall 1 In/out Interrupt enable */
-#define USB_DEVICE_EPINTENSET_STALL1 (1 << USB_DEVICE_EPINTENSET_STALL1_Pos)
+#define USB_DEVICE_EPINTENSET_STALL1 (_U_(1) << USB_DEVICE_EPINTENSET_STALL1_Pos)
 #define USB_DEVICE_EPINTENSET_STALL_Pos 5            /**< \brief (USB_DEVICE_EPINTENSET) Stall x In/out Interrupt enable */
-#define USB_DEVICE_EPINTENSET_STALL_Msk (0x3ul << USB_DEVICE_EPINTENSET_STALL_Pos)
+#define USB_DEVICE_EPINTENSET_STALL_Msk (_U_(0x3) << USB_DEVICE_EPINTENSET_STALL_Pos)
 #define USB_DEVICE_EPINTENSET_STALL(value) (USB_DEVICE_EPINTENSET_STALL_Msk & ((value) << USB_DEVICE_EPINTENSET_STALL_Pos))
-#define USB_DEVICE_EPINTENSET_MASK  0x7Ful       /**< \brief (USB_DEVICE_EPINTENSET) MASK Register */
+#define USB_DEVICE_EPINTENSET_MASK  _U_(0x7F)    /**< \brief (USB_DEVICE_EPINTENSET) MASK Register */
 
 /* -------- USB_DEVICE_ADDR : (USB Offset: 0x000) (R/W 32) DEVICE DEVICE_DESC_BANK Endpoint Bank, Adress of Data Buffer -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
@@ -837,9 +846,9 @@ typedef union {
 #define USB_DEVICE_ADDR_OFFSET      0x000        /**< \brief (USB_DEVICE_ADDR offset) DEVICE_DESC_BANK Endpoint Bank, Adress of Data Buffer */
 
 #define USB_DEVICE_ADDR_ADDR_Pos    0            /**< \brief (USB_DEVICE_ADDR) Adress of data buffer */
-#define USB_DEVICE_ADDR_ADDR_Msk    (0xFFFFFFFFul << USB_DEVICE_ADDR_ADDR_Pos)
+#define USB_DEVICE_ADDR_ADDR_Msk    (_U_(0xFFFFFFFF) << USB_DEVICE_ADDR_ADDR_Pos)
 #define USB_DEVICE_ADDR_ADDR(value) (USB_DEVICE_ADDR_ADDR_Msk & ((value) << USB_DEVICE_ADDR_ADDR_Pos))
-#define USB_DEVICE_ADDR_MASK        0xFFFFFFFFul /**< \brief (USB_DEVICE_ADDR) MASK Register */
+#define USB_DEVICE_ADDR_MASK        _U_(0xFFFFFFFF) /**< \brief (USB_DEVICE_ADDR) MASK Register */
 
 /* -------- USB_DEVICE_PCKSIZE : (USB Offset: 0x004) (R/W 32) DEVICE DEVICE_DESC_BANK Endpoint Bank, Packet Size -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
@@ -857,17 +866,17 @@ typedef union {
 #define USB_DEVICE_PCKSIZE_OFFSET   0x004        /**< \brief (USB_DEVICE_PCKSIZE offset) DEVICE_DESC_BANK Endpoint Bank, Packet Size */
 
 #define USB_DEVICE_PCKSIZE_BYTE_COUNT_Pos 0            /**< \brief (USB_DEVICE_PCKSIZE) Byte Count */
-#define USB_DEVICE_PCKSIZE_BYTE_COUNT_Msk (0x3FFFul << USB_DEVICE_PCKSIZE_BYTE_COUNT_Pos)
+#define USB_DEVICE_PCKSIZE_BYTE_COUNT_Msk (_U_(0x3FFF) << USB_DEVICE_PCKSIZE_BYTE_COUNT_Pos)
 #define USB_DEVICE_PCKSIZE_BYTE_COUNT(value) (USB_DEVICE_PCKSIZE_BYTE_COUNT_Msk & ((value) << USB_DEVICE_PCKSIZE_BYTE_COUNT_Pos))
 #define USB_DEVICE_PCKSIZE_MULTI_PACKET_SIZE_Pos 14           /**< \brief (USB_DEVICE_PCKSIZE) Multi Packet In or Out size */
-#define USB_DEVICE_PCKSIZE_MULTI_PACKET_SIZE_Msk (0x3FFFul << USB_DEVICE_PCKSIZE_MULTI_PACKET_SIZE_Pos)
+#define USB_DEVICE_PCKSIZE_MULTI_PACKET_SIZE_Msk (_U_(0x3FFF) << USB_DEVICE_PCKSIZE_MULTI_PACKET_SIZE_Pos)
 #define USB_DEVICE_PCKSIZE_MULTI_PACKET_SIZE(value) (USB_DEVICE_PCKSIZE_MULTI_PACKET_SIZE_Msk & ((value) << USB_DEVICE_PCKSIZE_MULTI_PACKET_SIZE_Pos))
 #define USB_DEVICE_PCKSIZE_SIZE_Pos 28           /**< \brief (USB_DEVICE_PCKSIZE) Enpoint size */
-#define USB_DEVICE_PCKSIZE_SIZE_Msk (0x7ul << USB_DEVICE_PCKSIZE_SIZE_Pos)
+#define USB_DEVICE_PCKSIZE_SIZE_Msk (_U_(0x7) << USB_DEVICE_PCKSIZE_SIZE_Pos)
 #define USB_DEVICE_PCKSIZE_SIZE(value) (USB_DEVICE_PCKSIZE_SIZE_Msk & ((value) << USB_DEVICE_PCKSIZE_SIZE_Pos))
 #define USB_DEVICE_PCKSIZE_AUTO_ZLP_Pos 31           /**< \brief (USB_DEVICE_PCKSIZE) Automatic Zero Length Packet */
-#define USB_DEVICE_PCKSIZE_AUTO_ZLP (0x1ul << USB_DEVICE_PCKSIZE_AUTO_ZLP_Pos)
-#define USB_DEVICE_PCKSIZE_MASK     0xFFFFFFFFul /**< \brief (USB_DEVICE_PCKSIZE) MASK Register */
+#define USB_DEVICE_PCKSIZE_AUTO_ZLP (_U_(0x1) << USB_DEVICE_PCKSIZE_AUTO_ZLP_Pos)
+#define USB_DEVICE_PCKSIZE_MASK     _U_(0xFFFFFFFF) /**< \brief (USB_DEVICE_PCKSIZE) MASK Register */
 
 /* -------- USB_DEVICE_EXTREG : (USB Offset: 0x008) (R/W 16) DEVICE DEVICE_DESC_BANK Endpoint Bank, Extended -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
@@ -884,12 +893,12 @@ typedef union {
 #define USB_DEVICE_EXTREG_OFFSET    0x008        /**< \brief (USB_DEVICE_EXTREG offset) DEVICE_DESC_BANK Endpoint Bank, Extended */
 
 #define USB_DEVICE_EXTREG_SUBPID_Pos 0            /**< \brief (USB_DEVICE_EXTREG) SUBPID field send with extended token */
-#define USB_DEVICE_EXTREG_SUBPID_Msk (0xFul << USB_DEVICE_EXTREG_SUBPID_Pos)
+#define USB_DEVICE_EXTREG_SUBPID_Msk (_U_(0xF) << USB_DEVICE_EXTREG_SUBPID_Pos)
 #define USB_DEVICE_EXTREG_SUBPID(value) (USB_DEVICE_EXTREG_SUBPID_Msk & ((value) << USB_DEVICE_EXTREG_SUBPID_Pos))
 #define USB_DEVICE_EXTREG_VARIABLE_Pos 4            /**< \brief (USB_DEVICE_EXTREG) Variable field send with extended token */
-#define USB_DEVICE_EXTREG_VARIABLE_Msk (0x7FFul << USB_DEVICE_EXTREG_VARIABLE_Pos)
+#define USB_DEVICE_EXTREG_VARIABLE_Msk (_U_(0x7FF) << USB_DEVICE_EXTREG_VARIABLE_Pos)
 #define USB_DEVICE_EXTREG_VARIABLE(value) (USB_DEVICE_EXTREG_VARIABLE_Msk & ((value) << USB_DEVICE_EXTREG_VARIABLE_Pos))
-#define USB_DEVICE_EXTREG_MASK      0x7FFFul     /**< \brief (USB_DEVICE_EXTREG) MASK Register */
+#define USB_DEVICE_EXTREG_MASK      _U_(0x7FFF)  /**< \brief (USB_DEVICE_EXTREG) MASK Register */
 
 /* -------- USB_DEVICE_STATUS_BK : (USB Offset: 0x00A) (R/W  8) DEVICE DEVICE_DESC_BANK Enpoint Bank, Status of Bank -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
@@ -906,10 +915,10 @@ typedef union {
 #define USB_DEVICE_STATUS_BK_OFFSET 0x00A        /**< \brief (USB_DEVICE_STATUS_BK offset) DEVICE_DESC_BANK Enpoint Bank, Status of Bank */
 
 #define USB_DEVICE_STATUS_BK_CRCERR_Pos 0            /**< \brief (USB_DEVICE_STATUS_BK) CRC Error Status */
-#define USB_DEVICE_STATUS_BK_CRCERR (0x1ul << USB_DEVICE_STATUS_BK_CRCERR_Pos)
+#define USB_DEVICE_STATUS_BK_CRCERR (_U_(0x1) << USB_DEVICE_STATUS_BK_CRCERR_Pos)
 #define USB_DEVICE_STATUS_BK_ERRORFLOW_Pos 1            /**< \brief (USB_DEVICE_STATUS_BK) Error Flow Status */
-#define USB_DEVICE_STATUS_BK_ERRORFLOW (0x1ul << USB_DEVICE_STATUS_BK_ERRORFLOW_Pos)
-#define USB_DEVICE_STATUS_BK_MASK   0x03ul       /**< \brief (USB_DEVICE_STATUS_BK) MASK Register */
+#define USB_DEVICE_STATUS_BK_ERRORFLOW (_U_(0x1) << USB_DEVICE_STATUS_BK_ERRORFLOW_Pos)
+#define USB_DEVICE_STATUS_BK_MASK   _U_(0x03)    /**< \brief (USB_DEVICE_STATUS_BK) MASK Register */
 
 /** \brief UsbDeviceDescBank SRAM registers */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
@@ -943,7 +952,8 @@ typedef struct { /* USB is Device */
   __IO USB_CTRLA_Type            CTRLA;       /**< \brief Offset: 0x000 (R/W  8) Control A */
        RoReg8                    Reserved1[0x1];
   __I  USB_SYNCBUSY_Type         SYNCBUSY;    /**< \brief Offset: 0x002 (R/   8) Synchronization Busy */
-       RoReg8                    Reserved2[0x5];
+  __IO USB_QOSCTRL_Type          QOSCTRL;     /**< \brief Offset: 0x003 (R/W  8) USB Quality Of Service */
+       RoReg8                    Reserved2[0x4];
   __IO USB_DEVICE_CTRLB_Type     CTRLB;       /**< \brief Offset: 0x008 (R/W 16) DEVICE Control B */
   __IO USB_DEVICE_DADD_Type      DADD;        /**< \brief Offset: 0x00A (R/W  8) DEVICE Device Address */
        RoReg8                    Reserved3[0x1];

@@ -154,10 +154,3 @@ void irq_handler_dummy(void)
 {
   while (1);
 }
-
-//-----------------------------------------------------------------------------
-void _exit(int status)
-{
-  (void)status;
-  while (1);
-}

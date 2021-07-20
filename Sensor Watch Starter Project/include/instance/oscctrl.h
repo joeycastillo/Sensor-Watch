@@ -3,39 +3,25 @@
  *
  * \brief Instance description for OSCCTRL
  *
- * Copyright (c) 2015 Atmel Corporation. All rights reserved.
+ * Copyright (c) 2018 Microchip Technology Inc.
  *
  * \asf_license_start
  *
  * \page License
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ * SPDX-License-Identifier: Apache-2.0
  *
- * 1. Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- * 3. The name of Atmel may not be used to endorse or promote products derived
- *    from this software without specific prior written permission.
- *
- * 4. This software may only be redistributed and used in connection with an
- *    Atmel microcontroller product.
- *
- * THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR IMPLIED
- * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
- * EXPRESSLY AND SPECIFICALLY DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
- * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
- * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the Licence at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * \asf_license_stop
  *
@@ -46,43 +32,43 @@
 
 /* ========== Register definition for OSCCTRL peripheral ========== */
 #if (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
-#define REG_OSCCTRL_INTENCLR       (0x40001000U) /**< \brief (OSCCTRL) Interrupt Enable Clear */
-#define REG_OSCCTRL_INTENSET       (0x40001004U) /**< \brief (OSCCTRL) Interrupt Enable Set */
-#define REG_OSCCTRL_INTFLAG        (0x40001008U) /**< \brief (OSCCTRL) Interrupt Flag Status and Clear */
-#define REG_OSCCTRL_STATUS         (0x4000100CU) /**< \brief (OSCCTRL) Power and Clocks Status */
-#define REG_OSCCTRL_XOSCCTRL       (0x40001010U) /**< \brief (OSCCTRL) External Multipurpose Crystal Oscillator (XOSC) Control */
-#define REG_OSCCTRL_CFDPRESC       (0x40001012U) /**< \brief (OSCCTRL) Cloc Failure Detector Prescaler */
-#define REG_OSCCTRL_EVCTRL         (0x40001013U) /**< \brief (OSCCTRL) Event Control */
-#define REG_OSCCTRL_OSC16MCTRL     (0x40001014U) /**< \brief (OSCCTRL) 16MHz Internal Oscillator (OSC16M) Control */
-#define REG_OSCCTRL_DFLLCTRL       (0x40001018U) /**< \brief (OSCCTRL) DFLL48M Control */
-#define REG_OSCCTRL_DFLLVAL        (0x4000101CU) /**< \brief (OSCCTRL) DFLL48M Value */
-#define REG_OSCCTRL_DFLLMUL        (0x40001020U) /**< \brief (OSCCTRL) DFLL48M Multiplier */
-#define REG_OSCCTRL_DFLLSYNC       (0x40001024U) /**< \brief (OSCCTRL) DFLL48M Synchronization */
-#define REG_OSCCTRL_DPLLCTRLA      (0x40001028U) /**< \brief (OSCCTRL) DPLL Control */
-#define REG_OSCCTRL_DPLLRATIO      (0x4000102CU) /**< \brief (OSCCTRL) DPLL Ratio Control */
-#define REG_OSCCTRL_DPLLCTRLB      (0x40001030U) /**< \brief (OSCCTRL) Digital Core Configuration */
-#define REG_OSCCTRL_DPLLPRESC      (0x40001034U) /**< \brief (OSCCTRL) DPLL Prescaler */
-#define REG_OSCCTRL_DPLLSYNCBUSY   (0x40001038U) /**< \brief (OSCCTRL) DPLL Synchronization Busy */
-#define REG_OSCCTRL_DPLLSTATUS     (0x4000103CU) /**< \brief (OSCCTRL) DPLL Status */
+#define REG_OSCCTRL_INTENCLR       (0x40001000) /**< \brief (OSCCTRL) Interrupt Enable Clear */
+#define REG_OSCCTRL_INTENSET       (0x40001004) /**< \brief (OSCCTRL) Interrupt Enable Set */
+#define REG_OSCCTRL_INTFLAG        (0x40001008) /**< \brief (OSCCTRL) Interrupt Flag Status and Clear */
+#define REG_OSCCTRL_STATUS         (0x4000100C) /**< \brief (OSCCTRL) Power and Clocks Status */
+#define REG_OSCCTRL_XOSCCTRL       (0x40001010) /**< \brief (OSCCTRL) External Multipurpose Crystal Oscillator (XOSC) Control */
+#define REG_OSCCTRL_CFDPRESC       (0x40001012) /**< \brief (OSCCTRL) Cloc Failure Detector Prescaler */
+#define REG_OSCCTRL_EVCTRL         (0x40001013) /**< \brief (OSCCTRL) Event Control */
+#define REG_OSCCTRL_OSC16MCTRL     (0x40001014) /**< \brief (OSCCTRL) 16MHz Internal Oscillator (OSC16M) Control */
+#define REG_OSCCTRL_DFLLCTRL       (0x40001018) /**< \brief (OSCCTRL) DFLL48M Control */
+#define REG_OSCCTRL_DFLLVAL        (0x4000101C) /**< \brief (OSCCTRL) DFLL48M Value */
+#define REG_OSCCTRL_DFLLMUL        (0x40001020) /**< \brief (OSCCTRL) DFLL48M Multiplier */
+#define REG_OSCCTRL_DFLLSYNC       (0x40001024) /**< \brief (OSCCTRL) DFLL48M Synchronization */
+#define REG_OSCCTRL_DPLLCTRLA      (0x40001028) /**< \brief (OSCCTRL) DPLL Control */
+#define REG_OSCCTRL_DPLLRATIO      (0x4000102C) /**< \brief (OSCCTRL) DPLL Ratio Control */
+#define REG_OSCCTRL_DPLLCTRLB      (0x40001030) /**< \brief (OSCCTRL) Digital Core Configuration */
+#define REG_OSCCTRL_DPLLPRESC      (0x40001034) /**< \brief (OSCCTRL) DPLL Prescaler */
+#define REG_OSCCTRL_DPLLSYNCBUSY   (0x40001038) /**< \brief (OSCCTRL) DPLL Synchronization Busy */
+#define REG_OSCCTRL_DPLLSTATUS     (0x4000103C) /**< \brief (OSCCTRL) DPLL Status */
 #else
-#define REG_OSCCTRL_INTENCLR       (*(RwReg  *)0x40001000U) /**< \brief (OSCCTRL) Interrupt Enable Clear */
-#define REG_OSCCTRL_INTENSET       (*(RwReg  *)0x40001004U) /**< \brief (OSCCTRL) Interrupt Enable Set */
-#define REG_OSCCTRL_INTFLAG        (*(RwReg  *)0x40001008U) /**< \brief (OSCCTRL) Interrupt Flag Status and Clear */
-#define REG_OSCCTRL_STATUS         (*(RoReg  *)0x4000100CU) /**< \brief (OSCCTRL) Power and Clocks Status */
-#define REG_OSCCTRL_XOSCCTRL       (*(RwReg16*)0x40001010U) /**< \brief (OSCCTRL) External Multipurpose Crystal Oscillator (XOSC) Control */
-#define REG_OSCCTRL_CFDPRESC       (*(RwReg8 *)0x40001012U) /**< \brief (OSCCTRL) Cloc Failure Detector Prescaler */
-#define REG_OSCCTRL_EVCTRL         (*(RwReg8 *)0x40001013U) /**< \brief (OSCCTRL) Event Control */
-#define REG_OSCCTRL_OSC16MCTRL     (*(RwReg8 *)0x40001014U) /**< \brief (OSCCTRL) 16MHz Internal Oscillator (OSC16M) Control */
-#define REG_OSCCTRL_DFLLCTRL       (*(RwReg16*)0x40001018U) /**< \brief (OSCCTRL) DFLL48M Control */
-#define REG_OSCCTRL_DFLLVAL        (*(RwReg  *)0x4000101CU) /**< \brief (OSCCTRL) DFLL48M Value */
-#define REG_OSCCTRL_DFLLMUL        (*(RwReg  *)0x40001020U) /**< \brief (OSCCTRL) DFLL48M Multiplier */
-#define REG_OSCCTRL_DFLLSYNC       (*(RwReg8 *)0x40001024U) /**< \brief (OSCCTRL) DFLL48M Synchronization */
-#define REG_OSCCTRL_DPLLCTRLA      (*(RwReg8 *)0x40001028U) /**< \brief (OSCCTRL) DPLL Control */
-#define REG_OSCCTRL_DPLLRATIO      (*(RwReg  *)0x4000102CU) /**< \brief (OSCCTRL) DPLL Ratio Control */
-#define REG_OSCCTRL_DPLLCTRLB      (*(RwReg  *)0x40001030U) /**< \brief (OSCCTRL) Digital Core Configuration */
-#define REG_OSCCTRL_DPLLPRESC      (*(RwReg8 *)0x40001034U) /**< \brief (OSCCTRL) DPLL Prescaler */
-#define REG_OSCCTRL_DPLLSYNCBUSY   (*(RoReg8 *)0x40001038U) /**< \brief (OSCCTRL) DPLL Synchronization Busy */
-#define REG_OSCCTRL_DPLLSTATUS     (*(RoReg8 *)0x4000103CU) /**< \brief (OSCCTRL) DPLL Status */
+#define REG_OSCCTRL_INTENCLR       (*(RwReg  *)0x40001000UL) /**< \brief (OSCCTRL) Interrupt Enable Clear */
+#define REG_OSCCTRL_INTENSET       (*(RwReg  *)0x40001004UL) /**< \brief (OSCCTRL) Interrupt Enable Set */
+#define REG_OSCCTRL_INTFLAG        (*(RwReg  *)0x40001008UL) /**< \brief (OSCCTRL) Interrupt Flag Status and Clear */
+#define REG_OSCCTRL_STATUS         (*(RoReg  *)0x4000100CUL) /**< \brief (OSCCTRL) Power and Clocks Status */
+#define REG_OSCCTRL_XOSCCTRL       (*(RwReg16*)0x40001010UL) /**< \brief (OSCCTRL) External Multipurpose Crystal Oscillator (XOSC) Control */
+#define REG_OSCCTRL_CFDPRESC       (*(RwReg8 *)0x40001012UL) /**< \brief (OSCCTRL) Cloc Failure Detector Prescaler */
+#define REG_OSCCTRL_EVCTRL         (*(RwReg8 *)0x40001013UL) /**< \brief (OSCCTRL) Event Control */
+#define REG_OSCCTRL_OSC16MCTRL     (*(RwReg8 *)0x40001014UL) /**< \brief (OSCCTRL) 16MHz Internal Oscillator (OSC16M) Control */
+#define REG_OSCCTRL_DFLLCTRL       (*(RwReg16*)0x40001018UL) /**< \brief (OSCCTRL) DFLL48M Control */
+#define REG_OSCCTRL_DFLLVAL        (*(RwReg  *)0x4000101CUL) /**< \brief (OSCCTRL) DFLL48M Value */
+#define REG_OSCCTRL_DFLLMUL        (*(RwReg  *)0x40001020UL) /**< \brief (OSCCTRL) DFLL48M Multiplier */
+#define REG_OSCCTRL_DFLLSYNC       (*(RwReg8 *)0x40001024UL) /**< \brief (OSCCTRL) DFLL48M Synchronization */
+#define REG_OSCCTRL_DPLLCTRLA      (*(RwReg8 *)0x40001028UL) /**< \brief (OSCCTRL) DPLL Control */
+#define REG_OSCCTRL_DPLLRATIO      (*(RwReg  *)0x4000102CUL) /**< \brief (OSCCTRL) DPLL Ratio Control */
+#define REG_OSCCTRL_DPLLCTRLB      (*(RwReg  *)0x40001030UL) /**< \brief (OSCCTRL) Digital Core Configuration */
+#define REG_OSCCTRL_DPLLPRESC      (*(RwReg8 *)0x40001034UL) /**< \brief (OSCCTRL) DPLL Prescaler */
+#define REG_OSCCTRL_DPLLSYNCBUSY   (*(RoReg8 *)0x40001038UL) /**< \brief (OSCCTRL) DPLL Synchronization Busy */
+#define REG_OSCCTRL_DPLLSTATUS     (*(RoReg8 *)0x4000103CUL) /**< \brief (OSCCTRL) DPLL Status */
 #endif /* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
 /* ========== Instance parameters for OSCCTRL peripheral ========== */

@@ -3,39 +3,25 @@
  *
  * \brief Instance description for ADC
  *
- * Copyright (c) 2015 Atmel Corporation. All rights reserved.
+ * Copyright (c) 2018 Microchip Technology Inc.
  *
  * \asf_license_start
  *
  * \page License
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ * SPDX-License-Identifier: Apache-2.0
  *
- * 1. Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- *
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- * 3. The name of Atmel may not be used to endorse or promote products derived
- *    from this software without specific prior written permission.
- *
- * 4. This software may only be redistributed and used in connection with an
- *    Atmel microcontroller product.
- *
- * THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR IMPLIED
- * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
- * EXPRESSLY AND SPECIFICALLY DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
- * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
- * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the Licence at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * \asf_license_stop
  *
@@ -46,51 +32,51 @@
 
 /* ========== Register definition for ADC peripheral ========== */
 #if (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
-#define REG_ADC_CTRLA              (0x42003000U) /**< \brief (ADC) Control A */
-#define REG_ADC_CTRLB              (0x42003001U) /**< \brief (ADC) Control B */
-#define REG_ADC_REFCTRL            (0x42003002U) /**< \brief (ADC) Reference Control */
-#define REG_ADC_EVCTRL             (0x42003003U) /**< \brief (ADC) Event Control */
-#define REG_ADC_INTENCLR           (0x42003004U) /**< \brief (ADC) Interrupt Enable Clear */
-#define REG_ADC_INTENSET           (0x42003005U) /**< \brief (ADC) Interrupt Enable Set */
-#define REG_ADC_INTFLAG            (0x42003006U) /**< \brief (ADC) Interrupt Flag Status and Clear */
-#define REG_ADC_SEQSTATUS          (0x42003007U) /**< \brief (ADC) Sequence Status */
-#define REG_ADC_INPUTCTRL          (0x42003008U) /**< \brief (ADC) Input Control */
-#define REG_ADC_CTRLC              (0x4200300AU) /**< \brief (ADC) Control C */
-#define REG_ADC_AVGCTRL            (0x4200300CU) /**< \brief (ADC) Average Control */
-#define REG_ADC_SAMPCTRL           (0x4200300DU) /**< \brief (ADC) Sample Time Control */
-#define REG_ADC_WINLT              (0x4200300EU) /**< \brief (ADC) Window Monitor Lower Threshold */
-#define REG_ADC_WINUT              (0x42003010U) /**< \brief (ADC) Window Monitor Upper Threshold */
-#define REG_ADC_GAINCORR           (0x42003012U) /**< \brief (ADC) Gain Correction */
-#define REG_ADC_OFFSETCORR         (0x42003014U) /**< \brief (ADC) Offset Correction */
-#define REG_ADC_SWTRIG             (0x42003018U) /**< \brief (ADC) Software Trigger */
-#define REG_ADC_DBGCTRL            (0x4200301CU) /**< \brief (ADC) Debug Control */
-#define REG_ADC_SYNCBUSY           (0x42003020U) /**< \brief (ADC) Synchronization Busy */
-#define REG_ADC_RESULT             (0x42003024U) /**< \brief (ADC) Result */
-#define REG_ADC_SEQCTRL            (0x42003028U) /**< \brief (ADC) Sequence Control */
-#define REG_ADC_CALIB              (0x4200302CU) /**< \brief (ADC) Calibration */
+#define REG_ADC_CTRLA              (0x42003000) /**< \brief (ADC) Control A */
+#define REG_ADC_CTRLB              (0x42003001) /**< \brief (ADC) Control B */
+#define REG_ADC_REFCTRL            (0x42003002) /**< \brief (ADC) Reference Control */
+#define REG_ADC_EVCTRL             (0x42003003) /**< \brief (ADC) Event Control */
+#define REG_ADC_INTENCLR           (0x42003004) /**< \brief (ADC) Interrupt Enable Clear */
+#define REG_ADC_INTENSET           (0x42003005) /**< \brief (ADC) Interrupt Enable Set */
+#define REG_ADC_INTFLAG            (0x42003006) /**< \brief (ADC) Interrupt Flag Status and Clear */
+#define REG_ADC_SEQSTATUS          (0x42003007) /**< \brief (ADC) Sequence Status */
+#define REG_ADC_INPUTCTRL          (0x42003008) /**< \brief (ADC) Input Control */
+#define REG_ADC_CTRLC              (0x4200300A) /**< \brief (ADC) Control C */
+#define REG_ADC_AVGCTRL            (0x4200300C) /**< \brief (ADC) Average Control */
+#define REG_ADC_SAMPCTRL           (0x4200300D) /**< \brief (ADC) Sample Time Control */
+#define REG_ADC_WINLT              (0x4200300E) /**< \brief (ADC) Window Monitor Lower Threshold */
+#define REG_ADC_WINUT              (0x42003010) /**< \brief (ADC) Window Monitor Upper Threshold */
+#define REG_ADC_GAINCORR           (0x42003012) /**< \brief (ADC) Gain Correction */
+#define REG_ADC_OFFSETCORR         (0x42003014) /**< \brief (ADC) Offset Correction */
+#define REG_ADC_SWTRIG             (0x42003018) /**< \brief (ADC) Software Trigger */
+#define REG_ADC_DBGCTRL            (0x4200301C) /**< \brief (ADC) Debug Control */
+#define REG_ADC_SYNCBUSY           (0x42003020) /**< \brief (ADC) Synchronization Busy */
+#define REG_ADC_RESULT             (0x42003024) /**< \brief (ADC) Result */
+#define REG_ADC_SEQCTRL            (0x42003028) /**< \brief (ADC) Sequence Control */
+#define REG_ADC_CALIB              (0x4200302C) /**< \brief (ADC) Calibration */
 #else
-#define REG_ADC_CTRLA              (*(RwReg8 *)0x42003000U) /**< \brief (ADC) Control A */
-#define REG_ADC_CTRLB              (*(RwReg8 *)0x42003001U) /**< \brief (ADC) Control B */
-#define REG_ADC_REFCTRL            (*(RwReg8 *)0x42003002U) /**< \brief (ADC) Reference Control */
-#define REG_ADC_EVCTRL             (*(RwReg8 *)0x42003003U) /**< \brief (ADC) Event Control */
-#define REG_ADC_INTENCLR           (*(RwReg8 *)0x42003004U) /**< \brief (ADC) Interrupt Enable Clear */
-#define REG_ADC_INTENSET           (*(RwReg8 *)0x42003005U) /**< \brief (ADC) Interrupt Enable Set */
-#define REG_ADC_INTFLAG            (*(RwReg8 *)0x42003006U) /**< \brief (ADC) Interrupt Flag Status and Clear */
-#define REG_ADC_SEQSTATUS          (*(RoReg8 *)0x42003007U) /**< \brief (ADC) Sequence Status */
-#define REG_ADC_INPUTCTRL          (*(RwReg16*)0x42003008U) /**< \brief (ADC) Input Control */
-#define REG_ADC_CTRLC              (*(RwReg16*)0x4200300AU) /**< \brief (ADC) Control C */
-#define REG_ADC_AVGCTRL            (*(RwReg8 *)0x4200300CU) /**< \brief (ADC) Average Control */
-#define REG_ADC_SAMPCTRL           (*(RwReg8 *)0x4200300DU) /**< \brief (ADC) Sample Time Control */
-#define REG_ADC_WINLT              (*(RwReg16*)0x4200300EU) /**< \brief (ADC) Window Monitor Lower Threshold */
-#define REG_ADC_WINUT              (*(RwReg16*)0x42003010U) /**< \brief (ADC) Window Monitor Upper Threshold */
-#define REG_ADC_GAINCORR           (*(RwReg16*)0x42003012U) /**< \brief (ADC) Gain Correction */
-#define REG_ADC_OFFSETCORR         (*(RwReg16*)0x42003014U) /**< \brief (ADC) Offset Correction */
-#define REG_ADC_SWTRIG             (*(RwReg8 *)0x42003018U) /**< \brief (ADC) Software Trigger */
-#define REG_ADC_DBGCTRL            (*(RwReg8 *)0x4200301CU) /**< \brief (ADC) Debug Control */
-#define REG_ADC_SYNCBUSY           (*(RoReg16*)0x42003020U) /**< \brief (ADC) Synchronization Busy */
-#define REG_ADC_RESULT             (*(RoReg16*)0x42003024U) /**< \brief (ADC) Result */
-#define REG_ADC_SEQCTRL            (*(RwReg  *)0x42003028U) /**< \brief (ADC) Sequence Control */
-#define REG_ADC_CALIB              (*(RwReg16*)0x4200302CU) /**< \brief (ADC) Calibration */
+#define REG_ADC_CTRLA              (*(RwReg8 *)0x42003000UL) /**< \brief (ADC) Control A */
+#define REG_ADC_CTRLB              (*(RwReg8 *)0x42003001UL) /**< \brief (ADC) Control B */
+#define REG_ADC_REFCTRL            (*(RwReg8 *)0x42003002UL) /**< \brief (ADC) Reference Control */
+#define REG_ADC_EVCTRL             (*(RwReg8 *)0x42003003UL) /**< \brief (ADC) Event Control */
+#define REG_ADC_INTENCLR           (*(RwReg8 *)0x42003004UL) /**< \brief (ADC) Interrupt Enable Clear */
+#define REG_ADC_INTENSET           (*(RwReg8 *)0x42003005UL) /**< \brief (ADC) Interrupt Enable Set */
+#define REG_ADC_INTFLAG            (*(RwReg8 *)0x42003006UL) /**< \brief (ADC) Interrupt Flag Status and Clear */
+#define REG_ADC_SEQSTATUS          (*(RoReg8 *)0x42003007UL) /**< \brief (ADC) Sequence Status */
+#define REG_ADC_INPUTCTRL          (*(RwReg16*)0x42003008UL) /**< \brief (ADC) Input Control */
+#define REG_ADC_CTRLC              (*(RwReg16*)0x4200300AUL) /**< \brief (ADC) Control C */
+#define REG_ADC_AVGCTRL            (*(RwReg8 *)0x4200300CUL) /**< \brief (ADC) Average Control */
+#define REG_ADC_SAMPCTRL           (*(RwReg8 *)0x4200300DUL) /**< \brief (ADC) Sample Time Control */
+#define REG_ADC_WINLT              (*(RwReg16*)0x4200300EUL) /**< \brief (ADC) Window Monitor Lower Threshold */
+#define REG_ADC_WINUT              (*(RwReg16*)0x42003010UL) /**< \brief (ADC) Window Monitor Upper Threshold */
+#define REG_ADC_GAINCORR           (*(RwReg16*)0x42003012UL) /**< \brief (ADC) Gain Correction */
+#define REG_ADC_OFFSETCORR         (*(RwReg16*)0x42003014UL) /**< \brief (ADC) Offset Correction */
+#define REG_ADC_SWTRIG             (*(RwReg8 *)0x42003018UL) /**< \brief (ADC) Software Trigger */
+#define REG_ADC_DBGCTRL            (*(RwReg8 *)0x4200301CUL) /**< \brief (ADC) Debug Control */
+#define REG_ADC_SYNCBUSY           (*(RoReg16*)0x42003020UL) /**< \brief (ADC) Synchronization Busy */
+#define REG_ADC_RESULT             (*(RoReg16*)0x42003024UL) /**< \brief (ADC) Result */
+#define REG_ADC_SEQCTRL            (*(RwReg  *)0x42003028UL) /**< \brief (ADC) Sequence Control */
+#define REG_ADC_CALIB              (*(RwReg16*)0x4200302CUL) /**< \brief (ADC) Calibration */
 #endif /* (defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
 /* ========== Instance parameters for ADC peripheral ========== */
