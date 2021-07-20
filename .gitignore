@@ -9,6 +9,7 @@
 *.hex
 *.lss
 *.map
+*.uf2
 *srec
 *.o
 *.d
