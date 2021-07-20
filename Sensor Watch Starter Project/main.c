@@ -40,8 +40,8 @@
 
 HAL_GPIO_PIN(LED,       A, 21)
 HAL_GPIO_PIN(BUTTON,    A, 30)
-HAL_GPIO_PIN(UART_TX,   A, 22)
-HAL_GPIO_PIN(UART_RX,   A, 23)
+HAL_GPIO_PIN(UART_TX,   B, 0)
+HAL_GPIO_PIN(UART_RX,   B, 2)
 
 //-----------------------------------------------------------------------------
 static void timer_set_period(uint16_t i)
@@ -93,28 +93,28 @@ static void uart_init(uint32_t baud)
   HAL_GPIO_UART_RX_in();
   HAL_GPIO_UART_RX_pmuxen(HAL_GPIO_PMUX_C);
 
-  MCLK->APBCMASK.reg |= MCLK_APBCMASK_SERCOM0;
+  MCLK->APBCMASK.reg |= MCLK_APBCMASK_SERCOM3;
 
-  GCLK->PCHCTRL[SERCOM0_GCLK_ID_CORE].reg = GCLK_PCHCTRL_GEN(0) | GCLK_PCHCTRL_CHEN;
-  while (0 == (GCLK->PCHCTRL[SERCOM0_GCLK_ID_CORE].reg & GCLK_PCHCTRL_CHEN));
+  GCLK->PCHCTRL[SERCOM3_GCLK_ID_CORE].reg = GCLK_PCHCTRL_GEN(0) | GCLK_PCHCTRL_CHEN;
+  while (0 == (GCLK->PCHCTRL[SERCOM3_GCLK_ID_CORE].reg & GCLK_PCHCTRL_CHEN));
 
-  SERCOM0->USART.CTRLA.reg =
+  SERCOM3->USART.CTRLA.reg =
       SERCOM_USART_CTRLA_DORD | SERCOM_USART_CTRLA_MODE(1/*USART_INT_CLK*/) |
-      SERCOM_USART_CTRLA_RXPO(3/*PAD3*/) | SERCOM_USART_CTRLA_TXPO(1/*PAD2*/);
+      SERCOM_USART_CTRLA_RXPO(0/*PAD0*/) | SERCOM_USART_CTRLA_TXPO(1/*PAD2*/);
 
-  SERCOM0->USART.CTRLB.reg = SERCOM_USART_CTRLB_RXEN | SERCOM_USART_CTRLB_TXEN |
+  SERCOM3->USART.CTRLB.reg = SERCOM_USART_CTRLB_RXEN | SERCOM_USART_CTRLB_TXEN |
       SERCOM_USART_CTRLB_CHSIZE(0/*8 bits*/);
 
-  SERCOM0->USART.BAUD.reg = (uint16_t)br;
+  SERCOM3->USART.BAUD.reg = (uint16_t)br;
 
-  SERCOM0->USART.CTRLA.reg |= SERCOM_USART_CTRLA_ENABLE;
+  SERCOM3->USART.CTRLA.reg |= SERCOM_USART_CTRLA_ENABLE;
 }
 
 //-----------------------------------------------------------------------------
 static void uart_putc(char c)
 {
-  while (!(SERCOM0->USART.INTFLAG.reg & SERCOM_USART_INTFLAG_DRE));
-  SERCOM0->USART.DATA.reg = c;
+  while (!(SERCOM3->USART.INTFLAG.reg & SERCOM_USART_INTFLAG_DRE));
+  SERCOM3->USART.DATA.reg = c;
 }
 
 //-----------------------------------------------------------------------------
