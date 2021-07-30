@@ -32,15 +32,19 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdio.h>
 #include "saml22.h"
 #include "hal_init.h"
 #include "peripheral_clk_config.h"
 #include "hal_gpio.h"
+#include "atmel_start_pins.h"
+#include "watch.h"
 
 //-----------------------------------------------------------------------------
-HAL_GPIO_PIN(LED,       A, 21)
 HAL_GPIO_PIN(UART_TX,   B, 0)
 HAL_GPIO_PIN(UART_RX,   B, 2)
+
+Watch watch;
 
 //-----------------------------------------------------------------------------
 static void uart_init(uint32_t baud) {
@@ -82,19 +86,39 @@ static void uart_puts(char *s) {
 //-----------------------------------------------------------------------------
 static void sys_init(void) {
 	init_mcu();
+    watch_init(&watch);
+    watch_enable_display(&watch);
+    watch_enable_led(&watch);
+    watch_enable_date_time(&watch);
+    watch_enable_analog(&watch, A0);
+    watch_enable_buttons(&watch);
+    watch_enable_i2c(&watch);
 }
 
 //-----------------------------------------------------------------------------
 int main(void) {
     sys_init();
     uart_init(115200);
-    HAL_GPIO_LED_out();
-    HAL_GPIO_LED_set();
 
-    uart_puts("\r\nHello, world!\r\n");
+    char buf[20] = {0};
 
+    uart_puts("\n\nI2C Driver Test\n");
+	uint8_t reset_cmd[] = {0xE0, 0xB6};
+	watch_i2c_send(0x77, reset_cmd, 2);
+    uart_puts("Reset BMP280\n");
+	uint8_t chip_id_cmd = 0xD0;
+	uint8_t chip_id = 0;
+	watch_i2c_send(0x77, &chip_id_cmd, 1);
+    uart_puts("Chip ID... ");
+	watch_i2c_receive(0x77, &chip_id, 1);
+    uart_puts("received!\n");
+    sprintf(buf, "Chip ID is %#02x", chip_id);
+    uart_puts(buf);
+    uart_puts("\nDone\n");
+
+    uint16_t red = 0;
+    uint16_t green = 0;
     while (1) {
-        uart_putc('.');
     }
 
     return 0;
