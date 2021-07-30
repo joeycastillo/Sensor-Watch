@@ -55,6 +55,7 @@ INCLUDES += \
   -I../hpl/tc/ \
   -I../hri/ \
   -I../config/ \
+  -I../hw/ \
   -I..
 
 SRCS += \
@@ -95,8 +96,7 @@ SRCS += \
 
 DEFINES += \
   -D__SAML22J18A__ \
-  -DDONT_USE_CMSIS_INIT \
-  -DF_CPU=16000000
+  -DDONT_USE_CMSIS_INIT
 
 CFLAGS += $(INCLUDES) $(DEFINES)
 

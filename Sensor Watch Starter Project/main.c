@@ -33,6 +33,8 @@
 #include <stdbool.h>
 #include <string.h>
 #include "saml22.h"
+#include "hal_init.h"
+#include "peripheral_clk_config.h"
 #include "hal_gpio.h"
 
 //-----------------------------------------------------------------------------
@@ -42,7 +44,7 @@ HAL_GPIO_PIN(UART_RX,   B, 2)
 
 //-----------------------------------------------------------------------------
 static void uart_init(uint32_t baud) {
-    uint64_t br = (uint64_t)65536 * (F_CPU - 16 * baud) / F_CPU;
+    uint64_t br = (uint64_t)65536 * (CONF_CPU_FREQUENCY - 16 * baud) / CONF_CPU_FREQUENCY;
 
     HAL_GPIO_UART_TX_out();
     HAL_GPIO_UART_TX_pmuxen(HAL_GPIO_PMUX_C);
@@ -79,12 +81,7 @@ static void uart_puts(char *s) {
 
 //-----------------------------------------------------------------------------
 static void sys_init(void) {
-    // Switch to 16MHz clock (disable prescaler)
-    OSCCTRL->OSC16MCTRL.reg = OSCCTRL_OSC16MCTRL_ENABLE | OSCCTRL_OSC16MCTRL_FSEL_16;
-    // Switch to the highest performance level
-    PM->INTFLAG.reg = PM_INTFLAG_PLRDY;
-    PM->PLCFG.reg = PM_PLCFG_PLSEL_PL2_Val;
-    while (!PM->INTFLAG.reg);
+	init_mcu();
 }
 
 //-----------------------------------------------------------------------------
