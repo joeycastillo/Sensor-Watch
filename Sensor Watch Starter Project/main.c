@@ -39,12 +39,11 @@
 #include "hal_gpio.h"
 #include "atmel_start_pins.h"
 #include "watch.h"
+#include "app.h"
 
 //-----------------------------------------------------------------------------
 HAL_GPIO_PIN(UART_TX,   B, 0)
 HAL_GPIO_PIN(UART_RX,   B, 2)
-
-Watch watch;
 
 //-----------------------------------------------------------------------------
 static void uart_init(uint32_t baud) {
@@ -73,52 +72,35 @@ static void uart_init(uint32_t baud) {
 }
 
 //-----------------------------------------------------------------------------
-static void uart_putc(char c) {
+void uart_putc(char c) {
     while (!(SERCOM3->USART.INTFLAG.reg & SERCOM_USART_INTFLAG_DRE));
     SERCOM3->USART.DATA.reg = c;
 }
 
 //-----------------------------------------------------------------------------
-static void uart_puts(char *s) {
+void uart_puts(char *s) {
     while (*s) uart_putc(*s++);
 }
 
 //-----------------------------------------------------------------------------
 static void sys_init(void) {
+    uart_puts("init_mcu\n");
 	init_mcu();
-    watch_init(&watch);
-    watch_enable_display(&watch);
-    watch_enable_led(&watch);
-    watch_enable_date_time(&watch);
-    watch_enable_analog(&watch, A0);
-    watch_enable_buttons(&watch);
-    watch_enable_i2c(&watch);
+    uart_puts("watch_init\n");
+    watch_init();
+    uart_puts("app_init\n");
+    app_init();
 }
 
 //-----------------------------------------------------------------------------
 int main(void) {
-    sys_init();
     uart_init(115200);
+    sys_init();
 
-    char buf[20] = {0};
-
-    uart_puts("\n\nI2C Driver Test\n");
-	uint8_t reset_cmd[] = {0xE0, 0xB6};
-	watch_i2c_send(0x77, reset_cmd, 2);
-    uart_puts("Reset BMP280\n");
-	uint8_t chip_id_cmd = 0xD0;
-	uint8_t chip_id = 0;
-	watch_i2c_send(0x77, &chip_id_cmd, 1);
-    uart_puts("Chip ID... ");
-	watch_i2c_receive(0x77, &chip_id, 1);
-    uart_puts("received!\n");
-    sprintf(buf, "Chip ID is %#02x", chip_id);
-    uart_puts(buf);
-    uart_puts("\nDone\n");
-
-    uint16_t red = 0;
-    uint16_t green = 0;
     while (1) {
+        app_loop();
+        app_prepare_for_sleep();
+        sleep(4);
     }
 
     return 0;

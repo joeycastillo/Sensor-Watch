@@ -7,19 +7,17 @@
 
 #include "watch.h"
 #include <stdlib.h>
-#include <string.h>
 
-void watch_init(Watch *watch) {
-	memset(watch, 0, sizeof(*watch));
+void watch_init() {
 	// use switching regulator
 	SUPC->VREG.bit.SEL = 1;
 	while(!SUPC->STATUS.bit.VREGRDY);
-	// TODO: use performance level 0
+	// TODO: use performance level 0?
 //	_set_performance_level(0);
 //	hri_pm_write_PLCFG_PLDIS_bit(PM, true);
 }
 
-const uint8_t Character_Set[] =
+static const uint8_t Character_Set[] =
 {
     0b00000000, //  
     0b00000000, // !
@@ -118,39 +116,36 @@ const uint8_t Character_Set[] =
     0b00000001, // ~
 };
 
-void watch_enable_display(Watch *watch) {
-	if (watch->display_enabled) return;
+static const uint64_t Segment_Map[] = {
+    0x4e4f0e8e8f8d4d0d, // Position 8
+    0xc8c4c4c8b4b4b0b,  // Position 9
+    0xc049c00a49890949, // Position 6
+    0xc048088886874707, // Position 7
+    0xc053921252139352, // Position 0
+    0xc054511415559594, // Position 1
+    0xc057965616179716, // Position 2
+    0xc041804000018a81, // Position 3
+    0xc043420203048382, // Position 4
+    0xc045440506468584, // Position 5
+};
 
-	static const uint64_t segmap[] = {
-		0x4e4f0e8e8f8d4d0d, // Position 8
-		0xc8c4c4c8b4b4b0b,  // Position 9
-		0xc049c00a49890949, // Position 6
-		0xc048088886874707, // Position 7
-		0xc053921252139352, // Position 0
-		0xc054511415559594, // Position 1
-		0xc057965616179716, // Position 2
-		0xc041804000018a81, // Position 3
-		0xc043420203048382, // Position 4
-		0xc045440506468584, // Position 5
-	};
-	watch->num_chars = 10;
-	watch->segment_map = &segmap[0];
+static const uint8_t Num_Chars = 10;
 
+void watch_enable_display() {
 	SEGMENT_LCD_0_init();
 	slcd_sync_enable(&SEGMENT_LCD_0);
-	watch->display_enabled = true;
 }
 
-void watch_display_pixel(Watch *watch, uint8_t com, uint8_t seg) {
+void watch_display_pixel(uint8_t com, uint8_t seg) {
 	slcd_sync_seg_on(&SEGMENT_LCD_0, SLCD_SEGID(com, seg));
 }
 
-void watch_clear_pixel(Watch *watch, uint8_t com, uint8_t seg) {
+void watch_clear_pixel(uint8_t com, uint8_t seg) {
 	slcd_sync_seg_off(&SEGMENT_LCD_0, SLCD_SEGID(com, seg));
 }
 
-void watch_display_character(Watch *watch, uint8_t character, uint8_t position) {
-	uint64_t segmap = watch->segment_map[position];
+void watch_display_character(uint8_t character, uint8_t position) {
+	uint64_t segmap = Segment_Map[position];
 	uint64_t segdata = Character_Set[character - 0x20];
 
 	for (int i = 0; i < 8; i++) {
@@ -169,43 +164,40 @@ void watch_display_character(Watch *watch, uint8_t character, uint8_t position) 
 	}
 }
 
-void watch_display_string(Watch *watch, char *string, uint8_t position) {
+void watch_display_string(char *string, uint8_t position) {
 	size_t i = 0;
 	while(string[i] != 0) {
-		watch_display_character(watch, string[i], position + i);
+		watch_display_character(string[i], position + i);
 		i++;
-		if (i >= watch->num_chars) break;
+		if (i >= Num_Chars) break;
 	}
 }
 
-void watch_enable_buttons(Watch *watch) {
+void watch_enable_buttons() {
 	EXTERNAL_IRQ_0_init();
 }
 
-void watch_register_button_callback(Watch *watch, const uint32_t pin, ext_irq_cb_t callback) {
+void watch_register_button_callback(const uint32_t pin, ext_irq_cb_t callback) {
 	ext_irq_register(pin, callback);
 }
 
-void watch_enable_led(Watch *watch) {
-	if (watch->led_enabled) return;
+static bool PWM_0_enabled = false;
 
-	PWM_0_init();
+void watch_enable_led() {
+    if (!PWM_0_enabled) PWM_0_init();
+    PWM_0_enabled = true;
 	pwm_set_parameters(&PWM_0, 10000, 0);
 	pwm_enable(&PWM_0);
 	
-	watch->led_enabled = true;
 	watch_set_led_off();
 }
 
-void watch_disable_led(Watch *watch) {
-	if (!watch->led_enabled) return;
-
+void watch_disable_led() {
 	gpio_set_pin_function(RED, GPIO_PIN_FUNCTION_OFF);
 	gpio_set_pin_function(GREEN, GPIO_PIN_FUNCTION_OFF);
 
 	pwm_disable(&PWM_0);
-	
-	watch->led_enabled = false;
+    PWM_0_enabled = false;
 }
 
 void watch_set_led_color(uint16_t red, uint16_t green) {
@@ -225,12 +217,9 @@ void watch_set_led_off() {
 	watch_set_led_color(0, 0);
 }
 
-void watch_enable_date_time(Watch *watch) {
-	if (watch->calendar_enabled) return;
+void watch_enable_date_time() {
 	CALENDAR_0_init();
 	calendar_enable(&CALENDAR_0);
-	
-	watch->calendar_enabled = true;
 }
 
 void watch_set_date_time(struct calendar_date_time date_time) {
@@ -248,15 +237,19 @@ static void tick_callback(struct calendar_dev *const dev) {
 	tick_user_callback();
 }
 
-void watch_enable_tick(ext_irq_cb_t callback) {
+void watch_enable_tick_callback(ext_irq_cb_t callback) {
 	tick_user_callback = callback;
 	// TODO: rename this method to reflect that it now sets the PER7 interrupt.
 	_tamper_register_callback(&CALENDAR_0.device, &tick_callback);
 }
 
-void watch_enable_analog(Watch *watch, const uint8_t pin) {
-	if (!watch->adc_enabled) ADC_0_init();
+static bool ADC_0_ENABLED = false;
 
+void watch_enable_analog(const uint8_t pin) {
+	if (!ADC_0_ENABLED) ADC_0_init();
+    ADC_0_ENABLED = true;
+
+	gpio_set_pin_direction(pin, GPIO_DIRECTION_OFF);
 	switch (pin) {
 		case A0:
 			gpio_set_pin_function(A0, PINMUX_PB04B_ADC_AIN12);
@@ -270,7 +263,6 @@ void watch_enable_analog(Watch *watch, const uint8_t pin) {
 		default:
 			return;
 	}
-	gpio_set_pin_direction(pin, GPIO_DIRECTION_OFF);
 }
 
 void watch_enable_digital_input(const uint8_t pin) {
@@ -278,15 +270,30 @@ void watch_enable_digital_input(const uint8_t pin) {
 	gpio_set_pin_function(pin, GPIO_PIN_FUNCTION_OFF);
 }
 
+void watch_enable_pull_up(const uint8_t pin) {
+    gpio_set_pin_pull_mode(pin, GPIO_PULL_UP);
+}
+
+void watch_enable_pull_down(const uint8_t pin) {
+    gpio_set_pin_pull_mode(pin, GPIO_PULL_DOWN);
+}
+
+bool watch_get_pin_level(const uint8_t pin, const bool level) {
+    return gpio_get_pin_level(pin);
+}
+
 void watch_enable_digital_output(const uint8_t pin) {
 	gpio_set_pin_direction(pin, GPIO_DIRECTION_OUT);
 	gpio_set_pin_function(pin, GPIO_PIN_FUNCTION_OFF);
 }
 
+void watch_set_pin_level(const uint8_t pin, const bool level) {
+    gpio_set_pin_level(pin, level);
+}
+
 struct io_descriptor *I2C_0_io;
 
-void watch_enable_i2c(Watch *watch) {
-	if (watch->i2c_enabled) return;
+void watch_enable_i2c() {
 	I2C_0_init();
 	i2c_m_sync_get_io_descriptor(&I2C_0, &I2C_0_io);
 	i2c_m_sync_enable(&I2C_0);
