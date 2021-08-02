@@ -8,7 +8,7 @@ BIN = watch
 CC = arm-none-eabi-gcc
 OBJCOPY = arm-none-eabi-objcopy
 SIZE = arm-none-eabi-size
-UF2 = python uf2conv.py
+UF2 = python ../../utils/uf2conv.py
 
 ifeq ($(OS), Windows_NT)
   MKDIR = gmkdir
@@ -25,79 +25,83 @@ CFLAGS += -MD -MP -MT $(BUILD)/$(*F).o -MF $(BUILD)/$(@F).d
 
 LDFLAGS += -mcpu=cortex-m0plus -mthumb
 LDFLAGS += -Wl,--gc-sections
-LDFLAGS += -Wl,--script=../linker/saml22j18.ld
+LDFLAGS += -Wl,--script=../../watch-library/linker/saml22j18.ld
 
+# If you add any additional directories with headers, add them to this list, e.g.
+# ../drivers/
 INCLUDES += \
-  -I../include \
-  -I../hal/ \
-  -I../hal/documentation/ \
-  -I../hal/include/ \
-  -I../hal/src/ \
-  -I../hal/utils/ \
-  -I../hal/utils/include/ \
-  -I../hal/utils/src/ \
-  -I../hpl/ \
-  -I../hpl/adc/ \
-  -I../hpl/core/ \
-  -I../hpl/dmac/ \
-  -I../hpl/eic/ \
-  -I../hpl/gclk/ \
-  -I../hpl/mclk/ \
-  -I../hpl/osc32kctrl/ \
-  -I../hpl/oscctrl/ \
-  -I../hpl/pm/ \
-  -I../hpl/port/ \
-  -I../hpl/rtc/ \
-  -I../hpl/sercom/ \
-  -I../hpl/slcd/ \
-  -I../hpl/systick/ \
-  -I../hpl/tcc/ \
-  -I../hpl/tc/ \
-  -I../hri/ \
-  -I../config/ \
-  -I../hw/ \
-  -I../watch/ \
-  -I../app/ \
-  -I..
+  -I../ \
+  -I../../watch-library/include \
+  -I../../watch-library/hal/ \
+  -I../../watch-library/hal/documentation/ \
+  -I../../watch-library/hal/include/ \
+  -I../../watch-library/hal/src/ \
+  -I../../watch-library/hal/utils/ \
+  -I../../watch-library/hal/utils/include/ \
+  -I../../watch-library/hal/utils/src/ \
+  -I../../watch-library/hpl/ \
+  -I../../watch-library/hpl/adc/ \
+  -I../../watch-library/hpl/core/ \
+  -I../../watch-library/hpl/dmac/ \
+  -I../../watch-library/hpl/eic/ \
+  -I../../watch-library/hpl/gclk/ \
+  -I../../watch-library/hpl/mclk/ \
+  -I../../watch-library/hpl/osc32kctrl/ \
+  -I../../watch-library/hpl/oscctrl/ \
+  -I../../watch-library/hpl/pm/ \
+  -I../../watch-library/hpl/port/ \
+  -I../../watch-library/hpl/rtc/ \
+  -I../../watch-library/hpl/sercom/ \
+  -I../../watch-library/hpl/slcd/ \
+  -I../../watch-library/hpl/systick/ \
+  -I../../watch-library/hpl/tcc/ \
+  -I../../watch-library/hpl/tc/ \
+  -I../../watch-library/hri/ \
+  -I../../watch-library/config/ \
+  -I../../watch-library/hw/ \
+  -I../../watch-library/watch/ \
+  -I../../watch-library
 
+# If you add any additional C files to your project, add them each to this list, e.g.
+# ../drivers/st25dv.c
 SRCS += \
-  ../main.c \
-  ../startup_saml22.c \
-  ../hw/driver_init.c \
-  ../watch/watch.c \
-  ../app/app.c \
-  ../hal/src/hal_adc_sync.c \
-  ../hal/src/hal_atomic.c \
-  ../hal/src/hal_calendar.c \
-  ../hal/src/hal_delay.c \
-  ../hal/src/hal_ext_irq.c \
-  ../hal/src/hal_gpio.c \
-  ../hal/src/hal_i2c_m_sync.c \
-  ../hal/src/hal_init.c \
-  ../hal/src/hal_io.c \
-  ../hal/src/hal_pwm.c \
-  ../hal/src/hal_slcd_sync.c \
-  ../hal/src/hal_sleep.c \
-  ../hal/utils/src/utils_assert.c \
-  ../hal/utils/src/utils_event.c \
-  ../hal/utils/src/utils_list.c \
-  ../hal/utils/src/utils_syscalls.c \
-  ../hpl/adc/hpl_adc.c \
-  ../hpl/core/hpl_core_m0plus_base.c \
-  ../hpl/core/hpl_init.c \
-  ../hpl/dmac/hpl_dmac.c \
-  ../hpl/eic/hpl_eic.c \
-  ../hpl/gclk/hpl_gclk.c \
-  ../hpl/mclk/hpl_mclk.c \
-  ../hpl/osc32kctrl/hpl_osc32kctrl.c \
-  ../hpl/oscctrl/hpl_oscctrl.c \
-  ../hpl/pm/hpl_pm.c \
-  ../hpl/rtc/hpl_rtc.c \
-  ../hpl/sercom/hpl_sercom.c \
-  ../hpl/slcd/hpl_slcd.c \
-  ../hpl/systick/hpl_systick.c \
-  ../hpl/tcc/hpl_tcc.c \
-  ../hpl/tc/hpl_tc.c
+  ../app.c \
+  ../../watch-library/main.c \
+  ../../watch-library/startup_saml22.c \
+  ../../watch-library/hw/driver_init.c \
+  ../../watch-library/watch/watch.c \
+  ../../watch-library/hal/src/hal_adc_sync.c \
+  ../../watch-library/hal/src/hal_atomic.c \
+  ../../watch-library/hal/src/hal_calendar.c \
+  ../../watch-library/hal/src/hal_delay.c \
+  ../../watch-library/hal/src/hal_ext_irq.c \
+  ../../watch-library/hal/src/hal_gpio.c \
+  ../../watch-library/hal/src/hal_i2c_m_sync.c \
+  ../../watch-library/hal/src/hal_init.c \
+  ../../watch-library/hal/src/hal_io.c \
+  ../../watch-library/hal/src/hal_pwm.c \
+  ../../watch-library/hal/src/hal_slcd_sync.c \
+  ../../watch-library/hal/src/hal_sleep.c \
+  ../../watch-library/hal/utils/src/utils_assert.c \
+  ../../watch-library/hal/utils/src/utils_event.c \
+  ../../watch-library/hal/utils/src/utils_list.c \
+  ../../watch-library/hal/utils/src/utils_syscalls.c \
+  ../../watch-library/hpl/adc/hpl_adc.c \
+  ../../watch-library/hpl/core/hpl_core_m0plus_base.c \
+  ../../watch-library/hpl/core/hpl_init.c \
+  ../../watch-library/hpl/dmac/hpl_dmac.c \
+  ../../watch-library/hpl/eic/hpl_eic.c \
+  ../../watch-library/hpl/gclk/hpl_gclk.c \
+  ../../watch-library/hpl/mclk/hpl_mclk.c \
+  ../../watch-library/hpl/osc32kctrl/hpl_osc32kctrl.c \
+  ../../watch-library/hpl/oscctrl/hpl_oscctrl.c \
+  ../../watch-library/hpl/pm/hpl_pm.c \
+  ../../watch-library/hpl/rtc/hpl_rtc.c \
+  ../../watch-library/hpl/sercom/hpl_sercom.c \
+  ../../watch-library/hpl/slcd/hpl_slcd.c \
+  ../../watch-library/hpl/systick/hpl_systick.c \
+  ../../watch-library/hpl/tcc/hpl_tcc.c \
+  ../../watch-library/hpl/tc/hpl_tc.c
 
 DEFINES += \
   -D__SAML22J18A__ \

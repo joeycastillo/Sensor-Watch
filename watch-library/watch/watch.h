@@ -24,6 +24,7 @@ void watch_disable_led(bool pwm);
 void watch_set_led_color(uint16_t red, uint16_t green);
 void watch_set_led_red();
 void watch_set_led_green();
+void watch_set_led_yellow();
 void watch_set_led_off();
 
 void watch_set_date_time(struct calendar_date_time date_time);
