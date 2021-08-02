@@ -1,29 +1,33 @@
 /**
   * Header file for Sensor Watch application
-  * 
-  * Ideally you should implement your app entirely within these functions, as well as any
-  * interrupt callbacks you register with the watch API. The general flow is as follows:
-  * 
-  * 1. main.c configures the watch
-  * 2. main.c calls your app_init() function. 
+  *
+  * You should be able to write a watch app by simply implementing these functions
+  * and declaring callbacks for various GPIO and peripheral interrupts. The main.c
+  * file takes care of calling these functions for you. The general flow:
+  *
+  * 1. Your app_init() function is called.
+  *      - This method should only be used to set your initial application state.
+  * 2. If your app is waking from BACKUP, app_wake_from_deep_sleep()  is called.
+  *      - If you saved state in the RTC's backup registers, you can restore it here.
+  * 3. Your app_setup() method is called.
   *      - You may wish to enable some functionality and peripherals here.
-  *      - You should definitely set up some wake-up sources here.
-  * 3. main.c calls your app_loop() function. 
+  *      - You should definitely set up some interrupts here.
+  * 4. The main run loop begins: your app_loop() function is called.
   *      - Run code and update your UI here.
-  * 4. main.c calls your app_prepare_for_sleep() function.
-  *      - Consider resetting any state that was set in your wakeup callback here.
-  *      - You may also want to disable / depower external sensors or peripherals here.
-  * 5. main.c enters the STANDBY sleep mode.
+  *      - Return true if your app is prepared to enter STANDBY mode.
+  * 5. This step differs depending on the value returned by app_loop:
+  *      - If you returned false, execution resumes at (4).
+  *      - If you returned true, app_prepare_for_sleep() is called; execution moves on to (6).
+  * 6. The microcontroller enters the STANDBY sleep mode.
   *      - No user code will run, and the watch will enter a low power mode.
-  *      - The watch will remain in this state until something from (2) wakes it.
-  * 6. main.c calls your app_wake_from_sleep() function.
-  *      - You may wish to re-enable any peripherals you disabled.
-  *      - After this, execution resumes at step (3).
+  *      - The watch will remain in this state until an interrupt wakes it.
+  * 7. Once woken from STANDBY, your app_wake_from_sleep() function is called.
+  *      - After this, execution resumes at (4).
   */
 
-#include "watch.h"
-
 void app_init();
-void app_loop();
+void app_wake_from_deep_sleep();
+void app_setup();
+bool app_loop();
 void app_prepare_for_sleep();
 void app_wake_from_sleep();

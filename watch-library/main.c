@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2021, Joey Castillo
- * SAML22 starter project is Copyright (c) 2014-2017, Alex Taradov <alex@taradov.com>
+ * UART methods are Copyright (c) 2014-2017, Alex Taradov <alex@taradov.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -82,26 +82,35 @@ void uart_puts(char *s) {
     while (*s) uart_putc(*s++);
 }
 
-//-----------------------------------------------------------------------------
-static void sys_init(void) {
-    uart_puts("init_mcu\n");
-    init_mcu();
-    uart_puts("watch_init\n");
-    watch_init();
-    uart_puts("app_init\n");
-    app_init();
-}
-
-//-----------------------------------------------------------------------------
 int main(void) {
+    // Temporary, for debugging.
     uart_init(115200);
-    sys_init();
+
+    // ASF code. Initialize the MCU with configuration options from Atmel Studio.
+    init_mcu();
+
+    // User code. Give the app a chance to initialize its data structures and state.
+    app_init();
+
+    // At this point, if the RTC peripheral is enabled, we are waking from BACKUP.
+    if (watch_rtc_is_enabled()) {
+        // User code. Give the application a chance to restore state from backup registers.
+        app_wake_from_deep_sleep();
+    }
+
+    // Watch library code. Set initial parameters for the device and enable the RTC.
+    watch_init();
+
+    // User code. Give the app a chance to enable and set up peripherals.
+    app_setup();
 
     while (1) {
-        app_loop();
-        app_prepare_for_sleep();
-        sleep(4);
-        app_wake_from_sleep();
+        bool can_sleep = app_loop();
+        if (can_sleep) {
+            app_prepare_for_sleep();
+            sleep(4);
+            app_wake_from_sleep();
+        }
     }
 
     return 0;

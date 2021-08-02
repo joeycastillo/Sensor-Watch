@@ -1,15 +1,8 @@
-/*
- * watch.c
- *
- * Created: 4/25/2021 10:22:10 AM
- *  Author: joeycastillo
- */
-
 #include "watch.h"
 #include <stdlib.h>
 
 void watch_init() {
-    // use switching regulator
+    // Use switching regulator for lower power consumption.
     SUPC->VREG.bit.SEL = 1;
     while(!SUPC->STATUS.bit.VREGRDY);
 
@@ -17,9 +10,8 @@ void watch_init() {
     CALENDAR_0_init();
     calendar_enable(&CALENDAR_0);
 
-    // TODO: use performance level 0?
-//    _set_performance_level(0);
-//    hri_pm_write_PLCFG_PLDIS_bit(PM, true);
+    // Not sure if this belongs in every app -- is there a power impact?
+    delay_driver_init();
 }
 
 static const uint8_t Character_Set[] =
@@ -258,6 +250,10 @@ void watch_set_led_off() {
     }
 }
 
+bool watch_rtc_is_enabled() {
+    return RTC->MODE0.CTRLA.bit.ENABLE;
+}
+
 void watch_set_date_time(struct calendar_date_time date_time) {
     calendar_set_date(&CALENDAR_0, &date_time.date);
     calendar_set_time(&CALENDAR_0, &date_time.time);
@@ -314,7 +310,7 @@ void watch_enable_pull_down(const uint8_t pin) {
     gpio_set_pin_pull_mode(pin, GPIO_PULL_DOWN);
 }
 
-bool watch_get_pin_level(const uint8_t pin, const bool level) {
+bool watch_get_pin_level(const uint8_t pin) {
     return gpio_get_pin_level(pin);
 }
 
@@ -347,4 +343,24 @@ void watch_i2c_send(int16_t addr, uint8_t *buf, uint16_t length) {
 void watch_i2c_receive(int16_t addr, uint8_t *buf, uint16_t length) {
     i2c_m_sync_set_slaveaddr(&I2C_0, addr, I2C_M_SEVEN);
     io_read(I2C_0_io, buf, length);
+}
+
+void watch_store_backup_data(uint32_t data, uint8_t reg) {
+    if (reg < 8) {
+        RTC->MODE0.BKUP[reg].reg = data;
+    }
+}
+
+uint32_t watch_get_backup_data(uint8_t reg) {
+    if (reg < 8) {
+        return RTC->MODE0.BKUP[reg].reg;
+    }
+
+    return 0;
+}
+
+void watch_enter_deep_sleep(){
+    // Not yet implemented.
+    // TODO: enable tamper interrupt on ALARM pin.
+    // sleep(5);
 }
