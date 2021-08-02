@@ -25,14 +25,12 @@ struct pwm_descriptor PWM_0;
 
 struct pwm_descriptor PWM_1;
 
-void ADC_0_CLOCK_init(void)
-{
+void ADC_0_CLOCK_init(void) {
 	hri_mclk_set_APBCMASK_ADC_bit(MCLK);
 	hri_gclk_write_PCHCTRL_reg(GCLK, ADC_GCLK_ID, CONF_GCLK_ADC_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
 }
 
-void ADC_0_init(void)
-{
+void ADC_0_init(void) {
 	ADC_0_CLOCK_init();
 	adc_sync_init(&ADC_0, ADC, (void *)NULL);
 }

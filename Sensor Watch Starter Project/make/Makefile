@@ -56,6 +56,7 @@ INCLUDES += \
   -I../hri/ \
   -I../config/ \
   -I../hw/ \
+  -I../watch/ \
   -I../app/ \
   -I..
 
@@ -63,7 +64,7 @@ SRCS += \
   ../main.c \
   ../startup_saml22.c \
   ../hw/driver_init.c \
-  ../hw/watch.c \
+  ../watch/watch.c \
   ../app/app.c \
   ../hal/src/hal_adc_sync.c \
   ../hal/src/hal_atomic.c \

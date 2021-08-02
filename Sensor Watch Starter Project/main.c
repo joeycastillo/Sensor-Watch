@@ -85,7 +85,7 @@ void uart_puts(char *s) {
 //-----------------------------------------------------------------------------
 static void sys_init(void) {
     uart_puts("init_mcu\n");
-	init_mcu();
+    init_mcu();
     uart_puts("watch_init\n");
     watch_init();
     uart_puts("app_init\n");
@@ -101,6 +101,7 @@ int main(void) {
         app_loop();
         app_prepare_for_sleep();
         sleep(4);
+        app_wake_from_sleep();
     }
 
     return 0;
