@@ -43,7 +43,6 @@
 
 //-----------------------------------------------------------------------------
 HAL_GPIO_PIN(UART_TX,   B, 0)
-HAL_GPIO_PIN(UART_RX,   B, 2)
 
 //-----------------------------------------------------------------------------
 static void uart_init(uint32_t baud) {
@@ -51,8 +50,6 @@ static void uart_init(uint32_t baud) {
 
     HAL_GPIO_UART_TX_out();
     HAL_GPIO_UART_TX_pmuxen(HAL_GPIO_PMUX_C);
-    HAL_GPIO_UART_RX_in();
-    HAL_GPIO_UART_RX_pmuxen(HAL_GPIO_PMUX_C);
 
     MCLK->APBCMASK.reg |= MCLK_APBCMASK_SERCOM3;
 
@@ -92,10 +89,15 @@ int main(void) {
     // User code. Give the app a chance to initialize its data structures and state.
     app_init();
 
-    // At this point, if the RTC peripheral is enabled, we are waking from BACKUP.
+    // If the RTC is already enabled, we're either waking from BACKUP mode or a reset.
+    // Ideally we should check if the TAMPER or CMP0 (alarm) flags are set.
     if (watch_rtc_is_enabled()) {
         // User code. Give the application a chance to restore state from backup registers.
         app_wake_from_deep_sleep();
+
+        // disable the tamper interrupt and clear the tamper bit
+        hri_rtcmode0_clear_INTEN_TAMPER_bit(RTC);
+        hri_rtcmode0_clear_interrupt_TAMPER_bit(RTC);
     }
 
     // Watch library code. Set initial parameters for the device and enable the RTC.

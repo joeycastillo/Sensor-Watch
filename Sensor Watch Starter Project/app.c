@@ -23,6 +23,7 @@ typedef struct ApplicationState {
     LightColor color;
     uint8_t wake_count;
     bool debounce_wait;
+    bool enter_deep_sleep;
 } ApplicationState;
 
 ApplicationState application_state;
@@ -58,7 +59,10 @@ void app_init() {
  * @see watch_enter_deep_sleep()
  */
 void app_wake_from_deep_sleep() {
-    // TODO: deep sleep demo
+    // retrieve our application state from the backup registers
+    application_state.mode = (ApplicationMode)watch_get_backup_data(0);
+    application_state.color = (LightColor)watch_get_backup_data(1);
+    application_state.wake_count = (uint8_t)watch_get_backup_data(2) + 1;
 }
 
 /**
@@ -141,6 +145,24 @@ bool app_loop() {
     // Wait a moment to debounce button input
     delay_ms(250);
 
+    if (application_state.enter_deep_sleep) {
+        application_state.enter_deep_sleep = false;
+
+        // stash our application state in the backup registers
+        watch_store_backup_data((uint32_t)application_state.mode, 0);
+        watch_store_backup_data((uint32_t)application_state.color, 1);
+        watch_store_backup_data((uint32_t)application_state.wake_count, 2);
+
+        // turn off the LED
+        watch_set_led_off();
+
+        // wait a moment for the user's finger to be off the button
+        delay_ms(1000);
+
+        // nap time :)
+        watch_enter_deep_sleep();
+    }
+
     return true;
 }
 
@@ -161,5 +183,7 @@ void cb_mode_pressed() {
 }
 
 void cb_alarm_pressed() {
-    // TODO: deep sleep demo
+    if (application_state.debounce_wait) return;
+    application_state.debounce_wait = true;
+    application_state.enter_deep_sleep = true;
 }

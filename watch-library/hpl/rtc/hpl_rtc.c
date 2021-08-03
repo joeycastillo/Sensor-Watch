@@ -99,7 +99,9 @@ int32_t _calendar_deinit(struct calendar_dev *const dev)
 	ASSERT(dev && dev->hw);
 
 	NVIC_DisableIRQ(RTC_IRQn);
-	dev->callback = NULL;
+	dev->callback_alarm = NULL;
+	dev->callback_tick = NULL;
+	dev->callback_tamper = NULL;
 
 	hri_rtcmode0_clear_CTRLA_ENABLE_bit(dev->hw);
 	hri_rtcmode0_set_CTRLA_SWRST_bit(dev->hw);
@@ -302,27 +304,49 @@ int32_t _tamper_disable_debounce_majority(struct calendar_dev *const dev)
 	return return_value;
 }
 
-int32_t _tamper_register_callback(struct calendar_dev *const dev, tamper_drv_cb_t callback_tamper)
+int32_t _prescaler_register_callback(struct calendar_dev *const dev, calendar_drv_cb_t callback)
 {
 	ASSERT(dev && dev->hw);
 
 	/* Check callback */
-	if (callback_tamper != NULL) {
+	if (callback != NULL) {
 		/* register the callback */
-		dev->callback_tamper = callback_tamper;
+		dev->callback_tick = callback;
 
 		/* enable RTC_IRQn */
 		NVIC_ClearPendingIRQ(RTC_IRQn);
 		NVIC_EnableIRQ(RTC_IRQn);
 
-		/* enable tamper interrupt */
+		/* enable periodic interrupt */
 		hri_rtcmode0_set_INTEN_PER7_bit(dev->hw);
 	} else {
-		/* disable tamper interrupt */
+		/* disable periodic interrupt */
 		hri_rtcmode0_clear_INTEN_PER7_bit(dev->hw);
+	}
 
-		/* disable RTC_IRQn */
-		NVIC_DisableIRQ(RTC_IRQn);
+	return ERR_NONE;
+}
+
+// TODO: refactor this so it doesn't take a callback (it will never get called anyway)
+int32_t _extwake_register_callback(struct calendar_dev *const dev, calendar_drv_cb_t callback)
+{
+	ASSERT(dev && dev->hw);
+
+	/* Check callback */
+	if (callback != NULL) {
+		/* register the callback */
+		dev->callback_tamper = callback;
+
+		/* enable RTC_IRQn */
+		NVIC_ClearPendingIRQ(RTC_IRQn);
+		NVIC_EnableIRQ(RTC_IRQn);
+
+		hri_rtcmode0_clear_interrupt_TAMPER_bit(dev->hw);
+		/* enable tamper interrupt */
+		hri_rtcmode0_set_INTEN_TAMPER_bit(dev->hw);
+	} else {
+		/* disable tamper interrupt */
+		hri_rtcmode0_clear_INTEN_TAMPER_bit(dev->hw);
 	}
 
 	return ERR_NONE;
@@ -330,14 +354,14 @@ int32_t _tamper_register_callback(struct calendar_dev *const dev, tamper_drv_cb_
 /**
  * \brief Registers callback for the specified callback type
  */
-int32_t _calendar_register_callback(struct calendar_dev *const dev, calendar_drv_cb_alarm_t callback)
+int32_t _calendar_register_callback(struct calendar_dev *const dev, calendar_drv_cb_t callback)
 {
 	ASSERT(dev && dev->hw);
 
 	/* Check callback */
 	if (callback != NULL) {
 		/* register the callback */
-		dev->callback = callback;
+		dev->callback_alarm = callback;
 
 		/* enable RTC_IRQn */
 		NVIC_ClearPendingIRQ(RTC_IRQn);
@@ -348,9 +372,6 @@ int32_t _calendar_register_callback(struct calendar_dev *const dev, calendar_drv
 	} else {
 		/* disable cmp */
 		hri_rtcmode0_clear_INTEN_CMP0_bit(dev->hw);
-
-		/* disable RTC_IRQn */
-		NVIC_DisableIRQ(RTC_IRQn);
 	}
 
 	return ERR_NONE;
@@ -368,15 +389,18 @@ static void _rtc_interrupt_handler(struct calendar_dev *dev)
 	uint16_t interrupt_enabled = hri_rtcmode0_read_INTEN_reg(dev->hw);
 
 	if ((interrupt_status & interrupt_enabled) & RTC_MODE2_INTFLAG_ALARM0) {
-		dev->callback(dev);
+		dev->callback_alarm(dev);
 
 		/* Clear interrupt flag */
 		hri_rtcmode0_clear_interrupt_CMP0_bit(dev->hw);
 	} else if ((interrupt_status & interrupt_enabled) & RTC_MODE2_INTFLAG_PER7) {
-		dev->callback_tamper(dev);
+		dev->callback_tick(dev);
 
 		/* Clear interrupt flag */
 		hri_rtcmode0_clear_interrupt_PER7_bit(dev->hw);
+	} else if ((interrupt_status & interrupt_enabled) & RTC_MODE2_INTFLAG_TAMPER) {
+		/* Clear interrupt flag */
+		hri_rtcmode0_clear_interrupt_TAMPER_bit(dev->hw);
 	}
 }
 /**

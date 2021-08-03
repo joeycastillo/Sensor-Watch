@@ -271,8 +271,7 @@ static void tick_callback(struct calendar_dev *const dev) {
 
 void watch_enable_tick_callback(ext_irq_cb_t callback) {
     tick_user_callback = callback;
-    // TODO: rename this method to reflect that it now sets the PER7 interrupt.
-    _tamper_register_callback(&CALENDAR_0.device, &tick_callback);
+    _prescaler_register_callback(&CALENDAR_0.device, &tick_callback);
 }
 
 static bool ADC_0_ENABLED = false;
@@ -359,8 +358,27 @@ uint32_t watch_get_backup_data(uint8_t reg) {
     return 0;
 }
 
-void watch_enter_deep_sleep(){
-    // Not yet implemented.
-    // TODO: enable tamper interrupt on ALARM pin.
-    // sleep(5);
+static void extwake_callback(struct calendar_dev *const dev) {
+    // this will never get called since we are basically waking from reset
+}
+
+void watch_enter_deep_sleep() {
+    // enable and configure the external wake interrupt
+    _extwake_register_callback(&CALENDAR_0.device, &extwake_callback);
+    _tamper_enable_debounce_asynchronous(&CALENDAR_0.device);
+
+    // disable SLCD
+    slcd_sync_deinit(&SEGMENT_LCD_0);
+    hri_mclk_clear_APBCMASK_SLCD_bit(SLCD);
+
+    // TODO: disable other peripherals
+
+    // disable EIC interrupt on ALARM pin (if any) and enable RTC interrupt.
+    ext_irq_disable(BTN_ALARM);
+    gpio_set_pin_direction(BTN_ALARM, GPIO_DIRECTION_IN);
+    gpio_set_pin_pull_mode(BTN_ALARM, GPIO_PULL_DOWN);
+    gpio_set_pin_function(BTN_ALARM, PINMUX_PA02G_RTC_IN2);
+
+    // go into backup sleep mode
+    sleep(5);
 }

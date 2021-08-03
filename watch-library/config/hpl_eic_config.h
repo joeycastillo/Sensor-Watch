@@ -138,14 +138,14 @@
 // <e> Interrupt 2 Settings
 // <id> eic_arch_enable_irq_setting2
 #ifndef CONF_EIC_ENABLE_IRQ_SETTING2
-#define CONF_EIC_ENABLE_IRQ_SETTING2 0
+#define CONF_EIC_ENABLE_IRQ_SETTING2 1
 #endif
 
 // <q> External Interrupt 2 Filter Enable
 // <i> Indicates whether the external interrupt 2 filter is enabled or not
 // <id> eic_arch_filten2
 #ifndef CONF_EIC_FILTEN2
-#define CONF_EIC_FILTEN2 0
+#define CONF_EIC_FILTEN2 1
 #endif
 
 // <q> External Interrupt 2 Event Output Enable
@@ -165,7 +165,7 @@
 // <i> This defines input sense trigger
 // <id> eic_arch_sense2
 #ifndef CONF_EIC_SENSE2
-#define CONF_EIC_SENSE2 EIC_NMICTRL_NMISENSE_NONE_Val
+#define CONF_EIC_SENSE2 EIC_NMICTRL_NMISENSE_RISE_Val
 #endif
 
 // <q> External Interrupt 2 Asynchronous Edge Detection Mode
@@ -264,7 +264,7 @@
 // <e> Interrupt 5 Settings
 // <id> eic_arch_enable_irq_setting5
 #ifndef CONF_EIC_ENABLE_IRQ_SETTING5
-#define CONF_EIC_ENABLE_IRQ_SETTING5 1
+#define CONF_EIC_ENABLE_IRQ_SETTING5 0
 #endif
 
 // <q> External Interrupt 5 Filter Enable
@@ -291,7 +291,7 @@
 // <i> This defines input sense trigger
 // <id> eic_arch_sense5
 #ifndef CONF_EIC_SENSE5
-#define CONF_EIC_SENSE5 EIC_NMICTRL_NMISENSE_RISE_Val
+#define CONF_EIC_SENSE5 EIC_NMICTRL_NMISENSE_NONE_Val
 #endif
 
 // <q> External Interrupt 5 Asynchronous Edge Detection Mode
@@ -313,7 +313,7 @@
 // <i> Indicates whether the external interrupt 6 filter is enabled or not
 // <id> eic_arch_filten6
 #ifndef CONF_EIC_FILTEN6
-#define CONF_EIC_FILTEN6 0
+#define CONF_EIC_FILTEN6 1
 #endif
 
 // <q> External Interrupt 6 Event Output Enable
@@ -355,7 +355,7 @@
 // <i> Indicates whether the external interrupt 7 filter is enabled or not
 // <id> eic_arch_filten7
 #ifndef CONF_EIC_FILTEN7
-#define CONF_EIC_FILTEN7 0
+#define CONF_EIC_FILTEN7 1
 #endif
 
 // <q> External Interrupt 7 Event Output Enable
@@ -723,7 +723,7 @@
 
 // </e>
 
-#define CONFIG_EIC_EXTINT_MAP {5, PIN_PB05}, {6, PIN_PA22}, {7, PIN_PA23},
+#define CONFIG_EIC_EXTINT_MAP {2, PIN_PA02}, {6, PIN_PA22}, {7, PIN_PA23},
 
 // <<< end of configuration section >>>
 

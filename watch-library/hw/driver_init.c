@@ -50,7 +50,7 @@ void EXTERNAL_IRQ_0_init(void) {
 	                       // <GPIO_PULL_DOWN"> Pull-down
 	                       GPIO_PULL_DOWN);
 
-	gpio_set_pin_function(BTN_ALARM, PINMUX_PB05A_EIC_EXTINT5);
+	gpio_set_pin_function(BTN_ALARM, PINMUX_PA02A_EIC_EXTINT2);
 
 	// Set pin direction to input
 	gpio_set_pin_direction(BTN_LIGHT, GPIO_DIRECTION_IN);
