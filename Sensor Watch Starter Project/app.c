@@ -25,7 +25,7 @@ typedef struct ApplicationState {
     bool debounce_wait;
 } ApplicationState;
 
-ApplicationState applicationState;
+ApplicationState application_state;
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -47,7 +47,7 @@ void cb_alarm_pressed();
  * internal data structures or application state required by your app.
  */
 void app_init() {
-    memset(&applicationState, 0, sizeof(applicationState));
+    memset(&application_state, 0, sizeof(application_state));
 }
 
 /**
@@ -91,7 +91,7 @@ void app_setup() {
  * a press on one of the buttons).
  */
 void app_prepare_for_sleep() {
-    applicationState.debounce_wait = false;
+    application_state.debounce_wait = false;
 }
 
 /**
@@ -99,7 +99,7 @@ void app_prepare_for_sleep() {
  * STANDBY sleep mode.
  */
 void app_wake_from_sleep() {
-    applicationState.wake_count++;
+    application_state.wake_count++;
 }
 
 /**
@@ -108,7 +108,7 @@ void app_wake_from_sleep() {
  */
 bool app_loop() {
     // set the LED to a color
-    switch (applicationState.color) {
+    switch (application_state.color) {
         case COLOR_OFF:
             watch_set_led_off();
             break;
@@ -125,11 +125,11 @@ bool app_loop() {
 
     // Display the number of times we've woken up (modulo 32 to fit in 2 digits at top right)
     char buf[3] = {0};
-    sprintf(buf, "%2d", applicationState.wake_count % 32);
+    sprintf(buf, "%2d", application_state.wake_count % 32);
     watch_display_string(buf, 2);
 
     // display "Hello there" text
-    switch (applicationState.mode) {
+    switch (application_state.mode) {
         case MODE_HELLO:
             watch_display_string("Hello", 5);
             break;
@@ -149,15 +149,15 @@ bool app_loop() {
 // Implementations for our callback functions. Replace these with whatever functionality
 // your app requires.
 void cb_light_pressed() {
-    if (applicationState.debounce_wait) return;
-    applicationState.debounce_wait = true;
-    applicationState.color = (applicationState.color + 1) % 4;
+    if (application_state.debounce_wait) return;
+    application_state.debounce_wait = true;
+    application_state.color = (application_state.color + 1) % 4;
 }
 
 void cb_mode_pressed() {
-    if (applicationState.debounce_wait) return;
-    applicationState.debounce_wait = true;
-    applicationState.mode = (applicationState.mode + 1) % 2;
+    if (application_state.debounce_wait) return;
+    application_state.debounce_wait = true;
+    application_state.mode = (application_state.mode + 1) % 2;
 }
 
 void cb_alarm_pressed() {
