@@ -35,6 +35,6 @@ Getting code on the watch
 -------------------------
 The watch library in this repository is very work-in-progress, but it should allow you to get started. To create a new project, copy the “Sensor Watch Starter Project” and write your code in the app.c file.
 
-To build your project, open your terminal and navigate to the build folder, then type `make`.
+To build your project, open your terminal and navigate to the project's `make` folder, then type `make`.
 
 To install the project onto your Sensor Watch board, plug the watch into your USB port and double tap the tiny Reset button on the back of the board. You should see the LED light up red and begin pulsing. (If it does not, make sure you didn’t plug the board in upside down). Once you see the “WATCHBOOT” drive appear on your desktop, type `make install`. This will convert your compiled program to a UF2 file, and copy it over to the watch.
