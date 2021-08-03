@@ -22,6 +22,7 @@ typedef struct ApplicationState {
     ApplicationMode mode;
     LightColor color;
     uint8_t wake_count;
+    bool debounce_wait;
 } ApplicationState;
 
 ApplicationState applicationState;
@@ -90,6 +91,7 @@ void app_setup() {
  * a press on one of the buttons).
  */
 void app_prepare_for_sleep() {
+    applicationState.debounce_wait = false;
 }
 
 /**
@@ -107,6 +109,9 @@ void app_wake_from_sleep() {
 bool app_loop() {
     // set the LED to a color
     switch (applicationState.color) {
+        case COLOR_OFF:
+            watch_set_led_off();
+            break;
         case COLOR_RED:
             watch_set_led_red();
             break;
@@ -116,9 +121,6 @@ bool app_loop() {
         case COLOR_YELLOW:
             watch_set_led_yellow();
             break;
-        default:
-            applicationState.color = COLOR_OFF;
-            watch_set_led_off();
     }
 
     // Display the number of times we've woken up (modulo 32 to fit in 2 digits at top right)
@@ -147,10 +149,14 @@ bool app_loop() {
 // Implementations for our callback functions. Replace these with whatever functionality
 // your app requires.
 void cb_light_pressed() {
+    if (applicationState.debounce_wait) return;
+    applicationState.debounce_wait = true;
     applicationState.color = (applicationState.color + 1) % 4;
 }
 
 void cb_mode_pressed() {
+    if (applicationState.debounce_wait) return;
+    applicationState.debounce_wait = true;
     applicationState.mode = (applicationState.mode + 1) % 2;
 }
 
