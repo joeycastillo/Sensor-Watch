@@ -42,7 +42,7 @@ extern "C" {
 #endif
 
 /**
- * \addtogroup doc_driver_hal_i2c_master_sync
+ * \addtogroup doc_driver_hal_i2c_controller_sync
  *
  * @{
  */
@@ -55,7 +55,7 @@ extern "C" {
 struct i2c_m_sync_desc {
 	struct _i2c_m_sync_device device;
 	struct io_descriptor      io;
-	uint16_t                  slave_addr;
+	uint16_t                  periph_addr;
 };
 
 /**
@@ -90,19 +90,19 @@ int32_t i2c_m_sync_init(struct i2c_m_sync_desc *i2c, void *hw);
 int32_t i2c_m_sync_deinit(struct i2c_m_sync_desc *i2c);
 
 /**
- * \brief Set the slave device address
+ * \brief Set the peripheral device address
  *
- * This function sets the next transfer target slave I2C device address.
+ * This function sets the next transfer target peripheral I2C device address.
  * It takes no effect to any already started access.
  *
  * \param[in] i2c An I2C descriptor, which is used to communicate through I2C
- * \param[in] addr The slave address to access
- * \param[in] addr_len The slave address length, can be I2C_M_TEN or I2C_M_SEVEN
+ * \param[in] addr The peripheral address to access
+ * \param[in] addr_len The peripheral address length, can be I2C_M_TEN or I2C_M_SEVEN
  *
- * \return Masked slave address. The mask is a maximum 10-bit address, and 10th
+ * \return Masked peripheral address. The mask is a maximum 10-bit address, and 10th
  *         bit is set if a 10-bit address is used
  */
-int32_t i2c_m_sync_set_slaveaddr(struct i2c_m_sync_desc *i2c, int16_t addr, int32_t addr_len);
+int32_t i2c_m_sync_set_periphaddr(struct i2c_m_sync_desc *i2c, int16_t addr, int32_t addr_len);
 
 /**
  * \brief Set baudrate
@@ -112,7 +112,7 @@ int32_t i2c_m_sync_set_slaveaddr(struct i2c_m_sync_desc *i2c, int16_t addr, int3
  *
  * \param[in] i2c An I2C descriptor, which is used to communicate through I2C
  * \param[in] clkrate Unused parameter. Should always be 0
- * \param[in] baudrate The baudrate value set to master
+ * \param[in] baudrate The baudrate value set to controller
  *
  * \return Whether successfully set the baudrate
  * \retval -1 The passed parameters were invalid or the device is already enabled
@@ -147,18 +147,18 @@ int32_t i2c_m_sync_enable(struct i2c_m_sync_desc *i2c);
 int32_t i2c_m_sync_disable(struct i2c_m_sync_desc *i2c);
 
 /**
- * \brief Sync version of write command to I2C slave
+ * \brief Sync version of write command to I2C peripheral
  *
- * This function will write the value to a specified register in the I2C slave device and
+ * This function will write the value to a specified register in the I2C peripheral device and
  * then wait for this operation to be done.
  *
  * The sequence of this routine is
  * sta->address(write)->ack->reg address->ack->resta->address(write)->ack->reg value->nack->stt
  *
  * \param[in] i2c An I2C descriptor, which is used to communicate through I2C
- * \param[in] reg The internal address/register of the I2C slave device
- * \param[in] buffer The buffer holding data to write to the I2C slave device
- * \param[in] length The length (in bytes) to write to the I2C slave device
+ * \param[in] reg The internal address/register of the I2C peripheral device
+ * \param[in] buffer The buffer holding data to write to the I2C peripheral device
+ * \param[in] length The length (in bytes) to write to the I2C peripheral device
  *
  * \return Whether successfully write to the device
  * \retval <0 The passed parameters were invalid or write fail
@@ -167,18 +167,18 @@ int32_t i2c_m_sync_disable(struct i2c_m_sync_desc *i2c);
 int32_t i2c_m_sync_cmd_write(struct i2c_m_sync_desc *i2c, uint8_t reg, uint8_t *buffer, uint8_t length);
 
 /**
- * \brief Sync version of read register value from I2C slave
+ * \brief Sync version of read register value from I2C peripheral
  *
- * This function will read a byte value from a specified register in the I2C slave device and
+ * This function will read a byte value from a specified register in the I2C peripheral device and
  * then wait for this operation to be done.
  *
  * The sequence of this routine is
  * sta->address(write)->ack->reg address->ack->resta->address(read)->ack->reg value->nack->stt
  *
  * \param[in] i2c An I2C descriptor, which is used to communicate through I2C
- * \param[in] reg The internal address/register of the I2C slave device
- * \param[in] buffer The buffer to hold the read data from the I2C slave device
- * \param[in] length The length (in bytes) to read from the I2C slave device
+ * \param[in] reg The internal address/register of the I2C peripheral device
+ * \param[in] buffer The buffer to hold the read data from the I2C peripheral device
+ * \param[in] length The length (in bytes) to read from the I2C peripheral device
  *
  * \return Whether successfully read from the device
  * \retval <0 The passed parameters were invalid or read fail
@@ -187,10 +187,10 @@ int32_t i2c_m_sync_cmd_write(struct i2c_m_sync_desc *i2c, uint8_t reg, uint8_t *
 int32_t i2c_m_sync_cmd_read(struct i2c_m_sync_desc *i2c, uint8_t reg, uint8_t *buffer, uint8_t length);
 
 /**
- * \brief Sync version of transfer message to/from the I2C slave
+ * \brief Sync version of transfer message to/from the I2C peripheral
  *
- * This function will transfer a message between the I2C slave and the master. This function will wait for the operation
- * to be done.
+ * This function will transfer a message between the I2C peripheral and the controller. 
+ * This function will wait for the operation to be done.
  *
  * \param[in] i2c An I2C descriptor, which is used to communicate through I2C
  * \param[in] msg  An i2c_m_msg struct

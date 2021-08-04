@@ -48,7 +48,7 @@ static int32_t i2c_m_sync_read(struct io_descriptor *io, uint8_t *buf, const uin
 	struct _i2c_m_msg       msg;
 	int32_t                 ret;
 
-	msg.addr   = i2c->slave_addr;
+	msg.addr   = i2c->periph_addr;
 	msg.len    = n;
 	msg.flags  = I2C_M_STOP | I2C_M_RD;
 	msg.buffer = buf;
@@ -71,7 +71,7 @@ static int32_t i2c_m_sync_write(struct io_descriptor *io, const uint8_t *buf, co
 	struct _i2c_m_msg       msg;
 	int32_t                 ret;
 
-	msg.addr   = i2c->slave_addr;
+	msg.addr   = i2c->periph_addr;
 	msg.len    = n;
 	msg.flags  = I2C_M_STOP;
 	msg.buffer = (uint8_t *)buf;
@@ -141,11 +141,11 @@ int32_t i2c_m_sync_disable(struct i2c_m_sync_desc *i2c)
 }
 
 /**
- * \brief Sync version of i2c set slave address
+ * \brief Sync version of i2c set peripheral address
  */
-int32_t i2c_m_sync_set_slaveaddr(struct i2c_m_sync_desc *i2c, int16_t addr, int32_t addr_len)
+int32_t i2c_m_sync_set_periphaddr(struct i2c_m_sync_desc *i2c, int16_t addr, int32_t addr_len)
 {
-	return i2c->slave_addr = (addr & 0x3ff) | (addr_len & I2C_M_TEN);
+	return i2c->periph_addr = (addr & 0x3ff) | (addr_len & I2C_M_TEN);
 }
 
 /**
@@ -164,7 +164,7 @@ int32_t i2c_m_sync_cmd_write(struct i2c_m_sync_desc *i2c, uint8_t reg, uint8_t *
 	struct _i2c_m_msg msg;
 	int32_t           ret;
 
-	msg.addr   = i2c->slave_addr;
+	msg.addr   = i2c->periph_addr;
 	msg.len    = 1;
 	msg.flags  = 0;
 	msg.buffer = &reg;
@@ -198,7 +198,7 @@ int32_t i2c_m_sync_cmd_read(struct i2c_m_sync_desc *i2c, uint8_t reg, uint8_t *b
 	struct _i2c_m_msg msg;
 	int32_t           ret;
 
-	msg.addr   = i2c->slave_addr;
+	msg.addr   = i2c->periph_addr;
 	msg.len    = 1;
 	msg.flags  = 0;
 	msg.buffer = &reg;
