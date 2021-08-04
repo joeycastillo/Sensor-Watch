@@ -1,6 +1,9 @@
 #include "watch.h"
 #include <stdlib.h>
 
+//////////////////////////////////////////////////////////////////////////////////////////
+// Initialization
+
 void watch_init() {
     // Use switching regulator for lower power consumption.
     SUPC->VREG.bit.SEL = 1;
@@ -13,6 +16,8 @@ void watch_init() {
     // Not sure if this belongs in every app -- is there a power impact?
     delay_driver_init();
 }
+//////////////////////////////////////////////////////////////////////////////////////////
+// Segmented Display
 
 static const uint8_t Character_Set[] =
 {
@@ -170,6 +175,9 @@ void watch_display_string(char *string, uint8_t position) {
     }
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////
+// Buttons
+
 void watch_enable_buttons() {
     EXTERNAL_IRQ_0_init();
 }
@@ -177,6 +185,9 @@ void watch_enable_buttons() {
 void watch_register_button_callback(const uint32_t pin, ext_irq_cb_t callback) {
     ext_irq_register(pin, callback);
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// LED
 
 bool PWM_0_enabled = false;
 
@@ -250,6 +261,9 @@ void watch_set_led_off() {
     }
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////
+// Real-time Clock
+
 bool watch_rtc_is_enabled() {
     return RTC->MODE0.CTRLA.bit.ENABLE;
 }
@@ -274,6 +288,9 @@ void watch_enable_tick_callback(ext_irq_cb_t callback) {
     _prescaler_register_callback(&CALENDAR_0.device, &tick_callback);
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////
+// Analog Input
+
 static bool ADC_0_ENABLED = false;
 
 void watch_enable_analog(const uint8_t pin) {
@@ -295,6 +312,9 @@ void watch_enable_analog(const uint8_t pin) {
             return;
     }
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// Digital IO
 
 void watch_enable_digital_input(const uint8_t pin) {
     gpio_set_pin_direction(pin, GPIO_DIRECTION_IN);
@@ -326,6 +346,9 @@ void watch_set_pin_level(const uint8_t pin, const bool level) {
     gpio_set_pin_level(pin, level);
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////
+// I2C
+
 struct io_descriptor *I2C_0_io;
 
 void watch_enable_i2c() {
@@ -343,6 +366,9 @@ void watch_i2c_receive(int16_t addr, uint8_t *buf, uint16_t length) {
     i2c_m_sync_set_slaveaddr(&I2C_0, addr, I2C_M_SEVEN);
     io_read(I2C_0_io, buf, length);
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// Deep Sleep
 
 void watch_store_backup_data(uint32_t data, uint8_t reg) {
     if (reg < 8) {
