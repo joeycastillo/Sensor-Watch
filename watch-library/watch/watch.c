@@ -24,7 +24,7 @@ static const uint8_t Character_Set[] =
     0b00000000, //  
     0b00000000, // !
     0b00100010, // "
-    0b00000000, // #
+    0b01100011, // # (degree symbol, hash mark doesn't fit)
     0b00000000, // $
     0b00000000, // %
     0b01000100, // &
@@ -33,9 +33,9 @@ static const uint8_t Character_Set[] =
     0b00000000, // )
     0b00000000, // *
     0b11000000, // +
-    0b00010000, // ,
+    0b00000100, // ,
     0b01000000, // -
-    0b00000100, // .
+    0b01000000, // .
     0b00010010, // /
     0b00111111, // 0
     0b00000110, // 1
@@ -138,7 +138,7 @@ void watch_enable_display() {
     slcd_sync_enable(&SEGMENT_LCD_0);
 }
 
-void watch_display_pixel(uint8_t com, uint8_t seg) {
+void watch_set_pixel(uint8_t com, uint8_t seg) {
     slcd_sync_seg_on(&SEGMENT_LCD_0, SLCD_SEGID(com, seg));
 }
 
@@ -283,7 +283,7 @@ static void tick_callback(struct calendar_dev *const dev) {
     tick_user_callback();
 }
 
-void watch_enable_tick_callback(ext_irq_cb_t callback) {
+void watch_register_tick_callback(ext_irq_cb_t callback) {
     tick_user_callback = callback;
     _prescaler_register_callback(&CALENDAR_0.device, &tick_callback);
 }
@@ -365,6 +365,51 @@ void watch_i2c_send(int16_t addr, uint8_t *buf, uint16_t length) {
 void watch_i2c_receive(int16_t addr, uint8_t *buf, uint16_t length) {
     i2c_m_sync_set_periphaddr(&I2C_0, addr, I2C_M_SEVEN);
     io_read(I2C_0_io, buf, length);
+}
+
+void watch_i2c_write8(int16_t addr, uint8_t reg, uint8_t data) {
+    uint8_t buf[2];
+    buf[0] = reg;
+    buf[1] = data;
+
+    watch_i2c_send(addr, (uint8_t *)&buf, 2);
+}
+
+uint8_t watch_i2c_read8(int16_t addr, uint8_t reg) {
+    uint8_t data;
+
+    watch_i2c_send(addr, (uint8_t *)&reg, 1);
+    watch_i2c_receive(addr, (uint8_t *)&data, 1);
+
+    return data;
+}
+
+uint16_t watch_i2c_read16(int16_t addr, uint8_t reg) {
+    uint16_t data;
+
+    watch_i2c_send(addr, (uint8_t *)&reg, 1);
+    watch_i2c_receive(addr, (uint8_t *)&data, 2);
+
+    return data;
+}
+
+uint32_t watch_i2c_read24(int16_t addr, uint8_t reg) {
+    uint32_t data;
+    data = 0;
+
+    watch_i2c_send(addr, (uint8_t *)&reg, 1);
+    watch_i2c_receive(addr, (uint8_t *)&data, 3);
+
+    return data << 8;
+}
+
+uint32_t watch_i2c_read32(int16_t addr, uint8_t reg) {
+    uint32_t data;
+
+    watch_i2c_send(addr, (uint8_t *)&reg, 1);
+    watch_i2c_receive(addr, (uint8_t *)&data, 4);
+
+    return data;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

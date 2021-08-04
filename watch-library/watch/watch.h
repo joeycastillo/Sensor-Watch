@@ -8,7 +8,8 @@
 void watch_init();
 
 void watch_enable_display();
-void watch_display_pixel(uint8_t com, uint8_t seg);
+void watch_set_pixel(uint8_t com, uint8_t seg);
+void watch_clear_pixel(uint8_t com, uint8_t seg);
 void watch_display_string(char *string, uint8_t position);
 
 void watch_enable_led(bool pwm);
@@ -23,7 +24,7 @@ bool watch_rtc_is_enabled();
 void watch_set_date_time(struct calendar_date_time date_time);
 void watch_get_date_time(struct calendar_date_time *date_time);
 
-void watch_enable_tick_callback(ext_irq_cb_t callback);
+void watch_register_tick_callback(ext_irq_cb_t callback);
 
 void watch_enable_analog(const uint8_t pin);
 
@@ -44,6 +45,11 @@ struct io_descriptor *I2C_0_io;
 void watch_enable_i2c();
 void watch_i2c_send(int16_t addr, uint8_t *buf, uint16_t length);
 void watch_i2c_receive(int16_t addr, uint8_t *buf, uint16_t length);
+void watch_i2c_write8(int16_t addr, uint8_t reg, uint8_t data);
+uint8_t watch_i2c_read8(int16_t addr, uint8_t reg);
+uint16_t watch_i2c_read16(int16_t addr, uint8_t reg);
+uint32_t watch_i2c_read24(int16_t addr, uint8_t reg);
+uint32_t watch_i2c_read32(int16_t addr, uint8_t reg);
 
 void watch_store_backup_data(uint32_t data, uint8_t reg);
 uint32_t watch_get_backup_data(uint8_t reg);
