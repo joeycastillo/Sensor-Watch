@@ -77,7 +77,7 @@ void app_setup() {
     watch_i2c_write8(BME280_ADDRESS, BME280_REGISTER_CONTROL_HUMID, BME280_CONTROL_HUMID_SAMPLING_X16);
     watch_i2c_write8(BME280_ADDRESS, BME280_REGISTER_CONTROL, BME280_CONTROL_TEMPERATURE_SAMPLING_X16 |
                                                               BME280_CONTROL_PRESSURE_SAMPLING_NONE |
-                                                              BME280_CONTROL_MODE_NORMAL);
+                                                              BME280_CONTROL_MODE_FORCED);
 
     watch_enable_display();
 
@@ -107,12 +107,22 @@ bool app_loop() {
 
     switch (application_state.mode) {
         case MODE_TEMPERATURE:
+            // take one reading
+            watch_i2c_write8(BME280_ADDRESS, BME280_REGISTER_CONTROL, BME280_CONTROL_TEMPERATURE_SAMPLING_X16 |
+                                                                      BME280_CONTROL_MODE_FORCED);
+            // wait for reading to finish
+            while(watch_i2c_read8(BME280_ADDRESS, BME280_REGISTER_STATUS) & BME280_STATUS_UPDATING_MASK);
             temperature = read_temperature(NULL);
             sprintf(buf, "TE  %4.1f#C", temperature);
             watch_display_string(buf, 0);
             watch_clear_pixel(1, 16);
             break;
         case MODE_HUMIDITY:
+            // take one reading
+            watch_i2c_write8(BME280_ADDRESS, BME280_REGISTER_CONTROL, BME280_CONTROL_TEMPERATURE_SAMPLING_X16 |
+                                                                      BME280_CONTROL_MODE_FORCED);
+            // wait for reading to finish
+            while(watch_i2c_read8(BME280_ADDRESS, BME280_REGISTER_STATUS) & BME280_STATUS_UPDATING_MASK);
             temperature = read_temperature(&t_fine);
             humidity = read_humidity(t_fine);
             sprintf(buf, "HU  rH %3d", (int)humidity);
@@ -155,7 +165,8 @@ float read_temperature(int32_t *p_t_fine) {
 /**
  * Reads the humidity from the BME280
  * @param t_fine - the t_fine measurement from a call to read_temperature
- * @return a float indicating the temperature in degrees celsius.
+ * @return a float indicating the relative humidity as a percentage from 0-100.
+ * @todo the returned value is glitchy, need to fix.
  */
 float read_humidity(int32_t t_fine) {
     int32_t adc_value = watch_i2c_read16(BME280_ADDRESS, BME280_REGISTER_HUMID_DATA);
