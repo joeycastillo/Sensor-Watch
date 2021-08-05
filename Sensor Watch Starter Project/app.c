@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 #include "watch.h"
-#include "app.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // This section sets up types and storage for our application state.

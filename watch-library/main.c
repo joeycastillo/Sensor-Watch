@@ -39,7 +39,6 @@
 #include "hal_gpio.h"
 #include "atmel_start_pins.h"
 #include "watch.h"
-#include "app.h"
 
 //-----------------------------------------------------------------------------
 HAL_GPIO_PIN(UART_TX,   B, 0)
@@ -101,7 +100,7 @@ int main(void) {
     }
 
     // Watch library code. Set initial parameters for the device and enable the RTC.
-    watch_init();
+    _watch_init();
 
     // User code. Give the app a chance to enable and set up peripherals.
     app_setup();

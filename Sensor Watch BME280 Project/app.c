@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 #include "watch.h"
-#include "app.h"
 #include "bme280.h"
 
 typedef enum ApplicationMode {

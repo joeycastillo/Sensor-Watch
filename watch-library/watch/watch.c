@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////////////////
 // Initialization
 
-void watch_init() {
+void _watch_init() {
     // Use switching regulator for lower power consumption.
     SUPC->VREG.bit.SEL = 1;
     while(!SUPC->STATUS.bit.VREGRDY);
