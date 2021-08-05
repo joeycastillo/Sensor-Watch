@@ -29,6 +29,8 @@ You may have noticed that there are no sensors on this board. That is by design:
     * Four PWM pins on two independent TC channels
     * Five interrupt pins (two can wake from backup mode)
 
+![image](/images/sensor-board-pinout.png)
+
 These tiny “sensor boards” have a set outline, and the available area for your electronics is quite small (5.7 × 5.7 × 1 mm). Still, this is plenty of room for an environmental sensor, MEMS accelerometer or magnetometer and a couple of decoupling capacitors. Note that you will likely be limited to QFN and LGA type parts; SOICs are too large, and even SSOP packages are generally too thick. You can find reference designs for several sensor boards in the `PCB/Sensor Boards` directory within this repository.
 
 Getting code on the watch
