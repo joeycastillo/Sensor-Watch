@@ -114,24 +114,24 @@ void _watch_init();
 void watch_enable_display();
 
 /** @brief Sets a pixel. Use this to manually set a pixel with a given common and segment number.
-  * @param com the common pin, numbered from 0-2
-  * @param seg the segment pin, numbered from 0-23
+  * @param com the common pin, numbered from 0-2.
+  * @param seg the segment pin, numbered from 0-23.
   */
 void watch_set_pixel(uint8_t com, uint8_t seg);
 
 /** @brief Clears a pixel. Use this to manually clear a pixel with a given common and segment number.
-  * @param com the common pin, numbered from 0-2
-  * @param seg the segment pin, numbered from 0-23
+  * @param com the common pin, numbered from 0-2.
+  * @param seg the segment pin, numbered from 0-23.
   * Use this to manually set a pixel with a common and a segment number.
   */
-
 void watch_clear_pixel(uint8_t com, uint8_t seg);
 
 /** @brief Displays a string at the given position, starting from the top left. There are ten digits.
            A space in any position will clear that digit.
   * @param string A null-terminated string.
-  * @param position The position to start. The day of week digits are positions 0 and 1, the day of
-                    month digits are positions 2 and 3, and the main clock line is positions 4-9.
+  * @param position The position where you wish to start displaying the string. The day of week digits
+  *                 are positions 0 and 1; the day of month digits are positions 2 and 3, and the main
+  *                 clock line occupies positions 4-9.
   * @note This method does not clear the display; if for example you display a two-character string at
           position 0, positions 2-9 will retain whatever state they were previously displaying.
   */
