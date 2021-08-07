@@ -119,16 +119,16 @@ static const uint8_t Character_Set[] =
 };
 
 static const uint64_t Segment_Map[] = {
-    0x4e4f0e8e8f8d4d0d, // Position 8
-    0xc8c4c4c8b4b4b0b,  // Position 9
-    0xc049c00a49890949, // Position 6
-    0xc048088886874707, // Position 7
-    0xc053921252139352, // Position 0
-    0xc054511415559594, // Position 1
-    0xc057965616179716, // Position 2
-    0xc041804000018a81, // Position 3
-    0xc043420203048382, // Position 4
-    0xc045440506468584, // Position 5
+    0x4e4f0e8e8f8d4d0d, // Position 0, mode
+    0xc8c4c4c8b4b4b0b,  // Position 1, mode (Segments B and C shared, as are segments E and F)
+    0xc049c00a49890949, // Position 2, day of month (Segments A, D, G shared; missing segment F)
+    0xc048088886874707, // Position 3, day of month
+    0xc053921252139352, // Position 4, clock hours (Segments A and D shared)
+    0xc054511415559594, // Position 5, clock hours
+    0xc057965616179716, // Position 6, clock minutes (Segments A and D shared)
+    0xc041804000018a81, // Position 7, clock minutes
+    0xc043420203048382, // Position 8, clock seconds
+    0xc045440506468584, // Position 9, clock seconds
 };
 
 static const uint8_t Num_Chars = 10;
