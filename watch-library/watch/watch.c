@@ -134,7 +134,7 @@ static const uint64_t Segment_Map[] = {
 static const uint8_t Num_Chars = 10;
 
 static const uint32_t IndicatorSegments[6] = {
-    SLCD_SEGID(0, 17), // WATCH_INDICATOR_SENSING
+    SLCD_SEGID(0, 17), // WATCH_INDICATOR_SIGNAL
     SLCD_SEGID(0, 16), // WATCH_INDICATOR_BELL
     SLCD_SEGID(2, 17), // WATCH_INDICATOR_PM
     SLCD_SEGID(2, 16), // WATCH_INDICATOR_24H

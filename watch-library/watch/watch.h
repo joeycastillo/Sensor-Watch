@@ -110,7 +110,7 @@ void _watch_init();
 /// @{
 
 typedef enum WatchIndicatorSegment {
-    WATCH_INDICATOR_SENSING = 0,
+    WATCH_INDICATOR_SIGNAL = 0,
     WATCH_INDICATOR_BELL,
     WATCH_INDICATOR_PM,
     WATCH_INDICATOR_24H,
