@@ -22,20 +22,20 @@ void _watch_init() {
 static const uint8_t Character_Set[] =
 {
     0b00000000, //  
-    0b00000000, // !
+    0b00000000, // ! (unused)
     0b00100010, // "
     0b01100011, // # (degree symbol, hash mark doesn't fit)
-    0b00000000, // $
-    0b00000000, // %
-    0b01000100, // &
+    0b00000000, // $ (unused)
+    0b00000000, // % (unused)
+    0b01000100, // & ("lowercase 7" for positions 4 and 6)
     0b00100000, // '
-    0b00000000, // (
-    0b00000000, // )
-    0b00000000, // *
-    0b11000000, // +
+    0b00111001, // (
+    0b00001111, // )
+    0b00000000, // * (unused)
+    0b11000000, // + (only works in position 0)
     0b00000100, // ,
     0b01000000, // -
-    0b01000000, // .
+    0b01000000, // . (same as -, semantically most useful)
     0b00010010, // /
     0b00111111, // 0
     0b00000110, // 1
@@ -47,13 +47,13 @@ static const uint8_t Character_Set[] =
     0b00000111, // 7
     0b01111111, // 8
     0b01101111, // 9
-    0b00000000, // :
-    0b00000000, // ;
+    0b00000000, // : (unused)
+    0b00000000, // ; (unused)
     0b01011000, // <
     0b01001000, // =
     0b01001100, // >
     0b01010011, // ?
-    0b11111111, // @
+    0b11111111, // @ (all segments on)
     0b01110111, // A
     0b01111111, // B
     0b00111001, // C
@@ -64,7 +64,7 @@ static const uint8_t Character_Set[] =
     0b01110110, // H
     0b10001001, // I
     0b00001110, // J
-    0b11101010, // K
+    0b01110101, // K
     0b00111000, // L
     0b10110111, // M
     0b00110111, // N
@@ -83,7 +83,7 @@ static const uint8_t Character_Set[] =
     0b00111001, // [
     0b00100100, // backslash
     0b00001111, // ]
-    0b00100110, // ^
+    0b00100011, // ^
     0b00001000, // _
     0b00000010, // `
     0b01011111, // a
@@ -133,16 +133,24 @@ static const uint64_t Segment_Map[] = {
 
 static const uint8_t Num_Chars = 10;
 
+static const uint32_t IndicatorSegments[6] = {
+    SLCD_SEGID(0, 17), // WATCH_INDICATOR_SENSING
+    SLCD_SEGID(0, 16), // WATCH_INDICATOR_BELL
+    SLCD_SEGID(2, 17), // WATCH_INDICATOR_PM
+    SLCD_SEGID(2, 16), // WATCH_INDICATOR_24H
+    SLCD_SEGID(1, 10), // WATCH_INDICATOR_LAP
+};
+
 void watch_enable_display() {
     SEGMENT_LCD_0_init();
     slcd_sync_enable(&SEGMENT_LCD_0);
 }
 
-void watch_set_pixel(uint8_t com, uint8_t seg) {
+inline void watch_set_pixel(uint8_t com, uint8_t seg) {
     slcd_sync_seg_on(&SEGMENT_LCD_0, SLCD_SEGID(com, seg));
 }
 
-void watch_clear_pixel(uint8_t com, uint8_t seg) {
+inline void watch_clear_pixel(uint8_t com, uint8_t seg) {
     slcd_sync_seg_off(&SEGMENT_LCD_0, SLCD_SEGID(com, seg));
 }
 
@@ -174,6 +182,31 @@ void watch_display_string(char *string, uint8_t position) {
         if (i >= Num_Chars) break;
     }
 }
+
+inline void watch_set_colon() {
+    slcd_sync_seg_on(&SEGMENT_LCD_0, SLCD_SEGID(1, 16));
+}
+
+inline void watch_clear_colon() {
+    slcd_sync_seg_off(&SEGMENT_LCD_0, SLCD_SEGID(1, 16));
+}
+
+inline void watch_set_indicator(WatchIndicatorSegment indicator) {
+    slcd_sync_seg_on(&SEGMENT_LCD_0, IndicatorSegments[indicator]);
+}
+
+inline void watch_clear_indicator(WatchIndicatorSegment indicator) {
+    slcd_sync_seg_off(&SEGMENT_LCD_0, IndicatorSegments[indicator]);
+}
+
+void watch_clear_all_indicators() {
+    slcd_sync_seg_off(&SEGMENT_LCD_0, SLCD_SEGID(2, 17));
+    slcd_sync_seg_off(&SEGMENT_LCD_0, SLCD_SEGID(2, 16));
+    slcd_sync_seg_off(&SEGMENT_LCD_0, SLCD_SEGID(0, 17));
+    slcd_sync_seg_off(&SEGMENT_LCD_0, SLCD_SEGID(0, 16));
+    slcd_sync_seg_off(&SEGMENT_LCD_0, SLCD_SEGID(1, 10));
+}
+
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Buttons

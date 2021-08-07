@@ -108,6 +108,15 @@ void _watch_init();
   *        for displaying strings of characters and indicators on the main watch display.
   */
 /// @{
+
+typedef enum WatchIndicatorSegment {
+    WATCH_INDICATOR_SENSING = 0,
+    WATCH_INDICATOR_BELL,
+    WATCH_INDICATOR_PM,
+    WATCH_INDICATOR_24H,
+    WATCH_INDICATOR_LAP
+} WatchIndicatorSegment;
+
 /** @brief Enables the Segment LCD display.
   * Call this before attempting to set pixels or display strings.
   */
@@ -122,7 +131,6 @@ void watch_set_pixel(uint8_t com, uint8_t seg);
 /** @brief Clears a pixel. Use this to manually clear a pixel with a given common and segment number.
   * @param com the common pin, numbered from 0-2.
   * @param seg the segment pin, numbered from 0-23.
-  * Use this to manually set a pixel with a common and a segment number.
   */
 void watch_clear_pixel(uint8_t com, uint8_t seg);
 
@@ -136,6 +144,30 @@ void watch_clear_pixel(uint8_t com, uint8_t seg);
           position 0, positions 2-9 will retain whatever state they were previously displaying.
   */
 void watch_display_string(char *string, uint8_t position);
+
+/** @brief Turns the colon segment on.
+  */
+void watch_set_colon();
+
+/** @brief Turns the colon segment off.
+  */
+void watch_clear_colon();
+
+/** @brief Sets an indicator on the LCD. Use this to turn on one of the indicator segments.
+  * @param indicator One of the indicator segments from the enum. @see WatchIndicatorSegment
+  */
+void watch_set_indicator(WatchIndicatorSegment indicator);
+
+/** @brief Clears an indicator on the LCD. Use this to turn off one of the indicator segments.
+  * @param indicator One of the indicator segments from the enum. @see WatchIndicatorSegment
+  */
+void watch_clear_indicator(WatchIndicatorSegment indicator);
+
+/** @brief Clears all indicator segments.
+  * @see WatchIndicatorSegment
+  */
+void watch_clear_all_indicators();
+
 /// @}
 
 

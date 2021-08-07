@@ -114,7 +114,7 @@ bool app_loop() {
             temperature = read_temperature(NULL);
             sprintf(buf, "TE  %4.1f#C", temperature);
             watch_display_string(buf, 0);
-            watch_clear_pixel(1, 16);
+            watch_clear_colon();
             break;
         case MODE_HUMIDITY:
             // take one reading
@@ -126,7 +126,7 @@ bool app_loop() {
             humidity = read_humidity(t_fine);
             sprintf(buf, "HU  rH %3d", (int)humidity);
             watch_display_string(buf, 0);
-            watch_set_pixel(1, 16);
+            watch_set_colon();
             break;
         case MODE_OFF:
             watch_display_string("    Sleep ", 0);
