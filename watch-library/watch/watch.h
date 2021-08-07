@@ -106,6 +106,9 @@ void _watch_init();
 /** @addtogroup slcd Segment LCD Display
   * @brief This section covers functions related to the Segment LCD display driver, which is responsible
   *        for displaying strings of characters and indicators on the main watch display.
+  * @details For a map of all common and segment pins, see <a href="segmap.html">segmap.html</a>. You can 
+  *          hover over any segment in that diagram to view the common and segment pins associated with
+  *          each segment of the display.
   */
 /// @{
 
@@ -123,12 +126,14 @@ typedef enum WatchIndicatorSegment {
 void watch_enable_display();
 
 /** @brief Sets a pixel. Use this to manually set a pixel with a given common and segment number.
+  *        See <a href="segmap.html">segmap.html</a>.
   * @param com the common pin, numbered from 0-2.
   * @param seg the segment pin, numbered from 0-23.
   */
 void watch_set_pixel(uint8_t com, uint8_t seg);
 
 /** @brief Clears a pixel. Use this to manually clear a pixel with a given common and segment number.
+  *        See <a href="segmap.html">segmap.html</a>.
   * @param com the common pin, numbered from 0-2.
   * @param seg the segment pin, numbered from 0-23.
   */
