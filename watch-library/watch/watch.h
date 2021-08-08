@@ -428,12 +428,13 @@ uint32_t watch_get_backup_data(uint8_t reg);
   *       Waking from backup is effectively like waking from reset, except that your @ref
   *       app_wake_from_deep_sleep function will be called.
   * @warning In initial testing, it seems like the ALARM_BTN pin (PA02 RTC/IN2) cannot wake the device
-             from deep sleep mode. There is an errata note (Reference: 15010, linked) that says that
-             due to a silicon bug, PB01 cannot be used as RTC/IN2. It seems though that this bug may
-             also affect PA02. As a result — and I'm very bummed about this — you cannot use deep sleep
-             mode unless you set up an external wake interrupt using a device on the nine-pin connector
-             (i.e. an accelerometer with an interrupt pin). Otherwise your only option for waking will
-             be to unscrew the watch case and press the reset button on the back of the board.
+  *          from deep sleep mode. There is an errata note (Reference: 15010, linked) that says that
+  *          due to a silicon bug, PB01 cannot be used as RTC/IN2. It seems though that this bug may
+  *          also affect PA02. As a result — and I'm very bummed about this — you cannot use deep sleep
+  *          mode unless you set up an external wake interrupt using a device on the nine-pin connector
+  *          (i.e. an accelerometer with an interrupt pin). Otherwise your only option for waking will
+  *          be to unscrew the watch case and press the reset button on the back of the board.
+  *          http://ww1.microchip.com/downloads/en/DeviceDoc/SAM_L22_Family_Errata_DS80000782B.pdf
   */
 void watch_enter_deep_sleep();
 /// @}
