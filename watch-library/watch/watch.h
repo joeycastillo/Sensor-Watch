@@ -112,12 +112,13 @@ void _watch_init();
   */
 /// @{
 
+/// An enum listing the icons and indicators available on the watch.
 typedef enum WatchIndicatorSegment {
-    WATCH_INDICATOR_SIGNAL = 0,
-    WATCH_INDICATOR_BELL,
-    WATCH_INDICATOR_PM,
-    WATCH_INDICATOR_24H,
-    WATCH_INDICATOR_LAP
+    WATCH_INDICATOR_SIGNAL = 0, ///< The hourly signal indicator; also useful for indicating that sensors are on.
+    WATCH_INDICATOR_BELL,       ///< The small bell indicating that an alarm is set.
+    WATCH_INDICATOR_PM,         ///< The PM indicator, indicating that a time is in the afternoon.
+    WATCH_INDICATOR_24H,        ///< The 24H indicator, indicating that the watch is in a 24-hour mode.
+    WATCH_INDICATOR_LAP         ///< The LAP indicator; the F-91W uses this in its stopwatch UI.
 } WatchIndicatorSegment;
 
 /** @brief Enables the Segment LCD display.
