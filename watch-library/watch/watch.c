@@ -297,7 +297,7 @@ void watch_set_led_off() {
 //////////////////////////////////////////////////////////////////////////////////////////
 // Real-time Clock
 
-bool watch_rtc_is_enabled() {
+bool _watch_rtc_is_enabled() {
     return RTC->MODE0.CTRLA.bit.ENABLE;
 }
 

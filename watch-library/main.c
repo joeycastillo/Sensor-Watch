@@ -90,7 +90,7 @@ int main(void) {
 
     // If the RTC is already enabled, we're either waking from BACKUP mode or a reset.
     // Ideally we should check if the TAMPER or CMP0 (alarm) flags are set.
-    if (watch_rtc_is_enabled()) {
+    if (_watch_rtc_is_enabled()) {
         // User code. Give the application a chance to restore state from backup registers.
         app_wake_from_deep_sleep();
 
