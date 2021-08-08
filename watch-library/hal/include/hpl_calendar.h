@@ -77,7 +77,8 @@ enum calendar_alarm_mode { ONESHOT = 1, REPEAT };
 /**
  * \brief Prototype of callback on alarm match
  */
-typedef void (*calendar_drv_cb_t)(struct calendar_dev *const dev);
+typedef void (*calendar_drv_cb_t)();
+typedef void (*calendar_drv_extwake_cb_t)(uint8_t reason);
 
 /**
  * \brief Structure of Calendar instance
@@ -88,8 +89,8 @@ struct calendar_dev {
 	/** Alarm match callback */
 	calendar_drv_cb_t callback_alarm;
 	/** Tamper callback */
-	calendar_drv_cb_t callback_tamper;
-	/** Tamper callback */
+	calendar_drv_extwake_cb_t callback_tamper;
+	/** Tick callback */
 	calendar_drv_cb_t callback_tick;
 	/** IRQ struct */
 	struct _irq_descriptor irq;
@@ -260,7 +261,7 @@ int32_t _prescaler_register_callback(struct calendar_dev *const dev, calendar_dr
  *
  * \return ERR_NONE on success, or an error code on failure.
  */
-int32_t _extwake_register_callback(struct calendar_dev *const dev, calendar_drv_cb_t callback);
+int32_t _extwake_register_callback(struct calendar_dev *const dev, calendar_drv_extwake_cb_t callback);
 
 /**
  * \brief Find tamper is detected on specified pin

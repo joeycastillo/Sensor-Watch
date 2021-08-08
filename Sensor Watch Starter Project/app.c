@@ -62,6 +62,7 @@ void app_wake_from_deep_sleep() {
     application_state.mode = (ApplicationMode)watch_get_backup_data(0);
     application_state.color = (LightColor)watch_get_backup_data(1);
     application_state.wake_count = (uint8_t)watch_get_backup_data(2) + 1;
+    application_state.debounce_wait = true;
 }
 
 /**
@@ -184,5 +185,8 @@ void cb_mode_pressed() {
 void cb_alarm_pressed() {
     if (application_state.debounce_wait) return;
     application_state.debounce_wait = true;
-    application_state.enter_deep_sleep = true;
+    // boo: http://ww1.microchip.com/downloads/en/DeviceDoc/SAM_L22_Family_Errata_DS80000782B.pdf
+    // Reference 15010. doesn't say it applies to PA02 but it seems it does?
+    // anyway can't deep sleep now :(
+    // application_state.enter_deep_sleep = true;
 }

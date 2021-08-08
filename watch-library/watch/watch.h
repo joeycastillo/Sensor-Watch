@@ -256,16 +256,18 @@ void watch_enable_analog(const uint8_t pin);
   * @brief This section covers functions related to the three buttons: Light, Mode and Alarm.
   */
 /// @{
-/** @brief Enables the external interrupt controller.
+/** @brief Enables the external interrupt controller for use with the buttons.
+  * @note The BTN_ALARM button runs off of an interrupt in the the RTC controller, not the EIC. If your
+  *       application ONLY makes use of the alarm button, you do not need to call this method; you can
+  *       save ~5µA by leaving the EIC disabled and only registering a callback for BTN_ALARM.
   */
 void watch_enable_buttons();
 
 /** @brief Configures an external interrupt
   * @param pin One of pins BTN_LIGHT, BTN_MODE or BTN_ALARM.
   * @param callback The function you wish to have called when the button is pressed.
-  * @todo Make the alarm interrupt use the RTC tamper interrupt instead of the EIC.
   */
-void watch_register_button_callback(const uint32_t pin, ext_irq_cb_t callback);
+void watch_register_button_callback(const uint8_t pin, ext_irq_cb_t callback);
 /// @}
 
 
@@ -391,7 +393,18 @@ uint32_t watch_i2c_read32(int16_t addr, uint8_t reg);
   *        deepest sleep mode available on the SAM L22
   */
 /// @{
-/** @brief Stores 32 bits of data in the RTC's backup register, which retains its data in deep sleep.
+/** @brief Registers a callback on one of the RTC's external wake pins, which can wake the device
+  * from deep sleep mode.
+  * @param pin Either pin A2 or pin D1, the two external wake pins on the nine-pin connector.
+  * @param callback The callback to be called if this pin triggers outside of deep sleep mode.
+  * @note When in normal or STANDBY mode, this will function much like a standard external interrupt
+  *       situation: these pins will wake from standby, and your callback will be called. However,
+  *       if the device enters deep sleep and one of these pins wakes the device, your callback
+  *       WILL NOT be called.
+  */
+void watch_register_extwake_callback(uint8_t pin, ext_irq_cb_t callback);
+
+/** @brief Stores data in one of the RTC's backup registers, which retain their data in deep sleep.
   * @param data An unsigned 32 bit integer with the data you wish to store.
   * @param reg A register from 0-7.
   */
@@ -413,7 +426,13 @@ uint32_t watch_get_backup_data(uint8_t reg);
   *       in ACTIVE, IDLE or STANDBY modes, but it *will not be called* when waking from BACKUP.
   *       Waking from backup is effectively like waking from reset, except that your @ref
   *       app_wake_from_deep_sleep function will be called.
-  * @warning still kind of glitchy!
+  * @warning In initial testing, it seems like the ALARM_BTN pin (PA02 RTC/IN2) cannot wake the device
+             from deep sleep mode. There is an errata note (Reference: 15010, linked) that says that
+             due to a silicon bug, PB01 cannot be used as RTC/IN2. It seems though that this bug may
+             also affect PA02. As a result — and I'm very bummed about this — you cannot use deep sleep
+             mode unless you set up an external wake interrupt using a device on the nine-pin connector
+             (i.e. an accelerometer with an interrupt pin). Otherwise your only option for waking will
+             be to unscrew the watch case and press the reset button on the back of the board.
   */
 void watch_enter_deep_sleep();
 /// @}

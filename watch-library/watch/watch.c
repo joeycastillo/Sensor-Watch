@@ -2,6 +2,16 @@
 #include <stdlib.h>
 
 //////////////////////////////////////////////////////////////////////////////////////////
+// User callbacks and other definitions
+
+ext_irq_cb_t btn_alarm_callback;
+ext_irq_cb_t a2_callback;
+ext_irq_cb_t d1_callback;
+
+static void extwake_callback(uint8_t reason);
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
 // Initialization
 
 void _watch_init() {
@@ -15,7 +25,14 @@ void _watch_init() {
 
     // Not sure if this belongs in every app -- is there a power impact?
     delay_driver_init();
+
+    // set up state
+    btn_alarm_callback = NULL;
+    a2_callback = NULL;
+    d1_callback = NULL;
 }
+
+
 //////////////////////////////////////////////////////////////////////////////////////////
 // Segmented Display
 
@@ -215,8 +232,16 @@ void watch_enable_buttons() {
     EXTERNAL_IRQ_0_init();
 }
 
-void watch_register_button_callback(const uint32_t pin, ext_irq_cb_t callback) {
-    ext_irq_register(pin, callback);
+void watch_register_button_callback(const uint8_t pin, ext_irq_cb_t callback) {
+    if (pin == BTN_ALARM) {
+        gpio_set_pin_direction(BTN_ALARM, GPIO_DIRECTION_IN);
+        gpio_set_pin_pull_mode(BTN_ALARM, GPIO_PULL_DOWN);
+        gpio_set_pin_function(BTN_ALARM, PINMUX_PA02G_RTC_IN2);
+        btn_alarm_callback = callback;
+        _extwake_register_callback(&CALENDAR_0.device, extwake_callback);
+    } else {
+        ext_irq_register(pin, callback);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -310,15 +335,8 @@ void watch_get_date_time(struct calendar_date_time *date_time) {
     calendar_get_date_time(&CALENDAR_0, date_time);
 }
 
-static ext_irq_cb_t tick_user_callback;
-
-static void tick_callback(struct calendar_dev *const dev) {
-    tick_user_callback();
-}
-
 void watch_register_tick_callback(ext_irq_cb_t callback) {
-    tick_user_callback = callback;
-    _prescaler_register_callback(&CALENDAR_0.device, &tick_callback);
+    _prescaler_register_callback(&CALENDAR_0.device, callback);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -448,6 +466,32 @@ uint32_t watch_i2c_read32(int16_t addr, uint8_t reg) {
 //////////////////////////////////////////////////////////////////////////////////////////
 // Deep Sleep
 
+static void extwake_callback(uint8_t reason) {
+    if (reason & RTC_TAMPID_TAMPID2) {
+        if (btn_alarm_callback != NULL) btn_alarm_callback();
+    } else if (reason & RTC_TAMPID_TAMPID1) {
+        if (a2_callback != NULL) a2_callback();
+    } else if (reason & RTC_TAMPID_TAMPID0) {
+        if (d1_callback != NULL) d1_callback();
+    }
+}
+
+void watch_register_extwake_callback(uint8_t pin, ext_irq_cb_t callback) {
+    uint32_t pinmux;
+    if (pin == D1) {
+        d1_callback = callback;
+        pinmux = PINMUX_PB00G_RTC_IN0;
+    } else if (pin == A2) {
+        a2_callback = callback;
+        pinmux = PINMUX_PB02G_RTC_IN1;
+    } else {
+        return;
+    }
+    gpio_set_pin_direction(pin, GPIO_DIRECTION_IN);
+    gpio_set_pin_function(pin, pinmux);
+    _extwake_register_callback(&CALENDAR_0.device, extwake_callback);
+}
+
 void watch_store_backup_data(uint32_t data, uint8_t reg) {
     if (reg < 8) {
         RTC->MODE0.BKUP[reg].reg = data;
@@ -462,26 +506,20 @@ uint32_t watch_get_backup_data(uint8_t reg) {
     return 0;
 }
 
-static void extwake_callback(struct calendar_dev *const dev) {
-    // this will never get called since we are basically waking from reset
-}
-
 void watch_enter_deep_sleep() {
-    // enable and configure the external wake interrupt
-    _extwake_register_callback(&CALENDAR_0.device, &extwake_callback);
-    _tamper_enable_debounce_asynchronous(&CALENDAR_0.device);
+    // enable and configure the external wake interrupt, if not already set up.
+    if (btn_alarm_callback == NULL && a2_callback == NULL && d1_callback == NULL) {
+        gpio_set_pin_direction(BTN_ALARM, GPIO_DIRECTION_IN);
+        gpio_set_pin_pull_mode(BTN_ALARM, GPIO_PULL_DOWN);
+        gpio_set_pin_function(BTN_ALARM, PINMUX_PA02G_RTC_IN2);
+        _extwake_register_callback(&CALENDAR_0.device, extwake_callback);
+    }
 
     // disable SLCD
     slcd_sync_deinit(&SEGMENT_LCD_0);
     hri_mclk_clear_APBCMASK_SLCD_bit(SLCD);
 
     // TODO: disable other peripherals
-
-    // disable EIC interrupt on ALARM pin (if any) and enable RTC interrupt.
-    ext_irq_disable(BTN_ALARM);
-    gpio_set_pin_direction(BTN_ALARM, GPIO_DIRECTION_IN);
-    gpio_set_pin_pull_mode(BTN_ALARM, GPIO_PULL_DOWN);
-    gpio_set_pin_function(BTN_ALARM, PINMUX_PA02G_RTC_IN2);
 
     // go into backup sleep mode
     sleep(5);
