@@ -3463,7 +3463,7 @@ Please make sure your boards conform to these design rules.
 <wire x1="5.3521" y1="0.0689" x2="4.7752" y2="0.0689" width="0.127" layer="1"/>
 <wire x1="-3.2135" y1="7.2005" x2="5.8367625" y2="7.2005" width="0.127" layer="1"/>
 </signal>
-<signal name="SEG16">
+<signal name="SEG23">
 <contactref element="U$2" pad="1"/>
 <contactref element="U1" pad="40"/>
 <wire x1="-7.4048125" y1="4.7109875" x2="-6.8961" y2="4.202275" width="0.127" layer="1"/>
@@ -3474,7 +3474,7 @@ Please make sure your boards conform to these design rules.
 <wire x1="-9.148" y1="6.25" x2="-9.148" y2="5.6039875" width="0.127" layer="1"/>
 <wire x1="-9.148" y1="5.6039875" x2="-8.255" y2="4.7109875" width="0.127" layer="1"/>
 </signal>
-<signal name="SEG17">
+<signal name="SEG22">
 <contactref element="U$2" pad="2"/>
 <contactref element="U1" pad="39"/>
 <wire x1="-6.6421" y1="4.3074875" x2="-6.6421" y2="0.73820625" width="0.127" layer="1"/>
@@ -3485,7 +3485,7 @@ Please make sure your boards conform to these design rules.
 <wire x1="-7.2996" y1="4.9649875" x2="-6.6421" y2="4.3074875" width="0.127" layer="1"/>
 <wire x1="-8.442" y1="5.5112" x2="-7.8957875" y2="4.9649875" width="0.127" layer="1"/>
 </signal>
-<signal name="SEG18">
+<signal name="SEG21">
 <contactref element="U$2" pad="3"/>
 <contactref element="U1" pad="38"/>
 <wire x1="-6.3881" y1="4.4127" x2="-6.3881" y2="1.016" width="0.127" layer="1"/>
@@ -3496,7 +3496,7 @@ Please make sure your boards conform to these design rules.
 <wire x1="-7.736" y1="6.25" x2="-7.736" y2="5.45" width="0.127" layer="1"/>
 <wire x1="-7.736" y1="5.45" x2="-7.62" y2="5.334" width="0.127" layer="1"/>
 </signal>
-<signal name="SEG19">
+<signal name="SEG20">
 <contactref element="U$2" pad="4"/>
 <contactref element="U1" pad="37"/>
 <wire x1="-7.03" y1="6.25" x2="-7.03" y2="5.4356" width="0.127" layer="1"/>
@@ -3505,7 +3505,7 @@ Please make sure your boards conform to these design rules.
 <wire x1="-6.1341" y1="1.27" x2="-5.433" y2="0.5689" width="0.127" layer="1"/>
 <wire x1="-5.433" y1="0.5689" x2="-4.0132" y2="0.5689" width="0.127" layer="1"/>
 </signal>
-<signal name="SEG20">
+<signal name="SEG19">
 <contactref element="U$2" pad="5"/>
 <contactref element="U1" pad="36"/>
 <wire x1="-6.324" y1="6.25" x2="-6.324" y2="5.1011875" width="0.127" layer="1"/>
@@ -3514,7 +3514,7 @@ Please make sure your boards conform to these design rules.
 <wire x1="-6.324" y1="5.1011875" x2="-5.8801" y2="4.6572875" width="0.127" layer="1"/>
 <wire x1="-4.0132" y1="1.0689" x2="-5.425" y2="1.0689" width="0.127" layer="1"/>
 </signal>
-<signal name="SEG21">
+<signal name="SEG18">
 <contactref element="U$2" pad="6"/>
 <contactref element="U1" pad="35"/>
 <wire x1="-5.4043" y1="1.5689" x2="-4.0132" y2="1.5689" width="0.127" layer="1"/>
@@ -3525,7 +3525,7 @@ Please make sure your boards conform to these design rules.
 <wire x1="-5.6261" y1="1.7907" x2="-5.4043" y2="1.5689" width="0.127" layer="1"/>
 <wire x1="-5.6261" y1="4.7625" x2="-5.6261" y2="1.7907" width="0.127" layer="1"/>
 </signal>
-<signal name="SEG22">
+<signal name="SEG17">
 <contactref element="U$2" pad="10"/>
 <contactref element="U1" pad="32"/>
 <wire x1="-2.794" y1="6.25" x2="-2.794" y2="5.5642" width="0.127" layer="1"/>
@@ -3538,7 +3538,7 @@ Please make sure your boards conform to these design rules.
 <wire x1="-2.794" y1="5.5642" x2="-2.6209" y2="5.3911" width="0.127" layer="1"/>
 <wire x1="-2.3368" y1="5.2781875" x2="-2.3368" y2="4.29410625" width="0.127" layer="1"/>
 </signal>
-<signal name="SEG23">
+<signal name="SEG16">
 <contactref element="U$2" pad="11"/>
 <contactref element="U1" pad="31"/>
 <wire x1="-1.991709375" y1="5.366309375" x2="-2.088" y2="5.4626" width="0.127" layer="1"/>
@@ -3549,7 +3549,7 @@ Please make sure your boards conform to these design rules.
 <wire x1="-2.869" y1="3.51590625" x2="-2.57490625" y2="3.81" width="0.127" layer="1"/>
 <wire x1="-2.44790625" y1="3.81" x2="-1.991709375" y2="4.266196875" width="0.127" layer="1"/>
 </signal>
-<signal name="SEG0">
+<signal name="SEG10">
 <contactref element="U$2" pad="17"/>
 <contactref element="U1" pad="25"/>
 <wire x1="0.131" y1="3.2131" x2="0.131" y2="3.687" width="0.127" layer="1"/>
@@ -3558,7 +3558,7 @@ Please make sure your boards conform to these design rules.
 <wire x1="2.148" y1="5.461" x2="1.894" y2="5.207" width="0.127" layer="1"/>
 <wire x1="1.894" y1="5.207" x2="1.651" y2="5.207" width="0.127" layer="1"/>
 </signal>
-<signal name="SEG2">
+<signal name="SEG8">
 <contactref element="U$2" pad="19"/>
 <contactref element="U1" pad="20"/>
 <wire x1="3.56" y1="6.25" x2="3.56" y2="5.465" width="0.127" layer="1"/>
@@ -3569,7 +3569,7 @@ Please make sure your boards conform to these design rules.
 <wire x1="2.631" y1="3.6703" x2="2.631" y2="3.2131" width="0.127" layer="1"/>
 <wire x1="3.06078125" y1="5.3022" x2="2.7326" y2="4.97401875" width="0.127" layer="1"/>
 </signal>
-<signal name="SEG3">
+<signal name="SEG7">
 <contactref element="U$2" pad="20"/>
 <contactref element="U1" pad="19"/>
 <wire x1="3.131" y1="3.2131" x2="3.131" y2="3.6703" width="0.127" layer="1"/>
@@ -3580,7 +3580,7 @@ Please make sure your boards conform to these design rules.
 <wire x1="3.7338" y1="5.0482" x2="4.266" y2="5.5804" width="0.127" layer="1"/>
 <wire x1="4.266" y1="5.5804" x2="4.266" y2="6.25" width="0.127" layer="1"/>
 </signal>
-<signal name="SEG4">
+<signal name="SEG6">
 <contactref element="U$2" pad="21"/>
 <contactref element="U1" pad="18"/>
 <wire x1="3.631" y1="3.2131" x2="3.631" y2="3.5548" width="0.127" layer="1"/>
@@ -3608,35 +3608,35 @@ Please make sure your boards conform to these design rules.
 <wire x1="6.115" y1="3.7782" x2="6.115" y2="4.96200625" width="0.127" layer="1"/>
 <wire x1="5.2451" y1="2.9083" x2="6.115" y2="3.7782" width="0.127" layer="1"/>
 </signal>
-<signal name="SEG6">
+<signal name="SEG4">
 <contactref element="U$2" pad="23"/>
 <contactref element="U1" pad="16"/>
 <wire x1="4.7752" y1="2.5689" x2="5.2830875" y2="2.5689" width="0.127" layer="1"/>
 <wire x1="5.2830875" y1="2.5689" x2="6.384" y2="3.6698125" width="0.127" layer="1"/>
 <wire x1="6.384" y1="3.6698125" x2="6.384" y2="6.25" width="0.127" layer="1"/>
 </signal>
-<signal name="SEG7">
+<signal name="SEG3">
 <contactref element="U$2" pad="24"/>
 <contactref element="U1" pad="15"/>
 <wire x1="4.7752" y1="2.0689" x2="5.2439" y2="2.0689" width="0.127" layer="1"/>
 <wire x1="7.09" y1="3.915" x2="7.09" y2="6.25" width="0.127" layer="1"/>
 <wire x1="5.2439" y1="2.0689" x2="7.09" y2="3.915" width="0.127" layer="1"/>
 </signal>
-<signal name="SEG8">
+<signal name="SEG2">
 <contactref element="U$2" pad="25"/>
 <contactref element="U1" pad="14"/>
 <wire x1="4.7752" y1="1.5689" x2="5.2301125" y2="1.5689" width="0.127" layer="1"/>
 <wire x1="7.796" y1="4.1347875" x2="7.796" y2="6.25" width="0.127" layer="1"/>
 <wire x1="5.2301125" y1="1.5689" x2="7.796" y2="4.1347875" width="0.127" layer="1"/>
 </signal>
-<signal name="SEG9">
+<signal name="SEG1">
 <contactref element="U$2" pad="26"/>
 <contactref element="U1" pad="13"/>
 <wire x1="4.7752" y1="1.0689" x2="5.216325" y2="1.0689" width="0.127" layer="1"/>
 <wire x1="8.502" y1="4.354575" x2="5.216325" y2="1.0689" width="0.127" layer="1"/>
 <wire x1="8.502" y1="4.354575" x2="8.502" y2="6.25" width="0.127" layer="1"/>
 </signal>
-<signal name="SEG10">
+<signal name="SEG0">
 <contactref element="U$2" pad="27"/>
 <wire x1="9.208" y1="4.58934375" x2="9.208" y2="6.25" width="0.127" layer="1"/>
 <contactref element="U1" pad="12"/>
@@ -3777,42 +3777,42 @@ Please make sure your boards conform to these design rules.
 <wire x1="-0.94783125" y1="-7.2517" x2="-0.97911875" y2="-7.2517" width="0.254" layer="16"/>
 <wire x1="-0.97911875" y1="-7.2517" x2="-3.1428" y2="-9.41538125" width="0.254" layer="16"/>
 </signal>
-<signal name="SEG24">
+<signal name="SEG15">
 <contactref element="U$2" pad="12"/>
 <contactref element="U1" pad="30"/>
 <wire x1="-2.369" y1="3.2131" x2="-2.369" y2="3.51590625" width="0.127" layer="1"/>
 <wire x1="-1.382" y1="6.25" x2="-1.382" y2="4.502909375" width="0.127" layer="1"/>
 <wire x1="-1.382" y1="4.502909375" x2="-2.369" y2="3.51590625" width="0.127" layer="1"/>
 </signal>
-<signal name="SEG25">
+<signal name="SEG14">
 <contactref element="U$2" pad="13"/>
 <contactref element="U1" pad="29"/>
 <wire x1="-1.869" y1="3.2131" x2="-1.869" y2="3.64290625" width="0.127" layer="1"/>
 <wire x1="-1.869" y1="3.64290625" x2="-0.676" y2="4.83590625" width="0.127" layer="1"/>
 <wire x1="-0.676" y1="4.83590625" x2="-0.676" y2="6.25" width="0.127" layer="1"/>
 </signal>
-<signal name="SEG26">
+<signal name="SEG13">
 <contactref element="U$2" pad="14"/>
 <contactref element="U1" pad="28"/>
 <wire x1="-1.369" y1="3.2131" x2="-1.369" y2="3.64290625" width="0.127" layer="1"/>
 <wire x1="0.03" y1="5.04190625" x2="0.03" y2="6.25" width="0.127" layer="1"/>
 <wire x1="-1.369" y1="3.64290625" x2="0.03" y2="5.04190625" width="0.127" layer="1"/>
 </signal>
-<signal name="SEG27">
+<signal name="SEG12">
 <contactref element="U$2" pad="15"/>
 <contactref element="U1" pad="27"/>
 <wire x1="-0.869" y1="3.2131" x2="-0.869" y2="3.703" width="0.127" layer="1"/>
 <wire x1="0.736" y1="5.308003125" x2="0.736" y2="6.25" width="0.127" layer="1"/>
 <wire x1="-0.869" y1="3.703" x2="0.736" y2="5.308003125" width="0.127" layer="1"/>
 </signal>
-<signal name="SEG28">
+<signal name="SEG11">
 <contactref element="U$2" pad="16"/>
 <contactref element="U1" pad="26"/>
 <wire x1="-0.369" y1="3.2131" x2="-0.369" y2="3.64290625" width="0.127" layer="1"/>
 <wire x1="1.442" y1="5.45390625" x2="1.442" y2="6.25" width="0.127" layer="1"/>
 <wire x1="-0.369" y1="3.64290625" x2="1.442" y2="5.45390625" width="0.127" layer="1"/>
 </signal>
-<signal name="SEG1">
+<signal name="SEG9">
 <contactref element="U$2" pad="18"/>
 <contactref element="U1" pad="24"/>
 <wire x1="0.631" y1="3.2131" x2="0.631" y2="3.806" width="0.127" layer="1"/>
