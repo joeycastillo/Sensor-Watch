@@ -173,7 +173,7 @@
 
 // <i> Select the clock source for TCC.
 #ifndef CONF_GCLK_TCC0_SRC
-#define CONF_GCLK_TCC0_SRC GCLK_PCHCTRL_GEN_GCLK3_Val
+#define CONF_GCLK_TCC0_SRC GCLK_PCHCTRL_GEN_GCLK0_Val
 #endif
 
 /**
@@ -181,7 +181,7 @@
  * \brief TCC0's Clock frequency
  */
 #ifndef CONF_GCLK_TCC0_FREQUENCY
-#define CONF_GCLK_TCC0_FREQUENCY 32768
+#define CONF_GCLK_TCC0_FREQUENCY 16000000
 #endif
 
 #include <hpl_osc32kctrl_config.h>

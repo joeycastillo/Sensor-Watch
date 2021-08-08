@@ -6,6 +6,7 @@
 #include "driver_init.h"
 #include "hpl_calendar.h"
 #include "hal_ext_irq.h"
+#include "notes.h"
 
 /** @mainpage Sensor Watch Documentation
  *  @brief This documentation covers most of the functions you will use to interact with the Sensor Watch
@@ -14,12 +15,13 @@
                          Sensor Watch app.
             - @ref slcd - This section covers functions related to the Segment LCD display driver, which is responsible
                           for displaying strings of characters and indicators on the main watch display.
+            - @ref buttons - This section covers functions related to the three buttons: Light, Mode and Alarm.
             - @ref led - This section covers functions related to the bi-color red/green LED mounted behind the LCD.
+            - @ref buzzer - This section covers functions related to the piezo buzzer.
             - @ref rtc - This section covers functions related to the SAM L22's real-time clock peripheral, including
                          date, time and alarm functions.
             - @ref adc - This section covers functions related to the SAM L22's analog-to-digital converter, as well as
                          configuring and reading values from the three analog-capable pins on the 9-pin connector.
-            - @ref buttons - This section covers functions related to the three buttons: Light, Mode and Alarm.
             - @ref gpio - This section covers functions related to general-purpose input and output signals.
             - @ref i2c - This section covers functions related to the SAM L22's built-I2C driver, including configuring
                          the I2C bus, putting values directly on the bus and reading data from registers on I2C devices.
@@ -212,6 +214,45 @@ void watch_set_led_yellow();
 
 /** @brief Sets both red and green LEDs to full brightness. */
 void watch_set_led_off();
+/// @}
+
+
+/** @addtogroup buzzer Buzzer
+  * @brief This section covers functions related to the piezo buzzer embedded in the F-91W's back plate.
+  */
+/// @{
+/** @brief Enables the TCC peripheral, which drives the buzzer.
+  */
+void watch_enable_buzzer();
+
+/** @brief Sets the period of the buzzer.
+  * @param period The period of a single cycle for the PWM peripheral. You can use the following formula to
+  *               convert a desired frequency to a period for this function: period = 513751 * (freq^−1.0043)
+  */
+void watch_set_buzzer_period(uint32_t period);
+
+/** @brief Turns the buzzer output on. It will emit a continuous sound at the given frequency.
+  * @note The TCC peripheral that drives the buzzer does not run in standby mode; if you wish for buzzer
+  *       output to continue, you should prevent your app from going to sleep.
+  */
+void watch_set_buzzer_on();
+
+/** @brief Turns the buzzer output off.
+  */
+void watch_set_buzzer_off();
+
+/** @brief Plays the given note for a set duration.
+  * @param note The note you wish to play, or BUZZER_NOTE_REST to disable output for the given duration.
+  * @param duration_ms The duration of the note.
+  * @note Note that this will block your UI for the duration of the note's play time, and it will
+  *       after this call, the buzzer period will be set to the period of this note.
+  */
+void watch_buzzer_play_note(BuzzerNote note, uint16_t duration_ms);
+
+/** @brief An array of periods for all the notes on a piano, corresponding to the names in BuzzerNote.
+  */
+extern const uint16_t NotePeriods[108];
+
 /// @}
 
 
