@@ -4071,9 +4071,9 @@ by exp-lbrs.ulp</description>
 </deviceset>
 </devicesets>
 </library>
-<library name="QBLP655R">
+<library name="QBLP655">
 <packages>
-<package name="LED_QBLP655R">
+<package name="LED_QBLP655">
 <text x="0.011609375" y="1.46263125" size="0.83205625" layer="25" font="vector" ratio="18" align="center">&gt;NAME</text>
 <text x="-0.05493125" y="-1.58081875" size="0.826140625" layer="27" font="vector" ratio="18" align="center">&gt;VALUE</text>
 <wire x1="1.6" y1="0.6" x2="1.6" y2="-0.6" width="0.127" layer="51"/>
@@ -4089,7 +4089,7 @@ by exp-lbrs.ulp</description>
 </package>
 </packages>
 <symbols>
-<symbol name="LED_QBLP655R_SECTION1">
+<symbol name="LED_QBLP655_R">
 <wire x1="0" y1="-1.27" x2="2.54" y2="0" width="0.254" layer="94"/>
 <wire x1="2.54" y1="0" x2="0" y2="1.27" width="0.254" layer="94"/>
 <wire x1="2.54" y1="-1.27" x2="2.54" y2="0" width="0.254" layer="94"/>
@@ -4113,7 +4113,7 @@ by exp-lbrs.ulp</description>
 <pin name="C" x="5.08" y="0" visible="pad" length="short" direction="pas" rot="R180"/>
 <pin name="A" x="-2.54" y="0" visible="pad" length="short" direction="pas"/>
 </symbol>
-<symbol name="LED_QBLP655R_SECTION2">
+<symbol name="LED_QBLP655_G">
 <wire x1="0" y1="-1.27" x2="2.54" y2="0" width="0.254" layer="94"/>
 <wire x1="2.54" y1="0" x2="0" y2="1.27" width="0.254" layer="94"/>
 <wire x1="2.54" y1="-1.27" x2="2.54" y2="0" width="0.254" layer="94"/>
@@ -4139,14 +4139,14 @@ by exp-lbrs.ulp</description>
 </symbol>
 </symbols>
 <devicesets>
-<deviceset name="QBLP655R" prefix="D">
+<deviceset name="QBLP655-RIG" prefix="D">
 <description>Green, Red 571nm Green, 631nm Red LED Indication - Discrete 2V Green, 2V Red 1206 (3216 Metric) </description>
 <gates>
-<gate name="G$1" symbol="LED_QBLP655R_SECTION1" x="0" y="7.62" swaplevel="1"/>
-<gate name="G$2" symbol="LED_QBLP655R_SECTION2" x="0" y="-7.62" swaplevel="2"/>
+<gate name="G$1" symbol="LED_QBLP655_R" x="0" y="7.62" swaplevel="1"/>
+<gate name="G$2" symbol="LED_QBLP655_G" x="0" y="-7.62" swaplevel="2"/>
 </gates>
 <devices>
-<device name="" package="LED_QBLP655R">
+<device name="" package="LED_QBLP655">
 <connects>
 <connect gate="G$1" pin="A" pad="1"/>
 <connect gate="G$1" pin="C" pad="2"/>
@@ -4222,7 +4222,6 @@ by exp-lbrs.ulp</description>
 <part name="U$8" library="microbuilder" deviceset="VBUS" device=""/>
 <part name="+3V1" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="+3V3" device=""/>
 <part name="RESET" library="EVP-BB1AAB000" deviceset="EVP-BB1AAB000" device=""/>
-<part name="LED" library="QBLP655R" deviceset="QBLP655R" device=""/>
 <part name="GND15" library="supply1" deviceset="GND" device=""/>
 <part name="R8" library="microbuilder" deviceset="RESISTOR" device="_0603MP" value="1K"/>
 <part name="R9" library="microbuilder" deviceset="RESISTOR" device="_0603MP" value="100"/>
@@ -4242,6 +4241,7 @@ by exp-lbrs.ulp</description>
 <part name="FID6" library="microbuilder" deviceset="FIDUCIAL" device="_1MM">
 <attribute name="REV" value="A"/>
 </part>
+<part name="LED" library="QBLP655" deviceset="QBLP655-RIG" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -4404,12 +4404,6 @@ by exp-lbrs.ulp</description>
 <attribute name="NAME" x="76.2" y="109.22" size="1.27" layer="95"/>
 <attribute name="VALUE" x="76.2" y="104.14" size="1.27" layer="96" align="top-left"/>
 </instance>
-<instance part="LED" gate="G$1" x="231.14" y="116.84" smashed="yes">
-<attribute name="NAME" x="228.6" y="121.92" size="1.780740625" layer="95"/>
-</instance>
-<instance part="LED" gate="G$2" x="231.14" y="127" smashed="yes">
-<attribute name="NAME" x="228.6" y="132.08" size="1.780740625" layer="95"/>
-</instance>
 <instance part="GND15" gate="1" x="248.92" y="111.76" smashed="yes" rot="MR0">
 <attribute name="VALUE" x="248.92" y="109.22" size="1.778" layer="96" rot="MR0"/>
 </instance>
@@ -4451,6 +4445,8 @@ by exp-lbrs.ulp</description>
 <instance part="FID3" gate="G$1" x="185.42" y="45.72" smashed="yes"/>
 <instance part="FID4" gate="G$1" x="193.04" y="40.64" smashed="yes"/>
 <instance part="FID6" gate="G$1" x="185.42" y="40.64" smashed="yes"/>
+<instance part="LED" gate="G$1" x="231.14" y="116.84" smashed="yes"/>
+<instance part="LED" gate="G$2" x="231.14" y="127" smashed="yes"/>
 </instances>
 <busses>
 </busses>
