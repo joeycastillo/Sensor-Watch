@@ -80,7 +80,10 @@ void app_setup();
 /** @brief A function you will implement to serve as the app's main run loop. This method will be called repeatedly,
            or if you enter STANDBY sleep mode, as soon as the device wakes from sleep.
   * @return You should return true if your app is prepared to enter STANDBY sleep mode. If you return false, your
-  *         app's app_loop method will be called again immediately.
+  *         app's app_loop method will be called again immediately. Note that in STANDBY mode, the watch will consume
+  *         only about 95 microamperes of power, whereas if you return false and keep the app awake, it will consume
+  *         about 355 microamperes. This is the difference between months of battery life and days. As much as
+  *         possible, you should limit the amount of time your app spends awake.
   * @note Only the RTC, the segment LCD controller and the external interrupt controller run in STANDBY mode. If you
   *       are using, e.g. the PWM function to set a custom LED color, you should return false here until you are
   *       finished with that operation. Note however that the peripherals will continue running after waking up,
@@ -90,9 +93,14 @@ void app_setup();
 bool app_loop();
 
 /** @brief A function you will implement to prepare to enter STANDBY sleep mode. The app_prepare_for_sleep function is
- *         called before the watch goes into the  STANDBY sleep mode. In STANDBY mode, most peripherals are shut down,
+ *         called before the watch goes into the STANDBY sleep mode. In STANDBY mode, most peripherals are shut down,
  *         and no code will run until the watch receives an interrupt (generally either the 1Hz tick or a press on one
  *         of the buttons).
+ * @note If you are PWM'ing the LED or playing a sound on the buzzer, the TC/TCC peripherals that drive those operations
+ *       will not run in STANDBY. BUT! the output pins will retain the state they had when entering standby. This means
+ *       you could end up entering standby with an LED on and draining power, or with a DC potential across the piezo
+ *       buzzer that could damage it if left in this state. If your app_loop does not prevent sleep during these
+ *       activities, you should make sure to disable these outputs in app_prepare_for_sleep.
  */
 void app_prepare_for_sleep();
 
@@ -108,7 +116,12 @@ void _watch_init();
 /** @addtogroup slcd Segment LCD Display
   * @brief This section covers functions related to the Segment LCD display driver, which is responsible
   *        for displaying strings of characters and indicators on the main watch display.
-  * @details For a map of all common and segment pins, see <a href="segmap.html">segmap.html</a>. You can 
+  * @details The segment LCD controller consumes about 3 microamperes of power with no segments on, and
+  *          about 4 microamperes with all segments on. There is also a slight power impact associated
+  *          with updating the screen (about 1 microampere to update at 1 Hz). For the absolute lowest
+  *          power operation, update the display only when its contents have changed, and disable the
+  *          SLCD peripheral when the screen is not in use.
+  *          For a map of all common and segment pins, see <a href="segmap.html">segmap.html</a>. You can
   *          hover over any segment in that diagram to view the common and segment pins associated with
   *          each segment of the display.
   */
@@ -181,6 +194,12 @@ void watch_clear_all_indicators();
 
 /** @addtogroup led LED Control
   * @brief This section covers functions related to the bi-color red/green LED mounted behind the LCD.
+  * @details The SAM L22 is an exceedingly power efficient chip, whereas the LED's are relatively power-
+  *          hungry. The green LED, at full power, consumes more power than the whole chip in active mode,
+  *          and the red LED consumes about twelve times as much power! The LED's should thus be used only
+  *          sparingly in order to preserve battery life.
+  * @todo Explore running the TC3 PWM driver in standby mode; this would require that the user disable it
+  *       in app_prepare_for_sleep, but could allow for low power, low duty indicator LED usage.
   */
 /// @{
 /** @brief Enables the LED.
@@ -191,7 +210,7 @@ void watch_clear_all_indicators();
   */
 void watch_enable_led(bool pwm);
 
-/** @brief Disables the LED.
+/** @brief Disables the LEDs.
   * @param pwm if true, disables the PWM output. If false, disables the digital outputs.
   */
 void watch_disable_led(bool pwm);
@@ -202,17 +221,24 @@ void watch_disable_led(bool pwm);
   * @note still working on this, 0-65535 works now but these values may change.
   */
 void watch_set_led_color(uint16_t red, uint16_t green);
+
 /** @brief Sets the red LED to full brightness, and turns the green LED off.
+  * @note Of the two LED's in the RG bi-color LED, the red LED is the less power-efficient one (~4.5 mA).
   */
 void watch_set_led_red();
 
-/** @brief Sets the green LED to full brightness, and turns the red LED off. */
+/** @brief Sets the green LED to full brightness, and turns the red LED off.
+  * @note Of the two LED's in the RG bi-color LED, the green LED is the more power-efficient one (~0.44 mA).
+  */
 void watch_set_led_green();
 
-/** @brief Sets both red and green LEDs to full brightness. */
+/** @brief Sets both red and green LEDs to full brightness.
+  * @note The total current draw between the two LED's in this mode will be ~5 mA, which is more than the
+  *       watch draws in any other mode. Take care not to drain the battery.
+  */
 void watch_set_led_yellow();
 
-/** @brief Sets both red and green LEDs to full brightness. */
+/** @brief Turns both the red and the green LEDs off. */
 void watch_set_led_off();
 /// @}
 
@@ -259,9 +285,16 @@ extern const uint16_t NotePeriods[108];
 /** @addtogroup rtc Real-Time Clock
   * @brief This section covers functions related to the SAM L22's real-time clock peripheral, including
   *        date, time and alarm functions.
+  * @details The real-time clock is the only peripheral that main.c enables for you. It is the cornerstone
+  *          of low power operation on the watch, and it is required for several key functions that we
+  *          assume will be available, namely the wake from BACKUP mode and the callback on the ALARM button.
+  *          It is also required for the operation of the 1 Hz tick interrupt, which you will most likely use
+  *          to wake from STANDBY mode.
   */
 /// @{
-/// Called by main.c to check if the RTC is enabled.
+/** @brief Called by main.c to check if the RTC is enabled.
+  * You may call this function, but outside of app_init, it sbould always return true.
+  */
 bool _watch_rtc_is_enabled();
 
 /** @brief Sets the system date and time.
@@ -296,6 +329,12 @@ void watch_enable_analog(const uint8_t pin);
 
 /** @addtogroup buttons Buttons
   * @brief This section covers functions related to the three buttons: Light, Mode and Alarm.
+  * @details The buttons are the core input UI of the watch, and the way the user will interact with
+  *          your application. They are active high, pulled down by the microcontroller, and triggered
+  *          when one of the "pushers" brings a tab from the metal frame into contact with the edge
+  *          of the board. Note that the buttons can only wake the watch from STANDBY mode (except maybe for the
+  *          ALARM button; still working on that one). The external interrupt controller runs in
+             STANDBY mode, but it does not runin BACKUP mode; to wake from BACKUP, buttons will not cut it,
   */
 /// @{
 /** @brief Enables the external interrupt controller for use with the buttons.
@@ -305,9 +344,11 @@ void watch_enable_analog(const uint8_t pin);
   */
 void watch_enable_buttons();
 
-/** @brief Configures an external interrupt
+/** @brief Configures an external interrupt on one of the button pins.
   * @param pin One of pins BTN_LIGHT, BTN_MODE or BTN_ALARM.
   * @param callback The function you wish to have called when the button is pressed.
+  * @note The BTN_ALARM button runs off of an interrupt in the the RTC controller, not the EIC. This
+  *       implementation detail should not make any difference to your app,
   */
 void watch_register_button_callback(const uint8_t pin, ext_irq_cb_t callback);
 /// @}
