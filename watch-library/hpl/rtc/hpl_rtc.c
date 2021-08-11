@@ -388,18 +388,24 @@ static void _rtc_interrupt_handler(struct calendar_dev *dev)
 	uint16_t interrupt_enabled = hri_rtcmode0_read_INTEN_reg(dev->hw);
 
 	if ((interrupt_status & interrupt_enabled) & RTC_MODE2_INTFLAG_ALARM0) {
-		dev->callback_alarm();
+		if (dev->callback_alarm != NULL) {
+			dev->callback_alarm();
+		}
 
 		/* Clear interrupt flag */
 		hri_rtcmode0_clear_interrupt_CMP0_bit(dev->hw);
 	} else if ((interrupt_status & interrupt_enabled) & RTC_MODE2_INTFLAG_PER7) {
-		dev->callback_tick();
+		if (dev->callback_tick != NULL) {
+			dev->callback_tick();
+		}
 
 		/* Clear interrupt flag */
 		hri_rtcmode0_clear_interrupt_PER7_bit(dev->hw);
 	} else if ((interrupt_status & interrupt_enabled) & RTC_MODE2_INTFLAG_TAMPER) {
 		uint8_t reason = hri_rtc_get_TAMPID_reg(dev->hw, 0x1F);
-		dev->callback_tamper(reason);
+		if (dev->callback_tamper != NULL) {
+			dev->callback_tamper(reason);
+		}
 		hri_rtc_write_TAMPID_reg(dev->hw, reason);
 
 		/* Clear interrupt flag */
