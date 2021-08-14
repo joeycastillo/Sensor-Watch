@@ -80,7 +80,7 @@ void uart_puts(char *s) {
 
 int main(void) {
     // Temporary, for debugging.
-    uart_init(115200);
+    // uart_init(115200);
 
     // ASF code. Initialize the MCU with configuration options from Atmel Studio.
     init_mcu();
