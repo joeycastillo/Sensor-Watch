@@ -4187,7 +4187,7 @@ by exp-lbrs.ulp</description>
 <part name="J1" library="FH19C-9S-0.5SH" deviceset="FH19C-9S-0.5SH_10_" device=""/>
 <part name="C5" library="microbuilder" deviceset="CAP_CERAMIC" device="_0603MP" value="1uF"/>
 <part name="GND14" library="supply1" deviceset="GND" device=""/>
-<part name="X1" library="adafruit" deviceset="XTAL" device="-3.2X1.5"/>
+<part name="X1" library="adafruit" deviceset="XTAL" device="-3.2X1.5" value="32.768"/>
 <part name="C6" library="microbuilder" deviceset="CAP_CERAMIC" device="_0603MP" value="1uF"/>
 <part name="GND2" library="supply1" deviceset="GND" device=""/>
 <part name="L1" library="Adafruit 3.5in 480x320 FeatherWing" deviceset="MICROBUILDER_INDUCTOR" device="_0805MP" value="10uH"/>
@@ -4223,13 +4223,13 @@ by exp-lbrs.ulp</description>
 <part name="+3V1" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="+3V3" device=""/>
 <part name="RESET" library="EVP-BB1AAB000" deviceset="EVP-BB1AAB000" device=""/>
 <part name="GND15" library="supply1" deviceset="GND" device=""/>
-<part name="R8" library="microbuilder" deviceset="RESISTOR" device="_0603MP" value="100"/>
-<part name="R9" library="microbuilder" deviceset="RESISTOR" device="_0603MP" value="1K"/>
+<part name="R8" library="microbuilder" deviceset="RESISTOR" device="_0603MP" value="220"/>
+<part name="R9" library="microbuilder" deviceset="RESISTOR" device="_0603MP" value="220"/>
 <part name="R2" library="microbuilder" deviceset="RESISTOR" device="_0603MP" value="10K"/>
 <part name="SUPPLY5" library="SparkFun-PowerSymbols" deviceset="VCC" device=""/>
 <part name="R5" library="microbuilder" deviceset="RESISTOR" device="_0603MP" value="10K"/>
-<part name="C7" library="microbuilder" deviceset="CAP_CERAMIC" device="_0402MP" value="TBD"/>
-<part name="C8" library="microbuilder" deviceset="CAP_CERAMIC" device="_0402MP" value="TBD"/>
+<part name="C7" library="microbuilder" deviceset="CAP_CERAMIC" device="_0402MP" value="10pf"/>
+<part name="C8" library="microbuilder" deviceset="CAP_CERAMIC" device="_0402MP" value="10pf"/>
 <part name="U$3" library="microbuilder" deviceset="GND" device=""/>
 <part name="U$9" library="microbuilder" deviceset="GND" device=""/>
 <part name="FID1" library="microbuilder" deviceset="FIDUCIAL" device="_1MM"/>
