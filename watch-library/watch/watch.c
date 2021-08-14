@@ -15,6 +15,9 @@ static void extwake_callback(uint8_t reason);
 // Initialization
 
 void _watch_init() {
+    // disable the LED pin (it may have been enabled by the bootloader)
+    watch_disable_digital_output(RED);
+
     // Use switching regulator for lower power consumption.
     SUPC->VREG.bit.SEL = 1;
     while(!SUPC->STATUS.bit.VREGRDY);
@@ -308,8 +311,8 @@ void watch_set_led_yellow() {
     if (PWM_0_enabled) {
         watch_set_led_color(65535, 65535);
     } else {
-    watch_set_pin_level(RED, true);
-    watch_set_pin_level(GREEN, true);
+        watch_set_pin_level(RED, true);
+        watch_set_pin_level(GREEN, true);
     }
 }
 
