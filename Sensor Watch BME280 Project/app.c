@@ -11,7 +11,9 @@ typedef enum ApplicationMode {
 
 typedef struct ApplicationState {
     ApplicationMode mode;
-    bool light_on;
+    int light_ticks;
+    bool led_on;
+    bool needs_beep;
     uint16_t dig_T1;
     int16_t dig_T2;
     int16_t dig_T3;
@@ -25,7 +27,7 @@ typedef struct ApplicationState {
 
 ApplicationState application_state;
 
-
+void cb_light_pressed();
 void cb_mode_pressed();
 void cb_tick();
 
@@ -51,6 +53,10 @@ void app_wake_from_deep_sleep() {
 void app_setup() {
     watch_enable_buttons();
     watch_register_button_callback(BTN_MODE, cb_mode_pressed);
+    watch_register_button_callback(BTN_LIGHT, cb_light_pressed);
+
+    watch_enable_buzzer();
+    watch_enable_led(false);
 
     // pin A0 powers the sensor on this board.
     watch_enable_digital_output(A0);
@@ -103,6 +109,25 @@ bool app_loop() {
     float temperature;
     float humidity;
     char buf[11] = {0};
+
+    if (application_state.needs_beep) {
+        watch_buzzer_play_note(BUZZER_NOTE_A6, 100);
+        application_state.needs_beep = false;
+    }
+
+    if (application_state.light_ticks > 0 && !application_state.led_on) {
+        watch_set_led_yellow();
+        application_state.led_on = true;
+    }
+
+    if (application_state.led_on && application_state.light_ticks == 0) {
+        if (watch_get_pin_level(BTN_LIGHT)) {
+            application_state.light_ticks = 3;
+        } else {
+            watch_set_led_off();
+            application_state.led_on = false;
+        }
+    }
 
     switch (application_state.mode) {
         case MODE_TEMPERATURE:
@@ -169,11 +194,9 @@ float read_temperature(int32_t *p_t_fine) {
  */
 float read_humidity(int32_t t_fine) {
     int32_t adc_value = watch_i2c_read16(BME280_ADDRESS, BME280_REGISTER_HUMID_DATA);
-    // the sensor returns this as big-endian, so swap the bytes.
-    adc_value = (adc_value >> 8) | (adc_value << 8);
 
     // again, cribbed from Adafruit's BME280 driver. they sell a great breakout board for this sensor!
-    int32_t v_x1_u32r = v_x1_u32r = (t_fine - ((int32_t)76800));
+    int32_t v_x1_u32r = (t_fine - ((int32_t)76800));
     v_x1_u32r = (((((adc_value << 14) - (((int32_t)application_state.dig_H4) << 20) - (((int32_t)application_state.dig_H5) * v_x1_u32r)) +
                 ((int32_t)16384)) >> 15) * (((((((v_x1_u32r * ((int32_t)application_state.dig_H6)) >> 10) * (((v_x1_u32r * ((int32_t)application_state.dig_H3)) >> 11) +
                 ((int32_t)32768))) >> 10) + ((int32_t)2097152)) * ((int32_t)application_state.dig_H2) + 8192) >> 14));
@@ -187,8 +210,15 @@ float read_humidity(int32_t t_fine) {
 
 void cb_mode_pressed() {
     application_state.mode = (application_state.mode + 1) % 3;
+    application_state.needs_beep = true;
 }
 
 void cb_tick() {
+    if (application_state.light_ticks > 0) {
+        application_state.light_ticks--;
+    }
 }
 
+void cb_light_pressed() {
+    application_state.light_ticks = 3;
+}
