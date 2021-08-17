@@ -48,7 +48,7 @@
 // <e> RTC Tamper Input 0 settings
 // <id> tamper_input_0_settings
 #ifndef CONF_TAMPER_INPUT_0_SETTINGS
-#define CONF_TAMPER_INPUT_0_SETTINGS 1
+#define CONF_TAMPER_INPUT_0_SETTINGS 0
 #endif
 
 // <q> Tamper Level Settings
@@ -66,7 +66,7 @@
 // <i> These bits define the RTC Tamper Input Action to be performed
 // <id> rtc_tamper_input_action_0
 #ifndef CONF_RTC_TAMPER_INACT_0
-#define CONF_RTC_TAMPER_INACT_0 1
+#define CONF_RTC_TAMPER_INACT_0 0
 #endif
 
 // <q> Debounce Enable for Tamper Input
@@ -81,7 +81,7 @@
 // <e> RTC Tamper Input 1 settings
 // <id> tamper_input_1_settings
 #ifndef CONF_TAMPER_INPUT_1_SETTINGS
-#define CONF_TAMPER_INPUT_1_SETTINGS 1
+#define CONF_TAMPER_INPUT_1_SETTINGS 0
 #endif
 
 // <q> Tamper Level Settings
@@ -99,7 +99,7 @@
 // <i> These bits define the RTC Tamper Input Action to be performed
 // <id> rtc_tamper_input_action_1
 #ifndef CONF_RTC_TAMPER_INACT_1
-#define CONF_RTC_TAMPER_INACT_1 1
+#define CONF_RTC_TAMPER_INACT_1 0
 #endif
 
 // <q> Debounce Enable for Tamper Input
