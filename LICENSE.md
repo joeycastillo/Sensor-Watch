@@ -3,7 +3,7 @@ Sensor Watch Licenses
 
 Several different components of the project are licensed differently. In summary:
 
-* The PCB design files are provided under a copyleft-style Creative Commons Attribution-ShareAlike 4.0 license. Commercial use is explicitly permitted, but you must credit the author and share derivitave designs under a Creative Commons Attribution-ShareAlike 4.0 (or compatible) license.
+* The PCB design files are provided under a copyleft-style Creative Commons Attribution-ShareAlike 4.0 license. Commercial use is explicitly permitted, but you must credit the author and share derivative designs under a Creative Commons Attribution-ShareAlike 4.0 (or compatible) license.
 * For the most part, the sensor watch library code uses the permissive MIT license. Commercial use is explicitly permitted, and there is no requirement to share derivative works.
 * The debug UART setup is BSD licensed code from Alex Taradov's excellent [Bare-Metal MCU Starter Projects](https://github.com/ataradov/mcu-starter-projects) repository. I would like to refactor the debug UART to communicate over USB, however; once this UART code is removed, the whole watch library should be MIT-licensed.
 * The Microchip / Atmel Studio Framework support code is provided by Microchip for use with Microchip products. I have no idea how compatible this is with anything else, but this code is only required to interface with the SAM L22, which is a Microchip product.
