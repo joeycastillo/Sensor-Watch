@@ -196,7 +196,7 @@ float read_humidity(int32_t t_fine) {
 void log_data() {
     struct calendar_date_time date_time;
     watch_get_date_time(&date_time);
-    uint8_t hour = date_time.time.sec;
+    uint8_t hour = date_time.time.hour;
     int8_t temperature = read_temperature(NULL);
 
     for(int i = 0; i < MAX_DATA_POINTS - 1; i++) {
