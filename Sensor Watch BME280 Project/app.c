@@ -1,38 +1,13 @@
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 #include "watch.h"
 #include "bme280.h"
 
-typedef enum ApplicationMode {
-    MODE_TEMPERATURE = 0,
-    MODE_HUMIDITY,
-    MODE_OFF,
-} ApplicationMode;
-
-typedef struct ApplicationState {
-    ApplicationMode mode;
-    int light_ticks;
-    bool led_on;
-    bool needs_beep;
-    uint16_t dig_T1;
-    int16_t dig_T2;
-    int16_t dig_T3;
-    uint8_t dig_H1;
-    int16_t dig_H2;
-    uint8_t dig_H3;
-    int16_t dig_H4;
-    int16_t dig_H5;
-    int8_t dig_H6;
-} ApplicationState;
+#include "app.h"
 
 ApplicationState application_state;
-
-void cb_light_pressed();
-void cb_mode_pressed();
-void cb_tick();
-
-float read_temperature(int32_t *p_t_fine);
-float read_humidity(int32_t t_fine);
+char buf[16] = {0};
 
 /**
  * @brief Zeroes out the application state struct.
@@ -41,19 +16,22 @@ void app_init() {
     memset(&application_state, 0, sizeof(application_state));
 }
 
-/**
- * @todo stash the BME280's calibration values in backup memory so we don't have to ask again
- */
 void app_wake_from_deep_sleep() {
+    // This app does not support deep sleep mode.
 }
 
-/**
- * Enables the MODE button, the display and the sensor, and grabs calibration data.
- */
 void app_setup() {
+    struct calendar_date_time date_time;
+    watch_get_date_time(&date_time);
+    if (date_time.date.year < 2020) {
+        date_time.date.year = 2020;
+        watch_set_date_time(date_time);
+    }
+
     watch_enable_buttons();
     watch_register_button_callback(BTN_MODE, cb_mode_pressed);
     watch_register_button_callback(BTN_LIGHT, cb_light_pressed);
+    watch_register_button_callback(BTN_ALARM, cb_alarm_pressed);
 
     watch_enable_buzzer();
     watch_enable_led(false);
@@ -79,7 +57,7 @@ void app_setup() {
                                 (watch_i2c_read8(BME280_ADDRESS, BME280_REGISTER_DIG_H5) >> 4);
     application_state.dig_H6 = (int8_t)watch_i2c_read8(BME280_ADDRESS, BME280_REGISTER_DIG_H6);
 
-    watch_i2c_write8(BME280_ADDRESS, BME280_REGISTER_CONTROL_HUMID, BME280_CONTROL_HUMID_SAMPLING_X16);
+    watch_i2c_write8(BME280_ADDRESS, BME280_REGISTER_CONTROL_HUMID, BME280_CONTROL_HUMID_SAMPLING_NONE);
     watch_i2c_write8(BME280_ADDRESS, BME280_REGISTER_CONTROL, BME280_CONTROL_TEMPERATURE_SAMPLING_X16 |
                                                               BME280_CONTROL_PRESSURE_SAMPLING_NONE |
                                                               BME280_CONTROL_MODE_FORCED);
@@ -105,22 +83,28 @@ void app_wake_from_sleep() {
  * Displays the temperature and humidity on screen, or a string indicating no measurements are being taken.
  */
 bool app_loop() {
-    int32_t t_fine;
-    float temperature;
-    float humidity;
-    char buf[11] = {0};
-
-    if (application_state.needs_beep) {
-        watch_buzzer_play_note(BUZZER_NOTE_A6, 100);
-        application_state.needs_beep = false;
+    // play a beep if the mode has changed in response to a user's press of the MODE button
+    if (application_state.mode_changed) {
+        // low note for nonzero case, high note for return to clock
+        watch_buzzer_play_note(application_state.mode ? BUZZER_NOTE_C7 : BUZZER_NOTE_C8, 100);
+        application_state.mode_changed = false;
     }
 
+    // If the user is not in clock mode and the mode timeout has expired, return them to clock mode
+    if (application_state.mode != MODE_CLOCK && application_state.mode_ticks == 0) {
+        application_state.mode = MODE_CLOCK;
+        application_state.mode_changed = true;
+    }
+
+    // If the LED is off and should be on, turn it on
     if (application_state.light_ticks > 0 && !application_state.led_on) {
-        watch_set_led_yellow();
+        watch_set_led_green();
         application_state.led_on = true;
     }
 
+    // if the LED is on and should be off, turn it off
     if (application_state.led_on && application_state.light_ticks == 0) {
+        // unless the user is holding down the LIGHT button, in which case, give them more time.
         if (watch_get_pin_level(BTN_LIGHT)) {
             application_state.light_ticks = 3;
         } else {
@@ -130,33 +114,30 @@ bool app_loop() {
     }
 
     switch (application_state.mode) {
-        case MODE_TEMPERATURE:
-            // take one reading
-            watch_i2c_write8(BME280_ADDRESS, BME280_REGISTER_CONTROL, BME280_CONTROL_TEMPERATURE_SAMPLING_X16 |
-                                                                      BME280_CONTROL_MODE_FORCED);
-            // wait for reading to finish
-            while(watch_i2c_read8(BME280_ADDRESS, BME280_REGISTER_STATUS) & BME280_STATUS_UPDATING_MASK);
-            temperature = read_temperature(NULL);
-            sprintf(buf, "TE  %4.1f#C", temperature);
-            watch_display_string(buf, 0);
-            watch_clear_colon();
+        case MODE_CLOCK:
+            do_clock_mode();
             break;
-        case MODE_HUMIDITY:
-            // take one reading
-            watch_i2c_write8(BME280_ADDRESS, BME280_REGISTER_CONTROL, BME280_CONTROL_TEMPERATURE_SAMPLING_X16 |
-                                                                      BME280_CONTROL_MODE_FORCED);
-            // wait for reading to finish
-            while(watch_i2c_read8(BME280_ADDRESS, BME280_REGISTER_STATUS) & BME280_STATUS_UPDATING_MASK);
-            temperature = read_temperature(&t_fine);
-            humidity = read_humidity(t_fine);
-            sprintf(buf, "HU  rH %3d", (int)humidity);
-            watch_display_string(buf, 0);
-            watch_set_colon();
+        case MODE_TEMP:
+            do_temp_mode();
             break;
-        case MODE_OFF:
-            watch_display_string("    Sleep ", 0);
-            watch_clear_pixel(1, 16);
+        case MODE_LOG:
+            do_log_mode();
+            break;
+        case MODE_PREFS:
+            do_prefs_mode();
+            break;
+        case MODE_SET:
+            do_set_time_mode();
+            break;
+        case NUM_MODES:
+            // dummy case, just silences a warning
+            break;
     }
+
+    application_state.mode_changed = false;
+
+    delay_ms(250);
+    application_state.debounce_wait = false;
 
     return true;
 }
@@ -183,7 +164,11 @@ float read_temperature(int32_t *p_t_fine) {
     // if we got a pointer to a t_fine, return it by reference (for humidity calculation).
     if (p_t_fine != NULL) *p_t_fine = t_fine;
 
-    return ((t_fine * 5 + 128) >> 8) / 100.0;
+    if (application_state.is_fahrenheit) {
+        return (((t_fine * 5 + 128) >> 8) / 100.0) * 1.8 + 32;
+    } else {
+        return ((t_fine * 5 + 128) >> 8) / 100.0;
+    }
 }
 
 /**
@@ -208,17 +193,212 @@ float read_humidity(int32_t t_fine) {
     return h / 1024.0;
 }
 
-void cb_mode_pressed() {
-    application_state.mode = (application_state.mode + 1) % 3;
-    application_state.needs_beep = true;
+void log_data() {
+    struct calendar_date_time date_time;
+    watch_get_date_time(&date_time);
+    uint8_t hour = date_time.time.sec;
+    int8_t temperature = read_temperature(NULL);
+
+    for(int i = 0; i < MAX_DATA_POINTS - 1; i++) {
+        application_state.logged_data[i] = application_state.logged_data[i + 1];
+    }
+    application_state.logged_data[MAX_DATA_POINTS - 1].is_valid = true;
+    application_state.logged_data[MAX_DATA_POINTS - 1].hour = hour;
+    application_state.logged_data[MAX_DATA_POINTS - 1].temperature = temperature;
 }
 
-void cb_tick() {
-    if (application_state.light_ticks > 0) {
-        application_state.light_ticks--;
+void do_clock_mode() {
+    struct calendar_date_time date_time;
+    const char months[12][3] = {"JA", "FE", "MR", "AR", "MA", "JN", "JL", "AU", "SE", "OC", "NO", "dE"};
+
+    watch_get_date_time(&date_time);
+    watch_display_string((char *)months[date_time.date.month - 1], 0);
+    sprintf(buf, "%2d%2d%02d%02d", date_time.date.day, date_time.time.hour, date_time.time.min, date_time.time.sec);
+    watch_display_string(buf, 2);
+    watch_set_colon();
+}
+
+void do_temp_mode() {
+    int32_t t_fine;
+    float temperature;
+    float humidity;
+
+    // take one reading
+    watch_i2c_write8(BME280_ADDRESS, BME280_REGISTER_CONTROL, BME280_CONTROL_TEMPERATURE_SAMPLING_X16 |
+                                                              BME280_CONTROL_MODE_FORCED);
+    // wait for reading to finish
+    while(watch_i2c_read8(BME280_ADDRESS, BME280_REGISTER_STATUS) & BME280_STATUS_UPDATING_MASK);
+    temperature = read_temperature(&t_fine);
+    humidity = read_humidity(t_fine);
+    if (application_state.show_humidity) {
+        sprintf(buf, "TE%2d%4.1f#%c", (int)(humidity / 10), temperature), application_state.is_fahrenheit ? 'F' : 'C';
+    } else {
+        sprintf(buf, "TE  %4.1f#%c", temperature, application_state.is_fahrenheit ? 'F' : 'C');
     }
+    watch_display_string(buf, 0);
+    watch_clear_colon();
+}
+
+void do_log_mode() {
+    bool is_valid = (uint8_t)(application_state.logged_data[MAX_DATA_POINTS - 1 - application_state.page].is_valid);
+    uint8_t hour = (uint8_t)(application_state.logged_data[MAX_DATA_POINTS - 1 - application_state.page].hour);
+    int8_t temperature = (int8_t)(application_state.logged_data[MAX_DATA_POINTS - 1 - application_state.page].temperature);
+    if (!is_valid) {
+        sprintf(buf, "LO%2d------", application_state.page);
+        watch_clear_colon();
+    } else {
+        sprintf(buf, "LO%2d%2d%4d", application_state.page, hour, temperature);
+        watch_set_colon();
+    }
+    watch_display_string(buf, 0);
+}
+
+void log_mode_handle_primary_button() {
+    application_state.page++;
+    if (application_state.page == MAX_DATA_POINTS) application_state.page = 0;
+}
+
+void do_prefs_mode() {
+    sprintf(buf, "PR  CorF %c", application_state.is_fahrenheit ? 'F' : 'C');
+    watch_display_string(buf, 0);
+    watch_clear_colon();
+}
+
+void prefs_mode_handle_primary_button() {
+    // TODO: add rest of preferences (12/24, humidity, LED color, etc.)
+    // for now only one, C or F
+}
+
+void prefs_mode_handle_secondary_button() {
+    application_state.is_fahrenheit = !application_state.is_fahrenheit;
+}
+
+void do_set_time_mode() {
+    struct calendar_date_time date_time;
+
+    watch_get_date_time(&date_time);
+    watch_display_string("          ", 0);
+    switch (application_state.page) {
+        case 0: // hour
+            sprintf(buf, "ST t%2d", date_time.time.hour);
+            break;
+        case 1: // minute
+            sprintf(buf, "ST t  %02d", date_time.time.min);
+            break;
+        case 2: // second
+            sprintf(buf, "ST t    %02d", date_time.time.sec);
+            break;
+        case 3: // year
+            sprintf(buf, "ST d%2d", date_time.date.year - 2000);
+            break;
+        case 4: // month
+            sprintf(buf, "ST d  %02d", date_time.date.month);
+            break;
+        case 5: // day
+            sprintf(buf, "ST d    %02d", date_time.date.day);
+            break;
+    }
+    watch_display_string(buf, 0);
+    watch_set_pixel(1, 12); // required for T in position 1
+}
+
+void set_time_mode_handle_primary_button() {
+    application_state.page++;
+    if (application_state.page == 6) application_state.page = 0;
+}
+
+void set_time_mode_handle_secondary_button() {
+    struct calendar_date_time date_time;
+    watch_get_date_time(&date_time);
+    const uint8_t days_in_month[12] = {31, 28, 31, 30, 31, 30, 30, 31, 30, 31, 30, 31};
+
+    switch (application_state.page) {
+        case 0: // hour
+            date_time.time.hour = (date_time.time.hour + 1) % 24;
+            break;
+        case 1: // minute
+            date_time.time.min = (date_time.time.min + 1) % 60;
+            break;
+        case 2: // second
+            date_time.time.sec = 0;
+            break;
+        case 3: // year
+            // only allow 2021-2030. fix this sometime next decade
+            date_time.date.year = ((date_time.date.year % 10) + 1) + 2020;
+            break;
+        case 4: // month
+            date_time.date.month = ((date_time.date.month + 1) % 12);
+            break;
+        case 5: // day
+            date_time.date.day = date_time.date.day + 1;
+            // can't set to the 29th on a leap year. if it's february 29, set to 11:59 on the 28th.
+            // and it should roll over.
+            if (date_time.date.day > days_in_month[date_time.date.month - 1]) {
+                date_time.date.day = 1;
+            }
+            break;
+    }
+    watch_set_date_time(date_time);
+}
+
+void cb_mode_pressed() {
+    if (application_state.debounce_wait) return;
+    application_state.debounce_wait = true;
+
+    application_state.mode = (application_state.mode + 1) % NUM_MODES;
+    application_state.mode_changed = true;
+    application_state.mode_ticks = 300;
+    application_state.page = 0;
 }
 
 void cb_light_pressed() {
-    application_state.light_ticks = 3;
+    if (application_state.debounce_wait) return;
+    application_state.debounce_wait = true;
+
+    switch (application_state.mode) {
+        case MODE_PREFS:
+            prefs_mode_handle_secondary_button();
+            break;
+        case MODE_SET:
+            set_time_mode_handle_secondary_button();
+            break;
+        default:
+            application_state.light_ticks = 3;
+            break;
+    }
+}
+
+void cb_alarm_pressed() {
+    if (application_state.debounce_wait) return;
+    application_state.debounce_wait = true;
+
+    switch (application_state.mode) {
+        case MODE_LOG:
+            log_mode_handle_primary_button();
+            break;
+        case MODE_PREFS:
+            prefs_mode_handle_primary_button();
+            break;
+        case MODE_SET:
+            set_time_mode_handle_primary_button();
+            break;
+        default:
+            break;
+    }
+}
+
+void cb_tick() {
+    // TODO: use alarm interrupt to trigger data acquisition.
+    struct calendar_date_time date_time;
+    watch_get_date_time(&date_time);
+    if (date_time.time.min == 0 && date_time.time.sec == 0) {
+        log_data();
+    }
+
+    if (application_state.light_ticks > 0) {
+        application_state.light_ticks--;
+    }
+    if (application_state.mode_ticks > 0) {
+        application_state.mode_ticks--;
+    }
 }
