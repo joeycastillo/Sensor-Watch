@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021 Joey Castillo
+ * Copyright (c) 2020 Joey Castillo
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,22 +21,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+////< @file watch_uart.h
 
-#include "watch.h"
+/** @addtogroup debug Debug UART
+  * @brief This section covers functions related to the debug UART, available on
+  *        pin D1 of the 9-pin connector.
+  * @todo Refactor this as a USB CDC so that folks can debug over USB.
+  */
+/// @{
+/** @brief Initializes the debug UART.
+  * @param baud The baud rate
+  */
+void watch_enable_debug_uart(uint32_t baud);
 
-// TODO: this should all live in watch_deepsleep.c, but right now watch_extint.c needs it
-// because we're being too clever about the alarm button.
-static void extwake_callback(uint8_t reason);
-ext_irq_cb_t btn_alarm_callback;
+/** @brief Outputs a single character on the debug UART.
+  * @param c The character you wish to output.
+  */
+void watch_debug_putc(char c);
 
-#include "watch_rtc.c"
-#include "watch_slcd.c"
-#include "watch_extint.c"
-#include "watch_led.c"
-#include "watch_buzzer.c"
-#include "watch_adc.c"
-#include "watch_gpio.c"
-#include "watch_i2c.c"
-#include "watch_uart.c"
-#include "watch_deepsleep.c"
-#include "watch_private.c"
+/** @brief Outputs a string on the debug UART.
+  * @param s A null-terminated string.
+  */
+void watch_debug_puts(char *s);
+/// @}

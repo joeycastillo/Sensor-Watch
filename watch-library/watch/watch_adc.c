@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021 Joey Castillo
+ * Copyright (c) 2020 Joey Castillo
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,21 +22,24 @@
  * SOFTWARE.
  */
 
-#include "watch.h"
+ static bool ADC_0_ENABLED = false;
 
-// TODO: this should all live in watch_deepsleep.c, but right now watch_extint.c needs it
-// because we're being too clever about the alarm button.
-static void extwake_callback(uint8_t reason);
-ext_irq_cb_t btn_alarm_callback;
+void watch_enable_analog(const uint8_t pin) {
+    if (!ADC_0_ENABLED) ADC_0_init();
+    ADC_0_ENABLED = true;
 
-#include "watch_rtc.c"
-#include "watch_slcd.c"
-#include "watch_extint.c"
-#include "watch_led.c"
-#include "watch_buzzer.c"
-#include "watch_adc.c"
-#include "watch_gpio.c"
-#include "watch_i2c.c"
-#include "watch_uart.c"
-#include "watch_deepsleep.c"
-#include "watch_private.c"
+    gpio_set_pin_direction(pin, GPIO_DIRECTION_OFF);
+    switch (pin) {
+        case A0:
+            gpio_set_pin_function(A0, PINMUX_PB04B_ADC_AIN12);
+            break;
+        case A1:
+            gpio_set_pin_function(A1, PINMUX_PB01B_ADC_AIN9);
+            break;
+        case A2:
+            gpio_set_pin_function(A2, PINMUX_PB02B_ADC_AIN10);
+            break;
+        default:
+            return;
+    }
+}

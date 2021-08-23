@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021 Joey Castillo
+ * Copyright (c) 2020 Joey Castillo
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,21 +22,18 @@
  * SOFTWARE.
  */
 
-#include "watch.h"
+ void watch_enable_buttons() {
+    EXTERNAL_IRQ_0_init();
+}
 
-// TODO: this should all live in watch_deepsleep.c, but right now watch_extint.c needs it
-// because we're being too clever about the alarm button.
-static void extwake_callback(uint8_t reason);
-ext_irq_cb_t btn_alarm_callback;
-
-#include "watch_rtc.c"
-#include "watch_slcd.c"
-#include "watch_extint.c"
-#include "watch_led.c"
-#include "watch_buzzer.c"
-#include "watch_adc.c"
-#include "watch_gpio.c"
-#include "watch_i2c.c"
-#include "watch_uart.c"
-#include "watch_deepsleep.c"
-#include "watch_private.c"
+void watch_register_button_callback(const uint8_t pin, ext_irq_cb_t callback) {
+    if (pin == BTN_ALARM) {
+        gpio_set_pin_direction(BTN_ALARM, GPIO_DIRECTION_IN);
+        gpio_set_pin_pull_mode(BTN_ALARM, GPIO_PULL_DOWN);
+        gpio_set_pin_function(BTN_ALARM, PINMUX_PA02G_RTC_IN2);
+        btn_alarm_callback = callback;
+        _extwake_register_callback(&CALENDAR_0.device, extwake_callback);
+    } else {
+        ext_irq_register(pin, callback);
+    }
+}

@@ -22,21 +22,5 @@
  * SOFTWARE.
  */
 
-#include "watch.h"
-
-// TODO: this should all live in watch_deepsleep.c, but right now watch_extint.c needs it
-// because we're being too clever about the alarm button.
-static void extwake_callback(uint8_t reason);
-ext_irq_cb_t btn_alarm_callback;
-
-#include "watch_rtc.c"
-#include "watch_slcd.c"
-#include "watch_extint.c"
-#include "watch_led.c"
-#include "watch_buzzer.c"
-#include "watch_adc.c"
-#include "watch_gpio.c"
-#include "watch_i2c.c"
-#include "watch_uart.c"
-#include "watch_deepsleep.c"
-#include "watch_private.c"
+/// Called by main.c while setting up the app. You should not call this from your app.
+void _watch_init();

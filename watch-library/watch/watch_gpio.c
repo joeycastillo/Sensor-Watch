@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021 Joey Castillo
+ * Copyright (c) 2020 Joey Castillo
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,21 +22,32 @@
  * SOFTWARE.
  */
 
-#include "watch.h"
+ void watch_enable_digital_input(const uint8_t pin) {
+    gpio_set_pin_direction(pin, GPIO_DIRECTION_IN);
+    gpio_set_pin_function(pin, GPIO_PIN_FUNCTION_OFF);
+}
 
-// TODO: this should all live in watch_deepsleep.c, but right now watch_extint.c needs it
-// because we're being too clever about the alarm button.
-static void extwake_callback(uint8_t reason);
-ext_irq_cb_t btn_alarm_callback;
+void watch_enable_pull_up(const uint8_t pin) {
+    gpio_set_pin_pull_mode(pin, GPIO_PULL_UP);
+}
 
-#include "watch_rtc.c"
-#include "watch_slcd.c"
-#include "watch_extint.c"
-#include "watch_led.c"
-#include "watch_buzzer.c"
-#include "watch_adc.c"
-#include "watch_gpio.c"
-#include "watch_i2c.c"
-#include "watch_uart.c"
-#include "watch_deepsleep.c"
-#include "watch_private.c"
+void watch_enable_pull_down(const uint8_t pin) {
+    gpio_set_pin_pull_mode(pin, GPIO_PULL_DOWN);
+}
+
+bool watch_get_pin_level(const uint8_t pin) {
+    return gpio_get_pin_level(pin);
+}
+
+void watch_enable_digital_output(const uint8_t pin) {
+    gpio_set_pin_direction(pin, GPIO_DIRECTION_OUT);
+    gpio_set_pin_function(pin, GPIO_PIN_FUNCTION_OFF);
+}
+
+void watch_disable_digital_output(const uint8_t pin) {
+    gpio_set_pin_direction(pin, GPIO_DIRECTION_OFF);
+}
+
+void watch_set_pin_level(const uint8_t pin, const bool level) {
+    gpio_set_pin_level(pin, level);
+}

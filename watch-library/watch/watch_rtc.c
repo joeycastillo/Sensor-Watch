@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021 Joey Castillo
+ * Copyright (c) 2020 Joey Castillo
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,21 +22,19 @@
  * SOFTWARE.
  */
 
-#include "watch.h"
+ bool _watch_rtc_is_enabled() {
+    return RTC->MODE0.CTRLA.bit.ENABLE;
+}
 
-// TODO: this should all live in watch_deepsleep.c, but right now watch_extint.c needs it
-// because we're being too clever about the alarm button.
-static void extwake_callback(uint8_t reason);
-ext_irq_cb_t btn_alarm_callback;
+void watch_set_date_time(struct calendar_date_time date_time) {
+    calendar_set_date(&CALENDAR_0, &date_time.date);
+    calendar_set_time(&CALENDAR_0, &date_time.time);
+}
 
-#include "watch_rtc.c"
-#include "watch_slcd.c"
-#include "watch_extint.c"
-#include "watch_led.c"
-#include "watch_buzzer.c"
-#include "watch_adc.c"
-#include "watch_gpio.c"
-#include "watch_i2c.c"
-#include "watch_uart.c"
-#include "watch_deepsleep.c"
-#include "watch_private.c"
+void watch_get_date_time(struct calendar_date_time *date_time) {
+    calendar_get_date_time(&CALENDAR_0, date_time);
+}
+
+void watch_register_tick_callback(ext_irq_cb_t callback) {
+    _prescaler_register_callback(&CALENDAR_0.device, callback);
+}

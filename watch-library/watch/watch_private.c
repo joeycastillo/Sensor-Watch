@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021 Joey Castillo
+ * Copyright (c) 2020 Joey Castillo
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,21 +22,23 @@
  * SOFTWARE.
  */
 
-#include "watch.h"
+void _watch_init() {
+    // disable the LED pin (it may have been enabled by the bootloader)
+    watch_disable_digital_output(RED);
 
-// TODO: this should all live in watch_deepsleep.c, but right now watch_extint.c needs it
-// because we're being too clever about the alarm button.
-static void extwake_callback(uint8_t reason);
-ext_irq_cb_t btn_alarm_callback;
+    // Use switching regulator for lower power consumption.
+    SUPC->VREG.bit.SEL = 1;
+    while(!SUPC->STATUS.bit.VREGRDY);
 
-#include "watch_rtc.c"
-#include "watch_slcd.c"
-#include "watch_extint.c"
-#include "watch_led.c"
-#include "watch_buzzer.c"
-#include "watch_adc.c"
-#include "watch_gpio.c"
-#include "watch_i2c.c"
-#include "watch_uart.c"
-#include "watch_deepsleep.c"
-#include "watch_private.c"
+    // External wake depends on RTC; calendar is a required module.
+    CALENDAR_0_init();
+    calendar_enable(&CALENDAR_0);
+
+    // Not sure if this belongs in every app -- is there a power impact?
+    delay_driver_init();
+
+    // set up state
+    btn_alarm_callback = NULL;
+    a2_callback = NULL;
+    d1_callback = NULL;
+}

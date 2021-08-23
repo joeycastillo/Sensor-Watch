@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021 Joey Castillo
+ * Copyright (c) 2020 Joey Castillo
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,22 +21,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+////< @file watch_adc.h
 
-#include "watch.h"
-
-// TODO: this should all live in watch_deepsleep.c, but right now watch_extint.c needs it
-// because we're being too clever about the alarm button.
-static void extwake_callback(uint8_t reason);
-ext_irq_cb_t btn_alarm_callback;
-
-#include "watch_rtc.c"
-#include "watch_slcd.c"
-#include "watch_extint.c"
-#include "watch_led.c"
-#include "watch_buzzer.c"
-#include "watch_adc.c"
-#include "watch_gpio.c"
-#include "watch_i2c.c"
-#include "watch_uart.c"
-#include "watch_deepsleep.c"
-#include "watch_private.c"
+/** @addtogroup adc Analog Input
+  * @brief This section covers functions related to the SAM L22's analog-to-digital converter, as well as
+  *        configuring and reading values from the three analog-capable pins on the 9-pin connector.
+  */
+/// @{
+/** @brief Enables the ADC peripheral, and configures the selected pin for analog input.
+  * @param pin One of pins A0, A1 or A2.
+  */
+void watch_enable_analog(const uint8_t pin);
+/// @}
