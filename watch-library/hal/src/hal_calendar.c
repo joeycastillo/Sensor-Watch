@@ -243,6 +243,8 @@ static void calibrate_timestamp(struct calendar_descriptor *const calendar, stru
 	uint32_t alarm_ts;
 	uint32_t current_ts = current_dt->cal_alarm.timestamp;
 
+	(void)calendar;
+
 	alarm_ts = alarm->cal_alarm.timestamp;
 
 	/* calibrate timestamp */

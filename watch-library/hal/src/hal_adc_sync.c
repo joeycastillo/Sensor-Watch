@@ -55,6 +55,7 @@
 int32_t adc_sync_init(struct adc_sync_descriptor *const descr, void *const hw, void *const func)
 {
 	ASSERT(descr && hw);
+	(void)func;
 
 	return _adc_sync_init(&descr->device, hw);
 }

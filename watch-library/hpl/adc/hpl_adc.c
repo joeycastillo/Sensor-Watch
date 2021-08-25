@@ -156,6 +156,8 @@ static uint8_t _adc_get_irq_num(const struct _adc_async_device *const device)
  */
 static void _adc_init_irq_param(const void *const hw, struct _adc_async_device *dev)
 {
+	(void)hw;
+	(void)dev;
 }
 
 /**

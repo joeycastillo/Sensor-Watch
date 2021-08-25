@@ -576,6 +576,8 @@ static uint8_t _get_sercom_index(const void *const hw)
  */
 static void _sercom_init_irq_param(const void *const hw, void *dev)
 {
+	(void)hw;
+	(void)dev;
 }
 
 /**
@@ -2515,6 +2517,7 @@ int32_t _spi_calc_baud_val(struct spi_dev *dev, const uint32_t clk, const uint32
 {
 	int32_t rc;
 	ASSERT(dev);
+	(void)dev;
 
 	/* Not accept 0es */
 	if (clk == 0 || baud == 0) {
