@@ -61,7 +61,7 @@
 // <i> Indicates whether the external interrupt 0 filter is enabled or not
 // <id> eic_arch_filten0
 #ifndef CONF_EIC_FILTEN0
-#define CONF_EIC_FILTEN0 0
+#define CONF_EIC_FILTEN0 1
 #endif
 
 // <q> External Interrupt 0 Event Output Enable
@@ -103,7 +103,7 @@
 // <i> Indicates whether the external interrupt 1 filter is enabled or not
 // <id> eic_arch_filten1
 #ifndef CONF_EIC_FILTEN1
-#define CONF_EIC_FILTEN1 0
+#define CONF_EIC_FILTEN1 1
 #endif
 
 // <q> External Interrupt 1 Event Output Enable
@@ -187,7 +187,7 @@
 // <i> Indicates whether the external interrupt 3 filter is enabled or not
 // <id> eic_arch_filten3
 #ifndef CONF_EIC_FILTEN3
-#define CONF_EIC_FILTEN3 0
+#define CONF_EIC_FILTEN3 1
 #endif
 
 // <q> External Interrupt 3 Event Output Enable
@@ -229,7 +229,7 @@
 // <i> Indicates whether the external interrupt 4 filter is enabled or not
 // <id> eic_arch_filten4
 #ifndef CONF_EIC_FILTEN4
-#define CONF_EIC_FILTEN4 0
+#define CONF_EIC_FILTEN4 1
 #endif
 
 // <q> External Interrupt 4 Event Output Enable
