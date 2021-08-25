@@ -11,17 +11,16 @@ typedef enum ApplicationMode {
 } ApplicationMode;
 
 typedef enum LightColor {
-    COLOR_OFF = 0,
-    COLOR_RED = 1,
-    COLOR_GREEN = 2,
-    COLOR_YELLOW = 3
+    COLOR_RED = 0,
+    COLOR_GREEN,
+    COLOR_YELLOW
 } LightColor;
 
 typedef struct ApplicationState {
     ApplicationMode mode;
     LightColor color;
+    bool light_on;
     uint8_t wake_count;
-    bool debounce_wait;
     bool enter_deep_sleep;
 } ApplicationState;
 
@@ -62,7 +61,6 @@ void app_wake_from_deep_sleep() {
     application_state.mode = (ApplicationMode)watch_get_backup_data(0);
     application_state.color = (LightColor)watch_get_backup_data(1);
     application_state.wake_count = (uint8_t)watch_get_backup_data(2) + 1;
-    application_state.debounce_wait = true;
 }
 
 /**
@@ -80,10 +78,18 @@ void app_wake_from_deep_sleep() {
 void app_setup() {
     watch_enable_led(false); // enable LED with plain digital IO, not PWM
 
-    watch_enable_buttons();
-    watch_register_button_callback(BTN_LIGHT, cb_light_pressed);
-    watch_register_button_callback(BTN_MODE, cb_mode_pressed);
-    watch_register_button_callback(BTN_ALARM, cb_alarm_pressed);
+    watch_enable_external_interrupts();
+    // This starter app demonstrates three different ways of using the button interrupts.
+    // The BTN_MODE interrupt only triggers on a rising edge, so the mode changes once per press.
+    watch_register_interrupt_callback(BTN_MODE, cb_mode_pressed, INTERRUPT_TRIGGER_RISING);
+    // The BTN_LIGHT interrupt triggers on both rising and falling edges. The callback then checks
+    // the pin state when triggered: on a button down event, it increments the color and turns the
+    // LED on, whereas on a button up event, it turns the light off.
+    watch_register_interrupt_callback(BTN_LIGHT, cb_light_pressed, INTERRUPT_TRIGGER_BOTH);
+    // The BTN_ALARM callback is on an external wake pin; we can avoid using the EIC for this pin
+    // by using the extwake interrupt — but note that it can only trigger on either a rising or
+    // a falling edge, not both.
+    watch_register_extwake_callback(BTN_ALARM, cb_alarm_pressed, true);
 
     watch_enable_display();
 }
@@ -95,7 +101,6 @@ void app_setup() {
  * a press on one of the buttons).
  */
 void app_prepare_for_sleep() {
-    application_state.debounce_wait = false;
 }
 
 /**
@@ -112,19 +117,20 @@ void app_wake_from_sleep() {
  */
 bool app_loop() {
     // set the LED to a color
-    switch (application_state.color) {
-        case COLOR_OFF:
-            watch_set_led_off();
-            break;
-        case COLOR_RED:
-            watch_set_led_red();
-            break;
-        case COLOR_GREEN:
-            watch_set_led_green();
-            break;
-        case COLOR_YELLOW:
-            watch_set_led_yellow();
-            break;
+    if (application_state.light_on) {
+        switch (application_state.color) {
+            case COLOR_RED:
+                watch_set_led_red();
+                break;
+            case COLOR_GREEN:
+                watch_set_led_green();
+                break;
+            case COLOR_YELLOW:
+                watch_set_led_yellow();
+                break;
+        }
+    } else {
+        watch_set_led_off();
     }
 
     // Display the number of times we've woken up (modulo 32 to fit in 2 digits at top right)
@@ -141,9 +147,6 @@ bool app_loop() {
             watch_display_string("there", 5);
             break;
     }
-
-    // Wait a moment to debounce button input
-    delay_ms(250);
 
     if (application_state.enter_deep_sleep) {
         application_state.enter_deep_sleep = false;
@@ -171,20 +174,20 @@ bool app_loop() {
 // Implementations for our callback functions. Replace these with whatever functionality
 // your app requires.
 void cb_light_pressed() {
-    if (application_state.debounce_wait) return;
-    application_state.debounce_wait = true;
-    application_state.color = (application_state.color + 1) % 4;
+    // always turn the light off when the pin goes low
+    if (watch_get_pin_level(BTN_LIGHT) == 0) {
+        application_state.light_on = false;
+        return;
+    }
+    application_state.color = (application_state.color + 1) % 3;
+    application_state.light_on = true;
 }
 
 void cb_mode_pressed() {
-    if (application_state.debounce_wait) return;
-    application_state.debounce_wait = true;
     application_state.mode = (application_state.mode + 1) % 2;
 }
 
 void cb_alarm_pressed() {
-    if (application_state.debounce_wait) return;
-    application_state.debounce_wait = true;
     // boo: http://ww1.microchip.com/downloads/en/DeviceDoc/SAM_L22_Family_Errata_DS80000782B.pdf
     // Reference 15010. doesn't say it applies to PA02 but it seems it does?
     // anyway can't deep sleep now :(

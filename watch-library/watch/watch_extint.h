@@ -25,28 +25,57 @@
 
 #include "hal_ext_irq.h"
 
-/** @addtogroup buttons Buttons
-  * @brief This section covers functions related to the three buttons: Light, Mode and Alarm.
+/** @addtogroup buttons Buttons & External Interrupts
+  * @brief This section covers functions related to the three buttons: Light, Mode and Alarm, as well as
+  *        external interrupts from devices on the nine-pin connector.
   * @details The buttons are the core input UI of the watch, and the way the user will interact with
   *          your application. They are active high, pulled down by the microcontroller, and triggered
   *          when one of the "pushers" brings a tab from the metal frame into contact with the edge
-  *          of the board. Note that the buttons can only wake the watch from STANDBY mode (except maybe for the
-  *          ALARM button; still working on that one). The external interrupt controller runs in
-             STANDBY mode, but it does not runin BACKUP mode; to wake from BACKUP, buttons will not cut it,
+  *          of the board. Note that the buttons can only wake the watch from STANDBY mode, at least as
+  *          of the current SAM L22 silicon revision. The external interrupt controller runs in STANDBY
+  *          mode, but it does not run in BACKUP mode; to wake from BACKUP, buttons will not cut it.
   */
 /// @{
-/** @brief Enables the external interrupt controller for use with the buttons.
-  * @note The BTN_ALARM button runs off of an interrupt in the the RTC controller, not the EIC. If your
-  *       application ONLY makes use of the alarm button, you do not need to call this method; you can
-  *       save ~5µA by leaving the EIC disabled and only registering a callback for BTN_ALARM.
-  */
-void watch_enable_buttons();
 
-/** @brief Configures an external interrupt on one of the button pins.
-  * @param pin One of pins BTN_LIGHT, BTN_MODE or BTN_ALARM.
+///@brief An enum defining the types of interrupt trigger you wish to scan for.
+typedef enum watch_interrupt_trigger {
+    INTERRUPT_TRIGGER_NONE = 0,
+    INTERRUPT_TRIGGER_RISING,
+    INTERRUPT_TRIGGER_FALLING,
+    INTERRUPT_TRIGGER_BOTH,
+} watch_interrupt_trigger;
+
+/// @brief Enables the external interrupt controller.
+void watch_enable_external_interrupts();
+
+/// @brief Disables the external interrupt controller.
+void watch_disable_external_interrupts();
+
+/** @brief Configures an external interrupt callback on one of the external interrupt pins.
+  * @details You can set one interrupt callback per pin, and you can monitor for a rising condition,
+  *          a falling condition, or both. If you just want to detect a button press, register your
+  *          interrupt with INTERRUPT_TRIGGER_RISING; if you want to detect an active-low interrupt
+  *          signal from a device on the nine-pin connector, use INTERRUPT_TRIGGER_FALLING. If you
+  *          want to detect both rising and falling conditions (i.e. button down and button up), use
+  *          INTERRUPT_TRIGGER_BOTH and use watch_get_pin_level to check the pin level in your callback
+  *          to determine which condition caused the interrupt.
+  * @param pin One of pins BTN_LIGHT, BTN_MODE, BTN_ALARM, or A0-A5. If the pin parameter matches one of
+  *            the three button pins, this function will also enable an internal pull-down resistor. If
+  *            the pin parameter is A0-A5, you are responsible for setting any required pull configuration
+  *            using watch_enable_pull_up or watch_enable_pull_down.
   * @param callback The function you wish to have called when the button is pressed.
-  * @note The BTN_ALARM button runs off of an interrupt in the the RTC controller, not the EIC. This
-  *       implementation detail should not make any difference to your app,
+  * @param trigger The condition on which you wish to trigger: rising, falling or both.
+  * @note The alarm button and pin A2 share an external interrupt channel EXTINT[2]; you can only use one
+  *       or the other. However! These pins both have an alternate method of triggering via the RTC tamper
+  *       interrupt, which for A2 at least has the added benefit of being able to trigger in the low-power
+  *       BACKUP mode.
+  * @see watch_register_extwake_callback
   */
+void watch_register_interrupt_callback(const uint8_t pin, ext_irq_cb_t callback, watch_interrupt_trigger trigger);
+
+__attribute__((deprecated("Use watch_register_interrupt_callback instead")))
 void watch_register_button_callback(const uint8_t pin, ext_irq_cb_t callback);
+
+__attribute__((deprecated("Use watch_enable_external_interrupts instead")))
+void watch_enable_buttons();
 /// @}

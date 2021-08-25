@@ -22,8 +22,10 @@
  * SOFTWARE.
  */
 
+static void extwake_callback(uint8_t reason);
+ext_irq_cb_t btn_alarm_callback;
 ext_irq_cb_t a2_callback;
-ext_irq_cb_t d1_callback;
+ext_irq_cb_t a4_callback;
 
  static void extwake_callback(uint8_t reason) {
     if (reason & RTC_TAMPID_TAMPID2) {
@@ -31,23 +33,59 @@ ext_irq_cb_t d1_callback;
     } else if (reason & RTC_TAMPID_TAMPID1) {
         if (a2_callback != NULL) a2_callback();
     } else if (reason & RTC_TAMPID_TAMPID0) {
-        if (d1_callback != NULL) d1_callback();
+        if (a4_callback != NULL) a4_callback();
     }
 }
 
-void watch_register_extwake_callback(uint8_t pin, ext_irq_cb_t callback) {
+void watch_register_extwake_callback(uint8_t pin, ext_irq_cb_t callback, bool level) {
     uint32_t pinmux;
-    if (pin == D1) {
-        d1_callback = callback;
-        pinmux = PINMUX_PB00G_RTC_IN0;
-    } else if (pin == A2) {
-        a2_callback = callback;
-        pinmux = PINMUX_PB02G_RTC_IN1;
-    } else {
-        return;
+    hri_rtc_tampctrl_reg_t config = hri_rtc_get_TAMPCTRL_reg(RTC, 0xFFFFFFFF);
+
+    switch (pin) {
+        case A4:
+            a4_callback = callback;
+            pinmux = PINMUX_PB00G_RTC_IN0;
+            config &= ~(3 << RTC_TAMPCTRL_IN0ACT_Pos);
+            config &= ~(1 << RTC_TAMPCTRL_TAMLVL0_Pos);
+            config |= 1 << RTC_TAMPCTRL_IN0ACT_Pos;
+            config |= 1 << RTC_TAMPCTRL_DEBNC0_Pos;
+            if (level) config |= 1 << RTC_TAMPCTRL_TAMLVL0_Pos;
+            break;
+        case A2:
+            a2_callback = callback;
+            pinmux = PINMUX_PB02G_RTC_IN1;
+            config &= ~(3 << RTC_TAMPCTRL_IN1ACT_Pos);
+            config &= ~(1 << RTC_TAMPCTRL_TAMLVL1_Pos);
+            config |= 1 << RTC_TAMPCTRL_IN1ACT_Pos;
+            config |= 1 << RTC_TAMPCTRL_DEBNC1_Pos;
+            if (level) config |= 1 << RTC_TAMPCTRL_TAMLVL1_Pos;
+            break;
+        case BTN_ALARM:
+            gpio_set_pin_pull_mode(pin, GPIO_PULL_DOWN);
+            btn_alarm_callback = callback;
+            pinmux = PINMUX_PA02G_RTC_IN2;
+            config &= ~(3 << RTC_TAMPCTRL_IN2ACT_Pos);
+            config &= ~(1 << RTC_TAMPCTRL_TAMLVL2_Pos);
+            config |= 1 << RTC_TAMPCTRL_IN2ACT_Pos;
+            config |= 1 << RTC_TAMPCTRL_DEBNC2_Pos;
+            if (level) config |= 1 << RTC_TAMPCTRL_TAMLVL2_Pos;
+            break;
+        default:
+            return;
     }
     gpio_set_pin_direction(pin, GPIO_DIRECTION_IN);
     gpio_set_pin_function(pin, pinmux);
+
+    // disable the RTC
+	if (hri_rtcmode0_get_CTRLA_ENABLE_bit(RTC)) {
+		hri_rtcmode0_clear_CTRLA_ENABLE_bit(RTC);
+		hri_rtcmode0_wait_for_sync(RTC, RTC_MODE0_SYNCBUSY_ENABLE);
+	}
+    // update the configuration
+    hri_rtc_write_TAMPCTRL_reg(RTC, config);
+    // re-enable the RTC
+    hri_rtcmode0_set_CTRLA_ENABLE_bit(RTC);
+
     _extwake_register_callback(&CALENDAR_0.device, extwake_callback);
 }
 
@@ -67,7 +105,7 @@ uint32_t watch_get_backup_data(uint8_t reg) {
 
 void watch_enter_deep_sleep() {
     // enable and configure the external wake interrupt, if not already set up.
-    if (btn_alarm_callback == NULL && a2_callback == NULL && d1_callback == NULL) {
+    if (btn_alarm_callback == NULL && a2_callback == NULL && a4_callback == NULL) {
         gpio_set_pin_direction(BTN_ALARM, GPIO_DIRECTION_IN);
         gpio_set_pin_pull_mode(BTN_ALARM, GPIO_PULL_DOWN);
         gpio_set_pin_function(BTN_ALARM, PINMUX_PA02G_RTC_IN2);
