@@ -114,14 +114,14 @@
 // <e> RTC Tamper Input 2 settings
 // <id> tamper_input_2_settings
 #ifndef CONF_TAMPER_INPUT_2_SETTINGS
-#define CONF_TAMPER_INPUT_2_SETTINGS 1
+#define CONF_TAMPER_INPUT_2_SETTINGS 0
 #endif
 
 // <q> Tamper Level Settings
 // <i> Indicates Tamper input 2 level
 // <id> tamper_level_2
 #ifndef CONF_RTC_TAMP_LVL_2
-#define CONF_RTC_TAMP_LVL_2 1
+#define CONF_RTC_TAMP_LVL_2 0
 #endif
 
 // <o> RTC Tamper Input Action
@@ -132,7 +132,7 @@
 // <i> These bits define the RTC Tamper Input Action to be performed
 // <id> rtc_tamper_input_action_2
 #ifndef CONF_RTC_TAMPER_INACT_2
-#define CONF_RTC_TAMPER_INACT_2 1
+#define CONF_RTC_TAMPER_INACT_2 0
 #endif
 
 // <q> Debounce Enable for Tamper Input
