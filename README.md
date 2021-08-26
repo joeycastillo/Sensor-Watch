@@ -9,7 +9,7 @@ Features:
 * ARM Cortex M0+ microcontroller
 * 32KHz crystal for real-time clock with alarm function
 * Ten digit segment LCD, plus five indicator segments
-* Three interrupt capable buttons (one can wake from backup mode)
+* Three interrupt capable buttons
 * Red / green PWM’able LED backlight
 * Optional piezo buzzer (requires some light soldering)
 * On-board USB Micro B connector
@@ -18,16 +18,18 @@ Features:
 
 ![image](/images/sensor-board.png)
 
-You may have noticed that there are no sensors on this board. That is by design: rather than pick sensors for you, the goal is to add a tiny flexible PCB with the sensors YOU want, and interface them over the nine-pin connector. In addition to providing ~3V power and ground, the connector provides the following options for connectivity:
+You may have noticed that there are no sensors on this board. That is by design: rather than pick sensors for you, the goal is to add a tiny flexible PCB with the sensors YOU want, and interface them over the nine-pin connector. The connector provides the following options for power and connectivity:
 
-* An I2C interface with built-in pull-ups
+* 3V power (nominal voltage from a CR2016 coin cell, can drop to ~2.7V)
+* An I²C interface with built-in pull-up resistors
 * Five general purpose IO pins, which can be configured as:
-    * Three analog inputs and two digital IO
-    * An SPI device + one analog / GPIO pin
-    * One UART + 3 GPIO
-    * Five digital IO pins
-    * Four PWM pins on two independent TC channels
-    * Five interrupt pins (two can wake from backup mode)
+    * Five analog inputs
+    * Five interrupt-capable digital inputs, with internal pull-up or pull-down resistors
+    * Five digital outputs
+    * SPI controller (with one spare analog / GPIO pin leftover)
+    * One UART TX/RX pair (with three GPIO leftover)
+    * Up to four PWM pins on two independent TC instances
+    * Two external wake inputs that can wake from the ultra-low-power BACKUP mode
 
 ![image](/images/sensor-board-pinout.png)
 
