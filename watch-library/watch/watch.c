@@ -24,11 +24,6 @@
 
 #include "watch.h"
 
-// TODO: this should all live in watch_deepsleep.c, but right now watch_extint.c needs it
-// because we're being too clever about the alarm button.
-static void extwake_callback(uint8_t reason);
-ext_irq_cb_t btn_alarm_callback;
-
 #include "watch_rtc.c"
 #include "watch_slcd.c"
 #include "watch_extint.c"

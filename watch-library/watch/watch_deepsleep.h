@@ -28,16 +28,24 @@
   *        deepest sleep mode available on the SAM L22
   */
 /// @{
+
 /** @brief Registers a callback on one of the RTC's external wake pins, which can wake the device
-  * from deep sleep mode.
-  * @param pin Either pin A2 or pin D1, the two external wake pins on the nine-pin connector.
+  *        from deep sleep (aka BACKUP) mode.
+  * @param pin Either pin BTN_ALARM, A2, or A4. These are the three external wake pins. If the pin
+  *            is BTN_ALARM, this function also enables an internal pull down on that pin.
   * @param callback The callback to be called if this pin triggers outside of deep sleep mode.
+  * @param level The level you wish to scan for: true for rising, false for falling. Note that you
+  *              cannot scan for both rising and falling edges like you can with the external interrupt
+  *              pins; with the external wake interrupt, you can only get one or the other.
   * @note When in normal or STANDBY mode, this will function much like a standard external interrupt
   *       situation: these pins will wake from standby, and your callback will be called. However,
   *       if the device enters deep sleep and one of these pins wakes the device, your callback
-  *       WILL NOT be called.
+  *       WILL NOT be called, as the device is basically waking from reset at that point.
+  * @warning As of the current SAM L22 silicon revision (rev B), the BTN_ALARM pin cannot wake the
+  *          device from BACKUP mode. You can still use this function to register a BTN_ALARM interrupt
+  *          in normal or STANDBY mode, but to wake from BACKUP, you will need to use pin A2 or A4.
   */
-void watch_register_extwake_callback(uint8_t pin, ext_irq_cb_t callback);
+void watch_register_extwake_callback(uint8_t pin, ext_irq_cb_t callback, bool level);
 
 /** @brief Stores data in one of the RTC's backup registers, which retain their data in deep sleep.
   * @param data An unsigned 32 bit integer with the data you wish to store.

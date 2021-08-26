@@ -40,5 +40,5 @@ void _watch_init() {
     // set up state
     btn_alarm_callback = NULL;
     a2_callback = NULL;
-    d1_callback = NULL;
+    a4_callback = NULL;
 }

@@ -35,52 +35,6 @@ void ADC_0_init(void) {
 	adc_sync_init(&ADC_0, ADC, (void *)NULL);
 }
 
-void EXTERNAL_IRQ_0_init(void) {
-	hri_gclk_write_PCHCTRL_reg(GCLK, EIC_GCLK_ID, CONF_GCLK_EIC_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-	hri_mclk_set_APBAMASK_EIC_bit(MCLK);
-
-	// Set pin direction to input
-	gpio_set_pin_direction(BTN_ALARM, GPIO_DIRECTION_IN);
-
-	gpio_set_pin_pull_mode(BTN_ALARM,
-	                       // <y> Pull configuration
-	                       // <id> pad_pull_config
-	                       // <GPIO_PULL_OFF"> Off
-	                       // <GPIO_PULL_UP"> Pull-up
-	                       // <GPIO_PULL_DOWN"> Pull-down
-	                       GPIO_PULL_DOWN);
-
-	gpio_set_pin_function(BTN_ALARM, PINMUX_PA02A_EIC_EXTINT2);
-
-	// Set pin direction to input
-	gpio_set_pin_direction(BTN_LIGHT, GPIO_DIRECTION_IN);
-
-	gpio_set_pin_pull_mode(BTN_LIGHT,
-	                       // <y> Pull configuration
-	                       // <id> pad_pull_config
-	                       // <GPIO_PULL_OFF"> Off
-	                       // <GPIO_PULL_UP"> Pull-up
-	                       // <GPIO_PULL_DOWN"> Pull-down
-	                       GPIO_PULL_DOWN);
-
-	gpio_set_pin_function(BTN_LIGHT, PINMUX_PA22A_EIC_EXTINT6);
-
-	// Set pin direction to input
-	gpio_set_pin_direction(BTN_MODE, GPIO_DIRECTION_IN);
-
-	gpio_set_pin_pull_mode(BTN_MODE,
-	                       // <y> Pull configuration
-	                       // <id> pad_pull_config
-	                       // <GPIO_PULL_OFF"> Off
-	                       // <GPIO_PULL_UP"> Pull-up
-	                       // <GPIO_PULL_DOWN"> Pull-down
-	                       GPIO_PULL_DOWN);
-
-	gpio_set_pin_function(BTN_MODE, PINMUX_PA23A_EIC_EXTINT7);
-
-	ext_irq_init();
-}
-
 void CALENDAR_0_CLOCK_init(void) {
 	hri_mclk_set_APBAMASK_RTC_bit(MCLK);
 }
