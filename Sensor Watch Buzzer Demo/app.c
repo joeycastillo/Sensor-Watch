@@ -4,15 +4,12 @@
 
 typedef struct ApplicationState {
     bool play;
-    bool debounce_wait;
 } ApplicationState;
 
 ApplicationState application_state;
 
 
 void cb_alarm_pressed() {
-    if (application_state.debounce_wait) return;
-    application_state.debounce_wait = true;
     application_state.play = true;
 }
 
@@ -24,7 +21,7 @@ void app_wake_from_deep_sleep() {
 }
 
 void app_setup() {
-    watch_register_button_callback(BTN_ALARM, cb_alarm_pressed);
+    watch_register_extwake_callback(BTN_ALARM, cb_alarm_pressed, true);
 
     watch_enable_display();
 
@@ -128,10 +125,6 @@ bool app_loop() {
             watch_buzzer_play_note(rains[i], durations[i]);
         }
     }
-
-    // Wait a moment to debounce button input
-    delay_ms(250);
-    application_state.debounce_wait = false;
 
     return true;
 }
