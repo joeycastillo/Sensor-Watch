@@ -31,6 +31,7 @@ LDFLAGS += -Wl,--script=../../watch-library/linker/saml22j18.ld
 # ../drivers/
 INCLUDES += \
   -I../ \
+  -I../../tinyusb/src \
   -I../../watch-library/include \
   -I../../watch-library/hal/ \
   -I../../watch-library/hal/documentation/ \
@@ -66,6 +67,12 @@ INCLUDES += \
 # ../drivers/st25dv.c
 SRCS += \
   ../app.c \
+  ../../tinyusb/src/tusb.c \
+  ../../tinyusb/src/common/tusb_fifo.c \
+  ../../tinyusb/src/class/cdc/cdc_device.c \
+  ../../tinyusb/src/device/usbd.c \
+  ../../tinyusb/src/device/usbd_control.c \
+  ../../tinyusb/src/portable/microchip/samd/dcd_samd.c \
   ../../watch-library/main.c \
   ../../watch-library/startup_saml22.c \
   ../../watch-library/hw/driver_init.c \

@@ -32,6 +32,7 @@
 #include "hal_init.h"
 #include "atmel_start_pins.h"
 #include "watch.h"
+#include "tusb.h"
 
 int main(void) {
     // ASF code. Initialize the MCU with configuration options from Atmel Studio.
@@ -54,12 +55,27 @@ int main(void) {
     // Watch library code. Set initial parameters for the device and enable the RTC.
     _watch_init();
 
+    // check if we are plugged into USB power.
+    watch_enable_digital_input(VBUS_DET);
+    watch_enable_pull_down(VBUS_DET);
+    // IF WE ARE:
+    if (watch_get_pin_level(VBUS_DET)) {
+        // Ramp up to 16 MHz (seems necessary for USB to work)...
+        hri_oscctrl_write_OSC16MCTRL_reg(OSCCTRL, OSCCTRL_OSC16MCTRL_ONDEMAND | OSCCTRL_OSC16MCTRL_FSEL_16 | OSCCTRL_OSC16MCTRL_ENABLE);
+        // ...and enable USB functionality.
+        _watch_enable_usb();
+    }
+    watch_disable_digital_input(VBUS_DET);
+
     // User code. Give the app a chance to enable and set up peripherals.
     app_setup();
 
     while (1) {
         bool can_sleep = app_loop();
-        if (can_sleep) {
+        if (hri_usbdevice_get_CTRLA_ENABLE_bit(USB)) {
+            // if USB is enabled, do not sleep, and handle any pending TinyUSB tasks.
+            tud_task();
+        } else if (can_sleep) {
             app_prepare_for_sleep();
             sleep(4);
             app_wake_from_sleep();

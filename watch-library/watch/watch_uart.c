@@ -53,6 +53,7 @@
 #include "peripheral_clk_config.h"
 
 void watch_enable_debug_uart(uint32_t baud) {
+    /// FIXME: UART baud rate calculation will be incorrect if plugged into USB / running at 16 MHz
     uint64_t br = (uint64_t)65536 * (CONF_CPU_FREQUENCY - 16 * baud) / CONF_CPU_FREQUENCY;
 
     gpio_set_pin_direction(D1, GPIO_DIRECTION_IN);
