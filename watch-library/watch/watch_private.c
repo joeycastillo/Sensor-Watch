@@ -49,6 +49,11 @@ void _watch_enable_usb() {
     // disable USB, just in case.
     hri_usb_clear_CTRLA_ENABLE_bit(USB);
 
+    // Ramp up to 16 MHz (seems necessary for USB to work)...
+    hri_oscctrl_write_OSC16MCTRL_reg(OSCCTRL, OSCCTRL_OSC16MCTRL_ONDEMAND | OSCCTRL_OSC16MCTRL_FSEL_16 | OSCCTRL_OSC16MCTRL_ENABLE);
+    // ...and wait for it to be ready.
+    while (!hri_oscctrl_get_STATUS_OSC16MRDY_bit(OSCCTRL));
+
     // reset flags and disable DFLL
     OSCCTRL->INTFLAG.reg = OSCCTRL_INTFLAG_DFLLRDY;
     OSCCTRL->DFLLCTRL.reg = 0;
@@ -86,7 +91,31 @@ void _watch_enable_usb() {
     gpio_set_pin_function(PIN_PA24, PINMUX_PA24G_USB_DM);
     gpio_set_pin_function(PIN_PA25, PINMUX_PA25G_USB_DP);
 
+    // before we init TinyUSB, we are going to need a periodic callback to handle TinyUSB tasks.
+    // TC2 and TC3 are reserved for devices on the 9-pin connector, so let's use TC0.
+    // clock TC0 with the 16 MHz clock on GCLK0.
+    hri_gclk_write_PCHCTRL_reg(GCLK, TC0_GCLK_ID, GCLK_PCHCTRL_GEN_GCLK0_Val | GCLK_PCHCTRL_CHEN);
+    // and enable the peripheral clock.
+    hri_mclk_set_APBCMASK_TC0_bit(MCLK);
+    // disable and reset TC0.
+    hri_tc_clear_CTRLA_ENABLE_bit(TC0);
+    hri_tc_wait_for_sync(TC0, TC_SYNCBUSY_ENABLE);
+    hri_tc_write_CTRLA_reg(TC0, TC_CTRLA_SWRST);
+    hri_tc_wait_for_sync(TC0, TC_SYNCBUSY_SWRST);
+    // configure the TC to overflow 1,000 times per second
+    hri_tc_write_CTRLA_reg(TC0, TC_CTRLA_PRESCALER_DIV64 |  // divide the clock by 64 to count at 250000 KHz
+                                TC_CTRLA_MODE_COUNT8 |      // count in 8-bit mode
+                                TC_CTRLA_RUNSTDBY);         // run in standby, just in case we figure that out
+    hri_tccount8_write_PER_reg(TC0, 250);                   // 250000 KHz / 250 = 1,000 Hz
+    // set an interrupt on overflow; this will call TC0_Handler below.
+    hri_tc_set_INTEN_OVF_bit(TC0);
+    NVIC_ClearPendingIRQ(TC0_IRQn);
+    NVIC_EnableIRQ (TC0_IRQn);
+
+    // now we can init TinyUSB
     tusb_init();
+    // and start the timer that handles USB device tasks.
+    hri_tc_set_CTRLA_ENABLE_bit(TC0);
 }
 
 // this function ends up getting called by printf to log stuff to the USB console.
@@ -117,6 +146,11 @@ int _read() {
 
 void USB_Handler(void) {
     tud_int_handler(0);
+}
+
+void TC0_Handler(void) {
+    tud_task();
+    TC0->COUNT8.INTFLAG.reg |= TC_INTFLAG_OVF;
 }
 
 

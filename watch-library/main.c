@@ -58,11 +58,8 @@ int main(void) {
     // check if we are plugged into USB power.
     watch_enable_digital_input(VBUS_DET);
     watch_enable_pull_down(VBUS_DET);
-    // IF WE ARE:
     if (watch_get_pin_level(VBUS_DET)) {
-        // Ramp up to 16 MHz (seems necessary for USB to work)...
-        hri_oscctrl_write_OSC16MCTRL_reg(OSCCTRL, OSCCTRL_OSC16MCTRL_ONDEMAND | OSCCTRL_OSC16MCTRL_FSEL_16 | OSCCTRL_OSC16MCTRL_ENABLE);
-        // ...and enable USB functionality.
+        // if so, enable USB functionality.
         _watch_enable_usb();
     }
     watch_disable_digital_input(VBUS_DET);
@@ -71,11 +68,10 @@ int main(void) {
     app_setup();
 
     while (1) {
+        bool usb_enabled = hri_usbdevice_get_CTRLA_ENABLE_bit(USB);
         bool can_sleep = app_loop();
-        if (hri_usbdevice_get_CTRLA_ENABLE_bit(USB)) {
-            // if USB is enabled, do not sleep, and handle any pending TinyUSB tasks.
-            tud_task();
-        } else if (can_sleep) {
+
+        if (can_sleep && !usb_enabled) {
             app_prepare_for_sleep();
             sleep(4);
             app_wake_from_sleep();
