@@ -94,6 +94,7 @@ int _write(int file, char *ptr, int len) {
     (void)file;
     if (hri_usbdevice_get_CTRLA_ENABLE_bit(USB)) {
         tud_cdc_n_write(0, (void const*)ptr, len);
+        tud_cdc_n_write_flush(0);
         return len;
     }
 
