@@ -53,8 +53,25 @@
 #include "peripheral_clk_config.h"
 
 void watch_enable_debug_uart(uint32_t baud) {
-    /// FIXME: UART baud rate calculation will be incorrect if plugged into USB / running at 16 MHz
-    uint64_t br = (uint64_t)65536 * (CONF_CPU_FREQUENCY - 16 * baud) / CONF_CPU_FREQUENCY;
+    uint8_t fsel = hri_oscctrl_get_OSC16MCTRL_FSEL_bf(OSCCTRL, OSCCTRL_OSC16MCTRL_MASK);
+    uint32_t freq = 0;
+    switch (fsel) {
+        case OSCCTRL_OSC16MCTRL_FSEL_4_Val:
+            freq = 4000000;
+            break;
+        case OSCCTRL_OSC16MCTRL_FSEL_8_Val:
+            freq = 8000000;
+            break;
+        case OSCCTRL_OSC16MCTRL_FSEL_12_Val:
+            freq = 12000000;
+            break;
+        case OSCCTRL_OSC16MCTRL_FSEL_16_Val:
+            freq = 16000000;
+            break;
+        default:
+            return;
+    }
+    uint64_t br = (uint64_t)65536 * ((freq * 4) - 16 * baud) / (freq * 4);
 
     gpio_set_pin_direction(D1, GPIO_DIRECTION_IN);
     gpio_set_pin_function(D1, PINMUX_PB00C_SERCOM3_PAD2);

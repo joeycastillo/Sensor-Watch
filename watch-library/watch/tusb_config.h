@@ -43,8 +43,8 @@
 
 #define CFG_TUSB_OS                 OPT_OS_NONE
 
-// Do not use TinyUSB debug, as our printf method prints stuff to the USB console.
-// if you must, modify _write in watch_private.c to use an alternate destination like a UART.
+// disable TinyUSB debug. our printf method prints stuff to the USB console, so you just get infinite noise.
+// if you need to debug tinyUSB issues, use the alternate _write function in watch_private.c to echo to the UART.
 #define CFG_TUSB_DEBUG           0
 
 /* USB DMA on some MCUs can only access a specific SRAM region with restriction on alignment.
