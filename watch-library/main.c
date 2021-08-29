@@ -38,6 +38,15 @@ int main(void) {
     // ASF code. Initialize the MCU with configuration options from Atmel Studio.
     init_mcu();
 
+    // check if we are plugged into USB power.
+    watch_enable_digital_input(VBUS_DET);
+    watch_enable_pull_down(VBUS_DET);
+    if (watch_get_pin_level(VBUS_DET)) {
+        // if so, enable USB functionality.
+        _watch_enable_usb();
+    }
+    watch_disable_digital_input(VBUS_DET);
+
     // User code. Give the app a chance to initialize its data structures and state.
     app_init();
 
@@ -54,15 +63,6 @@ int main(void) {
 
     // Watch library code. Set initial parameters for the device and enable the RTC.
     _watch_init();
-
-    // check if we are plugged into USB power.
-    watch_enable_digital_input(VBUS_DET);
-    watch_enable_pull_down(VBUS_DET);
-    if (watch_get_pin_level(VBUS_DET)) {
-        // if so, enable USB functionality.
-        _watch_enable_usb();
-    }
-    watch_disable_digital_input(VBUS_DET);
 
     // User code. Give the app a chance to enable and set up peripherals.
     app_setup();
