@@ -331,13 +331,6 @@ static void tcc_pwm_interrupt_handler(struct _pwm_device *device)
 	}
 }
 
-/**
- * \brief TCC interrupt handler
- */
-void TCC0_Handler(void)
-{
-	tcc_pwm_interrupt_handler(_tcc0_dev);
-}
 
 static struct tcc_cfg *_get_tcc_cfg(void *hw)
 {

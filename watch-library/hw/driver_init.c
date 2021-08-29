@@ -83,37 +83,6 @@ void delay_driver_init(void) {
 	delay_init(SysTick);
 }
 
-void PWM_0_PORT_init(void) {
-	gpio_set_pin_function(RED, PINMUX_PA20E_TC3_WO0);
-	gpio_set_pin_function(GREEN, PINMUX_PA21E_TC3_WO1);
-}
-
-void PWM_0_CLOCK_init(void) {
-	hri_mclk_set_APBCMASK_TC3_bit(MCLK);
-	hri_gclk_write_PCHCTRL_reg(GCLK, TC3_GCLK_ID, CONF_GCLK_TC3_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-}
-
-void PWM_0_init(void) {
-	PWM_0_CLOCK_init();
-	PWM_0_PORT_init();
-	pwm_init(&PWM_0, TC3, _tc_get_pwm());
-}
-
-void PWM_1_PORT_init(void) {
-	gpio_set_pin_function(BUZZER, PINMUX_PA27F_TCC0_WO5);
-}
-
-void PWM_1_CLOCK_init(void) {
-	hri_mclk_set_APBCMASK_TCC0_bit(MCLK);
-	hri_gclk_write_PCHCTRL_reg(GCLK, TCC0_GCLK_ID, CONF_GCLK_TCC0_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-}
-
-void PWM_1_init(void) {
-	PWM_1_CLOCK_init();
-	PWM_1_PORT_init();
-	pwm_init(&PWM_1, TCC0, _tcc_get_pwm());
-}
-
 void SEGMENT_LCD_0_PORT_init(void) {
 	gpio_set_pin_function(COM0, PINMUX_PB06B_SLCD_LP0);
 	gpio_set_pin_function(COM1, PINMUX_PB07B_SLCD_LP1);

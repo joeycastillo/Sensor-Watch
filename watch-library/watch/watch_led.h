@@ -43,15 +43,16 @@ void watch_enable_led(bool pwm);
 
 /** @brief Disables the LEDs.
   * @param pwm if true, disables the PWM output. If false, disables the digital outputs.
+  * @note If pwm is true, this method will also disable the buzzer, since the buzzer and LED both make use of
+  *       the same peripheral to drive their PWM behavior.
   */
 void watch_disable_led(bool pwm);
 
 /** @brief Sets the LED to a custom color by modulating each output's duty cycle.
-  * @param red The red value.
-  * @param green The green value.
-  * @note still working on this, 0-65535 works now but these values may change.
+  * @param red The red value from 0-255.
+  * @param green The green value from 0-255.
   */
-void watch_set_led_color(uint16_t red, uint16_t green);
+void watch_set_led_color(uint8_t red, uint8_t green);
 
 /** @brief Sets the red LED to full brightness, and turns the green LED off.
   * @note Of the two LED's in the RG bi-color LED, the red LED is the less power-efficient one (~4.5 mA).

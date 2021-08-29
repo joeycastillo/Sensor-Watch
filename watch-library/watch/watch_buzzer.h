@@ -32,10 +32,16 @@
 void watch_enable_buzzer();
 
 /** @brief Sets the period of the buzzer.
-  * @param period The period of a single cycle for the PWM peripheral. You can use the following formula to
-  *               convert a desired frequency to a period for this function: period = 513751 * (freq^−1.0043)
+  * @param period The period of a single cycle for the TCC peripheral. You can determine the period for
+  *               a desired frequency with the following formula: period = 1000000 / freq
   */
 void watch_set_buzzer_period(uint32_t period);
+
+/** @brief Disables the TCC peripheral that drives the buzzer.
+  * @note If you are using PWM to set custom LED colors, this method will also disable the LED PWM driver,
+  *       since the buzzer and LED both make use of the same peripheral to drive their PWM behavior.
+  */
+void watch_disable_buzzer();
 
 /** @brief Turns the buzzer output on. It will emit a continuous sound at the given frequency.
   * @note The TCC peripheral that drives the buzzer does not run in standby mode; if you wish for buzzer

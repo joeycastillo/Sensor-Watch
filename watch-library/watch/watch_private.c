@@ -45,6 +45,71 @@ void _watch_init() {
     a4_callback = NULL;
 }
 
+void _watch_enable_tcc() {
+    // clock TCC0 with the main clock (4 or 16 MHz) and enable the peripheral clock.
+    hri_gclk_write_PCHCTRL_reg(GCLK, TCC0_GCLK_ID, GCLK_PCHCTRL_GEN_GCLK0_Val | GCLK_PCHCTRL_CHEN);
+    hri_mclk_set_APBCMASK_TCC0_bit(MCLK);
+    // disable and reset TCC0.
+    hri_tcc_clear_CTRLA_ENABLE_bit(TCC0);
+    hri_tcc_wait_for_sync(TCC0, TCC_SYNCBUSY_ENABLE);
+    hri_tcc_write_CTRLA_reg(TCC0, TCC_CTRLA_SWRST);
+    hri_tcc_wait_for_sync(TCC0, TCC_SYNCBUSY_SWRST);
+    // have prescaler divide it down to 1 MHz. we need to know the actual CPU speed to do this.
+    uint32_t freq = watch_get_cpu_speed();
+    switch (freq) {
+        case 4000000:
+            hri_tcc_write_CTRLA_reg(TCC0, TCC_CTRLA_PRESCALER_DIV4);
+            break;
+        case 8000000:
+            hri_tcc_write_CTRLA_reg(TCC0, TCC_CTRLA_PRESCALER_DIV8);
+            break;
+        case 12000000:
+            // NOTE: this case is here for completeness but the watch library never runs the hardware at 12 MHz.
+            // If you do, buzzer tones will be out of tune, as we can't evenly divide a 12 MHz clock into 1 MHz.
+            hri_tcc_write_CTRLA_reg(TCC0, TCC_CTRLA_PRESCALER_DIV16);
+            break;
+        case 16000000:
+            hri_tcc_write_CTRLA_reg(TCC0, TCC_CTRLA_PRESCALER_DIV16);
+            break;
+    }
+    // We're going to use normal PWM mode, which means period is controlled by PER, and duty cycle is controlled by
+    // each compare channel's value:
+    //  * Buzzer tones are set by setting PER to the desired period for a given frequency, and CC[1] to half of that
+    //    period (i.e. a square wave with a 50% duty cycle).
+    //  * LEDs on CC[2] and CC[3] can be set to any value from 0 (off) to PER (fully on).
+    hri_tcc_write_WAVE_reg(TCC0, TCC_WAVE_WAVEGEN_NPWM);
+    // The buzzer will set the period depending on the tone it wants to play, but we have to set some period here to
+    // get the LED working. Almost any period will do, tho it should be below 20000 (i.e. 50 Hz) to avoid flickering.
+    hri_tcc_write_PER_reg(TCC0, 4096);
+    // Set the duty cycle of all pins to 0: LED's off, buzzer not buzzing.
+    hri_tcc_write_CC_reg(TCC0, 1, 0);
+    hri_tcc_write_CC_reg(TCC0, 2, 0);
+    hri_tcc_write_CC_reg(TCC0, 3, 0);
+    // Enable the TCC
+    hri_tcc_set_CTRLA_ENABLE_bit(TCC0);
+    hri_tcc_wait_for_sync(TCC0, TCC_SYNCBUSY_ENABLE);
+
+    // enable LED PWM pins (the LED driver assumes if the TCC is on, the pins are enabled)
+    gpio_set_pin_direction(RED, GPIO_DIRECTION_OUT);
+    gpio_set_pin_function(RED, PINMUX_PA20F_TCC0_WO6);
+    gpio_set_pin_direction(GREEN, GPIO_DIRECTION_OUT);
+    gpio_set_pin_function(GREEN, PINMUX_PA21F_TCC0_WO7);
+}
+
+void _watch_disable_tcc() {
+    // disable all PWM pins
+    gpio_set_pin_direction(BUZZER, GPIO_DIRECTION_OFF);
+    gpio_set_pin_function(BUZZER, GPIO_PIN_FUNCTION_OFF);
+    gpio_set_pin_direction(RED, GPIO_DIRECTION_OFF);
+    gpio_set_pin_function(RED, GPIO_PIN_FUNCTION_OFF);
+    gpio_set_pin_direction(GREEN, GPIO_DIRECTION_OFF);
+    gpio_set_pin_function(GREEN, GPIO_PIN_FUNCTION_OFF);
+
+    // disable the TCC
+    hri_tcc_clear_CTRLA_ENABLE_bit(TCC0);
+    hri_mclk_clear_APBCMASK_TCC0_bit(MCLK);
+}
+
 void _watch_enable_usb() {
     // disable USB, just in case.
     hri_usb_clear_CTRLA_ENABLE_bit(USB);
