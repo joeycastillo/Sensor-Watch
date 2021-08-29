@@ -41,6 +41,7 @@
 #endif
 #include <utils_assert.h>
 #include <peripheral_clk_config.h>
+#include "watch.h"
 
 #ifndef CONF_CPU_FREQUENCY
 #define CONF_CPU_FREQUENCY 1000000
@@ -167,7 +168,9 @@ static inline uint32_t _get_cycles_for_us_internal(const uint16_t us, const uint
  */
 uint32_t _get_cycles_for_us(const uint16_t us)
 {
-	return _get_cycles_for_us_internal(us, CONF_CPU_FREQUENCY, CPU_FREQ_POWER);
+    uint32_t freq = watch_get_cpu_speed();
+    if (freq > 10000000) return _get_cycles_for_us_internal(us, freq, 8);
+    else return _get_cycles_for_us_internal(us, freq, 7);
 }
 
 /**
@@ -196,5 +199,7 @@ static inline uint32_t _get_cycles_for_ms_internal(const uint16_t ms, const uint
  */
 uint32_t _get_cycles_for_ms(const uint16_t ms)
 {
-	return _get_cycles_for_ms_internal(ms, CONF_CPU_FREQUENCY, CPU_FREQ_POWER);
+    uint32_t freq = watch_get_cpu_speed();
+    if (freq > 10000000) return _get_cycles_for_ms_internal(ms, freq, 8);
+    else return _get_cycles_for_ms_internal(ms, freq, 7);
 }

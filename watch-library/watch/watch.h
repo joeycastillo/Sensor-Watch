@@ -65,4 +65,7 @@
 
 #include "watch_private.h"
 
+/// @brief gets the current CPU speed
+uint32_t watch_get_cpu_speed();
+
 #endif /* WATCH_H_ */
