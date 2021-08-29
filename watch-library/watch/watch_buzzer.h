@@ -47,29 +47,8 @@ void watch_set_buzzer_on();
   */
 void watch_set_buzzer_off();
 
-/// @brief 108 notes for use with watch_buzzer_play_note
+/// @brief 87 notes for use with watch_buzzer_play_note
 typedef enum BuzzerNote {
-    BUZZER_NOTE_C0 = 0,          ///< 16.35 Hz
-    BUZZER_NOTE_C0SHARP_D0FLAT,  ///< 17.32 Hz
-    BUZZER_NOTE_D0,              ///< 18.35 Hz
-    BUZZER_NOTE_D0SHARP_E0FLAT,  ///< 19.45 Hz
-    BUZZER_NOTE_E0,              ///< 20.60 Hz
-    BUZZER_NOTE_F0,              ///< 21.83 Hz
-    BUZZER_NOTE_F0SHARP_G0FLAT,  ///< 23.12 Hz
-    BUZZER_NOTE_G0,              ///< 24.50 Hz
-    BUZZER_NOTE_G0SHARP_A0FLAT,  ///< 25.96 Hz
-    BUZZER_NOTE_A0,              ///< 27.50 Hz
-    BUZZER_NOTE_A0SHARP_B0FLAT,  ///< 29.14 Hz
-    BUZZER_NOTE_B0,              ///< 30.87 Hz
-    BUZZER_NOTE_C1,              ///< 32.70 Hz
-    BUZZER_NOTE_C1SHARP_D1FLAT,  ///< 34.65 Hz
-    BUZZER_NOTE_D1,              ///< 36.71 Hz
-    BUZZER_NOTE_D1SHARP_E1FLAT,  ///< 38.89 Hz
-    BUZZER_NOTE_E1,              ///< 41.20 Hz
-    BUZZER_NOTE_F1,              ///< 43.65 Hz
-    BUZZER_NOTE_F1SHARP_G1FLAT,  ///< 46.25 Hz
-    BUZZER_NOTE_G1,              ///< 49.00 Hz
-    BUZZER_NOTE_G1SHARP_A1FLAT,  ///< 51.91 Hz
     BUZZER_NOTE_A1,              ///< 55.00 Hz
     BUZZER_NOTE_A1SHARP_B1FLAT,  ///< 58.27 Hz
     BUZZER_NOTE_B1,              ///< 61.74 Hz
