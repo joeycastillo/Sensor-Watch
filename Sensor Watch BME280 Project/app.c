@@ -136,9 +136,6 @@ bool app_loop() {
 
     application_state.mode_changed = false;
 
-    delay_ms(250);
-    application_state.debounce_wait = false;
-
     return true;
 }
 
@@ -342,9 +339,6 @@ void set_time_mode_handle_secondary_button() {
 }
 
 void cb_mode_pressed() {
-    if (application_state.debounce_wait) return;
-    application_state.debounce_wait = true;
-
     application_state.mode = (application_state.mode + 1) % NUM_MODES;
     application_state.mode_changed = true;
     application_state.mode_ticks = 300;
@@ -352,9 +346,6 @@ void cb_mode_pressed() {
 }
 
 void cb_light_pressed() {
-    if (application_state.debounce_wait) return;
-    application_state.debounce_wait = true;
-
     switch (application_state.mode) {
         case MODE_PREFS:
             prefs_mode_handle_secondary_button();
@@ -369,9 +360,6 @@ void cb_light_pressed() {
 }
 
 void cb_alarm_pressed() {
-    if (application_state.debounce_wait) return;
-    application_state.debounce_wait = true;
-
     switch (application_state.mode) {
         case MODE_LOG:
             log_mode_handle_primary_button();

@@ -30,7 +30,6 @@ typedef struct ApplicationState {
     bool led_on;            // Indicates that the LED is on
     uint8_t page;           // Tracks the current page in log, prefs or settings.
     bool is_fahrenheit;     // User preference, C or F
-    bool debounce_wait;     // For debouncing button inputs
 
     // Data logging
     SensorReading logged_data[MAX_DATA_POINTS];
