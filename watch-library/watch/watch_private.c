@@ -54,8 +54,14 @@ void _watch_enable_tcc() {
     hri_tcc_wait_for_sync(TCC0, TCC_SYNCBUSY_ENABLE);
     hri_tcc_write_CTRLA_reg(TCC0, TCC_CTRLA_SWRST);
     hri_tcc_wait_for_sync(TCC0, TCC_SYNCBUSY_SWRST);
-    // have prescaler divide our 8 MHz clock down to 1 MHz.
-    hri_tcc_write_CTRLA_reg(TCC0, TCC_CTRLA_PRESCALER_DIV8);
+    // divide the clock down to 1 MHz
+    if (hri_usbdevice_get_CTRLA_ENABLE_bit(USB)) {
+        // if USB is enabled, we are running an 8 MHz clock.
+        hri_tcc_write_CTRLA_reg(TCC0, TCC_CTRLA_PRESCALER_DIV8);
+    } else {
+        // otherwise it's 4 Mhz.
+        hri_tcc_write_CTRLA_reg(TCC0, TCC_CTRLA_PRESCALER_DIV4);
+    }
     // We're going to use normal PWM mode, which means period is controlled by PER, and duty cycle is controlled by
     // each compare channel's value:
     //  * Buzzer tones are set by setting PER to the desired period for a given frequency, and CC[1] to half of that
@@ -97,6 +103,9 @@ void _watch_disable_tcc() {
 void _watch_enable_usb() {
     // disable USB, just in case.
     hri_usb_clear_CTRLA_ENABLE_bit(USB);
+
+    // bump clock up to 8 MHz
+    hri_oscctrl_write_OSC16MCTRL_FSEL_bf(OSCCTRL, OSCCTRL_OSC16MCTRL_FSEL_8_Val);
 
     // reset flags and disable DFLL
     OSCCTRL->INTFLAG.reg = OSCCTRL_INTFLAG_DFLLRDY;

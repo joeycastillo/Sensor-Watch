@@ -61,7 +61,7 @@
  * \brief CPU's Clock frequency
  */
 #ifndef CONF_CPU_FREQUENCY
-#define CONF_CPU_FREQUENCY 8000000
+#define CONF_CPU_FREQUENCY 4000000
 #endif
 
 // <y> RTC Clock Source
