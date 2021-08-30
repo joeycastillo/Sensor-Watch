@@ -147,7 +147,7 @@ void _watch_enable_usb() {
     hri_tc_write_CTRLA_reg(TC0, TC_CTRLA_SWRST);
     hri_tc_wait_for_sync(TC0, TC_SYNCBUSY_SWRST);
     // configure the TC to overflow 1,000 times per second
-    hri_tc_write_CTRLA_reg(TC0, TC_CTRLA_PRESCALER_DIV16 |  // divide the 8 MHz clock by 64 to count at 125 KHz
+    hri_tc_write_CTRLA_reg(TC0, TC_CTRLA_PRESCALER_DIV64 |  // divide the 8 MHz clock by 64 to count at 125 KHz
                                 TC_CTRLA_MODE_COUNT8 |      // count in 8-bit mode
                                 TC_CTRLA_RUNSTDBY);         // run in standby, just in case we figure that out
     hri_tccount8_write_PER_reg(TC0, 125);                   // 125000 Hz / 125 = 1,000 Hz
