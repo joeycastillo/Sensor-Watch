@@ -53,7 +53,7 @@
 #include "peripheral_clk_config.h"
 
 void watch_enable_debug_uart(uint32_t baud) {
-    uint64_t br = (uint64_t)65536 * (CONF_CPU_FREQUENCY - 16 * baud) / CONF_CPU_FREQUENCY;
+    uint64_t br = (uint64_t)65536 * ((CONF_CPU_FREQUENCY * 4) - 16 * baud) / (CONF_CPU_FREQUENCY * 4);
 
     gpio_set_pin_direction(D1, GPIO_DIRECTION_IN);
     gpio_set_pin_function(D1, PINMUX_PB00C_SERCOM3_PAD2);

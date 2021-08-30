@@ -73,7 +73,7 @@ void watch_disable_external_interrupts();
   */
 void watch_register_interrupt_callback(const uint8_t pin, ext_irq_cb_t callback, watch_interrupt_trigger trigger);
 
-__attribute__((deprecated("Use watch_register_interrupt_callback instead")))
+__attribute__((deprecated("Use watch_register_interrupt_callback or watch_register_extwake_callback instead")))
 void watch_register_button_callback(const uint8_t pin, ext_irq_cb_t callback);
 
 __attribute__((deprecated("Use watch_enable_external_interrupts instead")))

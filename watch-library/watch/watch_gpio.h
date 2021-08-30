@@ -32,6 +32,11 @@
   */
 void watch_enable_digital_input(const uint8_t pin);
 
+/** @brief Disables any digital input, along with any pull-up or pull-down configuration.
+  * @param pin The pin that you wish to disable.
+  */
+void watch_disable_digital_input(const uint8_t pin);
+
 /** @brief Enables a pull-up resistor on the selected pin.
   * @param pin The pin that you wish to configure.
   */

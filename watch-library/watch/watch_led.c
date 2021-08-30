@@ -22,45 +22,39 @@
  * SOFTWARE.
  */
 
- bool PWM_0_enabled = false;
 
 void watch_enable_led(bool pwm) {
     if (pwm) {
-        if (PWM_0_enabled) return;
-
-        PWM_0_init();
-        pwm_set_parameters(&PWM_0, 10000, 0);
-        pwm_enable(&PWM_0);
-
-        PWM_0_enabled = true;
+        if (!hri_tcc_get_CTRLA_reg(TCC0, TCC_CTRLA_ENABLE)) {
+            _watch_enable_tcc();
+        }
     } else {
         watch_enable_digital_output(RED);
         watch_enable_digital_output(GREEN);
+        watch_set_led_off();
     }
-    watch_set_led_off();
 }
 
 void watch_disable_led(bool pwm) {
     if (pwm) {
-        if (!PWM_0_enabled) return;
-        pwm_disable(&PWM_0);
-        PWM_0_enabled = false;
+        _watch_disable_tcc();
+    } else {
+        watch_disable_digital_output(RED);
+        watch_disable_digital_output(GREEN);
     }
-
-    watch_disable_digital_output(RED);
-    watch_disable_digital_output(GREEN);
 }
 
-void watch_set_led_color(uint16_t red, uint16_t green) {
-    if (PWM_0_enabled) {
-        TC3->COUNT16.CC[0].reg = red;
-        TC3->COUNT16.CC[1].reg = green;
+void watch_set_led_color(uint8_t red, uint8_t green) {
+    if (hri_tcc_get_CTRLA_reg(TCC0, TCC_CTRLA_ENABLE)) {
+        uint32_t period = hri_tcc_get_PER_reg(TCC0, TCC_PER_MASK);
+        hri_tcc_write_CCBUF_reg(TCC0, 2, ((period * red * 1000ull) / 255000ull));
+        hri_tcc_write_CCBUF_reg(TCC0, 3, ((period * green * 1000ull) / 255000ull));
     }
 }
 
 void watch_set_led_red() {
-    if (PWM_0_enabled) {
-        watch_set_led_color(65535, 0);
+    if (hri_tcc_get_CTRLA_reg(TCC0, TCC_CTRLA_ENABLE)) {
+        watch_set_led_color(255, 0);
     } else {
         watch_set_pin_level(RED, true);
         watch_set_pin_level(GREEN, false);
@@ -68,8 +62,8 @@ void watch_set_led_red() {
 }
 
 void watch_set_led_green() {
-    if (PWM_0_enabled) {
-        watch_set_led_color(65535, 0);
+    if (hri_tcc_get_CTRLA_reg(TCC0, TCC_CTRLA_ENABLE)) {
+        watch_set_led_color(0, 255);
     } else {
         watch_set_pin_level(RED, false);
         watch_set_pin_level(GREEN, true);
@@ -77,8 +71,8 @@ void watch_set_led_green() {
 }
 
 void watch_set_led_yellow() {
-    if (PWM_0_enabled) {
-        watch_set_led_color(65535, 65535);
+    if (hri_tcc_get_CTRLA_reg(TCC0, TCC_CTRLA_ENABLE)) {
+        watch_set_led_color(255, 255);
     } else {
         watch_set_pin_level(RED, true);
         watch_set_pin_level(GREEN, true);
@@ -86,7 +80,7 @@ void watch_set_led_yellow() {
 }
 
 void watch_set_led_off() {
-    if (PWM_0_enabled) {
+    if (hri_tcc_get_CTRLA_reg(TCC0, TCC_CTRLA_ENABLE)) {
         watch_set_led_color(0, 0);
     } else {
         watch_set_pin_level(RED, false);

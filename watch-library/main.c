@@ -32,10 +32,20 @@
 #include "hal_init.h"
 #include "atmel_start_pins.h"
 #include "watch.h"
+#include "tusb.h"
 
 int main(void) {
     // ASF code. Initialize the MCU with configuration options from Atmel Studio.
     init_mcu();
+
+    // check if we are plugged into USB power.
+    watch_enable_digital_input(VBUS_DET);
+    watch_enable_pull_down(VBUS_DET);
+    if (watch_get_pin_level(VBUS_DET)) {
+        // if so, enable USB functionality.
+        _watch_enable_usb();
+    }
+    watch_disable_digital_input(VBUS_DET);
 
     // User code. Give the app a chance to initialize its data structures and state.
     app_init();
@@ -58,8 +68,10 @@ int main(void) {
     app_setup();
 
     while (1) {
+        bool usb_enabled = hri_usbdevice_get_CTRLA_ENABLE_bit(USB);
         bool can_sleep = app_loop();
-        if (can_sleep) {
+
+        if (can_sleep && !usb_enabled) {
             app_prepare_for_sleep();
             sleep(4);
             app_wake_from_sleep();
