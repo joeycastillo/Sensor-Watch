@@ -147,7 +147,7 @@
 // <i> This defines the oscillator frequency (Mhz)
 // <id> osc16m_freq
 #ifndef CONF_OSC16M_FSEL
-#define CONF_OSC16M_FSEL OSCCTRL_OSC16MCTRL_FSEL_4_Val
+#define CONF_OSC16M_FSEL OSCCTRL_OSC16MCTRL_FSEL_8_Val
 #endif
 
 // <q> Oscillator Calibration Control

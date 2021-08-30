@@ -46,7 +46,7 @@ void _watch_init() {
 }
 
 void _watch_enable_tcc() {
-    // clock TCC0 with the main clock (4 or 16 MHz) and enable the peripheral clock.
+    // clock TCC0 with the main clock (8 MHz) and enable the peripheral clock.
     hri_gclk_write_PCHCTRL_reg(GCLK, TCC0_GCLK_ID, GCLK_PCHCTRL_GEN_GCLK0_Val | GCLK_PCHCTRL_CHEN);
     hri_mclk_set_APBCMASK_TCC0_bit(MCLK);
     // disable and reset TCC0.
@@ -54,24 +54,8 @@ void _watch_enable_tcc() {
     hri_tcc_wait_for_sync(TCC0, TCC_SYNCBUSY_ENABLE);
     hri_tcc_write_CTRLA_reg(TCC0, TCC_CTRLA_SWRST);
     hri_tcc_wait_for_sync(TCC0, TCC_SYNCBUSY_SWRST);
-    // have prescaler divide it down to 1 MHz. we need to know the actual CPU speed to do this.
-    uint32_t freq = watch_get_cpu_speed();
-    switch (freq) {
-        case 4000000:
-            hri_tcc_write_CTRLA_reg(TCC0, TCC_CTRLA_PRESCALER_DIV4);
-            break;
-        case 8000000:
-            hri_tcc_write_CTRLA_reg(TCC0, TCC_CTRLA_PRESCALER_DIV8);
-            break;
-        case 12000000:
-            // NOTE: this case is here for completeness but the watch library never runs the hardware at 12 MHz.
-            // If you do, buzzer tones will be out of tune, as we can't evenly divide a 12 MHz clock into 1 MHz.
-            hri_tcc_write_CTRLA_reg(TCC0, TCC_CTRLA_PRESCALER_DIV16);
-            break;
-        case 16000000:
-            hri_tcc_write_CTRLA_reg(TCC0, TCC_CTRLA_PRESCALER_DIV16);
-            break;
-    }
+    // have prescaler divide our 8 MHz clock down to 1 MHz.
+    hri_tcc_write_CTRLA_reg(TCC0, TCC_CTRLA_PRESCALER_DIV8);
     // We're going to use normal PWM mode, which means period is controlled by PER, and duty cycle is controlled by
     // each compare channel's value:
     //  * Buzzer tones are set by setting PER to the desired period for a given frequency, and CC[1] to half of that
@@ -114,11 +98,6 @@ void _watch_enable_usb() {
     // disable USB, just in case.
     hri_usb_clear_CTRLA_ENABLE_bit(USB);
 
-    // Ramp up to 16 MHz (seems necessary for USB to work)...
-    hri_oscctrl_write_OSC16MCTRL_reg(OSCCTRL, OSCCTRL_OSC16MCTRL_ONDEMAND | OSCCTRL_OSC16MCTRL_FSEL_16 | OSCCTRL_OSC16MCTRL_ENABLE);
-    // ...and wait for it to be ready.
-    while (!hri_oscctrl_get_STATUS_OSC16MRDY_bit(OSCCTRL));
-
     // reset flags and disable DFLL
     OSCCTRL->INTFLAG.reg = OSCCTRL_INTFLAG_DFLLRDY;
     OSCCTRL->DFLLCTRL.reg = 0;
@@ -158,7 +137,7 @@ void _watch_enable_usb() {
 
     // before we init TinyUSB, we are going to need a periodic callback to handle TinyUSB tasks.
     // TC2 and TC3 are reserved for devices on the 9-pin connector, so let's use TC0.
-    // clock TC0 with the 16 MHz clock on GCLK0.
+    // clock TC0 with the 8 MHz clock on GCLK0.
     hri_gclk_write_PCHCTRL_reg(GCLK, TC0_GCLK_ID, GCLK_PCHCTRL_GEN_GCLK0_Val | GCLK_PCHCTRL_CHEN);
     // and enable the peripheral clock.
     hri_mclk_set_APBCMASK_TC0_bit(MCLK);
@@ -168,10 +147,10 @@ void _watch_enable_usb() {
     hri_tc_write_CTRLA_reg(TC0, TC_CTRLA_SWRST);
     hri_tc_wait_for_sync(TC0, TC_SYNCBUSY_SWRST);
     // configure the TC to overflow 1,000 times per second
-    hri_tc_write_CTRLA_reg(TC0, TC_CTRLA_PRESCALER_DIV64 |  // divide the clock by 64 to count at 250000 KHz
+    hri_tc_write_CTRLA_reg(TC0, TC_CTRLA_PRESCALER_DIV16 |  // divide the 8 MHz clock by 64 to count at 125 KHz
                                 TC_CTRLA_MODE_COUNT8 |      // count in 8-bit mode
                                 TC_CTRLA_RUNSTDBY);         // run in standby, just in case we figure that out
-    hri_tccount8_write_PER_reg(TC0, 250);                   // 250000 KHz / 250 = 1,000 Hz
+    hri_tccount8_write_PER_reg(TC0, 125);                   // 125000 Hz / 125 = 1,000 Hz
     // set an interrupt on overflow; this will call TC0_Handler below.
     hri_tc_set_INTEN_OVF_bit(TC0);
     NVIC_ClearPendingIRQ(TC0_IRQn);

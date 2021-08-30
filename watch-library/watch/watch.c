@@ -35,22 +35,3 @@
 #include "watch_uart.c"
 #include "watch_deepsleep.c"
 #include "watch_private.c"
-
-uint32_t watch_get_cpu_speed() {
-    uint8_t fsel = hri_oscctrl_get_OSC16MCTRL_FSEL_bf(OSCCTRL, OSCCTRL_OSC16MCTRL_MASK);
-    switch (fsel) {
-        case OSCCTRL_OSC16MCTRL_FSEL_4_Val:
-            return 4000000;
-            break;
-        case OSCCTRL_OSC16MCTRL_FSEL_8_Val:
-            return 8000000;
-            break;
-        case OSCCTRL_OSC16MCTRL_FSEL_12_Val:
-            return 12000000;
-            break;
-        case OSCCTRL_OSC16MCTRL_FSEL_16_Val:
-            return 16000000;
-            break;
-    }
-    return 0;
-}
