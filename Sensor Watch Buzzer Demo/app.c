@@ -37,6 +37,7 @@ void app_wake_from_sleep() {
 
 bool app_loop() {
     if (application_state.play) {
+        printf("Playing song...\n");
         const BuzzerNote rains[] = {
             BUZZER_NOTE_A4,
             BUZZER_NOTE_F5,
@@ -117,13 +118,16 @@ bool app_loop() {
         for(size_t i = 0; i < sizeof(rains); i++) {
             char buf[9] = {0};
             if (rains[i] == BUZZER_NOTE_REST) {
+                printf("rest for %d ms\n", durations[i]);
                 sprintf(buf, "%2drESt  ", i);
             } else {
+                printf("playing note %2d: %3.0f Hz for %d ms\n", i, 1000000.0 / (float)NotePeriods[rains[i]], durations[i]);
                 sprintf(buf, "%2d%6d", i, NotePeriods[rains[i]]);
             }
             watch_display_string(buf, 2);
             watch_buzzer_play_note(rains[i], durations[i]);
         }
+        printf("done!\n\n");
     }
 
     return true;
