@@ -32,6 +32,27 @@ void _watch_init() {
     SUPC->VREG.bit.SEL = 1;
     while(!SUPC->STATUS.bit.VREGRDY);
 
+    // set up the brownout detector (low battery warning)
+    NVIC_DisableIRQ(SYSTEM_IRQn);
+    NVIC_ClearPendingIRQ(SYSTEM_IRQn);
+    NVIC_EnableIRQ(SYSTEM_IRQn);
+    SUPC->BOD33.bit.ENABLE = 0;     // BOD33 must be disabled to change its configuration
+    SUPC->BOD33.bit.VMON = 0;       // Monitor VDD in active and standby mode
+    SUPC->BOD33.bit.ACTCFG = 1;     // Enable sampling mode when active
+    SUPC->BOD33.bit.RUNSTDBY = 1;   // Enable sampling mode in standby
+    SUPC->BOD33.bit.STDBYCFG = 1;   // Run in standby
+    SUPC->BOD33.bit.RUNBKUP = 1;    // Also run in backup mode
+    SUPC->BOD33.bit.PSEL = 0xB;     // Check battery level every 4 seconds
+    SUPC->BOD33.bit.LEVEL = 31;     // Detect brownout at 2.5V (1.445V + level * 34mV)
+    SUPC->BOD33.bit.BKUPLEVEL = 31; // Detect same level in backup mode
+    SUPC->BOD33.bit.ACTION = 0x2;   // Generate an interrupt when BOD33 is triggered
+    SUPC->BOD33.bit.HYST = 0;       // Disable hysteresis
+    while(!SUPC->STATUS.bit.B33SRDY);
+
+    // Enable interrupt on BOD33 detect
+    SUPC->INTENSET.bit.BOD33DET = 1;
+    SUPC->BOD33.bit.ENABLE = 1;
+
     // External wake depends on RTC; calendar is a required module.
     CALENDAR_0_init();
     calendar_enable(&CALENDAR_0);

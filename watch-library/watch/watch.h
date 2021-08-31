@@ -65,4 +65,12 @@
 
 #include "watch_private.h"
 
+/** @brief Returns true when the battery voltage dips below 2.5V.
+  * @details A CR2016 battery will have a nominal voltage between 2.9 and 3 volts for most of its lifespan. Once the battery
+  *          discharges to about 60%, the voltage will drift slightly lower; this may manifest as a dimmer LED. By the time
+  *          the battery voltage has fallen to 2.5 volts, it will have probably less than 10% of its capacity remaining, and
+  *          you can expect the voltage to drop relatively quickly as the battery dies.
+  */
+bool watch_is_battery_low();
+
 #endif /* WATCH_H_ */

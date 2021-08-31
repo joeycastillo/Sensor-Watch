@@ -35,3 +35,18 @@
 #include "watch_uart.c"
 #include "watch_deepsleep.c"
 #include "watch_private.c"
+
+bool battery_is_low = false;
+
+// receives interrupts from MCLK, OSC32KCTRL, OSCCTRL, PAC, PM, SUPC and TAL, whatever that is.
+void SYSTEM_Handler(void) {
+    if (SUPC->INTFLAG.bit.BOD33DET) {
+        battery_is_low = true;
+        SUPC->INTENCLR.bit.BOD33DET = 1;
+        SUPC->INTFLAG.reg &= ~SUPC_INTFLAG_BOD33DET;
+    }
+}
+
+bool watch_is_battery_low() {
+    return battery_is_low;
+}
