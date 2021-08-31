@@ -22,26 +22,24 @@
  * SOFTWARE.
  */
 
-
-void watch_enable_led(bool pwm) {
-    if (pwm) {
-        if (!hri_tcc_get_CTRLA_reg(TCC0, TCC_CTRLA_ENABLE)) {
-            _watch_enable_tcc();
-        }
-    } else {
-        watch_enable_digital_output(RED);
-        watch_enable_digital_output(GREEN);
-        watch_set_led_off();
+void watch_enable_leds() {
+    if (!hri_tcc_get_CTRLA_reg(TCC0, TCC_CTRLA_ENABLE)) {
+        _watch_enable_tcc();
     }
 }
 
-void watch_disable_led(bool pwm) {
-    if (pwm) {
-        _watch_disable_tcc();
-    } else {
-        watch_disable_digital_output(RED);
-        watch_disable_digital_output(GREEN);
-    }
+void watch_disable_leds() {
+    _watch_disable_tcc();
+}
+
+void watch_enable_led(bool unused) {
+    (void)unused;
+    watch_enable_leds();
+}
+
+void watch_disable_led(bool unused) {
+    (void)unused;
+    watch_disable_leds();
 }
 
 void watch_set_led_color(uint8_t red, uint8_t green) {
@@ -53,37 +51,17 @@ void watch_set_led_color(uint8_t red, uint8_t green) {
 }
 
 void watch_set_led_red() {
-    if (hri_tcc_get_CTRLA_reg(TCC0, TCC_CTRLA_ENABLE)) {
-        watch_set_led_color(255, 0);
-    } else {
-        watch_set_pin_level(RED, true);
-        watch_set_pin_level(GREEN, false);
-    }
+    watch_set_led_color(255, 0);
 }
 
 void watch_set_led_green() {
-    if (hri_tcc_get_CTRLA_reg(TCC0, TCC_CTRLA_ENABLE)) {
-        watch_set_led_color(0, 255);
-    } else {
-        watch_set_pin_level(RED, false);
-        watch_set_pin_level(GREEN, true);
-    }
+    watch_set_led_color(0, 255);
 }
 
 void watch_set_led_yellow() {
-    if (hri_tcc_get_CTRLA_reg(TCC0, TCC_CTRLA_ENABLE)) {
-        watch_set_led_color(255, 255);
-    } else {
-        watch_set_pin_level(RED, true);
-        watch_set_pin_level(GREEN, true);
-    }
+    watch_set_led_color(255, 255);
 }
 
 void watch_set_led_off() {
-    if (hri_tcc_get_CTRLA_reg(TCC0, TCC_CTRLA_ENABLE)) {
-        watch_set_led_color(0, 0);
-    } else {
-        watch_set_pin_level(RED, false);
-        watch_set_pin_level(GREEN, false);
-    }
+    watch_set_led_color(0, 0);
 }

@@ -29,28 +29,28 @@
   *          hungry. The green LED, at full power, consumes more power than the whole chip in active mode,
   *          and the red LED consumes about twelve times as much power! The LED's should thus be used only
   *          sparingly in order to preserve battery life.
-  * @todo Explore running the TC3 PWM driver in standby mode; this would require that the user disable it
-  *       in app_prepare_for_sleep, but could allow for low power, low duty indicator LED usage.
   */
 /// @{
-/** @brief Enables the LED.
-  * @param pwm if true, enables PWM output for brightness control (required to use @ref watch_set_led_color).
-               If false, configures the LED pins as digital outputs.
-  * @note The TC driver required for PWM mode does not run in STANDBY mode. You should keep your app awake
-          while PWM'ing the LED's, and disable them before going to sleep.
+/** @brief Enables the bi-color LED.
+  * @note The TCC peripheral that drives the LEDs does not run in STANDBY mode — but the outputs do! This
+  *       means that if you set either red, green or both LEDs to full power, they will shine even when
+  *       your app is asleep. If, however, you set a custom color using watch_set_led_color, the color will
+  *       not display correctly in STANDBY mode. You will need to keep your app running while the LED is on.
   */
-void watch_enable_led(bool pwm);
+void watch_enable_leds();
 
 /** @brief Disables the LEDs.
-  * @param pwm if true, disables the PWM output. If false, disables the digital outputs.
-  * @note If pwm is true, this method will also disable the buzzer, since the buzzer and LED both make use of
-  *       the same peripheral to drive their PWM behavior.
+  * @note This method will also disable the buzzer, since the buzzer and LED both make use of the same
+  *       peripheral to drive their PWM behavior.
   */
-void watch_disable_led(bool pwm);
+void watch_disable_leds();
 
 /** @brief Sets the LED to a custom color by modulating each output's duty cycle.
   * @param red The red value from 0-255.
   * @param green The green value from 0-255.
+  * @note If you are displaying a custom color, you will need to prevent your app from going to sleep
+  *       while the LED is on; otherwise, the color will not display correctly. You can do this by
+  *       returning false in your app_loop method.
   */
 void watch_set_led_color(uint8_t red, uint8_t green);
 
@@ -72,4 +72,10 @@ void watch_set_led_yellow();
 
 /** @brief Turns both the red and the green LEDs off. */
 void watch_set_led_off();
+
+__attribute__((deprecated("Use watch_enable_leds instead")))
+void watch_enable_led(bool unused);
+
+__attribute__((deprecated("Use watch_disable_leds instead")))
+void watch_disable_led(bool unused);
 /// @}
