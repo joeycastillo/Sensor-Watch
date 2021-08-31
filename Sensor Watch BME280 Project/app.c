@@ -28,13 +28,13 @@ void app_setup() {
         watch_set_date_time(date_time);
     }
 
-    watch_enable_buttons();
-    watch_register_button_callback(BTN_MODE, cb_mode_pressed);
-    watch_register_button_callback(BTN_LIGHT, cb_light_pressed);
-    watch_register_button_callback(BTN_ALARM, cb_alarm_pressed);
+    watch_enable_external_interrupts();
+    watch_register_interrupt_callback(BTN_MODE, cb_mode_pressed, INTERRUPT_TRIGGER_RISING);
+    watch_register_interrupt_callback(BTN_LIGHT, cb_light_pressed, INTERRUPT_TRIGGER_RISING);
+    watch_register_extwake_callback(BTN_ALARM, cb_alarm_pressed, true);
 
     watch_enable_buzzer();
-    watch_enable_led(false);
+    watch_enable_leds();
 
     // pin A0 powers the sensor on this board.
     watch_enable_digital_output(A0);
@@ -228,7 +228,7 @@ void do_temp_mode() {
     temperature = read_temperature(&t_fine);
     humidity = read_humidity(t_fine);
     if (application_state.show_humidity) {
-        sprintf(buf, "TE%2d%4.1f#%c", (int)(humidity / 10), temperature), application_state.is_fahrenheit ? 'F' : 'C';
+        sprintf(buf, "TE%2d%4.1f#%c", (int)(humidity / 10), temperature, application_state.is_fahrenheit ? 'F' : 'C');
     } else {
         sprintf(buf, "TE  %4.1f#%c", temperature, application_state.is_fahrenheit ? 'F' : 'C');
     }
