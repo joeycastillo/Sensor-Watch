@@ -29,6 +29,11 @@
   *          hungry. The green LED, at full power, consumes more power than the whole chip in active mode,
   *          and the red LED consumes about twelve times as much power! The LED's should thus be used only
   *          sparingly in order to preserve battery life.
+  * @note Some watches use a red/blue LED instead of a red/green LED. You will be able to determine this
+  *       easily when you double tap the reset button: if the pulsing bootloader LED is red, you have a
+  *       red/green edition; if it is blue, you have a red/blue edition. For red/blue watches, build your
+  *       project with the command `make LED=BLUE`, and the watch library will automatically swap the pins
+  *       so that watch_set_led_red sets the red LED, and watch_set_led_green sets the blue one.
   */
 /// @{
 /** @brief Enables the bi-color LED.
@@ -47,7 +52,7 @@ void watch_disable_leds();
 
 /** @brief Sets the LED to a custom color by modulating each output's duty cycle.
   * @param red The red value from 0-255.
-  * @param green The green value from 0-255.
+  * @param green The green value from 0-255. If your watch has a red/blue LED, this will be the blue value.
   * @note If you are displaying a custom color, you will need to prevent your app from going to sleep
   *       while the LED is on; otherwise, the color will not display correctly. You can do this by
   *       returning false in your app_loop method.
@@ -55,18 +60,20 @@ void watch_disable_leds();
 void watch_set_led_color(uint8_t red, uint8_t green);
 
 /** @brief Sets the red LED to full brightness, and turns the green LED off.
-  * @note Of the two LED's in the RG bi-color LED, the red LED is the less power-efficient one (~4.5 mA).
+  * @details Of the two LED's in the RG bi-color LED, the red LED is the less power-efficient one (~4.5 mA).
   */
 void watch_set_led_red();
 
 /** @brief Sets the green LED to full brightness, and turns the red LED off.
-  * @note Of the two LED's in the RG bi-color LED, the green LED is the more power-efficient one (~0.44 mA).
+  * @details Of the two LED's in the RG bi-color LED, the green LED is the more power-efficient one (~0.44 mA).
+  * @note If your watch has a red/blue LED, this method will set the LED to blue.
   */
 void watch_set_led_green();
 
 /** @brief Sets both red and green LEDs to full brightness.
-  * @note The total current draw between the two LED's in this mode will be ~5 mA, which is more than the
-  *       watch draws in any other mode. Take care not to drain the battery.
+  * @details The total current draw between the two LED's in this mode will be ~5 mA, which is more than the
+  *          watch draws in any other mode. Take care not to drain the battery.
+  * @note If your watch has a red/blue LED, this method will set the LED to pink.
   */
 void watch_set_led_yellow();
 

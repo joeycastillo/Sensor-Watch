@@ -111,3 +111,7 @@ SRCS += \
 DEFINES += \
   -D__SAML22J18A__ \
   -DDONT_USE_CMSIS_INIT
+
+ifeq ($(LED), BLUE)
+CFLAGS += -DWATCH_SWAP_LED_PINS
+endif
