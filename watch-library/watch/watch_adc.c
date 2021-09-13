@@ -116,7 +116,7 @@ uint16_t watch_get_analog_pin_level(const uint8_t pin) {
     }
 }
 
-void watch_set_num_analog_samples(uint16_t samples) {
+void watch_set_analog_num_samples(uint16_t samples) {
     // ignore any input that's not a power of 2 (i.e. only one bit set)
     if (__builtin_popcount(samples) != 1) return;
     // if only one bit is set, counting the trailing zeroes is equivalent to log2(samples)

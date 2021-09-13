@@ -68,7 +68,7 @@ uint16_t watch_get_analog_pin_level(const uint8_t pin);
   *         the result in 16 bits.
   * @see watch_get_analog_pin_level
   **/
-void watch_set_num_analog_samples(uint16_t samples);
+void watch_set_analog_num_samples(uint16_t samples);
 
 /** @brief Sets the length of time spent sampling, which allows measurement of higher impedance inputs.
   *        Default is 1.
