@@ -40,7 +40,6 @@ INCLUDES += \
   -I../../watch-library/hal/utils/include/ \
   -I../../watch-library/hal/utils/src/ \
   -I../../watch-library/hpl/ \
-  -I../../watch-library/hpl/adc/ \
   -I../../watch-library/hpl/core/ \
   -I../../watch-library/hpl/dmac/ \
   -I../../watch-library/hpl/eic/ \
@@ -54,8 +53,6 @@ INCLUDES += \
   -I../../watch-library/hpl/sercom/ \
   -I../../watch-library/hpl/slcd/ \
   -I../../watch-library/hpl/systick/ \
-  -I../../watch-library/hpl/tcc/ \
-  -I../../watch-library/hpl/tc/ \
   -I../../watch-library/hri/ \
   -I../../watch-library/config/ \
   -I../../watch-library/hw/ \
@@ -75,7 +72,6 @@ SRCS += \
   ../../watch-library/startup_saml22.c \
   ../../watch-library/hw/driver_init.c \
   ../../watch-library/watch/watch.c \
-  ../../watch-library/hal/src/hal_adc_sync.c \
   ../../watch-library/hal/src/hal_atomic.c \
   ../../watch-library/hal/src/hal_calendar.c \
   ../../watch-library/hal/src/hal_delay.c \
@@ -84,14 +80,12 @@ SRCS += \
   ../../watch-library/hal/src/hal_i2c_m_sync.c \
   ../../watch-library/hal/src/hal_init.c \
   ../../watch-library/hal/src/hal_io.c \
-  ../../watch-library/hal/src/hal_pwm.c \
   ../../watch-library/hal/src/hal_slcd_sync.c \
   ../../watch-library/hal/src/hal_sleep.c \
   ../../watch-library/hal/utils/src/utils_assert.c \
   ../../watch-library/hal/utils/src/utils_event.c \
   ../../watch-library/hal/utils/src/utils_list.c \
   ../../watch-library/hal/utils/src/utils_syscalls.c \
-  ../../watch-library/hpl/adc/hpl_adc.c \
   ../../watch-library/hpl/core/hpl_core_m0plus_base.c \
   ../../watch-library/hpl/core/hpl_init.c \
   ../../watch-library/hpl/dmac/hpl_dmac.c \
@@ -105,8 +99,6 @@ SRCS += \
   ../../watch-library/hpl/sercom/hpl_sercom.c \
   ../../watch-library/hpl/slcd/hpl_slcd.c \
   ../../watch-library/hpl/systick/hpl_systick.c \
-  ../../watch-library/hpl/tcc/hpl_tcc.c \
-  ../../watch-library/hpl/tc/hpl_tc.c
 
 DEFINES += \
   -D__SAML22J18A__ \

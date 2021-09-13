@@ -11,17 +11,11 @@
 #include <utils.h>
 #include <hal_init.h>
 
-#include <hpl_adc_base.h>
-
 struct slcd_sync_descriptor SEGMENT_LCD_0;
 
 struct calendar_descriptor CALENDAR_0;
 
 struct i2c_m_sync_desc I2C_0;
-
-struct pwm_descriptor PWM_0;
-
-struct pwm_descriptor PWM_1;
 
 void CALENDAR_0_CLOCK_init(void) {
 	hri_mclk_set_APBAMASK_RTC_bit(MCLK);

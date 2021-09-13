@@ -20,22 +20,10 @@ extern "C" {
 #include <hal_init.h>
 #include <hal_io.h>
 #include <hal_sleep.h>
-
-#include <hal_adc_sync.h>
-
 #include <hal_ext_irq.h>
-
 #include <hal_calendar.h>
-
 #include <hal_i2c_m_sync.h>
-
 #include <hal_delay.h>
-#include <hpl_tc_base.h>
-#include <hal_pwm.h>
-#include <hpl_tc_base.h>
-
-#include <hal_pwm.h>
-#include <hpl_tcc.h>
 #include <hal_slcd_sync.h>
 
 extern struct adc_sync_descriptor ADC_0;
