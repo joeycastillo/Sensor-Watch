@@ -15,8 +15,6 @@
 
 struct slcd_sync_descriptor SEGMENT_LCD_0;
 
-struct adc_sync_descriptor ADC_0;
-
 struct calendar_descriptor CALENDAR_0;
 
 struct i2c_m_sync_desc I2C_0;
@@ -24,16 +22,6 @@ struct i2c_m_sync_desc I2C_0;
 struct pwm_descriptor PWM_0;
 
 struct pwm_descriptor PWM_1;
-
-void ADC_0_CLOCK_init(void) {
-	hri_mclk_set_APBCMASK_ADC_bit(MCLK);
-	hri_gclk_write_PCHCTRL_reg(GCLK, ADC_GCLK_ID, CONF_GCLK_ADC_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
-}
-
-void ADC_0_init(void) {
-	ADC_0_CLOCK_init();
-	adc_sync_init(&ADC_0, ADC, (void *)NULL);
-}
 
 void CALENDAR_0_CLOCK_init(void) {
 	hri_mclk_set_APBAMASK_RTC_bit(MCLK);
