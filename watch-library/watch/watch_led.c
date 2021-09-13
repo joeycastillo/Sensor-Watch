@@ -22,14 +22,6 @@
  * SOFTWARE.
  */
 
-#ifdef WATCH_SWAP_LED_PINS
-    #define WATCH_RED_CHANNEL 3
-    #define WATCH_GREEN_CHANNEL 2
-#else
-    #define WATCH_RED_CHANNEL 2
-    #define WATCH_GREEN_CHANNEL 3
-#endif
-
 void watch_enable_leds() {
     if (!hri_tcc_get_CTRLA_reg(TCC0, TCC_CTRLA_ENABLE)) {
         _watch_enable_tcc();
@@ -53,8 +45,8 @@ void watch_disable_led(bool unused) {
 void watch_set_led_color(uint8_t red, uint8_t green) {
     if (hri_tcc_get_CTRLA_reg(TCC0, TCC_CTRLA_ENABLE)) {
         uint32_t period = hri_tcc_get_PER_reg(TCC0, TCC_PER_MASK);
-        hri_tcc_write_CCBUF_reg(TCC0, WATCH_RED_CHANNEL, ((period * red * 1000ull) / 255000ull));
-        hri_tcc_write_CCBUF_reg(TCC0, WATCH_GREEN_CHANNEL, ((period * green * 1000ull) / 255000ull));
+        hri_tcc_write_CCBUF_reg(TCC0, WATCH_RED_TCC_CHANNEL, ((period * red * 1000ull) / 255000ull));
+        hri_tcc_write_CCBUF_reg(TCC0, WATCH_GREEN_TCC_CHANNEL, ((period * green * 1000ull) / 255000ull));
     }
 }
 

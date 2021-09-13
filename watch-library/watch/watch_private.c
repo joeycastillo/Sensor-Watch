@@ -93,18 +93,18 @@ void _watch_enable_tcc() {
     // get the LED working. Almost any period will do, tho it should be below 20000 (i.e. 50 Hz) to avoid flickering.
     hri_tcc_write_PER_reg(TCC0, 4096);
     // Set the duty cycle of all pins to 0: LED's off, buzzer not buzzing.
-    hri_tcc_write_CC_reg(TCC0, 1, 0);
-    hri_tcc_write_CC_reg(TCC0, 2, 0);
-    hri_tcc_write_CC_reg(TCC0, 3, 0);
+    hri_tcc_write_CC_reg(TCC0, WATCH_BUZZER_TCC_CHANNEL, 0);
+    hri_tcc_write_CC_reg(TCC0, WATCH_RED_TCC_CHANNEL, 0);
+    hri_tcc_write_CC_reg(TCC0, WATCH_GREEN_TCC_CHANNEL, 0);
     // Enable the TCC
     hri_tcc_set_CTRLA_ENABLE_bit(TCC0);
     hri_tcc_wait_for_sync(TCC0, TCC_SYNCBUSY_ENABLE);
 
     // enable LED PWM pins (the LED driver assumes if the TCC is on, the pins are enabled)
     gpio_set_pin_direction(RED, GPIO_DIRECTION_OUT);
-    gpio_set_pin_function(RED, PINMUX_PA20F_TCC0_WO6);
+    gpio_set_pin_function(RED, WATCH_RED_TCC_PINMUX);
     gpio_set_pin_direction(GREEN, GPIO_DIRECTION_OUT);
-    gpio_set_pin_function(GREEN, PINMUX_PA21F_TCC0_WO7);
+    gpio_set_pin_function(GREEN, WATCH_GREEN_TCC_PINMUX);
 }
 
 void _watch_disable_tcc() {

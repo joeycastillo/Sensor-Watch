@@ -30,7 +30,7 @@
 #include <stdio.h>
 #include "saml22.h"
 #include "hal_init.h"
-#include "atmel_start_pins.h"
+#include "pins.h"
 #include "watch.h"
 #include "tusb.h"
 

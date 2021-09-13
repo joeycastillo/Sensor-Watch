@@ -2,6 +2,10 @@
 BUILD = ./build
 BIN = watch
 
+ifndef BOARD
+override BOARD = OSO-SWAT-A1-04
+endif
+
 ##############################################################################
 .PHONY: all directory clean size
 
@@ -31,6 +35,7 @@ LDFLAGS += -Wl,--script=../../watch-library/linker/saml22j18.ld
 # ../drivers/
 INCLUDES += \
   -I../../tinyusb/src \
+  -I../../boards/$(BOARD) \
   -I../../watch-library/include \
   -I../../watch-library/hal/ \
   -I../../watch-library/hal/documentation/ \

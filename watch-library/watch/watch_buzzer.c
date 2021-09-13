@@ -37,7 +37,7 @@ void watch_disable_buzzer() {
 
 inline void watch_set_buzzer_on() {
     gpio_set_pin_direction(BUZZER, GPIO_DIRECTION_OUT);
-    gpio_set_pin_function(BUZZER, PINMUX_PA27F_TCC0_WO5);
+    gpio_set_pin_function(BUZZER, WATCH_BUZZER_TCC_PINMUX);
 }
 
 inline void watch_set_buzzer_off() {
@@ -54,7 +54,7 @@ void watch_buzzer_play_note(BuzzerNote note, uint16_t duration_ms) {
         watch_set_buzzer_off();
     } else {
         hri_tcc_write_PERBUF_reg(TCC0, NotePeriods[note]);
-        hri_tcc_write_CCBUF_reg(TCC0, 1, NotePeriods[note] / 2);
+        hri_tcc_write_CCBUF_reg(TCC0, WATCH_BUZZER_TCC_CHANNEL, NotePeriods[note] / 2);
         watch_set_buzzer_on();
     }
     delay_ms(duration_ms);

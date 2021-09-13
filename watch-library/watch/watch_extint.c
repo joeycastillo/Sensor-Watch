@@ -77,13 +77,13 @@ void watch_register_interrupt_callback(const uint8_t pin, ext_irq_cb_t callback,
             break;
         case BTN_LIGHT:
             gpio_set_pin_pull_mode(pin, GPIO_PULL_DOWN);
-            pinmux = PINMUX_PA22A_EIC_EXTINT6;
+            pinmux = WATCH_BTN_LIGHT_EIC_PINMUX;
             config &= ~EIC_CONFIG_SENSE6_Msk;
             config |= EIC_CONFIG_SENSE6(trigger);
             break;
         case BTN_MODE:
             gpio_set_pin_pull_mode(pin, GPIO_PULL_DOWN);
-            pinmux = PINMUX_PA23A_EIC_EXTINT7;
+            pinmux = WATCH_BTN_MODE_EIC_PINMUX;
             config &= ~EIC_CONFIG_SENSE7_Msk;
             config |= EIC_CONFIG_SENSE7(trigger);
             break;
