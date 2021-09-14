@@ -181,6 +181,7 @@ void watch_display_character(uint8_t character, uint8_t position) {
         segmap = segmap >> 8;
         segdata = segdata >> 1;
     }
+    if (character == 'T' && position == 1) slcd_sync_seg_on(&SEGMENT_LCD_0, SLCD_SEGID(1, 12));
 }
 
 void watch_display_string(char *string, uint8_t position) {
