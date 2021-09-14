@@ -80,6 +80,9 @@ void watch_debug_putc(char c) {
     SERCOM3->USART.DATA.reg = c;
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 void watch_debug_puts(char *s) {
     while (*s) watch_debug_putc(*s++);
 }
+#pragma GCC diagnostic pop
