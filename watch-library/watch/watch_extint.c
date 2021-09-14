@@ -37,62 +37,53 @@ void watch_disable_external_interrupts() {
 }
 
 void watch_register_interrupt_callback(const uint8_t pin, ext_irq_cb_t callback, watch_interrupt_trigger trigger) {
-    uint32_t pinmux;
-    hri_eic_config_reg_t config = hri_eic_get_CONFIG_reg(EIC, 0, 0xFFFFFFFF);
-
+    uint8_t config_index;
+    uint8_t sense_pos;
     switch (pin) {
-        case A4:
-            // same steps for each: determine the correct pin mux...
-            pinmux = PINMUX_PB00A_EIC_EXTINT0;
-            // ...clear out the configuration for this EIC channel...
-            config &= ~EIC_CONFIG_SENSE0_Msk;
-            // ...and reconfigure it with our new trigger value.
-            config |= EIC_CONFIG_SENSE0(trigger);
+        case A0:
+            // for EIC channels 8-15, we need to set the SENSE value in CONFIG[1]
+            config_index = (WATCH_A0_EIC_CHANNEL > 7) ? 1 : 0;
+            // either way the index in CONFIG[n] must be 0-7
+            sense_pos = 4 * (WATCH_A0_EIC_CHANNEL % 8);
             break;
         case A1:
-            pinmux = PINMUX_PB01A_EIC_EXTINT1;
-            config &= ~EIC_CONFIG_SENSE1_Msk;
-            config |= EIC_CONFIG_SENSE1(trigger);
-            break;
-        case BTN_ALARM:
-            gpio_set_pin_pull_mode(pin, GPIO_PULL_DOWN);
-            pinmux = PINMUX_PA02A_EIC_EXTINT2;
-            config &= ~EIC_CONFIG_SENSE2_Msk;
-            config |= EIC_CONFIG_SENSE2(trigger);
+            config_index = (WATCH_A1_EIC_CHANNEL > 7) ? 1 : 0;
+            sense_pos = 4 * (WATCH_A1_EIC_CHANNEL % 8);
             break;
         case A2:
-            pinmux = PINMUX_PB02A_EIC_EXTINT2;
-            config &= ~EIC_CONFIG_SENSE2_Msk;
-            config |= EIC_CONFIG_SENSE2(trigger);
+            config_index = (WATCH_A2_EIC_CHANNEL > 7) ? 1 : 0;
+            sense_pos = 4 * (WATCH_A2_EIC_CHANNEL % 8);
             break;
         case A3:
-            pinmux = PINMUX_PB03A_EIC_EXTINT3;
-            config &= ~EIC_CONFIG_SENSE3_Msk;
-            config |= EIC_CONFIG_SENSE3(trigger);
+            config_index = (WATCH_A3_EIC_CHANNEL > 7) ? 1 : 0;
+            sense_pos = 4 * (WATCH_A3_EIC_CHANNEL % 8);
             break;
-        case A0:
-            pinmux = PINMUX_PB04A_EIC_EXTINT4;
-            config &= ~EIC_CONFIG_SENSE4_Msk;
-            config |= EIC_CONFIG_SENSE4(trigger);
+        case A4:
+            config_index = (WATCH_A4_EIC_CHANNEL > 7) ? 1 : 0;
+            sense_pos = 4 * (WATCH_A4_EIC_CHANNEL % 8);
+            break;
+        case BTN_ALARM:
+            // for the buttons, we need an internal pull-down.
+            gpio_set_pin_pull_mode(pin, GPIO_PULL_DOWN);
+            config_index = (WATCH_BTN_ALARM_EIC_CHANNEL > 7) ? 1 : 0;
+            sense_pos = 4 * (WATCH_BTN_ALARM_EIC_CHANNEL % 8);
             break;
         case BTN_LIGHT:
             gpio_set_pin_pull_mode(pin, GPIO_PULL_DOWN);
-            pinmux = WATCH_BTN_LIGHT_EIC_PINMUX;
-            config &= ~EIC_CONFIG_SENSE6_Msk;
-            config |= EIC_CONFIG_SENSE6(trigger);
+            config_index = (WATCH_BTN_LIGHT_EIC_CHANNEL > 7) ? 1 : 0;
+            sense_pos = 4 * (WATCH_BTN_LIGHT_EIC_CHANNEL % 8);
             break;
         case BTN_MODE:
             gpio_set_pin_pull_mode(pin, GPIO_PULL_DOWN);
-            pinmux = WATCH_BTN_MODE_EIC_PINMUX;
-            config &= ~EIC_CONFIG_SENSE7_Msk;
-            config |= EIC_CONFIG_SENSE7(trigger);
+            config_index = (WATCH_BTN_MODE_EIC_CHANNEL > 7) ? 1 : 0;
+            sense_pos = 4 * (WATCH_BTN_MODE_EIC_CHANNEL % 8);
             break;
         default:
             return;
     }
 
     gpio_set_pin_direction(pin, GPIO_DIRECTION_IN);
-    gpio_set_pin_function(pin, pinmux);
+    gpio_set_pin_function(pin, GPIO_PIN_FUNCTION_A);
 
     // EIC configuration register is enable-protected, so we have to disable it first...
     if (hri_eic_get_CTRLA_reg(EIC, EIC_CTRLA_ENABLE)) {
@@ -101,9 +92,12 @@ void watch_register_interrupt_callback(const uint8_t pin, ext_irq_cb_t callback,
         hri_eic_wait_for_sync(EIC, EIC_SYNCBUSY_ENABLE);
     }
     // now update the configuration...
-	hri_eic_write_CONFIG_reg(EIC, 0, config);
+    hri_eic_config_reg_t config = EIC->CONFIG[config_index].reg;
+    config &= ~(7 << sense_pos);
+    config |= trigger << (sense_pos);
+    hri_eic_write_CONFIG_reg(EIC, config_index, config);
     // ...and re-enable the EIC
-	hri_eic_set_CTRLA_ENABLE_bit(EIC);
+    hri_eic_set_CTRLA_ENABLE_bit(EIC);
 
     ext_irq_register(pin, callback);
 }

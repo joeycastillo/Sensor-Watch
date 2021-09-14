@@ -59,16 +59,15 @@ void watch_disable_external_interrupts();
   *          want to detect both rising and falling conditions (i.e. button down and button up), use
   *          INTERRUPT_TRIGGER_BOTH and use watch_get_pin_level to check the pin level in your callback
   *          to determine which condition caused the interrupt.
-  * @param pin One of pins BTN_LIGHT, BTN_MODE, BTN_ALARM, or A0-A5. If the pin parameter matches one of
+  * @param pin One of pins BTN_LIGHT, BTN_MODE, BTN_ALARM, or A0-A4. If the pin parameter matches one of
   *            the three button pins, this function will also enable an internal pull-down resistor. If
-  *            the pin parameter is A0-A5, you are responsible for setting any required pull configuration
+  *            the pin parameter is A0-A4, you are responsible for setting any required pull configuration
   *            using watch_enable_pull_up or watch_enable_pull_down.
   * @param callback The function you wish to have called when the button is pressed.
   * @param trigger The condition on which you wish to trigger: rising, falling or both.
   * @note The alarm button and pin A2 share an external interrupt channel EXTINT[2]; you can only use one
   *       or the other. However! These pins both have an alternate method of triggering via the RTC tamper
-  *       interrupt, which for A2 at least has the added benefit of being able to trigger in the low-power
-  *       BACKUP mode.
+  *       interrupt, which has the added benefit of not requiring the external interrupt controller at all.
   * @see watch_register_extwake_callback
   */
 void watch_register_interrupt_callback(const uint8_t pin, ext_irq_cb_t callback, watch_interrupt_trigger trigger);

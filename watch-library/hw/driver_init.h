@@ -8,6 +8,16 @@
 #ifndef DRIVER_INIT_INCLUDED
 #define DRIVER_INIT_INCLUDED
 
+#define GPIO_PIN_FUNCTION_A 0
+#define GPIO_PIN_FUNCTION_B 1
+#define GPIO_PIN_FUNCTION_C 2
+#define GPIO_PIN_FUNCTION_D 3
+#define GPIO_PIN_FUNCTION_E 4
+#define GPIO_PIN_FUNCTION_F 5
+#define GPIO_PIN_FUNCTION_G 6
+#define GPIO_PIN_FUNCTION_H 7
+#define GPIO_PIN_FUNCTION_I 8
+
 #include "pins.h"
 
 #ifdef __cplusplus

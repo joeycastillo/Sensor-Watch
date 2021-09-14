@@ -76,7 +76,7 @@ void app_wake_from_deep_sleep() {
  * still be configured with the correct date and time.
  */
 void app_setup() {
-    watch_enable_led(false); // enable LED with plain digital IO, not PWM
+    watch_enable_leds();
 
     watch_enable_external_interrupts();
     // This starter app demonstrates three different ways of using the button interrupts.

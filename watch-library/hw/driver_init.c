@@ -66,33 +66,33 @@ void delay_driver_init(void) {
 }
 
 void SEGMENT_LCD_0_PORT_init(void) {
-	gpio_set_pin_function(COM0, PINMUX_PB06B_SLCD_LP0);
-	gpio_set_pin_function(COM1, PINMUX_PB07B_SLCD_LP1);
-	gpio_set_pin_function(COM2, PINMUX_PB08B_SLCD_LP2);
-	gpio_set_pin_function(SEG0, PINMUX_PB09B_SLCD_LP3);
-	gpio_set_pin_function(SEG1, PINMUX_PA04B_SLCD_LP4);
-	gpio_set_pin_function(SEG2, PINMUX_PA05B_SLCD_LP5);
-	gpio_set_pin_function(SEG3, PINMUX_PA06B_SLCD_LP6);
-	gpio_set_pin_function(SEG4, PINMUX_PA07B_SLCD_LP7);
-	gpio_set_pin_function(SEG5, PINMUX_PA08B_SLCD_LP11);
-	gpio_set_pin_function(SEG6, PINMUX_PA09B_SLCD_LP12);
-	gpio_set_pin_function(SEG7, PINMUX_PA10B_SLCD_LP13);
-	gpio_set_pin_function(SEG8, PINMUX_PA11B_SLCD_LP14);
-	gpio_set_pin_function(SEG9, PINMUX_PB11B_SLCD_LP21);
-	gpio_set_pin_function(SEG10, PINMUX_PB12B_SLCD_LP22);
-	gpio_set_pin_function(SEG11, PINMUX_PB13B_SLCD_LP23);
-	gpio_set_pin_function(SEG12, PINMUX_PB14B_SLCD_LP24);
-	gpio_set_pin_function(SEG13, PINMUX_PB15B_SLCD_LP25);
-	gpio_set_pin_function(SEG14, PINMUX_PA12B_SLCD_LP28);
-	gpio_set_pin_function(SEG15, PINMUX_PA13B_SLCD_LP29);
-	gpio_set_pin_function(SEG16, PINMUX_PA14B_SLCD_LP30);
-	gpio_set_pin_function(SEG17, PINMUX_PA15B_SLCD_LP31);
-	gpio_set_pin_function(SEG18, PINMUX_PA16B_SLCD_LP32);
-	gpio_set_pin_function(SEG19, PINMUX_PA17B_SLCD_LP33);
-	gpio_set_pin_function(SEG20, PINMUX_PA18B_SLCD_LP34);
-	gpio_set_pin_function(SEG21, PINMUX_PA19B_SLCD_LP35);
-	gpio_set_pin_function(SEG22, PINMUX_PB16B_SLCD_LP42);
-	gpio_set_pin_function(SEG23, PINMUX_PB17B_SLCD_LP43);
+	gpio_set_pin_function(SLCD0, GPIO_PIN_FUNCTION_B);
+	gpio_set_pin_function(SLCD1, GPIO_PIN_FUNCTION_B);
+	gpio_set_pin_function(SLCD2, GPIO_PIN_FUNCTION_B);
+	gpio_set_pin_function(SLCD3, GPIO_PIN_FUNCTION_B);
+	gpio_set_pin_function(SLCD4, GPIO_PIN_FUNCTION_B);
+	gpio_set_pin_function(SLCD5, GPIO_PIN_FUNCTION_B);
+	gpio_set_pin_function(SLCD6, GPIO_PIN_FUNCTION_B);
+	gpio_set_pin_function(SLCD7, GPIO_PIN_FUNCTION_B);
+	gpio_set_pin_function(SLCD8, GPIO_PIN_FUNCTION_B);
+	gpio_set_pin_function(SLCD9, GPIO_PIN_FUNCTION_B);
+	gpio_set_pin_function(SLCD10, GPIO_PIN_FUNCTION_B);
+	gpio_set_pin_function(SLCD11, GPIO_PIN_FUNCTION_B);
+	gpio_set_pin_function(SLCD12, GPIO_PIN_FUNCTION_B);
+	gpio_set_pin_function(SLCD13, GPIO_PIN_FUNCTION_B);
+	gpio_set_pin_function(SLCD14, GPIO_PIN_FUNCTION_B);
+	gpio_set_pin_function(SLCD15, GPIO_PIN_FUNCTION_B);
+	gpio_set_pin_function(SLCD16, GPIO_PIN_FUNCTION_B);
+	gpio_set_pin_function(SLCD17, GPIO_PIN_FUNCTION_B);
+	gpio_set_pin_function(SLCD18, GPIO_PIN_FUNCTION_B);
+	gpio_set_pin_function(SLCD19, GPIO_PIN_FUNCTION_B);
+	gpio_set_pin_function(SLCD20, GPIO_PIN_FUNCTION_B);
+	gpio_set_pin_function(SLCD21, GPIO_PIN_FUNCTION_B);
+	gpio_set_pin_function(SLCD22, GPIO_PIN_FUNCTION_B);
+	gpio_set_pin_function(SLCD23, GPIO_PIN_FUNCTION_B);
+	gpio_set_pin_function(SLCD24, GPIO_PIN_FUNCTION_B);
+	gpio_set_pin_function(SLCD25, GPIO_PIN_FUNCTION_B);
+	gpio_set_pin_function(SLCD26, GPIO_PIN_FUNCTION_B);
 }
 
 /**
