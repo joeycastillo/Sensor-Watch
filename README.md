@@ -47,7 +47,7 @@ Getting code on the watch
 -------------------------
 The watch library in this repository is very work-in-progress, but it should allow you to get started. To create a new project, copy the “Sensor Watch Starter Project” and write your code in the app.c file.
 
-You will need to install [the 9-2019-q4-major version of the GNU Arm Embedded Toolchain](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads/9-2019-q4-major) to build projects for the watch. Note that the latest version, 10-2020-q4-major, will not currently work.
+You will need to install [the GNU Arm Embedded Toolchain](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads/) to build projects for the watch. The watch library has been tested with the `9-2019-q4-major` version and the `10.3-2021.07` versions.
 
 To build your project, open your terminal and navigate to the project's `make` folder, then type `make`.
 
