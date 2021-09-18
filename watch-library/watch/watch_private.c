@@ -28,6 +28,9 @@ void _watch_init() {
     // disable the LED pin (it may have been enabled by the bootloader)
     watch_disable_digital_output(RED);
 
+    // RAM should be back-biased in STANDBY
+    PM->STDBYCFG.bit.BBIASHS = 1;
+
     // Use switching regulator for lower power consumption.
     SUPC->VREG.bit.SEL = 1;
     while(!SUPC->STATUS.bit.VREGRDY);
@@ -41,10 +44,9 @@ void _watch_init() {
     SUPC->BOD33.bit.ACTCFG = 1;     // Enable sampling mode when active
     SUPC->BOD33.bit.RUNSTDBY = 1;   // Enable sampling mode in standby
     SUPC->BOD33.bit.STDBYCFG = 1;   // Run in standby
-    SUPC->BOD33.bit.RUNBKUP = 1;    // Also run in backup mode
+    SUPC->BOD33.bit.RUNBKUP = 0;    // Don't run in backup mode
     SUPC->BOD33.bit.PSEL = 0xB;     // Check battery level every 4 seconds
     SUPC->BOD33.bit.LEVEL = 31;     // Detect brownout at 2.5V (1.445V + level * 34mV)
-    SUPC->BOD33.bit.BKUPLEVEL = 31; // Detect same level in backup mode
     SUPC->BOD33.bit.ACTION = 0x2;   // Generate an interrupt when BOD33 is triggered
     SUPC->BOD33.bit.HYST = 0;       // Disable hysteresis
     while(!SUPC->STATUS.bit.B33SRDY);
@@ -56,9 +58,6 @@ void _watch_init() {
     // External wake depends on RTC; calendar is a required module.
     CALENDAR_0_init();
     calendar_enable(&CALENDAR_0);
-
-    // Not sure if this belongs in every app -- is there a power impact?
-    delay_driver_init();
 
     // set up state
     btn_alarm_callback = NULL;

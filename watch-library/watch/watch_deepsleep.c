@@ -103,21 +103,75 @@ uint32_t watch_get_backup_data(uint8_t reg) {
     return 0;
 }
 
-void watch_enter_deep_sleep() {
-    // enable and configure the external wake interrupt, if not already set up.
-    if (btn_alarm_callback == NULL && a2_callback == NULL && a4_callback == NULL) {
-        gpio_set_pin_direction(BTN_ALARM, GPIO_DIRECTION_IN);
-        gpio_set_pin_pull_mode(BTN_ALARM, GPIO_PULL_DOWN);
-        gpio_set_pin_function(BTN_ALARM, PINMUX_PA02G_RTC_IN2);
-        _extwake_register_callback(&CALENDAR_0.device, extwake_callback);
+void _watch_disable_all_pins_except_rtc() {
+    uint32_t config = RTC->MODE0.TAMPCTRL.reg;
+    uint32_t portb_pins_to_disable = 0xFFFFFFFF;
+
+    // if there's an action set on RTC/IN[0], leave PB00 configured
+    if (config & RTC_TAMPCTRL_IN0ACT_Msk) portb_pins_to_disable &= 0xFFFFFFFE;
+    // same with RTC/IN[1] and PB02
+    if (config & RTC_TAMPCTRL_IN1ACT_Msk) portb_pins_to_disable &= 0xFFFFFFFB;
+
+    // port A: always keep PA02 configured as-is; that's our ALARM button.
+    gpio_set_port_direction(0, 0xFFFFFFFB, GPIO_DIRECTION_OFF);
+    // port B: disable all pins we didn't save above.
+    gpio_set_port_direction(1, portb_pins_to_disable, GPIO_DIRECTION_OFF);
+}
+
+void _watch_disable_all_peripherals_except_slcd() {
+    _watch_disable_tcc();
+    watch_disable_adc();
+    watch_disable_external_interrupts();
+    watch_disable_i2c();
+    // TODO: replace this with a proper function when we remove the debug UART
+    SERCOM3->USART.CTRLA.reg &= ~SERCOM_USART_CTRLA_ENABLE;
+    MCLK->APBCMASK.reg &= ~MCLK_APBCMASK_SERCOM3;
+}
+
+void watch_enter_deep_sleep(char *message) {
+    // configure the ALARM interrupt (the callback doesn't matter)
+    watch_register_extwake_callback(BTN_ALARM, NULL, true);
+
+    if (message != NULL) {
+        watch_display_string("          ", 0);
+        watch_display_string(message, 0);
+    } else {
+        slcd_sync_deinit(&SEGMENT_LCD_0);
+        hri_mclk_clear_APBCMASK_SLCD_bit(SLCD);
     }
 
-    // disable SLCD
+    // disable all other peripherals
+    _watch_disable_all_peripherals_except_slcd();
+
+    // disable tick interrupt
+    watch_register_tick_callback(NULL);
+
+    // disable brownout detector interrupt, which could inadvertently wake us up.
+    SUPC->INTENCLR.bit.BOD33DET = 1;
+
+    // disable all pins
+    _watch_disable_all_pins_except_rtc();
+
+    // turn off RAM completely.
+    PM->STDBYCFG.bit.BBIASHS = 3;
+
+    // enter standby (4); we basically hang out here until an interrupt forces us to reset.
+    sleep(4);
+
+    NVIC_SystemReset();
+}
+
+void watch_enter_backup_mode() {
+    // this will not work on the current silicon revision, but I said in the documentation that we do it.
+    // so let's do it!
+    watch_register_extwake_callback(BTN_ALARM, NULL, true);
+
+    watch_register_tick_callback(NULL);
+    _watch_disable_all_peripherals_except_slcd();
     slcd_sync_deinit(&SEGMENT_LCD_0);
     hri_mclk_clear_APBCMASK_SLCD_bit(SLCD);
+    _watch_disable_all_pins_except_rtc();
 
-    // TODO: disable other peripherals
-
-    // go into backup sleep mode
+    // go into backup sleep mode (5). when we exit, the reset controller will take over.
     sleep(5);
 }

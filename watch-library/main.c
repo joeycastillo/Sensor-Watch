@@ -47,6 +47,9 @@ int main(void) {
     }
     watch_disable_digital_input(VBUS_DET);
 
+    // initialize the delay driver before any user code is called.
+    delay_driver_init();
+
     // User code. Give the app a chance to initialize its data structures and state.
     app_init();
 

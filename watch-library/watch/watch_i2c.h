@@ -33,6 +33,10 @@
   */
 void watch_enable_i2c();
 
+/** @brief Disables the I2C peripheral.
+  */
+void watch_disable_i2c();
+
 /** @brief Sends a series of values to a device on the I2C bus.
   * @param addr The address of the device you wish to talk to.
   * @param buf A series of unsigned bytes; the data you wish to transmit.

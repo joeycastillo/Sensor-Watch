@@ -30,6 +30,11 @@ void watch_enable_i2c() {
     i2c_m_sync_enable(&I2C_0);
 }
 
+void watch_disable_i2c() {
+    i2c_m_sync_disable(&I2C_0);
+	hri_mclk_clear_APBCMASK_SERCOM1_bit(MCLK);
+}
+
 void watch_i2c_send(int16_t addr, uint8_t *buf, uint16_t length) {
     i2c_m_sync_set_periphaddr(&I2C_0, addr, I2C_M_SEVEN);
     io_write(I2C_0_io, buf, length);
