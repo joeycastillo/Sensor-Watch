@@ -88,6 +88,11 @@ void _watch_enable_tcc() {
     //    period (i.e. a square wave with a 50% duty cycle).
     //  * LEDs on CC[2] and CC[3] can be set to any value from 0 (off) to PER (fully on).
     hri_tcc_write_WAVE_reg(TCC0, TCC_WAVE_WAVEGEN_NPWM);
+    #ifdef WATCH_INVERT_LED_POLARITY
+    // This is here for the dev board, which uses a common anode LED (instead of common cathode like the actual watch).
+    hri_tcc_set_WAVE_reg(TCC0, (1 << (TCC_WAVE_POL0_Pos + WATCH_RED_TCC_CHANNEL)) |
+                               (1 << (TCC_WAVE_POL0_Pos + WATCH_GREEN_TCC_CHANNEL)));
+    #endif
     // The buzzer will set the period depending on the tone it wants to play, but we have to set some period here to
     // get the LED working. Almost any period will do, tho it should be below 20000 (i.e. 50 Hz) to avoid flickering.
     hri_tcc_write_PER_reg(TCC0, 4096);
