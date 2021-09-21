@@ -62,6 +62,42 @@
 #define SLCD24 GPIO(GPIO_PORTA, 21)
 #define SLCD25 GPIO(GPIO_PORTA, 22)
 #define SLCD26 GPIO(GPIO_PORTA, 23)
+// This board uses a slightly different pin mapping from the standard watch, and it's not enough to
+// just declare the pins. We also have to set the LCD Pin Enable register with the SLCD pins we're
+// using. These numbers are not port/pin numbers, but the "SLCD/LP[x]" numbers in the pinmux table.
+// If not defined in pins.h, the LCD drover will fall back to the pin mapping in hpl_slcd_config.h.
+// LPENL is for pins SLCD/LP[0..31].
+#define CONF_SLCD_LPENL (\
+        (uint32_t)1 <<  0 | \
+        (uint32_t)1 <<  1 | \
+        (uint32_t)1 <<  2 | \
+        (uint32_t)1 <<  3 | \
+        (uint32_t)1 <<  5 | \
+        (uint32_t)1 <<  6 | \
+        (uint32_t)1 << 11 | \
+        (uint32_t)1 << 12 | \
+        (uint32_t)1 << 13 | \
+        (uint32_t)1 << 14 | \
+        (uint32_t)1 << 21 | \
+        (uint32_t)1 << 22 | \
+        (uint32_t)1 << 23 | \
+        (uint32_t)1 << 24 | \
+        (uint32_t)1 << 25 | \
+        (uint32_t)1 << 30 | \
+        (uint32_t)1 << 31 | 0)
+// LPENH is for pins SLCD/LP[32..51], where bit 0 represents pin 32.
+#define CONF_SLCD_LPENH (\
+        (uint32_t)1 << (32 - 32) | \
+        (uint32_t)1 << (33 - 32) | \
+        (uint32_t)1 << (34 - 32) | \
+        (uint32_t)1 << (35 - 32) | \
+        (uint32_t)1 << (42 - 32) | \
+        (uint32_t)1 << (43 - 32) | \
+        (uint32_t)1 << (48 - 32) | \
+        (uint32_t)1 << (49 - 32) | \
+        (uint32_t)1 << (50 - 32) | \
+        (uint32_t)1 << (51 - 32) | 0)
+
 
 // 9-pin connector
 #define A0 GPIO(GPIO_PORTB, 4)
