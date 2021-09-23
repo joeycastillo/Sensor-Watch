@@ -49,15 +49,14 @@
   */
 void watch_register_extwake_callback(uint8_t pin, ext_irq_cb_t callback, bool level);
 
-/** @brief Unregisters the interrupt on one of the EXTWAKE pins. This will prevent a value change on
-  *        one of these pins from waking the device from deep sleep or BACKUP modes.
+/** @brief Unregisters the RTC interrupt on one of the EXTWAKE pins. This will prevent a value change on
+  *        one of these pins from waking the device from shallow and deep sleep modes.
   * @param pin Either pin BTN_ALARM, A2, or A4. If the pin is BTN_ALARM, this function DOES NOT disable
   *            the internal pull down on that pin.
   */
-void watch_disable_extwake_interrupt(uint8_t pin, ext_irq_cb_t callback, bool level);
+void watch_disable_extwake_interrupt(uint8_t pin);
 
-/** @brief Stores data in one of the RTC's backup registers, which retain their data in the deep sleep
-           and backup modes.
+/** @brief Stores data in one of the RTC's backup registers, which retain their data in deep sleep mode.
   * @param data An unsigned 32 bit integer with the data you wish to store.
   * @param reg A register from 0-7.
   */
@@ -69,33 +68,29 @@ void watch_store_backup_data(uint32_t data, uint8_t reg);
   */
 uint32_t watch_get_backup_data(uint8_t reg);
 
-/** @brief Enters a deep sleep mode by disabling RAM retention and all peripherals except the RTC and
-  *        (optionally) the LCD. You can wake from this mode by pressing the ALARM button.
-  * @param message Either NULL, or a string representing a message to display while in deep sleep mode. The
-  *                message will be displayed at position 0, so you should pad out the beginning of the string
-  *                with spaces if you wish for the message to appear on line 2, i.e. "    SLEEP". If this
-  *                parameter is NULL, the screen will be blanked, and this function will disable the SLCD
-  *                peripheral for additional power savings. (also note that while the message will replace any
-  *                text on the display, this function will not clear any indicators you have set. This is by
-  *                design, in case you wish to leave an indicator lit in sleep mode.)
-  * @details This deep sleep mode is not the lowest power mode available (see watch_enter_backup_mode), but
-  *          it has the benefit of being able to wake with a press of the ALARM button, and provides an option
-  *          for displaying a message to the user when asleep. The only way to wake from this mode is by
-  *          pressing the ALARM button, or receiving an interrupt on pin A2 or A4 of the nine-pin connector.
-  *          (An alarm interrupt would also work, but this has not yet been implemented.) This function enables
-  *          the ALARM button interrupt for you, but if you wish to wake from the A2 or A4 RTC interrupt, you
-  *          must configure them by calling watch_register_extwake_callback. Note however that your callback
-  *          will not be called in this case.
-  *          Power consumption in deep sleep mode varies a bit with the battery voltage and the temperature,
-  *          but at 3 V and ~25° C you can eoughly estimate:
-  *           * ~12µA current draw with the LCD controller on (message != NULL)
-  *           * ~6.5µA current draw with the LCD controller off (message == NULL)
-  * @note With RAM powered off, your application state will be cleared as soon as you call this function, and
-  *       when the user wakes up the watch, your app will effectively be waking from reset. Your app's @ref
-  *       app_wake_from_deep_sleep function will be called to give your app a chance to restore any state that
-  *       you stored using @ref watch_store_backup_data.
+/** @brief Enters a shallow sleep mode by disabling all pins and peripherals except the RTC and (optionally)
+  *        the LCD. You can wake from this mode by pressing the ALARM button, if you have an registered an
+  *        external wake callback on the ALARM button. When your app wakes from this shallow sleep mode, your
+  *        app_setup method will be called, since this function will have disabled things you set up.
+  * @param message Either NULL, or a string representing a message to display while in shallow sleep mode. If
+  *                this parameter is NULL, the screen will be blanked out, and this function will disable the
+  *                SLCD peripheral for additional power savings. If the message is non-NULL, it will replace
+  *                any text on the screen, and will be displayed at position 0 (so you should pad out the beginning
+  *                of the string with spaces if you wish for the message to appear on line 2, i.e. "    SLEEP").
+  *                Also note that this function will NOT clear any indicator segments that you have set. This is
+  *                by design, in case you wish to leave an indicator lit in sleep mode.
+  * @details This shallow sleep mode is not the lowest power mode available (see watch_enter_deep_sleep), but
+  *          it has the benefit of retaining your application state and being able to wake from the ALARM button.
+  *          It also provides an option for displaying a message to the user when asleep. Note that whether you
+  *          want to wake from the ALARM button, the A2 RTC interrupt or the A4 interrupt, you must configure
+  *          this by calling watch_register_extwake_callback first.
+  *
+  *          Power consumption in shallow sleep mode varies a bit with the battery voltage and the temperature,
+  *          but at 3 V and 25~30° C you can roughly estimate:
+  *           * < 12µA current draw with the LCD controller on (message != NULL)
+  *           * < 6µA current draw with the LCD controller off (message == NULL)
   */
-void watch_enter_deep_sleep(char *message);
+void watch_enter_shallow_sleep(char *message);
 
 /** @brief Enters the SAM L22's lowest-power mode, BACKUP.
   * @details This function does some housekeeping before entering BACKUP mode. It first disables all
@@ -113,5 +108,5 @@ void watch_enter_deep_sleep(char *message);
   *          this function unless you have a device on the nine-pin connector with an external interrupt
   *          on pin A2 or A4 (i.e. an accelerometer with an interrupt pin).
   */
-void watch_enter_backup_mode();
+void watch_enter_deep_sleep();
 /// @}

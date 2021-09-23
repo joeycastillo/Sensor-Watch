@@ -21,7 +21,7 @@ typedef struct ApplicationState {
     LightColor color;
     bool light_on;
     uint8_t wake_count;
-    bool enter_deep_sleep;
+    bool enter_sleep_mode;
 } ApplicationState;
 
 ApplicationState application_state;
@@ -57,13 +57,7 @@ void app_init() {
  * @see watch_enter_deep_sleep()
  */
 void app_wake_from_deep_sleep() {
-    // retrieve our application state from the backup registers
-    application_state.mode = (ApplicationMode)watch_get_backup_data(0);
-    application_state.color = (LightColor)watch_get_backup_data(1);
-    application_state.wake_count = (uint8_t)watch_get_backup_data(2) + 1;
-
-    // wait a moment for the user's finger to be off the button
-    delay_ms(250);
+    // this app only supports shallow sleep mode.
 }
 
 /**
@@ -151,22 +145,21 @@ bool app_loop() {
             break;
     }
 
-    if (application_state.enter_deep_sleep) {
-        application_state.enter_deep_sleep = false;
-
-        // stash our application state in the backup registers
-        watch_store_backup_data((uint32_t)application_state.mode, 0);
-        watch_store_backup_data((uint32_t)application_state.color, 1);
-        watch_store_backup_data((uint32_t)application_state.wake_count, 2);
-
-        // turn off the LED
-        watch_set_led_off();
-
+    if (application_state.enter_sleep_mode) {
         // wait a moment for the user's finger to be off the button
         delay_ms(250);
 
         // nap time :)
-        watch_enter_deep_sleep(NULL);
+        watch_enter_shallow_sleep(NULL);
+
+        // we just woke up; wait a moment again for the user's finger to be off the button...
+        delay_ms(250);
+
+        // and prevent ourselves from going right back to sleep.
+        application_state.enter_sleep_mode = false;
+
+        // finally, after sleep, return false so that our app loop runs again and updates the display.
+        return false;
     }
 
     return true;
@@ -191,5 +184,5 @@ void cb_mode_pressed() {
 }
 
 void cb_alarm_pressed() {
-    application_state.enter_deep_sleep = true;
+    application_state.enter_sleep_mode = true;
 }

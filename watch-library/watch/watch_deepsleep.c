@@ -89,6 +89,34 @@ void watch_register_extwake_callback(uint8_t pin, ext_irq_cb_t callback, bool le
     _extwake_register_callback(&CALENDAR_0.device, extwake_callback);
 }
 
+void watch_disable_extwake_interrupt(uint8_t pin) {
+    hri_rtc_tampctrl_reg_t config = hri_rtc_get_TAMPCTRL_reg(RTC, 0xFFFFFFFF);
+
+    switch (pin) {
+        case A4:
+            a4_callback = NULL;
+            config &= ~(3 << RTC_TAMPCTRL_IN0ACT_Pos);
+            break;
+        case A2:
+            a2_callback = NULL;
+            config &= ~(3 << RTC_TAMPCTRL_IN1ACT_Pos);
+            break;
+        case BTN_ALARM:
+            btn_alarm_callback = NULL;
+            config &= ~(3 << RTC_TAMPCTRL_IN2ACT_Pos);
+            break;
+        default:
+            return;
+    }
+
+	if (hri_rtcmode0_get_CTRLA_ENABLE_bit(RTC)) {
+		hri_rtcmode0_clear_CTRLA_ENABLE_bit(RTC);
+		hri_rtcmode0_wait_for_sync(RTC, RTC_MODE0_SYNCBUSY_ENABLE);
+	}
+    hri_rtc_write_TAMPCTRL_reg(RTC, config);
+    hri_rtcmode0_set_CTRLA_ENABLE_bit(RTC);
+}
+
 void watch_store_backup_data(uint32_t data, uint8_t reg) {
     if (reg < 8) {
         RTC->MODE0.BKUP[reg].reg = data;
@@ -128,10 +156,7 @@ void _watch_disable_all_peripherals_except_slcd() {
     MCLK->APBCMASK.reg &= ~MCLK_APBCMASK_SERCOM3;
 }
 
-void watch_enter_deep_sleep(char *message) {
-    // configure the ALARM interrupt (the callback doesn't matter)
-    watch_register_extwake_callback(BTN_ALARM, NULL, true);
-
+void watch_enter_shallow_sleep(char *message) {
     if (message != NULL) {
         watch_display_string("          ", 0);
         watch_display_string(message, 0);
@@ -152,16 +177,20 @@ void watch_enter_deep_sleep(char *message) {
     // disable all pins
     _watch_disable_all_pins_except_rtc();
 
-    // turn off RAM completely.
-    PM->STDBYCFG.bit.BBIASHS = 3;
-
-    // enter standby (4); we basically hang out here until an interrupt forces us to reset.
+    // enter standby (4); we basically hang out here until an interrupt wakes us.
     sleep(4);
 
-    NVIC_SystemReset();
+    // and we awake! re-enable the brownout detector
+    SUPC->INTENSET.bit.BOD33DET = 1;
+
+    // call app_setup so the app can re-enable everything we disabled.
+    app_setup();
+
+    // and call app_wake_from_sleep (since main won't have a chance to do it)
+    app_wake_from_sleep();
 }
 
-void watch_enter_backup_mode() {
+void watch_enter_deep_sleep() {
     // this will not work on the current silicon revision, but I said in the documentation that we do it.
     // so let's do it!
     watch_register_extwake_callback(BTN_ALARM, NULL, true);
