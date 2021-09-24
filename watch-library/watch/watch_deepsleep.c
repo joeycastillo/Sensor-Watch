@@ -25,8 +25,8 @@
 // this warning only appears when you `make BOARD=OSO-SWAT-A1-02`. it's annoying,
 // but i'd rather have it warn us at build-time than fail silently at run-time.
 // besides, no one but me really has any of these boards anyway.
-#warning This board revision does not support external wake on BTN_ALARM, so watch_register_extwake_callback will not work with it. Use watch_register_interrupt_callback instead.
 #if BTN_ALARM != GPIO(GPIO_PORTA, 2)
+#warning This board revision does not support external wake on BTN_ALARM, so watch_register_extwake_callback will not work with it. Use watch_register_interrupt_callback instead.
 #endif
 
 static void extwake_callback(uint8_t reason);
