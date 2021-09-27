@@ -31,8 +31,6 @@ LDFLAGS += -mcpu=cortex-m0plus -mthumb
 LDFLAGS += -Wl,--gc-sections
 LDFLAGS += -Wl,--script=$(TOP)//watch-library/linker/saml22j18.ld
 
-# If you add any additional directories with headers, add them to this list, e.g.
-# ../drivers/
 INCLUDES += \
   -I$(TOP)/tinyusb/src \
   -I$(TOP)/boards/$(BOARD) \
@@ -54,7 +52,6 @@ INCLUDES += \
   -I$(TOP)/watch-library/hpl/oscctrl/ \
   -I$(TOP)/watch-library/hpl/pm/ \
   -I$(TOP)/watch-library/hpl/port/ \
-  -I$(TOP)/watch-library/hpl/rtc/ \
   -I$(TOP)/watch-library/hpl/sercom/ \
   -I$(TOP)/watch-library/hpl/slcd/ \
   -I$(TOP)/watch-library/hpl/systick/ \
@@ -64,8 +61,6 @@ INCLUDES += \
   -I$(TOP)/watch-library/watch/ \
   -I$(TOP)/watch-library
 
-# If you add any additional C files to your project, add them each to this list, e.g.
-# ../drivers/st25dv.c
 SRCS += \
   $(TOP)/tinyusb/src/tusb.c \
   $(TOP)/tinyusb/src/common/tusb_fifo.c \
@@ -78,7 +73,6 @@ SRCS += \
   $(TOP)/watch-library/hw/driver_init.c \
   $(TOP)/watch-library/watch/watch.c \
   $(TOP)/watch-library/hal/src/hal_atomic.c \
-  $(TOP)/watch-library/hal/src/hal_calendar.c \
   $(TOP)/watch-library/hal/src/hal_delay.c \
   $(TOP)/watch-library/hal/src/hal_ext_irq.c \
   $(TOP)/watch-library/hal/src/hal_gpio.c \
@@ -100,7 +94,6 @@ SRCS += \
   $(TOP)/watch-library/hpl/osc32kctrl/hpl_osc32kctrl.c \
   $(TOP)/watch-library/hpl/oscctrl/hpl_oscctrl.c \
   $(TOP)/watch-library/hpl/pm/hpl_pm.c \
-  $(TOP)/watch-library/hpl/rtc/hpl_rtc.c \
   $(TOP)/watch-library/hpl/sercom/hpl_sercom.c \
   $(TOP)/watch-library/hpl/slcd/hpl_slcd.c \
   $(TOP)/watch-library/hpl/systick/hpl_systick.c \
