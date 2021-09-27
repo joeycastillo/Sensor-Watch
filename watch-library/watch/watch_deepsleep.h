@@ -23,6 +23,11 @@
  */
 ////< @file watch_deepsleep.h
 
+// These are declared in watch_rtc.c.
+extern ext_irq_cb_t btn_alarm_callback;
+extern ext_irq_cb_t a2_callback;
+extern ext_irq_cb_t a4_callback;
+
 /** @addtogroup deepsleep Deep Sleep Control
   * @brief This section covers functions related to preparing for and entering BACKUP mode, the
   *        deepest sleep mode available on the SAM L22

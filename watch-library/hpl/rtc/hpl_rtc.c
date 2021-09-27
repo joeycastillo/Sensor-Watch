@@ -376,55 +376,8 @@ int32_t _calendar_register_callback(struct calendar_dev *const dev, calendar_drv
 	return ERR_NONE;
 }
 
-/**
- * \brief RTC interrupt handler
- *
- * \param[in] dev The pointer to calendar device struct
- */
-static void _rtc_interrupt_handler(struct calendar_dev *dev)
-{
-	/* Read and mask interrupt flag register */
-	uint16_t interrupt_status  = hri_rtcmode0_read_INTFLAG_reg(dev->hw);
-	uint16_t interrupt_enabled = hri_rtcmode0_read_INTEN_reg(dev->hw);
-
-	if ((interrupt_status & interrupt_enabled) & RTC_MODE2_INTFLAG_ALARM0) {
-		if (dev->callback_alarm != NULL) {
-			dev->callback_alarm();
-		}
-
-		/* Clear interrupt flag */
-		hri_rtcmode0_clear_interrupt_CMP0_bit(dev->hw);
-	} else if ((interrupt_status & interrupt_enabled) & RTC_MODE2_INTFLAG_PER7) {
-		if (dev->callback_tick != NULL) {
-			dev->callback_tick();
-		}
-
-		/* Clear interrupt flag */
-		hri_rtcmode0_clear_interrupt_PER7_bit(dev->hw);
-	} else if ((interrupt_status & interrupt_enabled) & RTC_MODE2_INTFLAG_TAMPER) {
-		uint8_t reason = hri_rtc_get_TAMPID_reg(dev->hw, 0x1F);
-		if (dev->callback_tamper != NULL) {
-			dev->callback_tamper(reason);
-		}
-		hri_rtc_write_TAMPID_reg(dev->hw, reason);
-
-		/* Clear interrupt flag */
-		hri_rtcmode0_clear_interrupt_TAMPER_bit(dev->hw);
-	}
-}
-/**
- * \brief Set calendar IRQ
- */
 void _calendar_set_irq(struct calendar_dev *const dev)
 {
 	(void)dev;
 	NVIC_SetPendingIRQ(RTC_IRQn);
-}
-
-/**
- * \brief Rtc interrupt handler
- */
-void RTC_Handler(void)
-{
-	_rtc_interrupt_handler(_rtc_dev);
 }

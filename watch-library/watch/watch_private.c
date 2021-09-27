@@ -56,8 +56,7 @@ void _watch_init() {
     SUPC->BOD33.bit.ENABLE = 1;
 
     // External wake depends on RTC; calendar is a required module.
-    CALENDAR_0_init();
-    calendar_enable(&CALENDAR_0);
+    _watch_rtc_init();
 
     // set up state
     btn_alarm_callback = NULL;
