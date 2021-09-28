@@ -21,7 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#ifndef _WATCH_DEEPSLEEP_H_INCLUDED
+#define _WATCH_DEEPSLEEP_H_INCLUDED
 ////< @file watch_deepsleep.h
+
+#include "watch.h"
 
 // These are declared in watch_rtc.c.
 extern ext_irq_cb_t btn_alarm_callback;
@@ -115,3 +119,4 @@ void watch_enter_shallow_sleep(char *message);
   */
 void watch_enter_deep_sleep();
 /// @}
+#endif

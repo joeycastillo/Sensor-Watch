@@ -22,6 +22,8 @@
  * SOFTWARE.
  */
 
+#include "watch_rtc.h"
+
 ext_irq_cb_t tick_callback;
 ext_irq_cb_t alarm_callback;
 ext_irq_cb_t btn_alarm_callback;

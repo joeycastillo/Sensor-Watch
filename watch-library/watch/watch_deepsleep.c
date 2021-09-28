@@ -22,6 +22,8 @@
  * SOFTWARE.
  */
 
+#include "watch_extint.h"
+
 // this warning only appears when you `make BOARD=OSO-SWAT-A1-02`. it's annoying,
 // but i'd rather have it warn us at build-time than fail silently at run-time.
 // besides, no one but me really has any of these boards anyway.

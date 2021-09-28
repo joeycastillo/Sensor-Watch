@@ -21,7 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#ifndef _WATCH_ADC_H_INCLUDED
+#define _WATCH_ADC_H_INCLUDED
 ////< @file watch_adc.h
+
+#include "watch.h"
 
 /** @addtogroup adc Analog Input
   * @brief This section covers functions related to the SAM L22's analog-to-digital converter,
@@ -103,3 +107,4 @@ void watch_disable_analog_input(const uint8_t pin);
 void watch_disable_adc();
 
 /// @}
+#endif

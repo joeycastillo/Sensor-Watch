@@ -22,6 +22,8 @@
  * SOFTWARE.
  */
 
+#include "watch_adc.h"
+
 void _watch_sync_adc() {
     while (ADC->SYNCBUSY.reg);
 }

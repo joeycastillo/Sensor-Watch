@@ -21,8 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#ifndef _WATCH_RTC_H_INCLUDED
+#define _WATCH_RTC_H_INCLUDED
 ////< @file watch_rtc.h
 
+#include "watch.h"
 #include "hpl_calendar.h"
 
 /** @addtogroup rtc Real-Time Clock
@@ -122,3 +125,4 @@ __attribute__((deprecated("Use the watch_rtc_get_date_time function instead")))
 void watch_get_date_time(struct calendar_date_time *date_time);
 
 /// @}
+#endif

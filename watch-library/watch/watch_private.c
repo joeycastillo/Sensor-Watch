@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+#include "watch_private.h"
 #include "tusb.h"
 
 void _watch_init() {

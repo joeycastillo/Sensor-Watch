@@ -21,7 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#ifndef _WATCH_BUZZER_H_INCLUDED
+#define _WATCH_BUZZER_H_INCLUDED
 ////< @file watch_buzzer.h
+
+#include "watch.h"
 
 /** @addtogroup buzzer Buzzer
   * @brief This section covers functions related to the piezo buzzer embedded in the F-91W's back plate.
@@ -157,3 +161,4 @@ void watch_buzzer_play_note(BuzzerNote note, uint16_t duration_ms);
 extern const uint16_t NotePeriods[108];
 
 /// @}
+#endif

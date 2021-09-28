@@ -71,6 +71,17 @@ SRCS += \
   $(TOP)/watch-library/main.c \
   $(TOP)/watch-library/startup_saml22.c \
   $(TOP)/watch-library/hw/driver_init.c \
+  $(TOP)/watch-library/watch/watch_rtc.c \
+  $(TOP)/watch-library/watch/watch_slcd.c \
+  $(TOP)/watch-library/watch/watch_extint.c \
+  $(TOP)/watch-library/watch/watch_led.c \
+  $(TOP)/watch-library/watch/watch_buzzer.c \
+  $(TOP)/watch-library/watch/watch_adc.c \
+  $(TOP)/watch-library/watch/watch_gpio.c \
+  $(TOP)/watch-library/watch/watch_i2c.c \
+  $(TOP)/watch-library/watch/watch_uart.c \
+  $(TOP)/watch-library/watch/watch_deepsleep.c \
+  $(TOP)/watch-library/watch/watch_private.c \
   $(TOP)/watch-library/watch/watch.c \
   $(TOP)/watch-library/hal/src/hal_atomic.c \
   $(TOP)/watch-library/hal/src/hal_delay.c \

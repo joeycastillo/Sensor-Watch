@@ -21,7 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#ifndef _WATCH_SLCD_H_INCLUDED
+#define _WATCH_SLCD_H_INCLUDED
 ////< @file watch_slcd.h
+
+#include "watch.h"
 
 /** @addtogroup slcd Segment LCD Display
   * @brief This section covers functions related to the Segment LCD display driver, which is responsible
@@ -100,3 +104,4 @@ void watch_clear_indicator(WatchIndicatorSegment indicator);
 void watch_clear_all_indicators();
 
 /// @}
+#endif

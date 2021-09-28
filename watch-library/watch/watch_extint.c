@@ -22,6 +22,8 @@
  * SOFTWARE.
  */
 
+#include "watch_extint.h"
+
 void watch_enable_external_interrupts() {
     // Configure EIC to use GCLK3 (the 32.768 kHz crystal)
     hri_gclk_write_PCHCTRL_reg(GCLK, EIC_GCLK_ID, GCLK_PCHCTRL_GEN_GCLK3_Val | (1 << GCLK_PCHCTRL_CHEN_Pos));
