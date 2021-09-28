@@ -70,20 +70,20 @@ watch_date_time watch_rtc_get_date_time() {
     return retval;
 }
 
-void watch_rtc_register_1Hz_callback(ext_irq_cb_t callback) {
-    watch_rtc_register_tick_callback(callback, 1);
+void watch_rtc_register_tick_callback(ext_irq_cb_t callback) {
+    watch_rtc_register_periodic_callback(callback, 1);
 }
 
-void watch_rtc_disable_1Hz_callback() {
-    watch_rtc_disable_tick_callback(1);
+void watch_rtc_disable_tick_callback() {
+    watch_rtc_disable_periodic_callback(1);
 }
 
-void watch_rtc_register_tick_callback(ext_irq_cb_t callback, uint8_t period) {
+void watch_rtc_register_periodic_callback(ext_irq_cb_t callback, uint8_t frequency) {
     // we told them, it has to be a power of 2.
-    if (__builtin_popcount(period) != 1) return;
+    if (__builtin_popcount(frequency) != 1) return;
 
     // this left-justifies the period in a 32-bit integer.
-    uint32_t tmp = period << 24;
+    uint32_t tmp = frequency << 24;
     // now we can count the leading zeroes to get the value we need.
     // 0x01 (1 Hz) will have 7 leading zeros for PER7. 0xF0 (128 Hz) will have no leading zeroes for PER0.
     uint8_t per_n = __builtin_clz(tmp);
@@ -96,13 +96,13 @@ void watch_rtc_register_tick_callback(ext_irq_cb_t callback, uint8_t period) {
     RTC->MODE2.INTENSET.reg = 1 << per_n;
 }
 
-void watch_rtc_disable_tick_callback(uint8_t period) {
-    if (__builtin_popcount(period) != 1) return;
-    uint8_t per_n = __builtin_clz(period << 24);
+void watch_rtc_disable_periodic_callback(uint8_t frequency) {
+    if (__builtin_popcount(frequency) != 1) return;
+    uint8_t per_n = __builtin_clz(frequency << 24);
     RTC->MODE2.INTENCLR.reg = 1 << per_n;
 }
 
-void watch_rtc_disable_all_tick_callbacks() {
+void watch_rtc_disable_all_periodic_callbacks() {
     RTC->MODE2.INTENCLR.reg = 0xFF;
 }
 
