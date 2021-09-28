@@ -55,16 +55,7 @@ void _watch_rtc_init() {
 }
 
 void watch_rtc_set_date_time(watch_date_time date_time) {
-    RTC_MODE2_CLOCK_Type val;
-
-    val.bit.SECOND = date_time.second;
-    val.bit.MINUTE = date_time.minute;
-    val.bit.HOUR = date_time.hour;
-    val.bit.DAY = date_time.day;
-    val.bit.MONTH = date_time.month;
-    val.bit.YEAR = (uint8_t)(date_time.year - WATCH_RTC_REFERENCE_YEAR);
-
-    RTC->MODE2.CLOCK.reg = val.reg;
+    RTC->MODE2.CLOCK.reg = date_time.reg;
     _sync_rtc();
 }
 
@@ -72,14 +63,7 @@ watch_date_time watch_rtc_get_date_time() {
     watch_date_time retval;
 
     _sync_rtc();
-    RTC_MODE2_CLOCK_Type val = RTC->MODE2.CLOCK;
-
-    retval.year = val.bit.YEAR + WATCH_RTC_REFERENCE_YEAR;
-    retval.month = val.bit.MONTH;
-    retval.day = val.bit.DAY;
-    retval.hour = val.bit.HOUR;
-    retval.minute = val.bit.MINUTE;
-    retval.second = val.bit.SECOND;
+    retval.reg = RTC->MODE2.CLOCK.reg;
 
     return retval;
 }
@@ -96,14 +80,8 @@ void watch_disable_tick_callback() {
 }
 
 void watch_rtc_register_alarm_callback(ext_irq_cb_t callback, watch_date_time alarm_time, watch_rtc_alarm_match mask) {
-    RTC->MODE2.Mode2Alarm[0].ALARM.bit.SECOND = alarm_time.second;
-    RTC->MODE2.Mode2Alarm[0].ALARM.bit.MINUTE = alarm_time.minute;
-    RTC->MODE2.Mode2Alarm[0].ALARM.bit.HOUR = alarm_time.hour;
-    RTC->MODE2.Mode2Alarm[0].ALARM.bit.DAY = alarm_time.day;
-    RTC->MODE2.Mode2Alarm[0].ALARM.bit.MONTH = alarm_time.month;
-    RTC->MODE2.Mode2Alarm[0].ALARM.bit.YEAR = (uint8_t)(alarm_time.year - WATCH_RTC_REFERENCE_YEAR);
+    RTC->MODE2.Mode2Alarm[0].ALARM.reg = alarm_time.reg;
     RTC->MODE2.Mode2Alarm[0].MASK.reg = mask;
-
     RTC->MODE2.INTENSET.reg = RTC_MODE2_INTENSET_ALARM0;
     alarm_callback = callback;
     NVIC_ClearPendingIRQ(RTC_IRQn);

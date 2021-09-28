@@ -38,13 +38,16 @@
 
 #define WATCH_RTC_REFERENCE_YEAR (2020)
 
-typedef struct watch_date_time {
-    uint16_t year;
-    uint8_t month;
-    uint8_t day;
-    uint8_t hour;
-    uint8_t minute;
-    uint8_t second;
+typedef union {
+    struct {
+        uint32_t second : 6;    // 0-59
+        uint32_t minute : 6;    // 0-59
+        uint32_t hour : 5;      // 0-23
+        uint32_t day : 5;       // 1-31
+        uint32_t month : 4;     // 1-12
+        uint32_t year : 6;      // 0-63 (representing 2020-2083)
+    } unit;
+    uint32_t reg;               // the bit-packed value as expected by the RTC peripheral's CLOCK register.
 } watch_date_time;
 
 typedef enum watch_rtc_alarm_match {
@@ -60,15 +63,18 @@ typedef enum watch_rtc_alarm_match {
 bool _watch_rtc_is_enabled();
 
 /** @brief Sets the date and time.
-  * @param date_time The time you wish to set.
-  * @note Internally, the SAM L22 stores the year as six bits representing a value from 0 to 63. It treats this
-  *       as a year offset from a reference year, which must be a leap year. For now, this library uses 2020 as
-  *       the reference year, so the range of valid values is 2020 to 2083.
+  * @param date_time The date and time you wish to set, with a year value from 0-63 representing 2020-2083.
+  * @note The SAM L22 stores the year as six bits representing a value from 0 to 63. It treats this as a year
+  *       offset from a reference year, which must be a leap year. Since 2020 was a leap year, and it allows
+  *       useful dates through 2083, it is assumed that watch apps will use 2020 as the reference year; thus
+  *       1 means 2021, 2 means 2022, etc. **You will be responsible for handling this offset in your code**,
+  *       if the calendar year is needed for timestamp calculation logic or display purposes.
   */
 void watch_rtc_set_date_time(watch_date_time date_time);
 
-/** @brief Returns the system date and time in the provided struct.
-  * @return A watch_date_time with the current date and time.
+/** @brief Returns the date and time.
+  * @return A watch_date_time with the current date and time, with a year value from 0-63 representing 2020-2083.
+  * @see watch_rtc_set_date_time for notes about how the year is stored.
   */
 watch_date_time watch_rtc_get_date_time();
 
