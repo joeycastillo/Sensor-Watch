@@ -106,11 +106,37 @@ void watch_rtc_disable_alarm_callback();
   * @param callback The function you wish to have called when the clock ticks. If you pass in NULL, the tick
   *                 interrupt will still be enabled, but no callback function will be called.
   */
-void watch_register_tick_callback(ext_irq_cb_t callback);
+void watch_rtc_register_1Hz_callback(ext_irq_cb_t callback);
 
-/** @brief Disables the tick callback.
+/** @brief Disables the tick callback for the given period.
   */
-void watch_disable_tick_callback();
+void watch_rtc_disable_1Hz_callback();
+
+/** @brief Registers a "tick" callback that will be called at a configurable period.
+  * @param callback The function you wish to have called when the clock ticks. If you pass in NULL, the tick
+  *                 interrupt will still be enabled, but no callback function will be called.
+  * @param period The frequency of the tick in Hz. **Must be a power of 2**, from 1 to 128 inclusive.
+  * @note A 1 Hz tick (@see watch_rtc_register_1Hz_callback) is suitable for most applications, in that it gives you a
+  *       chance to update the display once a second — an ideal update rate for a watch! If however you are displaying
+  *       a value (such as an accelerometer output) that updates more frequently than once per second, you may want to
+  *       tick at 16 or 32 Hz to update the screen more quickly. Just remember that the more frequent the tick, the more
+  *       power your app will consume. Ideally you should enable the fast tick only when the user requires it (i.e. in
+  *       response to an input event), and move back to the slow tick after some time.
+  *
+  *       Also note that the RTC peripheral does not have sub-second resolution, so even if you set a 2 or 4 Hz interval,
+  *       the system will not have any way of telling you where you are within a given second; watch_rtc_get_date_time
+  *       will return the exact same timestamp until the second ticks over.
+  */
+void watch_rtc_register_tick_callback(ext_irq_cb_t callback, uint8_t period);
+
+/** @brief Disables the tick callback for the given period.
+  * @param period The frequency of the tick you wish to disable, in Hz. **Must be a power of 2**, from 1 to 128.
+  */
+void watch_rtc_disable_tick_callback(uint8_t period);
+
+/** @brief Disables all tick callbacks.
+  */
+void watch_rtc_disable_all_tick_callbacks();
 
 /** @brief Sets the system date and time.
   * @param date_time A struct representing the date and time you wish to set.
@@ -123,6 +149,13 @@ void watch_set_date_time(struct calendar_date_time date_time);
   */
 __attribute__((deprecated("Use the watch_rtc_get_date_time function instead")))
 void watch_get_date_time(struct calendar_date_time *date_time);
+
+/** @brief Registers a "tick" callback that will be called once per second.
+  * @param callback The function you wish to have called when the clock ticks. If you pass in NULL, the tick
+  *                 interrupt will still be enabled, but no callback function will be called.
+  */
+__attribute__((deprecated("Use the watch_rtc_register_1Hz_callback function instead")))
+void watch_register_tick_callback(ext_irq_cb_t callback);
 
 /// @}
 #endif

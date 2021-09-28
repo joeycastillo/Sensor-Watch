@@ -164,7 +164,7 @@ void watch_enter_shallow_sleep(char *message) {
     _watch_disable_all_peripherals_except_slcd();
 
     // disable tick interrupt
-    watch_disable_tick_callback();
+    watch_rtc_disable_all_tick_callbacks();
 
     // disable brownout detector interrupt, which could inadvertently wake us up.
     SUPC->INTENCLR.bit.BOD33DET = 1;
@@ -190,7 +190,7 @@ void watch_enter_deep_sleep() {
     // so let's do it!
     watch_register_extwake_callback(BTN_ALARM, NULL, true);
 
-    watch_disable_tick_callback();
+    watch_rtc_disable_all_tick_callbacks();
     _watch_disable_all_peripherals_except_slcd();
     slcd_sync_deinit(&SEGMENT_LCD_0);
     hri_mclk_clear_APBCMASK_SLCD_bit(SLCD);
