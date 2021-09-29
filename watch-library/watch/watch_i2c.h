@@ -21,7 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#ifndef _WATCH_I2C_H_INCLUDED
+#define _WATCH_I2C_H_INCLUDED
 ////< @file watch_i2c.h
+
+#include "watch.h"
 
 /** @addtogroup i2c I2C Controller Driver
   * @brief This section covers functions related to the SAM L22's built-I2C driver, including
@@ -99,3 +103,4 @@ uint32_t watch_i2c_read24(int16_t addr, uint8_t reg);
   */
 uint32_t watch_i2c_read32(int16_t addr, uint8_t reg);
 /// @}
+#endif

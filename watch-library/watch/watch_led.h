@@ -21,7 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#ifndef _WATCH_LED_H_INCLUDED
+#define _WATCH_LED_H_INCLUDED
 ////< @file watch_led.h
+
+#include "watch.h"
 
 /** @addtogroup led LED Control
   * @brief This section covers functions related to the bi-color red/green LED mounted behind the LCD.
@@ -86,3 +90,4 @@ void watch_enable_led(bool unused);
 __attribute__((deprecated("Use watch_disable_leds instead")))
 void watch_disable_led(bool unused);
 /// @}
+#endif

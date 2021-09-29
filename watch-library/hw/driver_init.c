@@ -13,18 +13,7 @@
 
 struct slcd_sync_descriptor SEGMENT_LCD_0;
 
-struct calendar_descriptor CALENDAR_0;
-
 struct i2c_m_sync_desc I2C_0;
-
-void CALENDAR_0_CLOCK_init(void) {
-	hri_mclk_set_APBAMASK_RTC_bit(MCLK);
-}
-
-void CALENDAR_0_init(void) {
-	CALENDAR_0_CLOCK_init();
-	calendar_init(&CALENDAR_0, RTC);
-}
 
 void I2C_0_PORT_init(void) {
 

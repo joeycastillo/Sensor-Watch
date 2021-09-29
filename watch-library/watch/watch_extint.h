@@ -21,8 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#ifndef _WATCH_EXTINT_H_INCLUDED
+#define _WATCH_EXTINT_H_INCLUDED
 ////< @file watch_extint.h
 
+#include "watch.h"
 #include "hal_ext_irq.h"
 
 /** @addtogroup buttons Buttons & External Interrupts
@@ -78,3 +81,4 @@ void watch_register_button_callback(const uint8_t pin, ext_irq_cb_t callback);
 __attribute__((deprecated("Use watch_enable_external_interrupts instead")))
 void watch_enable_buttons();
 /// @}
+#endif

@@ -22,6 +22,8 @@
  * SOFTWARE.
  */
 
+#include "watch_led.h"
+
 void watch_enable_leds() {
     if (!hri_tcc_get_CTRLA_reg(TCC0, TCC_CTRLA_ENABLE)) {
         _watch_enable_tcc();

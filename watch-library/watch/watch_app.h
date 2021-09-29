@@ -21,6 +21,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#ifndef _WATCH_APP_H_INCLUDED
+#define _WATCH_APP_H_INCLUDED
 ////< @file watch_app.h
 
 /** @addtogroup app Application Framework
@@ -103,3 +105,4 @@ void app_prepare_for_sleep();
 void app_wake_from_sleep();
 
 /// @}
+#endif
