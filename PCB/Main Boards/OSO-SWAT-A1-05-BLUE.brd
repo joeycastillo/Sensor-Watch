@@ -3,7 +3,7 @@
 <eagle version="9.6.2">
 <drawing>
 <settings>
-<setting alwaysvectorfont="yes"/>
+<setting alwaysvectorfont="no"/>
 <setting keepoldvectorfont="yes"/>
 <setting verticaltext="up"/>
 </settings>
@@ -3134,11 +3134,11 @@ Please make sure your boards conform to these design rules.
 <attribute name="PURCHASE-URL" value="https://pricing.snapeda.com/search/part/EVP-BB1AAB000/?ref=eda" x="15.9004" y="1.143" size="1.778" layer="28" rot="MR0" display="off"/>
 <attribute name="VALUE" x="18.53021875" y="-1.86251875" size="0.508" layer="28" font="vector" ratio="18" rot="MR0" align="center"/>
 </element>
-<element name="R8" library="microbuilder" package="_0603MP" value="220" x="3.937" y="15.1384" smashed="yes" rot="R180">
+<element name="R8" library="microbuilder" package="_0603MP" value="100" x="3.937" y="15.1384" smashed="yes" rot="R180">
 <attribute name="NAME" x="5.7277" y="15.1384" size="0.508" layer="25" font="vector" ratio="18" rot="R180" align="center"/>
 <attribute name="VALUE" x="4.8895" y="16.0909" size="0.4064" layer="27" ratio="10" rot="R180"/>
 </element>
-<element name="R9" library="microbuilder" package="_0603MP" value="220" x="3.6576" y="16.1798" smashed="yes" rot="R180">
+<element name="R9" library="microbuilder" package="_0603MP" value="100" x="3.6576" y="16.1798" smashed="yes" rot="R180">
 <attribute name="NAME" x="5.4737" y="16.1798" size="0.508" layer="25" font="vector" ratio="18" rot="R180" align="center"/>
 <attribute name="VALUE" x="4.6101" y="17.1323" size="0.4064" layer="27" ratio="10" rot="R180"/>
 </element>
