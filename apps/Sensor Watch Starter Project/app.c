@@ -20,6 +20,7 @@ typedef struct ApplicationState {
     ApplicationMode mode;
     LightColor color;
     bool light_on;
+    bool beep;
     uint8_t wake_count;
     bool enter_sleep_mode;
 } ApplicationState;
@@ -74,6 +75,7 @@ void app_wake_from_deep_sleep() {
  */
 void app_setup() {
     watch_enable_leds();
+    watch_enable_buzzer();
 
     watch_enable_external_interrupts();
     // This starter app demonstrates three different ways of using the button interrupts.
@@ -113,6 +115,11 @@ void app_wake_from_sleep() {
  * the watch STANDBY sleep mode.
  */
 bool app_loop() {
+    if (application_state.beep) {
+        watch_buzzer_play_note(BUZZER_NOTE_C7, 50);
+        application_state.beep = false;
+    }
+
     // set the LED to a color
     if (application_state.light_on) {
         switch (application_state.color) {
@@ -181,6 +188,7 @@ void cb_light_pressed() {
 
 void cb_mode_pressed() {
     application_state.mode = (application_state.mode + 1) % 2;
+    application_state.beep = true;
 }
 
 void cb_alarm_pressed() {
