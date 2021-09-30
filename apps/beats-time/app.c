@@ -4,6 +4,7 @@
 #include "watch.h"
 
 const uint8_t UTC_OFFSET = 4; // set to your current UTC offset to see correct beats time
+const uint8_t BEAT_REFRESH_FREQUENCY = 8;
 
 typedef enum ApplicationMode {
     MODE_CLOCK = 0, // Displays month, day and current time.
@@ -21,6 +22,8 @@ typedef struct ApplicationState {
     uint8_t light_ticks;    // Timeout for the light
     bool led_on;            // Indicates that the LED is on
     uint8_t page;           // Tracks the current page in log, prefs or settings.
+    uint8_t last_second;    // lets us see when the second changed, for subsecond timing
+    uint8_t subsecond;      // a value from 0 to (BEAT_REFRESH_FREQUENCY - 1) indicating the fractional second
 } ApplicationState;
 
 void do_clock_mode();
@@ -29,12 +32,13 @@ void do_set_time_mode();
 void set_time_mode_handle_primary_button();
 void set_time_mode_handle_secondary_button();
 
-uint16_t clock2beats(uint16_t, uint16_t, uint16_t, int16_t);
+float clock2beats(uint16_t, uint16_t, uint16_t, int16_t);
 
 void cb_light_pressed();
 void cb_mode_pressed();
 void cb_alarm_pressed();
 void cb_tick();
+void cb_fast_tick();
 
 ApplicationState application_state;
 char buf[16] = {0};
@@ -69,11 +73,21 @@ void app_prepare_for_sleep() {
 void app_wake_from_sleep() {
 }
 
+void update_tick_frequency() {
+    watch_rtc_disable_all_periodic_callbacks();
+    if (application_state.mode == MODE_BEATS) {
+        watch_rtc_register_periodic_callback(cb_fast_tick, BEAT_REFRESH_FREQUENCY);
+    } else {
+        watch_rtc_register_tick_callback(cb_tick);
+    }
+}
+
 bool app_loop() {
     // play a beep if the mode has changed in response to a user's press of the MODE button
     if (application_state.mode_changed) {
         // low note for nonzero case, high note for return to clock
         watch_buzzer_play_note(application_state.mode ? BUZZER_NOTE_C7 : BUZZER_NOTE_C8, 100);
+        update_tick_frequency();
         application_state.mode_changed = false;
     }
 
@@ -81,6 +95,7 @@ bool app_loop() {
     if (application_state.mode != MODE_CLOCK && application_state.mode_ticks == 0) {
         application_state.mode = MODE_CLOCK;
         application_state.mode_changed = true;
+        update_tick_frequency();
     }
 
     // If the LED is off and should be on, turn it on
@@ -135,22 +150,22 @@ void do_beats_mode() {
     watch_clear_colon();
 
     watch_date_time date_time = watch_rtc_get_date_time();
-    uint16_t beats = clock2beats(date_time.unit.hour, date_time.unit.minute, date_time.unit.second, UTC_OFFSET);
-    sprintf(buf, "bt  %04d  ", beats);
+    float beats = clock2beats(date_time.unit.hour, date_time.unit.minute, date_time.unit.second, UTC_OFFSET);
+    sprintf(buf, "bt  %6.0f", beats * 100);
 
     watch_display_string(buf, 0);
 }
 
-uint16_t clock2beats(uint16_t hours, uint16_t minutes, uint16_t seconds, int16_t utc_offset) {
-    uint32_t beats = seconds;
+float clock2beats(uint16_t hours, uint16_t minutes, uint16_t seconds, int16_t utc_offset) {
+    float beats = seconds + ((float)application_state.subsecond / (float)BEAT_REFRESH_FREQUENCY);
     beats += 60 * minutes;
-    beats += (uint32_t)hours * 60 * 60;
+    beats += (float)hours * 60 * 60;
     beats += (utc_offset + 1) * 60 * 60; // offset from utc + 1 since beats in in UTC+1
 
     beats /= 86.4; // convert to beats
-    beats %= 1000; // truncate to 3 digits for overflow
+    while(beats > 1000) beats -= 1000; // beats %= 1000 but for a float
 
-    return (uint16_t) beats;
+    return beats;
 }
 
 void do_set_time_mode() {
@@ -253,5 +268,15 @@ void cb_tick() {
     }
     if (application_state.mode_ticks > 0) {
         application_state.mode_ticks--;
+    }
+}
+
+void cb_fast_tick() {
+    watch_date_time date_time = watch_rtc_get_date_time();
+    if (date_time.unit.second != application_state.last_second) {
+        application_state.last_second = date_time.unit.second;
+        application_state.subsecond = 0;
+    } else {
+        application_state.subsecond++;
     }
 }
