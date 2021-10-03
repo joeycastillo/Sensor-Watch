@@ -40,6 +40,7 @@ void launcher_move_to_next_widget() {
 void app_init() {
     memset(&launcher_state, 0, sizeof(launcher_state));
     launcher_state.launcher_settings.bit.led_green_color = 0xF;
+    launcher_state.launcher_settings.bit.button_should_sound = true;
     watch_date_time date_time = watch_rtc_get_date_time();
     watch_rtc_set_date_time(date_time);
 }
@@ -80,7 +81,9 @@ bool app_loop() {
     // play a beep if the widget has changed in response to a user's press of the MODE button
     if (launcher_state.widget_changed) {
         // low note for nonzero case, high note for return to widget 0
-        watch_buzzer_play_note(launcher_state.current_widget ? BUZZER_NOTE_C7 : BUZZER_NOTE_C8, 50);
+        if (launcher_state.launcher_settings.bit.button_should_sound) {
+            watch_buzzer_play_note(launcher_state.current_widget ? BUZZER_NOTE_C7 : BUZZER_NOTE_C8, 50);
+        }
         launcher_state.widget_changed = false;
     }
 
