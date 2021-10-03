@@ -64,7 +64,8 @@ void app_setup() {
         widgets[i].setup(&launcher_state.launcher_settings, &widget_contexts[i]);
     }
 
-    launcher_move_to_widget(0);
+    widgets[0].activate(&launcher_state.launcher_settings, widget_contexts[launcher_state.current_widget]);
+    widgets[0].loop(EVENT_ACTIVATE, &launcher_state.launcher_settings, 0, widget_contexts[launcher_state.current_widget]);
 }
 
 void app_prepare_for_sleep() {
