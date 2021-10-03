@@ -162,6 +162,12 @@ inline void watch_clear_pixel(uint8_t com, uint8_t seg) {
     slcd_sync_seg_off(&SEGMENT_LCD_0, SLCD_SEGID(com, seg));
 }
 
+void watch_clear_display() {
+    SLCD->SDATAL0.reg = 0;
+    SLCD->SDATAL1.reg = 0;
+    SLCD->SDATAL2.reg = 0;
+}
+
 void watch_display_character(uint8_t character, uint8_t position) {
     // handle lowercase 7 if needed
     if (character == '7' && (position == 4 || position == 6)) character = '&';
