@@ -6,12 +6,13 @@
 // TODO: none of this is implemented
 typedef union {
     struct {
+        uint32_t reserved : 3;
         uint32_t clock_mode_24h : 1;        // determines whether clock should use 12 or 24 hour mode.
+        uint32_t button_should_sound : 1;   // if true, pressing a button emits a sound.
         uint32_t signal_should_sound : 1;   // if true, a double beep is played at the top of each hour.
         uint32_t alarm_should_sound : 1;    // if true, the alarm interrupt can match a time and play a song.
         uint32_t alarm_minute : 6;          // the minute of the alarm we want to match
         uint32_t alarm_hour : 5;            // the second of the alarm we want to match
-        uint32_t note_index : 4;            // the index of the tone to play on button press, or 0xF for no tone.
         uint32_t screensaver_interval : 3;  // 0 to disable screensaver, or a screensaver activation interval.
         uint32_t led_duration : 3;          // how many seconds to shine the LED for, or 0 to disable it.
         uint32_t led_red_color : 4;         // for general purpose illumination, the red LED value (0-15)
@@ -37,11 +38,10 @@ typedef enum LauncherEvent {
 
 typedef void (*launcher_widget_setup)(LauncherSettings *settings, void ** context_ptr);
 typedef void (*launcher_widget_activate)(LauncherSettings *settings, void *context);
-typedef void (*launcher_widget_loop)(LauncherEvent event, LauncherSettings *settings, void *context);
+typedef void (*launcher_widget_loop)(LauncherEvent event, LauncherSettings *settings, uint8_t subsecond, void *context);
 typedef void (*launcher_widget_resign)(LauncherSettings *settings, void *context);
 
 typedef struct WatchWidget {
-    char widget_name[11];
     launcher_widget_setup setup;
     launcher_widget_activate activate;
     launcher_widget_loop loop;
@@ -64,10 +64,16 @@ typedef struct LauncherState {
     uint8_t light_down_timestamp;
     uint8_t mode_down_timestamp;
     uint8_t alarm_down_timestamp;
+
+    // stuff for subsecond tracking
+    uint8_t tick_frequency;
+    uint8_t last_second;
+    uint8_t subsecond;
 } LauncherState;
 
+void launcher_move_to_widget(uint8_t widget_index);
 void launcher_move_to_next_widget();
-void launcher_move_to_first_widget();
 void launcher_illuminate_led();
+void launcher_request_tick_frequency(uint8_t freq);
 
 #endif // LAUNCHER_H_

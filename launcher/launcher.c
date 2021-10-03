@@ -13,7 +13,10 @@ void cb_alarm_pressed();
 void cb_tick();
 
 void launcher_request_tick_frequency(uint8_t freq) {
+    // FIXME: there is an issue where after changing tick frequencies on a widget switch, something glitchy happens on the next one.
     watch_rtc_disable_all_periodic_callbacks();
+    launcher_state.subsecond = 0;
+    launcher_state.tick_frequency = freq;
     watch_rtc_register_periodic_callback(cb_tick, freq);
 }
 
@@ -21,26 +24,24 @@ void launcher_illuminate_led() {
     launcher_state.light_ticks = 3;
 }
 
-void launcher_move_to_next_widget() {
+void launcher_move_to_widget(uint8_t widget_index) {
     launcher_state.widget_changed = true;
     widgets[launcher_state.current_widget].resign(&launcher_state.launcher_settings, widget_contexts[launcher_state.current_widget]);
-    launcher_state.current_widget = (launcher_state.current_widget + 1) % LAUNCHER_NUM_WIDGETS;
+    launcher_state.current_widget = widget_index;
+    watch_clear_display();
     widgets[launcher_state.current_widget].activate(&launcher_state.launcher_settings, widget_contexts[launcher_state.current_widget]);
-    watch_display_string(widgets[launcher_state.current_widget].widget_name, 0);
+    widgets[launcher_state.current_widget].loop(EVENT_ACTIVATE, &launcher_state.launcher_settings, launcher_state.subsecond, widget_contexts[launcher_state.current_widget]);
 }
 
-void launcher_move_to_first_widget() {
-    launcher_state.widget_changed = true;
-    widgets[launcher_state.current_widget].resign(&launcher_state.launcher_settings, widget_contexts[launcher_state.current_widget]);
-    launcher_state.current_widget = 0;
-    widgets[0].activate(&launcher_state.launcher_settings, widget_contexts[0]);
-    watch_display_string(widgets[launcher_state.current_widget].widget_name, 0);
+void launcher_move_to_next_widget() {
+    launcher_move_to_widget((launcher_state.current_widget + 1) % LAUNCHER_NUM_WIDGETS);
 }
 
 void app_init() {
     memset(&launcher_state, 0, sizeof(launcher_state));
     launcher_state.launcher_settings.bit.led_green_color = 0xF;
-    launcher_state.launcher_settings.bit.led_red_color = 0x0;
+    watch_date_time date_time = watch_rtc_get_date_time();
+    watch_rtc_set_date_time(date_time);
 }
 
 void app_wake_from_deep_sleep() {
@@ -60,10 +61,10 @@ void app_setup() {
     launcher_request_tick_frequency(1);
 
     for(uint8_t i = 0; i < LAUNCHER_NUM_WIDGETS; i++) {
-        widgets[i].setup(&launcher_state.launcher_settings, widget_contexts[i]);
+        widgets[i].setup(&launcher_state.launcher_settings, &widget_contexts[i]);
     }
 
-    launcher_move_to_first_widget();
+    launcher_move_to_widget(0);
 }
 
 void app_prepare_for_sleep() {
@@ -77,8 +78,8 @@ LauncherEvent event;
 bool app_loop() {
     // play a beep if the widget has changed in response to a user's press of the MODE button
     if (launcher_state.widget_changed) {
-        // low note for nonzero case, high note for return to clock
-        watch_buzzer_play_note(launcher_state.current_widget ? BUZZER_NOTE_C7 : BUZZER_NOTE_C8, 100);
+        // low note for nonzero case, high note for return to widget 0
+        watch_buzzer_play_note(launcher_state.current_widget ? BUZZER_NOTE_C7 : BUZZER_NOTE_C8, 50);
         launcher_state.widget_changed = false;
     }
 
@@ -102,7 +103,7 @@ bool app_loop() {
     }
 
     if (event) {
-        widgets[launcher_state.current_widget].loop(event, &launcher_state.launcher_settings, widget_contexts[launcher_state.current_widget]);
+        widgets[launcher_state.current_widget].loop(event, &launcher_state.launcher_settings, launcher_state.subsecond, widget_contexts[launcher_state.current_widget]);
         event = 0;
     }
 
@@ -139,5 +140,13 @@ void cb_alarm_pressed() {
 
 void cb_tick() {
     event = EVENT_TICK;
-    if (launcher_state.light_ticks) launcher_state.light_ticks--;
+    watch_date_time date_time = watch_rtc_get_date_time();
+    if (date_time.unit.second != launcher_state.last_second) {
+        if (launcher_state.light_ticks) launcher_state.light_ticks--;
+
+        launcher_state.last_second = date_time.unit.second;
+        launcher_state.subsecond = 0;
+    } else {
+        launcher_state.subsecond++;
+    }
 }
