@@ -7,8 +7,19 @@
 LauncherState launcher_state;
 void * widget_contexts[LAUNCHER_NUM_WIDGETS];
 
+void launcher_request_tick_frequency(uint8_t freq) {
+    watch_rtc_disable_all_periodic_callbacks();
+    watch_rtc_register_periodic_callback(cb_tick, freq);
+}
+
+void launcher_illuminate_led() {
+    launcher_state.light_ticks = 3;
+}
+
+
 void app_init() {
     memset(&launcher_state, 0, sizeof(launcher_state));
+    launcher_state.launcher_settings.bit.led_green_color = 0xF;
 }
 
 void app_wake_from_deep_sleep() {
@@ -25,10 +36,10 @@ void app_setup() {
     watch_enable_leds();
     watch_enable_display();
 
-    watch_register_tick_callback(cb_tick);
+    launcher_request_tick_frequency(1);
 
     for(uint8_t i = 0; i < LAUNCHER_NUM_WIDGETS; i++) {
-        widgets[i].setup(&launcher_state.launcherSettings, widget_contexts[i]);
+        widgets[i].setup(&launcher_state.launcher_settings, widget_contexts[i]);
     }
 }
 
@@ -50,7 +61,7 @@ bool app_loop() {
 
     // If the LED is off and should be on, turn it on
     if (launcher_state.light_ticks > 0 && !launcher_state.led_on) {
-        watch_set_led_green();
+        watch_set_led_color(launcher_state.launcher_settings.bit.led_red_color, launcher_state.launcher_settings.bit.led_green_color);
         launcher_state.led_on = true;
     }
 
@@ -67,32 +78,26 @@ bool app_loop() {
 
     if (event) {
         event = 0;
-        bool can_sleep = widgets[launcher_state.current_widget].loop(event, &launcher_state.launcherSettings, widget_contexts[launcher_state.current_widget]);
-        if (can_sleep) return true;
-
-        event = EVENT_LOOP;
-        return false;
+        widgets[launcher_state.current_widget].loop(event, &launcher_state.launcher_settings, widget_contexts[launcher_state.current_widget]);
     }
+
+    if (launcher_state.led_on) return false;
 
     return true;
 }
 
 void move_to_next_widget() {
     launcher_state.widget_changed = true;
-    widgets[launcher_state.current_widget].enter_background(&launcher_state.launcherSettings, widget_contexts[launcher_state.current_widget]);
+    widgets[launcher_state.current_widget].resign(&launcher_state.launcher_settings, widget_contexts[launcher_state.current_widget]);
     launcher_state.current_widget = (launcher_state.current_widget + 1) % LAUNCHER_NUM_WIDGETS;
-    widgets[launcher_state.current_widget].enter_foreground(&launcher_state.launcherSettings, widget_contexts[launcher_state.current_widget]);
+    widgets[launcher_state.current_widget].activate(&launcher_state.launcher_settings, widget_contexts[launcher_state.current_widget]);
 }
 
 void move_to_first_widget() {
     launcher_state.widget_changed = true;
-    widgets[launcher_state.current_widget].enter_background(&launcher_state.launcherSettings, widget_contexts[launcher_state.current_widget]);
+    widgets[launcher_state.current_widget].resign(&launcher_state.launcher_settings, widget_contexts[launcher_state.current_widget]);
     launcher_state.current_widget = 0;
-    widgets[0].enter_foreground(&launcher_state.launcherSettings, widget_contexts[0]);
-}
-
-void illuminate_led() {
-    launcher_state.light_ticks = 3;
+    widgets[0].activate(&launcher_state.launcher_settings, widget_contexts[0]);
 }
 
 void cb_light_pressed() {
