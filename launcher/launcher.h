@@ -42,7 +42,6 @@ typedef void (*launcher_widget_resign)(LauncherSettings *settings, void *context
 
 typedef struct WatchWidget {
     char widget_name[11];
-    bool snapback_enabled;
     launcher_widget_setup setup;
     launcher_widget_activate activate;
     launcher_widget_loop loop;
@@ -67,9 +66,8 @@ typedef struct LauncherState {
     uint8_t alarm_down_timestamp;
 } LauncherState;
 
-void cb_mode_pressed();
-void cb_light_pressed();
-void cb_alarm_pressed();
-void cb_tick();
+void launcher_move_to_next_widget();
+void launcher_move_to_first_widget();
+void launcher_illuminate_led();
 
 #endif // LAUNCHER_H_

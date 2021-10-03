@@ -20,7 +20,8 @@ INCLUDES += \
 #   ../utils/temperature.c
 SRCS += \
   ../launcher.c \
-  ../widgets/fake_widget.c \
+  ../widgets/fake_widget_1.c \
+  ../widgets/fake_widget_2.c \
 
 # Leave this line at the bottom of the file; it has all the targets for making your project.
 include $(TOP)/rules.mk
