@@ -61,6 +61,7 @@ void app_wake_from_deep_sleep() {
 void app_setup() {
     if (launcher_state.screensaver_ticks != -1) {
         watch_disable_extwake_interrupt(BTN_ALARM);
+        watch_rtc_disable_alarm_callback();
 
         watch_enable_external_interrupts();
         watch_register_interrupt_callback(BTN_MODE, cb_mode_btn_interrupt, INTERRUPT_TRIGGER_BOTH);
