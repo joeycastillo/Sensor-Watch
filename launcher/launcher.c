@@ -91,7 +91,7 @@ bool app_loop() {
     if (launcher_state.widget_changed) {
         if (launcher_state.launcher_settings.bit.button_should_sound) {
             // low note for nonzero case, high note for return to widget 0
-            watch_buzzer_play_note(launcher_state.current_widget ? BUZZER_NOTE_C7 : BUZZER_NOTE_C8, 50);
+            watch_buzzer_play_note(launcher_state.next_widget ? BUZZER_NOTE_C7 : BUZZER_NOTE_C8, 50);
         }
         widgets[launcher_state.current_widget].resign(&launcher_state.launcher_settings, widget_contexts[launcher_state.current_widget]);
         launcher_state.current_widget = launcher_state.next_widget;
