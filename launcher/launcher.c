@@ -1,19 +1,27 @@
 #include <stdio.h>
 #include <string.h>
+#include <limits.h>
 #include "watch.h"
 #include "launcher.h"
 #include "launcher_config.h"
 
 LauncherState launcher_state;
 void * widget_contexts[LAUNCHER_NUM_WIDGETS];
+const int32_t launcher_screensaver_deadlines[8] = {INT_MAX, 3600, 7200, 21600, 43200, 86400, 172800, 604800};
 
-void cb_mode_pressed();
-void cb_light_pressed();
-void cb_alarm_pressed();
+void cb_mode_btn_interrupt();
+void cb_light_btn_interrupt();
+void cb_alarm_btn_interrupt();
+void cb_alarm_btn_extwake();
+void cb_alarm_fired();
 void cb_tick();
 
+static inline void _launcher_reset_screensaver_countdown() {
+    // for testing, make the timeout happen 60x faster.
+    launcher_state.screensaver_ticks = launcher_screensaver_deadlines[launcher_state.launcher_settings.bit.screensaver_interval] / 60;
+}
+
 void launcher_request_tick_frequency(uint8_t freq) {
-    // FIXME: there is an issue where after changing tick frequencies on a widget switch, something glitchy happens on the next one.
     watch_rtc_disable_all_periodic_callbacks();
     launcher_state.subsecond = 0;
     launcher_state.tick_frequency = freq;
@@ -39,10 +47,11 @@ void launcher_move_to_next_widget() {
 
 void app_init() {
     memset(&launcher_state, 0, sizeof(launcher_state));
+
     launcher_state.launcher_settings.bit.led_green_color = 0xF;
     launcher_state.launcher_settings.bit.button_should_sound = true;
-    watch_date_time date_time = watch_rtc_get_date_time();
-    watch_rtc_set_date_time(date_time);
+    launcher_state.launcher_settings.bit.screensaver_interval = 1;
+    _launcher_reset_screensaver_countdown();
 }
 
 void app_wake_from_deep_sleep() {
@@ -50,23 +59,27 @@ void app_wake_from_deep_sleep() {
 }
 
 void app_setup() {
-    watch_enable_external_interrupts();
-    watch_register_interrupt_callback(BTN_MODE, cb_mode_pressed, INTERRUPT_TRIGGER_BOTH);
-    watch_register_interrupt_callback(BTN_LIGHT, cb_light_pressed, INTERRUPT_TRIGGER_BOTH);
-    watch_register_interrupt_callback(BTN_ALARM, cb_alarm_pressed, INTERRUPT_TRIGGER_BOTH);
+    if (launcher_state.screensaver_ticks != -1) {
+        watch_disable_extwake_interrupt(BTN_ALARM);
 
-    watch_enable_buzzer();
-    watch_enable_leds();
-    watch_enable_display();
+        watch_enable_external_interrupts();
+        watch_register_interrupt_callback(BTN_MODE, cb_mode_btn_interrupt, INTERRUPT_TRIGGER_BOTH);
+        watch_register_interrupt_callback(BTN_LIGHT, cb_light_btn_interrupt, INTERRUPT_TRIGGER_BOTH);
+        watch_register_interrupt_callback(BTN_ALARM, cb_alarm_btn_interrupt, INTERRUPT_TRIGGER_BOTH);
 
-    launcher_request_tick_frequency(1);
+        watch_enable_buzzer();
+        watch_enable_leds();
+        watch_enable_display();
 
-    for(uint8_t i = 0; i < LAUNCHER_NUM_WIDGETS; i++) {
-        widgets[i].setup(&launcher_state.launcher_settings, &widget_contexts[i]);
+        launcher_request_tick_frequency(1);
+
+        for(uint8_t i = 0; i < LAUNCHER_NUM_WIDGETS; i++) {
+            widgets[i].setup(&launcher_state.launcher_settings, &widget_contexts[i]);
+        }
+
+        widgets[0].activate(&launcher_state.launcher_settings, widget_contexts[launcher_state.current_widget]);
+        widgets[0].loop(EVENT_ACTIVATE, &launcher_state.launcher_settings, 0, widget_contexts[launcher_state.current_widget]);
     }
-
-    widgets[0].activate(&launcher_state.launcher_settings, widget_contexts[launcher_state.current_widget]);
-    widgets[0].loop(EVENT_ACTIVATE, &launcher_state.launcher_settings, 0, widget_contexts[launcher_state.current_widget]);
 }
 
 void app_prepare_for_sleep() {
@@ -106,6 +119,19 @@ bool app_loop() {
         }
     }
 
+    // if we have timed out of our screensaver countdown, enter screensaver mode.
+    if (launcher_state.screensaver_ticks == 0) {
+        launcher_state.screensaver_ticks = -1;
+        watch_date_time alarm_time;
+        alarm_time.reg = 0;
+        alarm_time.unit.second = 59; // after a match, the alarm fires at the next rising edge of CLK_RTC_CNT, so 59 seconds lets us update at :00
+        watch_rtc_register_alarm_callback(cb_alarm_fired, alarm_time, ALARM_MATCH_SS);
+        watch_register_extwake_callback(BTN_ALARM, cb_alarm_btn_extwake, true);
+        widgets[launcher_state.current_widget].loop(EVENT_SCREENSAVER, &launcher_state.launcher_settings, 0, widget_contexts[launcher_state.current_widget]);
+        event = EVENT_SCREENSAVER;
+        watch_enter_shallow_sleep(true);
+    }
+
     if (event) {
         widgets[launcher_state.current_widget].loop(event, &launcher_state.launcher_settings, launcher_state.subsecond, widget_contexts[launcher_state.current_widget]);
         event = 0;
@@ -130,16 +156,30 @@ LauncherEvent _figure_out_button_event(LauncherEvent button_down_event, uint8_t 
     }
 }
 
-void cb_light_pressed() {
+void cb_light_btn_interrupt() {
+    _launcher_reset_screensaver_countdown();
     event = _figure_out_button_event(EVENT_LIGHT_BUTTON_DOWN, &launcher_state.light_down_timestamp);
 }
 
-void cb_mode_pressed() {
+void cb_mode_btn_interrupt() {
+    _launcher_reset_screensaver_countdown();
     event = _figure_out_button_event(EVENT_MODE_BUTTON_DOWN, &launcher_state.mode_down_timestamp);
 }
 
-void cb_alarm_pressed() {
+void cb_alarm_btn_interrupt() {
+    _launcher_reset_screensaver_countdown();
     event = _figure_out_button_event(EVENT_ALARM_BUTTON_DOWN, &launcher_state.alarm_down_timestamp);
+}
+
+void cb_alarm_btn_extwake() {
+    _launcher_reset_screensaver_countdown();
+    // this is a hack: waking from shallow sleep, app_setup does get called, but it happens before we reset our ticks.
+    // need to figure out if there's a better heuristic for determining how we woke up.
+    app_setup();
+}
+
+void cb_alarm_fired() {
+    event = EVENT_SCREENSAVER;
 }
 
 void cb_tick() {
@@ -147,6 +187,7 @@ void cb_tick() {
     watch_date_time date_time = watch_rtc_get_date_time();
     if (date_time.unit.second != launcher_state.last_second) {
         if (launcher_state.light_ticks) launcher_state.light_ticks--;
+        if (launcher_state.launcher_settings.bit.screensaver_interval && launcher_state.screensaver_ticks > 0) launcher_state.screensaver_ticks--;
 
         launcher_state.last_second = date_time.unit.second;
         launcher_state.subsecond = 0;

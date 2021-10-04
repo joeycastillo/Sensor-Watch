@@ -151,11 +151,8 @@ void _watch_disable_all_peripherals_except_slcd() {
     MCLK->APBCMASK.reg &= ~MCLK_APBCMASK_SERCOM3;
 }
 
-void watch_enter_shallow_sleep(char *message) {
-    if (message != NULL) {
-        watch_display_string("          ", 0);
-        watch_display_string(message, 0);
-    } else {
+void watch_enter_shallow_sleep(bool display_on) {
+    if (!display_on) {
         slcd_sync_deinit(&SEGMENT_LCD_0);
         hri_mclk_clear_APBCMASK_SLCD_bit(SLCD);
     }

@@ -157,7 +157,7 @@ bool app_loop() {
         delay_ms(250);
 
         // nap time :)
-        watch_enter_shallow_sleep(NULL);
+        watch_enter_shallow_sleep(false);
 
         // we just woke up; wait a moment again for the user's finger to be off the button...
         delay_ms(250);

@@ -25,6 +25,7 @@ typedef enum LauncherEvent {
     EVENT_NONE = 0,             // There is no event to report.
     EVENT_ACTIVATE,             // Your widget is entering the foreground.
     EVENT_TICK,                 // Most common event type. Your widget is being called from the tick callback.
+    EVENT_SCREENSAVER,          // Your widget is being asked to display its output for screensaver mode.
     EVENT_LIGHT_BUTTON_DOWN,    // The light button has been pressed, but not yet released.
     EVENT_LIGHT_BUTTON_UP,      // The light button was pressed and released.
     EVENT_LIGHT_LONG_PRESS,     // The light button was held for >2 seconds, and released.
@@ -64,6 +65,9 @@ typedef struct LauncherState {
     uint8_t light_down_timestamp;
     uint8_t mode_down_timestamp;
     uint8_t alarm_down_timestamp;
+
+    // screensaver countdown
+    int32_t screensaver_ticks;
 
     // stuff for subsecond tracking
     uint8_t tick_frequency;
