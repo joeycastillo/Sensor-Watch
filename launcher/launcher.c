@@ -75,7 +75,7 @@ void app_setup() {
             widgets[i].setup(&launcher_state.launcher_settings, &widget_contexts[i]);
         }
 
-        widgets[0].activate(&launcher_state.launcher_settings, widget_contexts[launcher_state.current_widget]);
+        widgets[0].activate(&launcher_state.launcher_settings, widget_contexts[0]);
         event.value = 0;
         event.bit.event_type = EVENT_ACTIVATE;
     }
