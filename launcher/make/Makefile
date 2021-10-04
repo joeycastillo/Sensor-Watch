@@ -24,6 +24,7 @@ SRCS += \
   ../launcher.c \
   ../widgets/clock/simple_clock_widget.c \
   ../widgets/settings/preferences_widget.c \
+  ../widgets/settings/set_time_widget.c \
   ../widgets/fake_widget_1.c \
   ../widgets/fake_widget_2.c \
 
