@@ -67,7 +67,7 @@ bool preferences_widget_loop(LauncherEvent event, LauncherSettings *settings, vo
         case 2:
             switch (settings->bit.screensaver_interval) {
                 case 0:
-                    watch_display_string("never", 4);
+                    watch_display_string(" never", 4);
                     break;
                 case 1:
                     watch_display_string("1 hour", 4);
