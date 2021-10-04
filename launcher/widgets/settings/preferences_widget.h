@@ -5,7 +5,7 @@
 
 void preferences_widget_setup(LauncherSettings *settings, void ** context_ptr);
 void preferences_widget_activate(LauncherSettings *settings, void *context);
-void preferences_widget_loop(LauncherEvent event, LauncherSettings *settings, uint8_t subsecond, void *context);
+void preferences_widget_loop(LauncherEvent event, LauncherSettings *settings, void *context);
 void preferences_widget_resign(LauncherSettings *settings, void *context);
 
 #define preferences_widget { \

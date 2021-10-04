@@ -16,12 +16,12 @@ void preferences_widget_activate(LauncherSettings *settings, void *context) {
     launcher_request_tick_frequency(4); // we need to manually blink some pixels
 }
 
-void preferences_widget_loop(LauncherEvent event, LauncherSettings *settings, uint8_t subsecond, void *context) {
+void preferences_widget_loop(LauncherEvent event, LauncherSettings *settings, void *context) {
     (void) settings;
     (void) context;
     printf("preferences_widget_loop\n");
     uint8_t current_page = *((uint8_t *)context);
-    switch (event) {
+    switch (event.bit.event_type) {
         case EVENT_MODE_BUTTON_UP:
             launcher_move_to_next_widget();
             return;
@@ -63,7 +63,7 @@ void preferences_widget_loop(LauncherEvent event, LauncherSettings *settings, ui
         watch_set_led_off();
     }
 
-    if (subsecond % 2) return;
+    if (event.bit.subsecond % 2) return;
     char buf[3];
     switch (current_page) {
         case 0:

@@ -5,7 +5,7 @@
 
 void fake_widget_2_setup(LauncherSettings *settings, void ** context_ptr);
 void fake_widget_2_activate(LauncherSettings *settings, void *context);
-void fake_widget_2_loop(LauncherEvent event, LauncherSettings *settings, uint8_t subsecond, void *context);
+void fake_widget_2_loop(LauncherEvent event, LauncherSettings *settings, void *context);
 void fake_widget_2_resign(LauncherSettings *settings, void *context);
 
 #define fake_widget_2 { \

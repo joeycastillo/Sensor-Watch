@@ -8,6 +8,7 @@
 LauncherState launcher_state;
 void * widget_contexts[LAUNCHER_NUM_WIDGETS];
 const int32_t launcher_screensaver_deadlines[8] = {INT_MAX, 3600, 7200, 21600, 43200, 86400, 172800, 604800};
+LauncherEvent event;
 
 void cb_mode_btn_interrupt();
 void cb_light_btn_interrupt();
@@ -38,7 +39,9 @@ void launcher_move_to_widget(uint8_t widget_index) {
     launcher_state.current_widget = widget_index;
     watch_clear_display();
     widgets[launcher_state.current_widget].activate(&launcher_state.launcher_settings, widget_contexts[launcher_state.current_widget]);
-    widgets[launcher_state.current_widget].loop(EVENT_ACTIVATE, &launcher_state.launcher_settings, launcher_state.subsecond, widget_contexts[launcher_state.current_widget]);
+    event.value = 0;
+    event.bit.event_type = EVENT_ACTIVATE;
+    widgets[launcher_state.current_widget].loop(event, &launcher_state.launcher_settings, widget_contexts[launcher_state.current_widget]);
 }
 
 void launcher_move_to_next_widget() {
@@ -79,7 +82,8 @@ void app_setup() {
         }
 
         widgets[0].activate(&launcher_state.launcher_settings, widget_contexts[launcher_state.current_widget]);
-        widgets[0].loop(EVENT_ACTIVATE, &launcher_state.launcher_settings, 0, widget_contexts[launcher_state.current_widget]);
+        event.value = 0;
+        event.bit.event_type = EVENT_ACTIVATE;
     }
 }
 
@@ -88,8 +92,6 @@ void app_prepare_for_sleep() {
 
 void app_wake_from_sleep() {
 }
-
-LauncherEvent event;
 
 bool app_loop() {
     // play a beep if the widget has changed in response to a user's press of the MODE button
@@ -128,14 +130,16 @@ bool app_loop() {
         alarm_time.unit.second = 59; // after a match, the alarm fires at the next rising edge of CLK_RTC_CNT, so 59 seconds lets us update at :00
         watch_rtc_register_alarm_callback(cb_alarm_fired, alarm_time, ALARM_MATCH_SS);
         watch_register_extwake_callback(BTN_ALARM, cb_alarm_btn_extwake, true);
-        widgets[launcher_state.current_widget].loop(EVENT_SCREENSAVER, &launcher_state.launcher_settings, 0, widget_contexts[launcher_state.current_widget]);
-        event = EVENT_SCREENSAVER;
+        event.value = 0;
+        event.bit.event_type = EVENT_SCREENSAVER;
+        widgets[launcher_state.current_widget].loop(event, &launcher_state.launcher_settings, widget_contexts[launcher_state.current_widget]);
         watch_enter_shallow_sleep(true);
     }
 
-    if (event) {
-        widgets[launcher_state.current_widget].loop(event, &launcher_state.launcher_settings, launcher_state.subsecond, widget_contexts[launcher_state.current_widget]);
-        event = 0;
+    if (event.bit.event_type) {
+        event.bit.subsecond = launcher_state.subsecond;
+        widgets[launcher_state.current_widget].loop(event, &launcher_state.launcher_settings, widget_contexts[launcher_state.current_widget]);
+        event.value = 0;
     }
 
 
@@ -144,7 +148,7 @@ bool app_loop() {
     return true;
 }
 
-LauncherEvent _figure_out_button_event(LauncherEvent button_down_event, uint8_t *down_timestamp) {
+LauncherEventType _figure_out_button_event(LauncherEventType button_down_event, uint8_t *down_timestamp) {
     watch_date_time date_time = watch_rtc_get_date_time();
     if (*down_timestamp) {
         uint8_t diff = ((61 + date_time.unit.second) - *down_timestamp) % 60;
@@ -159,17 +163,17 @@ LauncherEvent _figure_out_button_event(LauncherEvent button_down_event, uint8_t 
 
 void cb_light_btn_interrupt() {
     _launcher_reset_screensaver_countdown();
-    event = _figure_out_button_event(EVENT_LIGHT_BUTTON_DOWN, &launcher_state.light_down_timestamp);
+    event.bit.event_type = _figure_out_button_event(EVENT_LIGHT_BUTTON_DOWN, &launcher_state.light_down_timestamp);
 }
 
 void cb_mode_btn_interrupt() {
     _launcher_reset_screensaver_countdown();
-    event = _figure_out_button_event(EVENT_MODE_BUTTON_DOWN, &launcher_state.mode_down_timestamp);
+    event.bit.event_type = _figure_out_button_event(EVENT_MODE_BUTTON_DOWN, &launcher_state.mode_down_timestamp);
 }
 
 void cb_alarm_btn_interrupt() {
     _launcher_reset_screensaver_countdown();
-    event = _figure_out_button_event(EVENT_ALARM_BUTTON_DOWN, &launcher_state.alarm_down_timestamp);
+    event.bit.event_type = _figure_out_button_event(EVENT_ALARM_BUTTON_DOWN, &launcher_state.alarm_down_timestamp);
 }
 
 void cb_alarm_btn_extwake() {
@@ -180,11 +184,11 @@ void cb_alarm_btn_extwake() {
 }
 
 void cb_alarm_fired() {
-    event = EVENT_SCREENSAVER;
+    event.bit.event_type = EVENT_SCREENSAVER;
 }
 
 void cb_tick() {
-    event = EVENT_TICK;
+    event.bit.event_type = EVENT_TICK;
     watch_date_time date_time = watch_rtc_get_date_time();
     if (date_time.unit.second != launcher_state.last_second) {
         if (launcher_state.light_ticks) launcher_state.light_ticks--;

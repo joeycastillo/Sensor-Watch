@@ -11,14 +11,13 @@ void fake_widget_2_activate(LauncherSettings *settings, void *context) {
     (void) context;
 }
 
-void fake_widget_2_loop(LauncherEvent event, LauncherSettings *settings, uint8_t subsecond, void *context) {
+void fake_widget_2_loop(LauncherEvent event, LauncherSettings *settings, void *context) {
     printf("fake_widget_2_loop\n");
     (void) settings;
-    (void) subsecond;
     (void) context;
     watch_display_string("W1 d get02", 0);
 
-    switch (event) {
+    switch (event.bit.event_type) {
         case EVENT_MODE_BUTTON_UP:
             launcher_move_to_next_widget();
             return;

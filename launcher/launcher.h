@@ -21,7 +21,7 @@ typedef union {
     uint32_t value;
 } LauncherSettings;
 
-typedef enum LauncherEvent {
+typedef enum {
     EVENT_NONE = 0,             // There is no event to report.
     EVENT_ACTIVATE,             // Your widget is entering the foreground.
     EVENT_TICK,                 // Most common event type. Your widget is being called from the tick callback.
@@ -35,11 +35,21 @@ typedef enum LauncherEvent {
     EVENT_ALARM_BUTTON_DOWN,    // The alarm button has been pressed, but not yet released.
     EVENT_ALARM_BUTTON_UP,      // The alarm button was pressed and released.
     EVENT_ALARM_LONG_PRESS,     // The alarm button was held for >2 seconds, and released.
+} LauncherEventType;
+
+typedef union {
+    struct {
+        uint32_t event_type : 8;
+        uint32_t subsecond : 8;
+        uint32_t reserved : 16;
+    } bit;
+    uint32_t value;
 } LauncherEvent;
+
 
 typedef void (*launcher_widget_setup)(LauncherSettings *settings, void ** context_ptr);
 typedef void (*launcher_widget_activate)(LauncherSettings *settings, void *context);
-typedef void (*launcher_widget_loop)(LauncherEvent event, LauncherSettings *settings, uint8_t subsecond, void *context);
+typedef void (*launcher_widget_loop)(LauncherEvent event, LauncherSettings *settings, void *context);
 typedef void (*launcher_widget_resign)(LauncherSettings *settings, void *context);
 
 typedef struct WatchWidget {
