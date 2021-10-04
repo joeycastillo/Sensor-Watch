@@ -130,9 +130,19 @@ bool app_loop() {
         watch_rtc_register_alarm_callback(cb_alarm_fired, alarm_time, ALARM_MATCH_SS);
         watch_register_extwake_callback(BTN_ALARM, cb_alarm_btn_extwake, true);
         event.value = 0;
-        event.bit.event_type = EVENT_SCREENSAVER;
-        widgets[launcher_state.current_widget].loop(event, &launcher_state.launcher_settings, widget_contexts[launcher_state.current_widget]);
-        watch_enter_shallow_sleep(true);
+
+        // this is a little mini-runloop.
+        // as long as screensaver_ticks is -1 (i.e. screensaver is active), we wake up here, update the screen, and go right back to sleep.
+        while (launcher_state.screensaver_ticks == -1) {
+            event.bit.event_type = EVENT_SCREENSAVER;
+            widgets[launcher_state.current_widget].loop(event, &launcher_state.launcher_settings, widget_contexts[launcher_state.current_widget]);
+            watch_enter_shallow_sleep(true);
+        }
+        // as soon as screensaver_ticks is reset by the extwake handler, we bail out of the loop and reactivate ourselves.
+        event.bit.event_type = EVENT_ACTIVATE;
+        // this is a hack tho: waking from shallow sleep, app_setup does get called, but it happens before we have reset our ticks.
+        // need to figure out if there's a better heuristic for determining how we woke up.
+        app_setup();
     }
 
     bool can_sleep = true;
@@ -175,10 +185,8 @@ void cb_alarm_btn_interrupt() {
 }
 
 void cb_alarm_btn_extwake() {
+    // wake up!
     _launcher_reset_screensaver_countdown();
-    // this is a hack: waking from shallow sleep, app_setup does get called, but it happens before we reset our ticks.
-    // need to figure out if there's a better heuristic for determining how we woke up.
-    app_setup();
 }
 
 void cb_alarm_fired() {
