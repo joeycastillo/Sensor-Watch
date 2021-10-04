@@ -3,7 +3,7 @@
 #include "watch.h"
 
 #define PREFERENCES_WIDGET_NUM_PREFEFENCES (5)
-const char preferences_widget_titles[PREFERENCES_WIDGET_NUM_PREFEFENCES][11] = {"CL", "Bt  Beep", "SC", "Lt   grn", "Lt   red"};
+const char preferences_widget_titles[PREFERENCES_WIDGET_NUM_PREFEFENCES][11] = {"CL        ", "Bt  Beep  ", "SC        ", "Lt   grn  ", "Lt   red  "};
 
 void preferences_widget_setup(LauncherSettings *settings, void ** context_ptr) {
     (void) settings;
@@ -17,8 +17,6 @@ void preferences_widget_activate(LauncherSettings *settings, void *context) {
 }
 
 bool preferences_widget_loop(LauncherEvent event, LauncherSettings *settings, void *context) {
-    (void) settings;
-    (void) context;
     printf("preferences_widget_loop\n");
     uint8_t current_page = *((uint8_t *)context);
     switch (event.bit.event_type) {
@@ -53,7 +51,6 @@ bool preferences_widget_loop(LauncherEvent event, LauncherSettings *settings, vo
             break;
     }
 
-    watch_clear_display();
     watch_display_string((char *)preferences_widget_titles[current_page], 0);
 
     if (event.bit.subsecond % 2) return current_page <= 2;
