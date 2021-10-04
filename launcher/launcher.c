@@ -145,7 +145,7 @@ bool app_loop() {
         app_setup();
     }
 
-    bool can_sleep = true;
+    static bool can_sleep = true;
 
     if (event.bit.event_type) {
         event.bit.subsecond = launcher_state.subsecond;
