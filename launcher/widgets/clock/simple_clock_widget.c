@@ -17,7 +17,7 @@ void simple_clock_widget_activate(LauncherSettings *settings, void *context) {
     *((uint32_t *)context) = 0xFFFFFFFF;
 }
 
-void simple_clock_widget_loop(LauncherEvent event, LauncherSettings *settings, void *context) {
+bool simple_clock_widget_loop(LauncherEvent event, LauncherSettings *settings, void *context) {
     printf("simple_clock_widget_loop\n");
     const char weekdays[7][3] = {"SA", "SU", "MO", "TU", "WE", "TH", "FR"};
     char buf[11];
@@ -64,7 +64,7 @@ void simple_clock_widget_loop(LauncherEvent event, LauncherSettings *settings, v
             break;
         case EVENT_MODE_BUTTON_UP:
             launcher_move_to_next_widget();
-            return;
+            return false;
         case EVENT_LIGHT_BUTTON_UP:
             launcher_illuminate_led();
             break;
@@ -73,6 +73,8 @@ void simple_clock_widget_loop(LauncherEvent event, LauncherSettings *settings, v
         default:
             break;
     }
+
+    return true;
 }
 
 void simple_clock_widget_resign(LauncherSettings *settings, void *context) {

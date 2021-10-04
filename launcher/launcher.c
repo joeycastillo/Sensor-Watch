@@ -35,13 +35,7 @@ void launcher_illuminate_led() {
 
 void launcher_move_to_widget(uint8_t widget_index) {
     launcher_state.widget_changed = true;
-    widgets[launcher_state.current_widget].resign(&launcher_state.launcher_settings, widget_contexts[launcher_state.current_widget]);
-    launcher_state.current_widget = widget_index;
-    watch_clear_display();
-    widgets[launcher_state.current_widget].activate(&launcher_state.launcher_settings, widget_contexts[launcher_state.current_widget]);
-    event.value = 0;
-    event.bit.event_type = EVENT_ACTIVATE;
-    widgets[launcher_state.current_widget].loop(event, &launcher_state.launcher_settings, widget_contexts[launcher_state.current_widget]);
+    launcher_state.next_widget = widget_index;
 }
 
 void launcher_move_to_next_widget() {
@@ -94,12 +88,17 @@ void app_wake_from_sleep() {
 }
 
 bool app_loop() {
-    // play a beep if the widget has changed in response to a user's press of the MODE button
     if (launcher_state.widget_changed) {
-        // low note for nonzero case, high note for return to widget 0
         if (launcher_state.launcher_settings.bit.button_should_sound) {
+            // low note for nonzero case, high note for return to widget 0
             watch_buzzer_play_note(launcher_state.current_widget ? BUZZER_NOTE_C7 : BUZZER_NOTE_C8, 50);
         }
+        widgets[launcher_state.current_widget].resign(&launcher_state.launcher_settings, widget_contexts[launcher_state.current_widget]);
+        launcher_state.current_widget = launcher_state.next_widget;
+        watch_clear_display();
+        widgets[launcher_state.current_widget].activate(&launcher_state.launcher_settings, widget_contexts[launcher_state.current_widget]);
+        event.value = 0;
+        event.bit.event_type = EVENT_ACTIVATE;
         launcher_state.widget_changed = false;
     }
 
@@ -136,16 +135,15 @@ bool app_loop() {
         watch_enter_shallow_sleep(true);
     }
 
+    bool can_sleep = true;
+
     if (event.bit.event_type) {
         event.bit.subsecond = launcher_state.subsecond;
-        widgets[launcher_state.current_widget].loop(event, &launcher_state.launcher_settings, widget_contexts[launcher_state.current_widget]);
+        can_sleep = widgets[launcher_state.current_widget].loop(event, &launcher_state.launcher_settings, widget_contexts[launcher_state.current_widget]);
         event.value = 0;
     }
 
-
-    if (launcher_state.led_on) return false;
-
-    return true;
+    return can_sleep && !launcher_state.led_on;
 }
 
 LauncherEventType _figure_out_button_event(LauncherEventType button_down_event, uint8_t *down_timestamp) {

@@ -11,7 +11,7 @@ void fake_widget_1_activate(LauncherSettings *settings, void *context) {
     (void) context;
 }
 
-void fake_widget_1_loop(LauncherEvent event, LauncherSettings *settings, void *context) {
+bool fake_widget_1_loop(LauncherEvent event, LauncherSettings *settings, void *context) {
     printf("fake_widget_1_loop\n");
     (void) settings;
     (void) context;
@@ -20,13 +20,15 @@ void fake_widget_1_loop(LauncherEvent event, LauncherSettings *settings, void *c
     switch (event.bit.event_type) {
         case EVENT_MODE_BUTTON_UP:
             launcher_move_to_next_widget();
-            return;
+            return false;
         case EVENT_LIGHT_BUTTON_UP:
             launcher_illuminate_led();
             break;
         default:
             break;
     }
+
+    return true;
 }
 
 void fake_widget_1_resign(LauncherSettings *settings, void *context) {

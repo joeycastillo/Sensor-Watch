@@ -49,7 +49,7 @@ typedef union {
 
 typedef void (*launcher_widget_setup)(LauncherSettings *settings, void ** context_ptr);
 typedef void (*launcher_widget_activate)(LauncherSettings *settings, void *context);
-typedef void (*launcher_widget_loop)(LauncherEvent event, LauncherSettings *settings, void *context);
+typedef bool (*launcher_widget_loop)(LauncherEvent event, LauncherSettings *settings, void *context);
 typedef void (*launcher_widget_resign)(LauncherSettings *settings, void *context);
 
 typedef struct WatchWidget {
@@ -65,6 +65,7 @@ typedef struct LauncherState {
 
     // transient properties
     int16_t current_widget;
+    int16_t next_widget;
     bool widget_changed;
 
     // LED stuff

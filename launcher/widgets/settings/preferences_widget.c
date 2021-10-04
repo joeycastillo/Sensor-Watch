@@ -16,15 +16,16 @@ void preferences_widget_activate(LauncherSettings *settings, void *context) {
     launcher_request_tick_frequency(4); // we need to manually blink some pixels
 }
 
-void preferences_widget_loop(LauncherEvent event, LauncherSettings *settings, void *context) {
+bool preferences_widget_loop(LauncherEvent event, LauncherSettings *settings, void *context) {
     (void) settings;
     (void) context;
     printf("preferences_widget_loop\n");
     uint8_t current_page = *((uint8_t *)context);
     switch (event.bit.event_type) {
         case EVENT_MODE_BUTTON_UP:
+            watch_set_led_off();
             launcher_move_to_next_widget();
-            return;
+            return false;
         case EVENT_LIGHT_BUTTON_UP:
             current_page = (current_page + 1) % PREFERENCES_WIDGET_NUM_PREFEFENCES;
             *((uint8_t *)context) = current_page;
@@ -54,16 +55,8 @@ void preferences_widget_loop(LauncherEvent event, LauncherSettings *settings, vo
 
     watch_clear_display();
     watch_display_string((char *)preferences_widget_titles[current_page], 0);
-    if (current_page > 2) {
-        // this is a hack, launcher should be able to illumate with a custom color.
-        launcher_illuminate_led();
-        watch_set_led_color(settings->bit.led_red_color ? (0xF | settings->bit.led_red_color << 4) : 0,
-                            settings->bit.led_green_color ? (0xF | settings->bit.led_green_color << 4) : 0);
-    } else {
-        watch_set_led_off();
-    }
 
-    if (event.bit.subsecond % 2) return;
+    if (event.bit.subsecond % 2) return current_page <= 2;
     char buf[3];
     switch (current_page) {
         case 0:
@@ -111,6 +104,15 @@ void preferences_widget_loop(LauncherEvent event, LauncherSettings *settings, vo
             watch_display_string(buf, 8);
             break;
     }
+
+    if (current_page > 2) {
+        watch_set_led_color(settings->bit.led_red_color ? (0xF | settings->bit.led_red_color << 4) : 0,
+                            settings->bit.led_green_color ? (0xF | settings->bit.led_green_color << 4) : 0);
+        return false;
+    }
+
+    watch_set_led_off();
+    return true;
 }
 
 void preferences_widget_resign(LauncherSettings *settings, void *context) {
