@@ -56,6 +56,14 @@ void app_wake_from_deep_sleep() {
 }
 
 void app_setup() {
+    static bool is_first_launch = true;
+
+    if (is_first_launch) {
+        for(uint8_t i = 0; i < LAUNCHER_NUM_WIDGETS; i++) {
+            widget_contexts[i] = NULL;
+            is_first_launch = false;
+        }
+    }
     if (launcher_state.screensaver_ticks != -1) {
         watch_disable_extwake_interrupt(BTN_ALARM);
         watch_rtc_disable_alarm_callback();

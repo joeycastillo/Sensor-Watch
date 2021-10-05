@@ -5,7 +5,7 @@
 void simple_clock_widget_setup(LauncherSettings *settings, void ** context_ptr) {
     (void) settings;
     // the only context we need is the timestamp of the previous tick.
-    *context_ptr = malloc(sizeof(uint32_t));
+    if (*context_ptr == NULL) *context_ptr = malloc(sizeof(uint32_t));
 }
 
 void simple_clock_widget_activate(LauncherSettings *settings, void *context) {

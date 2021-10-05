@@ -7,7 +7,7 @@ const char preferences_widget_titles[PREFERENCES_WIDGET_NUM_PREFEFENCES][11] = {
 
 void preferences_widget_setup(LauncherSettings *settings, void ** context_ptr) {
     (void) settings;
-    *context_ptr = malloc(sizeof(uint8_t));
+    if (*context_ptr == NULL) *context_ptr = malloc(sizeof(uint8_t));
 }
 
 void preferences_widget_activate(LauncherSettings *settings, void *context) {

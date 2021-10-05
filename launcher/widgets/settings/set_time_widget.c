@@ -7,7 +7,7 @@ const char set_time_widget_titles[SET_TIME_WIDGET_NUM_SETTINGS][3] = {"HR", "MN"
 
 void set_time_widget_setup(LauncherSettings *settings, void ** context_ptr) {
     (void) settings;
-    *context_ptr = malloc(sizeof(uint8_t));
+    if (*context_ptr == NULL) *context_ptr = malloc(sizeof(uint8_t));
 }
 
 void set_time_widget_activate(LauncherSettings *settings, void *context) {
