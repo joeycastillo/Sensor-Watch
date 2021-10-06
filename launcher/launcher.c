@@ -84,8 +84,8 @@ void app_setup() {
         }
 
         widgets[0].activate(&launcher_state.launcher_settings, widget_contexts[0]);
-        event.value = 0;
-        event.bit.event_type = EVENT_ACTIVATE;
+        event.subsecond = 0;
+        event.event_type = EVENT_ACTIVATE;
     }
 }
 
@@ -105,8 +105,8 @@ bool app_loop() {
         launcher_state.current_widget = launcher_state.next_widget;
         watch_clear_display();
         widgets[launcher_state.current_widget].activate(&launcher_state.launcher_settings, widget_contexts[launcher_state.current_widget]);
-        event.value = 0;
-        event.bit.event_type = EVENT_ACTIVATE;
+        event.subsecond = 0;
+        event.event_type = EVENT_ACTIVATE;
         launcher_state.widget_changed = false;
     }
 
@@ -137,17 +137,18 @@ bool app_loop() {
         alarm_time.unit.second = 59; // after a match, the alarm fires at the next rising edge of CLK_RTC_CNT, so 59 seconds lets us update at :00
         watch_rtc_register_alarm_callback(cb_alarm_fired, alarm_time, ALARM_MATCH_SS);
         watch_register_extwake_callback(BTN_ALARM, cb_alarm_btn_extwake, true);
-        event.value = 0;
+        event.event_type = EVENT_NONE;
+        event.subsecond = 0;
 
         // this is a little mini-runloop.
         // as long as screensaver_ticks is -1 (i.e. screensaver is active), we wake up here, update the screen, and go right back to sleep.
         while (launcher_state.screensaver_ticks == -1) {
-            event.bit.event_type = EVENT_SCREENSAVER;
+            event.event_type = EVENT_SCREENSAVER;
             widgets[launcher_state.current_widget].loop(event, &launcher_state.launcher_settings, widget_contexts[launcher_state.current_widget]);
             watch_enter_shallow_sleep(true);
         }
         // as soon as screensaver_ticks is reset by the extwake handler, we bail out of the loop and reactivate ourselves.
-        event.bit.event_type = EVENT_ACTIVATE;
+        event.event_type = EVENT_ACTIVATE;
         // this is a hack tho: waking from shallow sleep, app_setup does get called, but it happens before we have reset our ticks.
         // need to figure out if there's a better heuristic for determining how we woke up.
         app_setup();
@@ -155,10 +156,11 @@ bool app_loop() {
 
     static bool can_sleep = true;
 
-    if (event.bit.event_type) {
-        event.bit.subsecond = launcher_state.subsecond;
+    if (event.event_type) {
+        event.subsecond = launcher_state.subsecond;
         can_sleep = widgets[launcher_state.current_widget].loop(event, &launcher_state.launcher_settings, widget_contexts[launcher_state.current_widget]);
-        event.value = 0;
+        event.event_type = EVENT_NONE;
+        event.subsecond = 0;
     }
 
     return can_sleep && !launcher_state.led_on;
@@ -179,17 +181,17 @@ LauncherEventType _figure_out_button_event(LauncherEventType button_down_event, 
 
 void cb_light_btn_interrupt() {
     _launcher_reset_screensaver_countdown();
-    event.bit.event_type = _figure_out_button_event(EVENT_LIGHT_BUTTON_DOWN, &launcher_state.light_down_timestamp);
+    event.event_type = _figure_out_button_event(EVENT_LIGHT_BUTTON_DOWN, &launcher_state.light_down_timestamp);
 }
 
 void cb_mode_btn_interrupt() {
     _launcher_reset_screensaver_countdown();
-    event.bit.event_type = _figure_out_button_event(EVENT_MODE_BUTTON_DOWN, &launcher_state.mode_down_timestamp);
+    event.event_type = _figure_out_button_event(EVENT_MODE_BUTTON_DOWN, &launcher_state.mode_down_timestamp);
 }
 
 void cb_alarm_btn_interrupt() {
     _launcher_reset_screensaver_countdown();
-    event.bit.event_type = _figure_out_button_event(EVENT_ALARM_BUTTON_DOWN, &launcher_state.alarm_down_timestamp);
+    event.event_type = _figure_out_button_event(EVENT_ALARM_BUTTON_DOWN, &launcher_state.alarm_down_timestamp);
 }
 
 void cb_alarm_btn_extwake() {
@@ -198,11 +200,11 @@ void cb_alarm_btn_extwake() {
 }
 
 void cb_alarm_fired() {
-    event.bit.event_type = EVENT_SCREENSAVER;
+    event.event_type = EVENT_SCREENSAVER;
 }
 
 void cb_tick() {
-    event.bit.event_type = EVENT_TICK;
+    event.event_type = EVENT_TICK;
     watch_date_time date_time = watch_rtc_get_date_time();
     if (date_time.unit.second != launcher_state.last_second) {
         if (launcher_state.light_ticks) launcher_state.light_ticks--;

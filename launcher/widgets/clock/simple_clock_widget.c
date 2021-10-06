@@ -25,7 +25,7 @@ bool simple_clock_widget_loop(LauncherEvent event, LauncherSettings *settings, v
 
     watch_date_time date_time;
     uint32_t previous_date_time;
-    switch (event.bit.event_type) {
+    switch (event.event_type) {
         case EVENT_ACTIVATE:
         case EVENT_TICK:
         case EVENT_SCREENSAVER:
@@ -33,11 +33,11 @@ bool simple_clock_widget_loop(LauncherEvent event, LauncherSettings *settings, v
             previous_date_time = *((uint32_t *)context);
             *((uint32_t *)context) = date_time.reg;
 
-            if (date_time.reg >> 6 == previous_date_time >> 6 && event.bit.event_type != EVENT_SCREENSAVER) {
+            if (date_time.reg >> 6 == previous_date_time >> 6 && event.event_type != EVENT_SCREENSAVER) {
                 // everything before seconds is the same, don't waste cycles setting those segments.
                 pos = 8;
                 sprintf(buf, "%02d", date_time.unit.second);
-            } else if (date_time.reg >> 12 == previous_date_time >> 12 && event.bit.event_type != EVENT_SCREENSAVER) {
+            } else if (date_time.reg >> 12 == previous_date_time >> 12 && event.event_type != EVENT_SCREENSAVER) {
                 // everything before minutes is the same.
                 pos = 6;
                 sprintf(buf, "%02d%02d", date_time.unit.minute, date_time.unit.second);
@@ -54,7 +54,7 @@ bool simple_clock_widget_loop(LauncherEvent event, LauncherSettings *settings, v
                     if (date_time.unit.hour == 0) date_time.unit.hour = 12;
                 }
                 pos = 0;
-                if (event.bit.event_type == EVENT_SCREENSAVER) {
+                if (event.event_type == EVENT_SCREENSAVER) {
                     sprintf(buf, "%s%2d%2d%02d  ", weekdays[simple_clock_widget_get_weekday(date_time.unit.year, date_time.unit.month, date_time.unit.day)], date_time.unit.day, date_time.unit.hour, date_time.unit.minute);
                 } else {
                     sprintf(buf, "%s%2d%2d%02d%02d", weekdays[simple_clock_widget_get_weekday(date_time.unit.year, date_time.unit.month, date_time.unit.day)], date_time.unit.day, date_time.unit.hour, date_time.unit.minute, date_time.unit.second);

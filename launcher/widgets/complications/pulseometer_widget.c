@@ -20,7 +20,7 @@ bool pulseometer_widget_loop(LauncherEvent event, LauncherSettings *settings, vo
     char buf[14];
     // starts at index 15
     const uint8_t pulse_lookup[] = {240, 225, 212, 200, 189, 180, 171, 164, 157, 150, 144, 138, 133, 129, 124, 120, 116, 113, 109, 106, 103, 100, 97, 95, 92, 90, 88, 86, 84, 82, 80, 78, 77, 75, 73, 72, 71, 69, 68, 67, 65, 64, 63, 62, 61, 60, 59, 58, 57, 56, 55, 55, 54, 53, 52, 51, 51, 50, 49, 49, 48, 47, 47, 46, 46, 45, 44, 44, 43, 43, 42, 42, 41, 41, 40, 40, 40};
-    switch (event.bit.event_type) {
+    switch (event.event_type) {
         case EVENT_TICK:
             if (pulsometer_state->pulse == 0 && !pulsometer_state->measuring) {
                 switch (pulsometer_state->ticks % 5) {

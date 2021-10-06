@@ -37,29 +37,24 @@ typedef enum {
     EVENT_ALARM_LONG_PRESS,     // The alarm button was held for >2 seconds, and released.
 } LauncherEventType;
 
-typedef union {
-    struct {
-        uint32_t event_type : 8;
-        uint32_t subsecond : 8;
-        uint32_t reserved : 16;
-    } bit;
-    uint32_t value;
+typedef struct {
+    uint8_t event_type;
+    uint8_t subsecond;
 } LauncherEvent;
-
 
 typedef void (*launcher_widget_setup)(LauncherSettings *settings, void ** context_ptr);
 typedef void (*launcher_widget_activate)(LauncherSettings *settings, void *context);
 typedef bool (*launcher_widget_loop)(LauncherEvent event, LauncherSettings *settings, void *context);
 typedef void (*launcher_widget_resign)(LauncherSettings *settings, void *context);
 
-typedef struct WatchWidget {
+typedef struct {
     launcher_widget_setup setup;
     launcher_widget_activate activate;
     launcher_widget_loop loop;
     launcher_widget_resign resign;
 } WatchWidget;
 
-typedef struct LauncherState {
+typedef struct {
     // properties stored in BACKUP register
     LauncherSettings launcher_settings;
 

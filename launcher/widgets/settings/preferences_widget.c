@@ -19,7 +19,7 @@ void preferences_widget_activate(LauncherSettings *settings, void *context) {
 bool preferences_widget_loop(LauncherEvent event, LauncherSettings *settings, void *context) {
     printf("preferences_widget_loop\n");
     uint8_t current_page = *((uint8_t *)context);
-    switch (event.bit.event_type) {
+    switch (event.event_type) {
         case EVENT_MODE_BUTTON_UP:
             watch_set_led_off();
             launcher_move_to_next_widget();
@@ -53,7 +53,7 @@ bool preferences_widget_loop(LauncherEvent event, LauncherSettings *settings, vo
 
     watch_display_string((char *)preferences_widget_titles[current_page], 0);
 
-    if (event.bit.subsecond % 2) return current_page <= 2;
+    if (event.subsecond % 2) return current_page <= 2;
     char buf[3];
     switch (current_page) {
         case 0:

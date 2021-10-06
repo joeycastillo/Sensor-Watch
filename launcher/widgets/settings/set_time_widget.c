@@ -21,7 +21,7 @@ bool set_time_widget_loop(LauncherEvent event, LauncherSettings *settings, void 
     const uint8_t days_in_month[12] = {31, 28, 31, 30, 31, 30, 30, 31, 30, 31, 30, 31};
     watch_date_time date_time = watch_rtc_get_date_time();
 
-    switch (event.bit.event_type) {
+    switch (event.event_type) {
         case EVENT_MODE_BUTTON_UP:
             launcher_move_to_next_widget();
             return false;
@@ -79,7 +79,7 @@ bool set_time_widget_loop(LauncherEvent event, LauncherSettings *settings, void 
         watch_clear_indicator(WATCH_INDICATOR_PM);
         sprintf(buf, "%s  %2d%02d%02d", set_time_widget_titles[current_page], date_time.unit.year + 20, date_time.unit.month, date_time.unit.day);
     }
-    if (event.bit.subsecond % 2) {
+    if (event.subsecond % 2) {
         switch (current_page) {
             case 0:
             case 3:
