@@ -13,6 +13,7 @@ void preferences_face_resign(movement_settings_t *settings, void *context);
     preferences_face_activate, \
     preferences_face_loop, \
     preferences_face_resign, \
+    NULL, \
 }
 
 #endif // PREFERENCES_FACE_H_

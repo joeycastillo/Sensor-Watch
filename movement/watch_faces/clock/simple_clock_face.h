@@ -15,6 +15,7 @@ uint8_t simple_clock_face_get_weekday(uint16_t day, uint16_t month, uint16_t yea
     simple_clock_face_activate, \
     simple_clock_face_loop, \
     simple_clock_face_resign, \
+    NULL, \
 }
 
 #endif // FAKE_FACE_H_

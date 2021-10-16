@@ -13,6 +13,7 @@ void set_time_face_resign(movement_settings_t *settings, void *context);
     set_time_face_activate, \
     set_time_face_loop, \
     set_time_face_resign, \
+    NULL, \
 }
 
 #endif // SET_TIME_FACE_H_

@@ -144,7 +144,7 @@ bool app_loop() {
         // this is a little mini-runloop.
         // as long as le_mode_ticks is -1 (i.e. we are in low energy mode), we wake up here, update the screen, and go right back to sleep.
         while (movement_state.le_mode_ticks == -1) {
-            event.event_type = EVENT_LOW_POWER_TICK;
+            event.event_type = EVENT_LOW_ENERGY_UPDATE;
             watch_faces[movement_state.current_watch_face].loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
             watch_enter_shallow_sleep(true);
         }
@@ -201,7 +201,7 @@ void cb_alarm_btn_extwake() {
 }
 
 void cb_alarm_fired() {
-    event.event_type = EVENT_LOW_POWER_TICK;
+    event.event_type = EVENT_LOW_ENERGY_UPDATE;
 }
 
 void cb_tick() {

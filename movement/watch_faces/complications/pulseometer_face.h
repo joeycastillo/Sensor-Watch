@@ -19,6 +19,7 @@ void pulseometer_face_resign(movement_settings_t *settings, void *context);
     pulseometer_face_activate, \
     pulseometer_face_loop, \
     pulseometer_face_resign, \
+    NULL, \
 }
 
 #endif // PULSEOMETER_FACE_H_
