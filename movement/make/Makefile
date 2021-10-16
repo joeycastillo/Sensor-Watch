@@ -7,26 +7,26 @@ include $(TOP)/make.mk
 # INCLUDES += \
 #   -I../ \
 #   -I../drivers/ \
-#   -I../widgets/fitness/
+#   -I../watch_faces/fitness/
 INCLUDES += \
   -I../ \
-  -I../widgets/ \
-  -I../widgets/clock/ \
-  -I../widgets/settings/ \
-  -I../widgets/complications/ \
+  -I../watch_faces/ \
+  -I../watch_faces/clock/ \
+  -I../watch_faces/settings/ \
+  -I../watch_faces/complications/ \
 
 # If you add any other source files you wish to compile, add them after ../app.c
 # Note that you will need to add a backslash at the end of any line you wish to continue, i.e.
 # SRCS += \
 #   ../movement.c \
 #   ../drivers/lis2dh.c \
-#   ../widgets/fitness/step_count_widget.c
+#   ../watch_faces/fitness/step_count_face.c
 SRCS += \
   ../movement.c \
-  ../widgets/clock/simple_clock_widget.c \
-  ../widgets/settings/preferences_widget.c \
-  ../widgets/settings/set_time_widget.c \
-  ../widgets/complications/pulseometer_widget.c \
+  ../watch_faces/clock/simple_clock_face.c \
+  ../watch_faces/settings/preferences_face.c \
+  ../watch_faces/settings/set_time_face.c \
+  ../watch_faces/complications/pulseometer_face.c \
 
 # Leave this line at the bottom of the file; it has all the targets for making your project.
 include $(TOP)/rules.mk

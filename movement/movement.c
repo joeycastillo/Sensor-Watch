@@ -6,7 +6,7 @@
 #include "movement_config.h"
 
 LauncherState movement_state;
-void * widget_contexts[MOVEMENT_NUM_WIDGETS];
+void * watch_face_contexts[MOVEMENT_NUM_FACES];
 const int32_t movement_screensaver_deadlines[8] = {INT_MAX, 3600, 7200, 21600, 43200, 86400, 172800, 604800};
 LauncherEvent event;
 
@@ -33,13 +33,13 @@ void movement_illuminate_led() {
     movement_state.light_ticks = 3;
 }
 
-void movement_move_to_widget(uint8_t widget_index) {
-    movement_state.widget_changed = true;
-    movement_state.next_widget = widget_index;
+void movement_move_to_face(uint8_t watch_face_index) {
+    movement_state.watch_face_changed = true;
+    movement_state.next_face = watch_face_index;
 }
 
-void movement_move_to_next_widget() {
-    movement_move_to_widget((movement_state.current_widget + 1) % MOVEMENT_NUM_WIDGETS);
+void movement_move_to_next_face() {
+    movement_move_to_face((movement_state.current_watch_face + 1) % MOVEMENT_NUM_FACES);
 }
 
 void app_init() {
@@ -59,8 +59,8 @@ void app_setup() {
     static bool is_first_launch = true;
 
     if (is_first_launch) {
-        for(uint8_t i = 0; i < MOVEMENT_NUM_WIDGETS; i++) {
-            widget_contexts[i] = NULL;
+        for(uint8_t i = 0; i < MOVEMENT_NUM_FACES; i++) {
+            watch_face_contexts[i] = NULL;
             is_first_launch = false;
         }
     }
@@ -79,11 +79,11 @@ void app_setup() {
 
         movement_request_tick_frequency(1);
 
-        for(uint8_t i = 0; i < MOVEMENT_NUM_WIDGETS; i++) {
-            widgets[i].setup(&movement_state.movement_settings, &widget_contexts[i]);
+        for(uint8_t i = 0; i < MOVEMENT_NUM_FACES; i++) {
+            watch_faces[i].setup(&movement_state.movement_settings, &watch_face_contexts[i]);
         }
 
-        widgets[0].activate(&movement_state.movement_settings, widget_contexts[0]);
+        watch_faces[0].activate(&movement_state.movement_settings, watch_face_contexts[0]);
         event.subsecond = 0;
         event.event_type = EVENT_ACTIVATE;
     }
@@ -96,18 +96,18 @@ void app_wake_from_sleep() {
 }
 
 bool app_loop() {
-    if (movement_state.widget_changed) {
+    if (movement_state.watch_face_changed) {
         if (movement_state.movement_settings.bit.button_should_sound) {
-            // low note for nonzero case, high note for return to widget 0
-            watch_buzzer_play_note(movement_state.next_widget ? BUZZER_NOTE_C7 : BUZZER_NOTE_C8, 50);
+            // low note for nonzero case, high note for return to watch_face 0
+            watch_buzzer_play_note(movement_state.next_face ? BUZZER_NOTE_C7 : BUZZER_NOTE_C8, 50);
         }
-        widgets[movement_state.current_widget].resign(&movement_state.movement_settings, widget_contexts[movement_state.current_widget]);
-        movement_state.current_widget = movement_state.next_widget;
+        watch_faces[movement_state.current_watch_face].resign(&movement_state.movement_settings, watch_face_contexts[movement_state.current_watch_face]);
+        movement_state.current_watch_face = movement_state.next_face;
         watch_clear_display();
-        widgets[movement_state.current_widget].activate(&movement_state.movement_settings, widget_contexts[movement_state.current_widget]);
+        watch_faces[movement_state.current_watch_face].activate(&movement_state.movement_settings, watch_face_contexts[movement_state.current_watch_face]);
         event.subsecond = 0;
         event.event_type = EVENT_ACTIVATE;
-        movement_state.widget_changed = false;
+        movement_state.watch_face_changed = false;
     }
 
     // If the LED is off and should be on, turn it on
@@ -144,7 +144,7 @@ bool app_loop() {
         // as long as screensaver_ticks is -1 (i.e. screensaver is active), we wake up here, update the screen, and go right back to sleep.
         while (movement_state.screensaver_ticks == -1) {
             event.event_type = EVENT_SCREENSAVER;
-            widgets[movement_state.current_widget].loop(event, &movement_state.movement_settings, widget_contexts[movement_state.current_widget]);
+            watch_faces[movement_state.current_watch_face].loop(event, &movement_state.movement_settings, watch_face_contexts[movement_state.current_watch_face]);
             watch_enter_shallow_sleep(true);
         }
         // as soon as screensaver_ticks is reset by the extwake handler, we bail out of the loop and reactivate ourselves.
@@ -158,7 +158,7 @@ bool app_loop() {
 
     if (event.event_type) {
         event.subsecond = movement_state.subsecond;
-        can_sleep = widgets[movement_state.current_widget].loop(event, &movement_state.movement_settings, widget_contexts[movement_state.current_widget]);
+        can_sleep = watch_faces[movement_state.current_watch_face].loop(event, &movement_state.movement_settings, watch_face_contexts[movement_state.current_watch_face]);
         event.event_type = EVENT_NONE;
         event.subsecond = 0;
     }

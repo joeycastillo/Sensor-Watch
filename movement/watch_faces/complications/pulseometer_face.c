@@ -1,23 +1,23 @@
 #include <stdlib.h>
 #include <string.h>
-#include "pulseometer_widget.h"
+#include "pulseometer_face.h"
 #include "watch.h"
 
-#define PULSOMETER_WIDGET_FREQUENCY_FACTOR (4ul) // refresh rate will be 2 to this power Hz (0 for 1 Hz, 2 for 4 Hz, etc.)
-#define PULSOMETER_WIDGET_FREQUENCY (1 << PULSOMETER_WIDGET_FREQUENCY_FACTOR)
+#define PULSOMETER_FACE_FREQUENCY_FACTOR (4ul) // refresh rate will be 2 to this power Hz (0 for 1 Hz, 2 for 4 Hz, etc.)
+#define PULSOMETER_FACE_FREQUENCY (1 << PULSOMETER_FACE_FREQUENCY_FACTOR)
 
-void pulseometer_widget_setup(LauncherSettings *settings, void ** context_ptr) {
+void pulseometer_face_setup(LauncherSettings *settings, void ** context_ptr) {
     (void) settings;
     if (*context_ptr == NULL) *context_ptr = malloc(sizeof(PulsometerState));
 }
 
-void pulseometer_widget_activate(LauncherSettings *settings, void *context) {
+void pulseometer_face_activate(LauncherSettings *settings, void *context) {
     (void) settings;
     memset(context, 0, sizeof(PulsometerState));
 }
 
-bool pulseometer_widget_loop(LauncherEvent event, LauncherSettings *settings, void *context) {
-    printf("pulseometer_widget_loop\n");
+bool pulseometer_face_loop(LauncherEvent event, LauncherSettings *settings, void *context) {
+    printf("pulseometer_face_loop\n");
     (void) settings;
     PulsometerState *pulsometer_state = (PulsometerState *)context;
     char buf[14];
@@ -44,7 +44,7 @@ bool pulseometer_widget_loop(LauncherEvent event, LauncherSettings *settings, vo
                 pulsometer_state->ticks = (pulsometer_state->ticks + 1) % 5;
             } else {
                 if (pulsometer_state->measuring && pulsometer_state->ticks) {
-                    pulsometer_state->pulse = (int16_t)((30.0 * ((float)(60 << PULSOMETER_WIDGET_FREQUENCY_FACTOR) / (float)pulsometer_state->ticks)) + 0.5);
+                    pulsometer_state->pulse = (int16_t)((30.0 * ((float)(60 << PULSOMETER_FACE_FREQUENCY_FACTOR) / (float)pulsometer_state->ticks)) + 0.5);
                 }
                 if (pulsometer_state->pulse > 240) {
                     watch_display_string("        Hi", 0);
@@ -58,7 +58,7 @@ bool pulseometer_widget_loop(LauncherEvent event, LauncherSettings *settings, vo
             }
             return false;
         case EVENT_MODE_BUTTON_UP:
-            movement_move_to_next_widget();
+            movement_move_to_next_face();
             return false;
         case EVENT_LIGHT_BUTTON_UP:
             movement_illuminate_led();
@@ -67,7 +67,7 @@ bool pulseometer_widget_loop(LauncherEvent event, LauncherSettings *settings, vo
             pulsometer_state->ticks = 0;
             pulsometer_state->pulse = 0xFFFF;
             pulsometer_state->measuring = true;
-            movement_request_tick_frequency(PULSOMETER_WIDGET_FREQUENCY);
+            movement_request_tick_frequency(PULSOMETER_FACE_FREQUENCY);
             break;
         case EVENT_ALARM_BUTTON_UP:
         case EVENT_ALARM_LONG_PRESS:
@@ -81,7 +81,7 @@ bool pulseometer_widget_loop(LauncherEvent event, LauncherSettings *settings, vo
     return true;
 }
 
-void pulseometer_widget_resign(LauncherSettings *settings, void *context) {
+void pulseometer_face_resign(LauncherSettings *settings, void *context) {
     (void) settings;
     (void) context;
 }

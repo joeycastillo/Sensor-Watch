@@ -23,9 +23,9 @@ typedef union {
 
 typedef enum {
     EVENT_NONE = 0,             // There is no event to report.
-    EVENT_ACTIVATE,             // Your widget is entering the foreground.
-    EVENT_TICK,                 // Most common event type. Your widget is being called from the tick callback.
-    EVENT_SCREENSAVER,          // Your widget is being asked to display its output for screensaver mode.
+    EVENT_ACTIVATE,             // Your watch face is entering the foreground.
+    EVENT_TICK,                 // Most common event type. Your watch face is being called from the tick callback.
+    EVENT_SCREENSAVER,          // Your watch face is being asked to display its output for screensaver mode.
     EVENT_LIGHT_BUTTON_DOWN,    // The light button has been pressed, but not yet released.
     EVENT_LIGHT_BUTTON_UP,      // The light button was pressed and released.
     EVENT_LIGHT_LONG_PRESS,     // The light button was held for >2 seconds, and released.
@@ -42,26 +42,26 @@ typedef struct {
     uint8_t subsecond;
 } LauncherEvent;
 
-typedef void (*movement_widget_setup)(LauncherSettings *settings, void ** context_ptr);
-typedef void (*movement_widget_activate)(LauncherSettings *settings, void *context);
-typedef bool (*movement_widget_loop)(LauncherEvent event, LauncherSettings *settings, void *context);
-typedef void (*movement_widget_resign)(LauncherSettings *settings, void *context);
+typedef void (*watch_face_setup)(LauncherSettings *settings, void ** context_ptr);
+typedef void (*watch_face_activate)(LauncherSettings *settings, void *context);
+typedef bool (*watch_face_loop)(LauncherEvent event, LauncherSettings *settings, void *context);
+typedef void (*watch_face_resign)(LauncherSettings *settings, void *context);
 
 typedef struct {
-    movement_widget_setup setup;
-    movement_widget_activate activate;
-    movement_widget_loop loop;
-    movement_widget_resign resign;
-} WatchWidget;
+    watch_face_setup setup;
+    watch_face_activate activate;
+    watch_face_loop loop;
+    watch_face_resign resign;
+} WatchFace;
 
 typedef struct {
     // properties stored in BACKUP register
     LauncherSettings movement_settings;
 
     // transient properties
-    int16_t current_widget;
-    int16_t next_widget;
-    bool widget_changed;
+    int16_t current_watch_face;
+    int16_t next_face;
+    bool watch_face_changed;
 
     // LED stuff
     uint8_t light_ticks;
@@ -81,8 +81,8 @@ typedef struct {
     uint8_t subsecond;
 } LauncherState;
 
-void movement_move_to_widget(uint8_t widget_index);
-void movement_move_to_next_widget();
+void movement_move_to_face(uint8_t watch_face_index);
+void movement_move_to_next_face();
 void movement_illuminate_led();
 void movement_request_tick_frequency(uint8_t freq);
 

@@ -1,32 +1,32 @@
 #include <stdlib.h>
-#include "set_time_widget.h"
+#include "set_time_face.h"
 #include "watch.h"
 
-#define SET_TIME_WIDGET_NUM_SETTINGS (6)
-const char set_time_widget_titles[SET_TIME_WIDGET_NUM_SETTINGS][3] = {"HR", "MN", "SE", "YR", "MO", "DA"};
+#define SET_TIME_FACE_NUM_SETTINGS (6)
+const char set_time_face_titles[SET_TIME_FACE_NUM_SETTINGS][3] = {"HR", "MN", "SE", "YR", "MO", "DA"};
 
-void set_time_widget_setup(LauncherSettings *settings, void ** context_ptr) {
+void set_time_face_setup(LauncherSettings *settings, void ** context_ptr) {
     (void) settings;
     if (*context_ptr == NULL) *context_ptr = malloc(sizeof(uint8_t));
 }
 
-void set_time_widget_activate(LauncherSettings *settings, void *context) {
+void set_time_face_activate(LauncherSettings *settings, void *context) {
     (void) settings;
     *((uint8_t *)context) = 0;
     movement_request_tick_frequency(4);
 }
 
-bool set_time_widget_loop(LauncherEvent event, LauncherSettings *settings, void *context) {
+bool set_time_face_loop(LauncherEvent event, LauncherSettings *settings, void *context) {
     uint8_t current_page = *((uint8_t *)context);
     const uint8_t days_in_month[12] = {31, 28, 31, 30, 31, 30, 30, 31, 30, 31, 30, 31};
     watch_date_time date_time = watch_rtc_get_date_time();
 
     switch (event.event_type) {
         case EVENT_MODE_BUTTON_UP:
-            movement_move_to_next_widget();
+            movement_move_to_next_face();
             return false;
         case EVENT_LIGHT_BUTTON_UP:
-            current_page = (current_page + 1) % SET_TIME_WIDGET_NUM_SETTINGS;
+            current_page = (current_page + 1) % SET_TIME_FACE_NUM_SETTINGS;
             *((uint8_t *)context) = current_page;
             break;
         case EVENT_ALARM_BUTTON_UP:
@@ -67,9 +67,9 @@ bool set_time_widget_loop(LauncherEvent event, LauncherSettings *settings, void 
         watch_set_colon();
         if (settings->bit.clock_mode_24h) {
             watch_set_indicator(WATCH_INDICATOR_24H);
-            sprintf(buf, "%s  %2d%02d%02d", set_time_widget_titles[current_page], date_time.unit.hour, date_time.unit.minute, date_time.unit.second);
+            sprintf(buf, "%s  %2d%02d%02d", set_time_face_titles[current_page], date_time.unit.hour, date_time.unit.minute, date_time.unit.second);
         } else {
-            sprintf(buf, "%s  %2d%02d%02d", set_time_widget_titles[current_page], (date_time.unit.hour % 12) ? (date_time.unit.hour % 12) : 12, date_time.unit.minute, date_time.unit.second);
+            sprintf(buf, "%s  %2d%02d%02d", set_time_face_titles[current_page], (date_time.unit.hour % 12) ? (date_time.unit.hour % 12) : 12, date_time.unit.minute, date_time.unit.second);
             if (date_time.unit.hour > 12) watch_set_indicator(WATCH_INDICATOR_PM);
             else watch_clear_indicator(WATCH_INDICATOR_PM);
         }
@@ -77,7 +77,7 @@ bool set_time_widget_loop(LauncherEvent event, LauncherSettings *settings, void 
         watch_clear_colon();
         watch_clear_indicator(WATCH_INDICATOR_24H);
         watch_clear_indicator(WATCH_INDICATOR_PM);
-        sprintf(buf, "%s  %2d%02d%02d", set_time_widget_titles[current_page], date_time.unit.year + 20, date_time.unit.month, date_time.unit.day);
+        sprintf(buf, "%s  %2d%02d%02d", set_time_face_titles[current_page], date_time.unit.year + 20, date_time.unit.month, date_time.unit.day);
     }
     if (event.subsecond % 2) {
         switch (current_page) {
@@ -101,7 +101,7 @@ bool set_time_widget_loop(LauncherEvent event, LauncherSettings *settings, void 
     return true;
 }
 
-void set_time_widget_resign(LauncherSettings *settings, void *context) {
+void set_time_face_resign(LauncherSettings *settings, void *context) {
     (void) settings;
     (void) context;
     watch_set_led_off();

@@ -1,31 +1,31 @@
 #include <stdlib.h>
-#include "preferences_widget.h"
+#include "preferences_face.h"
 #include "watch.h"
 
-#define PREFERENCES_WIDGET_NUM_PREFEFENCES (5)
-const char preferences_widget_titles[PREFERENCES_WIDGET_NUM_PREFEFENCES][11] = {"CL        ", "Bt  Beep  ", "SC        ", "Lt   grn  ", "Lt   red  "};
+#define PREFERENCES_FACE_NUM_PREFEFENCES (5)
+const char preferences_face_titles[PREFERENCES_FACE_NUM_PREFEFENCES][11] = {"CL        ", "Bt  Beep  ", "SC        ", "Lt   grn  ", "Lt   red  "};
 
-void preferences_widget_setup(LauncherSettings *settings, void ** context_ptr) {
+void preferences_face_setup(LauncherSettings *settings, void ** context_ptr) {
     (void) settings;
     if (*context_ptr == NULL) *context_ptr = malloc(sizeof(uint8_t));
 }
 
-void preferences_widget_activate(LauncherSettings *settings, void *context) {
+void preferences_face_activate(LauncherSettings *settings, void *context) {
     (void) settings;
     *((uint8_t *)context) = 0;
     movement_request_tick_frequency(4); // we need to manually blink some pixels
 }
 
-bool preferences_widget_loop(LauncherEvent event, LauncherSettings *settings, void *context) {
-    printf("preferences_widget_loop\n");
+bool preferences_face_loop(LauncherEvent event, LauncherSettings *settings, void *context) {
+    printf("preferences_face_loop\n");
     uint8_t current_page = *((uint8_t *)context);
     switch (event.event_type) {
         case EVENT_MODE_BUTTON_UP:
             watch_set_led_off();
-            movement_move_to_next_widget();
+            movement_move_to_next_face();
             return false;
         case EVENT_LIGHT_BUTTON_UP:
-            current_page = (current_page + 1) % PREFERENCES_WIDGET_NUM_PREFEFENCES;
+            current_page = (current_page + 1) % PREFERENCES_FACE_NUM_PREFEFENCES;
             *((uint8_t *)context) = current_page;
             break;
         case EVENT_ALARM_BUTTON_UP:
@@ -51,7 +51,7 @@ bool preferences_widget_loop(LauncherEvent event, LauncherSettings *settings, vo
             break;
     }
 
-    watch_display_string((char *)preferences_widget_titles[current_page], 0);
+    watch_display_string((char *)preferences_face_titles[current_page], 0);
 
     if (event.subsecond % 2) return current_page <= 2;
     char buf[3];
@@ -112,7 +112,7 @@ bool preferences_widget_loop(LauncherEvent event, LauncherSettings *settings, vo
     return true;
 }
 
-void preferences_widget_resign(LauncherSettings *settings, void *context) {
+void preferences_face_resign(LauncherSettings *settings, void *context) {
     (void) settings;
     (void) context;
     watch_set_led_off();
