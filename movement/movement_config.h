@@ -6,13 +6,12 @@
 #include "set_time_face.h"
 #include "pulseometer_face.h"
 
-#define MOVEMENT_NUM_FACES 3
-
-watch_face_t watch_faces[MOVEMENT_NUM_FACES] = {
+const watch_face_t watch_faces[] = {
     simple_clock_face,
     preferences_face,
     set_time_face,
 };
 
+#define MOVEMENT_NUM_FACES (sizeof(watch_faces) / sizeof(watch_face_t))
 
 #endif // MOVEMENT_CONFIG_H_

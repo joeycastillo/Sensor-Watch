@@ -14,12 +14,12 @@ void pulseometer_face_activate(movement_settings_t *settings, void *context);
 bool pulseometer_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void pulseometer_face_resign(movement_settings_t *settings, void *context);
 
-#define pulseometer_face { \
-    pulseometer_face_setup, \
-    pulseometer_face_activate, \
-    pulseometer_face_loop, \
-    pulseometer_face_resign, \
-    NULL, \
-}
+static const watch_face_t pulseometer_face = {
+    pulseometer_face_setup,
+    pulseometer_face_activate,
+    pulseometer_face_loop,
+    pulseometer_face_resign,
+    NULL
+};
 
 #endif // PULSEOMETER_FACE_H_

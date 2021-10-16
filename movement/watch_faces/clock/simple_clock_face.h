@@ -10,12 +10,12 @@ void simple_clock_face_resign(movement_settings_t *settings, void *context);
 
 uint8_t simple_clock_face_get_weekday(uint16_t day, uint16_t month, uint16_t year);
 
-#define simple_clock_face { \
-    simple_clock_face_setup, \
-    simple_clock_face_activate, \
-    simple_clock_face_loop, \
-    simple_clock_face_resign, \
-    NULL, \
-}
+static const watch_face_t simple_clock_face = {
+    simple_clock_face_setup,
+    simple_clock_face_activate,
+    simple_clock_face_loop,
+    simple_clock_face_resign,
+    NULL
+};
 
-#endif // FAKE_FACE_H_
+#endif // SIMPLE_CLOCK_FACE_H_
