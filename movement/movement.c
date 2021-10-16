@@ -19,7 +19,7 @@ void cb_tick();
 
 static inline void _movement_reset_screensaver_countdown() {
     // for testing, make the timeout happen 60x faster.
-    movement_state.screensaver_ticks = movement_screensaver_deadlines[movement_state.movement_settings.bit.screensaver_interval] / 60;
+    movement_state.screensaver_ticks = movement_screensaver_deadlines[movement_state.settings.bit.screensaver_interval] / 60;
 }
 
 void movement_request_tick_frequency(uint8_t freq) {
@@ -35,7 +35,7 @@ void movement_illuminate_led() {
 
 void movement_move_to_face(uint8_t watch_face_index) {
     movement_state.watch_face_changed = true;
-    movement_state.next_face = watch_face_index;
+    movement_state.next_watch_face = watch_face_index;
 }
 
 void movement_move_to_next_face() {
@@ -45,9 +45,9 @@ void movement_move_to_next_face() {
 void app_init() {
     memset(&movement_state, 0, sizeof(movement_state));
 
-    movement_state.movement_settings.bit.led_green_color = 0xF;
-    movement_state.movement_settings.bit.button_should_sound = true;
-    movement_state.movement_settings.bit.screensaver_interval = 1;
+    movement_state.settings.bit.led_green_color = 0xF;
+    movement_state.settings.bit.button_should_sound = true;
+    movement_state.settings.bit.screensaver_interval = 1;
     _movement_reset_screensaver_countdown();
 }
 
@@ -80,10 +80,10 @@ void app_setup() {
         movement_request_tick_frequency(1);
 
         for(uint8_t i = 0; i < MOVEMENT_NUM_FACES; i++) {
-            watch_faces[i].setup(&movement_state.movement_settings, &watch_face_contexts[i]);
+            watch_faces[i].setup(&movement_state.settings, &watch_face_contexts[i]);
         }
 
-        watch_faces[0].activate(&movement_state.movement_settings, watch_face_contexts[0]);
+        watch_faces[0].activate(&movement_state.settings, watch_face_contexts[0]);
         event.subsecond = 0;
         event.event_type = EVENT_ACTIVATE;
     }
@@ -97,14 +97,14 @@ void app_wake_from_sleep() {
 
 bool app_loop() {
     if (movement_state.watch_face_changed) {
-        if (movement_state.movement_settings.bit.button_should_sound) {
+        if (movement_state.settings.bit.button_should_sound) {
             // low note for nonzero case, high note for return to watch_face 0
-            watch_buzzer_play_note(movement_state.next_face ? BUZZER_NOTE_C7 : BUZZER_NOTE_C8, 50);
+            watch_buzzer_play_note(movement_state.next_watch_face ? BUZZER_NOTE_C7 : BUZZER_NOTE_C8, 50);
         }
-        watch_faces[movement_state.current_watch_face].resign(&movement_state.movement_settings, watch_face_contexts[movement_state.current_watch_face]);
-        movement_state.current_watch_face = movement_state.next_face;
+        watch_faces[movement_state.current_watch_face].resign(&movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
+        movement_state.current_watch_face = movement_state.next_watch_face;
         watch_clear_display();
-        watch_faces[movement_state.current_watch_face].activate(&movement_state.movement_settings, watch_face_contexts[movement_state.current_watch_face]);
+        watch_faces[movement_state.current_watch_face].activate(&movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
         event.subsecond = 0;
         event.event_type = EVENT_ACTIVATE;
         movement_state.watch_face_changed = false;
@@ -112,8 +112,8 @@ bool app_loop() {
 
     // If the LED is off and should be on, turn it on
     if (movement_state.light_ticks > 0 && !movement_state.led_on) {
-        watch_set_led_color(movement_state.movement_settings.bit.led_red_color ? (0xF | movement_state.movement_settings.bit.led_red_color << 4) : 0,
-                            movement_state.movement_settings.bit.led_green_color ? (0xF | movement_state.movement_settings.bit.led_green_color << 4) : 0);
+        watch_set_led_color(movement_state.settings.bit.led_red_color ? (0xF | movement_state.settings.bit.led_red_color << 4) : 0,
+                            movement_state.settings.bit.led_green_color ? (0xF | movement_state.settings.bit.led_green_color << 4) : 0);
         movement_state.led_on = true;
 
     }
@@ -144,7 +144,7 @@ bool app_loop() {
         // as long as screensaver_ticks is -1 (i.e. screensaver is active), we wake up here, update the screen, and go right back to sleep.
         while (movement_state.screensaver_ticks == -1) {
             event.event_type = EVENT_SCREENSAVER;
-            watch_faces[movement_state.current_watch_face].loop(event, &movement_state.movement_settings, watch_face_contexts[movement_state.current_watch_face]);
+            watch_faces[movement_state.current_watch_face].loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
             watch_enter_shallow_sleep(true);
         }
         // as soon as screensaver_ticks is reset by the extwake handler, we bail out of the loop and reactivate ourselves.
@@ -158,7 +158,7 @@ bool app_loop() {
 
     if (event.event_type) {
         event.subsecond = movement_state.subsecond;
-        can_sleep = watch_faces[movement_state.current_watch_face].loop(event, &movement_state.movement_settings, watch_face_contexts[movement_state.current_watch_face]);
+        can_sleep = watch_faces[movement_state.current_watch_face].loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
         event.event_type = EVENT_NONE;
         event.subsecond = 0;
     }
@@ -208,7 +208,7 @@ void cb_tick() {
     watch_date_time date_time = watch_rtc_get_date_time();
     if (date_time.unit.second != movement_state.last_second) {
         if (movement_state.light_ticks) movement_state.light_ticks--;
-        if (movement_state.movement_settings.bit.screensaver_interval && movement_state.screensaver_ticks > 0) movement_state.screensaver_ticks--;
+        if (movement_state.settings.bit.screensaver_interval && movement_state.screensaver_ticks > 0) movement_state.screensaver_ticks--;
 
         movement_state.last_second = date_time.unit.second;
         movement_state.subsecond = 0;

@@ -56,11 +56,11 @@ typedef struct {
 
 typedef struct {
     // properties stored in BACKUP register
-    movement_settings_t movement_settings;
+    movement_settings_t settings;
 
     // transient properties
     int16_t current_watch_face;
-    int16_t next_face;
+    int16_t next_watch_face;
     bool watch_face_changed;
 
     // LED stuff
