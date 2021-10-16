@@ -7,7 +7,7 @@
 
 movement_state_t movement_state;
 void * watch_face_contexts[MOVEMENT_NUM_FACES];
-const int32_t movement_screensaver_deadlines[8] = {INT_MAX, 3600, 7200, 21600, 43200, 86400, 172800, 604800};
+const int32_t movement_inactivity_deadlines[8] = {INT_MAX, 3600, 7200, 21600, 43200, 86400, 172800, 604800};
 movement_event_t event;
 
 void cb_mode_btn_interrupt();
@@ -17,9 +17,9 @@ void cb_alarm_btn_extwake();
 void cb_alarm_fired();
 void cb_tick();
 
-static inline void _movement_reset_screensaver_countdown() {
+static inline void _movement_reset_inactivity_countdown() {
     // for testing, make the timeout happen 60x faster.
-    movement_state.screensaver_ticks = movement_screensaver_deadlines[movement_state.settings.bit.screensaver_interval] / 60;
+    movement_state.le_mode_ticks = movement_inactivity_deadlines[movement_state.settings.bit.le_inactivity_interval] / 60;
 }
 
 void movement_request_tick_frequency(uint8_t freq) {
@@ -47,8 +47,8 @@ void app_init() {
 
     movement_state.settings.bit.led_green_color = 0xF;
     movement_state.settings.bit.button_should_sound = true;
-    movement_state.settings.bit.screensaver_interval = 1;
-    _movement_reset_screensaver_countdown();
+    movement_state.settings.bit.le_inactivity_interval = 1;
+    _movement_reset_inactivity_countdown();
 }
 
 void app_wake_from_deep_sleep() {
@@ -64,7 +64,7 @@ void app_setup() {
             is_first_launch = false;
         }
     }
-    if (movement_state.screensaver_ticks != -1) {
+    if (movement_state.le_mode_ticks != -1) {
         watch_disable_extwake_interrupt(BTN_ALARM);
         watch_rtc_disable_alarm_callback();
 
@@ -129,9 +129,9 @@ bool app_loop() {
         }
     }
 
-    // if we have timed out of our screensaver countdown, enter screensaver mode.
-    if (movement_state.screensaver_ticks == 0) {
-        movement_state.screensaver_ticks = -1;
+    // if we have timed out of our low energy mode countdown, enter low energy mode.
+    if (movement_state.le_mode_ticks == 0) {
+        movement_state.le_mode_ticks = -1;
         watch_date_time alarm_time;
         alarm_time.reg = 0;
         alarm_time.unit.second = 59; // after a match, the alarm fires at the next rising edge of CLK_RTC_CNT, so 59 seconds lets us update at :00
@@ -141,13 +141,13 @@ bool app_loop() {
         event.subsecond = 0;
 
         // this is a little mini-runloop.
-        // as long as screensaver_ticks is -1 (i.e. screensaver is active), we wake up here, update the screen, and go right back to sleep.
-        while (movement_state.screensaver_ticks == -1) {
-            event.event_type = EVENT_SCREENSAVER;
+        // as long as le_mode_ticks is -1 (i.e. we are in low energy mode), we wake up here, update the screen, and go right back to sleep.
+        while (movement_state.le_mode_ticks == -1) {
+            event.event_type = EVENT_LOW_POWER_TICK;
             watch_faces[movement_state.current_watch_face].loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
             watch_enter_shallow_sleep(true);
         }
-        // as soon as screensaver_ticks is reset by the extwake handler, we bail out of the loop and reactivate ourselves.
+        // as soon as le_mode_ticks is reset by the extwake handler, we bail out of the loop and reactivate ourselves.
         event.event_type = EVENT_ACTIVATE;
         // this is a hack tho: waking from shallow sleep, app_setup does get called, but it happens before we have reset our ticks.
         // need to figure out if there's a better heuristic for determining how we woke up.
@@ -180,27 +180,27 @@ movement_event_type_t _figure_out_button_event(movement_event_type_t button_down
 }
 
 void cb_light_btn_interrupt() {
-    _movement_reset_screensaver_countdown();
+    _movement_reset_inactivity_countdown();
     event.event_type = _figure_out_button_event(EVENT_LIGHT_BUTTON_DOWN, &movement_state.light_down_timestamp);
 }
 
 void cb_mode_btn_interrupt() {
-    _movement_reset_screensaver_countdown();
+    _movement_reset_inactivity_countdown();
     event.event_type = _figure_out_button_event(EVENT_MODE_BUTTON_DOWN, &movement_state.mode_down_timestamp);
 }
 
 void cb_alarm_btn_interrupt() {
-    _movement_reset_screensaver_countdown();
+    _movement_reset_inactivity_countdown();
     event.event_type = _figure_out_button_event(EVENT_ALARM_BUTTON_DOWN, &movement_state.alarm_down_timestamp);
 }
 
 void cb_alarm_btn_extwake() {
     // wake up!
-    _movement_reset_screensaver_countdown();
+    _movement_reset_inactivity_countdown();
 }
 
 void cb_alarm_fired() {
-    event.event_type = EVENT_SCREENSAVER;
+    event.event_type = EVENT_LOW_POWER_TICK;
 }
 
 void cb_tick() {
@@ -208,7 +208,7 @@ void cb_tick() {
     watch_date_time date_time = watch_rtc_get_date_time();
     if (date_time.unit.second != movement_state.last_second) {
         if (movement_state.light_ticks) movement_state.light_ticks--;
-        if (movement_state.settings.bit.screensaver_interval && movement_state.screensaver_ticks > 0) movement_state.screensaver_ticks--;
+        if (movement_state.settings.bit.le_inactivity_interval && movement_state.le_mode_ticks > 0) movement_state.le_mode_ticks--;
 
         movement_state.last_second = date_time.unit.second;
         movement_state.subsecond = 0;

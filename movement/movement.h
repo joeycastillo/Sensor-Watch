@@ -13,7 +13,7 @@ typedef union {
         uint32_t alarm_should_sound : 1;    // if true, the alarm interrupt can match a time and play a song.
         uint32_t alarm_minute : 6;          // the minute of the alarm we want to match
         uint32_t alarm_hour : 5;            // the second of the alarm we want to match
-        uint32_t screensaver_interval : 3;  // 0 to disable screensaver, or a screensaver activation interval.
+        uint32_t le_inactivity_interval : 3;// 0 to disable low energy mode, or an inactivity interval for going into low energy mode.
         uint32_t led_duration : 3;          // how many seconds to shine the LED for, or 0 to disable it.
         uint32_t led_red_color : 4;         // for general purpose illumination, the red LED value (0-15)
         uint32_t led_green_color : 4;       // for general purpose illumination, the green LED value (0-15)
@@ -25,7 +25,7 @@ typedef enum {
     EVENT_NONE = 0,             // There is no event to report.
     EVENT_ACTIVATE,             // Your watch face is entering the foreground.
     EVENT_TICK,                 // Most common event type. Your watch face is being called from the tick callback.
-    EVENT_SCREENSAVER,          // Your watch face is being asked to display its output for screensaver mode.
+    EVENT_LOW_POWER_TICK,       // The watch is in low energy mode, and you are getting the once-per-minute tick callback.
     EVENT_LIGHT_BUTTON_DOWN,    // The light button has been pressed, but not yet released.
     EVENT_LIGHT_BUTTON_UP,      // The light button was pressed and released.
     EVENT_LIGHT_LONG_PRESS,     // The light button was held for >2 seconds, and released.
@@ -72,8 +72,8 @@ typedef struct {
     uint8_t mode_down_timestamp;
     uint8_t alarm_down_timestamp;
 
-    // screensaver countdown
-    int32_t screensaver_ticks;
+    // low energy mode countdown
+    int32_t le_mode_ticks;
 
     // stuff for subsecond tracking
     uint8_t tick_frequency;

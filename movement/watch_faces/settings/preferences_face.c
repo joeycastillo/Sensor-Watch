@@ -37,7 +37,7 @@ bool preferences_face_loop(movement_event_t event, movement_settings_t *settings
                     settings->bit.button_should_sound = !(settings->bit.button_should_sound);
                     break;
                 case 2:
-                    settings->bit.screensaver_interval = settings->bit.screensaver_interval + 1;
+                    settings->bit.le_inactivity_interval = settings->bit.le_inactivity_interval + 1;
                     break;
                 case 3:
                     settings->bit.led_green_color = settings->bit.led_green_color + 1;
@@ -65,7 +65,7 @@ bool preferences_face_loop(movement_event_t event, movement_settings_t *settings
             else watch_display_string("n", 9);
             break;
         case 2:
-            switch (settings->bit.screensaver_interval) {
+            switch (settings->bit.le_inactivity_interval) {
                 case 0:
                     watch_display_string(" never", 4);
                     break;
