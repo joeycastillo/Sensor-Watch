@@ -26,7 +26,7 @@ SRCS += \
   ../watch_faces/clock/simple_clock_face.c \
   ../watch_faces/settings/preferences_face.c \
   ../watch_faces/settings/set_time_face.c \
-  ../watch_faces/complications/pulseometer_face.c \
+  ../watch_faces/complications/pulsometer_face.c \
 
 # Leave this line at the bottom of the file; it has all the targets for making your project.
 include $(TOP)/rules.mk

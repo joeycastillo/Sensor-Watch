@@ -4,7 +4,7 @@
 #include "simple_clock_face.h"
 #include "preferences_face.h"
 #include "set_time_face.h"
-#include "pulseometer_face.h"
+#include "pulsometer_face.h"
 
 const watch_face_t watch_faces[] = {
     simple_clock_face,

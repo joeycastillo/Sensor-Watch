@@ -1,23 +1,23 @@
 #include <stdlib.h>
 #include <string.h>
-#include "pulseometer_face.h"
+#include "pulsometer_face.h"
 #include "watch.h"
 
 #define PULSOMETER_FACE_FREQUENCY_FACTOR (4ul) // refresh rate will be 2 to this power Hz (0 for 1 Hz, 2 for 4 Hz, etc.)
 #define PULSOMETER_FACE_FREQUENCY (1 << PULSOMETER_FACE_FREQUENCY_FACTOR)
 
-void pulseometer_face_setup(movement_settings_t *settings, void ** context_ptr) {
+void pulsometer_face_setup(movement_settings_t *settings, void ** context_ptr) {
     (void) settings;
     if (*context_ptr == NULL) *context_ptr = malloc(sizeof(PulsometerState));
 }
 
-void pulseometer_face_activate(movement_settings_t *settings, void *context) {
+void pulsometer_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
     memset(context, 0, sizeof(PulsometerState));
 }
 
-bool pulseometer_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
-    printf("pulseometer_face_loop\n");
+bool pulsometer_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
+    printf("pulsometer_face_loop\n");
     (void) settings;
     PulsometerState *pulsometer_state = (PulsometerState *)context;
     char buf[14];
@@ -81,7 +81,7 @@ bool pulseometer_face_loop(movement_event_t event, movement_settings_t *settings
     return true;
 }
 
-void pulseometer_face_resign(movement_settings_t *settings, void *context) {
+void pulsometer_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
 }
