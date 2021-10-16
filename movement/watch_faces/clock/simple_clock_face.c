@@ -2,13 +2,13 @@
 #include "simple_clock_face.h"
 #include "watch.h"
 
-void simple_clock_face_setup(LauncherSettings *settings, void ** context_ptr) {
+void simple_clock_face_setup(movement_settings_t *settings, void ** context_ptr) {
     (void) settings;
     // the only context we need is the timestamp of the previous tick.
     if (*context_ptr == NULL) *context_ptr = malloc(sizeof(uint32_t));
 }
 
-void simple_clock_face_activate(LauncherSettings *settings, void *context) {
+void simple_clock_face_activate(movement_settings_t *settings, void *context) {
     if (settings->bit.clock_mode_24h) {
         watch_set_indicator(WATCH_INDICATOR_24H);
     }
@@ -17,7 +17,7 @@ void simple_clock_face_activate(LauncherSettings *settings, void *context) {
     *((uint32_t *)context) = 0xFFFFFFFF;
 }
 
-bool simple_clock_face_loop(LauncherEvent event, LauncherSettings *settings, void *context) {
+bool simple_clock_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     printf("simple_clock_face_loop\n");
     const char weekdays[7][3] = {"SA", "SU", "MO", "TU", "WE", "TH", "FR"};
     char buf[11];
@@ -77,7 +77,7 @@ bool simple_clock_face_loop(LauncherEvent event, LauncherSettings *settings, voi
     return true;
 }
 
-void simple_clock_face_resign(LauncherSettings *settings, void *context) {
+void simple_clock_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
 }

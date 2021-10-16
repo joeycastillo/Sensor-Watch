@@ -5,10 +5,10 @@
 #include "movement.h"
 #include "movement_config.h"
 
-LauncherState movement_state;
+movement_state_t movement_state;
 void * watch_face_contexts[MOVEMENT_NUM_FACES];
 const int32_t movement_screensaver_deadlines[8] = {INT_MAX, 3600, 7200, 21600, 43200, 86400, 172800, 604800};
-LauncherEvent event;
+movement_event_t event;
 
 void cb_mode_btn_interrupt();
 void cb_light_btn_interrupt();
@@ -166,16 +166,16 @@ bool app_loop() {
     return can_sleep && !movement_state.led_on;
 }
 
-LauncherEventType _figure_out_button_event(LauncherEventType button_down_event, uint8_t *down_timestamp) {
+movement_event_type_t _figure_out_button_event(movement_event_type_t button_down_event_type, uint8_t *down_timestamp) {
     watch_date_time date_time = watch_rtc_get_date_time();
     if (*down_timestamp) {
         uint8_t diff = ((61 + date_time.unit.second) - *down_timestamp) % 60;
         *down_timestamp = 0;
-        if (diff > 1) return button_down_event + 2;
-        else return button_down_event + 1;
+        if (diff > 1) return button_down_event_type + 2;
+        else return button_down_event_type + 1;
     } else {
         *down_timestamp = date_time.unit.second + 1;
-        return button_down_event;
+        return button_down_event_type;
     }
 }
 

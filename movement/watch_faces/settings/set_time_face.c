@@ -5,18 +5,18 @@
 #define SET_TIME_FACE_NUM_SETTINGS (6)
 const char set_time_face_titles[SET_TIME_FACE_NUM_SETTINGS][3] = {"HR", "MN", "SE", "YR", "MO", "DA"};
 
-void set_time_face_setup(LauncherSettings *settings, void ** context_ptr) {
+void set_time_face_setup(movement_settings_t *settings, void ** context_ptr) {
     (void) settings;
     if (*context_ptr == NULL) *context_ptr = malloc(sizeof(uint8_t));
 }
 
-void set_time_face_activate(LauncherSettings *settings, void *context) {
+void set_time_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
     *((uint8_t *)context) = 0;
     movement_request_tick_frequency(4);
 }
 
-bool set_time_face_loop(LauncherEvent event, LauncherSettings *settings, void *context) {
+bool set_time_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     uint8_t current_page = *((uint8_t *)context);
     const uint8_t days_in_month[12] = {31, 28, 31, 30, 31, 30, 30, 31, 30, 31, 30, 31};
     watch_date_time date_time = watch_rtc_get_date_time();
@@ -101,7 +101,7 @@ bool set_time_face_loop(LauncherEvent event, LauncherSettings *settings, void *c
     return true;
 }
 
-void set_time_face_resign(LauncherSettings *settings, void *context) {
+void set_time_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
     watch_set_led_off();

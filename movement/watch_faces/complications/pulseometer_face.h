@@ -9,10 +9,10 @@ typedef struct {
     int16_t ticks;
 } PulsometerState;
 
-void pulseometer_face_setup(LauncherSettings *settings, void ** context_ptr);
-void pulseometer_face_activate(LauncherSettings *settings, void *context);
-bool pulseometer_face_loop(LauncherEvent event, LauncherSettings *settings, void *context);
-void pulseometer_face_resign(LauncherSettings *settings, void *context);
+void pulseometer_face_setup(movement_settings_t *settings, void ** context_ptr);
+void pulseometer_face_activate(movement_settings_t *settings, void *context);
+bool pulseometer_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void pulseometer_face_resign(movement_settings_t *settings, void *context);
 
 #define pulseometer_face { \
     pulseometer_face_setup, \

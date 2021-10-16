@@ -19,7 +19,7 @@ typedef union {
         uint32_t led_green_color : 4;       // for general purpose illumination, the green LED value (0-15)
     } bit;
     uint32_t value;
-} LauncherSettings;
+} movement_settings_t;
 
 typedef enum {
     EVENT_NONE = 0,             // There is no event to report.
@@ -35,28 +35,28 @@ typedef enum {
     EVENT_ALARM_BUTTON_DOWN,    // The alarm button has been pressed, but not yet released.
     EVENT_ALARM_BUTTON_UP,      // The alarm button was pressed and released.
     EVENT_ALARM_LONG_PRESS,     // The alarm button was held for >2 seconds, and released.
-} LauncherEventType;
+} movement_event_type_t;
 
 typedef struct {
     uint8_t event_type;
     uint8_t subsecond;
-} LauncherEvent;
+} movement_event_t;
 
-typedef void (*watch_face_setup)(LauncherSettings *settings, void ** context_ptr);
-typedef void (*watch_face_activate)(LauncherSettings *settings, void *context);
-typedef bool (*watch_face_loop)(LauncherEvent event, LauncherSettings *settings, void *context);
-typedef void (*watch_face_resign)(LauncherSettings *settings, void *context);
+typedef void (*watch_face_setup)(movement_settings_t *settings, void ** context_ptr);
+typedef void (*watch_face_activate)(movement_settings_t *settings, void *context);
+typedef bool (*watch_face_loop)(movement_event_t event, movement_settings_t *settings, void *context);
+typedef void (*watch_face_resign)(movement_settings_t *settings, void *context);
 
 typedef struct {
     watch_face_setup setup;
     watch_face_activate activate;
     watch_face_loop loop;
     watch_face_resign resign;
-} WatchFace;
+} watch_face_t;
 
 typedef struct {
     // properties stored in BACKUP register
-    LauncherSettings movement_settings;
+    movement_settings_t movement_settings;
 
     // transient properties
     int16_t current_watch_face;
@@ -79,7 +79,7 @@ typedef struct {
     uint8_t tick_frequency;
     uint8_t last_second;
     uint8_t subsecond;
-} LauncherState;
+} movement_state_t;
 
 void movement_move_to_face(uint8_t watch_face_index);
 void movement_move_to_next_face();

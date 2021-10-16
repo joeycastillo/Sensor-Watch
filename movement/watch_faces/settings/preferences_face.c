@@ -5,18 +5,18 @@
 #define PREFERENCES_FACE_NUM_PREFEFENCES (5)
 const char preferences_face_titles[PREFERENCES_FACE_NUM_PREFEFENCES][11] = {"CL        ", "Bt  Beep  ", "SC        ", "Lt   grn  ", "Lt   red  "};
 
-void preferences_face_setup(LauncherSettings *settings, void ** context_ptr) {
+void preferences_face_setup(movement_settings_t *settings, void ** context_ptr) {
     (void) settings;
     if (*context_ptr == NULL) *context_ptr = malloc(sizeof(uint8_t));
 }
 
-void preferences_face_activate(LauncherSettings *settings, void *context) {
+void preferences_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
     *((uint8_t *)context) = 0;
     movement_request_tick_frequency(4); // we need to manually blink some pixels
 }
 
-bool preferences_face_loop(LauncherEvent event, LauncherSettings *settings, void *context) {
+bool preferences_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     printf("preferences_face_loop\n");
     uint8_t current_page = *((uint8_t *)context);
     switch (event.event_type) {
@@ -112,7 +112,7 @@ bool preferences_face_loop(LauncherEvent event, LauncherSettings *settings, void
     return true;
 }
 
-void preferences_face_resign(LauncherSettings *settings, void *context) {
+void preferences_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
     watch_set_led_off();

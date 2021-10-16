@@ -8,7 +8,7 @@
 
 #define MOVEMENT_NUM_FACES 3
 
-WatchFace watch_faces[MOVEMENT_NUM_FACES] = {
+watch_face_t watch_faces[MOVEMENT_NUM_FACES] = {
     simple_clock_face,
     preferences_face,
     set_time_face,
