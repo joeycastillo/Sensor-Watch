@@ -6,13 +6,9 @@
 // TODO: none of this is implemented
 typedef union {
     struct {
-        uint32_t reserved : 3;
+        uint32_t reserved : 16;
         uint32_t clock_mode_24h : 1;        // determines whether clock should use 12 or 24 hour mode.
         uint32_t button_should_sound : 1;   // if true, pressing a button emits a sound.
-        uint32_t signal_should_sound : 1;   // if true, a double beep is played at the top of each hour.
-        uint32_t alarm_should_sound : 1;    // if true, the alarm interrupt can match a time and play a song.
-        uint32_t alarm_minute : 6;          // the minute of the alarm we want to match
-        uint32_t alarm_hour : 5;            // the second of the alarm we want to match
         uint32_t le_inactivity_interval : 3;// 0 to disable low energy mode, or an inactivity interval for going into low energy mode.
         uint32_t led_duration : 3;          // how many seconds to shine the LED for, or 0 to disable it.
         uint32_t led_red_color : 4;         // for general purpose illumination, the red LED value (0-15)
