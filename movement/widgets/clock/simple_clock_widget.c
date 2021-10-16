@@ -63,10 +63,10 @@ bool simple_clock_widget_loop(LauncherEvent event, LauncherSettings *settings, v
             watch_display_string(buf, pos);
             break;
         case EVENT_MODE_BUTTON_UP:
-            launcher_move_to_next_widget();
+            movement_move_to_next_widget();
             return false;
         case EVENT_LIGHT_BUTTON_UP:
-            launcher_illuminate_led();
+            movement_illuminate_led();
             break;
         case EVENT_ALARM_BUTTON_UP:
             break;

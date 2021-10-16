@@ -1,7 +1,7 @@
 #ifndef SET_TIME_WIDGET_H_
 #define SET_TIME_WIDGET_H_
 
-#include "launcher.h"
+#include "movement.h"
 
 void set_time_widget_setup(LauncherSettings *settings, void ** context_ptr);
 void set_time_widget_activate(LauncherSettings *settings, void *context);

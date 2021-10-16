@@ -1,5 +1,5 @@
-#ifndef LAUNCHER_H_
-#define LAUNCHER_H_
+#ifndef MOVEMENT_H_
+#define MOVEMENT_H_
 #include <stdio.h>
 #include <stdbool.h>
 
@@ -42,21 +42,21 @@ typedef struct {
     uint8_t subsecond;
 } LauncherEvent;
 
-typedef void (*launcher_widget_setup)(LauncherSettings *settings, void ** context_ptr);
-typedef void (*launcher_widget_activate)(LauncherSettings *settings, void *context);
-typedef bool (*launcher_widget_loop)(LauncherEvent event, LauncherSettings *settings, void *context);
-typedef void (*launcher_widget_resign)(LauncherSettings *settings, void *context);
+typedef void (*movement_widget_setup)(LauncherSettings *settings, void ** context_ptr);
+typedef void (*movement_widget_activate)(LauncherSettings *settings, void *context);
+typedef bool (*movement_widget_loop)(LauncherEvent event, LauncherSettings *settings, void *context);
+typedef void (*movement_widget_resign)(LauncherSettings *settings, void *context);
 
 typedef struct {
-    launcher_widget_setup setup;
-    launcher_widget_activate activate;
-    launcher_widget_loop loop;
-    launcher_widget_resign resign;
+    movement_widget_setup setup;
+    movement_widget_activate activate;
+    movement_widget_loop loop;
+    movement_widget_resign resign;
 } WatchWidget;
 
 typedef struct {
     // properties stored in BACKUP register
-    LauncherSettings launcher_settings;
+    LauncherSettings movement_settings;
 
     // transient properties
     int16_t current_widget;
@@ -81,9 +81,9 @@ typedef struct {
     uint8_t subsecond;
 } LauncherState;
 
-void launcher_move_to_widget(uint8_t widget_index);
-void launcher_move_to_next_widget();
-void launcher_illuminate_led();
-void launcher_request_tick_frequency(uint8_t freq);
+void movement_move_to_widget(uint8_t widget_index);
+void movement_move_to_next_widget();
+void movement_illuminate_led();
+void movement_request_tick_frequency(uint8_t freq);
 
-#endif // LAUNCHER_H_
+#endif // MOVEMENT_H_

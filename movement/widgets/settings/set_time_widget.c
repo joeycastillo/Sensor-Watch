@@ -13,7 +13,7 @@ void set_time_widget_setup(LauncherSettings *settings, void ** context_ptr) {
 void set_time_widget_activate(LauncherSettings *settings, void *context) {
     (void) settings;
     *((uint8_t *)context) = 0;
-    launcher_request_tick_frequency(4);
+    movement_request_tick_frequency(4);
 }
 
 bool set_time_widget_loop(LauncherEvent event, LauncherSettings *settings, void *context) {
@@ -23,7 +23,7 @@ bool set_time_widget_loop(LauncherEvent event, LauncherSettings *settings, void 
 
     switch (event.event_type) {
         case EVENT_MODE_BUTTON_UP:
-            launcher_move_to_next_widget();
+            movement_move_to_next_widget();
             return false;
         case EVENT_LIGHT_BUTTON_UP:
             current_page = (current_page + 1) % SET_TIME_WIDGET_NUM_SETTINGS;
@@ -105,5 +105,5 @@ void set_time_widget_resign(LauncherSettings *settings, void *context) {
     (void) settings;
     (void) context;
     watch_set_led_off();
-    launcher_request_tick_frequency(1);
+    movement_request_tick_frequency(1);
 }

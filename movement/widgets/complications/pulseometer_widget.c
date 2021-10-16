@@ -58,21 +58,21 @@ bool pulseometer_widget_loop(LauncherEvent event, LauncherSettings *settings, vo
             }
             return false;
         case EVENT_MODE_BUTTON_UP:
-            launcher_move_to_next_widget();
+            movement_move_to_next_widget();
             return false;
         case EVENT_LIGHT_BUTTON_UP:
-            launcher_illuminate_led();
+            movement_illuminate_led();
             break;
         case EVENT_ALARM_BUTTON_DOWN:
             pulsometer_state->ticks = 0;
             pulsometer_state->pulse = 0xFFFF;
             pulsometer_state->measuring = true;
-            launcher_request_tick_frequency(PULSOMETER_WIDGET_FREQUENCY);
+            movement_request_tick_frequency(PULSOMETER_WIDGET_FREQUENCY);
             break;
         case EVENT_ALARM_BUTTON_UP:
         case EVENT_ALARM_LONG_PRESS:
             pulsometer_state->measuring = false;
-            launcher_request_tick_frequency(1);
+            movement_request_tick_frequency(1);
             break;
         default:
             break;

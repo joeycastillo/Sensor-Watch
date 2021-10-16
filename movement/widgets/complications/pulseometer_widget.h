@@ -1,7 +1,7 @@
 #ifndef PULSEOMETER_WIDGET_H_
 #define PULSEOMETER_WIDGET_H_
 
-#include "launcher.h"
+#include "movement.h"
 
 typedef struct {
     bool measuring;

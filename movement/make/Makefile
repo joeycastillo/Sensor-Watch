@@ -18,11 +18,11 @@ INCLUDES += \
 # If you add any other source files you wish to compile, add them after ../app.c
 # Note that you will need to add a backslash at the end of any line you wish to continue, i.e.
 # SRCS += \
-#   ../launcher.c \
+#   ../movement.c \
 #   ../drivers/lis2dh.c \
 #   ../widgets/fitness/step_count_widget.c
 SRCS += \
-  ../launcher.c \
+  ../movement.c \
   ../widgets/clock/simple_clock_widget.c \
   ../widgets/settings/preferences_widget.c \
   ../widgets/settings/set_time_widget.c \

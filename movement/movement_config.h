@@ -1,18 +1,18 @@
-#ifndef LAUNCHER_CONFIG_H_
-#define LAUNCHER_CONFIG_H_
+#ifndef MOVEMENT_CONFIG_H_
+#define MOVEMENT_CONFIG_H_
 
 #include "simple_clock_widget.h"
 #include "preferences_widget.h"
 #include "set_time_widget.h"
 #include "pulseometer_widget.h"
 
-#define LAUNCHER_NUM_WIDGETS 3
+#define MOVEMENT_NUM_WIDGETS 3
 
-WatchWidget widgets[LAUNCHER_NUM_WIDGETS] = {
+WatchWidget widgets[MOVEMENT_NUM_WIDGETS] = {
     simple_clock_widget,
     preferences_widget,
     set_time_widget,
 };
 
 
-#endif // LAUNCHER_CONFIG_H_
+#endif // MOVEMENT_CONFIG_H_

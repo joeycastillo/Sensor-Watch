@@ -13,7 +13,7 @@ void preferences_widget_setup(LauncherSettings *settings, void ** context_ptr) {
 void preferences_widget_activate(LauncherSettings *settings, void *context) {
     (void) settings;
     *((uint8_t *)context) = 0;
-    launcher_request_tick_frequency(4); // we need to manually blink some pixels
+    movement_request_tick_frequency(4); // we need to manually blink some pixels
 }
 
 bool preferences_widget_loop(LauncherEvent event, LauncherSettings *settings, void *context) {
@@ -22,7 +22,7 @@ bool preferences_widget_loop(LauncherEvent event, LauncherSettings *settings, vo
     switch (event.event_type) {
         case EVENT_MODE_BUTTON_UP:
             watch_set_led_off();
-            launcher_move_to_next_widget();
+            movement_move_to_next_widget();
             return false;
         case EVENT_LIGHT_BUTTON_UP:
             current_page = (current_page + 1) % PREFERENCES_WIDGET_NUM_PREFEFENCES;
@@ -116,5 +116,5 @@ void preferences_widget_resign(LauncherSettings *settings, void *context) {
     (void) settings;
     (void) context;
     watch_set_led_off();
-    launcher_request_tick_frequency(1);
+    movement_request_tick_frequency(1);
 }

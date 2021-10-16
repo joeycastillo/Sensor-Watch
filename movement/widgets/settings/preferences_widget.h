@@ -1,7 +1,7 @@
 #ifndef PREFERENCES_WIDGET_H_
 #define PREFERENCES_WIDGET_H_
 
-#include "launcher.h"
+#include "movement.h"
 
 void preferences_widget_setup(LauncherSettings *settings, void ** context_ptr);
 void preferences_widget_activate(LauncherSettings *settings, void *context);

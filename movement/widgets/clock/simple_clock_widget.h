@@ -1,7 +1,7 @@
 #ifndef SIMPLE_CLOCK_WIDGET_H_
 #define SIMPLE_CLOCK_WIDGET_H_
 
-#include "launcher.h"
+#include "movement.h"
 
 void simple_clock_widget_setup(LauncherSettings *settings, void ** context_ptr);
 void simple_clock_widget_activate(LauncherSettings *settings, void *context);
