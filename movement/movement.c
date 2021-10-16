@@ -30,7 +30,7 @@ void movement_request_tick_frequency(uint8_t freq) {
 }
 
 void movement_illuminate_led() {
-    movement_state.light_ticks = 3;
+    movement_state.light_ticks = movement_state.settings.bit.led_duration;
 }
 
 void movement_move_to_face(uint8_t watch_face_index) {
@@ -48,6 +48,7 @@ void app_init() {
     movement_state.settings.bit.led_green_color = 0xF;
     movement_state.settings.bit.button_should_sound = true;
     movement_state.settings.bit.le_inactivity_interval = 1;
+    movement_state.settings.bit.led_duration = 3;
     _movement_reset_inactivity_countdown();
 }
 
