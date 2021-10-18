@@ -61,7 +61,7 @@ You should set up a switch statement that handles, at the very least, the `EVENT
 
 ### watch_face_resign
 
-This function is called just before your watch face goes off screen. You should disable any peripherals you enabled in `watch_face_activate`. If you requested an tick frequency other than 1 Hz at any point in your code, **you must reset it to 1 Hz when you resign**. It is passed the same settings and context as the other functions.
+This function is called just before your watch face goes off screen. You should disable any peripherals you enabled in `watch_face_activate`. If you requested a tick frequency other than 1 Hz at any point in your code, **you must reset it to 1 Hz when you resign**. The watch_face_resign function is passed the same settings and context as the other functions.
 
 Putting it into practice: the Pulsometer watch face
 ---------------------------------------------------
