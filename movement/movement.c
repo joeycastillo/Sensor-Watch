@@ -19,10 +19,8 @@ void cb_alarm_fired();
 void cb_tick();
 
 static inline void _movement_reset_inactivity_countdown() {
-    // for testing, make the low energy timeout happen 60x faster.
-    movement_state.le_mode_ticks = movement_le_inactivity_deadlines[movement_state.settings.bit.le_inactivity_interval] / 60;
-    // for testing, make the inactivity timeout happen 4x faster.
-    movement_state.timeout_ticks = movement_timeout_inactivity_deadlines[movement_state.settings.bit.to_inactivity_interval] / 4;
+    movement_state.le_mode_ticks = movement_le_inactivity_deadlines[movement_state.settings.bit.le_inactivity_interval];
+    movement_state.timeout_ticks = movement_timeout_inactivity_deadlines[movement_state.settings.bit.to_inactivity_interval];
 }
 
 void movement_request_tick_frequency(uint8_t freq) {
