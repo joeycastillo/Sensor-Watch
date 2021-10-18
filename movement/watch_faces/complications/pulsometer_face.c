@@ -17,7 +17,6 @@ void pulsometer_face_activate(movement_settings_t *settings, void *context) {
 }
 
 bool pulsometer_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
-    printf("pulsometer_face_loop\n");
     (void) settings;
     pulsometer_state_t *pulsometer_state = (pulsometer_state_t *)context;
     char buf[14];
@@ -73,6 +72,9 @@ bool pulsometer_face_loop(movement_event_t event, movement_settings_t *settings,
         case EVENT_ALARM_LONG_PRESS:
             pulsometer_state->measuring = false;
             movement_request_tick_frequency(1);
+            break;
+        case EVENT_TIMEOUT:
+            movement_move_to_face(0);
             break;
         default:
             break;

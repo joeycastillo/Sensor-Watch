@@ -7,7 +7,8 @@
 
 movement_state_t movement_state;
 void * watch_face_contexts[MOVEMENT_NUM_FACES];
-const int32_t movement_inactivity_deadlines[8] = {INT_MAX, 3600, 7200, 21600, 43200, 86400, 172800, 604800};
+const int32_t movement_le_inactivity_deadlines[8] = {INT_MAX, 3600, 7200, 21600, 43200, 86400, 172800, 604800};
+const int32_t movement_timeout_inactivity_deadlines[4] = {60, 120, 300, 1800};
 movement_event_t event;
 
 void cb_mode_btn_interrupt();
@@ -18,8 +19,10 @@ void cb_alarm_fired();
 void cb_tick();
 
 static inline void _movement_reset_inactivity_countdown() {
-    // for testing, make the timeout happen 60x faster.
-    movement_state.le_mode_ticks = movement_inactivity_deadlines[movement_state.settings.bit.le_inactivity_interval] / 60;
+    // for testing, make the low energy timeout happen 60x faster.
+    movement_state.le_mode_ticks = movement_le_inactivity_deadlines[movement_state.settings.bit.le_inactivity_interval] / 60;
+    // for testing, make the inactivity timeout happen 4x faster.
+    movement_state.timeout_ticks = movement_timeout_inactivity_deadlines[movement_state.settings.bit.to_inactivity_interval] / 4;
 }
 
 void movement_request_tick_frequency(uint8_t freq) {
@@ -130,6 +133,11 @@ bool app_loop() {
         }
     }
 
+    // if we have timed out of our timeout countdown, give the app a hint that they can resign.
+    if (movement_state.timeout_ticks == 0) {
+        event.event_type = EVENT_TIMEOUT;
+    }
+
     // if we have timed out of our low energy mode countdown, enter low energy mode.
     if (movement_state.le_mode_ticks == 0) {
         movement_state.le_mode_ticks = -1;
@@ -210,6 +218,7 @@ void cb_tick() {
     if (date_time.unit.second != movement_state.last_second) {
         if (movement_state.light_ticks) movement_state.light_ticks--;
         if (movement_state.settings.bit.le_inactivity_interval && movement_state.le_mode_ticks > 0) movement_state.le_mode_ticks--;
+        if (movement_state.timeout_ticks > 0) movement_state.timeout_ticks--;
 
         movement_state.last_second = date_time.unit.second;
         movement_state.subsecond = 0;

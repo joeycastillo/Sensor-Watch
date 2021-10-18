@@ -6,9 +6,10 @@
 // TODO: none of this is implemented
 typedef union {
     struct {
-        uint32_t reserved : 16;
+        uint32_t reserved : 14;
         uint32_t clock_mode_24h : 1;        // determines whether clock should use 12 or 24 hour mode.
         uint32_t button_should_sound : 1;   // if true, pressing a button emits a sound.
+        uint32_t to_inactivity_interval : 2;// an inactivity interval for asking the active face to resign.
         uint32_t le_inactivity_interval : 3;// 0 to disable low energy mode, or an inactivity interval for going into low energy mode.
         uint32_t led_duration : 3;          // how many seconds to shine the LED for, or 0 to disable it.
         uint32_t led_red_color : 4;         // for general purpose illumination, the red LED value (0-15)
@@ -23,6 +24,7 @@ typedef enum {
     EVENT_TICK,                 // Most common event type. Your watch face is being called from the tick callback.
     EVENT_LOW_ENERGY_UPDATE,    // If the watch is in low energy mode and you are in the foreground, you will get a chance to update the display once per minute.
     EVENT_BACKGROUND_TASK,      // Your watch face is being invoked to perform a background task. Don't update the display here; you may not be in the foreground.
+    EVENT_TIMEOUT,              // Your watch face has been inactive for a while. You may want to resign, depending on your watch face's intended use case.
     EVENT_LIGHT_BUTTON_DOWN,    // The light button has been pressed, but not yet released.
     EVENT_LIGHT_BUTTON_UP,      // The light button was pressed and released.
     EVENT_LIGHT_LONG_PRESS,     // The light button was held for >2 seconds, and released.
@@ -161,6 +163,9 @@ typedef struct {
 
     // low energy mode countdown
     int32_t le_mode_ticks;
+
+    // app resignation countdown (TODO: consolidate with LE countdown?)
+    int16_t timeout_ticks;
 
     // stuff for subsecond tracking
     uint8_t tick_frequency;

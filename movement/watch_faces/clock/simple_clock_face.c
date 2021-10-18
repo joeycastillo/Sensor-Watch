@@ -18,7 +18,6 @@ void simple_clock_face_activate(movement_settings_t *settings, void *context) {
 }
 
 bool simple_clock_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
-    printf("simple_clock_face_loop\n");
     const char weekdays[7][3] = {"SA", "SU", "MO", "TU", "WE", "TH", "FR"};
     char buf[11];
     uint8_t pos;
@@ -28,6 +27,7 @@ bool simple_clock_face_loop(movement_event_t event, movement_settings_t *setting
     switch (event.event_type) {
         case EVENT_ACTIVATE:
         case EVENT_TICK:
+        case EVENT_TIMEOUT:
         case EVENT_LOW_ENERGY_UPDATE:
             date_time = watch_rtc_get_date_time();
             previous_date_time = *((uint32_t *)context);

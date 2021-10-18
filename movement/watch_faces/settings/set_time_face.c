@@ -58,6 +58,9 @@ bool set_time_face_loop(movement_event_t event, movement_settings_t *settings, v
             }
             watch_rtc_set_date_time(date_time);
             break;
+        case EVENT_TIMEOUT:
+            movement_move_to_face(0);
+            break;
         default:
             break;
     }

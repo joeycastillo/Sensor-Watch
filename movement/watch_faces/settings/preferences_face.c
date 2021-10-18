@@ -17,7 +17,6 @@ void preferences_face_activate(movement_settings_t *settings, void *context) {
 }
 
 bool preferences_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
-    printf("preferences_face_loop\n");
     uint8_t current_page = *((uint8_t *)context);
     switch (event.event_type) {
         case EVENT_MODE_BUTTON_UP:
@@ -46,6 +45,9 @@ bool preferences_face_loop(movement_event_t event, movement_settings_t *settings
                     settings->bit.led_red_color = settings->bit.led_red_color + 1;
                     break;
             }
+            break;
+        case EVENT_TIMEOUT:
+            movement_move_to_face(0);
             break;
         default:
             break;
