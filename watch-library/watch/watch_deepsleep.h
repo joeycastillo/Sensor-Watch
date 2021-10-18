@@ -81,13 +81,8 @@ uint32_t watch_get_backup_data(uint8_t reg);
   *        the LCD. You can wake from this mode by pressing the ALARM button, if you have an registered an
   *        external wake callback on the ALARM button. When your app wakes from this shallow sleep mode, your
   *        app_setup method will be called, since this function will have disabled things you set up.
-  * @param message Either NULL, or a string representing a message to display while in shallow sleep mode. If
-  *                this parameter is NULL, the screen will be blanked out, and this function will disable the
-  *                SLCD peripheral for additional power savings. If the message is non-NULL, it will replace
-  *                any text on the screen, and will be displayed at position 0 (so you should pad out the beginning
-  *                of the string with spaces if you wish for the message to appear on line 2, i.e. "    SLEEP").
-  *                Also note that this function will NOT clear any indicator segments that you have set. This is
-  *                by design, in case you wish to leave an indicator lit in sleep mode.
+  * @param display_on if true, leaves the LCD on to display whatever content was on-screen. If false, disables
+  *                   the segment LCD controller for additional power savings.
   * @details This shallow sleep mode is not the lowest power mode available (see watch_enter_deep_sleep), but
   *          it has the benefit of retaining your application state and being able to wake from the ALARM button.
   *          It also provides an option for displaying a message to the user when asleep. Note that whether you
@@ -96,10 +91,10 @@ uint32_t watch_get_backup_data(uint8_t reg);
   *
   *          Power consumption in shallow sleep mode varies a bit with the battery voltage and the temperature,
   *          but at 3 V and 25~30° C you can roughly estimate:
-  *           * < 12µA current draw with the LCD controller on (message != NULL)
-  *           * < 6µA current draw with the LCD controller off (message == NULL)
+  *           * < 12µA current draw with the LCD controller on
+  *           * < 6µA current draw with the LCD controller off
   */
-void watch_enter_shallow_sleep(char *message);
+void watch_enter_shallow_sleep(bool display_on);
 
 /** @brief Enters the SAM L22's lowest-power mode, BACKUP.
   * @details This function does some housekeeping before entering BACKUP mode. It first disables all

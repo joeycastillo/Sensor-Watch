@@ -69,6 +69,10 @@ void watch_set_pixel(uint8_t com, uint8_t seg);
   */
 void watch_clear_pixel(uint8_t com, uint8_t seg);
 
+/** @brief Clears all segments of the display, including incicators and the colon.
+  */
+void watch_clear_display();
+
 /** @brief Displays a string at the given position, starting from the top left. There are ten digits.
            A space in any position will clear that digit.
   * @param string A null-terminated string.
