@@ -21,6 +21,23 @@ bool pulsometer_face_loop(movement_event_t event, movement_settings_t *settings,
     pulsometer_state_t *pulsometer_state = (pulsometer_state_t *)context;
     char buf[14];
     switch (event.event_type) {
+        case EVENT_MODE_BUTTON_UP:
+            movement_move_to_next_face();
+            break;
+        case EVENT_LIGHT_BUTTON_UP:
+            movement_illuminate_led();
+            break;
+        case EVENT_ALARM_BUTTON_DOWN:
+            pulsometer_state->measuring = true;
+            pulsometer_state->pulse = 0xFFFF;
+            pulsometer_state->ticks = 0;
+            movement_request_tick_frequency(PULSOMETER_FACE_FREQUENCY);
+            break;
+        case EVENT_ALARM_BUTTON_UP:
+        case EVENT_ALARM_LONG_PRESS:
+            pulsometer_state->measuring = false;
+            movement_request_tick_frequency(1);
+            break;
         case EVENT_TICK:
             if (pulsometer_state->pulse == 0 && !pulsometer_state->measuring) {
                 switch (pulsometer_state->ticks % 5) {
@@ -55,23 +72,6 @@ bool pulsometer_face_loop(movement_event_t event, movement_settings_t *settings,
                 }
                 if (pulsometer_state->measuring) pulsometer_state->ticks++;
             }
-            return false;
-        case EVENT_MODE_BUTTON_UP:
-            movement_move_to_next_face();
-            return false;
-        case EVENT_LIGHT_BUTTON_UP:
-            movement_illuminate_led();
-            break;
-        case EVENT_ALARM_BUTTON_DOWN:
-            pulsometer_state->ticks = 0;
-            pulsometer_state->pulse = 0xFFFF;
-            pulsometer_state->measuring = true;
-            movement_request_tick_frequency(PULSOMETER_FACE_FREQUENCY);
-            break;
-        case EVENT_ALARM_BUTTON_UP:
-        case EVENT_ALARM_LONG_PRESS:
-            pulsometer_state->measuring = false;
-            movement_request_tick_frequency(1);
             break;
         case EVENT_TIMEOUT:
             movement_move_to_face(0);
