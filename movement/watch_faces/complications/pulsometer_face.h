@@ -7,7 +7,7 @@ typedef struct {
     bool measuring;
     int16_t pulse;
     int16_t ticks;
-} PulsometerState;
+} pulsometer_state_t;
 
 void pulsometer_face_setup(movement_settings_t *settings, void ** context_ptr);
 void pulsometer_face_activate(movement_settings_t *settings, void *context);

@@ -8,18 +8,18 @@
 
 void pulsometer_face_setup(movement_settings_t *settings, void ** context_ptr) {
     (void) settings;
-    if (*context_ptr == NULL) *context_ptr = malloc(sizeof(PulsometerState));
+    if (*context_ptr == NULL) *context_ptr = malloc(sizeof(pulsometer_state_t));
 }
 
 void pulsometer_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
-    memset(context, 0, sizeof(PulsometerState));
+    memset(context, 0, sizeof(pulsometer_state_t));
 }
 
 bool pulsometer_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     printf("pulsometer_face_loop\n");
     (void) settings;
-    PulsometerState *pulsometer_state = (PulsometerState *)context;
+    pulsometer_state_t *pulsometer_state = (pulsometer_state_t *)context;
     char buf[14];
     switch (event.event_type) {
         case EVENT_TICK:
