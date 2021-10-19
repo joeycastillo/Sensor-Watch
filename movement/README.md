@@ -158,10 +158,10 @@ case EVENT_MODE_BUTTON_UP:
     break;
 ```
 
-Similarly in response to the user releasing the LIGHT button, we tell Movement to illuminate the LED. Movement does not do this automatically, in case your watch face UI has another use for the LIGHT button.
+Similarly in response to the user pressing the LIGHT button, we tell Movement to illuminate the LED. Movement does not do this automatically, in case your watch face UI has another use for the LIGHT button.
 
 ```c
-case EVENT_LIGHT_BUTTON_UP:
+case EVENT_LIGHT_BUTTON_DOWN:
     movement_illuminate_led();
     break;
 ```

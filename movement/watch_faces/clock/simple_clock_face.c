@@ -65,7 +65,7 @@ bool simple_clock_face_loop(movement_event_t event, movement_settings_t *setting
         case EVENT_MODE_BUTTON_UP:
             movement_move_to_next_face();
             return false;
-        case EVENT_LIGHT_BUTTON_UP:
+        case EVENT_LIGHT_BUTTON_DOWN:
             movement_illuminate_led();
             break;
         case EVENT_ALARM_BUTTON_UP:

@@ -2,8 +2,16 @@
 #include "preferences_face.h"
 #include "watch.h"
 
-#define PREFERENCES_FACE_NUM_PREFEFENCES (5)
-const char preferences_face_titles[PREFERENCES_FACE_NUM_PREFEFENCES][11] = {"CL        ", "Bt  Beep  ", "SC        ", "Lt   grn  ", "Lt   red  "};
+#define PREFERENCES_FACE_NUM_PREFEFENCES (7)
+const char preferences_face_titles[PREFERENCES_FACE_NUM_PREFEFENCES][11] = {
+    "CL        ",   // Clock: 12 or 24 hour
+    "BT  Beep  ",   // Buttons: should they beep?
+    "TO        ",   // Timeout: how long before we snap back to the clock face?
+    "LE        ",   // Low Energy mode: how long before it engages?
+    "LT        ",   // Light: duration
+    "LT   grn  ",   // Light: green component
+    "LT   red  ",   // Light: red component
+};
 
 void preferences_face_setup(movement_settings_t *settings, void ** context_ptr) {
     (void) settings;
@@ -36,12 +44,18 @@ bool preferences_face_loop(movement_event_t event, movement_settings_t *settings
                     settings->bit.button_should_sound = !(settings->bit.button_should_sound);
                     break;
                 case 2:
-                    settings->bit.le_inactivity_interval = settings->bit.le_inactivity_interval + 1;
+                    settings->bit.to_interval = settings->bit.to_interval + 1;
                     break;
                 case 3:
-                    settings->bit.led_green_color = settings->bit.led_green_color + 1;
+                    settings->bit.le_interval = settings->bit.le_interval + 1;
                     break;
                 case 4:
+                    settings->bit.led_duration = settings->bit.led_duration + 1;
+                    break;
+                case 5:
+                    settings->bit.led_green_color = settings->bit.led_green_color + 1;
+                    break;
+                case 6:
                     settings->bit.led_red_color = settings->bit.led_red_color + 1;
                     break;
             }
@@ -56,7 +70,7 @@ bool preferences_face_loop(movement_event_t event, movement_settings_t *settings
     watch_display_string((char *)preferences_face_titles[current_page], 0);
 
     if (event.subsecond % 2) return current_page <= 2;
-    char buf[3];
+    char buf[8];
     switch (current_page) {
         case 0:
             if (settings->bit.clock_mode_24h) watch_display_string("24h", 4);
@@ -67,7 +81,23 @@ bool preferences_face_loop(movement_event_t event, movement_settings_t *settings
             else watch_display_string("n", 9);
             break;
         case 2:
-            switch (settings->bit.le_inactivity_interval) {
+            switch (settings->bit.to_interval) {
+                case 0:
+                    watch_display_string("60 sec", 4);
+                    break;
+                case 1:
+                    watch_display_string("2 n&in", 4);
+                    break;
+                case 2:
+                    watch_display_string("5 n&in", 4);
+                    break;
+                case 3:
+                    watch_display_string("30n&in", 4);
+                    break;
+            }
+            break;
+        case 3:
+            switch (settings->bit.le_interval) {
                 case 0:
                     watch_display_string(" never", 4);
                     break;
@@ -94,17 +124,28 @@ bool preferences_face_loop(movement_event_t event, movement_settings_t *settings
                     break;
             }
             break;
-        case 3:
+        case 4:
+            if (settings->bit.led_duration) {
+                // FIXME: since we time the LED with the 1 Hz tick, the actual time lit can vary depending
+                // on whether the user hit it just before or just after a tick. so the setting is "1-2 s",
+                // "3-4 s", or "5-6 s". If we time this with the system tick we can do better.
+                sprintf(buf, " %1d-%1d s", settings->bit.led_duration * 2 - 1, settings->bit.led_duration * 2);
+                watch_display_string(buf, 4);
+            } else {
+                watch_display_string("no LEd", 4);
+            }
+            break;
+        case 5:
             sprintf(buf, "%2d", settings->bit.led_green_color);
             watch_display_string(buf, 8);
             break;
-        case 4:
+        case 6:
             sprintf(buf, "%2d", settings->bit.led_red_color);
             watch_display_string(buf, 8);
             break;
     }
 
-    if (current_page > 2) {
+    if (current_page >= 5) {
         watch_set_led_color(settings->bit.led_red_color ? (0xF | settings->bit.led_red_color << 4) : 0,
                             settings->bit.led_green_color ? (0xF | settings->bit.led_green_color << 4) : 0);
         return false;

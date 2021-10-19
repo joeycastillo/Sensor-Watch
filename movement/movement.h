@@ -6,12 +6,12 @@
 // TODO: none of this is implemented
 typedef union {
     struct {
-        uint32_t reserved : 14;
+        uint32_t reserved : 15;
         uint32_t clock_mode_24h : 1;        // determines whether clock should use 12 or 24 hour mode.
         uint32_t button_should_sound : 1;   // if true, pressing a button emits a sound.
-        uint32_t to_inactivity_interval : 2;// an inactivity interval for asking the active face to resign.
-        uint32_t le_inactivity_interval : 3;// 0 to disable low energy mode, or an inactivity interval for going into low energy mode.
-        uint32_t led_duration : 3;          // how many seconds to shine the LED for, or 0 to disable it.
+        uint32_t to_interval : 2;           // an inactivity interval for asking the active face to resign.
+        uint32_t le_interval : 3;           // 0 to disable low energy mode, or an inactivity interval for going into low energy mode.
+        uint32_t led_duration : 2;          // how many seconds to shine the LED for (x2), or 0 to disable it.
         uint32_t led_red_color : 4;         // for general purpose illumination, the red LED value (0-15)
         uint32_t led_green_color : 4;       // for general purpose illumination, the green LED value (0-15)
     } bit;

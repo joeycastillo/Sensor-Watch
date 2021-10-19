@@ -19,8 +19,8 @@ void cb_alarm_fired();
 void cb_tick();
 
 static inline void _movement_reset_inactivity_countdown() {
-    movement_state.le_mode_ticks = movement_le_inactivity_deadlines[movement_state.settings.bit.le_inactivity_interval];
-    movement_state.timeout_ticks = movement_timeout_inactivity_deadlines[movement_state.settings.bit.to_inactivity_interval];
+    movement_state.le_mode_ticks = movement_le_inactivity_deadlines[movement_state.settings.bit.le_interval];
+    movement_state.timeout_ticks = movement_timeout_inactivity_deadlines[movement_state.settings.bit.to_interval];
 }
 
 void movement_request_tick_frequency(uint8_t freq) {
@@ -31,7 +31,10 @@ void movement_request_tick_frequency(uint8_t freq) {
 }
 
 void movement_illuminate_led() {
-    movement_state.light_ticks = movement_state.settings.bit.led_duration;
+    watch_set_led_color(movement_state.settings.bit.led_red_color ? (0xF | movement_state.settings.bit.led_red_color << 4) : 0,
+                        movement_state.settings.bit.led_green_color ? (0xF | movement_state.settings.bit.led_green_color << 4) : 0);
+    movement_state.led_on = true;
+    movement_state.light_ticks = movement_state.settings.bit.led_duration * 2;
 }
 
 void movement_move_to_face(uint8_t watch_face_index) {
@@ -48,8 +51,8 @@ void app_init() {
 
     movement_state.settings.bit.led_green_color = 0xF;
     movement_state.settings.bit.button_should_sound = true;
-    movement_state.settings.bit.le_inactivity_interval = 1;
-    movement_state.settings.bit.led_duration = 3;
+    movement_state.settings.bit.le_interval = 1;
+    movement_state.settings.bit.led_duration = 1;
     _movement_reset_inactivity_countdown();
 }
 
@@ -110,14 +113,6 @@ bool app_loop() {
         event.subsecond = 0;
         event.event_type = EVENT_ACTIVATE;
         movement_state.watch_face_changed = false;
-    }
-
-    // If the LED is off and should be on, turn it on
-    if (movement_state.light_ticks > 0 && !movement_state.led_on) {
-        watch_set_led_color(movement_state.settings.bit.led_red_color ? (0xF | movement_state.settings.bit.led_red_color << 4) : 0,
-                            movement_state.settings.bit.led_green_color ? (0xF | movement_state.settings.bit.led_green_color << 4) : 0);
-        movement_state.led_on = true;
-
     }
 
     // if the LED is on and should be off, turn it off
@@ -215,7 +210,7 @@ void cb_tick() {
     watch_date_time date_time = watch_rtc_get_date_time();
     if (date_time.unit.second != movement_state.last_second) {
         if (movement_state.light_ticks) movement_state.light_ticks--;
-        if (movement_state.settings.bit.le_inactivity_interval && movement_state.le_mode_ticks > 0) movement_state.le_mode_ticks--;
+        if (movement_state.settings.bit.le_interval && movement_state.le_mode_ticks > 0) movement_state.le_mode_ticks--;
         if (movement_state.timeout_ticks > 0) movement_state.timeout_ticks--;
 
         movement_state.last_second = date_time.unit.second;

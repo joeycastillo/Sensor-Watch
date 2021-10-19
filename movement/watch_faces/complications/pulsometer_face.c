@@ -24,7 +24,7 @@ bool pulsometer_face_loop(movement_event_t event, movement_settings_t *settings,
         case EVENT_MODE_BUTTON_UP:
             movement_move_to_next_face();
             break;
-        case EVENT_LIGHT_BUTTON_UP:
+        case EVENT_LIGHT_BUTTON_DOWN:
             movement_illuminate_led();
             break;
         case EVENT_ALARM_BUTTON_DOWN:
