@@ -9,9 +9,10 @@ void simple_clock_face_setup(movement_settings_t *settings, void ** context_ptr)
 }
 
 void simple_clock_face_activate(movement_settings_t *settings, void *context) {
-    if (settings->bit.clock_mode_24h) {
-        watch_set_indicator(WATCH_INDICATOR_24H);
-    }
+    if (watch_tick_animation_is_running()) watch_stop_tick_animation();
+
+    if (settings->bit.clock_mode_24h) watch_set_indicator(WATCH_INDICATOR_24H);
+
     watch_set_colon();
     // this ensures that none of the timestamp fields will match, so we can re-render them all.
     *((uint32_t *)context) = 0xFFFFFFFF;
@@ -55,6 +56,7 @@ bool simple_clock_face_loop(movement_event_t event, movement_settings_t *setting
                 }
                 pos = 0;
                 if (event.event_type == EVENT_LOW_ENERGY_UPDATE) {
+                    if (!watch_tick_animation_is_running()) watch_start_tick_animation(500);
                     sprintf(buf, "%s%2d%2d%02d  ", weekdays[simple_clock_face_get_weekday(date_time.unit.year, date_time.unit.month, date_time.unit.day)], date_time.unit.day, date_time.unit.hour, date_time.unit.minute);
                 } else {
                     sprintf(buf, "%s%2d%2d%02d%02d", weekdays[simple_clock_face_get_weekday(date_time.unit.year, date_time.unit.month, date_time.unit.day)], date_time.unit.day, date_time.unit.hour, date_time.unit.minute, date_time.unit.second);

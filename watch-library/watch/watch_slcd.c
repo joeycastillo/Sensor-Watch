@@ -277,6 +277,10 @@ void watch_start_tick_animation(uint32_t duration) {
     slcd_sync_start_animation(&SEGMENT_LCD_0, segs, 1, duration);
 }
 
+bool watch_tick_animation_is_running() {
+    return hri_slcd_get_CTRLD_CSREN_bit(SLCD);
+}
+
 void watch_stop_tick_animation() {
     const uint32_t segs[] = { SLCD_SEGID(0, 2)};
     slcd_sync_stop_animation(&SEGMENT_LCD_0, segs, 1);

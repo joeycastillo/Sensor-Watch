@@ -138,6 +138,11 @@ void watch_stop_blink();
   */
 void watch_start_tick_animation(uint32_t duration);
 
+/** @brief Checks if the tick animation is currently running.
+  * @return true if the animation is running; false otherwise.
+  */
+bool watch_tick_animation_is_running();
+
 /** @brief Stops the tick/tock animation and clears all animating segments.
   * @details This will stop the animation and clear all segments in position 8.
   */
