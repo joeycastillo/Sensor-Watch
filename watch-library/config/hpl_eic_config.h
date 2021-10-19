@@ -271,7 +271,7 @@
 // <i> Indicates whether the external interrupt 5 filter is enabled or not
 // <id> eic_arch_filten5
 #ifndef CONF_EIC_FILTEN5
-#define CONF_EIC_FILTEN5 0
+#define CONF_EIC_FILTEN5 1
 #endif
 
 // <q> External Interrupt 5 Event Output Enable
@@ -723,7 +723,12 @@
 
 // </e>
 
+// my god this is a hack. need to refactor this out of ASF and into our driver. - joey 10/19
+#ifdef CRYSTALLESS
+#define CONFIG_EIC_EXTINT_MAP {2, PIN_PA02}, {5, PIN_PB05}, {7, PIN_PA07},
+#else
 #define CONFIG_EIC_EXTINT_MAP {2, PIN_PA02}, {6, PIN_PA22}, {7, PIN_PA23},
+#endif
 
 // <<< end of configuration section >>>
 
