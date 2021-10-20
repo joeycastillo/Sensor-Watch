@@ -209,7 +209,11 @@ void cb_tick() {
     event.event_type = EVENT_TICK;
     watch_date_time date_time = watch_rtc_get_date_time();
     if (date_time.unit.second != movement_state.last_second) {
+        // TODO: since we time the LED with the 1 Hz tick, the actual time lit can vary depending on whether the
+        // user hit it just before or just after a tick. If we time this with the system tick we can do better.
         if (movement_state.light_ticks) movement_state.light_ticks--;
+
+        // TODO: can we consolidate these two ticks?
         if (movement_state.settings.bit.le_interval && movement_state.le_mode_ticks > 0) movement_state.le_mode_ticks--;
         if (movement_state.timeout_ticks > 0) movement_state.timeout_ticks--;
 
