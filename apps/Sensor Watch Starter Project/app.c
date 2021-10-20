@@ -51,14 +51,14 @@ void app_init() {
 }
 
 /**
- * @brief the app_wake_from_deep_sleep function is only called if your app is waking from
+ * @brief the app_wake_from_backup function is only called if your app is waking from
  * the ultra-low power BACKUP sleep mode. You may have chosen to store some state in the
  * RTC's backup registers prior to entering this mode. You may restore that state here.
  *
  * @see watch_enter_deep_sleep()
  */
-void app_wake_from_deep_sleep() {
-    // this app only supports shallow sleep mode.
+void app_wake_from_backup() {
+    // This app does not support BACKUP mode.
 }
 
 /**
@@ -69,9 +69,12 @@ void app_wake_from_deep_sleep() {
  * accelerometer that will run at all times should be configured here, whereas you may
  * want to enable a more power-hungry environmental sensor only when you need it.
  *
- * @note If your app enters the ultra-low power BACKUP sleep mode, this function will
- * be called again when it wakes from that deep sleep state. In this state, the RTC will
- * still be configured with the correct date and time.
+ * @note If your app enters the Sleep or Deep Sleep modes, this function will be called
+ * again on wake, since those modes will have disabled all pins and peripherals; you'll
+ * likely need to set them up again. This function will also be called again if your app
+ * entered the ultra-low power BACKUP mode, since BACKUP mode will have done all that and
+ * also wiped out the system RAM. Note that when this is called after waking from sleep,
+ * the RTC will still be configured with the correct date and time.
  */
 void app_setup() {
     watch_enable_leds();
@@ -94,25 +97,24 @@ void app_setup() {
 }
 
 /**
- * @brief the app_prepare_for_sleep function is called before the watch goes into the
- * STANDBY sleep mode. In STANDBY mode, most peripherals are shut down, and no code
- * will run until the watch receives an interrupt (generally either the 1Hz tick or
- * a press on one of the buttons).
+ * @brief the app_prepare_for_standby function is called before the watch goes into STANDBY mode.
+ * In STANDBY mode, most peripherals are shut down, and no code will run until the watch receives
+ * an interrupt (generally either the 1Hz tick or a press on one of the buttons).
  */
-void app_prepare_for_sleep() {
+void app_prepare_for_standby() {
 }
 
 /**
- * @brief the app_wake_from_sleep function is called after the watch wakes from the
- * STANDBY sleep mode.
+ * @brief the app_wake_from_standby function is called after the watch wakes from STANDBY mode,
+ * but before your main app_loop.
  */
-void app_wake_from_sleep() {
+void app_wake_from_standby() {
     application_state.wake_count++;
 }
 
 /**
- * @brief the app_loop function is called once on app startup and then again each time
- * the watch STANDBY sleep mode.
+ * @brief the app_loop function is called once on app startup and then again each time the
+ * watch exits STANDBY mode.
  */
 bool app_loop() {
     if (application_state.beep) {
@@ -157,7 +159,7 @@ bool app_loop() {
         delay_ms(250);
 
         // nap time :)
-        watch_enter_shallow_sleep(false);
+        watch_enter_deep_sleep_mode();
 
         // we just woke up; wait a moment again for the user's finger to be off the button...
         delay_ms(250);

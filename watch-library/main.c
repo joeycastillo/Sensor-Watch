@@ -57,7 +57,7 @@ int main(void) {
     // Ideally we should check if the TAMPER or CMP0 (alarm) flags are set.
     if (_watch_rtc_is_enabled()) {
         // User code. Give the application a chance to restore state from backup registers.
-        app_wake_from_deep_sleep();
+        app_wake_from_backup();
 
         // disable the tamper interrupt and clear the tamper bit
         hri_rtcmode0_clear_INTEN_TAMPER_bit(RTC);
@@ -75,9 +75,9 @@ int main(void) {
         bool can_sleep = app_loop();
 
         if (can_sleep && !usb_enabled) {
-            app_prepare_for_sleep();
+            app_prepare_for_standby();
             sleep(4);
-            app_wake_from_sleep();
+            app_wake_from_standby();
         }
     }
 

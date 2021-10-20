@@ -50,8 +50,8 @@ void app_init() {
     memset(&application_state, 0, sizeof(application_state));
 }
 
-void app_wake_from_deep_sleep() {
-    // This app does not support deep sleep mode.
+void app_wake_from_backup() {
+    // This app does not support BACKUP mode.
 }
 
 void app_setup() {
@@ -67,10 +67,10 @@ void app_setup() {
     watch_rtc_register_tick_callback(cb_tick);
 }
 
-void app_prepare_for_sleep() {
+void app_prepare_for_standby() {
 }
 
-void app_wake_from_sleep() {
+void app_wake_from_standby() {
 }
 
 void update_tick_frequency() {

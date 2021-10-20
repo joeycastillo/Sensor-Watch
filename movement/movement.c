@@ -56,8 +56,8 @@ void app_init() {
     _movement_reset_inactivity_countdown();
 }
 
-void app_wake_from_deep_sleep() {
-    // This app does not support deep sleep mode.
+void app_wake_from_backup() {
+    // This app does not support BACKUP mode.
 }
 
 void app_setup() {
@@ -94,10 +94,10 @@ void app_setup() {
     }
 }
 
-void app_prepare_for_sleep() {
+void app_prepare_for_standby() {
 }
 
-void app_wake_from_sleep() {
+void app_wake_from_standby() {
 }
 
 bool app_loop() {
@@ -147,11 +147,11 @@ bool app_loop() {
         while (movement_state.le_mode_ticks == -1) {
             event.event_type = EVENT_LOW_ENERGY_UPDATE;
             watch_faces[movement_state.current_watch_face].loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
-            watch_enter_shallow_sleep(true);
+            watch_enter_sleep_mode();
         }
         // as soon as le_mode_ticks is reset by the extwake handler, we bail out of the loop and reactivate ourselves.
         event.event_type = EVENT_ACTIVATE;
-        // this is a hack tho: waking from shallow sleep, app_setup does get called, but it happens before we have reset our ticks.
+        // this is a hack tho: waking from sleep mode, app_setup does get called, but it happens before we have reset our ticks.
         // need to figure out if there's a better heuristic for determining how we woke up.
         app_setup();
     }

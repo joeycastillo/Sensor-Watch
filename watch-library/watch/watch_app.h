@@ -33,7 +33,7 @@
   *
   *            1. Your app_init() function is called.
   *               - This method should only be used to set your initial application state.
-  *            2. If your app is waking from BACKUP, app_wake_from_deep_sleep()  is called.
+  *            2. If your app is waking from BACKUP, app_wake_from_backup() is called.
   *               - If you saved state in the RTC's backup registers, you can restore it here.
   *            3. Your app_setup() method is called.
   *               - You may wish to enable some functionality and peripherals here.
@@ -43,11 +43,11 @@
   *               - Return true if your app is prepared to enter STANDBY mode.
   *            5. This step differs depending on the value returned by app_loop:
   *               - If you returned false, execution resumes at (4).
-  *               - If you returned true, app_prepare_for_sleep() is called; execution moves on to (6).
-  *            6. The microcontroller enters the STANDBY sleep mode.
+  *               - If you returned true, app_prepare_for_standby() is called; execution moves on to (6).
+  *            6. The microcontroller enters STANDBY mode.
   *               - No user code will run, and the watch will enter a low power mode.
   *               - The watch will remain in this state until an interrupt wakes it.
-  *            7. Once woken from STANDBY, your app_wake_from_sleep() function is called.
+  *            7. Once woken from STANDBY, your app_wake_from_standby() function is called.
   *               - After this, execution resumes at (4).
   */
 /// @{
@@ -57,11 +57,11 @@
   */
 void app_init();
 
-/** @brief A function you will implement to wake from deep sleep mode. The app_wake_from_deep_sleep function is only
-  *        called if your app is waking from the ultra-low power BACKUP sleep mode. You may have chosen to store some
-  *        state in the RTC's backup registers prior to entering this mode. You may restore that state here.
+/** @brief A function you will implement to wake from BACKUP mode, which wipes the system's RAM, and with it, your
+  *        application's state. You may have chosen to store some important application state in the RTC's backup
+  *        registers prior to entering this mode. You may restore that state here.
   */
-void app_wake_from_deep_sleep();
+void app_wake_from_backup();
 
 /** @brief A function you will implement to set up your application. The app_setup function is like setup() in Arduino.
   *        It is called once when the program begins. You should set pin modes and enable any peripherals you want to
@@ -74,12 +74,12 @@ void app_wake_from_deep_sleep();
 void app_setup();
 
 /** @brief A function you will implement to serve as the app's main run loop. This method will be called repeatedly,
-           or if you enter STANDBY sleep mode, as soon as the device wakes from sleep.
-  * @return You should return true if your app is prepared to enter STANDBY sleep mode. If you return false, your
-  *         app's app_loop method will be called again immediately. Note that in STANDBY mode, the watch will consume
-  *         only about 95 microamperes of power, whereas if you return false and keep the app awake, it will consume
-  *         about 355 microamperes. This is the difference between months of battery life and days. As much as
-  *         possible, you should limit the amount of time your app spends awake.
+           or if you enter STANDBY mode, as soon as the device wakes from sleep.
+  * @return You should return true if your app is prepared to enter STANDBY mode. If you return false, your app's
+  *         app_loop method will be called again immediately. Note that in STANDBY mode, the watch will consume only
+  *         about 95 microamperes of power, whereas if you return false and keep the app awake, it will consume about
+  *         355 microamperes. This is the difference between months of battery life and days. As much as possible,
+  *         you should limit the amount of time your app spends awake.
   * @note Only the RTC, the segment LCD controller and the external interrupt controller run in STANDBY mode. If you
   *       are using, e.g. the PWM function to set a custom LED color, you should return false here until you are
   *       finished with that operation. Note however that the peripherals will continue running after waking up,
@@ -88,21 +88,21 @@ void app_setup();
   */
 bool app_loop();
 
-/** @brief A function you will implement to prepare to enter STANDBY sleep mode. The app_prepare_for_sleep function is
- *         called before the watch goes into the STANDBY sleep mode. In STANDBY mode, most peripherals are shut down,
- *         and no code will run until the watch receives an interrupt (generally either the 1Hz tick or a press on one
- *         of the buttons).
+/** @brief A function you will implement to prepare to enter STANDBY mode. The app_prepare_for_standby function is
+ *         called after your app_loop function returns true, and just before the watch enters STANDBY mode. In this
+ *         mode most peripherals are shut down, and no code will run until the watch receives an interrupt (generally
+ *         either the 1Hz tick or a press on one of the buttons).
  * @note If you are PWM'ing the LED or playing a sound on the buzzer, the TC/TCC peripherals that drive those operations
  *       will not run in STANDBY. BUT! the output pins will retain the state they had when entering standby. This means
  *       you could end up entering standby with an LED on and draining power, or with a DC potential across the piezo
  *       buzzer that could damage it if left in this state. If your app_loop does not prevent sleep during these
- *       activities, you should make sure to disable these outputs in app_prepare_for_sleep.
+ *       activities, you should make sure to disable these outputs in app_prepare_for_standby.
  */
-void app_prepare_for_sleep();
+void app_prepare_for_standby();
 
-/** @brief A method you will implement to configure the app after waking from STANDBY sleep mode.
+/** @brief A method you will implement to configure the app after waking from STANDBY mode.
   */
-void app_wake_from_sleep();
+void app_wake_from_standby();
 
 /// @}
 #endif

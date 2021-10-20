@@ -17,7 +17,7 @@ void app_init() {
     memset(&application_state, 0, sizeof(application_state));
 }
 
-void app_wake_from_deep_sleep() {
+void app_wake_from_backup() {
 }
 
 void app_setup() {
@@ -28,11 +28,11 @@ void app_setup() {
     watch_enable_buzzer();
 }
 
-void app_prepare_for_sleep() {
+void app_prepare_for_standby() {
     watch_display_string("  rains ", 2);
 }
 
-void app_wake_from_sleep() {
+void app_wake_from_standby() {
 }
 
 bool app_loop() {

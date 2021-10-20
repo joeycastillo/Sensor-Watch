@@ -110,7 +110,7 @@ void watch_clear_all_indicators();
 /** @brief Blinks a single character in position 7. Does not affect other positions.
   * @details Six of the seven segments in position 7 (and only position 7) are capable of autonomous
   *          blinking. This blinking does not require any CPU resources, and will continue even in
-  *          standby and shallow sleep mode (if the LCD remains on).
+  *          STANDBY and Sleep mode (but not Deep Sleep mode, since that mode turns off the LCD).
   * @param character The character you wish to blink.
   * @param duration The duration of the on/off cycle in milliseconds, from 50 to ~4250 ms.
   * @note Segment B of position 7 cannot blink autonomously, so not all characters will work well.
@@ -132,8 +132,8 @@ void watch_stop_blink();
   *          or backward in a shift register whose positions map to fixed segments on the LCD. Given
   *          this constraint, an animation across all six segments does not make sense; so the watch
   *          library offers only a simple "tick/tock" in segments D and E. This animation does not
-  *          require any CPU resources, and will continue even in standby and shallow sleep mode
-  *          (if the LCD remains on).
+  *          require any CPU resources, and will continue even in STANDBY and Sleep mode (but not Deep
+  *          Sleep mode, since that mode turns off the LCD).
   * @param duration The duration of each frame in ms. 500 milliseconds produces a classic tick/tock.
   */
 void watch_start_tick_animation(uint32_t duration);

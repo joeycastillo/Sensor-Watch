@@ -16,8 +16,8 @@ void app_init() {
     memset(&application_state, 0, sizeof(application_state));
 }
 
-void app_wake_from_deep_sleep() {
-    // This app does not support deep sleep mode.
+void app_wake_from_backup() {
+    // This app does not support BACKUP mode.
 }
 
 void app_setup() {
@@ -63,13 +63,13 @@ void app_setup() {
 /**
  * Nothing to do here.
  */
-void app_prepare_for_sleep() {
+void app_prepare_for_standby() {
 }
 
 /**
  * @todo restore the BME280's calibration values from backup memory
  */
-void app_wake_from_sleep() {
+void app_wake_from_standby() {
 }
 
 /**

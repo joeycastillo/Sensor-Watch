@@ -151,12 +151,7 @@ void _watch_disable_all_peripherals_except_slcd() {
     MCLK->APBCMASK.reg &= ~MCLK_APBCMASK_SERCOM3;
 }
 
-void watch_enter_shallow_sleep(bool display_on) {
-    if (!display_on) {
-        slcd_sync_deinit(&SEGMENT_LCD_0);
-        hri_mclk_clear_APBCMASK_SLCD_bit(SLCD);
-    }
-
+void watch_enter_sleep_mode() {
     // disable all other peripherals
     _watch_disable_all_peripherals_except_slcd();
 
@@ -178,15 +173,19 @@ void watch_enter_shallow_sleep(bool display_on) {
     // call app_setup so the app can re-enable everything we disabled.
     app_setup();
 
-    // and call app_wake_from_sleep (since main won't have a chance to do it)
-    app_wake_from_sleep();
+    // and call app_wake_from_standby (since main won't have a chance to do it)
+    app_wake_from_standby();
 }
 
-void watch_enter_deep_sleep() {
-    // this will not work on the current silicon revision, but I said in the documentation that we do it.
-    // so let's do it!
-    watch_register_extwake_callback(BTN_ALARM, NULL, true);
+void watch_enter_deep_sleep_mode() {
+    // identical to sleep mode except we disable the LCD first.
+    slcd_sync_deinit(&SEGMENT_LCD_0);
+    hri_mclk_clear_APBCMASK_SLCD_bit(SLCD);
 
+    watch_enter_sleep_mode();
+}
+
+void watch_enter_backup_mode() {
     watch_rtc_disable_all_periodic_callbacks();
     _watch_disable_all_peripherals_except_slcd();
     slcd_sync_deinit(&SEGMENT_LCD_0);
@@ -195,4 +194,16 @@ void watch_enter_deep_sleep() {
 
     // go into backup sleep mode (5). when we exit, the reset controller will take over.
     sleep(5);
+}
+
+// deprecated
+void watch_enter_shallow_sleep(bool display_on) {
+    if (display_on) watch_enter_sleep_mode();
+    else watch_enter_deep_sleep_mode();
+}
+
+// deprecated
+void watch_enter_deep_sleep() {
+    watch_register_extwake_callback(BTN_ALARM, NULL, true);
+    watch_enter_backup_mode();
 }

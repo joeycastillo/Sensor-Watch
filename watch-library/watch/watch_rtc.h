@@ -88,8 +88,8 @@ watch_date_time watch_rtc_get_date_time();
   * @param alarm_time The time that you wish to match. The date is currently ignored.
   * @param mask One of the values in watch_rtc_alarm_match indicating which values to check.
   * @details The alarm interrupt is a versatile tool for scheduling events in the future, especially since it can
-  *          wake the device from both shallow and deep sleep modes. The key to its versatility is the mask
-  *          parameter. Suppose we set an alarm for midnight, 00:00:00.
+  *          wake the device from all sleep modes. The key to its versatility is the mask parameter.
+  *          Suppose we set an alarm for midnight, 00:00:00.
   *           * if mask is ALARM_MATCH_SS, the alarm will fire every minute when the clock ticks to seconds == 0.
   *           * with ALARM_MATCH_MMSS, the alarm will once an hour, at the top of each hour.
   *           * with ALARM_MATCH_HHMMSS, the alarm will fire at midnight every day.
