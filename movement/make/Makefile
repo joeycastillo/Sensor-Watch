@@ -15,6 +15,7 @@ INCLUDES += \
   -I../watch_faces/settings/ \
   -I../watch_faces/complications/ \
   -I../watch_faces/thermistor/ \
+  -I../watch_faces/demos/ \
 
 # If you add any other source files you wish to compile, add them after ../app.c
 # Note that you will need to add a backslash at the end of any line you wish to continue, i.e.
@@ -30,6 +31,7 @@ SRCS += \
   ../watch_faces/complications/pulsometer_face.c \
   ../watch_faces/thermistor/thermistor_driver.c \
   ../watch_faces/thermistor/thermistor_readout_face.c \
+  ../watch_faces/demos/character_set_face.c \
 
 # Leave this line at the bottom of the file; it has all the targets for making your project.
 include $(TOP)/rules.mk

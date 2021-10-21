@@ -204,6 +204,7 @@ void watch_display_character(uint8_t character, uint8_t position) {
     }
     if (character == 'T' && position == 1) slcd_sync_seg_on(&SEGMENT_LCD_0, SLCD_SEGID(1, 12)); // add descender
     else if (position == 0 && (character == 'B' || character == 'D')) slcd_sync_seg_on(&SEGMENT_LCD_0, SLCD_SEGID(0, 15)); // add funky ninth segment
+    else if (position == 0 && (character == 'B' || character == 'D' || character == '@')) slcd_sync_seg_on(&SEGMENT_LCD_0, SLCD_SEGID(0, 15)); // add funky ninth segment
 }
 
 void watch_display_string(char *string, uint8_t position) {
