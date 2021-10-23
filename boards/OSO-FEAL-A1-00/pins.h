@@ -65,7 +65,7 @@
 // This board uses a slightly different pin mapping from the standard watch, and it's not enough to
 // just declare the pins. We also have to set the LCD Pin Enable register with the SLCD pins we're
 // using. These numbers are not port/pin numbers, but the "SLCD/LP[x]" numbers in the pinmux table.
-// If not defined in pins.h, the LCD drover will fall back to the pin mapping in hpl_slcd_config.h.
+// If not defined in pins.h, the LCD driver will fall back to the pin mapping in hpl_slcd_config.h.
 // LPENL is for pins SLCD/LP[0..31].
 #define CONF_SLCD_LPENL (\
         (uint32_t)1 <<  0 | \
