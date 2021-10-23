@@ -32,6 +32,7 @@ SRCS += \
   ../watch_faces/thermistor/thermistor_driver.c \
   ../watch_faces/thermistor/thermistor_readout_face.c \
   ../watch_faces/demos/character_set_face.c \
+  ../watch_faces/complications/beats_face.c \
 
 # Leave this line at the bottom of the file; it has all the targets for making your project.
 include $(TOP)/rules.mk
