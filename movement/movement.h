@@ -167,6 +167,9 @@ typedef struct {
     uint8_t mode_down_timestamp;
     uint8_t alarm_down_timestamp;
 
+    // background task handling
+    bool needs_background_tasks_handled;
+
     // low energy mode countdown
     int32_t le_mode_ticks;
 

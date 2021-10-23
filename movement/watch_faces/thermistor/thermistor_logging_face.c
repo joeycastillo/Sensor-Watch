@@ -63,7 +63,6 @@ void thermistor_logging_face_activate(movement_settings_t *settings, void *conte
 
 bool thermistor_logging_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     thermistor_logger_state_t *logger_state = (thermistor_logger_state_t *)context;
-    watch_date_time date_time = watch_rtc_get_date_time();
     switch (event.event_type) {
         case EVENT_TIMEOUT:
             movement_move_to_face(0);
@@ -90,11 +89,9 @@ bool thermistor_logging_face_loop(movement_event_t event, movement_settings_t *s
             if (logger_state->ts_ticks && --logger_state->ts_ticks == 0) {
                 _thermistor_logging_face_update_display(logger_state, settings->bit.use_imperial_units, settings->bit.clock_mode_24h);
             }
-            // this is just temporary for testing: log a data point every 30 seconds.
-            if (date_time.unit.second % 30 == 0 && !logger_state->ts_ticks) {
-                _thermistor_logging_face_log_data(logger_state);
-                _thermistor_logging_face_update_display(logger_state, settings->bit.use_imperial_units, settings->bit.clock_mode_24h);
-            }
+            break;
+        case EVENT_BACKGROUND_TASK:
+            _thermistor_logging_face_log_data(logger_state);
             break;
         default:
             break;
@@ -106,4 +103,12 @@ bool thermistor_logging_face_loop(movement_event_t event, movement_settings_t *s
 void thermistor_logging_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
+}
+
+bool thermistor_logging_face_wants_background_task(movement_settings_t *settings, void *context) {
+    (void) settings;
+    (void) context;
+    // this will get called at the top of each minute, so all we check is if we're at the top of the hour as well.
+    // if we are, we ask for a background task.
+    return watch_rtc_get_date_time().unit.minute == 0;
 }

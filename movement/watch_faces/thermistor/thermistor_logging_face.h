@@ -22,13 +22,14 @@ void thermistor_logging_face_setup(movement_settings_t *settings, void ** contex
 void thermistor_logging_face_activate(movement_settings_t *settings, void *context);
 bool thermistor_logging_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void thermistor_logging_face_resign(movement_settings_t *settings, void *context);
+bool thermistor_logging_face_wants_background_task(movement_settings_t *settings, void *context);
 
 static const watch_face_t thermistor_logging_face = {
     thermistor_logging_face_setup,
     thermistor_logging_face_activate,
     thermistor_logging_face_loop,
     thermistor_logging_face_resign,
-    NULL
+    thermistor_logging_face_wants_background_task
 };
 
 #endif // THERMISTOR_LOGGING_FACE_H_
