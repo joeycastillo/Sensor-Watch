@@ -81,6 +81,7 @@ SRCS += \
   $(TOP)/watch-library/watch/watch_i2c.c \
   $(TOP)/watch-library/watch/watch_uart.c \
   $(TOP)/watch-library/watch/watch_deepsleep.c \
+  $(TOP)/watch-library/watch/watch_utility.c \
   $(TOP)/watch-library/watch/watch_private.c \
   $(TOP)/watch-library/watch/watch.c \
   $(TOP)/watch-library/hal/src/hal_atomic.c \
