@@ -143,7 +143,7 @@
 
 // Enable configuration of module
 #ifndef CONF_SERCOM_3_SPI_ENABLE
-#define CONF_SERCOM_3_SPI_ENABLE 0
+#define CONF_SERCOM_3_SPI_ENABLE 1
 #endif
 
 // Set module in SPI Master mode
@@ -180,7 +180,7 @@
 // <e> Advanced Configuration
 // <id> spi_master_advanced
 #ifndef CONF_SERCOM_3_SPI_ADVANCED
-#define CONF_SERCOM_3_SPI_ADVANCED 0
+#define CONF_SERCOM_3_SPI_ADVANCED 1
 #endif
 
 // <o> Dummy byte <0x00-0x1ff>
