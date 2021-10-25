@@ -50,8 +50,10 @@ void _thermistor_logging_face_update_display(thermistor_logger_state_t *logger_s
 
 void thermistor_logging_face_setup(movement_settings_t *settings, void ** context_ptr) {
     (void) settings;
-    if (*context_ptr == NULL) *context_ptr = malloc(sizeof(thermistor_logger_state_t));
-    memset(*context_ptr, 0, sizeof(thermistor_logger_state_t));
+    if (*context_ptr == NULL) {
+        *context_ptr = malloc(sizeof(thermistor_logger_state_t));
+        memset(*context_ptr, 0, sizeof(thermistor_logger_state_t));
+    }
 }
 
 void thermistor_logging_face_activate(movement_settings_t *settings, void *context) {
