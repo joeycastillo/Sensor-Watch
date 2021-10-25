@@ -4223,8 +4223,8 @@ by exp-lbrs.ulp</description>
 <part name="+3V1" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="+3V3" device=""/>
 <part name="RESET" library="EVP-BB1AAB000" deviceset="EVP-BB1AAB000" device=""/>
 <part name="GND15" library="supply1" deviceset="GND" device=""/>
-<part name="R8" library="microbuilder" deviceset="RESISTOR" device="_0603MP" value="220"/>
-<part name="R9" library="microbuilder" deviceset="RESISTOR" device="_0603MP" value="220"/>
+<part name="R8" library="microbuilder" deviceset="RESISTOR" device="_0603MP" value="100"/>
+<part name="R9" library="microbuilder" deviceset="RESISTOR" device="_0603MP" value="100"/>
 <part name="R2" library="microbuilder" deviceset="RESISTOR" device="_0603MP" value="10K"/>
 <part name="SUPPLY5" library="SparkFun-PowerSymbols" deviceset="VCC" device=""/>
 <part name="R5" library="microbuilder" deviceset="RESISTOR" device="_0603MP" value="10K"/>

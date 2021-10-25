@@ -42,7 +42,7 @@
             - @ref led - This section covers functions related to the bi-color red/green LED mounted behind the LCD.
             - @ref buzzer - This section covers functions related to the piezo buzzer.
             - @ref adc - This section covers functions related to the SAM L22's analog-to-digital converter, as well as
-                         configuring and reading values from the three analog-capable pins on the 9-pin connector.
+                         configuring and reading values from the five analog-capable pins on the 9-pin connector.
             - @ref gpio - This section covers functions related to general-purpose input and output signals.
             - @ref i2c - This section covers functions related to the SAM L22's built-I2C driver, including configuring
                          the I2C bus, putting values directly on the bus and reading data from registers on I2C devices.

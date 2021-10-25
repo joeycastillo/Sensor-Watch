@@ -50,6 +50,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "watch_uart.h"
 #include "peripheral_clk_config.h"
 
 void watch_enable_debug_uart(uint32_t baud) {

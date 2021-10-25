@@ -16,18 +16,11 @@ void app_init() {
     memset(&application_state, 0, sizeof(application_state));
 }
 
-void app_wake_from_deep_sleep() {
-    // This app does not support deep sleep mode.
+void app_wake_from_backup() {
+    // This app does not support BACKUP mode.
 }
 
 void app_setup() {
-    struct calendar_date_time date_time;
-    watch_get_date_time(&date_time);
-    if (date_time.date.year < 2020) {
-        date_time.date.year = 2020;
-        watch_set_date_time(date_time);
-    }
-
     watch_enable_external_interrupts();
     watch_register_interrupt_callback(BTN_MODE, cb_mode_pressed, INTERRUPT_TRIGGER_RISING);
     watch_register_interrupt_callback(BTN_LIGHT, cb_light_pressed, INTERRUPT_TRIGGER_RISING);
@@ -64,19 +57,19 @@ void app_setup() {
 
     watch_enable_display();
 
-    watch_register_tick_callback(cb_tick);
+    watch_rtc_register_tick_callback(cb_tick);
 }
 
 /**
  * Nothing to do here.
  */
-void app_prepare_for_sleep() {
+void app_prepare_for_standby() {
 }
 
 /**
  * @todo restore the BME280's calibration values from backup memory
  */
-void app_wake_from_sleep() {
+void app_wake_from_standby() {
 }
 
 /**
@@ -191,9 +184,8 @@ float read_humidity(int32_t t_fine) {
 }
 
 void log_data() {
-    struct calendar_date_time date_time;
-    watch_get_date_time(&date_time);
-    uint8_t hour = date_time.time.hour;
+    watch_date_time date_time = watch_rtc_get_date_time();
+    uint8_t hour = date_time.unit.hour;
     int8_t temperature = read_temperature(NULL);
 
     for(int i = 0; i < MAX_DATA_POINTS - 1; i++) {
@@ -205,12 +197,11 @@ void log_data() {
 }
 
 void do_clock_mode() {
-    struct calendar_date_time date_time;
+    watch_date_time date_time = watch_rtc_get_date_time();
     const char months[12][3] = {"JA", "FE", "MR", "AR", "MA", "JN", "JL", "AU", "SE", "OC", "NO", "dE"};
 
-    watch_get_date_time(&date_time);
-    watch_display_string((char *)months[date_time.date.month - 1], 0);
-    sprintf(buf, "%2d%2d%02d%02d", date_time.date.day, date_time.time.hour, date_time.time.min, date_time.time.sec);
+    watch_display_string((char *)months[date_time.unit.month - 1], 0);
+    sprintf(buf, "%2d%2d%02d%02d", date_time.unit.day, date_time.unit.hour, date_time.unit.minute, date_time.unit.second);
     watch_display_string(buf, 2);
     watch_set_colon();
 }
@@ -271,28 +262,27 @@ void prefs_mode_handle_secondary_button() {
 }
 
 void do_set_time_mode() {
-    struct calendar_date_time date_time;
+    watch_date_time date_time = watch_rtc_get_date_time();
 
-    watch_get_date_time(&date_time);
     watch_display_string("          ", 0);
     switch (application_state.page) {
         case 0: // hour
-            sprintf(buf, "ST t%2d", date_time.time.hour);
+            sprintf(buf, "ST t%2d", date_time.unit.hour);
             break;
         case 1: // minute
-            sprintf(buf, "ST t  %02d", date_time.time.min);
+            sprintf(buf, "ST t  %02d", date_time.unit.minute);
             break;
         case 2: // second
-            sprintf(buf, "ST t    %02d", date_time.time.sec);
+            sprintf(buf, "ST t    %02d", date_time.unit.second);
             break;
         case 3: // year
-            sprintf(buf, "ST d%2d", date_time.date.year - 2000);
+            sprintf(buf, "ST d%2d", date_time.unit.year + 20);
             break;
         case 4: // month
-            sprintf(buf, "ST d  %02d", date_time.date.month);
+            sprintf(buf, "ST d  %02d", date_time.unit.month);
             break;
         case 5: // day
-            sprintf(buf, "ST d    %02d", date_time.date.day);
+            sprintf(buf, "ST d    %02d", date_time.unit.day);
             break;
     }
     watch_display_string(buf, 0);
@@ -305,37 +295,36 @@ void set_time_mode_handle_primary_button() {
 }
 
 void set_time_mode_handle_secondary_button() {
-    struct calendar_date_time date_time;
-    watch_get_date_time(&date_time);
+    watch_date_time date_time = watch_rtc_get_date_time();
     const uint8_t days_in_month[12] = {31, 28, 31, 30, 31, 30, 30, 31, 30, 31, 30, 31};
 
     switch (application_state.page) {
         case 0: // hour
-            date_time.time.hour = (date_time.time.hour + 1) % 24;
+            date_time.unit.hour = (date_time.unit.hour + 1) % 24;
             break;
         case 1: // minute
-            date_time.time.min = (date_time.time.min + 1) % 60;
+            date_time.unit.minute = (date_time.unit.minute + 1) % 60;
             break;
         case 2: // second
-            date_time.time.sec = 0;
+            date_time.unit.second = 0;
             break;
         case 3: // year
             // only allow 2021-2030. fix this sometime next decade
-            date_time.date.year = ((date_time.date.year % 10) + 1) + 2020;
+            date_time.unit.year = ((date_time.unit.year % 10) + 1);
             break;
         case 4: // month
-            date_time.date.month = ((date_time.date.month + 1) % 12);
+            date_time.unit.month = ((date_time.unit.month + 1) % 12);
             break;
         case 5: // day
-            date_time.date.day = date_time.date.day + 1;
+            date_time.unit.day = date_time.unit.day + 1;
             // can't set to the 29th on a leap year. if it's february 29, set to 11:59 on the 28th.
             // and it should roll over.
-            if (date_time.date.day > days_in_month[date_time.date.month - 1]) {
-                date_time.date.day = 1;
+            if (date_time.unit.day > days_in_month[date_time.unit.month - 1]) {
+                date_time.unit.day = 1;
             }
             break;
     }
-    watch_set_date_time(date_time);
+    watch_rtc_set_date_time(date_time);
 }
 
 void cb_mode_pressed() {
@@ -377,9 +366,8 @@ void cb_alarm_pressed() {
 
 void cb_tick() {
     // TODO: use alarm interrupt to trigger data acquisition.
-    struct calendar_date_time date_time;
-    watch_get_date_time(&date_time);
-    if (date_time.time.min == 0 && date_time.time.sec == 0) {
+    watch_date_time date_time = watch_rtc_get_date_time();
+    if (date_time.unit.minute == 0 && date_time.unit.second == 0) {
         log_data();
     }
 

@@ -21,7 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#ifndef _WATCH_SLCD_H_INCLUDED
+#define _WATCH_SLCD_H_INCLUDED
 ////< @file watch_slcd.h
+
+#include "watch.h"
 
 /** @addtogroup slcd Segment LCD Display
   * @brief This section covers functions related to the Segment LCD display driver, which is responsible
@@ -65,6 +69,10 @@ void watch_set_pixel(uint8_t com, uint8_t seg);
   */
 void watch_clear_pixel(uint8_t com, uint8_t seg);
 
+/** @brief Clears all segments of the display, including incicators and the colon.
+  */
+void watch_clear_display();
+
 /** @brief Displays a string at the given position, starting from the top left. There are ten digits.
            A space in any position will clear that digit.
   * @param string A null-terminated string.
@@ -99,4 +107,45 @@ void watch_clear_indicator(WatchIndicatorSegment indicator);
   */
 void watch_clear_all_indicators();
 
+/** @brief Blinks a single character in position 7. Does not affect other positions.
+  * @details Six of the seven segments in position 7 (and only position 7) are capable of autonomous
+  *          blinking. This blinking does not require any CPU resources, and will continue even in
+  *          STANDBY and Sleep mode (but not Deep Sleep mode, since that mode turns off the LCD).
+  * @param character The character you wish to blink.
+  * @param duration The duration of the on/off cycle in milliseconds, from 50 to ~4250 ms.
+  * @note Segment B of position 7 cannot blink autonomously, so not all characters will work well.
+  *       Supported characters for blinking:
+  *        * Punctuation: underscore, apostrophe, comma, hyphen, equals sign, tilde (top segment only)
+  *        * Numbers: 5, 6, ampersand (lowercase 7)
+  *        * Letters: b, C, c, E, F, h, i, L, l, n, o, S, t
+  */
+void watch_start_character_blink(char character, uint32_t duration);
+
+/** @brief Stops and clears all blinking segments.
+  * @details This will stop all blinking in position 7, and clear all segments in that digit.
+  */
+void watch_stop_blink();
+
+/** @brief Begins a two-segment "tick-tock" animation in position 8.
+  * @details Six of the seven segments in position 8 (and only position 8) are capable of autonomous
+  *          animation. This animation is very basic, and consists of moving a bit pattern forward
+  *          or backward in a shift register whose positions map to fixed segments on the LCD. Given
+  *          this constraint, an animation across all six segments does not make sense; so the watch
+  *          library offers only a simple "tick/tock" in segments D and E. This animation does not
+  *          require any CPU resources, and will continue even in STANDBY and Sleep mode (but not Deep
+  *          Sleep mode, since that mode turns off the LCD).
+  * @param duration The duration of each frame in ms. 500 milliseconds produces a classic tick/tock.
+  */
+void watch_start_tick_animation(uint32_t duration);
+
+/** @brief Checks if the tick animation is currently running.
+  * @return true if the animation is running; false otherwise.
+  */
+bool watch_tick_animation_is_running();
+
+/** @brief Stops the tick/tock animation and clears all animating segments.
+  * @details This will stop the animation and clear all segments in position 8.
+  */
+void watch_stop_tick_animation();
 /// @}
+#endif

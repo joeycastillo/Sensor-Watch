@@ -22,6 +22,8 @@
  * SOFTWARE.
  */
 
+#include "watch_extint.h"
+
 void watch_enable_external_interrupts() {
     // Configure EIC to use GCLK3 (the 32.768 kHz crystal)
     hri_gclk_write_PCHCTRL_reg(GCLK, EIC_GCLK_ID, GCLK_PCHCTRL_GEN_GCLK3_Val | (1 << GCLK_PCHCTRL_CHEN_Pos));
@@ -63,18 +65,14 @@ void watch_register_interrupt_callback(const uint8_t pin, ext_irq_cb_t callback,
             sense_pos = 4 * (WATCH_A4_EIC_CHANNEL % 8);
             break;
         case BTN_ALARM:
-            // for the buttons, we need an internal pull-down.
-            gpio_set_pin_pull_mode(pin, GPIO_PULL_DOWN);
             config_index = (WATCH_BTN_ALARM_EIC_CHANNEL > 7) ? 1 : 0;
             sense_pos = 4 * (WATCH_BTN_ALARM_EIC_CHANNEL % 8);
             break;
         case BTN_LIGHT:
-            gpio_set_pin_pull_mode(pin, GPIO_PULL_DOWN);
             config_index = (WATCH_BTN_LIGHT_EIC_CHANNEL > 7) ? 1 : 0;
             sense_pos = 4 * (WATCH_BTN_LIGHT_EIC_CHANNEL % 8);
             break;
         case BTN_MODE:
-            gpio_set_pin_pull_mode(pin, GPIO_PULL_DOWN);
             config_index = (WATCH_BTN_MODE_EIC_CHANNEL > 7) ? 1 : 0;
             sense_pos = 4 * (WATCH_BTN_MODE_EIC_CHANNEL % 8);
             break;
@@ -83,7 +81,6 @@ void watch_register_interrupt_callback(const uint8_t pin, ext_irq_cb_t callback,
     }
 
     gpio_set_pin_direction(pin, GPIO_DIRECTION_IN);
-    gpio_set_pin_function(pin, GPIO_PIN_FUNCTION_A);
 
     // EIC configuration register is enable-protected, so we have to disable it first...
     if (hri_eic_get_CTRLA_reg(EIC, EIC_CTRLA_ENABLE)) {
@@ -96,6 +93,9 @@ void watch_register_interrupt_callback(const uint8_t pin, ext_irq_cb_t callback,
     config &= ~(7 << sense_pos);
     config |= trigger << (sense_pos);
     hri_eic_write_CONFIG_reg(EIC, config_index, config);
+    // ...set the pin mode...
+    gpio_set_pin_function(pin, GPIO_PIN_FUNCTION_A);
+    if (pin == BTN_ALARM || pin == BTN_LIGHT || pin == BTN_MODE) gpio_set_pin_pull_mode(pin, GPIO_PULL_DOWN);
     // ...and re-enable the EIC
     hri_eic_set_CTRLA_ENABLE_bit(EIC);
 

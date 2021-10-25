@@ -22,7 +22,9 @@
  * SOFTWARE.
  */
 
- struct io_descriptor *I2C_0_io;
+#include "watch_i2c.h"
+
+struct io_descriptor *I2C_0_io;
 
 void watch_enable_i2c() {
     I2C_0_init();

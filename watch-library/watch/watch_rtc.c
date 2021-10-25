@@ -22,19 +22,174 @@
  * SOFTWARE.
  */
 
- bool _watch_rtc_is_enabled() {
-    return RTC->MODE0.CTRLA.bit.ENABLE;
+#include "watch_rtc.h"
+
+ext_irq_cb_t tick_callbacks[8];
+ext_irq_cb_t alarm_callback;
+ext_irq_cb_t btn_alarm_callback;
+ext_irq_cb_t a2_callback;
+ext_irq_cb_t a4_callback;
+
+bool _watch_rtc_is_enabled() {
+    return RTC->MODE2.CTRLA.bit.ENABLE;
 }
 
+void _sync_rtc() {
+    while (RTC->MODE2.SYNCBUSY.reg);
+}
+
+void _watch_rtc_init() {
+    MCLK->APBAMASK.reg |= MCLK_APBAMASK_RTC;
+
+    if (_watch_rtc_is_enabled()) return; // don't reset the RTC if it's already set up.
+
+    RTC->MODE2.CTRLA.bit.ENABLE = 0;
+    _sync_rtc();
+
+    RTC->MODE2.CTRLA.bit.SWRST = 1;
+    _sync_rtc();
+
+    RTC->MODE2.CTRLA.bit.MODE = RTC_MODE2_CTRLA_MODE_CLOCK_Val;
+    RTC->MODE2.CTRLA.bit.PRESCALER = RTC_MODE2_CTRLA_PRESCALER_DIV1024_Val;
+    RTC->MODE2.CTRLA.bit.CLOCKSYNC = 1;
+    RTC->MODE2.CTRLA.bit.ENABLE = 1;
+    _sync_rtc();
+}
+
+void watch_rtc_set_date_time(watch_date_time date_time) {
+    RTC->MODE2.CLOCK.reg = date_time.reg;
+    _sync_rtc();
+}
+
+watch_date_time watch_rtc_get_date_time() {
+    watch_date_time retval;
+
+    _sync_rtc();
+    retval.reg = RTC->MODE2.CLOCK.reg;
+
+    return retval;
+}
+
+void watch_rtc_register_tick_callback(ext_irq_cb_t callback) {
+    watch_rtc_register_periodic_callback(callback, 1);
+}
+
+void watch_rtc_disable_tick_callback() {
+    watch_rtc_disable_periodic_callback(1);
+}
+
+void watch_rtc_register_periodic_callback(ext_irq_cb_t callback, uint8_t frequency) {
+    // we told them, it has to be a power of 2.
+    if (__builtin_popcount(frequency) != 1) return;
+
+    // this left-justifies the period in a 32-bit integer.
+    uint32_t tmp = frequency << 24;
+    // now we can count the leading zeroes to get the value we need.
+    // 0x01 (1 Hz) will have 7 leading zeros for PER7. 0xF0 (128 Hz) will have no leading zeroes for PER0.
+    uint8_t per_n = __builtin_clz(tmp);
+
+    // this also maps nicely to an index for our list of tick callbacks.
+    tick_callbacks[per_n] = callback;
+
+    NVIC_ClearPendingIRQ(RTC_IRQn);
+    NVIC_EnableIRQ(RTC_IRQn);
+    RTC->MODE2.INTENSET.reg = 1 << per_n;
+}
+
+void watch_rtc_disable_periodic_callback(uint8_t frequency) {
+    if (__builtin_popcount(frequency) != 1) return;
+    uint8_t per_n = __builtin_clz(frequency << 24);
+    RTC->MODE2.INTENCLR.reg = 1 << per_n;
+}
+
+void watch_rtc_disable_all_periodic_callbacks() {
+    RTC->MODE2.INTENCLR.reg = 0xFF;
+}
+
+void watch_rtc_register_alarm_callback(ext_irq_cb_t callback, watch_date_time alarm_time, watch_rtc_alarm_match mask) {
+    RTC->MODE2.Mode2Alarm[0].ALARM.reg = alarm_time.reg;
+    RTC->MODE2.Mode2Alarm[0].MASK.reg = mask;
+    RTC->MODE2.INTENSET.reg = RTC_MODE2_INTENSET_ALARM0;
+    alarm_callback = callback;
+    NVIC_ClearPendingIRQ(RTC_IRQn);
+    NVIC_EnableIRQ(RTC_IRQn);
+    RTC->MODE2.INTENSET.reg = RTC_MODE2_INTENSET_ALARM0;
+}
+
+void watch_rtc_disable_alarm_callback() {
+    RTC->MODE2.INTENCLR.reg = RTC_MODE2_INTENCLR_ALARM0;
+}
+
+void RTC_Handler(void) {
+    uint16_t interrupt_status = RTC->MODE2.INTFLAG.reg;
+    uint16_t interrupt_enabled = RTC->MODE2.INTENSET.reg;
+
+    if ((interrupt_status & interrupt_enabled) & RTC_MODE2_INTFLAG_PER_Msk) {
+        // handle the tick callback first, it's what we do the most.
+        // start from PER7, the 1 Hz tick.
+        for(int8_t i = 7; i >= 0; i--) {
+            if ((interrupt_status & interrupt_enabled) & (1 << i)) {
+                if (tick_callbacks[i] != NULL) {
+                    tick_callbacks[i]();
+                }
+                RTC->MODE2.INTFLAG.reg = 1 << i;
+                break;
+            }
+        }
+    } else if ((interrupt_status & interrupt_enabled) & RTC_MODE2_INTFLAG_TAMPER) {
+        // handle the extwake interrupts next.
+        uint8_t reason = RTC->MODE2.TAMPID.reg;
+        if (reason & RTC_TAMPID_TAMPID2) {
+            if (btn_alarm_callback != NULL) btn_alarm_callback();
+        } else if (reason & RTC_TAMPID_TAMPID1) {
+            if (a2_callback != NULL) a2_callback();
+        } else if (reason & RTC_TAMPID_TAMPID0) {
+            if (a4_callback != NULL) a4_callback();
+        }
+        RTC->MODE2.TAMPID.reg = reason;
+        RTC->MODE2.INTFLAG.reg = RTC_MODE2_INTFLAG_TAMPER;
+    } else if ((interrupt_status & interrupt_enabled) & RTC_MODE2_INTFLAG_ALARM0) {
+        // finally handle the alarm.
+        if (alarm_callback != NULL) {
+            alarm_callback();
+        }
+        RTC->MODE2.INTFLAG.reg = RTC_MODE2_INTFLAG_ALARM0;
+    }
+}
+
+///////////////////////
+// Deprecated functions
+
 void watch_set_date_time(struct calendar_date_time date_time) {
-    calendar_set_date(&CALENDAR_0, &date_time.date);
-    calendar_set_time(&CALENDAR_0, &date_time.time);
+    RTC_MODE2_CLOCK_Type val;
+
+    val.bit.SECOND = date_time.time.sec;
+    val.bit.MINUTE = date_time.time.min;
+    val.bit.HOUR = date_time.time.hour;
+    val.bit.DAY = date_time.date.day;
+    val.bit.MONTH = date_time.date.month;
+    val.bit.YEAR = (uint8_t)(date_time.date.year - WATCH_RTC_REFERENCE_YEAR);
+
+    RTC->MODE2.CLOCK.reg = val.reg;
+
+    _sync_rtc();
 }
 
 void watch_get_date_time(struct calendar_date_time *date_time) {
-    calendar_get_date_time(&CALENDAR_0, date_time);
+    _sync_rtc();
+    RTC_MODE2_CLOCK_Type val = RTC->MODE2.CLOCK;
+
+    date_time->time.sec = val.bit.SECOND;
+    date_time->time.min = val.bit.MINUTE;
+    date_time->time.hour = val.bit.HOUR;
+    date_time->date.day = val.bit.DAY;
+    date_time->date.month = val.bit.MONTH;
+    date_time->date.year = val.bit.YEAR + WATCH_RTC_REFERENCE_YEAR;
 }
 
 void watch_register_tick_callback(ext_irq_cb_t callback) {
-    _prescaler_register_callback(&CALENDAR_0.device, callback);
+    tick_callbacks[7] = callback;
+    NVIC_ClearPendingIRQ(RTC_IRQn);
+    NVIC_EnableIRQ(RTC_IRQn);
+    RTC->MODE2.INTENSET.reg = RTC_MODE2_INTENSET_PER7;
 }

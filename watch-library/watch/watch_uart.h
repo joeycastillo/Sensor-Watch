@@ -21,7 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#ifndef _WATCH_UART_H_INCLUDED
+#define _WATCH_UART_H_INCLUDED
 ////< @file watch_uart.h
+
+#include "watch.h"
 
 /** @addtogroup debug Debug UART
   * @brief This section covers functions related to the debug UART, available on
@@ -51,3 +55,4 @@ void watch_debug_putc(char c);
 __attribute__((deprecated("Use printf to log debug messages over USB.")))
 void watch_debug_puts(char *s);
 /// @}
+#endif

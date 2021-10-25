@@ -22,6 +22,9 @@
  * SOFTWARE.
  */
 
+#include "watch_slcd.h"
+#include "hpl_slcd_config.h"
+
  //////////////////////////////////////////////////////////////////////////////////////////
 // Segmented Display
 
@@ -112,8 +115,8 @@ static const uint8_t Character_Set[] =
     0b01010000, // r
     0b01101101, // s
     0b01111000, // t
-    0b01100010, // u (appears as superscript to work in more positions)
-    0b01100010, // v (appears as superscript to work in more positions)
+    0b01100010, // u (appears in (u)pper half to work in more positions)
+    0b00011100, // v (looks like u but in the lower half)
     0b10111110, // w (only works in position 0)
     0b01111110, // x
     0b01101110, // y
@@ -147,6 +150,10 @@ static const uint32_t IndicatorSegments[6] = {
     SLCD_SEGID(1, 10), // WATCH_INDICATOR_LAP
 };
 
+void _sync_slcd() {
+    while (SLCD->SYNCBUSY.reg);
+}
+
 void watch_enable_display() {
     SEGMENT_LCD_0_init();
     slcd_sync_enable(&SEGMENT_LCD_0);
@@ -160,9 +167,23 @@ inline void watch_clear_pixel(uint8_t com, uint8_t seg) {
     slcd_sync_seg_off(&SEGMENT_LCD_0, SLCD_SEGID(com, seg));
 }
 
+void watch_clear_display() {
+    SLCD->SDATAL0.reg = 0;
+    SLCD->SDATAL1.reg = 0;
+    SLCD->SDATAL2.reg = 0;
+}
+
 void watch_display_character(uint8_t character, uint8_t position) {
-    // handle lowercase 7 if needed
-    if (character == '7' && (position == 4 || position == 6)) character = '&';
+    // special cases for positions 4 and 6
+    if (position == 4 || position == 6) {
+        if (character == '7') character = '&'; // "lowercase" 7
+        if (character == 'v') character = 'u'; // bottom segment duplicated, so show in top half
+        if (character == 'J') character = 'j'; // same
+    } else if (position != 4 && position != 6) {
+        if (character == 'u') character = 'v'; // we can use the bottom segment; move to lower half
+        if (character == 'j') character = 'J'; // same but just display a normal J
+    }
+    if (position == 0) slcd_sync_seg_off(&SEGMENT_LCD_0, SLCD_SEGID(0, 15)); // clear funky ninth segment
 
     uint64_t segmap = Segment_Map[position];
     uint64_t segdata = Character_Set[character - 0x20];
@@ -181,7 +202,9 @@ void watch_display_character(uint8_t character, uint8_t position) {
         segmap = segmap >> 8;
         segdata = segdata >> 1;
     }
-    if (character == 'T' && position == 1) slcd_sync_seg_on(&SEGMENT_LCD_0, SLCD_SEGID(1, 12));
+    if (character == 'T' && position == 1) slcd_sync_seg_on(&SEGMENT_LCD_0, SLCD_SEGID(1, 12)); // add descender
+    else if (position == 0 && (character == 'B' || character == 'D')) slcd_sync_seg_on(&SEGMENT_LCD_0, SLCD_SEGID(0, 15)); // add funky ninth segment
+    else if (position == 0 && (character == 'B' || character == 'D' || character == '@')) slcd_sync_seg_on(&SEGMENT_LCD_0, SLCD_SEGID(0, 15)); // add funky ninth segment
 }
 
 void watch_display_string(char *string, uint8_t position) {
@@ -215,4 +238,52 @@ void watch_clear_all_indicators() {
     slcd_sync_seg_off(&SEGMENT_LCD_0, SLCD_SEGID(0, 17));
     slcd_sync_seg_off(&SEGMENT_LCD_0, SLCD_SEGID(0, 16));
     slcd_sync_seg_off(&SEGMENT_LCD_0, SLCD_SEGID(1, 10));
+}
+
+void watch_start_character_blink(char character, uint32_t duration) {
+    SLCD->CTRLD.bit.FC0EN = 0;
+    _sync_slcd();
+
+    if (duration <= SLCD_FC_BYPASS_MAX_MS) {
+        SLCD->FC0.reg = SLCD_FC0_PB | ((duration / (1000 / SLCD_FRAME_FREQUENCY)) - 1);
+    } else {
+        SLCD->FC0.reg = (((duration / (1000 / SLCD_FRAME_FREQUENCY)) / 8 - 1));
+    }
+    SLCD->CTRLD.bit.FC0EN = 1;
+
+    watch_display_character(character, 7);
+    watch_clear_pixel(2, 10); // clear segment B of position 7 since it can't blink
+
+    SLCD->CTRLD.bit.BLINK = 0;
+    SLCD->CTRLA.bit.ENABLE = 0;
+    _sync_slcd();
+
+    SLCD->BCFG.bit.BSS0 = 0x07;
+    SLCD->BCFG.bit.BSS1 = 0x07;
+
+    SLCD->CTRLD.bit.BLINK = 1;
+    _sync_slcd();
+    SLCD->CTRLA.bit.ENABLE = 1;
+    _sync_slcd();
+}
+
+void watch_stop_blink() {
+    SLCD->CTRLD.bit.FC0EN = 0;
+    SLCD->CTRLD.bit.BLINK = 0;
+}
+
+void watch_start_tick_animation(uint32_t duration) {
+    watch_display_character(' ', 8);
+    const uint32_t segs[] = { SLCD_SEGID(0, 2)};
+    slcd_sync_start_animation(&SEGMENT_LCD_0, segs, 1, duration);
+}
+
+bool watch_tick_animation_is_running() {
+    return hri_slcd_get_CTRLD_CSREN_bit(SLCD);
+}
+
+void watch_stop_tick_animation() {
+    const uint32_t segs[] = { SLCD_SEGID(0, 2)};
+    slcd_sync_stop_animation(&SEGMENT_LCD_0, segs, 1);
+    watch_display_character(' ', 8);
 }

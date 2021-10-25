@@ -248,7 +248,12 @@
 // <i> This defines the clock source for generic clock generator 3
 // <id> gclk_gen_3_oscillator
 #ifndef CONF_GCLK_GEN_3_SOURCE
+#ifdef CRYSTALLESS
+#define CONF_GCLK_GEN_3_SOURCE GCLK_GENCTRL_SRC_OSCULP32K
+#else
 #define CONF_GCLK_GEN_3_SOURCE GCLK_GENCTRL_SRC_XOSC32K
+#endif
+
 #endif
 
 // <q> Run in Standby

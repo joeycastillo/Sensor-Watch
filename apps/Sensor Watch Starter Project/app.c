@@ -20,8 +20,9 @@ typedef struct ApplicationState {
     ApplicationMode mode;
     LightColor color;
     bool light_on;
+    bool beep;
     uint8_t wake_count;
-    bool enter_deep_sleep;
+    bool enter_sleep_mode;
 } ApplicationState;
 
 ApplicationState application_state;
@@ -50,20 +51,14 @@ void app_init() {
 }
 
 /**
- * @brief the app_wake_from_deep_sleep function is only called if your app is waking from
+ * @brief the app_wake_from_backup function is only called if your app is waking from
  * the ultra-low power BACKUP sleep mode. You may have chosen to store some state in the
  * RTC's backup registers prior to entering this mode. You may restore that state here.
  *
  * @see watch_enter_deep_sleep()
  */
-void app_wake_from_deep_sleep() {
-    // retrieve our application state from the backup registers
-    application_state.mode = (ApplicationMode)watch_get_backup_data(0);
-    application_state.color = (LightColor)watch_get_backup_data(1);
-    application_state.wake_count = (uint8_t)watch_get_backup_data(2) + 1;
-
-    // wait a moment for the user's finger to be off the button
-    delay_ms(250);
+void app_wake_from_backup() {
+    // This app does not support BACKUP mode.
 }
 
 /**
@@ -74,12 +69,16 @@ void app_wake_from_deep_sleep() {
  * accelerometer that will run at all times should be configured here, whereas you may
  * want to enable a more power-hungry environmental sensor only when you need it.
  *
- * @note If your app enters the ultra-low power BACKUP sleep mode, this function will
- * be called again when it wakes from that deep sleep state. In this state, the RTC will
- * still be configured with the correct date and time.
+ * @note If your app enters the Sleep or Deep Sleep modes, this function will be called
+ * again on wake, since those modes will have disabled all pins and peripherals; you'll
+ * likely need to set them up again. This function will also be called again if your app
+ * entered the ultra-low power BACKUP mode, since BACKUP mode will have done all that and
+ * also wiped out the system RAM. Note that when this is called after waking from sleep,
+ * the RTC will still be configured with the correct date and time.
  */
 void app_setup() {
     watch_enable_leds();
+    watch_enable_buzzer();
 
     watch_enable_external_interrupts();
     // This starter app demonstrates three different ways of using the button interrupts.
@@ -98,27 +97,31 @@ void app_setup() {
 }
 
 /**
- * @brief the app_prepare_for_sleep function is called before the watch goes into the
- * STANDBY sleep mode. In STANDBY mode, most peripherals are shut down, and no code
- * will run until the watch receives an interrupt (generally either the 1Hz tick or
- * a press on one of the buttons).
+ * @brief the app_prepare_for_standby function is called before the watch goes into STANDBY mode.
+ * In STANDBY mode, most peripherals are shut down, and no code will run until the watch receives
+ * an interrupt (generally either the 1Hz tick or a press on one of the buttons).
  */
-void app_prepare_for_sleep() {
+void app_prepare_for_standby() {
 }
 
 /**
- * @brief the app_wake_from_sleep function is called after the watch wakes from the
- * STANDBY sleep mode.
+ * @brief the app_wake_from_standby function is called after the watch wakes from STANDBY mode,
+ * but before your main app_loop.
  */
-void app_wake_from_sleep() {
+void app_wake_from_standby() {
     application_state.wake_count++;
 }
 
 /**
- * @brief the app_loop function is called once on app startup and then again each time
- * the watch STANDBY sleep mode.
+ * @brief the app_loop function is called once on app startup and then again each time the
+ * watch exits STANDBY mode.
  */
 bool app_loop() {
+    if (application_state.beep) {
+        watch_buzzer_play_note(BUZZER_NOTE_C7, 50);
+        application_state.beep = false;
+    }
+
     // set the LED to a color
     if (application_state.light_on) {
         switch (application_state.color) {
@@ -151,22 +154,21 @@ bool app_loop() {
             break;
     }
 
-    if (application_state.enter_deep_sleep) {
-        application_state.enter_deep_sleep = false;
-
-        // stash our application state in the backup registers
-        watch_store_backup_data((uint32_t)application_state.mode, 0);
-        watch_store_backup_data((uint32_t)application_state.color, 1);
-        watch_store_backup_data((uint32_t)application_state.wake_count, 2);
-
-        // turn off the LED
-        watch_set_led_off();
-
+    if (application_state.enter_sleep_mode) {
         // wait a moment for the user's finger to be off the button
         delay_ms(250);
 
         // nap time :)
-        watch_enter_deep_sleep(NULL);
+        watch_enter_deep_sleep_mode();
+
+        // we just woke up; wait a moment again for the user's finger to be off the button...
+        delay_ms(250);
+
+        // and prevent ourselves from going right back to sleep.
+        application_state.enter_sleep_mode = false;
+
+        // finally, after sleep, return false so that our app loop runs again and updates the display.
+        return false;
     }
 
     return true;
@@ -188,8 +190,9 @@ void cb_light_pressed() {
 
 void cb_mode_pressed() {
     application_state.mode = (application_state.mode + 1) % 2;
+    application_state.beep = true;
 }
 
 void cb_alarm_pressed() {
-    application_state.enter_deep_sleep = true;
+    application_state.enter_sleep_mode = true;
 }

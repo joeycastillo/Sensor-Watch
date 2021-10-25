@@ -6,6 +6,7 @@
 
 #include <hpl_slcd_cm.h>
 #include <peripheral_clk_config.h>
+#include "pins.h"
 
 // <h> Standard configuration
 
@@ -79,7 +80,7 @@
 // <3=>128
 // <id> slcd_arch_presc
 #ifndef CONF_SLCD_PRESC
-#define CONF_SLCD_PRESC 2
+#define CONF_SLCD_PRESC 1
 #endif
 
 // <o> Clock Divider
@@ -94,7 +95,7 @@
 // <7=>8
 // <id> slcd_arch_ckdiv
 #ifndef CONF_SLCD_CKDIV
-#define CONF_SLCD_CKDIV 3
+#define CONF_SLCD_CKDIV 5
 #endif
 
 /* TODO add frame frequency check */
@@ -2729,15 +2730,40 @@
 		}                                                                                                              \
 	}
 
-#define CONF_SLCD_LPENL                                                                                                \
-	((uint32_t)1 << 0 | (uint32_t)1 << 1 | (uint32_t)1 << 2 | (uint32_t)1 << 3 | (uint32_t)1 << 4 | (uint32_t)1 << 5   \
-	 | (uint32_t)1 << 6 | (uint32_t)1 << 7 | (uint32_t)1 << 11 | (uint32_t)1 << 12 | (uint32_t)1 << 13                 \
-	 | (uint32_t)1 << 14 | (uint32_t)1 << 21 | (uint32_t)1 << 22 | (uint32_t)1 << 23 | (uint32_t)1 << 24               \
-	 | (uint32_t)1 << 25 | (uint32_t)1 << 28 | (uint32_t)1 << 29 | (uint32_t)1 << 30 | (uint32_t)1 << 31 | 0)
+#ifndef CONF_SLCD_LPENL
+#define CONF_SLCD_LPENL (\
+		(uint32_t)1 <<  0 | \
+		(uint32_t)1 <<  1 | \
+		(uint32_t)1 <<  2 | \
+		(uint32_t)1 <<  3 | \
+		(uint32_t)1 <<  4 | \
+		(uint32_t)1 <<  5 | \
+		(uint32_t)1 <<  6 | \
+		(uint32_t)1 <<  7 | \
+		(uint32_t)1 << 11 | \
+		(uint32_t)1 << 12 | \
+		(uint32_t)1 << 13 | \
+		(uint32_t)1 << 14 | \
+		(uint32_t)1 << 21 | \
+		(uint32_t)1 << 22 | \
+		(uint32_t)1 << 23 | \
+		(uint32_t)1 << 24 | \
+		(uint32_t)1 << 25 | \
+		(uint32_t)1 << 28 | \
+		(uint32_t)1 << 29 | \
+		(uint32_t)1 << 30 | \
+		(uint32_t)1 << 31 | 0)
+#endif // CONF_SLCD_LPENL
 
-#define CONF_SLCD_LPENH                                                                                                \
-	((uint32_t)1 << 0 | (uint32_t)1 << 1 | (uint32_t)1 << 2 | (uint32_t)1 << 3 | (uint32_t)1 << 10 | (uint32_t)1 << 11 \
-	 | 0) // </e>
+#ifndef CONF_SLCD_LPENH
+#define CONF_SLCD_LPENH (\
+		(uint32_t)1 << (32 - 32) | \
+		(uint32_t)1 << (33 - 32) | \
+		(uint32_t)1 << (34 - 32) | \
+		(uint32_t)1 << (35 - 32) | \
+		(uint32_t)1 << (42 - 32) | \
+		(uint32_t)1 << (43 - 32) | 0)
+#endif // CONF_SLCD_LPENH
 
 // <<< end of configuration section >>>
 
