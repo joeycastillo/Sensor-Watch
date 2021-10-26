@@ -5,6 +5,7 @@
 #include "watch.h"
 
 void _thermistor_readout_face_update_display(bool in_fahrenheit) {
+    thermistor_driver_enable();
     float temperature_c = thermistor_driver_get_temperature();
     char buf[14];
     if (in_fahrenheit) {
@@ -13,6 +14,7 @@ void _thermistor_readout_face_update_display(bool in_fahrenheit) {
         sprintf(buf, "%4.1f#C", temperature_c);
     }
     watch_display_string(buf, 4);
+    thermistor_driver_disable();
 }
 
 void thermistor_readout_face_setup(movement_settings_t *settings, void ** context_ptr) {
@@ -24,7 +26,6 @@ void thermistor_readout_face_activate(movement_settings_t *settings, void *conte
     (void) settings;
     (void) context;
     watch_display_string("TE", 0);
-    thermistor_driver_enable();
 }
 
 bool thermistor_readout_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
@@ -69,5 +70,4 @@ bool thermistor_readout_face_loop(movement_event_t event, movement_settings_t *s
 void thermistor_readout_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
-    thermistor_driver_disable();
 }

@@ -1,5 +1,5 @@
-#ifndef THERMISTOR_FACE_H_
-#define THERMISTOR_FACE_H_
+#ifndef THERMISTOR_READOUT_FACE_H_
+#define THERMISTOR_READOUT_FACE_H_
 
 #include "movement.h"
 
@@ -16,4 +16,4 @@ static const watch_face_t thermistor_readout_face = {
     NULL
 };
 
-#endif // THERMISTOR_FACE_H_
+#endif // THERMISTOR_READOUT_FACE_H_

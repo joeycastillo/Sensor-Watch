@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include "simple_clock_face.h"
 #include "watch.h"
+#include "watch_utility.h"
 
 void simple_clock_face_setup(movement_settings_t *settings, void ** context_ptr) {
     (void) settings;
@@ -19,7 +20,6 @@ void simple_clock_face_activate(movement_settings_t *settings, void *context) {
 }
 
 bool simple_clock_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
-    const char weekdays[7][3] = {"SA", "SU", "MO", "TU", "WE", "TH", "FR"};
     char buf[11];
     uint8_t pos;
 
@@ -57,9 +57,9 @@ bool simple_clock_face_loop(movement_event_t event, movement_settings_t *setting
                 pos = 0;
                 if (event.event_type == EVENT_LOW_ENERGY_UPDATE) {
                     if (!watch_tick_animation_is_running()) watch_start_tick_animation(500);
-                    sprintf(buf, "%s%2d%2d%02d  ", weekdays[simple_clock_face_get_weekday(date_time.unit.year, date_time.unit.month, date_time.unit.day)], date_time.unit.day, date_time.unit.hour, date_time.unit.minute);
+                    sprintf(buf, "%s%2d%2d%02d  ", watch_utility_get_weekday(date_time), date_time.unit.day, date_time.unit.hour, date_time.unit.minute);
                 } else {
-                    sprintf(buf, "%s%2d%2d%02d%02d", weekdays[simple_clock_face_get_weekday(date_time.unit.year, date_time.unit.month, date_time.unit.day)], date_time.unit.day, date_time.unit.hour, date_time.unit.minute, date_time.unit.second);
+                    sprintf(buf, "%s%2d%2d%02d%02d", watch_utility_get_weekday(date_time), date_time.unit.day, date_time.unit.hour, date_time.unit.minute, date_time.unit.second);
                 }
             }
             watch_display_string(buf, pos);
@@ -82,13 +82,4 @@ bool simple_clock_face_loop(movement_event_t event, movement_settings_t *setting
 void simple_clock_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
-}
-
-uint8_t simple_clock_face_get_weekday(uint16_t year, uint16_t month, uint16_t day) {
-    year += 20;
-    if (month <= 2) {
-        month += 12;
-        year--;
-    }
-    return (day + 13 * (month + 1) / 5 + year + year / 4 + 525) % 7;
 }

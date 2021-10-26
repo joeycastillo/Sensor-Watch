@@ -6,7 +6,9 @@
 #include "set_time_face.h"
 #include "pulsometer_face.h"
 #include "thermistor_readout_face.h"
+#include "thermistor_logging_face.h"
 #include "character_set_face.h"
+#include "beats_face.h"
 
 const watch_face_t watch_faces[] = {
     simple_clock_face,

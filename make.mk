@@ -81,6 +81,7 @@ SRCS += \
   $(TOP)/watch-library/watch/watch_i2c.c \
   $(TOP)/watch-library/watch/watch_uart.c \
   $(TOP)/watch-library/watch/watch_deepsleep.c \
+  $(TOP)/watch-library/watch/watch_utility.c \
   $(TOP)/watch-library/watch/watch_private.c \
   $(TOP)/watch-library/watch/watch.c \
   $(TOP)/watch-library/hal/src/hal_atomic.c \
@@ -88,6 +89,7 @@ SRCS += \
   $(TOP)/watch-library/hal/src/hal_ext_irq.c \
   $(TOP)/watch-library/hal/src/hal_gpio.c \
   $(TOP)/watch-library/hal/src/hal_i2c_m_sync.c \
+  $(TOP)/watch-library/hal/src/hal_spi_m_sync.c \
   $(TOP)/watch-library/hal/src/hal_init.c \
   $(TOP)/watch-library/hal/src/hal_io.c \
   $(TOP)/watch-library/hal/src/hal_slcd_sync.c \
