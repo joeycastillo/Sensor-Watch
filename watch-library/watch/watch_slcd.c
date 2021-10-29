@@ -214,6 +214,11 @@ void watch_display_string(char *string, uint8_t position) {
         i++;
         if (i >= Num_Chars) break;
     }
+    // uncomment this line to see screen output on terminal, i.e.
+    //   FR  29
+    // 11 50 23
+    // note that for partial displays (positon > 0) it will only show the characters that were updated.
+    // printf("________\n  %c%c  %c%c\n%c%c %c%c %c%c\n--------\n", (position > 0) ? ' ' : string[0], (position > 1) ? ' ' : string[1 - position], (position > 2) ? ' ' : string[2 - position], (position > 3) ? ' ' : string[3 - position], (position > 4) ? ' ' : string[4 - position], (position > 5) ? ' ' : string[5 - position], (position > 6) ? ' ' : string[6 - position], (position > 7) ? ' ' : string[7 - position], (position > 8) ? ' ' : string[8 - position], (position > 9) ? ' ' : string[9 - position]);
 }
 
 inline void watch_set_colon() {
