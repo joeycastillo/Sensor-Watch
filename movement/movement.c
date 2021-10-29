@@ -117,11 +117,99 @@ void app_prepare_for_standby() {
 void app_wake_from_standby() {
 }
 
+typedef struct {
+    BuzzerNote note;
+    uint16_t duration;
+    char lyric[7];
+} SongNote;
+
+const BuzzerNote beeps[] = {
+    BUZZER_NOTE_D5SHARP_E5FLAT,
+    BUZZER_NOTE_D5SHARP_E5FLAT,
+    BUZZER_NOTE_D5SHARP_E5FLAT,
+    BUZZER_NOTE_D5SHARP_E5FLAT,
+    BUZZER_NOTE_F5SHARP_G5FLAT,
+    BUZZER_NOTE_D5SHARP_E5FLAT,
+    BUZZER_NOTE_D5SHARP_E5FLAT,
+    BUZZER_NOTE_D5SHARP_E5FLAT,
+    BUZZER_NOTE_C5,
+    BUZZER_NOTE_C5,
+    BUZZER_NOTE_D5SHARP_E5FLAT,
+    BUZZER_NOTE_D5SHARP_E5FLAT,
+    BUZZER_NOTE_D5SHARP_E5FLAT,
+    BUZZER_NOTE_D5SHARP_E5FLAT,
+    BUZZER_NOTE_F5SHARP_G5FLAT,
+    BUZZER_NOTE_REST,
+};
+
+const SongNote melody[] = {
+    // {BUZZER_NOTE_D5SHARP_E5FLAT,    300,    ""},
+    // {BUZZER_NOTE_D5SHARP_E5FLAT,    300,    ""},
+    // {BUZZER_NOTE_D5SHARP_E5FLAT,    300,    ""},
+    // {BUZZER_NOTE_D5SHARP_E5FLAT,    200,    ""},
+    // {BUZZER_NOTE_F5SHARP_G5FLAT,    300,    ""},
+    // {BUZZER_NOTE_REST,              20,     ""},
+    // {BUZZER_NOTE_D5SHARP_E5FLAT,    300,    ""},
+    // {BUZZER_NOTE_D5SHARP_E5FLAT,    300,    ""},
+    // {BUZZER_NOTE_D5SHARP_E5FLAT,    300,    ""},
+    // {BUZZER_NOTE_C5,                200,    ""},
+    // {BUZZER_NOTE_C5,                300,    ""},
+    // {BUZZER_NOTE_REST,              20,     ""},
+    // {BUZZER_NOTE_D5SHARP_E5FLAT,    300,    ""},
+    // {BUZZER_NOTE_D5SHARP_E5FLAT,    300,    ""},
+    // {BUZZER_NOTE_D5SHARP_E5FLAT,    300,    ""},
+    // {BUZZER_NOTE_D5SHARP_E5FLAT,    200,    ""},
+    // {BUZZER_NOTE_F5SHARP_G5FLAT,    300,    ""},
+    {BUZZER_NOTE_REST,              20,     "      "},
+    {BUZZER_NOTE_D5SHARP_E5FLAT,    300,    ""},
+    {BUZZER_NOTE_D5SHARP_E5FLAT,    300,    ""},
+    {BUZZER_NOTE_D5SHARP_E5FLAT,    300,    ""},
+    {BUZZER_NOTE_C5,                200,    ""},
+    {BUZZER_NOTE_C5,                300,    ""},
+    {BUZZER_NOTE_REST,              20,     ""},
+
+    {BUZZER_NOTE_D5SHARP_E5FLAT,    400,    " dig  "},
+    {BUZZER_NOTE_REST,              10,     ""},
+    {BUZZER_NOTE_C5,                200,    " thru "},
+    {BUZZER_NOTE_C5,                200,    " the  "},
+    {BUZZER_NOTE_C5,                200,    " ditch"},
+    {BUZZER_NOTE_C5,                200,    "  es  "},
+    {BUZZER_NOTE_C5,                200,    " and  "},
+    {BUZZER_NOTE_D5SHARP_E5FLAT,    500,    " burn "},
+    {BUZZER_NOTE_REST,              10,     ""},
+    {BUZZER_NOTE_C5,                200,    " thru "},
+    {BUZZER_NOTE_C5,                200,    " the  "},
+    {BUZZER_NOTE_C5,                200,    " Witch"},
+    {BUZZER_NOTE_C5,                200,    "  es  "},
+    {BUZZER_NOTE_C5,                200,    " 1    "},
+    {BUZZER_NOTE_D5SHARP_E5FLAT,    500,    " S1aN7"},
+    {BUZZER_NOTE_REST,              10,     ""},
+    {BUZZER_NOTE_C5,                200,    " 1n   "},
+    {BUZZER_NOTE_C5,                200,    " the  "},
+    {BUZZER_NOTE_C5,                200,    " back "},
+    {BUZZER_NOTE_C5,                200,    "  OF  "},
+    {BUZZER_NOTE_C5,                300,    "  n&y "},
+    {BUZZER_NOTE_REST,              20,     ""},
+    {BUZZER_NOTE_D5SHARP_E5FLAT,    250,    " drAG "},
+    {BUZZER_NOTE_F5,                400,    "   U  "},
+    {BUZZER_NOTE_G5,                250,    "   LA "},
+    {BUZZER_NOTE_F5,                600,    "    AA"},
+
+    {BUZZER_NOTE_REST,              50, ""},
+};
+
+void cb_flash() {
+    watch_set_led_color(rand() % 128 + 127, rand() % 128);
+}
+
 bool app_loop() {
     if (movement_state.watch_face_changed) {
         if (movement_state.settings.bit.button_should_sound) {
-            // low note for nonzero case, high note for return to watch_face 0
-            watch_buzzer_play_note(movement_state.next_watch_face ? BUZZER_NOTE_C7 : BUZZER_NOTE_C8, 50);
+            watch_buzzer_play_note(beeps[movement_state.note_count++], 50);
+            if (movement_state.note_count >= sizeof(beeps)) {
+                movement_state.note_count = 0;
+                movement_state.play_song = true;
+            }
         }
         watch_faces[movement_state.current_watch_face].resign(&movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
         movement_state.current_watch_face = movement_state.next_watch_face;
@@ -129,6 +217,29 @@ bool app_loop() {
         watch_faces[movement_state.current_watch_face].activate(&movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
         event.subsecond = 0;
         event.event_type = EVENT_ACTIVATE;
+        movement_state.watch_face_changed = false;
+    }
+
+    if (movement_state.play_song) {
+        watch_faces[movement_state.current_watch_face].resign(&movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
+        watch_clear_display();
+        movement_state.play_song = false;
+        for(size_t i = 0; i < sizeof(melody) / sizeof(melody[0]); i++) {
+            if(i == 7) {
+                watch_enable_leds();
+                watch_rtc_register_periodic_callback(cb_flash, 8);
+            }
+            watch_display_string(melody[i].lyric, 4);
+            watch_buzzer_play_note(melody[i].note, melody[i].duration);
+            delay_ms(5);
+        }
+        watch_rtc_disable_periodic_callback(8);
+        watch_set_led_off();
+        movement_state.current_watch_face = 0;
+        watch_faces[0].activate(&movement_state.settings, watch_face_contexts[0]);
+        movement_request_tick_frequency(1);
+        event.event_type = EVENT_ACTIVATE;
+        event.subsecond = 0;
         movement_state.watch_face_changed = false;
     }
 
@@ -146,6 +257,7 @@ bool app_loop() {
     // if we have timed out of our timeout countdown, give the app a hint that they can resign.
     if (movement_state.timeout_ticks == 0) {
         event.event_type = EVENT_TIMEOUT;
+        movement_state.note_count = 0;
     }
 
     // handle background tasks, if the alarm handler told us we need to

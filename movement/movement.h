@@ -180,6 +180,10 @@ typedef struct {
     uint8_t tick_frequency;
     uint8_t last_second;
     uint8_t subsecond;
+
+    // halloween stuff :)
+    bool play_song;
+    uint8_t note_count;
 } movement_state_t;
 
 void movement_move_to_face(uint8_t watch_face_index);
