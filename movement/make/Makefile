@@ -36,6 +36,7 @@ SRCS += \
   ../watch_faces/demos/voltage_face.c \
   ../watch_faces/complications/beats_face.c \
   ../watch_faces/complications/day_one_face.c \
+  ../watch_faces/complications/stopwatch_face.c \
 
 # Leave this line at the bottom of the file; it has all the targets for making your project.
 include $(TOP)/rules.mk
