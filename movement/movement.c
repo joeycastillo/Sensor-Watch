@@ -143,11 +143,6 @@ bool app_loop() {
         }
     }
 
-    // if we have timed out of our timeout countdown, give the app a hint that they can resign.
-    if (movement_state.timeout_ticks == 0) {
-        event.event_type = EVENT_TIMEOUT;
-    }
-
     // handle background tasks, if the alarm handler told us we need to
     if (movement_state.needs_background_tasks_handled) _movement_handle_background_tasks();
 
@@ -181,8 +176,17 @@ bool app_loop() {
         event.subsecond = movement_state.subsecond;
         can_sleep = watch_faces[movement_state.current_watch_face].loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
         event.event_type = EVENT_NONE;
-        event.subsecond = 0;
     }
+
+    // if we have timed out of our timeout countdown, give the app a hint that they can resign.
+    if (movement_state.timeout_ticks == 0) {
+        event.event_type = EVENT_TIMEOUT;
+        event.subsecond = movement_state.subsecond;
+        watch_faces[movement_state.current_watch_face].loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
+        event.event_type = EVENT_NONE;
+    }
+
+    event.subsecond = 0;
 
     return can_sleep && !movement_state.led_on;
 }
