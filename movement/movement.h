@@ -3,26 +3,76 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-// TODO: none of this is implemented
+// Movement Preferences
+// These four 32-bit structs store information about the wearer and their preferences. Tentatively, the plan is
+// for Movement to use four 32-bit registers for these preferences and to store them in the RTC's backup registers
+// 0-3, leaving registers 4-7 available for third party watch faces to use as they see fit.
+// * The movement_settings_t struct is provided to all watch faces in the callback functions, and will eventually
+//   be stored in the RTC's first backup register (BKUP[0]).
+// * The movement_location_t and movement_birthdate_t types are defined here, and are tentatively meant to be
+//   stored in BKUP[1] and BKUP[2], respectively.
+// * The movement_reserved_t type is here as a placeholder, because I sense there's some other generally useful
+//   stuff we'll want to make available to all watch faces and stash in the BKUP[3] register.
+// Anyway: Eventually, if Movement supports the BACKUP sleep mode, this will allow these preferences to be stored
+// before entering BACKUP mode and and restored after waking from reset.
+
+// movement_settings_t contains global settings that cover watch behavior, including preferences around clock and unit
+// display, time zones, buzzer behavior, LED color and low energy mode timeouts.
+// Eventually it will be stored in BKUP[0] when Movement enters BACKUP mode.
 typedef union {
     struct {
-        uint32_t reserved : 14;
-        uint32_t button_should_sound : 1;   // if true, pressing a button emits a sound.
-        uint32_t to_interval : 2;           // an inactivity interval for asking the active face to resign.
-        uint32_t le_interval : 3;           // 0 to disable low energy mode, or an inactivity interval for going into low energy mode.
-        uint32_t led_duration : 2;          // how many seconds to shine the LED for (x2), or 0 to disable it.
-        uint32_t led_red_color : 4;         // for general purpose illumination, the red LED value (0-15)
-        uint32_t led_green_color : 4;       // for general purpose illumination, the green LED value (0-15)
+        bool button_should_sound : 1;       // if true, pressing a button emits a sound.
+        uint8_t to_interval : 2;            // an inactivity interval for asking the active face to resign.
+        uint8_t le_interval : 3;            // 0 to disable low energy mode, or an inactivity interval for going into low energy mode.
+        uint8_t led_duration : 2;           // how many seconds to shine the LED for (x2), or 0 to disable it.
+        uint8_t led_red_color : 4;          // for general purpose illumination, the red LED value (0-15)
+        uint8_t led_green_color : 4;        // for general purpose illumination, the green LED value (0-15)
+        uint8_t time_zone : 6;              // TODO: an integer representing an index in the (to be implemented) time zone table.
 
         // while Movement itself doesn't implement a clock or display units, it may make sense to include some
         // global settings for watch faces to check. The 12/24 hour preference could inform a clock or a
         // time-oriented complication like a sunrise/sunset timer, and a simple locale preference could tell an
         // altimeter to display feet or meters as easily as it tells a thermometer to display degrees in F or C.
-        uint32_t clock_mode_24h : 1;        // indicates whether clock should use 12 or 24 hour mode.
-        uint32_t use_imperial_units : 1;    // indicates whether to use metric units (the default) or imperial.
+        bool clock_mode_24h : 1;            // indicates whether clock should use 12 or 24 hour mode.
+        bool use_imperial_units : 1;        // indicates whether to use metric units (the default) or imperial.
+        uint8_t reserved : 8;               // room for more preferences if needed.
     } bit;
-    uint32_t value;
+    uint32_t reg;
 } movement_settings_t;
+
+// movement_location_t is for storing the wearer's location. This will be useful for astronomical calculations such as
+// sunrise and sunset, or predictions of visible satellite passes.
+// If you create a UI for this register or need to access it, look for it in the RTC's BKUP[1] register.
+typedef union {
+    struct {
+        int16_t latitude : 16;   // signed latutide in hundredths of a degree
+        int16_t longitude : 16;  // signed longitude in hundredths of a degree
+    } bit;
+    uint32_t reg;
+} movement_location_t;
+
+// movement_birthdate_t is for storing the user's birth date. This will be useful for calculating the user's age — or
+// hey, playing happy birthday at midnight? Fields for birth time (with hour and minute resolution) are also available,
+// partly because they fit so nicely, but also because they can be useful for certain astrological calculations.
+// If you create a UI for birth date or need to access it, look for it in the RTC's BKUP[2] register.
+typedef union {
+    struct {
+        uint16_t year : 12;  // good through the year 4095
+        uint8_t month : 4;
+        uint8_t day : 5;
+        uint8_t hour : 5;
+        uint8_t minute : 6;
+    } bit;
+    uint32_t reg;
+} movement_birthdate_t;
+
+// movement_reserved_t is a placeholder for future use of the BKUP[3] register.
+typedef union {
+    struct {
+        uint32_t reserved : 32;
+    } bit;
+    uint32_t reg;
+} movement_reserved_t;
 
 typedef enum {
     EVENT_NONE = 0,             // There is no event to report.
