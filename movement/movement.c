@@ -105,7 +105,7 @@ void app_setup() {
             watch_faces[i].setup(&movement_state.settings, &watch_face_contexts[i]);
         }
 
-        watch_faces[0].activate(&movement_state.settings, watch_face_contexts[0]);
+        watch_faces[movement_state.current_watch_face].activate(&movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
         event.subsecond = 0;
         event.event_type = EVENT_ACTIVATE;
     }
