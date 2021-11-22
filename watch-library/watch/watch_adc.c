@@ -138,6 +138,35 @@ void watch_set_analog_sampling_length(uint8_t cycles) {
     _watch_sync_adc();
 }
 
+void watch_set_analog_reference_voltage(watch_adc_reference_voltage reference) {
+    ADC->CTRLA.bit.ENABLE = 0;
+
+    if (reference == ADC_REFERENCE_INTREF) SUPC->VREF.bit.VREFOE = 1;
+    else SUPC->VREF.bit.VREFOE = 0;
+
+    ADC->REFCTRL.bit.REFSEL = reference;
+    ADC->CTRLA.bit.ENABLE = 1;
+    _watch_sync_adc();
+    // throw away one measurement after reference change (the channel doesn't matter).
+    _watch_get_analog_value(ADC_INPUTCTRL_MUXPOS_SCALEDCOREVCC);
+}
+
+uint16_t watch_get_vcc_voltage() {
+    // stash the previous reference so we can restore it when we're done.
+    uint8_t oldref = ADC->REFCTRL.bit.REFSEL;
+
+    // if we weren't already using the internal reference voltage, select it now.
+    if (oldref != ADC_REFERENCE_INTREF) watch_set_analog_reference_voltage(ADC_REFERENCE_INTREF);
+
+    // get the data
+    uint32_t raw_val = _watch_get_analog_value(ADC_INPUTCTRL_MUXPOS_SCALEDIOVCC_Val);
+
+    // restore the old reference, if needed.
+    if (oldref != ADC_REFERENCE_INTREF) watch_set_analog_reference_voltage(oldref);
+
+    return (uint16_t)((raw_val * 1000) / (1024 * 1 << ADC->AVGCTRL.bit.SAMPLENUM));
+}
+
 inline void watch_disable_analog_input(const uint8_t pin) {
     gpio_set_pin_function(pin, GPIO_PIN_FUNCTION_OFF);
 }

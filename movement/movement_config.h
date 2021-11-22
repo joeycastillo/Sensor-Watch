@@ -9,6 +9,9 @@
 #include "thermistor_logging_face.h"
 #include "character_set_face.h"
 #include "beats_face.h"
+#include "day_one_face.h"
+#include "voltage_face.h"
+#include "stopwatch_face.h"
 
 const watch_face_t watch_faces[] = {
     simple_clock_face,

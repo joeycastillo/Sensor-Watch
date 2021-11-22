@@ -26,6 +26,7 @@ bool beats_face_loop(movement_event_t event, movement_settings_t *settings, void
 
     watch_date_time date_time;
     switch (event.event_type) {
+        case EVENT_ACTIVATE:
         case EVENT_TICK:
             date_time = watch_rtc_get_date_time();
             beats = clock2beats(date_time.unit.hour, date_time.unit.minute, date_time.unit.second, event.subsecond, UTC_OFFSET);
@@ -34,6 +35,7 @@ bool beats_face_loop(movement_event_t event, movement_settings_t *settings, void
             watch_display_string(buf, 0);
             break;
         case EVENT_LOW_ENERGY_UPDATE:
+            if (!watch_tick_animation_is_running()) watch_start_tick_animation(432);
             date_time = watch_rtc_get_date_time();
             beats = clock2beats(date_time.unit.hour, date_time.unit.minute, date_time.unit.second, event.subsecond, UTC_OFFSET);
             sprintf(buf, "bt  %4d  ", (int)beats);

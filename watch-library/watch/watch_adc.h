@@ -94,6 +94,53 @@ void watch_set_analog_num_samples(uint16_t samples);
   **/
 void watch_set_analog_sampling_length(uint8_t cycles);
 
+typedef enum {
+    ADC_REFERENCE_INTREF = ADC_REFCTRL_REFSEL_INTREF_Val,
+    ADC_REFERENCE_VCC_DIV1POINT6 = ADC_REFCTRL_REFSEL_INTVCC0_Val,
+    ADC_REFERENCE_VCC_DIV2 = ADC_REFCTRL_REFSEL_INTVCC1_Val,
+    ADC_REFERENCE_VCC = ADC_REFCTRL_REFSEL_INTVCC2_Val,
+} watch_adc_reference_voltage;
+
+
+/** @brief Selects the reference voltage to use for analog readings. Default is ADC_REFERENCE_VCC.
+  * @param reference One of ADC_REFERENCE_VCC, ADC_REFERENCE_VCC_DIV1POINT6, ADC_REFERENCE_VCC_DIV2
+  *                  or ADC_REFERENCE_INTREF.
+  * @details In order to turn an analog voltage into a 16-bit integer, the ADC needs to compare the
+  *          measured voltage to a reference point. For example, if you were powering the watch with
+  *          VCC == 3.0V and you had two 10K resistors connected in series from 3V to GND, you could
+  *          expect to get 3 volts when you measure the top of the voltage divider, 0 volts at the
+  *          bottom, and 1.5 volts in the middle. If you read these values uising a reference voltage
+  *          of ADC_REFERENCE_VCC, the top value would be about 65535, the bottom about 0, and the
+  *          middle about 32768. However! If we used ADC_REFERENCE_VCC_DIV2 as our reference, we would
+  *          expect to get 65535 both at the top and the middle, because the largest value the ADC can
+  *          measure in this configutation is 1.5V (VCC / 2).
+  *
+  *          By changing the reference voltage from ADC_REFERENCE_VCC to ADC_REFERENCE_VCC_DIV1POINT6
+  *          or ADC_REFERENCE_VCC_DIV2, you can get more resolution when measuring small voltages (i.e.
+  *          a phototransistor circuit in low light).
+  *
+  *          There is also a special reference voltage called ADC_REFERENCE_INTREF. The SAM L22's
+  *          Supply Controller provides a selectable voltage reference (by default, 1.024 V) that you
+  *          can select as a reference voltage for ADC conversions. Unlike the three references we
+  *          talked about in the last paragraph, this reference voltage does not depend on VCC, which
+  *          makes it very useful for measuring the battery voltage (since you can't really compare
+  *          VCC to itself). You can change the INTREF voltage to 2.048 or 4.096 V by poking at the
+  *          supply controller's VREF register, but the watch library does not support this use case.
+  **/
+void watch_set_analog_reference_voltage(watch_adc_reference_voltage reference);
+
+/** @brief Returns the voltage of the VCC supply in millivolts (i.e. 3000 mV == 3.0 V). If running on
+  *        a coin cell, this will be the battery voltage.
+  * @details Unlike other ADC functions, this function does not return a raw value from the ADC, but
+  *          rather scales it to an actual number of millivolts. This is because the ADC doesn't let
+  *          us measure VCC per se; it instead lets us measure VCC / 4, and we choose to measure it
+  *          against the internal reference voltage of 1.024 V. In short, the ADC gives us a number
+  *          that's complicated to deal with, so we just turn it into a useful number for you :)
+  * @note This function depends on INTREF being 1.024V. If you have changed it by poking at the supply
+  *       controller's VREF.SEL bits, this function will return inaccurate values.
+  */
+uint16_t watch_get_vcc_voltage();
+
 /** @brief Disables the analog circuitry on the selected pin.
   * @param pin One of pins A0-A4.
   */
