@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+#include <math.h>
 #include "watch_utility.h"
 
 const char * watch_utility_get_weekday(watch_date_time date_time) {
@@ -32,4 +33,24 @@ const char * watch_utility_get_weekday(watch_date_time date_time) {
         date_time.unit.year--;
     }
     return weekdays[(date_time.unit.day + 13 * (date_time.unit.month + 1) / 5 + date_time.unit.year + date_time.unit.year / 4 + 525) % 7];
+}
+
+float watch_utility_thermistor_temperature(uint16_t value, bool highside, float b_coefficient, float nominal_temperature, float nominal_resistance, float series_resistance) {
+    float reading = (float)value;
+
+    if (highside) {
+        reading = (1023.0 * series_resistance) / (reading / 64.0);
+        reading -= series_resistance;
+    } else {
+        reading = series_resistance / (65535.0 / value - 1.0);
+    }
+
+    reading = reading / nominal_resistance;
+    reading = log(reading);
+    reading /= b_coefficient;
+    reading += 1.0 / (nominal_temperature + 273.15);
+    reading = 1.0 / reading;
+    reading -= 273.15;
+
+    return reading;
 }
