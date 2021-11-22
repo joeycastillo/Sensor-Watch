@@ -31,6 +31,8 @@ LDFLAGS += -mcpu=cortex-m0plus -mthumb
 LDFLAGS += -Wl,--gc-sections
 LDFLAGS += -Wl,--script=$(TOP)//watch-library/linker/saml22j18.ld
 
+LIBS += -lm
+
 INCLUDES += \
   -I$(TOP)/tinyusb/src \
   -I$(TOP)/boards/$(BOARD) \
