@@ -35,6 +35,9 @@
 
 
 // Segment LCD
+// The LCD in this board can run comfortably at a lower voltage.
+#define CONF_SLCD_CONTRAST_ADJUST 7
+
 #define SLCD0 GPIO(GPIO_PORTB, 6)
 #define SLCD1 GPIO(GPIO_PORTB, 7)
 #define SLCD2 GPIO(GPIO_PORTB, 8)
