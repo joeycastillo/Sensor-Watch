@@ -35,6 +35,41 @@ const char * watch_utility_get_weekday(watch_date_time date_time) {
     return weekdays[(date_time.unit.day + 13 * (date_time.unit.month + 1) / 5 + date_time.unit.year + date_time.unit.year / 4 + 525) % 7];
 }
 
+uint32_t watch_utility_convert_to_unix_time(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second, uint32_t utc_offset) {
+    uint16_t DAYS_SO_FAR[] = {
+        0,   // Jan
+        31,  // Feb
+        59,  // March
+        90,  // April
+        120, // May
+        151, // June
+        181, // July
+        212, // August
+        243, // September
+        273, // October
+        304, // November
+        334  // December
+    };
+
+
+    uint32_t year_adj = year + 4800;
+    uint32_t febs = year_adj - (month <= 2 ? 1 : 0);  /* Februaries since base. */
+    uint32_t leap_days = 1 + (febs / 4) - (febs / 100) + (febs / 400);
+    uint32_t days = 365 * year_adj + leap_days + DAYS_SO_FAR[month - 1] + day - 1;
+    days -= 2472692;  /* Adjust to Unix epoch. */
+
+    uint32_t timestamp = days * 86400;
+    timestamp += (hour + utc_offset) * 3600;
+    timestamp += minute * 60;
+    timestamp += second;
+
+    return timestamp;
+}
+
+uint32_t watch_utility_date_time_to_unix_time(watch_date_time date_time, uint32_t utc_offset) {
+    return watch_utility_convert_to_unix_time(date_time.unit.year + WATCH_RTC_REFERENCE_YEAR, date_time.unit.month, date_time.unit.day, date_time.unit.hour, date_time.unit.minute, date_time.unit.second, utc_offset);
+}
+
 float watch_utility_thermistor_temperature(uint16_t value, bool highside, float b_coefficient, float nominal_temperature, float nominal_resistance, float series_resistance) {
     float reading = (float)value;
 

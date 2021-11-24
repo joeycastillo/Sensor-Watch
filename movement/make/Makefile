@@ -16,6 +16,7 @@ INCLUDES += \
   -I../watch_faces/complications/ \
   -I../watch_faces/thermistor/ \
   -I../watch_faces/demos/ \
+  -I../lib/TOTP-MCU/ \
 
 # If you add any other source files you wish to compile, add them after ../app.c
 # Note that you will need to add a backslash at the end of any line you wish to continue, i.e.
@@ -24,6 +25,8 @@ INCLUDES += \
 #   ../drivers/lis2dh.c \
 #   ../watch_faces/fitness/step_count_face.c
 SRCS += \
+  ../lib/TOTP-MCU/sha1.c \
+  ../lib/TOTP-MCU/TOTP.c \
   ../movement.c \
   ../watch_faces/clock/simple_clock_face.c \
   ../watch_faces/settings/preferences_face.c \
@@ -37,6 +40,7 @@ SRCS += \
   ../watch_faces/complications/beats_face.c \
   ../watch_faces/complications/day_one_face.c \
   ../watch_faces/complications/stopwatch_face.c \
+  ../watch_faces/complications/totp_face.c \
 
 # Leave this line at the bottom of the file; it has all the targets for making your project.
 include $(TOP)/rules.mk

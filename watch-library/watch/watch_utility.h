@@ -38,6 +38,27 @@
   */
 const char * watch_utility_get_weekday(watch_date_time date_time);
 
+/** @brief Returns the UNIX time (seconds since 1970) for a given date/time in UTC.
+  * @param date_time The watch_date_time that you wish to convert.
+  * @param year The year of the date you wish to convert.
+  * @param month The month of the date you wish to convert.
+  * @param day The day of the date you wish to convert.
+  * @param hour The hour of the date you wish to convert.
+  * @param minute The minute of the date you wish to convert.
+  * @param second The second of the date you wish to convert.
+  * @return A UNIX timestamp for the given date/time and UTC offset.
+  * @note Implemented by Wesley Ellis (tahnok) and based on BSD-licensed code by Josh Haberman:
+  *       https://blog.reverberate.org/2020/05/12/optimizing-date-algorithms.html
+  */
+uint32_t watch_utility_convert_to_unix_time(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second, uint32_t utc_offset);
+
+/** @brief Returns the UNIX time (seconds since 1970) for a given watch_date_time struct.
+  * @param date_time The watch_date_time that you wish to convert.
+  * @param utc_offset The number of seconds that date_time is offset from UTC, or 0 if the time is UTC.
+  * @return A UNIX timestamp for the given watch_date_time and UTC offset.
+  */
+uint32_t watch_utility_date_time_to_unix_time(watch_date_time date_time, uint32_t utc_offset);
+
 /** @brief Returns a temperature in degrees Celsius for a given thermistor voltage divider circuit.
   * @param value The raw analog reading from the thermistor pin (0-65535)
   * @param highside True if the thermistor is connected to VCC and the series resistor is connected
