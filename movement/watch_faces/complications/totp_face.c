@@ -63,7 +63,7 @@ bool totp_face_loop(movement_event_t event, movement_settings_t *settings, void 
             movement_illuminate_led();
             break;
         case EVENT_TIMEOUT:
-            // go home
+            movement_move_to_face(0);
             break;
         case EVENT_ALARM_BUTTON_DOWN:
         case EVENT_ALARM_BUTTON_UP:
