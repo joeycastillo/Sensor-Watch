@@ -3,6 +3,13 @@
 
 #include "movement.h"
 
+typedef struct {
+    uint32_t timestamp;
+    uint8_t steps;
+    uint32_t current_code;
+
+} totp_state_t;
+
 void totp_face_setup(movement_settings_t *settings, void ** context_ptr);
 void totp_face_activate(movement_settings_t *settings, void *context);
 bool totp_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
