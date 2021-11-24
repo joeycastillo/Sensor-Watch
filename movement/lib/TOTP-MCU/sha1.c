@@ -14,6 +14,20 @@ uint8_t sha1InitState[] = {
   0xf0,0xe1,0xd2,0xc3  // H4
 };
 
+union _buffer {
+  uint8_t b[BLOCK_LENGTH];
+  uint32_t w[BLOCK_LENGTH/4];
+} buffer;
+union _state {
+  uint8_t b[HASH_LENGTH];
+  uint32_t w[HASH_LENGTH/4];
+} state;
+
+uint8_t bufferOffset;
+uint32_t byteCount;
+uint8_t keyBuffer[BLOCK_LENGTH];
+uint8_t innerHash[HASH_LENGTH];
+
 void init(void) {
   memcpy(state.b,sha1InitState,HASH_LENGTH);
   byteCount = 0;
@@ -84,7 +98,7 @@ void writeArray(uint8_t *buffer, uint8_t size){
 }
 
 void pad() {
-  // Implement SHA-1 padding (fips180-2 Åò5.1.1)
+  // Implement SHA-1 padding (fips180-2 ÔøΩÔøΩ5.1.1)
 
   // Pad with 0x80 followed by 0x00 until the end of the block
   addUncounted(0x80);

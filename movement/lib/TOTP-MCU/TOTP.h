@@ -1,3 +1,6 @@
+#ifndef TOTP_H_
+#define TOTP_H_
+
 #include <inttypes.h>
 #include "time.h"
 
@@ -6,3 +9,5 @@ void setTimezone(uint8_t timezone);
 uint32_t getCodeFromTimestamp(uint32_t timeStamp);
 uint32_t getCodeFromTimeStruct(struct tm time);
 uint32_t getCodeFromSteps(uint32_t steps);
+
+#endif // TOTP_H_
