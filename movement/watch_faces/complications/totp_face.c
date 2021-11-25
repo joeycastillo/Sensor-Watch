@@ -1,6 +1,5 @@
 /**
  * TODO:
- * - Add support for UTC offset in settings?
  * - Support for multiple codes
  */
 #include <stdlib.h>
@@ -16,7 +15,6 @@
 static uint8_t hmacKey[] = {0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x21, 0xde, 0xad, 0xbe, 0xef}; // Secret key
 
 
-static const uint8_t UTC_OFFSET = 5; // set to your current UTC offset
 static const uint32_t TIMESTEP = 30;
 
 void totp_face_setup(movement_settings_t *settings, void ** context_ptr) {
@@ -29,7 +27,7 @@ void totp_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
     memset(context, 0, sizeof(totp_state_t));
     totp_state_t *totp_state = (totp_state_t *)context;
-    totp_state->timestamp = watch_utility_date_time_to_unix_time(watch_rtc_get_date_time(), UTC_OFFSET);
+    totp_state->timestamp = watch_utility_date_time_to_unix_time(watch_rtc_get_date_time(), movement_timezone_offsets[settings->bit.time_zone] * 60);
     totp_state->current_code = getCodeFromTimestamp(totp_state->timestamp);
 }
 

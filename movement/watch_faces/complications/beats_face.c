@@ -3,7 +3,6 @@
 #include "beats_face.h"
 #include "watch.h"
 
-const uint8_t UTC_OFFSET = 4; // set to your current UTC offset to see correct beats time
 const uint8_t BEAT_REFRESH_FREQUENCY = 8;
 
 void beats_face_setup(movement_settings_t *settings, void ** context_ptr) {
@@ -29,7 +28,7 @@ bool beats_face_loop(movement_event_t event, movement_settings_t *settings, void
         case EVENT_ACTIVATE:
         case EVENT_TICK:
             date_time = watch_rtc_get_date_time();
-            beats = clock2beats(date_time.unit.hour, date_time.unit.minute, date_time.unit.second, event.subsecond, UTC_OFFSET);
+            beats = clock2beats(date_time.unit.hour, date_time.unit.minute, date_time.unit.second, event.subsecond, movement_timezone_offsets[settings->bit.time_zone]);
             sprintf(buf, "bt  %6.0f", beats * 100);
 
             watch_display_string(buf, 0);
@@ -37,7 +36,7 @@ bool beats_face_loop(movement_event_t event, movement_settings_t *settings, void
         case EVENT_LOW_ENERGY_UPDATE:
             if (!watch_tick_animation_is_running()) watch_start_tick_animation(432);
             date_time = watch_rtc_get_date_time();
-            beats = clock2beats(date_time.unit.hour, date_time.unit.minute, date_time.unit.second, event.subsecond, UTC_OFFSET);
+            beats = clock2beats(date_time.unit.hour, date_time.unit.minute, date_time.unit.second, event.subsecond, movement_timezone_offsets[settings->bit.time_zone]);
             sprintf(buf, "bt  %4d  ", (int)beats);
 
             watch_display_string(buf, 0);
@@ -68,7 +67,7 @@ float clock2beats(uint16_t hours, uint16_t minutes, uint16_t seconds, uint16_t s
     float beats = seconds + ((float)subseconds / (float)BEAT_REFRESH_FREQUENCY);
     beats += 60 * minutes;
     beats += (float)hours * 60 * 60;
-    beats += (utc_offset + 1) * 60 * 60; // offset from utc + 1 since beats in in UTC+1
+    beats -= (utc_offset - 60) * 60; // offset from utc + 1 since beats in in UTC+1
 
     beats /= 86.4; // convert to beats
     while(beats > 1000) beats -= 1000; // beats %= 1000 but for a float
