@@ -27,7 +27,7 @@ typedef union {
         uint8_t led_duration : 2;           // how many seconds to shine the LED for (x2), or 0 to disable it.
         uint8_t led_red_color : 4;          // for general purpose illumination, the red LED value (0-15)
         uint8_t led_green_color : 4;        // for general purpose illumination, the green LED value (0-15)
-        uint8_t time_zone : 6;              // TODO: an integer representing an index in the (to be implemented) time zone table.
+        uint8_t time_zone : 6;              // an integer representing an index in the time zone table.
 
         // while Movement itself doesn't implement a clock or display units, it may make sense to include some
         // global settings for watch faces to check. The 12/24 hour preference could inform a clock or a
@@ -96,6 +96,8 @@ typedef struct {
     uint8_t event_type;
     uint8_t subsecond;
 } movement_event_t;
+
+extern const int16_t movement_timezone_offsets[];
 
 /** @brief Perform setup for your watch face.
   * @details It's tempting to say this is 'one-time' setup, but technically this function is called more than

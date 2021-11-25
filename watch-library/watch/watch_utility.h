@@ -46,6 +46,7 @@ const char * watch_utility_get_weekday(watch_date_time date_time);
   * @param hour The hour of the date you wish to convert.
   * @param minute The minute of the date you wish to convert.
   * @param second The second of the date you wish to convert.
+  * @param utc_offset The number of seconds that date_time is offset from UTC, or 0 if the time is UTC.
   * @return A UNIX timestamp for the given date/time and UTC offset.
   * @note Implemented by Wesley Ellis (tahnok) and based on BSD-licensed code by Josh Haberman:
   *       https://blog.reverberate.org/2020/05/12/optimizing-date-algorithms.html

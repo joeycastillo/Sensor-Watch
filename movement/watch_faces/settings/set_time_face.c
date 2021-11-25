@@ -2,8 +2,8 @@
 #include "set_time_face.h"
 #include "watch.h"
 
-#define SET_TIME_FACE_NUM_SETTINGS (6)
-const char set_time_face_titles[SET_TIME_FACE_NUM_SETTINGS][3] = {"HR", "MN", "SE", "YR", "MO", "DA"};
+#define SET_TIME_FACE_NUM_SETTINGS (7)
+const char set_time_face_titles[SET_TIME_FACE_NUM_SETTINGS][3] = {"HR", "M1", "SE", "YR", "MO", "DA", "ZO"};
 
 void set_time_face_setup(movement_settings_t *settings, void ** context_ptr) {
     (void) settings;
@@ -55,6 +55,10 @@ bool set_time_face_loop(movement_event_t event, movement_settings_t *settings, v
                         date_time.unit.day = 1;
                     }
                     break;
+                case 6: // time zone
+                    settings->bit.time_zone++;
+                    if (settings->bit.time_zone > 40) settings->bit.time_zone = 0;
+                    break;
             }
             watch_rtc_set_date_time(date_time);
             break;
@@ -76,12 +80,22 @@ bool set_time_face_loop(movement_event_t event, movement_settings_t *settings, v
             if (date_time.unit.hour > 12) watch_set_indicator(WATCH_INDICATOR_PM);
             else watch_clear_indicator(WATCH_INDICATOR_PM);
         }
-    } else {
+    } else if (current_page < 6) {
         watch_clear_colon();
         watch_clear_indicator(WATCH_INDICATOR_24H);
         watch_clear_indicator(WATCH_INDICATOR_PM);
         sprintf(buf, "%s  %2d%02d%02d", set_time_face_titles[current_page], date_time.unit.year + 20, date_time.unit.month, date_time.unit.day);
+    } else {
+        if (event.subsecond % 2) {
+            watch_clear_colon();
+            sprintf(buf, "%s        ", set_time_face_titles[current_page]);
+        } else {
+            watch_set_colon();
+            sprintf(buf, "%s %3d%02d  ", set_time_face_titles[current_page], (int8_t) (movement_timezone_offsets[settings->bit.time_zone] / 60), (int8_t) (movement_timezone_offsets[settings->bit.time_zone] % 60) * (movement_timezone_offsets[settings->bit.time_zone] < 0 ? -1 : 1));
+        }
     }
+
+    // blink up the parameter we're setting
     if (event.subsecond % 2) {
         switch (current_page) {
             case 0:

@@ -11,6 +11,50 @@ const int32_t movement_le_inactivity_deadlines[8] = {INT_MAX, 3600, 7200, 21600,
 const int32_t movement_timeout_inactivity_deadlines[4] = {60, 120, 300, 1800};
 movement_event_t event;
 
+const int16_t movement_timezone_offsets[] = {
+    -720,   //  0 : -12:00:00 (Baker Island Time)
+    -660,   //  1 : -11:00:00 (Niue Time)
+    -600,   //  2 : -10:00:00 (Hawaii-Aleutian Standard Time)
+    -570,   //  3 :  -9:30:00 (Marquesas Islands Time)
+    -540,   //  4 :  -9:00:00 (Alaska Standard Time)
+    -480,   //  5 :  -8:00:00 (Pacific Standard Time)
+    -420,   //  6 :  -7:00:00 (Mountain Standard Time)
+    -360,   //  7 :  -6:00:00 (Central Standard Time)
+    -300,   //  8 :  -5:00:00 (Eastern Standard Time)
+    -270,   //  9 :  -4:30:00 (Venezuelan Standard Time)
+    -240,   // 10 :  -4:00:00 (Atlantic Standard Time)
+    -210,   // 11 :  -3:30:00 (Newfoundland Standard Time)
+    -180,   // 12 :  -3:00:00 (Brasilia Time)
+    -150,   // 13 :  -2:30:00 (Newfoundland Daylight Time)
+    -120,   // 14 :  -2:00:00 (Fernando de Noronha Time)
+    -60,    // 15 :  -1:00:00 (Azores Standard Time)
+    0,      // 16 :   0:00:00 (UTC)
+    60,     // 17 :   1:00:00 (Central European Time)
+    120,    // 18 :   2:00:00 (South African Standard Time)
+    180,    // 19 :   3:00:00 (Arabia Standard Time)
+    210,    // 20 :   3:30:00 (Iran Standard Time)
+    240,    // 21 :   4:00:00 (Georgia Standard Time)
+    270,    // 22 :   4:30:00 (Afghanistan Time)
+    300,    // 23 :   5:00:00 (Pakistan Standard Time)
+    330,    // 24 :   5:30:00 (Indian Standard Time)
+    345,    // 25 :   5:45:00 (Nepal Time)
+    360,    // 26 :   6:00:00 (Kyrgyzstan time)
+    390,    // 27 :   6:30:00 (Myanmar Time)
+    420,    // 28 :   7:00:00 (Thailand Standard Time)
+    480,    // 29 :   8:00:00 (China Standard Time, Australian Western Standard Time)
+    525,    // 30 :   8:45:00 (Australian Central Western Standard Time)
+    540,    // 31 :   9:00:00 (Japan Standard Time, Korea Standard Time)
+    570,    // 32 :   9:30:00 (Australian Central Standard Time)
+    600,    // 33 :  10:00:00 (Australian Eastern Standard Time)
+    630,    // 34 :  10:30:00 (Lord Howe Standard Time)
+    660,    // 35 :  11:00:00 (Solomon Islands Time)
+    720,    // 36 :  12:00:00 (New Zealand Standard Time)
+    765,    // 37 :  12:45:00 (Chatham Standard Time)
+    780,    // 38 :  13:00:00 (Tonga Time)
+    825,    // 39 :  13:45:00 (Chatham Daylight Time)
+    840,    // 40 :  14:00:00 (Line Islands Time)
+};
+
 void cb_mode_btn_interrupt();
 void cb_light_btn_interrupt();
 void cb_alarm_btn_interrupt();
@@ -65,6 +109,7 @@ void app_init() {
     movement_state.settings.bit.button_should_sound = true;
     movement_state.settings.bit.le_interval = 1;
     movement_state.settings.bit.led_duration = 1;
+    movement_state.settings.bit.time_zone = 16; // default to GMT
     _movement_reset_inactivity_countdown();
 }
 

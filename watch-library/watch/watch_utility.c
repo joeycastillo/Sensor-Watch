@@ -51,6 +51,7 @@ uint32_t watch_utility_convert_to_unix_time(uint16_t year, uint8_t month, uint8_
         334  // December
     };
 
+    printf("input: %d/%d/%d %d:%02d:%02d offset by %ld\n", year, month, day, hour, minute, second, utc_offset);
 
     uint32_t year_adj = year + 4800;
     uint32_t febs = year_adj - (month <= 2 ? 1 : 0);  /* Februaries since base. */
@@ -59,9 +60,12 @@ uint32_t watch_utility_convert_to_unix_time(uint16_t year, uint8_t month, uint8_
     days -= 2472692;  /* Adjust to Unix epoch. */
 
     uint32_t timestamp = days * 86400;
-    timestamp += (hour + utc_offset) * 3600;
+    timestamp += hour * 3600;
     timestamp += minute * 60;
     timestamp += second;
+    printf("timestamp was %ld.\ntimezone is %ld.\n", timestamp, utc_offset);
+    timestamp -= utc_offset;
+    printf("timestamp now %ld.\n\n", timestamp);
 
     return timestamp;
 }
