@@ -60,6 +60,16 @@ uint32_t watch_utility_convert_to_unix_time(uint16_t year, uint8_t month, uint8_
   */
 uint32_t watch_utility_date_time_to_unix_time(watch_date_time date_time, uint32_t utc_offset);
 
+/** @brief Returns the UNIX time (seconds since 1970) for a given watch_date_time struct.
+  * @param timestamp The UNIX timestamp that you wish to convert.
+  * @param utc_offset The number of seconds that you wish date_time to be offset from UTC.
+  * @return A watch_date_time for the given UNIX timestamp and UTC offset, or if outside the range that
+  *         watch_date_time can represent, a watch_date_time with all fields set to 0.
+  * @note Adapted from MIT-licensed code from musl, Copyright © 2005-2014 Rich Felker, et al.:
+  *       https://github.com/esmil/musl/blob/1cc81f5cb0df2b66a795ff0c26d7bbc4d16e13c6/src/time/__secs_to_tm.c
+  */
+watch_date_time watch_utility_date_time_from_unix_time(uint32_t timestamp, uint32_t utc_offset);
+
 /** @brief Returns a temperature in degrees Celsius for a given thermistor voltage divider circuit.
   * @param value The raw analog reading from the thermistor pin (0-65535)
   * @param highside True if the thermistor is connected to VCC and the series resistor is connected
