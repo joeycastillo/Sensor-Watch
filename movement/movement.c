@@ -114,10 +114,12 @@ void app_init() {
 }
 
 void app_wake_from_backup() {
-    // This app does not support BACKUP mode.
+    movement_state.settings.reg = watch_get_backup_data(0);
 }
 
 void app_setup() {
+    watch_store_backup_data(movement_state.settings.reg, 0);
+
     static bool is_first_launch = true;
 
     if (is_first_launch) {

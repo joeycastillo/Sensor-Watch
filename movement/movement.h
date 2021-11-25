@@ -13,12 +13,12 @@
 //   stored in BKUP[1] and BKUP[2], respectively.
 // * The movement_reserved_t type is here as a placeholder, because I sense there's some other generally useful
 //   stuff we'll want to make available to all watch faces and stash in the BKUP[3] register.
-// Anyway: Eventually, if Movement supports the BACKUP sleep mode, this will allow these preferences to be stored
-// before entering BACKUP mode and and restored after waking from reset.
+// This allows these preferences to be stored before entering BACKUP mode and and restored after waking from reset.
 
 // movement_settings_t contains global settings that cover watch behavior, including preferences around clock and unit
-// display, time zones, buzzer behavior, LED color and low energy mode timeouts.
-// Eventually it will be stored in BKUP[0] when Movement enters BACKUP mode.
+// display, time zones, buzzer behavior, LED color and low energy mode timeouts. These settings are stored in BKUP[0].
+// If your watch face changes one of these settings, you should store your changes in either your loop or resign
+// function by calling `watch_store_backup_data(settings->reg, 0)`. Otherwise it may not persist after a reset event.
 typedef union {
     struct {
         bool button_should_sound : 1;       // if true, pressing a button emits a sound.
