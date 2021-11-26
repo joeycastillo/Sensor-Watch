@@ -98,6 +98,8 @@ typedef struct {
 } movement_event_t;
 
 extern const int16_t movement_timezone_offsets[];
+extern const char movement_valid_position_0_chars[];
+extern const char movement_valid_position_1_chars[];
 
 /** @brief Perform setup for your watch face.
   * @details It's tempting to say this is 'one-time' setup, but technically this function is called more than

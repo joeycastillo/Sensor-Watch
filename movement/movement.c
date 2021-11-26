@@ -55,6 +55,9 @@ const int16_t movement_timezone_offsets[] = {
     840,    // 40 :  14:00:00 (Line Islands Time)
 };
 
+const char movement_valid_position_0_chars[] = " AaBbCcDdEeFGgHhIiJKLMNnOoPQrSTtUuWXYZ-='+\\/0123456789";
+const char movement_valid_position_1_chars[] = " ABCDEFHlJLNORTtUX-='01378";
+
 void cb_mode_btn_interrupt();
 void cb_light_btn_interrupt();
 void cb_alarm_btn_interrupt();

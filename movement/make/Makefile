@@ -29,6 +29,7 @@ SRCS += \
   ../lib/TOTP-MCU/TOTP.c \
   ../movement.c \
   ../watch_faces/clock/simple_clock_face.c \
+  ../watch_faces/clock/world_clock_face.c \
   ../watch_faces/settings/preferences_face.c \
   ../watch_faces/settings/set_time_face.c \
   ../watch_faces/complications/pulsometer_face.c \
