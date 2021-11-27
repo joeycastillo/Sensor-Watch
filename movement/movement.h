@@ -171,7 +171,6 @@ typedef bool (*watch_face_loop)(movement_event_t event, movement_settings_t *set
 typedef void (*watch_face_resign)(movement_settings_t *settings, void *context);
 
 /** @brief OPTIONAL. Request an opportunity to run a background task.
-  * @warning NOT YET IMPLEMENTED.
   * @details Most apps will not need this function, but if you provide it, Movement will call it once per minute in
   *          both active and low power modes, regardless of whether your app is in the foreground. You can check the
   *          current time to determine whether you require a background task. If you return true here, Movement will
