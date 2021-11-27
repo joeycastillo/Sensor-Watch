@@ -61,6 +61,7 @@ INCLUDES += \
   -I$(TOP)/watch-library/config/ \
   -I$(TOP)/watch-library/hw/ \
   -I$(TOP)/watch-library/watch/ \
+  -I$(TOP)/watch-library/driver/ \
   -I$(TOP)/watch-library
 
 SRCS += \
@@ -112,6 +113,7 @@ SRCS += \
   $(TOP)/watch-library/hpl/sercom/hpl_sercom.c \
   $(TOP)/watch-library/hpl/slcd/hpl_slcd.c \
   $(TOP)/watch-library/hpl/systick/hpl_systick.c \
+  $(TOP)/watch-library/driver/lis2dh.c \
 
 DEFINES += \
   -D__SAML22J18A__ \
