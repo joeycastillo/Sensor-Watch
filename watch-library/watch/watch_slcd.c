@@ -31,7 +31,7 @@
 static const uint8_t Character_Set[] =
 {
     0b00000000, //  
-    0b00000000, // ! (unused)
+    0b01100000, // ! (L in the top half for positions 4 and 6)
     0b00100010, // "
     0b01100011, // # (degree symbol, hash mark doesn't fit)
     0b00000000, // $ (unused)
@@ -177,13 +177,37 @@ void watch_display_character(uint8_t character, uint8_t position) {
     // special cases for positions 4 and 6
     if (position == 4 || position == 6) {
         if (character == '7') character = '&'; // "lowercase" 7
-        if (character == 'v') character = 'u'; // bottom segment duplicated, so show in top half
-        if (character == 'J') character = 'j'; // same
-    } else if (position != 4 && position != 6) {
+        else if (character == 'A') character = 'a'; // A needs to be lowercase
+        else if (character == 'o') character = 'O'; // O needs to be uppercase
+        else if (character == 'L') character = '!'; // L needs to be in top half
+        else if (character == 'M' || character == 'm' || character == 'N') character = 'n'; // M and uppercase N need to be lowercase n
+        else if (character == 'c') character = 'C'; // C needs to be uppercase
+        else if (character == 'J') character = 'j'; // same
+        else if (character == 'v' || character == 'V' || character == 'U' || character == 'W' || character == 'w') character = 'u'; // bottom segment duplicated, so show in top half
+    } else {
         if (character == 'u') character = 'v'; // we can use the bottom segment; move to lower half
-        if (character == 'j') character = 'J'; // same but just display a normal J
+        else if (character == 'j') character = 'J'; // same but just display a normal J
     }
-    if (position == 0) slcd_sync_seg_off(&SEGMENT_LCD_0, SLCD_SEGID(0, 15)); // clear funky ninth segment
+    if (position > 1) {
+        if (character == 'T') character = 't'; // uppercase T only works in positions 0 and 1
+    }
+    if (position == 1) {
+        if (character == 'o') character = 'O'; // O needs to be uppercase
+        if (character == 'i') character = 'l'; // I needs to be uppercase (use an l, it looks the same)
+        if (character == 'n') character = 'N'; // N needs to be uppercase
+        if (character == 'r') character = 'R'; // R needs to be uppercase
+        if (character == 'd') character = 'D'; // D needs to be uppercase
+        if (character == 'v' || character == 'V' || character == 'u') character = 'U'; // side segments shared, make uppercase
+        if (character == 'b') character = 'B'; // B needs to be uppercase
+        if (character == 'c') character = 'C'; // C needs to be uppercase
+    } else {
+        if (character == 'R') character = 'r'; // R needs to be lowercase almost everywhere
+    }
+    if (position == 0) {
+        slcd_sync_seg_off(&SEGMENT_LCD_0, SLCD_SEGID(0, 15)); // clear funky ninth segment
+    } else {
+        if (character == 'I') character = 'l'; // uppercase I only works in position 0
+    }
 
     uint64_t segmap = Segment_Map[position];
     uint64_t segdata = Character_Set[character - 0x20];
@@ -204,7 +228,7 @@ void watch_display_character(uint8_t character, uint8_t position) {
     }
     if (character == 'T' && position == 1) slcd_sync_seg_on(&SEGMENT_LCD_0, SLCD_SEGID(1, 12)); // add descender
     else if (position == 0 && (character == 'B' || character == 'D')) slcd_sync_seg_on(&SEGMENT_LCD_0, SLCD_SEGID(0, 15)); // add funky ninth segment
-    else if (position == 0 && (character == 'B' || character == 'D' || character == '@')) slcd_sync_seg_on(&SEGMENT_LCD_0, SLCD_SEGID(0, 15)); // add funky ninth segment
+    else if (position == 1 && (character == 'B' || character == 'D' || character == '@')) slcd_sync_seg_on(&SEGMENT_LCD_0, SLCD_SEGID(0, 12)); // add funky ninth segment
 }
 
 void watch_display_string(char *string, uint8_t position) {
