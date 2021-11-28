@@ -88,7 +88,7 @@ bool preferences_face_loop(movement_event_t event, movement_settings_t *settings
             case 2:
                 switch (settings->bit.to_interval) {
                     case 0:
-                        watch_display_string("60 sec", 4);
+                        watch_display_string("60 SeC", 4);
                         break;
                     case 1:
                         watch_display_string("2 n&in", 4);
@@ -104,7 +104,7 @@ bool preferences_face_loop(movement_event_t event, movement_settings_t *settings
             case 3:
                 switch (settings->bit.le_interval) {
                     case 0:
-                        watch_display_string(" never", 4);
+                        watch_display_string(" Never", 4);
                         break;
                     case 1:
                         watch_display_string("1 hour", 4);
