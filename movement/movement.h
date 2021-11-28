@@ -210,10 +210,11 @@ typedef struct {
     int16_t current_watch_face;
     int16_t next_watch_face;
     bool watch_face_changed;
+    bool fast_tick_enabled;
+    int16_t fast_ticks;
 
     // LED stuff
-    uint8_t light_ticks;
-    bool led_on;
+    int16_t light_ticks;
     
     // button tracking for long press
     uint8_t light_down_timestamp;

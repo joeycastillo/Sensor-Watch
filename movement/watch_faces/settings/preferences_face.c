@@ -131,11 +131,7 @@ bool preferences_face_loop(movement_event_t event, movement_settings_t *settings
                 break;
             case 4:
                 if (settings->bit.led_duration) {
-                    // TODO: since we time the LED with the 1 Hz tick, the actual time lit can vary depending
-                    // on whether the user hit it just before or just after a tick. so the setting is "1-2 s",
-                    // "3-4 s", or "5-6 s". If we time this with the system tick we can do better.
-                    // see also cb_tick at the bottom of movement.c
-                    sprintf(buf, " %1d-%1d s", settings->bit.led_duration * 2 - 1, settings->bit.led_duration * 2);
+                    sprintf(buf, " %1d SeC", settings->bit.led_duration * 2 - 1);
                     watch_display_string(buf, 4);
                 } else {
                     watch_display_string("no LEd", 4);

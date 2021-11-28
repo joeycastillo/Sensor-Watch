@@ -51,7 +51,7 @@ This function is called just before your watch enters the foreground. If your wa
 
 ### watch_face_loop
 
-This is a lot like your loop() function in Arduinoland in that it is called repeatedly whenever your watch face is on screen. There is one crucial difference though: it is called less often. By default, this function is called once per second, and in response to events like button presses. You can request a more frequent tick interval by calling `movement_request_tick_frequency` with any power of 2 from 1 to 128. 
+This is a lot like your loop() function in Arduinoland in that it is called repeatedly whenever your watch face is on screen. There is one crucial difference though: it is called less often. By default, this function is called once per second, and in response to events like button presses. You can request a more frequent tick interval by calling `movement_request_tick_frequency` with any power of 2 from 1 to 64. (there is a 128 Hz prescaler tick, but Movement reserves that for its own use)
 
 In addition to the settings and context, this function receives another parameter: an `event`. This is a struct containing information about the event that triggered the update. You mostly need to check the `event_type` to determine what kind of event triggered the loop. A detailed list of all events is provided at the bottom of this document. 
 

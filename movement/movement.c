@@ -63,11 +63,26 @@ void cb_light_btn_interrupt();
 void cb_alarm_btn_interrupt();
 void cb_alarm_btn_extwake();
 void cb_alarm_fired();
+void cb_fast_tick();
 void cb_tick();
 
 static inline void _movement_reset_inactivity_countdown() {
     movement_state.le_mode_ticks = movement_le_inactivity_deadlines[movement_state.settings.bit.le_interval];
     movement_state.timeout_ticks = movement_timeout_inactivity_deadlines[movement_state.settings.bit.to_interval];
+}
+
+static inline void _movement_enable_fast_tick_if_needed() {
+    if (!movement_state.fast_tick_enabled) {
+        movement_state.fast_ticks = 0;
+        watch_rtc_register_periodic_callback(cb_fast_tick, 128);
+    }
+}
+
+static inline void _movement_disable_fast_tick_if_possible() {
+    if ((movement_state.light_ticks == -1) && ((movement_state.light_down_timestamp + movement_state.mode_down_timestamp + movement_state.alarm_down_timestamp) == 0)) {
+        movement_state.fast_tick_enabled = false;
+        watch_rtc_disable_periodic_callback(128);
+    }
 }
 
 void _movement_handle_background_tasks() {
@@ -83,17 +98,20 @@ void _movement_handle_background_tasks() {
 }
 
 void movement_request_tick_frequency(uint8_t freq) {
-    watch_rtc_disable_all_periodic_callbacks();
+    if (freq == 128) return; // Movement uses the 128 Hz tick internally
+    RTC->MODE2.INTENCLR.reg = 0xFE; // disable all callbacks except the 128 Hz one
     movement_state.subsecond = 0;
     movement_state.tick_frequency = freq;
     watch_rtc_register_periodic_callback(cb_tick, freq);
 }
 
 void movement_illuminate_led() {
-    watch_set_led_color(movement_state.settings.bit.led_red_color ? (0xF | movement_state.settings.bit.led_red_color << 4) : 0,
-                        movement_state.settings.bit.led_green_color ? (0xF | movement_state.settings.bit.led_green_color << 4) : 0);
-    movement_state.led_on = true;
-    movement_state.light_ticks = movement_state.settings.bit.led_duration * 2;
+    if (movement_state.settings.bit.led_duration) {
+        watch_set_led_color(movement_state.settings.bit.led_red_color ? (0xF | movement_state.settings.bit.led_red_color << 4) : 0,
+                            movement_state.settings.bit.led_green_color ? (0xF | movement_state.settings.bit.led_green_color << 4) : 0);
+        movement_state.light_ticks = (movement_state.settings.bit.led_duration * 2 - 1) * 128;
+        _movement_enable_fast_tick_if_needed();
+    }
 }
 
 void movement_move_to_face(uint8_t watch_face_index) {
@@ -113,6 +131,7 @@ void app_init() {
     movement_state.settings.bit.le_interval = 1;
     movement_state.settings.bit.led_duration = 1;
     movement_state.settings.bit.time_zone = 16; // default to GMT
+    movement_state.light_ticks = -1;
     _movement_reset_inactivity_countdown();
 }
 
@@ -182,14 +201,15 @@ bool app_loop() {
         movement_state.watch_face_changed = false;
     }
 
-    // if the LED is on and should be off, turn it off
-    if (movement_state.led_on && movement_state.light_ticks == 0) {
+    // if the LED should be off, turn it off
+    if (movement_state.light_ticks == 0) {
         // unless the user is holding down the LIGHT button, in which case, give them more time.
         if (watch_get_pin_level(BTN_LIGHT)) {
-            movement_state.light_ticks = 3;
+            movement_state.light_ticks = 1;
         } else {
             watch_set_led_off();
-            movement_state.led_on = false;
+            movement_state.light_ticks = -1;
+            _movement_disable_fast_tick_if_possible();
         }
     }
 
@@ -238,35 +258,45 @@ bool app_loop() {
 
     event.subsecond = 0;
 
-    return can_sleep && !movement_state.led_on;
+    return can_sleep && (movement_state.light_ticks == 0);
 }
 
-movement_event_type_t _figure_out_button_event(movement_event_type_t button_down_event_type, uint8_t *down_timestamp) {
-    watch_date_time date_time = watch_rtc_get_date_time();
-    if (*down_timestamp) {
-        uint8_t diff = ((61 + date_time.unit.second) - *down_timestamp) % 60;
-        *down_timestamp = 0;
-        if (diff > 1) return button_down_event_type + 2;
-        else return button_down_event_type + 1;
-    } else {
-        *down_timestamp = date_time.unit.second + 1;
+movement_event_type_t _figure_out_button_event(bool pin_level, movement_event_type_t button_down_event_type, uint8_t *down_timestamp) {
+    if (pin_level) {
+        // handle rising edge
+        _movement_enable_fast_tick_if_needed();
+        *down_timestamp = movement_state.fast_ticks + 1;
         return button_down_event_type;
+    } else {
+        // this line is hack but it handles the situation where the light button was held for more than 10 seconds.
+        // fast tick is disabled by then, and the LED would get stuck on since there's no one left decrementing light_ticks.
+        if (movement_state.light_ticks == 1) movement_state.light_ticks = 0;
+        // now that that's out of the way, handle falling edge
+        uint16_t diff = movement_state.fast_ticks - *down_timestamp;
+        *down_timestamp = 0;
+        _movement_disable_fast_tick_if_possible();
+        // any press over a half second is considered a long press.
+        if (diff > 64) return button_down_event_type + 2;
+        else return button_down_event_type + 1;
     }
 }
 
 void cb_light_btn_interrupt() {
+    bool pin_level = watch_get_pin_level(BTN_LIGHT);
     _movement_reset_inactivity_countdown();
-    event.event_type = _figure_out_button_event(EVENT_LIGHT_BUTTON_DOWN, &movement_state.light_down_timestamp);
+    event.event_type = _figure_out_button_event(pin_level, EVENT_LIGHT_BUTTON_DOWN, &movement_state.light_down_timestamp);
 }
 
 void cb_mode_btn_interrupt() {
+    bool pin_level = watch_get_pin_level(BTN_MODE);
     _movement_reset_inactivity_countdown();
-    event.event_type = _figure_out_button_event(EVENT_MODE_BUTTON_DOWN, &movement_state.mode_down_timestamp);
+    event.event_type = _figure_out_button_event(pin_level, EVENT_MODE_BUTTON_DOWN, &movement_state.mode_down_timestamp);
 }
 
 void cb_alarm_btn_interrupt() {
+    bool pin_level = watch_get_pin_level(BTN_ALARM);
     _movement_reset_inactivity_countdown();
-    event.event_type = _figure_out_button_event(EVENT_ALARM_BUTTON_DOWN, &movement_state.alarm_down_timestamp);
+    event.event_type = _figure_out_button_event(pin_level, EVENT_ALARM_BUTTON_DOWN, &movement_state.alarm_down_timestamp);
 }
 
 void cb_alarm_btn_extwake() {
@@ -278,14 +308,18 @@ void cb_alarm_fired() {
     movement_state.needs_background_tasks_handled = true;
 }
 
+void cb_fast_tick() {
+    movement_state.fast_ticks++;
+    if (movement_state.light_ticks > 0) movement_state.light_ticks--;
+    // this is just a fail-safe; fast tick should be disabled as soon as the button is up and/or the LED times out.
+    // but if for whatever reason it isn't, this forces the fast tick off after 10 seconds.
+    if (movement_state.fast_ticks >= 1280) watch_rtc_disable_periodic_callback(128);
+}
+
 void cb_tick() {
     event.event_type = EVENT_TICK;
     watch_date_time date_time = watch_rtc_get_date_time();
     if (date_time.unit.second != movement_state.last_second) {
-        // TODO: since we time the LED with the 1 Hz tick, the actual time lit can vary depending on whether the
-        // user hit it just before or just after a tick. If we time this with the system tick we can do better.
-        if (movement_state.light_ticks) movement_state.light_ticks--;
-
         // TODO: can we consolidate these two ticks?
         if (movement_state.settings.bit.le_interval && movement_state.le_mode_ticks > 0) movement_state.le_mode_ticks--;
         if (movement_state.timeout_ticks > 0) movement_state.timeout_ticks--;
