@@ -215,7 +215,11 @@ typedef struct {
 
     // LED stuff
     int16_t light_ticks;
-    
+
+    // alarm stuff
+    int16_t alarm_ticks;
+    bool is_buzzing;
+
     // button tracking for long press
     uint8_t light_down_timestamp;
     uint8_t mode_down_timestamp;
@@ -240,5 +244,8 @@ void movement_move_to_face(uint8_t watch_face_index);
 void movement_move_to_next_face();
 void movement_illuminate_led();
 void movement_request_tick_frequency(uint8_t freq);
+
+void movement_play_signal();
+void movement_play_alarm();
 
 #endif // MOVEMENT_H_

@@ -79,7 +79,9 @@ static inline void _movement_enable_fast_tick_if_needed() {
 }
 
 static inline void _movement_disable_fast_tick_if_possible() {
-    if ((movement_state.light_ticks == -1) && ((movement_state.light_down_timestamp + movement_state.mode_down_timestamp + movement_state.alarm_down_timestamp) == 0)) {
+    if ((movement_state.light_ticks == -1) &&
+        (movement_state.alarm_ticks == -1) &&
+        ((movement_state.light_down_timestamp + movement_state.mode_down_timestamp + movement_state.alarm_down_timestamp) == 0)) {
         movement_state.fast_tick_enabled = false;
         watch_rtc_disable_periodic_callback(128);
     }
@@ -123,6 +125,17 @@ void movement_move_to_next_face() {
     movement_move_to_face((movement_state.current_watch_face + 1) % MOVEMENT_NUM_FACES);
 }
 
+void movement_play_signal() {
+    watch_buzzer_play_note(BUZZER_NOTE_C8, 75);
+    watch_buzzer_play_note(BUZZER_NOTE_REST, 100);
+    watch_buzzer_play_note(BUZZER_NOTE_C8, 100);
+}
+
+void movement_play_alarm() {
+    movement_state.alarm_ticks = 128 * 5 - 80; // 80 ticks short of 5 seconds, or 4.375 seconds (our beep is 0.375 seconds)
+    _movement_enable_fast_tick_if_needed();
+}
+
 void app_init() {
     memset(&movement_state, 0, sizeof(movement_state));
 
@@ -132,6 +145,7 @@ void app_init() {
     movement_state.settings.bit.led_duration = 1;
     movement_state.settings.bit.time_zone = 16; // default to GMT
     movement_state.light_ticks = -1;
+    movement_state.alarm_ticks = -1;
     _movement_reset_inactivity_countdown();
 }
 
@@ -257,12 +271,32 @@ bool app_loop() {
         event.event_type = EVENT_NONE;
     }
 
+    // Now that we've handled all display update tasks, handle the alarm.
+    if (movement_state.alarm_ticks >= 0) {
+        uint8_t buzzer_phase = (movement_state.alarm_ticks + 80) % 128;
+        if(buzzer_phase == 127) {
+            for(uint8_t i = 0; i < 4; i++) {
+                // TODO: This method of playing the buzzer blocks the UI while it's beeping.
+                // It might be better to time it with the fast tick.
+                watch_buzzer_play_note(BUZZER_NOTE_C8, (i != 3) ? 50 : 75);
+                if (i != 3) watch_buzzer_play_note(BUZZER_NOTE_REST, 50);
+            }
+        }
+        if (movement_state.alarm_ticks == 0) {
+            movement_state.alarm_ticks = -1;
+            _movement_disable_fast_tick_if_possible();
+        }
+    }
+
     event.subsecond = 0;
 
-    return can_sleep && (movement_state.light_ticks == 0);
+    return can_sleep && (movement_state.light_ticks == 0) && !movement_state.is_buzzing;
 }
 
 movement_event_type_t _figure_out_button_event(bool pin_level, movement_event_type_t button_down_event_type, uint8_t *down_timestamp) {
+    // force alarm off if the user pressed a button.
+    if (movement_state.alarm_ticks) movement_state.alarm_ticks = 0;
+
     if (pin_level) {
         // handle rising edge
         _movement_enable_fast_tick_if_needed();
@@ -312,7 +346,8 @@ void cb_alarm_fired() {
 void cb_fast_tick() {
     movement_state.fast_ticks++;
     if (movement_state.light_ticks > 0) movement_state.light_ticks--;
-    // this is just a fail-safe; fast tick should be disabled as soon as the button is up and/or the LED times out.
+    if (movement_state.alarm_ticks > 0) movement_state.alarm_ticks--;
+    // this is just a fail-safe; fast tick should be disabled as soon as the button is up, the LED times out, and/or the alarm finishes.
     // but if for whatever reason it isn't, this forces the fast tick off after 10 seconds.
     if (movement_state.fast_ticks >= 1280) watch_rtc_disable_periodic_callback(128);
 }
