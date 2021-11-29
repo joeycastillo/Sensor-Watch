@@ -250,6 +250,7 @@ bool app_loop() {
 
     // if we have timed out of our timeout countdown, give the app a hint that they can resign.
     if (movement_state.timeout_ticks == 0) {
+        movement_state.timeout_ticks = -1;
         event.event_type = EVENT_TIMEOUT;
         event.subsecond = movement_state.subsecond;
         watch_faces[movement_state.current_watch_face].loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
