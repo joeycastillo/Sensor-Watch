@@ -723,11 +723,12 @@
 
 // </e>
 
-// my god this is a hack. need to refactor this out of ASF and into our driver. - joey 10/19
+// this is still a hack: if the user wants to use PA02 (alarm button) as an RTC interrupt pin and PB02 (9-pin A2) on the EIC, we don't support that.
+// TODO item: refactor out our reliance on the ASF external interrupt driver. - joey 11/30
 #ifdef CRYSTALLESS
-#define CONFIG_EIC_EXTINT_MAP {2, PIN_PA02}, {5, PIN_PB05}, {7, PIN_PA07},
+#define CONFIG_EIC_EXTINT_MAP {0, PIN_PB00}, {1, PIN_PB01}, {2, PIN_PA02}, {3, PIN_PB03}, {5, PIN_PB05}, {7, PIN_PA07},
 #else
-#define CONFIG_EIC_EXTINT_MAP {2, PIN_PA02}, {6, PIN_PA22}, {7, PIN_PA23},
+#define CONFIG_EIC_EXTINT_MAP {0, PIN_PB00}, {1, PIN_PB01}, {2, PIN_PA02}, {3, PIN_PB03}, {6, PIN_PA22}, {7, PIN_PA23},
 #endif
 
 // <<< end of configuration section >>>
