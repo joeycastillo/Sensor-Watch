@@ -290,7 +290,7 @@ bool app_loop() {
 
     event.subsecond = 0;
 
-    return can_sleep && (movement_state.light_ticks == 0) && !movement_state.is_buzzing;
+    return can_sleep && (movement_state.light_ticks == -1) && !movement_state.is_buzzing;
 }
 
 movement_event_type_t _figure_out_button_event(bool pin_level, movement_event_type_t button_down_event_type, uint8_t *down_timestamp) {
