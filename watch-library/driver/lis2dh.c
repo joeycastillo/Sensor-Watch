@@ -34,8 +34,8 @@ bool lis2dh_begin() {
                                                        LIS2DH_CTRL1_VAL_YEN |
                                                        LIS2DH_CTRL1_VAL_ZEN |
                                                        LIS2DH_CTRL1_VAL_ODR_1HZ);
-    // Enable block data update (output registers not updated until MSB and LSB have been read)
-    watch_i2c_write8(LIS2DH_ADDRESS, LIS2DH_REG_CTRL4, LIS2DH_CTRL4_VAL_BDU);
+    // Set range to ±2G and enable block data update (output registers not updated until MSB and LSB have been read)
+    watch_i2c_write8(LIS2DH_ADDRESS, LIS2DH_REG_CTRL4, LIS2DH_CTRL4_VAL_BDU | LIS2DH_RANGE_2_G);
 
     return true;
 }
