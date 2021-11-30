@@ -61,6 +61,29 @@ typedef enum {
 
 } lis2dh_data_rate_t;
 
+typedef enum {
+  LIS2DH_INTERRUPT_CONFIGURATION_OR            = 0b00000000,
+  LIS2DH_INTERRUPT_CONFIGURATION_AND           = 0b10000000,
+  LIS2DH_INTERRUPT_CONFIGURATION_6D_MOVEMENT   = 0b01000000,
+  LIS2DH_INTERRUPT_CONFIGURATION_6D_POSITION   = 0b11000000, // in 6D mode, these have an alternate meaning:
+  LIS2DH_INTERRUPT_CONFIGURATION_Z_HIGH_ENABLE = 0b00100000, // Z up enable
+  LIS2DH_INTERRUPT_CONFIGURATION_Z_LOW_ENABLE  = 0b00010000, // Z down enable
+  LIS2DH_INTERRUPT_CONFIGURATION_Y_HIGH_ENABLE = 0b00001000, // Y up enable
+  LIS2DH_INTERRUPT_CONFIGURATION_Y_LOW_ENABLE  = 0b00000100, // Y down enable
+  LIS2DH_INTERRUPT_CONFIGURATION_X_HIGH_ENABLE = 0b00000010, // X up enable
+  LIS2DH_INTERRUPT_CONFIGURATION_X_LOW_ENABLE  = 0b00000001, // X down enable
+} lis2dh_interrupt_configuration;
+
+typedef enum {
+  LIS2DH_INTERRUPT_STATE_ACTIVE = 0b01000000,
+  LIS2DH_INTERRUPT_STATE_Z_HIGH = 0b00100000, // Z up
+  LIS2DH_INTERRUPT_STATE_Z_LOW  = 0b00010000, // Z down
+  LIS2DH_INTERRUPT_STATE_Y_HIGH = 0b00001000, // Y up
+  LIS2DH_INTERRUPT_STATE_Y_LOW  = 0b00000100, // Y down
+  LIS2DH_INTERRUPT_STATE_X_HIGH = 0b00000010, // X up
+  LIS2DH_INTERRUPT_STATE_X_LOW  = 0b00000001, // X down
+} lis2dh_interrupt_state;
+
 bool lis2dh_begin();
 
 uint8_t lis2dh_get_device_id();
@@ -78,6 +101,10 @@ lis2dh_range_t lis2dh_get_range();
 void lis2dh_set_data_rate(lis2dh_data_rate_t dataRate);
 
 lis2dh_data_rate_t lis2dh_get_data_rate();
+
+void lis2dh_configure_aoi_int1(lis2dh_interrupt_configuration configuration, uint8_t threshold, uint8_t duration);
+
+lis2dh_interrupt_state lis2dh_get_int1_state();
 
 // Assumes SA0 is high; if low, its 0x18
 #define LIS2DH_ADDRESS (0x19)

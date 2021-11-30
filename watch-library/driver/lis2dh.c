@@ -114,3 +114,14 @@ void lis2dh_set_data_rate(lis2dh_data_rate_t dataRate) {
 lis2dh_data_rate_t lis2dh_get_data_rate() {
     return watch_i2c_read8(LIS2DH_ADDRESS, LIS2DH_REG_CTRL1) >> 4;
 }
+
+void lis2dh_configure_aoi_int1(lis2dh_interrupt_configuration configuration, uint8_t threshold, uint8_t duration) {
+    watch_i2c_write8(LIS2DH_ADDRESS, LIS2DH_REG_CTRL3, LIS2DH_CTRL3_VAL_I1_AOI1);
+    watch_i2c_write8(LIS2DH_ADDRESS, LIS2DH_REG_INT1_CFG, configuration);
+    watch_i2c_write8(LIS2DH_ADDRESS, LIS2DH_REG_INT1_THS, threshold);
+    watch_i2c_write8(LIS2DH_ADDRESS, LIS2DH_REG_INT1_DUR, duration);
+}
+
+lis2dh_interrupt_state lis2dh_get_int1_state() {
+    return (lis2dh_interrupt_state) watch_i2c_read8(LIS2DH_ADDRESS, LIS2DH_REG_INT1_SRC);
+}

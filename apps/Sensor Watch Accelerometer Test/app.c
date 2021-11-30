@@ -11,18 +11,28 @@
 // Also note that this board has its INT1 pin wired to A1, which is not an external
 // wake pin. Future accelerometer boards will wire interrupt pins to A2 and A4.
 
-uint8_t axis = 0;
-
 void cb_light_pressed() {
-    axis = 1;
 }
 
 void cb_mode_pressed() {
-    axis = 2;
 }
 
 void cb_alarm_pressed() {
-    axis = 3;
+}
+
+uint16_t interrupts = 0;
+uint16_t ticks = 0;
+
+void cb_interrupt_1() {
+    interrupts++;
+}
+
+void cb_tick() {
+    if (++ticks == 30) {
+        interrupts = 0;
+        ticks = 0;
+        watch_display_string("IN t   0", 0);
+    }
 }
 
 void app_init() {
@@ -31,6 +41,7 @@ void app_init() {
     gpio_set_pin_level(A0, true);
 
     watch_enable_display();
+    watch_display_string("IN 0   0", 0);
 
     watch_enable_external_interrupts();
     watch_register_interrupt_callback(BTN_MODE, cb_mode_pressed, INTERRUPT_TRIGGER_RISING);
@@ -40,9 +51,15 @@ void app_init() {
     watch_enable_i2c();
 
     lis2dh_begin();
-
-    lis2dh_set_range(LIS2DH_RANGE_2_G);
     lis2dh_set_data_rate(LIS2DH_DATA_RATE_10_HZ);
+    lis2dh_configure_aoi_int1(
+        LIS2DH_INTERRUPT_CONFIGURATION_OR |
+        LIS2DH_INTERRUPT_CONFIGURATION_X_HIGH_ENABLE |
+        LIS2DH_INTERRUPT_CONFIGURATION_Y_HIGH_ENABLE |
+        LIS2DH_INTERRUPT_CONFIGURATION_Z_HIGH_ENABLE, 96, 0);
+
+    watch_register_interrupt_callback(A1, cb_interrupt_1, INTERRUPT_TRIGGER_RISING);
+    watch_rtc_register_tick_callback(cb_tick);
 }
 
 void app_wake_from_backup() {
@@ -58,34 +75,10 @@ void app_wake_from_standby() {
 }
 
 bool app_loop() {
-    if (lis2dh_have_new_data()) {
-        lis2dh_reading reading;
-        lis2dh_acceleration_measurement measurement = lis2dh_get_acceleration_measurement(&reading);
+    char buf[13] = {0};
 
-        // printf("%d,%d,%d\n", reading.x, reading.y, reading.z);
-        printf("%f,%f,%f\n", measurement.x, measurement.y, measurement.z);
+    sprintf(buf, "IN%2d%4d", ticks, interrupts);
+    watch_display_string(buf, 0);
 
-        char buf[11] = {0};
-        switch (axis) {
-            case 1:
-                sprintf(buf, "AC X%-6d", reading.x);
-                break;
-            case 2:
-                sprintf(buf, "AC Y%-6d", reading.y);
-                break;
-            case 3:
-                sprintf(buf, "AC Z%-6d", reading.z);
-                break;
-            default:
-                sprintf(buf, "    %2d%2d%2d", abs(reading.x >> 9), abs(reading.y >> 9), abs(reading.z >> 9));
-                if (reading.x < 0) buf[0] = '_';
-                if (reading.y < 0) buf[1] = '_';
-                if (reading.z < 0) buf[3] = '_';
-                break;
-        }
-
-        watch_display_string(buf, 0);
-    }
-
-    return false;
+    return true;
 }
