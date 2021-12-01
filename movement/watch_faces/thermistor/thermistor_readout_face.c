@@ -57,8 +57,8 @@ bool thermistor_readout_face_loop(movement_event_t event, movement_settings_t *s
                 watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
             }
             break;
-        case EVENT_TIMEOUT:
-            movement_move_to_face(0);
+        case EVENT_LOW_ENERGY_UPDATE:
+            watch_display_string("TE  SLEEP ", 0);
             break;
         default:
             break;
