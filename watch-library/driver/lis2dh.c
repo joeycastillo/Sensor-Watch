@@ -125,3 +125,15 @@ void lis2dh_configure_aoi_int1(lis2dh_interrupt_configuration configuration, uin
 lis2dh_interrupt_state lis2dh_get_int1_state() {
     return (lis2dh_interrupt_state) watch_i2c_read8(LIS2DH_ADDRESS, LIS2DH_REG_INT1_SRC);
 }
+
+void lis2dh_configure_aoi_int2(lis2dh_interrupt_configuration configuration, uint8_t threshold, uint8_t duration) {
+    watch_i2c_write8(LIS2DH_ADDRESS, LIS2DH_REG_CTRL6, LIS2DH_CTRL6_VAL_I2_INT2);
+    watch_i2c_write8(LIS2DH_ADDRESS, LIS2DH_REG_INT2_CFG, configuration);
+    watch_i2c_write8(LIS2DH_ADDRESS, LIS2DH_REG_INT2_THS, threshold);
+    watch_i2c_write8(LIS2DH_ADDRESS, LIS2DH_REG_INT2_DUR, duration);
+}
+
+lis2dh_interrupt_state lis2dh_get_int2_state() {
+    return (lis2dh_interrupt_state) watch_i2c_read8(LIS2DH_ADDRESS, LIS2DH_REG_INT2_SRC);
+}
+

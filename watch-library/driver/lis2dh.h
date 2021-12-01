@@ -106,6 +106,10 @@ void lis2dh_configure_aoi_int1(lis2dh_interrupt_configuration configuration, uin
 
 lis2dh_interrupt_state lis2dh_get_int1_state();
 
+void lis2dh_configure_aoi_int2(lis2dh_interrupt_configuration configuration, uint8_t threshold, uint8_t duration);
+
+lis2dh_interrupt_state lis2dh_get_int2_state();
+
 // Assumes SA0 is high; if low, its 0x18
 #define LIS2DH_ADDRESS (0x19)
 
@@ -204,6 +208,10 @@ lis2dh_interrupt_state lis2dh_get_int1_state();
 #define LIS2DH_REG_INT1_SRC 0x31
 #define LIS2DH_REG_INT1_THS 0x32
 #define LIS2DH_REG_INT1_DUR 0x33
+#define LIS2DH_REG_INT2_CFG 0x34
+#define LIS2DH_REG_INT2_SRC 0x35
+#define LIS2DH_REG_INT2_THS 0x36
+#define LIS2DH_REG_INT2_DUR 0x37
 #define LIS2DH_REG_CLICK_CFG 0x38
 #define LIS2DH_REG_CLICK_SRC 0x39
 #define LIS2DH_REG_CLICK_THS 0x3A
