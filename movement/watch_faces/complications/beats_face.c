@@ -8,17 +8,25 @@ const uint8_t BEAT_REFRESH_FREQUENCY = 8;
 void beats_face_setup(movement_settings_t *settings, void ** context_ptr) {
     (void) settings;
     (void) context_ptr;
+    if (*context_ptr == NULL) {
+        *context_ptr = malloc(sizeof(beats_face_state_t));
+    }
 }
 
 void beats_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
-    (void) context;
+    beats_face_state_t *state = (beats_face_state_t *)context;
+    state->next_subsecond_update = 0;
+    state->last_centibeat_displayed = 0;
     movement_request_tick_frequency(BEAT_REFRESH_FREQUENCY);
 }
 
 bool beats_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     (void) settings;
-    (void) context;
+    beats_face_state_t *state = (beats_face_state_t *)context;
+    if (event.event_type == EVENT_TICK && event.subsecond != state->next_subsecond_update) {
+         return true; // math is hard, don't do it if we don't have to.
+    }
 
     char buf[16];
     uint32_t centibeats;
@@ -29,6 +37,13 @@ bool beats_face_loop(movement_event_t event, movement_settings_t *settings, void
         case EVENT_TICK:
             date_time = watch_rtc_get_date_time();
             centibeats = clock2beats(date_time.unit.hour, date_time.unit.minute, date_time.unit.second, event.subsecond, movement_timezone_offsets[settings->bit.time_zone]);
+            if (centibeats == state->last_centibeat_displayed) {
+                // we missed this update, try again next subsecond
+                state->next_subsecond_update = (event.subsecond + 1) % BEAT_REFRESH_FREQUENCY;
+            } else {
+                state->next_subsecond_update = (event.subsecond + 1 + (BEAT_REFRESH_FREQUENCY * 2 / 3)) % BEAT_REFRESH_FREQUENCY;
+                state->last_centibeat_displayed = centibeats;
+            }
             sprintf(buf, "bt  %6ld", centibeats);
 
             watch_display_string(buf, 0);

@@ -3,6 +3,11 @@
 
 #include "movement.h"
 
+typedef struct {
+    int8_t next_subsecond_update;
+    uint32_t last_centibeat_displayed;
+} beats_face_state_t;
+
 uint32_t clock2beats(uint32_t hours, uint32_t minutes, uint32_t seconds, uint32_t subseconds, int16_t utc_offset);
 void beats_face_setup(movement_settings_t *settings, void ** context_ptr);
 void beats_face_activate(movement_settings_t *settings, void *context);
