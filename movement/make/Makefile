@@ -38,6 +38,7 @@ SRCS += \
   ../watch_faces/thermistor/thermistor_logging_face.c \
   ../watch_faces/demos/character_set_face.c \
   ../watch_faces/demos/voltage_face.c \
+  ../watch_faces/demos/lis2dh_logging_face.c \
   ../watch_faces/complications/beats_face.c \
   ../watch_faces/complications/day_one_face.c \
   ../watch_faces/complications/stopwatch_face.c \
