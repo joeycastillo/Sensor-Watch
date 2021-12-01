@@ -37,7 +37,6 @@ bool world_clock_face_do_display_mode(movement_event_t event, movement_settings_
         case EVENT_ACTIVATE:
         case EVENT_TICK:
         case EVENT_LOW_ENERGY_UPDATE:
-            // TODO: profile this, does this chew up power? feels like a lot of cycles to run every second.
             date_time = watch_rtc_get_date_time();
             timestamp = watch_utility_date_time_to_unix_time(date_time, movement_timezone_offsets[settings->bit.time_zone] * 60);
             date_time = watch_utility_date_time_from_unix_time(timestamp, movement_timezone_offsets[state->settings.timezone_index] * 60);
