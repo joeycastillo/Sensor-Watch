@@ -20,8 +20,10 @@ void cb_mode_pressed() {
 void cb_alarm_pressed() {
 }
 
-uint16_t interrupts = 0;
-uint16_t ticks = 0;
+uint8_t interrupts = 0;
+uint8_t last_interrupts = 0;
+uint8_t ticks = 0;
+char buf[13] = {0};
 
 void cb_interrupt_1() {
     interrupts++;
@@ -29,9 +31,9 @@ void cb_interrupt_1() {
 
 void cb_tick() {
     if (++ticks == 30) {
+        last_interrupts = interrupts;
         interrupts = 0;
         ticks = 0;
-        watch_display_string("IN t   0", 0);
     }
 }
 
@@ -41,7 +43,7 @@ void app_init() {
     gpio_set_pin_level(A0, true);
 
     watch_enable_display();
-    watch_display_string("IN 0   0", 0);
+    watch_display_string("IN 0  0  0", 0);
 
     watch_enable_external_interrupts();
     watch_register_interrupt_callback(BTN_MODE, cb_mode_pressed, INTERRUPT_TRIGGER_RISING);
@@ -75,9 +77,7 @@ void app_wake_from_standby() {
 }
 
 bool app_loop() {
-    char buf[13] = {0};
-
-    sprintf(buf, "IN%2d%4d", ticks, interrupts);
+    sprintf(buf, "IN%2d%3d%3d", ticks, interrupts, last_interrupts);
     watch_display_string(buf, 0);
 
     return true;
