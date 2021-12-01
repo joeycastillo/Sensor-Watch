@@ -115,22 +115,26 @@ lis2dh_data_rate_t lis2dh_get_data_rate() {
     return watch_i2c_read8(LIS2DH_ADDRESS, LIS2DH_REG_CTRL1) >> 4;
 }
 
-void lis2dh_configure_aoi_int1(lis2dh_interrupt_configuration configuration, uint8_t threshold, uint8_t duration) {
+void lis2dh_configure_aoi_int1(lis2dh_interrupt_configuration configuration, uint8_t threshold, uint8_t duration, bool latch) {
     watch_i2c_write8(LIS2DH_ADDRESS, LIS2DH_REG_CTRL3, LIS2DH_CTRL3_VAL_I1_AOI1);
     watch_i2c_write8(LIS2DH_ADDRESS, LIS2DH_REG_INT1_CFG, configuration);
     watch_i2c_write8(LIS2DH_ADDRESS, LIS2DH_REG_INT1_THS, threshold);
     watch_i2c_write8(LIS2DH_ADDRESS, LIS2DH_REG_INT1_DUR, duration);
+    uint8_t val = watch_i2c_read8(LIS2DH_ADDRESS, LIS2DH_REG_CTRL5) & 0xF7;
+    watch_i2c_write8(LIS2DH_ADDRESS, LIS2DH_REG_CTRL5, val | latch ? LIS2DH_CTRL5_VAL_LIR_INT1 : 0);
 }
 
 lis2dh_interrupt_state lis2dh_get_int1_state() {
     return (lis2dh_interrupt_state) watch_i2c_read8(LIS2DH_ADDRESS, LIS2DH_REG_INT1_SRC);
 }
 
-void lis2dh_configure_aoi_int2(lis2dh_interrupt_configuration configuration, uint8_t threshold, uint8_t duration) {
+void lis2dh_configure_aoi_int2(lis2dh_interrupt_configuration configuration, uint8_t threshold, uint8_t duration, bool latch) {
     watch_i2c_write8(LIS2DH_ADDRESS, LIS2DH_REG_CTRL6, LIS2DH_CTRL6_VAL_I2_INT2);
     watch_i2c_write8(LIS2DH_ADDRESS, LIS2DH_REG_INT2_CFG, configuration);
     watch_i2c_write8(LIS2DH_ADDRESS, LIS2DH_REG_INT2_THS, threshold);
     watch_i2c_write8(LIS2DH_ADDRESS, LIS2DH_REG_INT2_DUR, duration);
+    uint8_t val = watch_i2c_read8(LIS2DH_ADDRESS, LIS2DH_REG_CTRL5) & 0xFD;
+    watch_i2c_write8(LIS2DH_ADDRESS, LIS2DH_REG_CTRL5, val | latch ? LIS2DH_CTRL5_VAL_LIR_INT2 : 0);
 }
 
 lis2dh_interrupt_state lis2dh_get_int2_state() {

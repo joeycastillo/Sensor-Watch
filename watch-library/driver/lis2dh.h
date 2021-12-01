@@ -102,11 +102,11 @@ void lis2dh_set_data_rate(lis2dh_data_rate_t dataRate);
 
 lis2dh_data_rate_t lis2dh_get_data_rate();
 
-void lis2dh_configure_aoi_int1(lis2dh_interrupt_configuration configuration, uint8_t threshold, uint8_t duration);
+void lis2dh_configure_aoi_int1(lis2dh_interrupt_configuration configuration, uint8_t threshold, uint8_t duration, bool latch);
 
 lis2dh_interrupt_state lis2dh_get_int1_state();
 
-void lis2dh_configure_aoi_int2(lis2dh_interrupt_configuration configuration, uint8_t threshold, uint8_t duration);
+void lis2dh_configure_aoi_int2(lis2dh_interrupt_configuration configuration, uint8_t threshold, uint8_t duration, bool latch);
 
 lis2dh_interrupt_state lis2dh_get_int2_state();
 

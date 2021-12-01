@@ -58,7 +58,7 @@ void app_init() {
         LIS2DH_INTERRUPT_CONFIGURATION_OR |
         LIS2DH_INTERRUPT_CONFIGURATION_X_HIGH_ENABLE |
         LIS2DH_INTERRUPT_CONFIGURATION_Y_HIGH_ENABLE |
-        LIS2DH_INTERRUPT_CONFIGURATION_Z_HIGH_ENABLE, 96, 0);
+        LIS2DH_INTERRUPT_CONFIGURATION_Z_HIGH_ENABLE, 96, 0, true);
 
     watch_register_interrupt_callback(A1, cb_interrupt_1, INTERRUPT_TRIGGER_RISING);
     watch_rtc_register_tick_callback(cb_tick);
