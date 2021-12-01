@@ -3,7 +3,7 @@
 
 #include "movement.h"
 
-float clock2beats(uint16_t, uint16_t, uint16_t, uint16_t, int16_t);
+uint32_t clock2beats(uint32_t hours, uint32_t minutes, uint32_t seconds, uint32_t subseconds, int16_t utc_offset);
 void beats_face_setup(movement_settings_t *settings, void ** context_ptr);
 void beats_face_activate(movement_settings_t *settings, void *context);
 bool beats_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
