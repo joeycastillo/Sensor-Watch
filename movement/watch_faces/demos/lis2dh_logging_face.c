@@ -14,6 +14,7 @@
 
 void _lis2dh_logging_face_log_data(lis2dh_logger_state_t *logger_state) {
     watch_date_time date_time = watch_rtc_get_date_time();
+    date_time.unit.hour = (date_time.unit.hour + 23) % 24; // log this as the number of events in the previous hour
     size_t pos = logger_state->data_points % LIS2DH_LOGGING_NUM_DATA_POINTS;
     logger_state->data[pos].timestamp.reg = date_time.reg;
     logger_state->data[pos].interrupts = logger_state->interrupts_this_hour;
