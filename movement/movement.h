@@ -23,6 +23,7 @@ typedef union {
     struct {
         bool button_should_sound : 1;       // if true, pressing a button emits a sound.
         uint8_t to_interval : 2;            // an inactivity interval for asking the active face to resign.
+        bool to_always : 1;                 // if true, always time out from the active face to face 0. otherwise only faces that time out will resign (the default).
         uint8_t le_interval : 3;            // 0 to disable low energy mode, or an inactivity interval for going into low energy mode.
         uint8_t led_duration : 2;           // how many seconds to shine the LED for (x2), or 0 to disable it.
         uint8_t led_red_color : 4;          // for general purpose illumination, the red LED value (0-15)
@@ -35,7 +36,7 @@ typedef union {
         // altimeter to display feet or meters as easily as it tells a thermometer to display degrees in F or C.
         bool clock_mode_24h : 1;            // indicates whether clock should use 12 or 24 hour mode.
         bool use_imperial_units : 1;        // indicates whether to use metric units (the default) or imperial.
-        uint8_t reserved : 8;               // room for more preferences if needed.
+        uint8_t reserved : 7;               // room for more preferences if needed.
     } bit;
     uint32_t reg;
 } movement_settings_t;
