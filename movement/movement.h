@@ -7,8 +7,8 @@
 // These four 32-bit structs store information about the wearer and their preferences. Tentatively, the plan is
 // for Movement to use four 32-bit registers for these preferences and to store them in the RTC's backup registers
 // 0-3, leaving registers 4-7 available for third party watch faces to use as they see fit.
-// * The movement_settings_t struct is provided to all watch faces in the callback functions, and will eventually
-//   be stored in the RTC's first backup register (BKUP[0]).
+// * The movement_settings_t struct is provided to all watch faces in the callback functions, and is stored in the
+//   RTC's first backup register (BKUP[0]).
 // * The movement_location_t and movement_birthdate_t types are defined here, and are tentatively meant to be
 //   stored in BKUP[1] and BKUP[2], respectively.
 // * The movement_reserved_t type is here as a placeholder, because I sense there's some other generally useful
