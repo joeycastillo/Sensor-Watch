@@ -20,7 +20,8 @@ else
   MKDIR = mkdir
 endif
 
-CFLAGS += -W -Wall --std=gnu99 -Os
+CFLAGS += -W -Wall -Wextra -Wmissing-prototypes -Wmissing-declarations
+CFLAGS += --std=gnu99 -Os
 CFLAGS += -fno-diagnostics-show-caret
 CFLAGS += -fdata-sections -ffunction-sections
 CFLAGS += -funsigned-char -funsigned-bitfields
