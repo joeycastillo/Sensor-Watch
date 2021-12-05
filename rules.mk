@@ -2,7 +2,9 @@ CFLAGS += $(INCLUDES) $(DEFINES)
 
 OBJS = $(addprefix $(BUILD)/, $(notdir %/$(subst .c,.o, $(SRCS))))
 
-all: directory $(BUILD)/$(BIN).elf $(BUILD)/$(BIN).hex $(BUILD)/$(BIN).bin $(BUILD)/$(BIN).uf2 size
+SUBMODULES = tinyusb
+
+all: directory $(SUBMODULES) $(BUILD)/$(BIN).elf $(BUILD)/$(BIN).hex $(BUILD)/$(BIN).bin $(BUILD)/$(BIN).uf2 size
 
 $(BUILD)/$(BIN).elf: $(OBJS)
 	@echo LD $@
@@ -19,6 +21,9 @@ $(BUILD)/$(BIN).bin: $(BUILD)/$(BIN).elf
 $(BUILD)/$(BIN).uf2: $(BUILD)/$(BIN).bin
 	@echo UF2CONV $@
 	@$(UF2) $^ -co $@
+
+$(SUBMODULES):
+	git submodule update --init --recursive
 
 install:
 	@$(UF2) -D $(BUILD)/$(BIN).uf2
