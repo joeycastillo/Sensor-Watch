@@ -58,27 +58,27 @@ const int16_t movement_timezone_offsets[] = {
 const char movement_valid_position_0_chars[] = " AaBbCcDdEeFGgHhIiJKLMNnOoPQrSTtUuWXYZ-='+\\/0123456789";
 const char movement_valid_position_1_chars[] = " ABCDEFHlJLNORTtUX-='01378";
 
-void cb_mode_btn_interrupt();
-void cb_light_btn_interrupt();
-void cb_alarm_btn_interrupt();
-void cb_alarm_btn_extwake();
-void cb_alarm_fired();
-void cb_fast_tick();
-void cb_tick();
+void cb_mode_btn_interrupt(void);
+void cb_light_btn_interrupt(void);
+void cb_alarm_btn_interrupt(void);
+void cb_alarm_btn_extwake(void);
+void cb_alarm_fired(void);
+void cb_fast_tick(void);
+void cb_tick(void);
 
-static inline void _movement_reset_inactivity_countdown() {
+static inline void _movement_reset_inactivity_countdown(void) {
     movement_state.le_mode_ticks = movement_le_inactivity_deadlines[movement_state.settings.bit.le_interval];
     movement_state.timeout_ticks = movement_timeout_inactivity_deadlines[movement_state.settings.bit.to_interval];
 }
 
-static inline void _movement_enable_fast_tick_if_needed() {
+static inline void _movement_enable_fast_tick_if_needed(void) {
     if (!movement_state.fast_tick_enabled) {
         movement_state.fast_ticks = 0;
         watch_rtc_register_periodic_callback(cb_fast_tick, 128);
     }
 }
 
-static inline void _movement_disable_fast_tick_if_possible() {
+static inline void _movement_disable_fast_tick_if_possible(void) {
     if ((movement_state.light_ticks == -1) &&
         (movement_state.alarm_ticks == -1) &&
         ((movement_state.light_down_timestamp + movement_state.mode_down_timestamp + movement_state.alarm_down_timestamp) == 0)) {
@@ -87,7 +87,7 @@ static inline void _movement_disable_fast_tick_if_possible() {
     }
 }
 
-void _movement_handle_background_tasks() {
+static void _movement_handle_background_tasks(void) {
     for(uint8_t i = 0; i < MOVEMENT_NUM_FACES; i++) {
         // For each face, if the watch face wants a background task...
         if (watch_faces[i].wants_background_task != NULL && watch_faces[i].wants_background_task(&movement_state.settings, watch_face_contexts[i])) {
@@ -107,7 +107,7 @@ void movement_request_tick_frequency(uint8_t freq) {
     watch_rtc_register_periodic_callback(cb_tick, freq);
 }
 
-void movement_illuminate_led() {
+void movement_illuminate_led(void) {
     if (movement_state.settings.bit.led_duration) {
         watch_set_led_color(movement_state.settings.bit.led_red_color ? (0xF | movement_state.settings.bit.led_red_color << 4) : 0,
                             movement_state.settings.bit.led_green_color ? (0xF | movement_state.settings.bit.led_green_color << 4) : 0);
@@ -121,22 +121,22 @@ void movement_move_to_face(uint8_t watch_face_index) {
     movement_state.next_watch_face = watch_face_index;
 }
 
-void movement_move_to_next_face() {
+void movement_move_to_next_face(void) {
     movement_move_to_face((movement_state.current_watch_face + 1) % MOVEMENT_NUM_FACES);
 }
 
-void movement_play_signal() {
+void movement_play_signal(void) {
     watch_buzzer_play_note(BUZZER_NOTE_C8, 75);
     watch_buzzer_play_note(BUZZER_NOTE_REST, 100);
     watch_buzzer_play_note(BUZZER_NOTE_C8, 100);
 }
 
-void movement_play_alarm() {
+void movement_play_alarm(void) {
     movement_state.alarm_ticks = 128 * 5 - 80; // 80 ticks short of 5 seconds, or 4.375 seconds (our beep is 0.375 seconds)
     _movement_enable_fast_tick_if_needed();
 }
 
-void app_init() {
+void app_init(void) {
     memset(&movement_state, 0, sizeof(movement_state));
 
     movement_state.settings.bit.led_green_color = 0xF;
@@ -149,11 +149,11 @@ void app_init() {
     _movement_reset_inactivity_countdown();
 }
 
-void app_wake_from_backup() {
+void app_wake_from_backup(void) {
     movement_state.settings.reg = watch_get_backup_data(0);
 }
 
-void app_setup() {
+void app_setup(void) {
     watch_store_backup_data(movement_state.settings.reg, 0);
 
     static bool is_first_launch = true;
@@ -194,13 +194,13 @@ void app_setup() {
     }
 }
 
-void app_prepare_for_standby() {
+void app_prepare_for_standby(void) {
 }
 
-void app_wake_from_standby() {
+void app_wake_from_standby(void) {
 }
 
-bool app_loop() {
+bool app_loop(void) {
     if (movement_state.watch_face_changed) {
         if (movement_state.settings.bit.button_should_sound) {
             // low note for nonzero case, high note for return to watch_face 0
@@ -300,7 +300,7 @@ bool app_loop() {
     return can_sleep && (movement_state.light_ticks == -1) && !movement_state.is_buzzing;
 }
 
-movement_event_type_t _figure_out_button_event(bool pin_level, movement_event_type_t button_down_event_type, uint8_t *down_timestamp) {
+static movement_event_type_t _figure_out_button_event(bool pin_level, movement_event_type_t button_down_event_type, uint8_t *down_timestamp) {
     // force alarm off if the user pressed a button.
     if (movement_state.alarm_ticks) movement_state.alarm_ticks = 0;
 
@@ -323,34 +323,34 @@ movement_event_type_t _figure_out_button_event(bool pin_level, movement_event_ty
     }
 }
 
-void cb_light_btn_interrupt() {
+void cb_light_btn_interrupt(void) {
     bool pin_level = watch_get_pin_level(BTN_LIGHT);
     _movement_reset_inactivity_countdown();
     event.event_type = _figure_out_button_event(pin_level, EVENT_LIGHT_BUTTON_DOWN, &movement_state.light_down_timestamp);
 }
 
-void cb_mode_btn_interrupt() {
+void cb_mode_btn_interrupt(void) {
     bool pin_level = watch_get_pin_level(BTN_MODE);
     _movement_reset_inactivity_countdown();
     event.event_type = _figure_out_button_event(pin_level, EVENT_MODE_BUTTON_DOWN, &movement_state.mode_down_timestamp);
 }
 
-void cb_alarm_btn_interrupt() {
+void cb_alarm_btn_interrupt(void) {
     bool pin_level = watch_get_pin_level(BTN_ALARM);
     _movement_reset_inactivity_countdown();
     event.event_type = _figure_out_button_event(pin_level, EVENT_ALARM_BUTTON_DOWN, &movement_state.alarm_down_timestamp);
 }
 
-void cb_alarm_btn_extwake() {
+void cb_alarm_btn_extwake(void) {
     // wake up!
     _movement_reset_inactivity_countdown();
 }
 
-void cb_alarm_fired() {
+void cb_alarm_fired(void) {
     movement_state.needs_background_tasks_handled = true;
 }
 
-void cb_fast_tick() {
+void cb_fast_tick(void) {
     movement_state.fast_ticks++;
     if (movement_state.light_ticks > 0) movement_state.light_ticks--;
     if (movement_state.alarm_ticks > 0) movement_state.alarm_ticks--;
@@ -359,7 +359,7 @@ void cb_fast_tick() {
     if (movement_state.fast_ticks >= 1280) watch_rtc_disable_periodic_callback(128);
 }
 
-void cb_tick() {
+void cb_tick(void) {
     event.event_type = EVENT_TICK;
     watch_date_time date_time = watch_rtc_get_date_time();
     if (date_time.unit.second != movement_state.last_second) {

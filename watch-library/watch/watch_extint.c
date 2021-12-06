@@ -24,7 +24,7 @@
 
 #include "watch_extint.h"
 
-void watch_enable_external_interrupts() {
+void watch_enable_external_interrupts(void) {
     // Configure EIC to use GCLK3 (the 32.768 kHz crystal)
     hri_gclk_write_PCHCTRL_reg(GCLK, EIC_GCLK_ID, GCLK_PCHCTRL_GEN_GCLK3_Val | (1 << GCLK_PCHCTRL_CHEN_Pos));
     // Enable AHB clock for the EIC
@@ -33,7 +33,7 @@ void watch_enable_external_interrupts() {
     ext_irq_init();
 }
 
-void watch_disable_external_interrupts() {
+void watch_disable_external_interrupts(void) {
     ext_irq_deinit();
     hri_mclk_clear_APBAMASK_EIC_bit(MCLK);
 }
@@ -106,6 +106,6 @@ inline void watch_register_button_callback(const uint8_t pin, ext_irq_cb_t callb
     watch_register_interrupt_callback(pin, callback, INTERRUPT_TRIGGER_RISING);
 }
 
-inline void watch_enable_buttons() {
+inline void watch_enable_buttons(void) {
     watch_enable_external_interrupts();
 }

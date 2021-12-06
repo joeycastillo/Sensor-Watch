@@ -24,13 +24,13 @@
 
 #include "watch_led.h"
 
-void watch_enable_leds() {
+void watch_enable_leds(void) {
     if (!hri_tcc_get_CTRLA_reg(TCC0, TCC_CTRLA_ENABLE)) {
         _watch_enable_tcc();
     }
 }
 
-void watch_disable_leds() {
+void watch_disable_leds(void) {
     _watch_disable_tcc();
 }
 
@@ -52,18 +52,18 @@ void watch_set_led_color(uint8_t red, uint8_t green) {
     }
 }
 
-void watch_set_led_red() {
+void watch_set_led_red(void) {
     watch_set_led_color(255, 0);
 }
 
-void watch_set_led_green() {
+void watch_set_led_green(void) {
     watch_set_led_color(0, 255);
 }
 
-void watch_set_led_yellow() {
+void watch_set_led_yellow(void) {
     watch_set_led_color(255, 255);
 }
 
-void watch_set_led_off() {
+void watch_set_led_off(void) {
     watch_set_led_color(0, 0);
 }

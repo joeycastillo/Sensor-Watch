@@ -39,11 +39,6 @@
  */
 #define DRIVER_VERSION 0x00000001u
 
-uint32_t io_get_version(void)
-{
-	return DRIVER_VERSION;
-}
-
 /**
  * \brief I/O write interface
  */

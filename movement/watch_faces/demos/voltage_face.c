@@ -3,7 +3,7 @@
 #include "voltage_face.h"
 #include "watch.h"
 
-void _voltage_face_update_display() {
+static void _voltage_face_update_display(void) {
     char buf[14];
     float voltage = (float)watch_get_vcc_voltage() / 1000.0;
     sprintf(buf, "BA  %4.2f V", voltage);

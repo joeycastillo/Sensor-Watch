@@ -26,7 +26,7 @@ void world_clock_face_activate(movement_settings_t *settings, void *context) {
     watch_set_colon();
 }
 
-bool world_clock_face_do_display_mode(movement_event_t event, movement_settings_t *settings, world_clock_state_t *state) {
+static bool world_clock_face_do_display_mode(movement_event_t event, movement_settings_t *settings, world_clock_state_t *state) {
     char buf[11];
     uint8_t pos;
 
@@ -101,7 +101,7 @@ bool world_clock_face_do_display_mode(movement_event_t event, movement_settings_
     return true;
 }
 
-bool world_clock_face_do_settings_mode(movement_event_t event, movement_settings_t *settings, world_clock_state_t *state) {
+static bool _world_clock_face_do_settings_mode(movement_event_t event, movement_settings_t *settings, world_clock_state_t *state) {
     switch (event.event_type) {
         case EVENT_MODE_BUTTON_UP:
             movement_move_to_next_face();
@@ -176,7 +176,7 @@ bool world_clock_face_loop(movement_event_t event, movement_settings_t *settings
     if (state->current_screen == 0) {
         return world_clock_face_do_display_mode(event, settings, state);
     } else {
-        return world_clock_face_do_settings_mode(event, settings, state);
+        return _world_clock_face_do_settings_mode(event, settings, state);
     }
 }
 

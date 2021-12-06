@@ -25,7 +25,7 @@
 #include "watch_private.h"
 #include "tusb.h"
 
-void _watch_init() {
+void _watch_init(void) {
     // disable the LED pin (it may have been enabled by the bootloader)
     watch_disable_digital_output(RED);
 
@@ -65,7 +65,7 @@ void _watch_init() {
     a4_callback = NULL;
 }
 
-void _watch_enable_tcc() {
+void _watch_enable_tcc(void) {
     // clock TCC0 with the main clock (8 MHz) and enable the peripheral clock.
     hri_gclk_write_PCHCTRL_reg(GCLK, TCC0_GCLK_ID, GCLK_PCHCTRL_GEN_GCLK0_Val | GCLK_PCHCTRL_CHEN);
     hri_mclk_set_APBCMASK_TCC0_bit(MCLK);
@@ -111,7 +111,7 @@ void _watch_enable_tcc() {
     gpio_set_pin_function(GREEN, WATCH_GREEN_TCC_PINMUX);
 }
 
-void _watch_disable_tcc() {
+void _watch_disable_tcc(void) {
     // disable all PWM pins
     gpio_set_pin_direction(BUZZER, GPIO_DIRECTION_OFF);
     gpio_set_pin_function(BUZZER, GPIO_PIN_FUNCTION_OFF);
@@ -125,7 +125,7 @@ void _watch_disable_tcc() {
     hri_mclk_clear_APBCMASK_TCC0_bit(MCLK);
 }
 
-void _watch_enable_usb() {
+void _watch_enable_usb(void) {
     // disable USB, just in case.
     hri_usb_clear_CTRLA_ENABLE_bit(USB);
 
@@ -209,7 +209,7 @@ int _write(int file, char *ptr, int len) {
 }
 
 // this method could be overridden to read stuff from the USB console? but no need rn.
-int _read() {
+int _read(void) {
     return 0;
 }
 

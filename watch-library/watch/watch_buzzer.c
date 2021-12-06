@@ -24,7 +24,7 @@
 
 #include "watch_buzzer.h"
 
- inline void watch_enable_buzzer() {
+ inline void watch_enable_buzzer(void) {
     if (!hri_tcc_get_CTRLA_reg(TCC0, TCC_CTRLA_ENABLE)) {
         _watch_enable_tcc();
     }
@@ -33,16 +33,16 @@ inline void watch_set_buzzer_period(uint32_t period) {
     hri_tcc_write_PERBUF_reg(TCC0, period);
 }
 
-void watch_disable_buzzer() {
+void watch_disable_buzzer(void) {
     _watch_disable_tcc();
 }
 
-inline void watch_set_buzzer_on() {
+inline void watch_set_buzzer_on(void) {
     gpio_set_pin_direction(BUZZER, GPIO_DIRECTION_OUT);
     gpio_set_pin_function(BUZZER, WATCH_BUZZER_TCC_PINMUX);
 }
 
-inline void watch_set_buzzer_off() {
+inline void watch_set_buzzer_off(void) {
     gpio_set_pin_direction(BUZZER, GPIO_DIRECTION_OFF);
     gpio_set_pin_function(BUZZER, GPIO_PIN_FUNCTION_OFF);
 }

@@ -26,19 +26,19 @@ typedef struct ApplicationState {
     uint8_t subsecond;      // a value from 0 to (BEAT_REFRESH_FREQUENCY - 1) indicating the fractional second
 } ApplicationState;
 
-void do_clock_mode();
-void do_beats_mode();
-void do_set_time_mode();
-void set_time_mode_handle_primary_button();
-void set_time_mode_handle_secondary_button();
+void do_clock_mode(void);
+void do_beats_mode(void);
+void do_set_time_mode(void);
+void set_time_mode_handle_primary_button(void);
+void set_time_mode_handle_secondary_button(void);
 
 float clock2beats(uint16_t, uint16_t, uint16_t, int16_t);
 
-void cb_light_pressed();
-void cb_mode_pressed();
-void cb_alarm_pressed();
-void cb_tick();
-void cb_fast_tick();
+void cb_light_pressed(void);
+void cb_mode_pressed(void);
+void cb_alarm_pressed(void);
+void cb_tick(void);
+void cb_fast_tick(void);
 
 ApplicationState application_state;
 char buf[16] = {0};
@@ -46,15 +46,15 @@ char buf[16] = {0};
 /**
  * @brief Zeroes out the application state struct.
  */
-void app_init() {
+void app_init(void) {
     memset(&application_state, 0, sizeof(application_state));
 }
 
-void app_wake_from_backup() {
+void app_wake_from_backup(void) {
     // This app does not support BACKUP mode.
 }
 
-void app_setup() {
+void app_setup(void) {
     watch_enable_external_interrupts();
     watch_register_interrupt_callback(BTN_MODE, cb_mode_pressed, INTERRUPT_TRIGGER_RISING);
     watch_register_interrupt_callback(BTN_LIGHT, cb_light_pressed, INTERRUPT_TRIGGER_RISING);
@@ -67,13 +67,13 @@ void app_setup() {
     watch_rtc_register_tick_callback(cb_tick);
 }
 
-void app_prepare_for_standby() {
+void app_prepare_for_standby(void) {
 }
 
-void app_wake_from_standby() {
+void app_wake_from_standby(void) {
 }
 
-void update_tick_frequency() {
+static void update_tick_frequency(void) {
     watch_rtc_disable_all_periodic_callbacks();
     if (application_state.mode == MODE_BEATS) {
         watch_rtc_register_periodic_callback(cb_fast_tick, BEAT_REFRESH_FREQUENCY);
@@ -82,7 +82,7 @@ void update_tick_frequency() {
     }
 }
 
-bool app_loop() {
+bool app_loop(void) {
     // play a beep if the mode has changed in response to a user's press of the MODE button
     if (application_state.mode_changed) {
         // low note for nonzero case, high note for return to clock
@@ -135,7 +135,7 @@ bool app_loop() {
     return true;
 }
 
-void do_clock_mode() {
+void do_clock_mode(void) {
     watch_date_time date_time = watch_rtc_get_date_time();
     const char months[12][3] = {"JA", "FE", "MR", "AR", "MA", "JN", "JL", "AU", "SE", "OC", "NO", "dE"};
 
@@ -146,7 +146,7 @@ void do_clock_mode() {
 
 }
 
-void do_beats_mode() {
+void do_beats_mode(void) {
     watch_clear_colon();
 
     watch_date_time date_time = watch_rtc_get_date_time();
@@ -168,7 +168,7 @@ float clock2beats(uint16_t hours, uint16_t minutes, uint16_t seconds, int16_t ut
     return beats;
 }
 
-void do_set_time_mode() {
+void do_set_time_mode(void) {
     watch_date_time date_time = watch_rtc_get_date_time();
 
     watch_display_string("          ", 0);
@@ -196,12 +196,12 @@ void do_set_time_mode() {
     watch_set_pixel(1, 12); // required for T in position 1
 }
 
-void set_time_mode_handle_primary_button() {
+void set_time_mode_handle_primary_button(void) {
     application_state.page++;
     if (application_state.page == 6) application_state.page = 0;
 }
 
-void set_time_mode_handle_secondary_button() {
+void set_time_mode_handle_secondary_button(void) {
     watch_date_time date_time = watch_rtc_get_date_time();
     const uint8_t days_in_month[12] = {31, 28, 31, 30, 31, 30, 30, 31, 30, 31, 30, 31};
 
@@ -234,14 +234,14 @@ void set_time_mode_handle_secondary_button() {
     watch_rtc_set_date_time(date_time);
 }
 
-void cb_mode_pressed() {
+void cb_mode_pressed(void) {
     application_state.mode = (application_state.mode + 1) % NUM_MODES;
     application_state.mode_changed = true;
     application_state.mode_ticks = 300;
     application_state.page = 0;
 }
 
-void cb_light_pressed() {
+void cb_light_pressed(void) {
     switch (application_state.mode) {
         case MODE_SET:
             set_time_mode_handle_secondary_button();
@@ -252,7 +252,7 @@ void cb_light_pressed() {
     }
 }
 
-void cb_alarm_pressed() {
+void cb_alarm_pressed(void) {
     switch (application_state.mode) {
         case MODE_SET:
             set_time_mode_handle_primary_button();
@@ -262,7 +262,7 @@ void cb_alarm_pressed() {
     }
 }
 
-void cb_tick() {
+void cb_tick(void) {
     if (application_state.light_ticks > 0) {
         application_state.light_ticks--;
     }
@@ -271,7 +271,7 @@ void cb_tick() {
     }
 }
 
-void cb_fast_tick() {
+void cb_fast_tick(void) {
     watch_date_time date_time = watch_rtc_get_date_time();
     if (date_time.unit.second != application_state.last_second) {
         application_state.last_second = date_time.unit.second;

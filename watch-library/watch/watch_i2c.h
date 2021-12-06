@@ -35,11 +35,11 @@
 /// @{
 /** @brief Enables the I2C peripheral. Call this before attempting to interface with I2C devices.
   */
-void watch_enable_i2c();
+void watch_enable_i2c(void);
 
 /** @brief Disables the I2C peripheral.
   */
-void watch_disable_i2c();
+void watch_disable_i2c(void);
 
 /** @brief Sends a series of values to a device on the I2C bus.
   * @param addr The address of the device you wish to talk to.

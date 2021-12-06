@@ -4,7 +4,7 @@
 #include "thermistor_driver.h"
 #include "watch.h"
 
-void _thermistor_logging_face_log_data(thermistor_logger_state_t *logger_state) {
+static void _thermistor_logging_face_log_data(thermistor_logger_state_t *logger_state) {
     thermistor_driver_enable();
     watch_date_time date_time = watch_rtc_get_date_time();
     size_t pos = logger_state->data_points % THERMISTOR_LOGGING_NUM_DATA_POINTS;
@@ -16,7 +16,7 @@ void _thermistor_logging_face_log_data(thermistor_logger_state_t *logger_state) 
     thermistor_driver_disable();
 }
 
-void _thermistor_logging_face_update_display(thermistor_logger_state_t *logger_state, bool in_fahrenheit, bool clock_mode_24h) {
+static void _thermistor_logging_face_update_display(thermistor_logger_state_t *logger_state, bool in_fahrenheit, bool clock_mode_24h) {
     int8_t pos = (logger_state->data_points - 1 - logger_state->display_index) % THERMISTOR_LOGGING_NUM_DATA_POINTS;
     char buf[14];
 

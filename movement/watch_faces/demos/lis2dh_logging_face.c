@@ -12,7 +12,7 @@
 // Pressing the alarm button enters the log mode, where the main display shows the number of interrupts detected in each of the last
 // 24 hours (the hour is shown in the top right digit and AM/PM indicator, if the clock is set to 12 hour mode)
 
-void _lis2dh_logging_face_log_data(lis2dh_logger_state_t *logger_state) {
+static void _lis2dh_logging_face_log_data(lis2dh_logger_state_t *logger_state) {
     watch_date_time date_time = watch_rtc_get_date_time();
     date_time.unit.hour = (date_time.unit.hour + 23) % 24; // log this as the number of events in the previous hour
     size_t pos = logger_state->data_points % LIS2DH_LOGGING_NUM_DATA_POINTS;

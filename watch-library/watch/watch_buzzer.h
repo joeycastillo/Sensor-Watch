@@ -33,7 +33,7 @@
 /// @{
 /** @brief Enables the TCC peripheral, which drives the buzzer.
   */
-void watch_enable_buzzer();
+void watch_enable_buzzer(void);
 
 /** @brief Sets the period of the buzzer.
   * @param period The period of a single cycle for the TCC peripheral. You can determine the period for
@@ -45,17 +45,17 @@ void watch_set_buzzer_period(uint32_t period);
   * @note If you are using PWM to set custom LED colors, this method will also disable the LED PWM driver,
   *       since the buzzer and LED both make use of the same peripheral to drive their PWM behavior.
   */
-void watch_disable_buzzer();
+void watch_disable_buzzer(void);
 
 /** @brief Turns the buzzer output on. It will emit a continuous sound at the given frequency.
   * @note The TCC peripheral that drives the buzzer does not run in standby mode; if you wish for buzzer
   *       output to continue, you should prevent your app from going to sleep.
   */
-void watch_set_buzzer_on();
+void watch_set_buzzer_on(void);
 
 /** @brief Turns the buzzer output off.
   */
-void watch_set_buzzer_off();
+void watch_set_buzzer_off(void);
 
 /// @brief 87 notes for use with watch_buzzer_play_note
 typedef enum BuzzerNote {

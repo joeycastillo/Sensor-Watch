@@ -63,7 +63,7 @@ typedef enum watch_rtc_alarm_match {
 /** @brief Called by main.c to check if the RTC is enabled.
   * You may call this function, but outside of app_init, it should always return true.
   */
-bool _watch_rtc_is_enabled();
+bool _watch_rtc_is_enabled(void);
 
 /** @brief Sets the date and time.
   * @param date_time The date and time you wish to set, with a year value from 0-63 representing 2020-2083.
@@ -79,7 +79,7 @@ void watch_rtc_set_date_time(watch_date_time date_time);
   * @return A watch_date_time with the current date and time, with a year value from 0-63 representing 2020-2083.
   * @see watch_rtc_set_date_time for notes about how the year is stored.
   */
-watch_date_time watch_rtc_get_date_time();
+watch_date_time watch_rtc_get_date_time(void);
 
 /** @brief Registers an alarm callback that will be called when the RTC time matches the target time, as masked
   *        by the provided mask.
@@ -100,7 +100,7 @@ void watch_rtc_register_alarm_callback(ext_irq_cb_t callback, watch_date_time al
 
 /** @brief Disables the alarm callback.
   */
-void watch_rtc_disable_alarm_callback();
+void watch_rtc_disable_alarm_callback(void);
 
 /** @brief Registers a "tick" callback that will be called once per second.
   * @param callback The function you wish to have called when the clock ticks. If you pass in NULL, the tick
@@ -113,7 +113,7 @@ void watch_rtc_register_tick_callback(ext_irq_cb_t callback);
 
 /** @brief Disables the tick callback for the given period.
   */
-void watch_rtc_disable_tick_callback();
+void watch_rtc_disable_tick_callback(void);
 
 /** @brief Registers a callback that will be called at a configurable period.
   * @param callback The function you wish to have called at the specified period. If you pass in NULL, the periodic
@@ -139,7 +139,7 @@ void watch_rtc_disable_periodic_callback(uint8_t frequency);
 
 /** @brief Disables all periodic callbacks, including the once-per-second tick callback.
   */
-void watch_rtc_disable_all_periodic_callbacks();
+void watch_rtc_disable_all_periodic_callbacks(void);
 
 /** @brief Sets the system date and time.
   * @param date_time A struct representing the date and time you wish to set.
