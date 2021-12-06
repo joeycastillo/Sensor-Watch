@@ -24,11 +24,11 @@
 
 #include "watch_adc.h"
 
-void _watch_sync_adc() {
+static void _watch_sync_adc(void) {
     while (ADC->SYNCBUSY.reg);
 }
 
-uint16_t _watch_get_analog_value(uint16_t channel) {
+static uint16_t _watch_get_analog_value(uint16_t channel) {
     if (ADC->INPUTCTRL.bit.MUXPOS != channel) {
         ADC->INPUTCTRL.bit.MUXPOS = channel;
         _watch_sync_adc();
@@ -40,7 +40,7 @@ uint16_t _watch_get_analog_value(uint16_t channel) {
     return ADC->RESULT.reg;
 }
 
-void watch_enable_adc() {
+void watch_enable_adc(void) {
     MCLK->APBCMASK.reg |= MCLK_APBCMASK_ADC;
     GCLK->PCHCTRL[ADC_GCLK_ID].reg = GCLK_PCHCTRL_GEN_GCLK0 | GCLK_PCHCTRL_CHEN;
 
@@ -151,7 +151,7 @@ void watch_set_analog_reference_voltage(watch_adc_reference_voltage reference) {
     _watch_get_analog_value(ADC_INPUTCTRL_MUXPOS_SCALEDCOREVCC);
 }
 
-uint16_t watch_get_vcc_voltage() {
+uint16_t watch_get_vcc_voltage(void) {
     // stash the previous reference so we can restore it when we're done.
     uint8_t oldref = ADC->REFCTRL.bit.REFSEL;
 
@@ -171,7 +171,7 @@ inline void watch_disable_analog_input(const uint8_t pin) {
     gpio_set_pin_function(pin, GPIO_PIN_FUNCTION_OFF);
 }
 
-inline void watch_disable_adc() {
+inline void watch_disable_adc(void) {
     ADC->CTRLA.bit.ENABLE = 0;
     _watch_sync_adc();
 

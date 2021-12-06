@@ -50,6 +50,7 @@ void delay_driver_init(void);
 
 void EXTERNAL_IRQ_0_init(void);
 
+void SEGMENT_LCD_0_PORT_init(void);
 void SEGMENT_LCD_0_init(void);
 
 #ifdef __cplusplus

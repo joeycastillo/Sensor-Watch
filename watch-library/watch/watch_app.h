@@ -55,13 +55,13 @@
   *        anything else. Use it to set up any internal data structures or application state required by your app,
   *        but don't configure any peripherals just yet.
   */
-void app_init();
+void app_init(void);
 
 /** @brief A function you will implement to wake from BACKUP mode, which wipes the system's RAM, and with it, your
   *        application's state. You may have chosen to store some important application state in the RTC's backup
   *        registers prior to entering this mode. You may restore that state here.
   */
-void app_wake_from_backup();
+void app_wake_from_backup(void);
 
 /** @brief A function you will implement to set up your application. The app_setup function is like setup() in Arduino.
   *        It is called once when the program begins. You should set pin modes and enable any peripherals you want to
@@ -71,7 +71,7 @@ void app_wake_from_backup();
   * @note If your app enters the ultra-low power BACKUP sleep mode, this function will be called again when it wakes
   *       from that deep sleep state. In this state, the RTC will still be configured with the correct date and time.
   */
-void app_setup();
+void app_setup(void);
 
 /** @brief A function you will implement to serve as the app's main run loop. This method will be called repeatedly,
            or if you enter STANDBY mode, as soon as the device wakes from sleep.
@@ -86,7 +86,7 @@ void app_setup();
   *       so e.g. the I2C controller, if configured, will sleep in STANDBY. But you can use it again as soon as your
   *       app wakes up.
   */
-bool app_loop();
+bool app_loop(void);
 
 /** @brief A function you will implement to prepare to enter STANDBY mode. The app_prepare_for_standby function is
  *         called after your app_loop function returns true, and just before the watch enters STANDBY mode. In this
@@ -98,11 +98,11 @@ bool app_loop();
  *       buzzer that could damage it if left in this state. If your app_loop does not prevent sleep during these
  *       activities, you should make sure to disable these outputs in app_prepare_for_standby.
  */
-void app_prepare_for_standby();
+void app_prepare_for_standby(void);
 
 /** @brief A method you will implement to configure the app after waking from STANDBY mode.
   */
-void app_wake_from_standby();
+void app_wake_from_standby(void);
 
 /// @}
 #endif

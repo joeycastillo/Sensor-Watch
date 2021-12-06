@@ -35,6 +35,6 @@ void SYSTEM_Handler(void) {
     }
 }
 
-bool watch_is_battery_low() {
+bool watch_is_battery_low(void) {
     return battery_is_low;
 }

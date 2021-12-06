@@ -31,9 +31,9 @@ ApplicationState application_state;
 //////////////////////////////////////////////////////////////////////////////////////////
 // This section defines the callbacks for our button press events (implemented at bottom).
 // Add any other callbacks you may need either here or in another file.
-void cb_light_pressed();
-void cb_mode_pressed();
-void cb_alarm_pressed();
+void cb_light_pressed(void);
+void cb_mode_pressed(void);
+void cb_alarm_pressed(void);
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -46,7 +46,7 @@ void cb_alarm_pressed();
  * @brief the app_init function is called before anything else. Use it to set up any
  * internal data structures or application state required by your app.
  */
-void app_init() {
+void app_init(void) {
     memset(&application_state, 0, sizeof(application_state));
 }
 
@@ -57,7 +57,7 @@ void app_init() {
  *
  * @see watch_enter_deep_sleep()
  */
-void app_wake_from_backup() {
+void app_wake_from_backup(void) {
     // This app does not support BACKUP mode.
 }
 
@@ -76,7 +76,7 @@ void app_wake_from_backup() {
  * also wiped out the system RAM. Note that when this is called after waking from sleep,
  * the RTC will still be configured with the correct date and time.
  */
-void app_setup() {
+void app_setup(void) {
     watch_enable_leds();
     watch_enable_buzzer();
 
@@ -101,14 +101,14 @@ void app_setup() {
  * In STANDBY mode, most peripherals are shut down, and no code will run until the watch receives
  * an interrupt (generally either the 1Hz tick or a press on one of the buttons).
  */
-void app_prepare_for_standby() {
+void app_prepare_for_standby(void) {
 }
 
 /**
  * @brief the app_wake_from_standby function is called after the watch wakes from STANDBY mode,
  * but before your main app_loop.
  */
-void app_wake_from_standby() {
+void app_wake_from_standby(void) {
     application_state.wake_count++;
 }
 
@@ -116,7 +116,7 @@ void app_wake_from_standby() {
  * @brief the app_loop function is called once on app startup and then again each time the
  * watch exits STANDBY mode.
  */
-bool app_loop() {
+bool app_loop(void) {
     if (application_state.beep) {
         watch_buzzer_play_note(BUZZER_NOTE_C7, 50);
         application_state.beep = false;
@@ -178,7 +178,7 @@ bool app_loop() {
 //////////////////////////////////////////////////////////////////////////////////////////
 // Implementations for our callback functions. Replace these with whatever functionality
 // your app requires.
-void cb_light_pressed() {
+void cb_light_pressed(void) {
     // always turn the light off when the pin goes low
     if (watch_get_pin_level(BTN_LIGHT) == 0) {
         application_state.light_on = false;
@@ -188,11 +188,11 @@ void cb_light_pressed() {
     application_state.light_on = true;
 }
 
-void cb_mode_pressed() {
+void cb_mode_pressed(void) {
     application_state.mode = (application_state.mode + 1) % 2;
     application_state.beep = true;
 }
 
-void cb_alarm_pressed() {
+void cb_alarm_pressed(void) {
     application_state.enter_sleep_mode = true;
 }

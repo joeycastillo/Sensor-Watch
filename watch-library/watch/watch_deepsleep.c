@@ -126,7 +126,7 @@ uint32_t watch_get_backup_data(uint8_t reg) {
     return 0;
 }
 
-void _watch_disable_all_pins_except_rtc() {
+static void _watch_disable_all_pins_except_rtc(void) {
     uint32_t config = RTC->MODE0.TAMPCTRL.reg;
     uint32_t portb_pins_to_disable = 0xFFFFFFFF;
 
@@ -141,7 +141,7 @@ void _watch_disable_all_pins_except_rtc() {
     gpio_set_port_direction(1, portb_pins_to_disable, GPIO_DIRECTION_OFF);
 }
 
-void _watch_disable_all_peripherals_except_slcd() {
+static void _watch_disable_all_peripherals_except_slcd(void) {
     _watch_disable_tcc();
     watch_disable_adc();
     watch_disable_external_interrupts();
@@ -151,7 +151,7 @@ void _watch_disable_all_peripherals_except_slcd() {
     MCLK->APBCMASK.reg &= ~MCLK_APBCMASK_SERCOM3;
 }
 
-void watch_enter_sleep_mode() {
+void watch_enter_sleep_mode(void) {
     // disable all other peripherals
     _watch_disable_all_peripherals_except_slcd();
 
@@ -177,7 +177,7 @@ void watch_enter_sleep_mode() {
     app_wake_from_standby();
 }
 
-void watch_enter_deep_sleep_mode() {
+void watch_enter_deep_sleep_mode(void) {
     // identical to sleep mode except we disable the LCD first.
     slcd_sync_deinit(&SEGMENT_LCD_0);
     hri_mclk_clear_APBCMASK_SLCD_bit(SLCD);
@@ -185,7 +185,7 @@ void watch_enter_deep_sleep_mode() {
     watch_enter_sleep_mode();
 }
 
-void watch_enter_backup_mode() {
+void watch_enter_backup_mode(void) {
     watch_rtc_disable_all_periodic_callbacks();
     _watch_disable_all_peripherals_except_slcd();
     slcd_sync_deinit(&SEGMENT_LCD_0);
@@ -203,7 +203,7 @@ void watch_enter_shallow_sleep(bool display_on) {
 }
 
 // deprecated
-void watch_enter_deep_sleep() {
+void watch_enter_deep_sleep(void) {
     watch_register_extwake_callback(BTN_ALARM, NULL, true);
     watch_enter_backup_mode();
 }

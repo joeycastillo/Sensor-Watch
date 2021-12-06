@@ -30,15 +30,15 @@ ext_irq_cb_t btn_alarm_callback;
 ext_irq_cb_t a2_callback;
 ext_irq_cb_t a4_callback;
 
-bool _watch_rtc_is_enabled() {
+bool _watch_rtc_is_enabled(void) {
     return RTC->MODE2.CTRLA.bit.ENABLE;
 }
 
-void _sync_rtc() {
+static void _sync_rtc(void) {
     while (RTC->MODE2.SYNCBUSY.reg);
 }
 
-void _watch_rtc_init() {
+void _watch_rtc_init(void) {
     MCLK->APBAMASK.reg |= MCLK_APBAMASK_RTC;
 
     if (_watch_rtc_is_enabled()) return; // don't reset the RTC if it's already set up.
@@ -61,7 +61,7 @@ void watch_rtc_set_date_time(watch_date_time date_time) {
     _sync_rtc();
 }
 
-watch_date_time watch_rtc_get_date_time() {
+watch_date_time watch_rtc_get_date_time(void) {
     watch_date_time retval;
 
     _sync_rtc();
@@ -74,7 +74,7 @@ void watch_rtc_register_tick_callback(ext_irq_cb_t callback) {
     watch_rtc_register_periodic_callback(callback, 1);
 }
 
-void watch_rtc_disable_tick_callback() {
+void watch_rtc_disable_tick_callback(void) {
     watch_rtc_disable_periodic_callback(1);
 }
 
@@ -102,7 +102,7 @@ void watch_rtc_disable_periodic_callback(uint8_t frequency) {
     RTC->MODE2.INTENCLR.reg = 1 << per_n;
 }
 
-void watch_rtc_disable_all_periodic_callbacks() {
+void watch_rtc_disable_all_periodic_callbacks(void) {
     RTC->MODE2.INTENCLR.reg = 0xFF;
 }
 
@@ -116,7 +116,7 @@ void watch_rtc_register_alarm_callback(ext_irq_cb_t callback, watch_date_time al
     RTC->MODE2.INTENSET.reg = RTC_MODE2_INTENSET_ALARM0;
 }
 
-void watch_rtc_disable_alarm_callback() {
+void watch_rtc_disable_alarm_callback(void) {
     RTC->MODE2.INTENCLR.reg = RTC_MODE2_INTENCLR_ALARM0;
 }
 

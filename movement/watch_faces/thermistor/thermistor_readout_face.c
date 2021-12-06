@@ -4,7 +4,7 @@
 #include "thermistor_driver.h"
 #include "watch.h"
 
-void _thermistor_readout_face_update_display(bool in_fahrenheit) {
+static void _thermistor_readout_face_update_display(bool in_fahrenheit) {
     thermistor_driver_enable();
     float temperature_c = thermistor_driver_get_temperature();
     char buf[14];

@@ -119,7 +119,7 @@ uint32_t watch_get_backup_data(uint8_t reg);
   *          You can estimate the power consumption of this mode to be on the order of 30 microwatts
   *          (about 10 µA at 3 V).
   */
-void watch_enter_sleep_mode();
+void watch_enter_sleep_mode(void);
 
 /** @brief enters Deep Sleep Mode by disabling all pins and peripherals except the RTC.
   * @details Short of BACKUP mode, this is the lowest power mode you can enter while retaining your
@@ -131,7 +131,7 @@ void watch_enter_sleep_mode();
   *          All notes from watch_enter_sleep_mode apply here, except for power consumption. You can estimate
   *          the power consumption of this mode to be on the order of 12 microwatts (about 4µA at 3 V).
   */
-void watch_enter_deep_sleep_mode();
+void watch_enter_deep_sleep_mode(void);
 
 /** @brief Enters the SAM L22's lowest-power mode, BACKUP.
   * @details This function does some housekeeping before entering BACKUP mode. It first disables all pins
@@ -148,12 +148,12 @@ void watch_enter_deep_sleep_mode();
   *          this function unless you have a device on the nine-pin connector with an external interrupt
   *          on pin A2 or A4 (i.e. an accelerometer with an interrupt pin).
   */
-void watch_enter_backup_mode();
+void watch_enter_backup_mode(void);
 
 __attribute__((deprecated("Use watch_enter_sleep_mode or watch_enter_deep_sleep_mode instead")))
 void watch_enter_shallow_sleep(bool display_on);
 
 __attribute__((deprecated("Use watch_enter_backup_mode instead")))
-void watch_enter_deep_sleep();
+void watch_enter_deep_sleep(void);
 /// @}
 #endif

@@ -9,18 +9,18 @@ typedef struct ApplicationState {
 ApplicationState application_state;
 
 
-void cb_alarm_pressed() {
+void cb_alarm_pressed(void) {
     application_state.play = true;
 }
 
-void app_init() {
+void app_init(void) {
     memset(&application_state, 0, sizeof(application_state));
 }
 
-void app_wake_from_backup() {
+void app_wake_from_backup(void) {
 }
 
-void app_setup() {
+void app_setup(void) {
     watch_register_extwake_callback(BTN_ALARM, cb_alarm_pressed, true);
 
     watch_enable_display();
@@ -28,14 +28,14 @@ void app_setup() {
     watch_enable_buzzer();
 }
 
-void app_prepare_for_standby() {
+void app_prepare_for_standby(void) {
     watch_display_string("  rains ", 2);
 }
 
-void app_wake_from_standby() {
+void app_wake_from_standby(void) {
 }
 
-bool app_loop() {
+bool app_loop(void) {
     if (application_state.play) {
         printf("Playing song...\n");
         const BuzzerNote rains[] = {

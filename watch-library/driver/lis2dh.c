@@ -25,7 +25,7 @@
 #include "lis2dh.h"
 #include "watch.h"
 
-bool lis2dh_begin() {
+bool lis2dh_begin(void) {
     if (lis2dh_get_device_id() != LIS2DH_WHO_AM_I_VAL) {
         return false;
     }
@@ -40,16 +40,16 @@ bool lis2dh_begin() {
     return true;
 }
 
-uint8_t lis2dh_get_device_id() {
+uint8_t lis2dh_get_device_id(void) {
     return watch_i2c_read8(LIS2DH_ADDRESS, LIS2DH_REG_WHO_AM_I);
 }
 
-bool lis2dh_have_new_data() {
+bool lis2dh_have_new_data(void) {
     uint8_t retval = watch_i2c_read8(LIS2DH_ADDRESS, LIS2DH_REG_STATUS);
     return !!retval; // return true if any bit is set
 }
 
-lis2dh_reading lis2dh_get_raw_reading() {
+lis2dh_reading lis2dh_get_raw_reading(void) {
     uint8_t buffer[6];
     uint8_t reg = LIS2DH_REG_OUT_X_L | 0x80; // set high bit for consecutive reads
     lis2dh_reading retval;
@@ -97,7 +97,7 @@ void lis2dh_set_range(lis2dh_range_t range) {
     watch_i2c_write8(LIS2DH_ADDRESS, LIS2DH_REG_CTRL4, val | bits);
 }
 
-lis2dh_range_t lis2dh_get_range() {
+lis2dh_range_t lis2dh_get_range(void) {
     uint8_t retval = watch_i2c_read8(LIS2DH_ADDRESS, LIS2DH_REG_CTRL4) & 0x30;
     retval >>= 4;
     return (lis2dh_range_t)retval;
@@ -111,7 +111,7 @@ void lis2dh_set_data_rate(lis2dh_data_rate_t dataRate) {
     watch_i2c_write8(LIS2DH_ADDRESS, LIS2DH_REG_CTRL1, val | bits);
 }
 
-lis2dh_data_rate_t lis2dh_get_data_rate() {
+lis2dh_data_rate_t lis2dh_get_data_rate(void) {
     return watch_i2c_read8(LIS2DH_ADDRESS, LIS2DH_REG_CTRL1) >> 4;
 }
 
@@ -124,7 +124,7 @@ void lis2dh_configure_aoi_int1(lis2dh_interrupt_configuration configuration, uin
     watch_i2c_write8(LIS2DH_ADDRESS, LIS2DH_REG_CTRL5, val | latch ? LIS2DH_CTRL5_VAL_LIR_INT1 : 0);
 }
 
-lis2dh_interrupt_state lis2dh_get_int1_state() {
+lis2dh_interrupt_state lis2dh_get_int1_state(void) {
     return (lis2dh_interrupt_state) watch_i2c_read8(LIS2DH_ADDRESS, LIS2DH_REG_INT1_SRC);
 }
 
@@ -137,7 +137,7 @@ void lis2dh_configure_aoi_int2(lis2dh_interrupt_configuration configuration, uin
     watch_i2c_write8(LIS2DH_ADDRESS, LIS2DH_REG_CTRL5, val | latch ? LIS2DH_CTRL5_VAL_LIR_INT2 : 0);
 }
 
-lis2dh_interrupt_state lis2dh_get_int2_state() {
+lis2dh_interrupt_state lis2dh_get_int2_state(void) {
     return (lis2dh_interrupt_state) watch_i2c_read8(LIS2DH_ADDRESS, LIS2DH_REG_INT2_SRC);
 }
 

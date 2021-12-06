@@ -2,7 +2,7 @@
 #include "watch.h"
 #include "watch_utility.h"
 
-void thermistor_driver_enable() {
+void thermistor_driver_enable(void) {
     // Enable the ADC peripheral, which we'll use to read the thermistor value.
     watch_enable_adc();
     // Enable analog circuitry on the sense pin, which is tied to the thermistor resistor divider.
@@ -13,7 +13,7 @@ void thermistor_driver_enable() {
     watch_set_pin_level(THERMISTOR_ENABLE_PIN, !THERMISTOR_ENABLE_VALUE);
 }
 
-void thermistor_driver_disable() {
+void thermistor_driver_disable(void) {
     // Disable the ADC peripheral.
     watch_disable_adc();
     // Disable analog circuitry on the sense pin to save power.
@@ -22,7 +22,7 @@ void thermistor_driver_disable() {
     watch_disable_digital_output(THERMISTOR_ENABLE_PIN);
 }
 
-float thermistor_driver_get_temperature() {
+float thermistor_driver_get_temperature(void) {
     // set the enable pin to the level that powers the thermistor circuit.
     watch_set_pin_level(THERMISTOR_ENABLE_PIN, THERMISTOR_ENABLE_VALUE);
     // get the sense pin level

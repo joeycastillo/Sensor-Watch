@@ -11,13 +11,13 @@
 // Also note that this board has its INT1 pin wired to A1, which is not an external
 // wake pin. Future accelerometer boards will wire interrupt pins to A2 and A4.
 
-void cb_light_pressed() {
+void cb_light_pressed(void) {
 }
 
-void cb_mode_pressed() {
+void cb_mode_pressed(void) {
 }
 
-void cb_alarm_pressed() {
+void cb_alarm_pressed(void) {
 }
 
 uint8_t interrupts = 0;
@@ -25,11 +25,11 @@ uint8_t last_interrupts = 0;
 uint8_t ticks = 0;
 char buf[13] = {0};
 
-void cb_interrupt_1() {
+void cb_interrupt_1(void) {
     interrupts++;
 }
 
-void cb_tick() {
+void cb_tick(void) {
     if (++ticks == 30) {
         last_interrupts = interrupts;
         interrupts = 0;
@@ -37,7 +37,7 @@ void cb_tick() {
     }
 }
 
-void app_init() {
+void app_init(void) {
     gpio_set_pin_direction(A0, GPIO_DIRECTION_OUT);
     gpio_set_pin_function(A0, GPIO_PIN_FUNCTION_OFF);
     gpio_set_pin_level(A0, true);
@@ -64,19 +64,19 @@ void app_init() {
     watch_rtc_register_tick_callback(cb_tick);
 }
 
-void app_wake_from_backup() {
+void app_wake_from_backup(void) {
 }
 
-void app_setup() {
+void app_setup(void) {
 }
 
-void app_prepare_for_standby() {
+void app_prepare_for_standby(void) {
 }
 
-void app_wake_from_standby() {
+void app_wake_from_standby(void) {
 }
 
-bool app_loop() {
+bool app_loop(void) {
     sprintf(buf, "IN%2d%3d%3d", ticks, interrupts, last_interrupts);
     watch_display_string(buf, 0);
 

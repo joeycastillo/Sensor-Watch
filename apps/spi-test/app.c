@@ -10,7 +10,7 @@
 struct io_descriptor *io;
 struct spi_m_sync_descriptor SPI_0;
 
-void app_init() {
+void app_init(void) {
     // SPI_0_CLOCK_init
     hri_gclk_write_PCHCTRL_reg(GCLK, SERCOM3_GCLK_ID_CORE, CONF_GCLK_SERCOM3_CORE_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
     hri_gclk_write_PCHCTRL_reg(GCLK, SERCOM3_GCLK_ID_SLOW, CONF_GCLK_SERCOM3_SLOW_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
@@ -39,21 +39,21 @@ void app_init() {
     spi_m_sync_enable(&SPI_0);
 }
 
-void app_wake_from_backup() {
+void app_wake_from_backup(void) {
 }
 
-void app_setup() {
+void app_setup(void) {
 }
 
-void app_prepare_for_standby() {
+void app_prepare_for_standby(void) {
 }
 
-void app_wake_from_standby() {
+void app_wake_from_standby(void) {
 }
 
 static uint8_t get_id_command[4] = {0x9F};
 
-bool app_loop() {
+bool app_loop(void) {
     watch_set_pin_level(A3, false);
     io_write(io, get_id_command, 1);
     uint8_t buf[3] = {0};

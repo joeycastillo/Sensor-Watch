@@ -53,7 +53,7 @@ typedef enum WatchIndicatorSegment {
 /** @brief Enables the Segment LCD display.
   * Call this before attempting to set pixels or display strings.
   */
-void watch_enable_display();
+void watch_enable_display(void);
 
 /** @brief Sets a pixel. Use this to manually set a pixel with a given common and segment number.
   *        See <a href="segmap.html">segmap.html</a>.
@@ -71,7 +71,7 @@ void watch_clear_pixel(uint8_t com, uint8_t seg);
 
 /** @brief Clears all segments of the display, including incicators and the colon.
   */
-void watch_clear_display();
+void watch_clear_display(void);
 
 /** @brief Displays a string at the given position, starting from the top left. There are ten digits.
            A space in any position will clear that digit.
@@ -86,11 +86,11 @@ void watch_display_string(char *string, uint8_t position);
 
 /** @brief Turns the colon segment on.
   */
-void watch_set_colon();
+void watch_set_colon(void);
 
 /** @brief Turns the colon segment off.
   */
-void watch_clear_colon();
+void watch_clear_colon(void);
 
 /** @brief Sets an indicator on the LCD. Use this to turn on one of the indicator segments.
   * @param indicator One of the indicator segments from the enum. @see WatchIndicatorSegment
@@ -105,7 +105,7 @@ void watch_clear_indicator(WatchIndicatorSegment indicator);
 /** @brief Clears all indicator segments.
   * @see WatchIndicatorSegment
   */
-void watch_clear_all_indicators();
+void watch_clear_all_indicators(void);
 
 /** @brief Blinks a single character in position 7. Does not affect other positions.
   * @details Six of the seven segments in position 7 (and only position 7) are capable of autonomous
@@ -124,7 +124,7 @@ void watch_start_character_blink(char character, uint32_t duration);
 /** @brief Stops and clears all blinking segments.
   * @details This will stop all blinking in position 7, and clear all segments in that digit.
   */
-void watch_stop_blink();
+void watch_stop_blink(void);
 
 /** @brief Begins a two-segment "tick-tock" animation in position 8.
   * @details Six of the seven segments in position 8 (and only position 8) are capable of autonomous
@@ -141,11 +141,11 @@ void watch_start_tick_animation(uint32_t duration);
 /** @brief Checks if the tick animation is currently running.
   * @return true if the animation is running; false otherwise.
   */
-bool watch_tick_animation_is_running();
+bool watch_tick_animation_is_running(void);
 
 /** @brief Stops the tick/tock animation and clears all animating segments.
   * @details This will stop the animation and clear all segments in position 8.
   */
-void watch_stop_tick_animation();
+void watch_stop_tick_animation(void);
 /// @}
 #endif

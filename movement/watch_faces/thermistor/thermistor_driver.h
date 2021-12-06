@@ -12,8 +12,8 @@
 #define THERMISTOR_NOMINAL_RESISTANCE (10000.0)
 #define THERMISTOR_SERIES_RESISTANCE (10000.0)
 
-void thermistor_driver_enable();
-void thermistor_driver_disable();
-float thermistor_driver_get_temperature();
+void thermistor_driver_enable(void);
+void thermistor_driver_disable(void);
+float thermistor_driver_get_temperature(void);
 
 #endif // THERMISTOR_DRIVER_H_

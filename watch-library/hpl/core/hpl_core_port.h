@@ -58,4 +58,6 @@ static inline bool _is_in_isr(void)
 
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
+void Default_Handler(void);
+
 #endif /* _HPL_CORE_PORT_H_INCLUDED */
