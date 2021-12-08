@@ -1909,8 +1909,8 @@ new: Attribute TP_SIGNAL_NAME&lt;br&gt;
 <parts>
 <part name="FRAME1" library="My Stuff" deviceset="A4L-LOC" device=""/>
 <part name="U$3" library="FH19C-9S-0.5SH" deviceset="FH19C-9S-0.5SH_10-FFC" device=""/>
-<part name="C2" library="microbuilder" deviceset="CAP_CERAMIC" device="_0603MP" value="0.1uF"/>
-<part name="C1" library="microbuilder" deviceset="CAP_CERAMIC" device="_0603MP" value="10µF"/>
+<part name="C2" library="microbuilder" deviceset="CAP_CERAMIC" device="_0603MP" value="10uF"/>
+<part name="C1" library="microbuilder" deviceset="CAP_CERAMIC" device="_0603MP" value="0.1uF"/>
 <part name="U$14" library="microbuilder" deviceset="GND" device=""/>
 <part name="U$2" library="microbuilder" deviceset="GND" device=""/>
 <part name="U2" library="LIS2DW12TR" deviceset="LIS2DW12TR" device=""/>
