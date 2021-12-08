@@ -23,7 +23,7 @@ $(BUILD)/$(BIN).uf2: $(BUILD)/$(BIN).bin
 	@$(UF2) $^ -co $@
 
 $(SUBMODULES):
-	git submodule update --init --recursive
+	git submodule update --init
 
 install:
 	@$(UF2) -D $(BUILD)/$(BIN).uf2
