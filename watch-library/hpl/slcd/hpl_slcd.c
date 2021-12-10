@@ -35,8 +35,6 @@
 #include <utils_assert.h>
 #include <hpl_slcd_sync.h>
 #include <hpl_slcd_config.h>
-#include <hpl_slcd_cm_7_seg_mapping.h>
-#include <hpl_slcd_cm_14_seg_mapping.h>
 
 static int32_t _slcd_sync_set_segment(struct _slcd_sync_device *dev, const uint32_t com, const uint32_t seg,
                                       const bool on);
@@ -62,9 +60,6 @@ static struct slcd_configuration _slcd
        CONF_SLCD_BBEN << SLCD_CTRLB_BBEN_Pos | SLCD_CTRLB_BBD(CONF_SLCD_BBD - 1),
        SLCD_CTRLC_CTST(CONF_SLCD_CONTRAST_ADJUST),
        SLCD_CTRLD_DISPEN};
-static const struct slcd_char_setting cm_setting[] = SLCD_CHAR_SETTING_TABLE;
-static const struct slcd_char_mapping cm7_lut[]    = SLCD_SEG7_LUT;
-static const struct slcd_char_mapping cm14_lut[]   = SLCD_SEG14_LUT;
 /**
  * \brief              Initialize SLCD Device Descriptor
  */
@@ -196,48 +191,6 @@ int32_t _slcd_sync_seg_blink(struct _slcd_sync_device *dev, uint32_t seg, const 
 	}
 	hri_slcd_set_CTRLA_ENABLE_bit(dev->hw);
 	hri_slcd_set_CTRLD_BLINK_bit(dev->hw);
-
-	return ERR_NONE;
-}
-
-/**
- * \brief              Displays a character
- */
-int32_t _slcd_sync_write_char(struct _slcd_sync_device *dev, const uint8_t character, uint32_t index)
-{
-	uint32_t i;
-	uint32_t data = ~0;
-	if (cm_setting[index].size == 7) {
-		for (i = 0; i<sizeof(cm7_lut)>> 2; i++) {
-			if (cm7_lut[i].character == character) {
-				data = cm7_lut[i].mapping;
-				break;
-			}
-		}
-	} else if (cm_setting[index].size == 14) {
-		for (i = 0; i<sizeof(cm14_lut)>> 2; i++) {
-			if (cm14_lut[i].character == character) {
-				data = cm14_lut[i].mapping;
-				break;
-			}
-		}
-	}
-	if (data == 0xFFFFFFFF) {
-		return ERR_INVALID_ARG;
-	}
-
-	hri_slcd_write_CMCFG_NSEG_bf(dev->hw, cm_setting[index].nseg);
-	hri_slcd_write_CMINDEX_CINDEX_bf(dev->hw, cm_setting[index].com_index);
-	hri_slcd_write_CMINDEX_SINDEX_bf(dev->hw, cm_setting[index].seg_index);
-
-	if (cm_setting[index].size == 7) {
-		hri_slcd_write_CMDMASK_reg(dev->hw, SEG7_MASK);
-	} else if (cm_setting[index].size == 14) {
-		hri_slcd_write_CMDMASK_reg(dev->hw, SEG14_MASK);
-	}
-	while (hri_slcd_get_STATUS_CMWRBUSY_bit(dev->hw))
-		;
-	hri_slcd_write_CMDATA_reg(dev->hw, data);
 
 	return ERR_NONE;
 }

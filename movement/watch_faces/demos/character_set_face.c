@@ -12,6 +12,7 @@ void character_set_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
     char *c = (char *)context;
     *c = '@';
+    movement_request_tick_frequency(0);
 }
 
 bool character_set_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
@@ -33,8 +34,6 @@ bool character_set_face_loop(movement_event_t event, movement_settings_t *settin
             sprintf(buf, "%c%c%c%c%c%c%c%c%c%c", *c, *c, *c, *c, *c, *c, *c, *c, *c, *c);
             watch_display_string(buf, 0);
             break;
-        case EVENT_TICK:
-            break;
         case EVENT_TIMEOUT:
             movement_move_to_face(0);
             break;
@@ -48,4 +47,5 @@ bool character_set_face_loop(movement_event_t event, movement_settings_t *settin
 void character_set_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
+    movement_request_tick_frequency(1);
 }

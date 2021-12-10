@@ -104,7 +104,7 @@ void movement_request_tick_frequency(uint8_t freq) {
     RTC->MODE2.INTENCLR.reg = 0xFE; // disable all callbacks except the 128 Hz one
     movement_state.subsecond = 0;
     movement_state.tick_frequency = freq;
-    watch_rtc_register_periodic_callback(cb_tick, freq);
+    if (freq) watch_rtc_register_periodic_callback(cb_tick, freq);
 }
 
 void movement_illuminate_led(void) {
