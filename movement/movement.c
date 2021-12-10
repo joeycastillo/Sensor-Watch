@@ -170,6 +170,26 @@ void app_setup() {
         alarm_time.unit.second = 59; // after a match, the alarm fires at the next rising edge of CLK_RTC_CNT, so 59 seconds lets us update at :00
         watch_rtc_register_alarm_callback(cb_alarm_fired, alarm_time, ALARM_MATCH_SS);
     }
+
+    // set up our low-power timer/counter for custom tick intervals
+    // why is it low-power? because we clock it from the 32768 Hz GCLK3!
+    hri_gclk_write_PCHCTRL_reg(GCLK, TC2_GCLK_ID, GCLK_PCHCTRL_GEN_GCLK3_Val | GCLK_PCHCTRL_CHEN);
+    hri_mclk_set_APBCMASK_TC2_bit(MCLK);
+    hri_tc_clear_CTRLA_ENABLE_bit(TC2);                     // disable it
+    hri_tc_wait_for_sync(TC2, TC_SYNCBUSY_ENABLE);          // wait for it to be disabled
+    hri_tc_write_CTRLA_reg(TC2, TC_CTRLA_SWRST);            // reset it
+    hri_tc_wait_for_sync(TC2, TC_SYNCBUSY_SWRST);           // wait for it to be reset
+    // cool. now configure it:
+    hri_tc_write_CTRLA_reg(TC2, TC_CTRLA_PRESCALER_DIV256 | // divide the 32768 Hz input by 256 to count at 128 Hz
+                                TC_CTRLA_MODE_COUNT8 |      // count in 8-bit mode
+                                TC_CTRLA_RUNSTDBY);         // run in standby since this will time our waking up from standby.
+    hri_tccount8_write_PER_reg(TC2, 32);                   // 128 / 256 = 1 Hz
+    // set an interrupt when the value overflows PER. This is our tick, and it will call TC2_Handler below.
+    hri_tc_set_INTEN_OVF_bit(TC2);
+    NVIC_ClearPendingIRQ(TC2_IRQn);
+    NVIC_EnableIRQ(TC2_IRQn);
+    hri_tc_set_CTRLA_ENABLE_bit(TC2);
+
     if (movement_state.le_mode_ticks != -1) {
         watch_disable_extwake_interrupt(BTN_ALARM);
 
@@ -194,6 +214,10 @@ void app_setup() {
     }
 }
 
+void TC2_Handler(void) {
+    printf("TICK!\n");
+    TC2->COUNT8.INTFLAG.reg |= TC_INTFLAG_OVF;
+}
 void app_prepare_for_standby() {
 }
 
