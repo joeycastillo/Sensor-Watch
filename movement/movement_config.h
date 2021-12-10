@@ -15,6 +15,7 @@
 #include "stopwatch_face.h"
 #include "totp_face.h"
 #include "lis2dh_logging_face.h"
+#include "demo_face.h"
 
 const watch_face_t watch_faces[] = {
     simple_clock_face,
