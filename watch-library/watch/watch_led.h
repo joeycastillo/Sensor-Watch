@@ -46,13 +46,13 @@
   *       your app is asleep. If, however, you set a custom color using watch_set_led_color, the color will
   *       not display correctly in STANDBY mode. You will need to keep your app running while the LED is on.
   */
-void watch_enable_leds();
+void watch_enable_leds(void);
 
 /** @brief Disables the LEDs.
   * @note This method will also disable the buzzer, since the buzzer and LED both make use of the same
   *       peripheral to drive their PWM behavior.
   */
-void watch_disable_leds();
+void watch_disable_leds(void);
 
 /** @brief Sets the LED to a custom color by modulating each output's duty cycle.
   * @param red The red value from 0-255.
@@ -66,23 +66,23 @@ void watch_set_led_color(uint8_t red, uint8_t green);
 /** @brief Sets the red LED to full brightness, and turns the green LED off.
   * @details Of the two LED's in the RG bi-color LED, the red LED is the less power-efficient one (~4.5 mA).
   */
-void watch_set_led_red();
+void watch_set_led_red(void);
 
 /** @brief Sets the green LED to full brightness, and turns the red LED off.
   * @details Of the two LED's in the RG bi-color LED, the green LED is the more power-efficient one (~0.44 mA).
   * @note If your watch has a red/blue LED, this method will set the LED to blue.
   */
-void watch_set_led_green();
+void watch_set_led_green(void);
 
 /** @brief Sets both red and green LEDs to full brightness.
   * @details The total current draw between the two LED's in this mode will be ~5 mA, which is more than the
   *          watch draws in any other mode. Take care not to drain the battery.
   * @note If your watch has a red/blue LED, this method will set the LED to pink.
   */
-void watch_set_led_yellow();
+void watch_set_led_yellow(void);
 
 /** @brief Turns both the red and the green LEDs off. */
-void watch_set_led_off();
+void watch_set_led_off(void);
 
 __attribute__((deprecated("Use watch_enable_leds instead")))
 void watch_enable_led(bool unused);

@@ -150,11 +150,11 @@ static const uint32_t IndicatorSegments[6] = {
     SLCD_SEGID(1, 10), // WATCH_INDICATOR_LAP
 };
 
-void _sync_slcd() {
+static void _sync_slcd(void) {
     while (SLCD->SYNCBUSY.reg);
 }
 
-void watch_enable_display() {
+void watch_enable_display(void) {
     SEGMENT_LCD_0_init();
     slcd_sync_enable(&SEGMENT_LCD_0);
 }
@@ -167,13 +167,13 @@ inline void watch_clear_pixel(uint8_t com, uint8_t seg) {
     slcd_sync_seg_off(&SEGMENT_LCD_0, SLCD_SEGID(com, seg));
 }
 
-void watch_clear_display() {
+void watch_clear_display(void) {
     SLCD->SDATAL0.reg = 0;
     SLCD->SDATAL1.reg = 0;
     SLCD->SDATAL2.reg = 0;
 }
 
-void watch_display_character(uint8_t character, uint8_t position) {
+static void watch_display_character(uint8_t character, uint8_t position) {
     // special cases for positions 4 and 6
     if (position == 4 || position == 6) {
         if (character == '7') character = '&'; // "lowercase" 7
@@ -245,11 +245,11 @@ void watch_display_string(char *string, uint8_t position) {
     // printf("________\n  %c%c  %c%c\n%c%c %c%c %c%c\n--------\n", (position > 0) ? ' ' : string[0], (position > 1) ? ' ' : string[1 - position], (position > 2) ? ' ' : string[2 - position], (position > 3) ? ' ' : string[3 - position], (position > 4) ? ' ' : string[4 - position], (position > 5) ? ' ' : string[5 - position], (position > 6) ? ' ' : string[6 - position], (position > 7) ? ' ' : string[7 - position], (position > 8) ? ' ' : string[8 - position], (position > 9) ? ' ' : string[9 - position]);
 }
 
-inline void watch_set_colon() {
+inline void watch_set_colon(void) {
     slcd_sync_seg_on(&SEGMENT_LCD_0, SLCD_SEGID(1, 16));
 }
 
-inline void watch_clear_colon() {
+inline void watch_clear_colon(void) {
     slcd_sync_seg_off(&SEGMENT_LCD_0, SLCD_SEGID(1, 16));
 }
 
@@ -261,7 +261,7 @@ inline void watch_clear_indicator(WatchIndicatorSegment indicator) {
     slcd_sync_seg_off(&SEGMENT_LCD_0, IndicatorSegments[indicator]);
 }
 
-void watch_clear_all_indicators() {
+void watch_clear_all_indicators(void) {
     slcd_sync_seg_off(&SEGMENT_LCD_0, SLCD_SEGID(2, 17));
     slcd_sync_seg_off(&SEGMENT_LCD_0, SLCD_SEGID(2, 16));
     slcd_sync_seg_off(&SEGMENT_LCD_0, SLCD_SEGID(0, 17));
@@ -296,7 +296,7 @@ void watch_start_character_blink(char character, uint32_t duration) {
     _sync_slcd();
 }
 
-void watch_stop_blink() {
+void watch_stop_blink(void) {
     SLCD->CTRLD.bit.FC0EN = 0;
     SLCD->CTRLD.bit.BLINK = 0;
 }
@@ -307,11 +307,11 @@ void watch_start_tick_animation(uint32_t duration) {
     slcd_sync_start_animation(&SEGMENT_LCD_0, segs, 1, duration);
 }
 
-bool watch_tick_animation_is_running() {
+bool watch_tick_animation_is_running(void) {
     return hri_slcd_get_CTRLD_CSREN_bit(SLCD);
 }
 
-void watch_stop_tick_animation() {
+void watch_stop_tick_animation(void) {
     const uint32_t segs[] = { SLCD_SEGID(0, 2)};
     slcd_sync_stop_animation(&SEGMENT_LCD_0, segs, 1);
     watch_display_character(' ', 8);

@@ -36,7 +36,7 @@
 /** @brief Enables the ADC peripheral. You must call this before attempting to read a value
   *        from an analog pin.
   */
-void watch_enable_adc();
+void watch_enable_adc(void);
 
 /** @brief Configures the selected pin for analog input.
   * @param pin One of pins A0-A4.
@@ -139,7 +139,7 @@ void watch_set_analog_reference_voltage(watch_adc_reference_voltage reference);
   * @note This function depends on INTREF being 1.024V. If you have changed it by poking at the supply
   *       controller's VREF.SEL bits, this function will return inaccurate values.
   */
-uint16_t watch_get_vcc_voltage();
+uint16_t watch_get_vcc_voltage(void);
 
 /** @brief Disables the analog circuitry on the selected pin.
   * @param pin One of pins A0-A4.
@@ -151,7 +151,7 @@ void watch_disable_analog_input(const uint8_t pin);
   *       have the default settings of 16 samples and 1 measurement cycle; if you customized these
   *       parameters, you will need to set them up again.
   **/
-void watch_disable_adc();
+void watch_disable_adc(void);
 
 /// @}
 #endif

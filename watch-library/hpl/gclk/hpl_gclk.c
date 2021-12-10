@@ -33,6 +33,7 @@
  */
 
 #include <hpl_gclk_config.h>
+#include <hpl_gclk_base.h>
 #include <hpl_init.h>
 #include <utils_assert.h>
 

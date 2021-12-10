@@ -71,6 +71,6 @@
   *          the battery voltage has fallen to 2.5 volts, it will have probably less than 10% of its capacity remaining, and
   *          you can expect the voltage to drop relatively quickly as the battery dies.
   */
-bool watch_is_battery_low();
+bool watch_is_battery_low(void);
 
 #endif /* WATCH_H_ */

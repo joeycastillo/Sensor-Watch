@@ -29,7 +29,7 @@ void error(const char *text) {
 }
 
 
-void setup() {
+void setup(void) {
   pinMode(13, OUTPUT);
   Serial.begin(115200);
 //  while(!Serial) {
@@ -102,7 +102,7 @@ void setup() {
   dap.dap_disconnect();
 }
 
-void loop() {
+void loop(void) {
   //blink led on the host to show we're done
   digitalWrite(13, HIGH);
   delay(500); 

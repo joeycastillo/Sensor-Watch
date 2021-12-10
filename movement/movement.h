@@ -242,11 +242,11 @@ typedef struct {
 } movement_state_t;
 
 void movement_move_to_face(uint8_t watch_face_index);
-void movement_move_to_next_face();
-void movement_illuminate_led();
+void movement_move_to_next_face(void);
+void movement_illuminate_led(void);
 void movement_request_tick_frequency(uint8_t freq);
 
-void movement_play_signal();
-void movement_play_alarm();
+void movement_play_signal(void);
+void movement_play_alarm(void);
 
 #endif // MOVEMENT_H_

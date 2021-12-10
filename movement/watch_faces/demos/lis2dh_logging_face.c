@@ -12,7 +12,7 @@
 // Pressing the alarm button enters the log mode, where the main display shows the number of interrupts detected in each of the last
 // 24 hours (the hour is shown in the top right digit and AM/PM indicator, if the clock is set to 12 hour mode)
 
-void _lis2dh_logging_face_update_display(movement_settings_t *settings, lis2dh_logger_state_t *logger_state, lis2dh_interrupt_state interrupt_state, watch_date_time date_time) {
+static void _lis2dh_logging_face_update_display(movement_settings_t *settings, lis2dh_logger_state_t *logger_state, lis2dh_interrupt_state interrupt_state, watch_date_time date_time) {
     char buf[14];
     char time_indication_character;
     int8_t pos;
@@ -66,7 +66,7 @@ void _lis2dh_logging_face_update_display(movement_settings_t *settings, lis2dh_l
     watch_display_string(buf, 0);
 }
 
-void _lis2dh_logging_face_log_data(lis2dh_logger_state_t *logger_state) {
+static void _lis2dh_logging_face_log_data(lis2dh_logger_state_t *logger_state) {
     watch_date_time date_time = watch_rtc_get_date_time();
     // we get this call 15 minutes late; i.e. at 6:15 we're logging events for 6:00.
     // so: if we're at the top of the hour, roll the hour back too (7:00 task logs data for 6:45)

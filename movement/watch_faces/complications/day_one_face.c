@@ -3,12 +3,12 @@
 #include "day_one_face.h"
 #include "watch.h"
 
-uint32_t _day_one_face_juliandaynum(uint16_t year, uint16_t month, uint16_t day) {
+static uint32_t _day_one_face_juliandaynum(uint16_t year, uint16_t month, uint16_t day) {
     // from here: https://en.wikipedia.org/wiki/Julian_day#Julian_day_number_calculation
     return (1461 * (year + 4800 + (month - 14) / 12)) / 4 + (367 * (month - 2 - 12 * ((month - 14) / 12))) / 12 - (3 * ((year + 4900 + (month - 14) / 12) / 100))/4 + day - 32075;
 }
 
-void _day_one_face_update(day_one_state_t state) {
+static void _day_one_face_update(day_one_state_t state) {
     char buf[14];
     watch_date_time date_time = watch_rtc_get_date_time();
     uint32_t julian_date = _day_one_face_juliandaynum(date_time.unit.year + WATCH_RTC_REFERENCE_YEAR, date_time.unit.month, date_time.unit.day);

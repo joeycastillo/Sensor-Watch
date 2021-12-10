@@ -33,6 +33,7 @@
 
 #include <compiler.h>
 #include <hpl_mclk_config.h>
+#include <hpl_init.h>
 
 /**
  * \brief Initialize master clock generator

@@ -34,6 +34,7 @@
 
 #include <hpl_time_measure.h>
 #include <hpl_systick_config.h>
+#include <hpl_delay.h>
 
 /**
  * \brief Initialize system time module

@@ -84,31 +84,31 @@ typedef enum {
   LIS2DH_INTERRUPT_STATE_X_LOW  = 0b00000001, // X down
 } lis2dh_interrupt_state;
 
-bool lis2dh_begin();
+bool lis2dh_begin(void);
 
-uint8_t lis2dh_get_device_id();
+uint8_t lis2dh_get_device_id(void);
 
-bool lis2dh_have_new_data();
+bool lis2dh_have_new_data(void);
 
-lis2dh_reading lis2dh_get_raw_reading();
+lis2dh_reading lis2dh_get_raw_reading(void);
 
 lis2dh_acceleration_measurement lis2dh_get_acceleration_measurement(lis2dh_reading *out_reading);
 
 void lis2dh_set_range(lis2dh_range_t range);
 
-lis2dh_range_t lis2dh_get_range();
+lis2dh_range_t lis2dh_get_range(void);
 
 void lis2dh_set_data_rate(lis2dh_data_rate_t dataRate);
 
-lis2dh_data_rate_t lis2dh_get_data_rate();
+lis2dh_data_rate_t lis2dh_get_data_rate(void);
 
 void lis2dh_configure_aoi_int1(lis2dh_interrupt_configuration configuration, uint8_t threshold, uint8_t duration, bool latch);
 
-lis2dh_interrupt_state lis2dh_get_int1_state();
+lis2dh_interrupt_state lis2dh_get_int1_state(void);
 
 void lis2dh_configure_aoi_int2(lis2dh_interrupt_configuration configuration, uint8_t threshold, uint8_t duration, bool latch);
 
-lis2dh_interrupt_state lis2dh_get_int2_state();
+lis2dh_interrupt_state lis2dh_get_int2_state(void);
 
 // Assumes SA0 is high; if low, its 0x18
 #define LIS2DH_ADDRESS (0x19)
