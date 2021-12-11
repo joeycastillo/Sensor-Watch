@@ -18,6 +18,7 @@
 #include "demo_face.h"
 
 const watch_face_t watch_faces[] = {
+    demo_face,
     simple_clock_face,
     preferences_face,
     set_time_face,

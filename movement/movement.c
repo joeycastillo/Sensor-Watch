@@ -172,7 +172,18 @@ void app_setup(void) {
     }
 
     // set up our low-power timer/counter for custom tick intervals
-    // why is it low-power? because we clock it from the 32768 Hz GCLK3!
+    hri_mclk_set_APBCMASK_EVSYS_bit(MCLK);
+    hri_gclk_write_PCHCTRL_reg(GCLK, EVSYS_GCLK_ID_0, GCLK_PCHCTRL_GEN_GCLK3_Val | GCLK_PCHCTRL_CHEN);
+
+    hri_evsys_set_CTRLA_SWRST_bit(EVSYS);
+    while(hri_evsys_get_CTRLA_SWRST_bit(EVSYS));
+    hri_evsys_write_USER_reg(EVSYS, 1, EVSYS_ID_USER_TC2_EVU);
+    hri_evsys_write_CHANNEL_reg(EVSYS, 0, EVSYS_CHANNEL_PATH_ASYNCHRONOUS | EVSYS_CHANNEL_EDGSEL_FALLING_EDGE | EVSYS_CHANNEL_EVGEN(EVSYS_ID_GEN_RTC_PER_0));
+
+    while (!hri_evsys_get_CHSTATUS_USRRDY0_bit(EVSYS));
+
+    hri_rtcmode2_set_EVCTRL_PEREO0_bit(RTC);
+
     hri_gclk_write_PCHCTRL_reg(GCLK, TC2_GCLK_ID, GCLK_PCHCTRL_GEN_GCLK3_Val | GCLK_PCHCTRL_CHEN);
     hri_mclk_set_APBCMASK_TC2_bit(MCLK);
     hri_tc_clear_CTRLA_ENABLE_bit(TC2);                     // disable it
@@ -180,10 +191,11 @@ void app_setup(void) {
     hri_tc_write_CTRLA_reg(TC2, TC_CTRLA_SWRST);            // reset it
     hri_tc_wait_for_sync(TC2, TC_SYNCBUSY_SWRST);           // wait for it to be reset
     // cool. now configure it:
-    hri_tc_write_CTRLA_reg(TC2, TC_CTRLA_PRESCALER_DIV256 | // divide the 32768 Hz input by 256 to count at 128 Hz
+    hri_tc_set_EVCTRL_EVACT_bf(TC2, TC_EVCTRL_EVACT_COUNT_Val);
+    hri_tc_write_CTRLA_reg(TC2, TC_CTRLA_PRESCALER_DIV1 |   // no division factor
                                 TC_CTRLA_MODE_COUNT8 |      // count in 8-bit mode
                                 TC_CTRLA_RUNSTDBY);         // run in standby since this will time our waking up from standby.
-    hri_tccount8_write_PER_reg(TC2, 32);                   // 128 / 256 = 1 Hz
+    hri_tccount8_write_PER_reg(TC2, 128);                   // 128 / 256 = 1 Hz
     // set an interrupt when the value overflows PER. This is our tick, and it will call TC2_Handler below.
     hri_tc_set_INTEN_OVF_bit(TC2);
     NVIC_ClearPendingIRQ(TC2_IRQn);
@@ -215,7 +227,6 @@ void app_setup(void) {
 }
 
 void TC2_Handler(void) {
-    printf("TICK!\n");
     TC2->COUNT8.INTFLAG.reg |= TC_INTFLAG_OVF;
 }
 
