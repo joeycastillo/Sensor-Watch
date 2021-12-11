@@ -13,6 +13,7 @@
 *.uf2
 *srec
 .DS_Store
+.idea/
 .vs
 .vscode
 docs/

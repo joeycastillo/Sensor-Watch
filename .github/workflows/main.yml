@@ -10,11 +10,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Compile beats-time app
+      - name: Compile starter-project app
         run: make
-        working-directory: 'apps/beats-time/make'
+        working-directory: 'apps/starter-project'
+      - name: Compile accelerometer-test app
+        run: make
+        working-directory: 'apps/accelerometer-test'
       - name: Upload UF2
         uses: actions/upload-artifact@v2
         with:
-          name: watch.uf2
-          path: apps/beats-time/make/build/watch.uf2
+          name: watch.uf2.uf2
+          path: apps/**/build/watch.uf2
