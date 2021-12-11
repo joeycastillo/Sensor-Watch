@@ -1,6 +1,10 @@
 name: Build
 
-on: [pull_request, push]
+on:
+  pull_request:
+  push:
+    branches-ignore:
+      - gh-pages
 
 jobs: 
   build:
@@ -19,5 +23,5 @@ jobs:
       - name: Upload UF2
         uses: actions/upload-artifact@v2
         with:
-          name: watch.uf2.uf2
+          name: watch.uf2
           path: apps/**/build/watch.uf2
