@@ -213,12 +213,6 @@ USING
 USB!!!</text>
 <text x="1.016" y="12.319" size="0.8128" layer="22" font="vector" distance="20" rot="SMR90" align="center">except the
 bear!</text>
-<text x="-0.635" y="11.938" size="0.6096" layer="21" font="vector" ratio="18" align="center-right">NOTE TO JLCPCB ENGINEER:
-Please refer to order number
-Y22-2862359A for correct
-fabrication of the three holes
-at the edge of the PCB.
-</text>
 <text x="13.5382" y="9.652" size="0.8128" layer="22" font="vector" ratio="18" distance="10" rot="SMR0" align="top-left">&lt; 9-Pin conn.</text>
 <text x="14.0462" y="1.1684" size="0.8128" layer="22" font="vector" ratio="18" distance="25" rot="SMR0" align="center-left">RESET
   Btn</text>
