@@ -1,0 +1,27 @@
+name: Build
+
+on:
+  pull_request:
+  push:
+    branches-ignore:
+      - gh-pages
+
+jobs: 
+  build:
+    container:
+      image: ghcr.io/armmbed/mbed-os-env:latest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Compile starter-project app
+        run: make
+        working-directory: 'apps/starter-project'
+      - name: Compile accelerometer-test app
+        run: make
+        working-directory: 'apps/accelerometer-test'
+      - name: Upload UF2
+        uses: actions/upload-artifact@v2
+        with:
+          name: watch.uf2
+          path: apps/**/build/watch.uf2
