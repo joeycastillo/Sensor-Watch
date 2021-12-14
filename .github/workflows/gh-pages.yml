@@ -1,10 +1,9 @@
 name: GitHub Pages
 
-#on:
-#  push:
-#    branches:
-#      - main
-on: [pull_request, push]
+on:
+  push:
+    branches:
+      - main
 
 jobs:
   gh-pages:
