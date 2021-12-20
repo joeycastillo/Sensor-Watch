@@ -218,7 +218,7 @@ void app_setup(void) {
         movement_request_tick_frequency(1);
 
         for(uint8_t i = 0; i < MOVEMENT_NUM_FACES; i++) {
-            watch_faces[i].setup(&movement_state.settings, &watch_face_contexts[i]);
+            watch_faces[i].setup(&movement_state.settings, i, &watch_face_contexts[i]);
         }
 
         watch_faces[movement_state.current_watch_face].activate(&movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);

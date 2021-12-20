@@ -3,8 +3,9 @@
 #include "watch.h"
 #include "watch_utility.h"
 
-void simple_clock_face_setup(movement_settings_t *settings, void ** context_ptr) {
+void simple_clock_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
+    (void) watch_face_index;
     // the only context we need is the timestamp of the previous tick.
     if (*context_ptr == NULL) *context_ptr = malloc(sizeof(uint32_t));
 }

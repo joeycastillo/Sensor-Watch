@@ -9,7 +9,7 @@ typedef struct {
     int16_t ticks;
 } pulsometer_state_t;
 
-void pulsometer_face_setup(movement_settings_t *settings, void ** context_ptr);
+void pulsometer_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
 void pulsometer_face_activate(movement_settings_t *settings, void *context);
 bool pulsometer_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void pulsometer_face_resign(movement_settings_t *settings, void *context);

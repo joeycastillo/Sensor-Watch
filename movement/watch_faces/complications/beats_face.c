@@ -5,8 +5,9 @@
 
 const uint8_t BEAT_REFRESH_FREQUENCY = 8;
 
-void beats_face_setup(movement_settings_t *settings, void ** context_ptr) {
+void beats_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
+    (void) watch_face_index;
     (void) context_ptr;
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(beats_face_state_t));

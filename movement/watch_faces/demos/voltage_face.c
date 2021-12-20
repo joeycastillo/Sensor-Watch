@@ -11,8 +11,9 @@ static void _voltage_face_update_display(void) {
     watch_display_string(buf, 0);
 }
 
-void voltage_face_setup(movement_settings_t *settings, void ** context_ptr) {
+void voltage_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
+    (void) watch_face_index;
     (void) context_ptr;
 }
 

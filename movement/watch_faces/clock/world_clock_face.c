@@ -4,8 +4,9 @@
 #include "watch.h"
 #include "watch_utility.h"
 
-void world_clock_face_setup(movement_settings_t *settings, void ** context_ptr) {
+void world_clock_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
+    (void) watch_face_index;
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(world_clock_state_t));
         world_clock_state_t *state = (world_clock_state_t *)*context_ptr;

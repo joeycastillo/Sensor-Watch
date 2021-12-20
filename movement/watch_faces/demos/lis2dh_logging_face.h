@@ -25,7 +25,7 @@ typedef struct {
     lis2dh_logger_data_point_t data[LIS2DH_LOGGING_NUM_DATA_POINTS];
 } lis2dh_logger_state_t;
 
-void lis2dh_logging_face_setup(movement_settings_t *settings, void ** context_ptr);
+void lis2dh_logging_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
 void lis2dh_logging_face_activate(movement_settings_t *settings, void *context);
 bool lis2dh_logging_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void lis2dh_logging_face_resign(movement_settings_t *settings, void *context);

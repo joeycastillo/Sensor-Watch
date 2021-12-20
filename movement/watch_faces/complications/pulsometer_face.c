@@ -6,8 +6,9 @@
 #define PULSOMETER_FACE_FREQUENCY_FACTOR (4ul) // refresh rate will be 2 to this power Hz (0 for 1 Hz, 2 for 4 Hz, etc.)
 #define PULSOMETER_FACE_FREQUENCY (1 << PULSOMETER_FACE_FREQUENCY_FACTOR)
 
-void pulsometer_face_setup(movement_settings_t *settings, void ** context_ptr) {
+void pulsometer_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
+    (void) watch_face_index;
     if (*context_ptr == NULL) *context_ptr = malloc(sizeof(pulsometer_state_t));
 }
 

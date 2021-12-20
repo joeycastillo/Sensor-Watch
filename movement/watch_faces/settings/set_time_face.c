@@ -5,8 +5,9 @@
 #define SET_TIME_FACE_NUM_SETTINGS (7)
 const char set_time_face_titles[SET_TIME_FACE_NUM_SETTINGS][3] = {"HR", "M1", "SE", "YR", "MO", "DA", "ZO"};
 
-void set_time_face_setup(movement_settings_t *settings, void ** context_ptr) {
+void set_time_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
+    (void) watch_face_index;
     if (*context_ptr == NULL) *context_ptr = malloc(sizeof(uint8_t));
 }
 

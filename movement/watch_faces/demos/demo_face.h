@@ -3,7 +3,7 @@
 
 #include "movement.h"
 
-void demo_face_setup(movement_settings_t *settings, void ** context_ptr);
+void demo_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
 void demo_face_activate(movement_settings_t *settings, void *context);
 bool demo_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void demo_face_resign(movement_settings_t *settings, void *context);

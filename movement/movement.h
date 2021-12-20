@@ -120,7 +120,7 @@ extern const char movement_valid_position_1_chars[];
   *                    data required for your watch face.
   *
   */
-typedef void (*watch_face_setup)(movement_settings_t *settings, void ** context_ptr);
+typedef void (*watch_face_setup)(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
 
 /** @brief Prepare to go on-screen.
   * @details This function is called just before your watch enters the foreground. If your watch face has any
