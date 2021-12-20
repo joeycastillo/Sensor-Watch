@@ -2,6 +2,7 @@
 #define MOVEMENT_H_
 #include <stdio.h>
 #include <stdbool.h>
+#include "watch.h"
 
 // Movement Preferences
 // These four 32-bit structs store information about the wearer and their preferences. Tentatively, the plan is
@@ -228,6 +229,7 @@ typedef struct {
 
     // background task handling
     bool needs_background_tasks_handled;
+    bool has_scheduled_background_task;
 
     // low energy mode countdown
     int32_t le_mode_ticks;
@@ -244,7 +246,14 @@ typedef struct {
 void movement_move_to_face(uint8_t watch_face_index);
 void movement_move_to_next_face(void);
 void movement_illuminate_led(void);
+
+// note: requesting a tick frequency of 0 will break any scheduled background tasks.
+// this will be fixed in a future refactor of the tick mechanism.
 void movement_request_tick_frequency(uint8_t freq);
+
+// note: watch faces can only schedule a background task when in the foreground, since
+// movement will associate the scheduled task with the currently active face.
+void movement_schedule_background_task(watch_date_time date_time);
 
 void movement_play_signal(void);
 void movement_play_alarm(void);
