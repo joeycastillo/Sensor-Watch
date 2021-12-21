@@ -6,21 +6,31 @@
 void simple_clock_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
     (void) watch_face_index;
-    // the only context we need is the timestamp of the previous tick.
-    if (*context_ptr == NULL) *context_ptr = malloc(sizeof(uint32_t));
+
+    if (*context_ptr == NULL) {
+        *context_ptr = malloc(sizeof(simple_clock_state_t));
+        simple_clock_state_t *state = (simple_clock_state_t *)*context_ptr;
+        state->signal_enabled = false;
+        state->watch_face_index = watch_face_index;
+    }
 }
 
 void simple_clock_face_activate(movement_settings_t *settings, void *context) {
+    simple_clock_state_t *state = (simple_clock_state_t *)context;
+
     if (watch_tick_animation_is_running()) watch_stop_tick_animation();
 
     if (settings->bit.clock_mode_24h) watch_set_indicator(WATCH_INDICATOR_24H);
+    if (state->signal_enabled) watch_set_indicator(WATCH_INDICATOR_SIGNAL);
 
     watch_set_colon();
+
     // this ensures that none of the timestamp fields will match, so we can re-render them all.
-    *((uint32_t *)context) = 0xFFFFFFFF;
+    state->previous_date_time = 0xFFFFFFFF;
 }
 
 bool simple_clock_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
+    simple_clock_state_t *state = (simple_clock_state_t *)context;
     char buf[11];
     uint8_t pos;
 
@@ -31,8 +41,8 @@ bool simple_clock_face_loop(movement_event_t event, movement_settings_t *setting
         case EVENT_TICK:
         case EVENT_LOW_ENERGY_UPDATE:
             date_time = watch_rtc_get_date_time();
-            previous_date_time = *((uint32_t *)context);
-            *((uint32_t *)context) = date_time.reg;
+            previous_date_time = state->previous_date_time;
+            state->previous_date_time = date_time.reg;
 
             if (date_time.reg >> 6 == previous_date_time >> 6 && event.event_type != EVENT_LOW_ENERGY_UPDATE) {
                 // everything before seconds is the same, don't waste cycles setting those segments.
@@ -70,7 +80,25 @@ bool simple_clock_face_loop(movement_event_t event, movement_settings_t *setting
         case EVENT_LIGHT_BUTTON_DOWN:
             movement_illuminate_led();
             break;
-        case EVENT_ALARM_BUTTON_UP:
+        case EVENT_ALARM_LONG_PRESS:
+            state->signal_enabled = !state->signal_enabled;
+            if (state->signal_enabled) watch_set_indicator(WATCH_INDICATOR_SIGNAL);
+            else watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
+            break;
+        case EVENT_BACKGROUND_TASK:
+            // uncomment this line to snap back to the clock face when the hour signal sounds:
+            // movement_move_to_face(state->watch_face_index);
+            if (watch_is_buzzer_or_led_enabled()) {
+                // if we are in the foreground, we can just beep.
+                movement_play_signal();
+            } else {
+                // if we were in the background, we need to enable the buzzer peripheral first,
+                watch_enable_buzzer();
+                // beep quickly (this call blocks for 275 ms),
+                movement_play_signal();
+                // and then turn the buzzer peripheral off again.
+                watch_disable_buzzer();
+            }
             break;
         default:
             break;
@@ -82,4 +110,14 @@ bool simple_clock_face_loop(movement_event_t event, movement_settings_t *setting
 void simple_clock_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
+}
+
+bool simple_clock_face_wants_background_task(movement_settings_t *settings, void *context) {
+    (void) settings;
+    simple_clock_state_t *state = (simple_clock_state_t *)context;
+    if (!state->signal_enabled) return false;
+
+    watch_date_time date_time = watch_rtc_get_date_time();
+
+    return date_time.unit.minute == 59;
 }
