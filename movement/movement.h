@@ -114,6 +114,9 @@ extern const char movement_valid_position_1_chars[];
   * @param settings A pointer to the global Movement settings. You can use this to inform how you present your
   *                 display to the user (i.e. taking into account whether they have silenced the buttons, or if
   *                 they prefer 12 or 24-hour mode). You can also change these settings if you like.
+  * @param watch_face_index The index of this watch face in the global array of watch faces; 0 is the first face,
+  *                         1 is the second, etc. You may stash this value in your context if you wish to reference
+  *                         it later; your watch face's index is set at launch and will not change.
   * @param context_ptr A pointer to a pointer; at first invocation, this value will be NULL, and you can set it
   *                    to any value you like. Subsequent invocations will pass in whatever value you previously
   *                    set. You may want to check if this is NULL and if so, allocate some space to store any
