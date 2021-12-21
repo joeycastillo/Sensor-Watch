@@ -38,3 +38,7 @@ void SYSTEM_Handler(void) {
 bool watch_is_battery_low(void) {
     return battery_is_low;
 }
+
+bool watch_is_buzzer_or_led_enabled(void){
+    return hri_mclk_get_APBCMASK_TCC0_bit(MCLK);
+}
