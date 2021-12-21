@@ -16,9 +16,11 @@
 #include "totp_face.h"
 #include "lis2dh_logging_face.h"
 #include "demo_face.h"
+#include "hello_there_face.h"
 
 const watch_face_t watch_faces[] = {
     simple_clock_face,
+    hello_there_face,
     preferences_face,
     set_time_face,
 };
