@@ -20,7 +20,6 @@
 
 const watch_face_t watch_faces[] = {
     simple_clock_face,
-    hello_there_face,
     preferences_face,
     set_time_face,
 };
