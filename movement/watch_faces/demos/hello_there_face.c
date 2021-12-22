@@ -42,17 +42,17 @@ bool hello_there_face_loop(movement_event_t event, movement_settings_t *settings
                 state->current_word = (state->current_word + 1) % 2;
             }
             break;
-        case EVENT_MODE_BUTTON_UP:
-            // when the user presses 'mode', we tell movement to move to the next watch face.
-            // movement will call our resign function, clear the screen, and transfer control
-            // to the next watch face in the list.
-            movement_move_to_next_face();
-            break;
         case EVENT_LIGHT_BUTTON_UP:
             // when the user presses 'light', we illuminate the LED. We could override this if
             // our UI needed an additional button for input, consuming the light button press
             // but not illuminating the LED.
             movement_illuminate_led();
+            break;
+        case EVENT_MODE_BUTTON_UP:
+            // when the user presses 'mode', we tell movement to move to the next watch face.
+            // movement will call our resign function, clear the screen, and transfer control
+            // to the next watch face in the list.
+            movement_move_to_next_face();
             break;
         case EVENT_ALARM_BUTTON_UP:
             // when the user presses 'alarm', we toggle the state of the animation. If animating,
