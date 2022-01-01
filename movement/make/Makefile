@@ -45,6 +45,7 @@ SRCS += \
   ../watch_faces/complications/day_one_face.c \
   ../watch_faces/complications/stopwatch_face.c \
   ../watch_faces/complications/totp_face.c \
+  ../watch_faces/complications/countdown_face.c \
 
 # Leave this line at the bottom of the file; it has all the targets for making your project.
 include $(TOP)/rules.mk
