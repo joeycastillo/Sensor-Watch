@@ -157,6 +157,18 @@ void movement_schedule_background_task(watch_date_time date_time) {
     }
 }
 
+void movement_cancel_background_task(void) {
+    scheduled_tasks[movement_state.current_watch_face].reg = 0;
+    bool other_tasks_scheduled = false;
+    for(uint8_t i = 0; i < MOVEMENT_NUM_FACES; i++) {
+        if (scheduled_tasks[i].reg != 0) {
+            other_tasks_scheduled = true;
+            break;
+        }
+    }
+    movement_state.has_scheduled_background_task = other_tasks_scheduled;
+}
+
 void movement_play_signal(void) {
     watch_buzzer_play_note(BUZZER_NOTE_C8, 75);
     watch_buzzer_play_note(BUZZER_NOTE_REST, 100);
