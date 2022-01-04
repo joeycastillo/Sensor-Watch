@@ -17,8 +17,9 @@ const char preferences_face_titles[PREFERENCES_FACE_NUM_PREFEFENCES][11] = {
     "LT   red  ",   // Light: red component
 };
 
-void preferences_face_setup(movement_settings_t *settings, void ** context_ptr) {
+void preferences_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
+    (void) watch_face_index;
     if (*context_ptr == NULL) *context_ptr = malloc(sizeof(uint8_t));
 }
 

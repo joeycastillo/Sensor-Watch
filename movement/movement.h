@@ -2,6 +2,7 @@
 #define MOVEMENT_H_
 #include <stdio.h>
 #include <stdbool.h>
+#include "watch.h"
 
 // Movement Preferences
 // These four 32-bit structs store information about the wearer and their preferences. Tentatively, the plan is
@@ -113,13 +114,16 @@ extern const char movement_valid_position_1_chars[];
   * @param settings A pointer to the global Movement settings. You can use this to inform how you present your
   *                 display to the user (i.e. taking into account whether they have silenced the buttons, or if
   *                 they prefer 12 or 24-hour mode). You can also change these settings if you like.
+  * @param watch_face_index The index of this watch face in the global array of watch faces; 0 is the first face,
+  *                         1 is the second, etc. You may stash this value in your context if you wish to reference
+  *                         it later; your watch face's index is set at launch and will not change.
   * @param context_ptr A pointer to a pointer; at first invocation, this value will be NULL, and you can set it
   *                    to any value you like. Subsequent invocations will pass in whatever value you previously
   *                    set. You may want to check if this is NULL and if so, allocate some space to store any
   *                    data required for your watch face.
   *
   */
-typedef void (*watch_face_setup)(movement_settings_t *settings, void ** context_ptr);
+typedef void (*watch_face_setup)(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
 
 /** @brief Prepare to go on-screen.
   * @details This function is called just before your watch enters the foreground. If your watch face has any
@@ -228,6 +232,7 @@ typedef struct {
 
     // background task handling
     bool needs_background_tasks_handled;
+    bool has_scheduled_background_task;
 
     // low energy mode countdown
     int32_t le_mode_ticks;
@@ -244,7 +249,14 @@ typedef struct {
 void movement_move_to_face(uint8_t watch_face_index);
 void movement_move_to_next_face(void);
 void movement_illuminate_led(void);
+
+// note: requesting a tick frequency of 0 will break any scheduled background tasks.
+// this will be fixed in a future refactor of the tick mechanism.
 void movement_request_tick_frequency(uint8_t freq);
+
+// note: watch faces can only schedule a background task when in the foreground, since
+// movement will associate the scheduled task with the currently active face.
+void movement_schedule_background_task(watch_date_time date_time);
 
 void movement_play_signal(void);
 void movement_play_alarm(void);

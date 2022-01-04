@@ -91,7 +91,7 @@ typedef struct {
 Finally, we define the four required functions, and define the watch face struct that users will use to add the face to their watch:
 
 ```c
-void pulsometer_face_setup(movement_settings_t *settings, void ** context_ptr);
+void pulsometer_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
 void pulsometer_face_activate(movement_settings_t *settings, void *context);
 bool pulsometer_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void pulsometer_face_resign(movement_settings_t *settings, void *context);
@@ -119,7 +119,7 @@ These define the tick frequency: when the pulsometer widget is updating the scre
 #### Watch Face Setup
 
 ```c
-void pulsometer_face_setup(movement_settings_t *settings, void ** context_ptr) {
+void pulsometer_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
     if (*context_ptr == NULL) *context_ptr = malloc(sizeof(pulsometer_state_t));
 }

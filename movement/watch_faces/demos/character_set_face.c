@@ -3,8 +3,9 @@
 #include "character_set_face.h"
 #include "watch.h"
 
-void character_set_face_setup(movement_settings_t *settings, void ** context_ptr) {
+void character_set_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
+    (void) watch_face_index;
     if (*context_ptr == NULL) *context_ptr = malloc(sizeof(char));
 }
 

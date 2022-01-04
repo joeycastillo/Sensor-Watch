@@ -17,8 +17,9 @@ static uint8_t hmacKey[] = {0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x21, 0xde, 0xad, 0xbe
 
 static const uint32_t TIMESTEP = 30;
 
-void totp_face_setup(movement_settings_t *settings, void ** context_ptr) {
+void totp_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
+    (void) watch_face_index;
     if (*context_ptr == NULL) *context_ptr = malloc(sizeof(totp_state_t));
     TOTP(hmacKey, sizeof(hmacKey), TIMESTEP);
 }

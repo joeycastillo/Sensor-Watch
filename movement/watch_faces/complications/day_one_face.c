@@ -17,8 +17,9 @@ static void _day_one_face_update(day_one_state_t state) {
     watch_display_string(buf, 0);
 }
 
-void day_one_face_setup(movement_settings_t *settings, void ** context_ptr) {
+void day_one_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
+    (void) watch_face_index;
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(day_one_state_t));
         memset(*context_ptr, 0, sizeof(day_one_state_t));

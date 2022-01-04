@@ -17,8 +17,9 @@ static void _thermistor_readout_face_update_display(bool in_fahrenheit) {
     thermistor_driver_disable();
 }
 
-void thermistor_readout_face_setup(movement_settings_t *settings, void ** context_ptr) {
+void thermistor_readout_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
+    (void) watch_face_index;
     (void) context_ptr;
 }
 

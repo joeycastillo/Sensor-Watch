@@ -86,8 +86,9 @@ static void _lis2dh_logging_face_log_data(lis2dh_logger_state_t *logger_state) {
     logger_state->z_interrupts_this_hour = 0;
 }
 
-void lis2dh_logging_face_setup(movement_settings_t *settings, void ** context_ptr) {
+void lis2dh_logging_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
+    (void) watch_face_index;
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(lis2dh_logger_state_t));
         memset(*context_ptr, 0, sizeof(lis2dh_logger_state_t));

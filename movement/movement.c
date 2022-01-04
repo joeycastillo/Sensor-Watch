@@ -7,6 +7,7 @@
 
 movement_state_t movement_state;
 void * watch_face_contexts[MOVEMENT_NUM_FACES];
+watch_date_time scheduled_tasks[MOVEMENT_NUM_FACES];
 const int32_t movement_le_inactivity_deadlines[8] = {INT_MAX, 3600, 7200, 21600, 43200, 86400, 172800, 604800};
 const int16_t movement_timeout_inactivity_deadlines[4] = {60, 120, 300, 1800};
 movement_event_t event;
@@ -99,6 +100,29 @@ static void _movement_handle_background_tasks(void) {
     movement_state.needs_background_tasks_handled = false;
 }
 
+static void _movement_handle_scheduled_tasks(void) {
+    watch_date_time date_time = watch_rtc_get_date_time();
+    uint8_t num_active_tasks = 0;
+
+    for(uint8_t i = 0; i < MOVEMENT_NUM_FACES; i++) {
+        if (scheduled_tasks[i].reg) {
+            if (scheduled_tasks[i].reg == date_time.reg) {
+                scheduled_tasks[i].reg = 0;
+                movement_event_t background_event = { EVENT_BACKGROUND_TASK, 0 };
+                watch_faces[i].loop(background_event, &movement_state.settings, watch_face_contexts[i]);
+            } else {
+                num_active_tasks++;
+            }
+        }
+    }
+
+    if (num_active_tasks == 0) {
+        movement_state.has_scheduled_background_task = false;
+    } else {
+        _movement_reset_inactivity_countdown();
+    }
+}
+
 void movement_request_tick_frequency(uint8_t freq) {
     if (freq == 128) return; // Movement uses the 128 Hz tick internally
     RTC->MODE2.INTENCLR.reg = 0xFE; // disable all callbacks except the 128 Hz one
@@ -123,6 +147,14 @@ void movement_move_to_face(uint8_t watch_face_index) {
 
 void movement_move_to_next_face(void) {
     movement_move_to_face((movement_state.current_watch_face + 1) % MOVEMENT_NUM_FACES);
+}
+
+void movement_schedule_background_task(watch_date_time date_time) {
+    watch_date_time now = watch_rtc_get_date_time();
+    if (date_time.reg > now.reg) {
+        movement_state.has_scheduled_background_task = true;
+        scheduled_tasks[movement_state.current_watch_face].reg = date_time.reg;
+    }
 }
 
 void movement_play_signal(void) {
@@ -161,6 +193,7 @@ void app_setup(void) {
     if (is_first_launch) {
         for(uint8_t i = 0; i < MOVEMENT_NUM_FACES; i++) {
             watch_face_contexts[i] = NULL;
+            scheduled_tasks[i].reg = 0;
             is_first_launch = false;
         }
 
@@ -185,7 +218,7 @@ void app_setup(void) {
         movement_request_tick_frequency(1);
 
         for(uint8_t i = 0; i < MOVEMENT_NUM_FACES; i++) {
-            watch_faces[i].setup(&movement_state.settings, &watch_face_contexts[i]);
+            watch_faces[i].setup(&movement_state.settings, i, &watch_face_contexts[i]);
         }
 
         watch_faces[movement_state.current_watch_face].activate(&movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
@@ -229,6 +262,9 @@ bool app_loop(void) {
 
     // handle background tasks, if the alarm handler told us we need to
     if (movement_state.needs_background_tasks_handled) _movement_handle_background_tasks();
+
+    // if we have a scheduled background task, handle that here:
+    if (event.event_type == EVENT_TICK && movement_state.has_scheduled_background_task) _movement_handle_scheduled_tasks();
 
     // if we have timed out of our low energy mode countdown, enter low energy mode.
     if (movement_state.le_mode_ticks == 0) {

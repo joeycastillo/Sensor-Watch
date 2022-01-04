@@ -3,8 +3,9 @@
 #include "stopwatch_face.h"
 #include "watch.h"
 
-void stopwatch_face_setup(movement_settings_t *settings, void ** context_ptr) {
+void stopwatch_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
+    (void) watch_face_index;
     if (*context_ptr == NULL) *context_ptr = malloc(sizeof(stopwatch_state_t));
 }
 

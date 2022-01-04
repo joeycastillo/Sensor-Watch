@@ -10,7 +10,7 @@ typedef struct {
 
 } totp_state_t;
 
-void totp_face_setup(movement_settings_t *settings, void ** context_ptr);
+void totp_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
 void totp_face_activate(movement_settings_t *settings, void *context);
 bool totp_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void totp_face_resign(movement_settings_t *settings, void *context);

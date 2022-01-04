@@ -48,8 +48,9 @@ static void _thermistor_logging_face_update_display(thermistor_logger_state_t *l
     watch_display_string(buf, 0);
 }
 
-void thermistor_logging_face_setup(movement_settings_t *settings, void ** context_ptr) {
+void thermistor_logging_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
+    (void) watch_face_index;
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(thermistor_logger_state_t));
         memset(*context_ptr, 0, sizeof(thermistor_logger_state_t));
