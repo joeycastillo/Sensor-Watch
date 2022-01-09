@@ -115,7 +115,7 @@ SRCS += \
   $(TOP)/watch-library/hpl/slcd/hpl_slcd.c \
   $(TOP)/watch-library/hpl/systick/hpl_systick.c \
   $(TOP)/watch-library/driver/lis2dh.c \
-  $(TOP)/watch-library/driver/lis2dW.c \
+  $(TOP)/watch-library/driver/lis2dw.c \
 
 DEFINES += \
   -D__SAML22J18A__ \
