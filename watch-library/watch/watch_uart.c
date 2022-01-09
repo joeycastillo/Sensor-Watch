@@ -56,8 +56,8 @@
 void watch_enable_debug_uart(uint32_t baud) {
     uint64_t br = (uint64_t)65536 * ((CONF_CPU_FREQUENCY * 4) - 16 * baud) / (CONF_CPU_FREQUENCY * 4);
 
-    gpio_set_pin_direction(D1, GPIO_DIRECTION_IN);
-    gpio_set_pin_function(D1, PINMUX_PB00C_SERCOM3_PAD2);
+    gpio_set_pin_direction(A2, GPIO_DIRECTION_OUT);
+    gpio_set_pin_function(A2, PINMUX_PB02C_SERCOM3_PAD0);
 
     MCLK->APBCMASK.reg |= MCLK_APBCMASK_SERCOM3;
 
@@ -66,7 +66,7 @@ void watch_enable_debug_uart(uint32_t baud) {
 
     SERCOM3->USART.CTRLA.reg =
         SERCOM_USART_CTRLA_DORD | SERCOM_USART_CTRLA_MODE(1/*USART_INT_CLK*/) |
-        SERCOM_USART_CTRLA_RXPO(0/*PAD0*/) | SERCOM_USART_CTRLA_TXPO(1/*PAD2*/);
+        SERCOM_USART_CTRLA_RXPO(1/*PAD1*/) | SERCOM_USART_CTRLA_TXPO(0/*PAD0*/);
 
     SERCOM3->USART.CTRLB.reg = SERCOM_USART_CTRLB_RXEN | SERCOM_USART_CTRLB_TXEN |
         SERCOM_USART_CTRLB_CHSIZE(0/*8 bits*/);
