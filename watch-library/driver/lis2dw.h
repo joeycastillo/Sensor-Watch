@@ -254,4 +254,12 @@ void lis2dw_set_data_rate(lis2dw_data_rate_t dataRate);
 
 lis2dw_data_rate_t lis2dw_get_data_rate(void);
 
+void lis2dw_set_low_power_mode(lis2dw_low_power_mode_t mode);
+
+lis2dw_low_power_mode_t lis2dw_get_low_power_mode(void);
+
+void lis2dw_set_low_noise_mode(bool on);
+
+bool lis2dw_get_low_noise_mode(void);
+
 #endif // LIS2DW_H
