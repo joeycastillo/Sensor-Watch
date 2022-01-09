@@ -92,21 +92,21 @@ lis2dw_reading lis2dw_get_raw_reading(void) {
 }
 
 void lis2dw_set_range(lis2dw_range_t range) {
-    uint8_t val = watch_i2c_read8(LIS2DW_ADDRESS, LIS2DW_REG_CTRL4) & 0xCF;
+    uint8_t val = watch_i2c_read8(LIS2DW_ADDRESS, LIS2DW_REG_CTRL6) & ~(LIS2DW_RANGE_16_G << 4);
     uint8_t bits = range << 4;
 
-    watch_i2c_write8(LIS2DW_ADDRESS, LIS2DW_REG_CTRL4, val | bits);
+    watch_i2c_write8(LIS2DW_ADDRESS, LIS2DW_REG_CTRL6, val | bits);
 }
 
 lis2dw_range_t lis2dw_get_range(void) {
-    uint8_t retval = watch_i2c_read8(LIS2DW_ADDRESS, LIS2DW_REG_CTRL4) & 0x30;
+    uint8_t retval = watch_i2c_read8(LIS2DW_ADDRESS, LIS2DW_REG_CTRL6) & (LIS2DW_RANGE_16_G << 4);
     retval >>= 4;
     return (lis2dw_range_t)retval;
 }
 
 
 void lis2dw_set_data_rate(lis2dw_data_rate_t dataRate) {
-    uint8_t val = watch_i2c_read8(LIS2DW_ADDRESS, LIS2DW_REG_CTRL1) & 0x0F;
+    uint8_t val = watch_i2c_read8(LIS2DW_ADDRESS, LIS2DW_REG_CTRL1) & ~(0b1111 << 4);
     uint8_t bits = dataRate << 4;
 
     watch_i2c_write8(LIS2DW_ADDRESS, LIS2DW_REG_CTRL1, val | bits);
