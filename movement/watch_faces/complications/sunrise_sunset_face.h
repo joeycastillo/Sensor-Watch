@@ -27,8 +27,8 @@
 
 #include "movement.h"
 
-// The Day One face is designed to count upwards from the wearer's date of birth. It also functions as an
-// interface for setting the birth date register, which other watch faces can use for various purposes.
+// The Sunrise/Sunset face is designed to display the next sunrise or sunset for a given location.
+// TODO: It also functions as an interface for setting the location register, which other watch faces can use for various purposes.
 
 typedef struct {
     uint16_t latitude;
