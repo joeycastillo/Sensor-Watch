@@ -258,6 +258,10 @@ void movement_request_tick_frequency(uint8_t freq);
 // movement will associate the scheduled task with the currently active face.
 void movement_schedule_background_task(watch_date_time date_time);
 
+// note: watch faces can only cancel their background task when in the foreground, since
+// movement will associate the scheduled task with the currently active face.
+void movement_cancel_background_task(void);
+
 void movement_play_signal(void);
 void movement_play_alarm(void);
 
