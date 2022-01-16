@@ -114,10 +114,10 @@ bool sunrise_sunset_face_loop(movement_event_t event, movement_settings_t *setti
 
     switch (event.event_type) {
         case EVENT_ACTIVATE:
+            _sunrise_sunset_face_update();
             break;
         case EVENT_LOW_ENERGY_UPDATE:
         case EVENT_TICK:
-            _sunrise_sunset_face_update();
             break;
         case EVENT_MODE_BUTTON_UP:
             movement_move_to_next_face();
