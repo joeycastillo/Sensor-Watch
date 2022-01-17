@@ -33,11 +33,13 @@ void _watch_init(void) {
 
 // this function is called by arc4random to get entropy for random number generation.
 // let's use the SAM L22's true random number generator to seed the PRNG!
+int getentropy(void *buf, size_t buflen);
 int getentropy(void *buf, size_t buflen) {
     // TODO: (a2) hook to RNG
     return 0;
 }
 
+int _gettimeofday(struct timeval *tv, void *tzvp);
 int _gettimeofday(struct timeval *tv, void *tzvp) {
     (void)tzvp;
     watch_date_time date_time = watch_rtc_get_date_time();

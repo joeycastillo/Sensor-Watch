@@ -86,6 +86,6 @@ void voltage_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
     // make sure to restore the default in the end.
-    watch_set_analog_reference_voltage(ADC_REFCTRL_REFSEL_INTVCC2_Val);
+    watch_set_analog_reference_voltage(ADC_REFERENCE_VCC);
     watch_disable_adc();
 }

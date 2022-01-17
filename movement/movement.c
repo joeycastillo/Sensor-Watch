@@ -149,7 +149,12 @@ static void _movement_handle_scheduled_tasks(void) {
 
 void movement_request_tick_frequency(uint8_t freq) {
     if (freq == 128) return; // Movement uses the 128 Hz tick internally
-    RTC->MODE2.INTENCLR.reg = 0xFE; // disable all callbacks except the 128 Hz one
+
+    // disable all callbacks except the 128 Hz one
+    for (int i = 1; i < 128; i = i << 1) {
+        watch_rtc_disable_periodic_callback(i);
+    }
+
     movement_state.subsecond = 0;
     movement_state.tick_frequency = freq;
     if (freq) watch_rtc_register_periodic_callback(cb_tick, freq);

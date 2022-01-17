@@ -34,11 +34,11 @@ void init(void) {
   bufferOffset = 0;
 }
 
-uint32_t rol32(uint32_t number, uint8_t bits) {
+static uint32_t rol32(uint32_t number, uint8_t bits) {
   return ((number << bits) | (uint32_t)(number >> (32-bits)));
 }
 
-void hashBlock(void) {
+static void hashBlock(void) {
   uint8_t i;
   uint32_t a,b,c,d,e,t;
 
@@ -75,7 +75,7 @@ void hashBlock(void) {
   state.w[4] += e;
 }
 
-void addUncounted(uint8_t data) {
+static void addUncounted(uint8_t data) {
   buffer.b[bufferOffset ^ 3] = data;
   bufferOffset++;
   if (bufferOffset == BLOCK_LENGTH) {
@@ -97,7 +97,7 @@ void writeArray(uint8_t *buffer, uint8_t size){
     }
 }
 
-void pad(void) {
+static void pad(void) {
   // Implement SHA-1 padding (fips180-2 ��5.1.1)
 
   // Pad with 0x80 followed by 0x00 until the end of the block
