@@ -6,13 +6,21 @@ ifndef BOARD
 override BOARD = OSO-SWAT-A1-04
 endif
 
+ifndef TARGET
+override TARGET = watch
+endif
+
 ##############################################################################
 .PHONY: all directory clean size
 
-CC = arm-none-eabi-gcc
-OBJCOPY = arm-none-eabi-objcopy
-SIZE = arm-none-eabi-size
-UF2 = python $(TOP)/utils/uf2conv.py
+ifeq ($(TARGET), watch)
+  CC = arm-none-eabi-gcc
+  OBJCOPY = arm-none-eabi-objcopy
+  SIZE = arm-none-eabi-size
+  UF2 = python $(TOP)/utils/uf2conv.py
+else
+  CC = emcc
+endif
 
 ifeq ($(OS), Windows_NT)
   MKDIR = gmkdir
@@ -20,6 +28,7 @@ else
   MKDIR = mkdir
 endif
 
+ifeq ($(TARGET), watch)
 CFLAGS += -W -Wall -Wextra -Wmissing-prototypes -Wmissing-declarations
 CFLAGS += --std=gnu99 -Os
 CFLAGS += -fno-diagnostics-show-caret
@@ -120,6 +129,47 @@ SRCS += \
 DEFINES += \
   -D__SAML22J18A__ \
   -DDONT_USE_CMSIS_INIT
+
+else
+
+CFLAGS += -Wmissing-prototypes -Wmissing-declarations
+CFLAGS += --std=gnu99 -Os
+CFLAGS += -fdata-sections -ffunction-sections
+CFLAGS += -funsigned-char
+CFLAGS += -MD -MP -MT $(BUILD)/$(*F).o -MF $(BUILD)/$(@F).d
+
+LDFLAGS += -Wl,--gc-sections
+
+LIBS += -lm
+
+INCLUDES += \
+  -I$(TOP)/boards/$(BOARD) \
+  -I$(TOP)/simulator-library/hal/include/ \
+  -I$(TOP)/simulator-library/hal/utils/include/ \
+  -I$(TOP)/simulator-library/hpl/slcd/ \
+  -I$(TOP)/simulator-library/hpl/port/ \
+  -I$(TOP)/simulator-library/config/ \
+  -I$(TOP)/simulator-library/hw/ \
+  -I$(TOP)/simulator-library/watch/ \
+  -I$(TOP)/simulator-library \
+
+SRCS += \
+  $(TOP)/simulator-library/main.c \
+  $(TOP)/simulator-library/watch/watch_rtc.c \
+  $(TOP)/simulator-library/watch/watch_slcd.c \
+  $(TOP)/simulator-library/watch/watch_extint.c \
+  $(TOP)/simulator-library/watch/watch_led.c \
+  $(TOP)/simulator-library/watch/watch_buzzer.c \
+  $(TOP)/simulator-library/watch/watch_adc.c \
+  $(TOP)/simulator-library/watch/watch_gpio.c \
+  $(TOP)/simulator-library/watch/watch_i2c.c \
+  $(TOP)/simulator-library/watch/watch_uart.c \
+  $(TOP)/simulator-library/watch/watch_deepsleep.c \
+  $(TOP)/simulator-library/watch/watch_utility.c \
+  $(TOP)/simulator-library/watch/watch_private.c \
+  $(TOP)/simulator-library/watch/watch.c \
+
+endif
 
 ifeq ($(LED), BLUE)
 CFLAGS += -DWATCH_SWAP_LED_PINS
