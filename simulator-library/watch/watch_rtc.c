@@ -25,7 +25,10 @@
 #include "watch_rtc.h"
 
 #include <emscripten.h>
+#include <emscripten/html5.h>
 #include <stdio.h>
+
+long tick_callbacks[8];
 
 bool _watch_rtc_is_enabled(void) {
     return true;
@@ -77,8 +80,12 @@ void watch_rtc_disable_tick_callback(void) {
     watch_rtc_disable_periodic_callback(1);
 }
 
+static void call_callback(void *userData) {
+    ext_irq_cb_t callback = userData;
+    callback();
+}
+
 void watch_rtc_register_periodic_callback(ext_irq_cb_t callback, uint8_t frequency) {
-#if 0
     // we told them, it has to be a power of 2.
     if (__builtin_popcount(frequency) != 1) return;
 
@@ -89,26 +96,24 @@ void watch_rtc_register_periodic_callback(ext_irq_cb_t callback, uint8_t frequen
     uint8_t per_n = __builtin_clz(tmp);
 
     // this also maps nicely to an index for our list of tick callbacks.
-    tick_callbacks[per_n] = callback;
-
-    NVIC_ClearPendingIRQ(RTC_IRQn);
-    NVIC_EnableIRQ(RTC_IRQn);
-    RTC->MODE2.INTENSET.reg = 1 << per_n;
-#endif
+    double interval = 1000 / (1 << (per_n - 1)); // in msec
+    tick_callbacks[per_n] = emscripten_set_interval(call_callback, interval, (void *)callback);
 }
 
 void watch_rtc_disable_periodic_callback(uint8_t frequency) {
-#if 0
     if (__builtin_popcount(frequency) != 1) return;
     uint8_t per_n = __builtin_clz(frequency << 24);
-    RTC->MODE2.INTENCLR.reg = 1 << per_n;
-#endif
+    emscripten_clear_interval(tick_callbacks[per_n]);
+    tick_callbacks[per_n] = 0;
 }
 
 void watch_rtc_disable_all_periodic_callbacks(void) {
-#if 0
-    RTC->MODE2.INTENCLR.reg = 0xFF;
-#endif
+    for (int i = 0; i < 8; i++) {
+        if (tick_callbacks[i] != 0) {
+            emscripten_clear_interval(tick_callbacks[i]);
+            tick_callbacks[i] = 0;
+        }
+    }
 }
 
 void watch_rtc_register_alarm_callback(ext_irq_cb_t callback, watch_date_time alarm_time, watch_rtc_alarm_match mask) {
