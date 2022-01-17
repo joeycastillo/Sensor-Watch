@@ -281,7 +281,6 @@ inline void watch_clear_indicator(WatchIndicatorSegment indicator) {
 }
 
 void watch_clear_all_indicators(void) {
-    // TODO: (a2) hook to UI
     watch_clear_pixel(2, 17);
     watch_clear_pixel(2, 16);
     watch_clear_pixel(0, 17);

@@ -46,16 +46,7 @@ void watch_rtc_set_date_time(watch_date_time date_time) {
 
 watch_date_time watch_rtc_get_date_time(void) {
     watch_date_time retval;
-
-    // uint32_t second;    // 0-59
-    // uint32_t minute;    // 0-59
-    // uint32_t hour;      // 0-23
-    // uint32_t day;       // 1-31
-    // uint32_t month;     // 1-12
-    // uint32_t year;      // 0-63 (representing 2020-2083)
-
-    uint32_t fields[6];
-    EM_ASM({
+    retval.reg = EM_ASM_INT({
         const result = new Intl.DateTimeFormat('en-us-posix', {
             year: 'numeric',
             month: 'numeric',
@@ -66,25 +57,14 @@ watch_date_time watch_rtc_get_date_time(void) {
             hour12: false,
         }).formatToParts(new Date());
         
-        const object = Object.fromEntries(result.map(x => [x.type, x.value]));
-        console.log(object);
-
-        let offset = 0;
-        HEAP32[($0 + offset) >> 2] = parseInt(object.year) - 2020; offset += 4;
-        HEAP32[($0 + offset) >> 2] = parseInt(object.month); offset += 4;
-        HEAP32[($0 + offset) >> 2] = parseInt(object.day); offset += 4;
-        HEAP32[($0 + offset) >> 2] = parseInt(object.hour); offset += 4;
-        HEAP32[($0 + offset) >> 2] = parseInt(object.minute); offset += 4;
-        HEAP32[($0 + offset) >> 2] = parseInt(object.second); offset += 4;
-    }, fields);
-
-    size_t offset = 0;
-    retval.unit.year = fields[offset++];
-    retval.unit.month = fields[offset++];
-    retval.unit.day = fields[offset++];
-    retval.unit.hour = fields[offset++];
-    retval.unit.minute = fields[offset++];
-    retval.unit.second = fields[offset++];
+        const object = Object.fromEntries(result.map(x => [x.type, parseInt(x.value)]));
+        return object.second |
+            (object.minute << 6) |
+            (object.hour << 12) |
+            (object.day << 17) |
+            (object.month << 22) |
+            ((object.year - 2020) << 26);
+    });
 
     return retval;
 }
