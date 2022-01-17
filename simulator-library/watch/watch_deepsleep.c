@@ -31,6 +31,8 @@
 #warning This board revision does not support external wake on BTN_ALARM, so watch_register_extwake_callback will not work with it. Use watch_register_interrupt_callback instead.
 #endif
 
+static uint32_t watch_backup_data[8];
+
 void watch_register_extwake_callback(uint8_t pin, ext_irq_cb_t callback, bool level) {
     if (pin == BTN_ALARM) {
         watch_register_interrupt_callback(pin, callback, level ? INTERRUPT_TRIGGER_RISING : INTERRUPT_TRIGGER_FALLING);
@@ -45,13 +47,13 @@ void watch_disable_extwake_interrupt(uint8_t pin) {
 
 void watch_store_backup_data(uint32_t data, uint8_t reg) {
     if (reg < 8) {
-        // TODO: (a2) hook to UI
+        watch_backup_data[reg] = data;
     }
 }
 
 uint32_t watch_get_backup_data(uint8_t reg) {
     if (reg < 8) {
-        // TODO: (a2) hook to UI
+        return watch_backup_data[reg];
     }
 
     return 0;
