@@ -154,8 +154,7 @@ static const uint32_t IndicatorSegments[6] = {
 };
 
 void watch_enable_display(void) {
-    // SEGMENT_LCD_0_init();
-    // slcd_sync_enable(&SEGMENT_LCD_0);
+    watch_clear_display();
 }
 
 void watch_set_pixel(uint8_t com, uint8_t seg) {
