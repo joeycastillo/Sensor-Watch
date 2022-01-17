@@ -8,17 +8,33 @@
 #include <emscripten.h>
 #include <emscripten/html5.h>
 
-static EM_BOOL one_iter(double time, void *userData) {
+static bool sleeping = true;
+
+static EM_BOOL main_loop(double time, void *userData) {
+    if (sleeping) {
+        sleeping = false;
+        app_wake_from_standby();
+    }
+
     bool can_sleep = app_loop();
 
     if (can_sleep) {
         app_prepare_for_standby();
-        // sleep(4);
-        app_wake_from_standby();
+        sleeping = true;
+        return EM_FALSE;
     }
 
-    // Return true to keep the loop running.
     return EM_TRUE;
+}
+
+// make compiler happy
+void resume_main_loop(void);
+
+EMSCRIPTEN_KEEPALIVE
+void resume_main_loop(void) {
+    if (sleeping) {
+        emscripten_request_animation_frame_loop(main_loop, NULL);
+    }
 }
 
 int main(void) {
@@ -28,7 +44,7 @@ int main(void) {
     _watch_init();
     app_setup();
 
-    emscripten_request_animation_frame_loop(one_iter, NULL);
+    resume_main_loop();
 
     return 0;
 }

@@ -28,7 +28,13 @@
 #include <emscripten/html5.h>
 #include <stdio.h>
 
-long tick_callbacks[8];
+static double time_offset = 0;
+static long tick_callbacks[8];
+
+ext_irq_cb_t alarm_callback;
+ext_irq_cb_t btn_alarm_callback;
+ext_irq_cb_t a2_callback;
+ext_irq_cb_t a4_callback;
 
 bool _watch_rtc_is_enabled(void) {
     return true;
@@ -41,33 +47,44 @@ void _watch_rtc_init(void) {
 }
 
 void watch_rtc_set_date_time(watch_date_time date_time) {
-#if 0
-    RTC->MODE2.CLOCK.reg = date_time.reg;
-    _sync_rtc();
-#endif
+    time_offset = EM_ASM_DOUBLE({
+        console.log($0);
+        const year = 2020 + (($0 >> 26) & 0x3f);
+        const month = ($0 >> 22) & 0xf;
+        const day = ($0 >> 17) & 0x1f;
+        const hour = ($0 >> 12) & 0x1f;
+        const minute = ($0 >> 6) & 0x3f;
+        const second = $0 & 0x3f;
+        const date = new Date(year, month - 1, day, hour, minute, second);
+        return date - Date.now();
+    }, date_time.reg);
+    printf("time offset: %f\n", time_offset);
 }
 
 watch_date_time watch_rtc_get_date_time(void) {
     watch_date_time retval;
     retval.reg = EM_ASM_INT({
-        const result = new Intl.DateTimeFormat('en-us-posix', {
-            year: 'numeric',
-            month: 'numeric',
-            day: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric',
-            second: 'numeric',
-            hour12: false,
-        }).formatToParts(new Date());
-        
-        const object = Object.fromEntries(result.map(x => [x.type, parseInt(x.value)]));
+        const object = Object.fromEntries(
+            new Intl.DateTimeFormat('en-us-posix', {
+                year: 'numeric',
+                month: 'numeric',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric',
+                second: 'numeric',
+                hour12: false,
+            })
+            .formatToParts(new Date(Date.now() + $0))
+            .map(x => [x.type, parseInt(x.value, 10)])
+        );
+
         return object.second |
             (object.minute << 6) |
             (object.hour << 12) |
             (object.day << 17) |
             (object.month << 22) |
             ((object.year - 2020) << 26);
-    });
+    }, time_offset);
 
     return retval;
 }
@@ -83,6 +100,9 @@ void watch_rtc_disable_tick_callback(void) {
 static void call_callback(void *userData) {
     ext_irq_cb_t callback = userData;
     callback();
+
+    void resume_main_loop(void);
+    resume_main_loop();
 }
 
 void watch_rtc_register_periodic_callback(ext_irq_cb_t callback, uint8_t frequency) {
@@ -96,7 +116,7 @@ void watch_rtc_register_periodic_callback(ext_irq_cb_t callback, uint8_t frequen
     uint8_t per_n = __builtin_clz(tmp);
 
     // this also maps nicely to an index for our list of tick callbacks.
-    double interval = 1000 / (1 << (per_n - 1)); // in msec
+    double interval = 1000 / frequency; // in msec
     tick_callbacks[per_n] = emscripten_set_interval(call_callback, interval, (void *)callback);
 }
 
