@@ -24,13 +24,11 @@
 
 #include "watch_led.h"
 
-void watch_enable_leds(void) {
-    // TODO: (a2) hook to UI
-}
+#include <emscripten.h>
 
-void watch_disable_leds(void) {
-    // TODO: (a2) hook to UI
-}
+void watch_enable_leds(void) {}
+
+void watch_disable_leds(void) {}
 
 void watch_enable_led(bool unused) {
     (void)unused;
@@ -43,7 +41,9 @@ void watch_disable_led(bool unused) {
 }
 
 void watch_set_led_color(uint8_t red, uint8_t green) {
-    // TODO: (a2) hook to UI
+    EM_ASM({
+        document.getElementById('light').style.opacity = $1 / 255;
+    }, red, green);
 }
 
 void watch_set_led_red(void) {
