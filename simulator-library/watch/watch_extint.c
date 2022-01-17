@@ -50,21 +50,29 @@ void watch_disable_external_interrupts(void) {
     external_interrupt_enabled = false;
 }
 
+void watch_invoke_interrupt_callback(uint32_t button, uint32_t trigger);
+
 EMSCRIPTEN_KEEPALIVE
 void watch_invoke_interrupt_callback(uint32_t button, uint32_t trigger) {
     void resume_main_loop(void);
 
     if (button == 2) {
+        watch_set_pin_level(BTN_MODE, (trigger & INTERRUPT_TRIGGER_RISING) != 0);
+        
         if (external_interrupt_mode_callback && (external_interrupt_mode_trigger & trigger)) {
             external_interrupt_mode_callback();
             resume_main_loop();
         }
     } else if (button == 1) {
+        watch_set_pin_level(BTN_LIGHT, (trigger & INTERRUPT_TRIGGER_RISING) != 0);
+
         if (external_interrupt_light_callback && (external_interrupt_light_trigger & trigger)) {
             external_interrupt_light_callback();
             resume_main_loop();
         }
     } else if (button == 3) {
+        watch_set_pin_level(BTN_ALARM, (trigger & INTERRUPT_TRIGGER_RISING) != 0);
+
         if (external_interrupt_alarm_callback && (external_interrupt_alarm_trigger & trigger)) {
             external_interrupt_alarm_callback();
             resume_main_loop();

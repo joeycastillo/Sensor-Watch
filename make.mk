@@ -144,6 +144,7 @@ LIBS += -lm
 
 INCLUDES += \
   -I$(TOP)/boards/$(BOARD) \
+  -I$(TOP)/watch-library/driver/ \
   -I$(TOP)/simulator-library/hal/include/ \
   -I$(TOP)/simulator-library/hal/utils/include/ \
   -I$(TOP)/simulator-library/hpl/slcd/ \
