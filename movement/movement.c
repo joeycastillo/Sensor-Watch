@@ -29,6 +29,10 @@
 #include "movement.h"
 #include "movement_config.h"
 
+#if __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 movement_state_t movement_state;
 void * watch_face_contexts[MOVEMENT_NUM_FACES];
 watch_date_time scheduled_tasks[MOVEMENT_NUM_FACES];
@@ -220,6 +224,18 @@ void app_init(void) {
     movement_state.light_ticks = -1;
     movement_state.alarm_ticks = -1;
     _movement_reset_inactivity_countdown();
+
+#if __EMSCRIPTEN__
+    int32_t time_zone_offset = EM_ASM_INT({
+        return -new Date().getTimezoneOffset();
+    });
+    for (int i = 0; i < sizeof(movement_timezone_offsets) / sizeof(movement_timezone_offsets[0]); i++) {
+        if (movement_timezone_offsets[i] == time_zone_offset) {
+            movement_state.settings.bit.time_zone = i;
+            break;
+        }
+    }
+#endif
 }
 
 void app_wake_from_backup(void) {
