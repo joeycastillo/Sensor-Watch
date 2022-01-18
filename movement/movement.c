@@ -33,6 +33,26 @@
 #include <emscripten.h>
 #endif
 
+// source: https://stackoverflow.com/a/2124385/205895
+#define PP_NARG(...)  PP_NARG_(__VA_ARGS__,PP_RSEQ_N())
+#define PP_NARG_(...) PP_ARG_N(__VA_ARGS__)
+#define PP_ARG_N(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15,_16,_17,_18,_19,_20,N,...) N
+#define PP_RSEQ_N() 20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0
+
+#define MOVEMENT_NUM_FACES PP_NARG(WATCH_FACES)
+
+#if __EMSCRIPTEN__
+watch_face_t watch_faces[MOVEMENT_NUM_FACES];
+
+__attribute__((constructor))
+static void initialize_watch_faces(void) {
+    watch_face_t _watch_faces[MOVEMENT_NUM_FACES] = { WATCH_FACES };;
+    memcpy(watch_faces, _watch_faces, sizeof(watch_faces));
+}
+#else
+const watch_face_t watch_faces[] = { WATCH_FACES };
+#endif
+
 movement_state_t movement_state;
 void * watch_face_contexts[MOVEMENT_NUM_FACES];
 watch_date_time scheduled_tasks[MOVEMENT_NUM_FACES];

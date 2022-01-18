@@ -44,15 +44,11 @@
 #include "sunrise_sunset_face.h"
 #include "countdown_face.h"
 
-#define MOVEMENT_NUM_FACES 4
-watch_face_t watch_faces[MOVEMENT_NUM_FACES];
-
-__attribute__((constructor)) 
-static void initialize_watch_faces(void) {
-    watch_faces[0] = simple_clock_face;
-    watch_faces[1] = preferences_face;
-    watch_faces[2] = set_time_face;
-    watch_faces[3] = totp_face;
-}
+// comma separated list of watch_face_t
+#define WATCH_FACES    \
+    simple_clock_face, \
+    preferences_face,  \
+    set_time_face,     \
+    totp_face,         \
 
 #endif // MOVEMENT_CONFIG_H_
