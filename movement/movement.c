@@ -155,9 +155,13 @@ void movement_request_tick_frequency(uint8_t freq) {
     if (freq == 128) return; // Movement uses the 128 Hz tick internally
 
     // disable all callbacks except the 128 Hz one
+#if __EMSCRIPTEN__
     for (int i = 1; i < 128; i = i << 1) {
         watch_rtc_disable_periodic_callback(i);
     }
+#else
+    RTC->MODE2.INTENCLR.reg = 0xFE;
+#endif
 
     movement_state.subsecond = 0;
     movement_state.tick_frequency = freq;
