@@ -58,16 +58,16 @@ static void _lis2dh_logging_face_update_display(movement_settings_t *settings, l
             }
             switch (logger_state->axis_index) {
                 case 0:
-                    sprintf(buf, "3A%2d%02d%4u", date_time.unit.hour, date_time.unit.minute, logger_state->data[pos].x_interrupts + logger_state->data[pos].y_interrupts + logger_state->data[pos].z_interrupts);
+                    sprintf(buf, "3A%2d%02d%4lu", date_time.unit.hour, date_time.unit.minute, (unsigned long)(logger_state->data[pos].x_interrupts + logger_state->data[pos].y_interrupts + logger_state->data[pos].z_interrupts));
                     break;
                 case 1:
-                    sprintf(buf, "XA%2d%02d%4u", date_time.unit.hour, date_time.unit.minute, logger_state->data[pos].x_interrupts);
+                    sprintf(buf, "XA%2d%02d%4lu", date_time.unit.hour, date_time.unit.minute, (unsigned long)logger_state->data[pos].x_interrupts);
                     break;
                 case 2:
-                    sprintf(buf, "YA%2d%02d%4u", date_time.unit.hour, date_time.unit.minute, logger_state->data[pos].y_interrupts);
+                    sprintf(buf, "YA%2d%02d%4lu", date_time.unit.hour, date_time.unit.minute, (unsigned long)logger_state->data[pos].y_interrupts);
                     break;
                 case 3:
-                    sprintf(buf, "ZA%2d%02d%4u", date_time.unit.hour, date_time.unit.minute, logger_state->data[pos].z_interrupts);
+                    sprintf(buf, "ZA%2d%02d%4lu", date_time.unit.hour, date_time.unit.minute, (unsigned long)logger_state->data[pos].z_interrupts);
                     break;
             }
         }
