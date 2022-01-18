@@ -144,15 +144,17 @@ LIBS += -lm
 
 INCLUDES += \
   -I$(TOP)/boards/$(BOARD) \
-  -I$(TOP)/watch-library/driver/ \
-  -I$(TOP)/simulator-library/hal/include/ \
   -I$(TOP)/simulator-library/hal/utils/include/ \
-  -I$(TOP)/simulator-library/hpl/slcd/ \
   -I$(TOP)/simulator-library/hpl/port/ \
-  -I$(TOP)/simulator-library/config/ \
-  -I$(TOP)/simulator-library/hw/ \
-  -I$(TOP)/simulator-library/watch/ \
-  -I$(TOP)/simulator-library \
+  -I$(TOP)/watch-library/include/component \
+  -I$(TOP)/watch-library/driver/ \
+  -I$(TOP)/watch-library/hal/include/ \
+  -I$(TOP)/watch-library/hal/utils/include/ \
+  -I$(TOP)/watch-library/hpl/slcd/ \
+  -I$(TOP)/watch-library/config/ \
+  -I$(TOP)/watch-library/hw/ \
+  -I$(TOP)/watch-library/watch/ \
+  -I$(TOP)/watch-library \
 
 SRCS += \
   $(TOP)/simulator-library/main.c \
