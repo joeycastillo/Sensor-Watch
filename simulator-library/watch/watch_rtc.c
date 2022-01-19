@@ -48,7 +48,6 @@ void _watch_rtc_init(void) {
 
 void watch_rtc_set_date_time(watch_date_time date_time) {
     time_offset = EM_ASM_DOUBLE({
-        console.log($0);
         const year = 2020 + (($0 >> 26) & 0x3f);
         const month = ($0 >> 22) & 0xf;
         const day = ($0 >> 17) & 0x1f;
@@ -58,32 +57,18 @@ void watch_rtc_set_date_time(watch_date_time date_time) {
         const date = new Date(year, month - 1, day, hour, minute, second);
         return date - Date.now();
     }, date_time.reg);
-    printf("time offset: %f\n", time_offset);
 }
 
 watch_date_time watch_rtc_get_date_time(void) {
     watch_date_time retval;
     retval.reg = EM_ASM_INT({
-        const object = Object.fromEntries(
-            new Intl.DateTimeFormat('en-us-posix', {
-                year: 'numeric',
-                month: 'numeric',
-                day: 'numeric',
-                hour: 'numeric',
-                minute: 'numeric',
-                second: 'numeric',
-                hour12: false,
-            })
-            .formatToParts(new Date(Date.now() + $0))
-            .map(x => [x.type, parseInt(x.value, 10)])
-        );
-
-        return object.second |
-            (object.minute << 6) |
-            (object.hour << 12) |
-            (object.day << 17) |
-            (object.month << 22) |
-            ((object.year - 2020) << 26);
+        const date = new Date(Date.now() + $0);
+        return date.getSeconds() |
+            (date.getMinutes() << 6) |
+            (date.getHours() << 12) |
+            (date.getDate() << 17) |
+            ((date.getMonth() + 1) << 22) |
+            ((date.getFullYear() - 2020) << 26);
     }, time_offset);
 
     return retval;
