@@ -57,7 +57,7 @@ In addition to the settings and context, this function receives another paramete
 
 There is also a `subsecond` property on the event that contains the fractional second of the event. If you are using 1 Hz updates, subsecond will always be 0.
 
-You should set up a switch statement that handles, at the very least, the `EVENT_TICK` and `EVENT_MODE_BUTTON_UP` event types. The mode button up event occurs when the user presses the MODE button. **Your loop function SHOULD call the movement_move_to_next_face function in response to this event.** If you have a good reason to override this behavior (e.g. your user interface requires all three buttons), your watch face MUST call the movement_move_to_next_face function in response to the EVENT_MODE_LONG_PRESS event. If you fail to do this, the user will become stuck on your watch face.
+You should set up a switch statement that handles, at the very least, the `EVENT_TICK` and `EVENT_MODE_BUTTON_UP` event types. The mode button up event occurs when the user presses the MODE button. **Your loop function SHOULD call the movement_move_to_next_face function in response to this event.** If you have a very good reason to override this behavior (e.g. your user interface requires all three buttons), you may do so, but the user will have to long-press the Mode button to advance to the next watch face.
 
 ### watch_face_resign
 

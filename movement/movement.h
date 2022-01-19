@@ -112,7 +112,7 @@ typedef enum {
     EVENT_LIGHT_LONG_PRESS,     // The light button was held for >2 seconds, and released.
     EVENT_MODE_BUTTON_DOWN,     // The mode button has been pressed, but not yet released.
     EVENT_MODE_BUTTON_UP,       // The mode button was pressed and released.
-    EVENT_MODE_LONG_PRESS,      // The mode button was held for >2 seconds, and released.
+    EVENT_MODE_LONG_PRESS,      // The mode button was held for >2 seconds, and released. NOTE: your watch face will resign immediately after receiving this event.
     EVENT_ALARM_BUTTON_DOWN,    // The alarm button has been pressed, but not yet released.
     EVENT_ALARM_BUTTON_UP,      // The alarm button was pressed and released.
     EVENT_ALARM_LONG_PRESS,     // The alarm button was held for >2 seconds, and released.
