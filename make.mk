@@ -87,7 +87,6 @@ SRCS += \
   $(TOP)/watch-library/hardware/watch/watch_i2c.c \
   $(TOP)/watch-library/hardware/watch/watch_uart.c \
   $(TOP)/watch-library/hardware/watch/watch_deepsleep.c \
-  $(TOP)/watch-library/shared/watch/watch_utility.c \
   $(TOP)/watch-library/hardware/watch/watch_private.c \
   $(TOP)/watch-library/hardware/watch/watch.c \
   $(TOP)/watch-library/hardware/hal/src/hal_atomic.c \
@@ -118,6 +117,8 @@ SRCS += \
   $(TOP)/watch-library/hardware/hpl/systick/hpl_systick.c \
   $(TOP)/watch-library/shared/driver/lis2dh.c \
   $(TOP)/watch-library/shared/driver/lis2dw.c \
+  $(TOP)/watch-library/shared/watch/watch_private_display.c \
+  $(TOP)/watch-library/shared/watch/watch_utility.c \
 
 DEFINES += \
   -D__SAML22J18A__ \
@@ -151,9 +152,10 @@ SRCS += \
   $(TOP)/watch-library/simulator/watch/watch_i2c.c \
   $(TOP)/watch-library/simulator/watch/watch_uart.c \
   $(TOP)/watch-library/simulator/watch/watch_deepsleep.c \
-  $(TOP)/watch-library/shared/watch/watch_utility.c \
   $(TOP)/watch-library/simulator/watch/watch_private.c \
   $(TOP)/watch-library/simulator/watch/watch.c \
+  $(TOP)/watch-library/shared/watch/watch_private_display.c \
+  $(TOP)/watch-library/shared/watch/watch_utility.c \
 
 endif
 
