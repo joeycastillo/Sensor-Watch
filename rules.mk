@@ -4,7 +4,7 @@ OBJS = $(addprefix $(BUILD)/, $(notdir %/$(subst .c,.o, $(SRCS))))
 
 SUBMODULES = tinyusb
 
-ifeq ($(TARGET), watch)
+ifndef EMSCRIPTEN
 all: directory $(SUBMODULES) $(BUILD)/$(BIN).elf $(BUILD)/$(BIN).hex $(BUILD)/$(BIN).bin $(BUILD)/$(BIN).uf2 size
 else
 all: directory $(SUBMODULES) $(BUILD)/$(BIN).html
@@ -12,7 +12,10 @@ endif
 
 $(BUILD)/$(BIN).html: $(OBJS)
 	@echo HTML $@
-	@$(CC) $(LDFLAGS) $(OBJS) $(LIBS) -o $@ -s EXPORTED_FUNCTIONS=_main,_watch_invoke_interrupt_callback -s EXPORTED_RUNTIME_METHODS=ccall --shell-file=$(TOP)/simulator-library/shell.html
+	@$(CC) $(LDFLAGS) $(OBJS) $(LIBS) -o $@ \
+		-s EXPORTED_FUNCTIONS=_main,_watch_invoke_interrupt_callback \
+		-s EXPORTED_RUNTIME_METHODS=ccall \
+		--shell-file=$(TOP)/watch-library/simulator/shell.html
 
 $(BUILD)/$(BIN).elf: $(OBJS)
 	@echo LD $@
