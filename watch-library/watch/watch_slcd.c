@@ -236,7 +236,7 @@ void watch_display_string(char *string, uint8_t position) {
     while(string[i] != 0) {
         watch_display_character(string[i], position + i);
         i++;
-        if (i >= Num_Chars) break;
+        if (position + i >= Num_Chars) break;
     }
     // uncomment this line to see screen output on terminal, i.e.
     //   FR  29
