@@ -221,6 +221,7 @@ void countdown_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     countdown_state_t *state = (countdown_state_t *)context;
     if (state->mode == cd_setting) {
+        state->selection = 0;
         state->mode = cd_waiting;
     }
 }
