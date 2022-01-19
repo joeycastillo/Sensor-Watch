@@ -32,6 +32,7 @@
 
 
 #define CD_SELECTIONS 2
+#define DEFAULT_MINUTES 3
 
 
 static uint32_t offset_date_time(uint32_t now, int8_t hours, int8_t minutes, int8_t seconds) {
@@ -129,7 +130,7 @@ void countdown_face_setup(movement_settings_t *settings, uint8_t watch_face_inde
         *context_ptr = malloc(sizeof(countdown_state_t));
         countdown_state_t *state = (countdown_state_t *)*context_ptr;
         memset(*context_ptr, 0, sizeof(countdown_state_t));
-        state->minutes = 3;
+        state->minutes = DEFAULT_MINUTES;
     }
 }
 
@@ -198,6 +199,12 @@ bool countdown_face_loop(movement_event_t event, movement_settings_t *settings, 
             ring(state);
             break;
         case EVENT_ALARM_LONG_PRESS:
+            if (state->mode == cd_waiting) {
+                    state->minutes = DEFAULT_MINUTES;
+                    state->seconds = 0;
+                    draw(state, event.subsecond);
+                    break;
+            }
             break;
         case EVENT_TIMEOUT:
             movement_move_to_face(0);
