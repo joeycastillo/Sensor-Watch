@@ -17,7 +17,7 @@ You can implement a watch face using just four functions:
 * `watch_face_loop`
 * `watch_face_resign`
 
-A fifth optional function, `watch_face_wants_background_task`, has not yet had its implementation ironed out, but it will be added to the guide at a later date.
+A fifth optional function, `watch_face_wants_background_task`, will be added to the guide at a later date. You may omit it.
 
 To create a new watch face, you should create a new C header and source file in the watch-faces folder (i.e. for a watch face that displays moon phases: `moon_phase_face.h`, `moon_phase_face.c`), and implement these functions with your own unique prefix (i.e. `moon_phase_face_setup`). Then declare your watch face in your header file as follows:
 
@@ -61,7 +61,7 @@ You should set up a switch statement that handles, at the very least, the `EVENT
 
 ### watch_face_resign
 
-This function is called just before your watch face goes off screen. You should disable any peripherals you enabled in `watch_face_activate`. If you requested a tick frequency other than 1 Hz at any point in your code, **you must reset it to 1 Hz when you resign**. The watch_face_resign function is passed the same settings and context as the other functions.
+This function is called just before your watch face goes off screen. You should disable any peripherals you enabled in `watch_face_activate`. The watch_face_resign function is passed the same settings and context as the other functions.
 
 Putting it into practice: the Pulsometer watch face
 ---------------------------------------------------
@@ -242,13 +242,12 @@ case EVENT_TIMEOUT:
 
 #### Watch Face Resignation
 
-The resign function doesn't have to do much here; it just resets the tick frequency to 1 Hz.
+The resign function doesn't have anything to do; it just has to be there.
 
 ```c
 void pulsometer_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
-    movement_request_tick_frequency(1);
 }
 ```
 

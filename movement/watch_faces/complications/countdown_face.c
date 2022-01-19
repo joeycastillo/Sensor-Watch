@@ -219,6 +219,8 @@ bool countdown_face_loop(movement_event_t event, movement_settings_t *settings, 
 
 void countdown_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
-    (void) context;
-    movement_request_tick_frequency(1);
+    countdown_state_t *state = (countdown_state_t *)context;
+    if (state->mode == cd_setting) {
+        state->mode = cd_waiting;
+    }
 }

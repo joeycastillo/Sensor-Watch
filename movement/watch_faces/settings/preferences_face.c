@@ -189,6 +189,5 @@ void preferences_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
     watch_set_led_off();
-    movement_request_tick_frequency(1);
     watch_store_backup_data(settings->reg, 0);
 }

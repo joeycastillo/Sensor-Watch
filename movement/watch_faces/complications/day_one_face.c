@@ -187,8 +187,6 @@ void day_one_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     day_one_state_t *state = (day_one_state_t *)context;
 
-    movement_request_tick_frequency(1);
-
     // if the user changed their birth date, store it to the birth date register
     if (state->birthday_changed) {
         day_one_state_t *state = (day_one_state_t *)context;

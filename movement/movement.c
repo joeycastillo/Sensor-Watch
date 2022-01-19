@@ -278,6 +278,7 @@ bool app_loop(void) {
         watch_faces[movement_state.current_watch_face].resign(&movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
         movement_state.current_watch_face = movement_state.next_watch_face;
         watch_clear_display();
+        movement_request_tick_frequency(1);
         watch_faces[movement_state.current_watch_face].activate(&movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
         event.subsecond = 0;
         event.event_type = EVENT_ACTIVATE;
