@@ -20,8 +20,11 @@ jobs:
       - name: Compile accelerometer-test app
         run: make
         working-directory: 'apps/accelerometer-test'
+      - name: Compile movement
+        run: make
+        working-directory: 'movement/make'
       - name: Upload UF2
         uses: actions/upload-artifact@v2
         with:
           name: watch.uf2
-          path: apps/**/build/watch.uf2
+          path: movement/make/build/watch.uf2
