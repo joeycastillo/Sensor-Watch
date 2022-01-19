@@ -199,7 +199,7 @@ bool countdown_face_loop(movement_event_t event, movement_settings_t *settings, 
             ring(state);
             break;
         case EVENT_ALARM_LONG_PRESS:
-            if (state->mode == cd_waiting) {
+            if (state->mode == cd_setting) {
                     state->minutes = DEFAULT_MINUTES;
                     state->seconds = 0;
                     draw(state, event.subsecond);
