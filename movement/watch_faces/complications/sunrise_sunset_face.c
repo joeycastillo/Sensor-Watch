@@ -144,6 +144,4 @@ bool sunrise_sunset_face_loop(movement_event_t event, movement_settings_t *setti
 void sunrise_sunset_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
-
-    movement_request_tick_frequency(1);
 }

@@ -76,7 +76,6 @@ bool beats_face_loop(movement_event_t event, movement_settings_t *settings, void
 void beats_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
-    movement_request_tick_frequency(1);
 }
 
 uint32_t clock2beats(uint32_t hours, uint32_t minutes, uint32_t seconds, uint32_t subseconds, int16_t utc_offset) {

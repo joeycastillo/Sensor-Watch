@@ -303,6 +303,7 @@ bool app_loop(void) {
         watch_faces[movement_state.current_watch_face].resign(&movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
         movement_state.current_watch_face = movement_state.next_watch_face;
         watch_clear_display();
+        movement_request_tick_frequency(1);
         watch_faces[movement_state.current_watch_face].activate(&movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
         event.subsecond = 0;
         event.event_type = EVENT_ACTIVATE;
@@ -356,6 +357,11 @@ bool app_loop(void) {
     if (event.event_type) {
         event.subsecond = movement_state.subsecond;
         can_sleep = watch_faces[movement_state.current_watch_face].loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
+        // escape hatch: a watch face may not resign on EVENT_MODE_BUTTON_DOWN. In that case, a long press of MODE should let them out.
+        if (event.event_type == EVENT_MODE_LONG_PRESS) {
+            movement_move_to_next_face();
+            can_sleep = false;
+        }
         event.event_type = EVENT_NONE;
     }
 

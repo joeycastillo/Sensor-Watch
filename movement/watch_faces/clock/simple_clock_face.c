@@ -143,5 +143,5 @@ bool simple_clock_face_wants_background_task(movement_settings_t *settings, void
 
     watch_date_time date_time = watch_rtc_get_date_time();
 
-    return date_time.unit.minute == 59;
+    return date_time.unit.minute == 0;
 }
