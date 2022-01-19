@@ -28,14 +28,16 @@
     SOFTWARE.
     -->
     <title>Sensor Watch Emulator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <style>
-    body {font-family: Helvetica, Arial, sans-serif; background-color: #808080;}
-    a {color: #001d5c;}
+    body { font-family: Helvetica, Arial, sans-serif; background-color: #808080; margin: 0; padding: 0; }
+    a { color: #001d5c; }
+    textarea { margin: 0; padding: 0; border: 0; font-size: medium; font-family: monospace; }
     </style>
 </head>
 <body>
 
-<div style="width: 800px; margin: 0 auto; display: flex; flex-direction: column; align-items: center;">
+<div style="max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; align-items: center;">
   <h1 style="text-align: center;">Sensor Watch Emulator</h1>
   <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1271 1311" width="320">
     <defs>
@@ -314,63 +316,35 @@
       </g>
     </g>
   </svg>
-  <p><a href="https://github.com/alexisphilip/Casio-F-91W">Original F-91W SVG</a> is &copy; 2020 Alexis Philip, and is used here under the terms of the MIT license.</p>
+  <p style="text-align: center;"><a href="https://github.com/alexisphilip/Casio-F-91W">Original F-91W SVG</a> is &copy; 2020 Alexis Philip, and is used here under the terms of the MIT license.</p>
 </div>
 
-<hr/>
-<figure style="overflow:visible;" id="spinner"><div class="spinner"></div><center style="margin-top:0.5em"><strong>emscripten</strong></center></figure>
-<div class="emscripten" id="status">Downloading...</div>
-<div class="emscripten">
-  <progress value="0" max="100" id="progress" hidden=1></progress>  
-</div>
-<textarea class="emscripten" id="output" rows="8" style="width: 100%"></textarea>
-<hr>
+<textarea id="output" rows="8" style="width: 100%"></textarea>
+
 <script type='text/javascript'>
-  var statusElement = document.getElementById('status');
-  var progressElement = document.getElementById('progress');
-  var spinnerElement = document.getElementById('spinner');
-
+  var outputElement = document.getElementById('output');
   var Module = {
     preRun: [],
     postRun: [],
     print: (function() {
-      var element = document.getElementById('output');
-      if (element) element.value = ''; // clear browser cache
+      if (outputElement) outputElement.value = ''; // clear browser cache
       return function(text) {
         if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
-        // These replacements are necessary if you render to raw HTML
-        //text = text.replace(/&/g, "&amp;");
-        //text = text.replace(/</g, "&lt;");
-        //text = text.replace(/>/g, "&gt;");
-        //text = text.replace('\n', '<br>', 'g');
         console.log(text);
-        if (element) {
-          element.value += text + "\n";
-          element.scrollTop = element.scrollHeight; // focus on bottom
+        if (outputElement) {
+          outputElement.value += text + "\n";
+          outputElement.scrollTop = outputElement.scrollHeight; // focus on bottom
         }
       };
     })(),
     setStatus: function(text) {
-      if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
-      if (text === Module.setStatus.last.text) return;
-      var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
-      var now = Date.now();
-      if (m && now - Module.setStatus.last.time < 30) return; // if this is a progress update, skip it if too soon
-      Module.setStatus.last.time = now;
-      Module.setStatus.last.text = text;
-      if (m) {
-        text = m[1];
-        progressElement.value = parseInt(m[2])*100;
-        progressElement.max = parseInt(m[4])*100;
-        progressElement.hidden = false;
-        spinnerElement.hidden = false;
-      } else {
-        progressElement.value = null;
-        progressElement.max = null;
-        progressElement.hidden = true;
-        if (!text) spinnerElement.hidden = true;
+      if (!text) return;
+      if (text === 'Running...') text += '\n==========';
+
+      if (outputElement) {
+        outputElement.value += text + "\n";
+        outputElement.scrollTop = outputElement.scrollHeight; // focus on bottom
       }
-      statusElement.innerHTML = text;
     },
     totalDependencies: 0,
     monitorRunDependencies: function(left) {
@@ -381,7 +355,6 @@
   Module.setStatus('Downloading...');
   window.onerror = function() {
     Module.setStatus('Exception thrown, see JavaScript console');
-    spinnerElement.style.display = 'none';
     Module.setStatus = function(text) {
       if (text) Module.printErr('[post-exception status] ' + text);
     };
