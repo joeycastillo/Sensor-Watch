@@ -158,6 +158,10 @@ bool countdown_face_loop(movement_event_t event, movement_settings_t *settings, 
             draw(state, event.subsecond);
             break;
         case EVENT_MODE_BUTTON_UP:
+            if (state->mode == cd_setting) {
+                state->mode = cd_waiting;
+                movement_request_tick_frequency(1);
+            }
             movement_move_to_next_face();
             break;
         case EVENT_LIGHT_BUTTON_UP:
