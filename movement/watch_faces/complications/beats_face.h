@@ -14,12 +14,12 @@ void beats_face_activate(movement_settings_t *settings, void *context);
 bool beats_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void beats_face_resign(movement_settings_t *settings, void *context);
 
-static const watch_face_t beats_face = {
-    beats_face_setup,
-    beats_face_activate,
-    beats_face_loop,
-    beats_face_resign,
-    NULL
-};
+#define beats_face ((const watch_face_t){ \
+    beats_face_setup, \
+    beats_face_activate, \
+    beats_face_loop, \
+    beats_face_resign, \
+    NULL, \
+})
 
 #endif // BEATS_FACE_H_

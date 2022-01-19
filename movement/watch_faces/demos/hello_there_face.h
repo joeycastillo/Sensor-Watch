@@ -37,12 +37,12 @@ void hello_there_face_activate(movement_settings_t *settings, void *context);
 bool hello_there_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void hello_there_face_resign(movement_settings_t *settings, void *context);
 
-static const watch_face_t hello_there_face = {
-    hello_there_face_setup,
-    hello_there_face_activate,
-    hello_there_face_loop,
-    hello_there_face_resign,
-    NULL
-};
+#define hello_there_face ((const watch_face_t){ \
+    hello_there_face_setup, \
+    hello_there_face_activate, \
+    hello_there_face_loop, \
+    hello_there_face_resign, \
+    NULL, \
+})
 
 #endif // HELLO_THERE_FACE_H_

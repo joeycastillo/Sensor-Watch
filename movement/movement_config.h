@@ -44,11 +44,13 @@
 #include "sunrise_sunset_face.h"
 #include "countdown_face.h"
 
-// comma separated list of watch_face_t
-#define WATCH_FACES    \
-    simple_clock_face, \
-    preferences_face,  \
-    set_time_face,     \
-    totp_face,         \
+const watch_face_t watch_faces[] = {
+    simple_clock_face,
+    preferences_face,
+    set_time_face,
+    totp_face,
+};
+
+#define MOVEMENT_NUM_FACES (sizeof(watch_faces) / sizeof(watch_face_t))
 
 #endif // MOVEMENT_CONFIG_H_

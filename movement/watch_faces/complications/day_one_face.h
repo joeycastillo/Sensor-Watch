@@ -44,12 +44,12 @@ void day_one_face_activate(movement_settings_t *settings, void *context);
 bool day_one_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void day_one_face_resign(movement_settings_t *settings, void *context);
 
-static const watch_face_t day_one_face = {
-    day_one_face_setup,
-    day_one_face_activate,
-    day_one_face_loop,
-    day_one_face_resign,
-    NULL
-};
+#define day_one_face ((const watch_face_t){ \
+    day_one_face_setup, \
+    day_one_face_activate, \
+    day_one_face_loop, \
+    day_one_face_resign, \
+    NULL, \
+})
 
 #endif // DAY_ONE_FACE_H_

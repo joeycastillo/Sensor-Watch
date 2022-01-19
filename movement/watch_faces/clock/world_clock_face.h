@@ -46,12 +46,12 @@ void world_clock_face_resign(movement_settings_t *settings, void *context);
 
 uint8_t world_clock_face_get_weekday(uint16_t day, uint16_t month, uint16_t year);
 
-static const watch_face_t world_clock_face = {
-    world_clock_face_setup,
-    world_clock_face_activate,
-    world_clock_face_loop,
-    world_clock_face_resign,
-    NULL
-};
+#define world_clock_face ((const watch_face_t){ \
+    world_clock_face_setup, \
+    world_clock_face_activate, \
+    world_clock_face_loop, \
+    world_clock_face_resign, \
+    NULL, \
+})
 
 #endif // WORLD_CLOCK_FACE_H_

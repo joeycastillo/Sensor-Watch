@@ -15,12 +15,12 @@ void stopwatch_face_activate(movement_settings_t *settings, void *context);
 bool stopwatch_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void stopwatch_face_resign(movement_settings_t *settings, void *context);
 
-static const watch_face_t stopwatch_face = {
-    stopwatch_face_setup,
-    stopwatch_face_activate,
-    stopwatch_face_loop,
-    stopwatch_face_resign,
-    NULL
-};
+#define stopwatch_face ((const watch_face_t){ \
+    stopwatch_face_setup, \
+    stopwatch_face_activate, \
+    stopwatch_face_loop, \
+    stopwatch_face_resign, \
+    NULL, \
+})
 
 #endif // STOPWATCH_FACE_H_

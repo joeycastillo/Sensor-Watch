@@ -22,13 +22,13 @@ A fifth optional function, `watch_face_wants_background_task`, has not yet had i
 To create a new watch face, you should create a new C header and source file in the watch-faces folder (i.e. for a watch face that displays moon phases: `moon_phase_face.h`, `moon_phase_face.c`), and implement these functions with your own unique prefix (i.e. `moon_phase_face_setup`). Then declare your watch face in your header file as follows:
 
 ```c
-static const watch_face_t moon_phase_face = {
-    moon_phase_face_setup,
-    moon_phase_face_activate,
-    moon_phase_face_loop,
-    moon_phase_face_resign,
-    NULL // or moon_phase_face_wants_background_task, if you implemented this function
-};
+#define moon_phase_face ((const watch_face_t){ \
+    moon_phase_face_setup, \
+    moon_phase_face_activate, \
+    moon_phase_face_loop, \
+    moon_phase_face_resign, \
+    NULL, /* or moon_phase_face_wants_background_task, if you implemented this function */ \
+})
 ```
 
 This section will go over how each function works. The section headings use the watch_face prefix, but know that you should implement each function with your own prefix as described above.
@@ -96,13 +96,13 @@ void pulsometer_face_activate(movement_settings_t *settings, void *context);
 bool pulsometer_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void pulsometer_face_resign(movement_settings_t *settings, void *context);
 
-static const watch_face_t pulsometer_face = {
-    pulsometer_face_setup,
-    pulsometer_face_activate,
-    pulsometer_face_loop,
-    pulsometer_face_resign,
-    NULL
-};
+#define pulsometer_face ((const watch_face_t){ \
+    pulsometer_face_setup, \
+    pulsometer_face_activate, \
+    pulsometer_face_loop, \
+    pulsometer_face_resign, \
+    NULL, \
+})
 ```
 
 ### pulsometer_face.c

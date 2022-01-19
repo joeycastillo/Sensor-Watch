@@ -39,12 +39,12 @@ bool simple_clock_face_loop(movement_event_t event, movement_settings_t *setting
 void simple_clock_face_resign(movement_settings_t *settings, void *context);
 bool simple_clock_face_wants_background_task(movement_settings_t *settings, void *context);
 
-static const watch_face_t simple_clock_face = {
-    simple_clock_face_setup,
-    simple_clock_face_activate,
-    simple_clock_face_loop,
-    simple_clock_face_resign,
-    simple_clock_face_wants_background_task
-};
+#define simple_clock_face ((const watch_face_t){ \
+    simple_clock_face_setup, \
+    simple_clock_face_activate, \
+    simple_clock_face_loop, \
+    simple_clock_face_resign, \
+    simple_clock_face_wants_background_task, \
+})
 
 #endif // SIMPLE_CLOCK_FACE_H_

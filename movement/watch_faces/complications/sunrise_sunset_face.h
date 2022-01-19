@@ -40,12 +40,12 @@ void sunrise_sunset_face_activate(movement_settings_t *settings, void *context);
 bool sunrise_sunset_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void sunrise_sunset_face_resign(movement_settings_t *settings, void *context);
 
-static const watch_face_t sunrise_sunset_face = {
-    sunrise_sunset_face_setup,
-    sunrise_sunset_face_activate,
-    sunrise_sunset_face_loop,
-    sunrise_sunset_face_resign,
-    NULL
-};
+#define sunrise_sunset_face ((const watch_face_t){ \
+    sunrise_sunset_face_setup, \
+    sunrise_sunset_face_activate, \
+    sunrise_sunset_face_loop, \
+    sunrise_sunset_face_resign, \
+    NULL, \
+})
 
 #endif // SUNRISE_SUNSET_FACE_H_
