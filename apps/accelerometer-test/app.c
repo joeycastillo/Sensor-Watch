@@ -33,7 +33,7 @@ static void cb_tick(void) {
 }
 
 void app_init(void) {
-    watch_enable_debug_uart(9600);
+    watch_enable_debug_uart(460800); // this is glitchy now, but this enables a baud rate of 115200 when USB is disabled.
 
     watch_enable_display();
     watch_display_string("AC  Strean", 0);
