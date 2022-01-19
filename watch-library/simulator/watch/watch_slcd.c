@@ -38,27 +38,21 @@ void watch_enable_display(void) {
 void watch_set_pixel(uint8_t com, uint8_t seg) {
     EM_ASM({
         document.querySelectorAll("[data-com='" + $0 + "'][data-seg='" + $1 + "']")
-            .forEach(function(e) {
-                e.style.opacity = 1;
-            });
+            .forEach((e) => e.style.opacity = 1);
     }, com, seg);
 }
 
 void watch_clear_pixel(uint8_t com, uint8_t seg) {
     EM_ASM({
         document.querySelectorAll("[data-com='" + $0 + "'][data-seg='" + $1 + "']")
-            .forEach(function(e) {
-                e.style.opacity = 0;
-            });
+            .forEach((e) => e.style.opacity = 0);
     }, com, seg);
 }
 
 void watch_clear_display(void) {
     EM_ASM({
         document.querySelectorAll("[data-com][data-seg]")
-            .forEach(function(e) {
-                e.style.opacity = 0;
-            });
+            .forEach((e) => e.style.opacity = 0);
     });
 }
 
