@@ -40,8 +40,17 @@ void watch_enable_external_interrupts(void) {
     EM_ASM({
         for (let i = 1; i <= 3; i++) {
             const element = document.querySelector('#btn' + i);
-            element.addEventListener('mousedown', () => Module.ccall('watch_invoke_interrupt_callback', 'null', ['number, number'], [i, 1]));
-            element.addEventListener('mouseup', () => Module.ccall('watch_invoke_interrupt_callback', 'null', ['number, number'], [i, 2]));
+            const fireEvent = (trigger) => Module.ccall('watch_invoke_interrupt_callback', 'null', ['number, number'], [i, trigger]);
+            element.addEventListener('mousedown', () => fireEvent(1));
+            element.addEventListener('mouseup', () => fireEvent(2));
+            element.addEventListener('touchstart', (event) => {
+                event.preventDefault();
+                fireEvent(1);
+            });
+            element.addEventListener('touchend', (event) => {
+                event.preventDefault();
+                fireEvent(2);
+            });
         }
     });
 }
