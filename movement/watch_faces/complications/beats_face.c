@@ -45,7 +45,7 @@ bool beats_face_loop(movement_event_t event, movement_settings_t *settings, void
                 state->next_subsecond_update = (event.subsecond + 1 + (BEAT_REFRESH_FREQUENCY * 2 / 3)) % BEAT_REFRESH_FREQUENCY;
                 state->last_centibeat_displayed = centibeats;
             }
-            sprintf(buf, "bt  %6lu", (unsigned long)centibeats);
+            sprintf(buf, "bt  %6lu", centibeats);
 
             watch_display_string(buf, 0);
             break;
@@ -53,7 +53,7 @@ bool beats_face_loop(movement_event_t event, movement_settings_t *settings, void
             if (!watch_tick_animation_is_running()) watch_start_tick_animation(432);
             date_time = watch_rtc_get_date_time();
             centibeats = clock2beats(date_time.unit.hour, date_time.unit.minute, date_time.unit.second, event.subsecond, movement_timezone_offsets[settings->bit.time_zone]);
-            sprintf(buf, "bt  %4lu  ", (unsigned long)(centibeats / 100));
+            sprintf(buf, "bt  %4lu  ", centibeats / 100);
 
             watch_display_string(buf, 0);
             break;

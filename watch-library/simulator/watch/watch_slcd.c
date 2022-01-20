@@ -93,6 +93,7 @@ void watch_start_tick_animation(uint32_t duration) {
     const uint32_t segs[] = { SLCD_SEGID(0, 2)};
     // TODO: (a2) hook to UI
     // slcd_sync_start_animation(&SEGMENT_LCD_0, segs, 1, duration);
+    (void)segs;
 }
 
 bool watch_tick_animation_is_running(void) {
@@ -103,5 +104,6 @@ bool watch_tick_animation_is_running(void) {
 void watch_stop_tick_animation(void) {
     const uint32_t segs[] = { SLCD_SEGID(0, 2)};
     // slcd_sync_stop_animation(&SEGMENT_LCD_0, segs, 1);
+    (void)segs;
     watch_display_character(' ', 8);
 }

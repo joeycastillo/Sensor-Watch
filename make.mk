@@ -126,6 +126,9 @@ DEFINES += \
 
 else
 
+CFLAGS += -W -Wall -Wextra -Wmissing-prototypes -Wmissing-declarations
+CFLAGS += -Wno-format -Wno-unused-parameter
+
 INCLUDES += \
   -I$(TOP)/boards/$(BOARD) \
   -I$(TOP)/watch-library/shared/driver/ \

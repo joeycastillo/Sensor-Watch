@@ -233,7 +233,7 @@ void app_init(void) {
     int32_t time_zone_offset = EM_ASM_INT({
         return -new Date().getTimezoneOffset();
     });
-    for (int i = 0; i < sizeof(movement_timezone_offsets) / sizeof(movement_timezone_offsets[0]); i++) {
+    for (int i = 0, count = sizeof(movement_timezone_offsets) / sizeof(movement_timezone_offsets[0]); i < count; i++) {
         if (movement_timezone_offsets[i] == time_zone_offset) {
             movement_state.settings.bit.time_zone = i;
             break;

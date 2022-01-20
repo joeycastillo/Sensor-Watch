@@ -40,9 +40,6 @@ bool _watch_rtc_is_enabled(void) {
     return true;
 }
 
-static void _sync_rtc(void) {
-}
-
 void _watch_rtc_init(void) {
 }
 

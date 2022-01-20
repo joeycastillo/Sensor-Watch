@@ -51,7 +51,7 @@ bool totp_face_loop(movement_event_t event, movement_settings_t *settings, void 
                 totp_state->steps = result.quot;
             }
             valid_for = TIMESTEP - result.rem;
-            sprintf(buf, "2f%2d%06lu", valid_for, (unsigned long)totp_state->current_code);
+            sprintf(buf, "2f%2d%06lu", valid_for, totp_state->current_code);
 
             watch_display_string(buf, 0);
             break;
