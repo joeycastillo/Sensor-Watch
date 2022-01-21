@@ -33,12 +33,13 @@
 #include "watch_utility.h"
 #include "sunriset.h"
 
-static void _sunrise_sunset_face_update() {
+static void _sunrise_sunset_face_update(movement_settings_t *settings) {
     char buf[14];
     double rise, set, minutes;
-    // TODO: allow user to set location, using London for now.
-    double lat = 51.509865;
-    double lon = -0.118092;
+    // TODO: allow user to set location, using New York for now.
+    double lat = 40.730610;
+    double lon = -73.935242;
+
     // TODO: account for time zone, currently only operates in GMT.
     watch_date_time date_time = watch_rtc_get_date_time(); // the current date / time
     watch_date_time scratch_time; // scratchpad, contains different values at different times
@@ -67,6 +68,7 @@ static void _sunrise_sunset_face_update() {
 
         if (date_time.reg < scratch_time.reg) {
             // display today's sunrise, it hasn't happened yet
+            scratch_time = watch_utility_date_time_convert_zone(scratch_time, 0, movement_timezone_offsets[settings->bit.time_zone] * 60);
             sprintf(buf, "rI%2d%2d%02d%02d", scratch_time.unit.day, scratch_time.unit.hour, scratch_time.unit.minute, scratch_time.unit.second);
             watch_display_string(buf, 0);
             return;
@@ -79,6 +81,7 @@ static void _sunrise_sunset_face_update() {
 
         if (date_time.reg < scratch_time.reg) {
             // display today's sunset, it hasn't happened yet
+            scratch_time = watch_utility_date_time_convert_zone(scratch_time, 0, movement_timezone_offsets[settings->bit.time_zone] * 60);
             sprintf(buf, "SE%2d%02d%02d%02d", scratch_time.unit.day, scratch_time.unit.hour, scratch_time.unit.minute, scratch_time.unit.second);
             watch_display_string(buf, 0);
             return;
@@ -114,7 +117,7 @@ bool sunrise_sunset_face_loop(movement_event_t event, movement_settings_t *setti
 
     switch (event.event_type) {
         case EVENT_ACTIVATE:
-            _sunrise_sunset_face_update();
+            _sunrise_sunset_face_update(settings);
             break;
         case EVENT_LOW_ENERGY_UPDATE:
         case EVENT_TICK:
