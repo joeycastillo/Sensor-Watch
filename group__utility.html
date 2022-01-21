@@ -87,6 +87,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ga396e56109234aaa00993c3dd84f3f43c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="unionwatch__date__time.html">watch_date_time</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__utility.html#ga396e56109234aaa00993c3dd84f3f43c">watch_utility_date_time_from_unix_time</a> (uint32_t timestamp, uint32_t utc_offset)</td></tr>
 <tr class="memdesc:ga396e56109234aaa00993c3dd84f3f43c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the UNIX time (seconds since 1970) for a given <a class="el" href="unionwatch__date__time.html">watch_date_time</a> struct.  <a href="group__utility.html#ga396e56109234aaa00993c3dd84f3f43c">More...</a><br /></td></tr>
 <tr class="separator:ga396e56109234aaa00993c3dd84f3f43c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga94f038ec0e1b8f3c48c4364b56566327"><td class="memItemLeft" align="right" valign="top"><a class="el" href="unionwatch__date__time.html">watch_date_time</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__utility.html#ga94f038ec0e1b8f3c48c4364b56566327">watch_utility_date_time_convert_zone</a> (<a class="el" href="unionwatch__date__time.html">watch_date_time</a> date_time, uint32_t origin_utc_offset, uint32_t destination_utc_offset)</td></tr>
+<tr class="memdesc:ga94f038ec0e1b8f3c48c4364b56566327"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts a time from a given time zone to another time zone.  <a href="group__utility.html#ga94f038ec0e1b8f3c48c4364b56566327">More...</a><br /></td></tr>
+<tr class="separator:ga94f038ec0e1b8f3c48c4364b56566327"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga2753ff031c28202d23b0f3e80de2c920"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__utility.html#ga2753ff031c28202d23b0f3e80de2c920">watch_utility_thermistor_temperature</a> (uint16_t value, bool highside, float b_coefficient, float nominal_temperature, float nominal_resistance, float series_resistance)</td></tr>
 <tr class="memdesc:ga2753ff031c28202d23b0f3e80de2c920"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a temperature in degrees Celsius for a given thermistor voltage divider circuit.  <a href="group__utility.html#ga2753ff031c28202d23b0f3e80de2c920">More...</a><br /></td></tr>
 <tr class="separator:ga2753ff031c28202d23b0f3e80de2c920"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -166,6 +169,52 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A UNIX timestamp for the given date/time and UTC offset. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Implemented by Wesley Ellis (tahnok) and based on BSD-licensed code by Josh Haberman: <a href="https://blog.reverberate.org/2020/05/12/optimizing-date-algorithms.html">https://blog.reverberate.org/2020/05/12/optimizing-date-algorithms.html</a> </dd></dl>
+
+</div>
+</div>
+<a id="ga94f038ec0e1b8f3c48c4364b56566327"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga94f038ec0e1b8f3c48c4364b56566327">&#9670;&nbsp;</a></span>watch_utility_date_time_convert_zone()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="unionwatch__date__time.html">watch_date_time</a> watch_utility_date_time_convert_zone </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="unionwatch__date__time.html">watch_date_time</a>&#160;</td>
+          <td class="paramname"><em>date_time</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>origin_utc_offset</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>destination_utc_offset</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Converts a time from a given time zone to another time zone. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">date_time</td><td>The <a class="el" href="unionwatch__date__time.html">watch_date_time</a> that you wish to convert </td></tr>
+    <tr><td class="paramname">origin_utc_offset</td><td>The number of seconds from UTC in the origin time zone </td></tr>
+    <tr><td class="paramname">destination_utc_offset</td><td>The number of seconds from UTC in the destination time zone </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A <a class="el" href="unionwatch__date__time.html">watch_date_time</a> for the given UNIX timestamp and UTC offset, or if outside the range that <a class="el" href="unionwatch__date__time.html">watch_date_time</a> can represent, a <a class="el" href="unionwatch__date__time.html">watch_date_time</a> with all fields set to 0. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Adapted from MIT-licensed code from musl, Copyright © 2005-2014 Rich Felker, et al.: <a href="https://github.com/esmil/musl/blob/1cc81f5cb0df2b66a795ff0c26d7bbc4d16e13c6/src/time/__secs_to_tm.c">https://github.com/esmil/musl/blob/1cc81f5cb0df2b66a795ff0c26d7bbc4d16e13c6/src/time/__secs_to_tm.c</a> </dd></dl>
 
 </div>
 </div>
