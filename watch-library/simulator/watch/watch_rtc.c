@@ -26,11 +26,13 @@
 
 #include <emscripten.h>
 #include <emscripten/html5.h>
-#include <stdio.h>
 
 static double time_offset = 0;
 static long tick_callbacks[8];
 
+static long alarm_interval_id;
+static long alarm_timeout_id;
+static double alarm_interval;
 ext_irq_cb_t alarm_callback;
 ext_irq_cb_t btn_alarm_callback;
 ext_irq_cb_t a2_callback;
@@ -67,7 +69,6 @@ watch_date_time watch_rtc_get_date_time(void) {
             ((date.getMonth() + 1) << 22) |
             ((date.getFullYear() - 2020) << 26);
     }, time_offset);
-
     return retval;
 }
 
@@ -79,7 +80,7 @@ void watch_rtc_disable_tick_callback(void) {
     watch_rtc_disable_periodic_callback(1);
 }
 
-static void call_callback(void *userData) {
+static void watch_invoke_periodic_callback(void *userData) {
     ext_irq_cb_t callback = userData;
     callback();
 
@@ -99,7 +100,7 @@ void watch_rtc_register_periodic_callback(ext_irq_cb_t callback, uint8_t frequen
 
     // this also maps nicely to an index for our list of tick callbacks.
     double interval = 1000 / frequency; // in msec
-    tick_callbacks[per_n] = emscripten_set_interval(call_callback, interval, (void *)callback);
+    tick_callbacks[per_n] = emscripten_set_interval(watch_invoke_periodic_callback, interval, (void *)callback);
 }
 
 void watch_rtc_disable_periodic_callback(uint8_t frequency) {
@@ -118,63 +119,105 @@ void watch_rtc_disable_all_periodic_callbacks(void) {
     }
 }
 
+static void watch_invoke_alarm_interval_callback(void *userData) {
+    (void)userData;
+    if (alarm_callback) alarm_callback();
+}
+
+static void watch_invoke_alarm_callback(void *userData) {
+    (void)userData;
+    if (alarm_callback) alarm_callback();
+    alarm_interval_id = emscripten_set_interval(watch_invoke_alarm_interval_callback, alarm_interval, NULL);
+}
+
 void watch_rtc_register_alarm_callback(ext_irq_cb_t callback, watch_date_time alarm_time, watch_rtc_alarm_match mask) {
-#if 0
-    RTC->MODE2.Mode2Alarm[0].ALARM.reg = alarm_time.reg;
-    RTC->MODE2.Mode2Alarm[0].MASK.reg = mask;
-    RTC->MODE2.INTENSET.reg = RTC_MODE2_INTENSET_ALARM0;
+    watch_rtc_disable_alarm_callback();
+
+    switch (mask) {
+        case ALARM_MATCH_DISABLED:
+            return;
+        case ALARM_MATCH_SS:
+            alarm_interval = 60 * 1000;
+            break;
+        case ALARM_MATCH_MMSS:
+            alarm_interval = 60 * 60 * 1000;
+            break;
+        case ALARM_MATCH_HHMMSS:
+            alarm_interval = 60 * 60 * 60 * 1000;
+            break;
+    }
+
+    double timeout = EM_ASM_DOUBLE({
+        const now = Date.now();
+        const date = new Date(now + $0);
+
+        const hour = ($1 >> 12) & 0x1f;
+        const minute = ($1 >> 6) & 0x3f;
+        const second = $1 & 0x3f;
+
+        if ($2 == 1) { // SS
+            if (second < date.getSeconds()) date.setMinutes(date.getMinutes() + 1);
+            date.setSeconds(second);
+        } else if ($2 == 2) { // MMSS
+            if (second < date.getSeconds()) date.setMinutes(date.getMinutes() + 1);
+            if (minute < date.getMinutes()) date.setHours(date.getHours() + 1);
+            date.setMinutes(minute, second);
+        } else if ($2 == 3) { // HHMMSS
+            if (second < date.getSeconds()) date.setMinutes(date.getMinutes() + 1);
+            if (minute < date.getMinutes()) date.setHours(date.getHours() + 1);
+            if (hour < date.getHours()) date.setDate(date.getDate() + 1);
+            date.setHours(hour, minute, second);
+        } else {
+            throw 'Invalid alarm match mask';
+        }
+
+        return date - now;
+    }, time_offset, alarm_time.reg, mask);
+
     alarm_callback = callback;
-    NVIC_ClearPendingIRQ(RTC_IRQn);
-    NVIC_EnableIRQ(RTC_IRQn);
-    RTC->MODE2.INTENSET.reg = RTC_MODE2_INTENSET_ALARM0;
-#endif
+    alarm_timeout_id = emscripten_set_timeout(watch_invoke_alarm_callback, timeout, NULL);
 }
 
 void watch_rtc_disable_alarm_callback(void) {
-#if 0
-    RTC->MODE2.INTENCLR.reg = RTC_MODE2_INTENCLR_ALARM0;
-#endif
+    alarm_callback = NULL;
+    alarm_interval = 0;
+
+    if (alarm_timeout_id) {
+        emscripten_clear_timeout(alarm_timeout_id);
+        alarm_timeout_id = 0;
+    }
+
+    if (alarm_interval_id) {
+        emscripten_clear_interval(alarm_interval_id);
+        alarm_interval_id = 0;
+    }
 }
 
 ///////////////////////
 // Deprecated functions
 
 void watch_set_date_time(struct calendar_date_time date_time) {
-#if 0
-    RTC_MODE2_CLOCK_Type val;
-
-    val.bit.SECOND = date_time.time.sec;
-    val.bit.MINUTE = date_time.time.min;
-    val.bit.HOUR = date_time.time.hour;
-    val.bit.DAY = date_time.date.day;
-    val.bit.MONTH = date_time.date.month;
-    val.bit.YEAR = (uint8_t)(date_time.date.year - WATCH_RTC_REFERENCE_YEAR);
-
-    RTC->MODE2.CLOCK.reg = val.reg;
-
-    _sync_rtc();
-#endif
+    watch_date_time val;
+    val.unit.second = date_time.time.sec;
+    val.unit.minute = date_time.time.min;
+    val.unit.hour = date_time.time.hour;
+    val.unit.day = date_time.date.day;
+    val.unit.month = date_time.date.month;
+    val.unit.year = date_time.date.year - WATCH_RTC_REFERENCE_YEAR;
+    watch_rtc_set_date_time(val);
 }
 
 void watch_get_date_time(struct calendar_date_time *date_time) {
-#if 0
-    _sync_rtc();
-    RTC_MODE2_CLOCK_Type val = RTC->MODE2.CLOCK;
-
-    date_time->time.sec = val.bit.SECOND;
-    date_time->time.min = val.bit.MINUTE;
-    date_time->time.hour = val.bit.HOUR;
-    date_time->date.day = val.bit.DAY;
-    date_time->date.month = val.bit.MONTH;
-    date_time->date.year = val.bit.YEAR + WATCH_RTC_REFERENCE_YEAR;
-#endif
+    if (date_time == NULL) return;
+    watch_date_time val = watch_rtc_get_date_time();
+    date_time->time.sec = val.unit.second;
+    date_time->time.min = val.unit.minute;
+    date_time->time.hour = val.unit.hour;
+    date_time->date.day = val.unit.day;
+    date_time->date.month = val.unit.month;
+    date_time->date.year = val.unit.year + WATCH_RTC_REFERENCE_YEAR;
 }
 
 void watch_register_tick_callback(ext_irq_cb_t callback) {
-#if 0
-    tick_callbacks[7] = callback;
-    NVIC_ClearPendingIRQ(RTC_IRQn);
-    NVIC_EnableIRQ(RTC_IRQn);
-    RTC->MODE2.INTENSET.reg = RTC_MODE2_INTENSET_PER7;
-#endif
+    watch_rtc_register_tick_callback(callback);
 }
