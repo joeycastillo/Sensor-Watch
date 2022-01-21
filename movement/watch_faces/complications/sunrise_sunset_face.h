@@ -31,8 +31,20 @@
 // TODO: It also functions as an interface for setting the location register, which other watch faces can use for various purposes.
 
 typedef struct {
-    uint16_t latitude;
-    uint16_t longitude;
+    uint8_t sign: 1;    // 0-1
+    uint8_t hundreds: 1;    // 0-1, ignored for latitude
+    uint8_t tens: 4;        // 0-9 (must wrap at 10)
+    uint8_t ones: 4;        // 0-9 (must wrap at 10)
+    uint8_t tenths: 4;      // 0-9 (must wrap at 10)
+    uint8_t hundredths: 4;  // 0-9 (must wrap at 10)
+} sunrise_sunset_lat_lon_settings_t;
+
+typedef struct {
+    uint8_t page;
+    uint8_t active_digit;
+    bool location_changed;
+    sunrise_sunset_lat_lon_settings_t working_latitude;
+    sunrise_sunset_lat_lon_settings_t working_longitude;
 } sunrise_sunset_state_t;
 
 void sunrise_sunset_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);

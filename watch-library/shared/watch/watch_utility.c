@@ -146,6 +146,11 @@ watch_date_time watch_utility_date_time_from_unix_time(uint32_t timestamp, uint3
     return retval;
 }
 
+watch_date_time watch_utility_date_time_convert_zone(watch_date_time date_time, uint32_t origin_utc_offset, uint32_t destination_utc_offset) {
+    uint32_t timestamp = watch_utility_date_time_to_unix_time(date_time, origin_utc_offset);
+    return watch_utility_date_time_from_unix_time(timestamp, destination_utc_offset);
+}
+
 float watch_utility_thermistor_temperature(uint16_t value, bool highside, float b_coefficient, float nominal_temperature, float nominal_resistance, float series_resistance) {
     float reading = (float)value;
 
