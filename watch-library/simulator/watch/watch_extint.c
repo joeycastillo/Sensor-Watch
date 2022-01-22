@@ -40,9 +40,27 @@ static void install_button_callbacks(void) {
         const invoke = Module.cwrap('watch_invoke_interrupt_callback', 'null', ['number', 'number']);
         const RISING = 1;
         const FALLING = 2;
+
+        const keys = ({ a: 3, l: 1, m: 2 });
+        document.addEventListener('keydown', function(event) {
+            if (event.repeat) return;
+            if (event.target && event.target.id === 'output') return;
+
+            const btn = keys[event.key.toLowerCase()];
+            if (btn) invoke(btn, RISING);
+        });
+
+        document.addEventListener('keyup', function(event) {
+            if (event.repeat) return;
+            if (event.target && event.target.id === 'output') return;
+
+            const btn = keys[event.key.toLowerCase()];
+            if (btn) invoke(btn, FALLING);
+        });
+
         for (let i = 1; i <= 3; i++) {
             const element = document.querySelector('#btn' + i);
-            
+
             let mouseDown = false;
             element.addEventListener('mousedown', (event) => {
                 invoke(i, RISING);
@@ -94,7 +112,7 @@ void watch_invoke_interrupt_callback(uint32_t button, uint32_t trigger) {
 
     if (button == 2) {
         watch_set_pin_level(BTN_MODE, (trigger & INTERRUPT_TRIGGER_RISING) != 0);
-        
+
         if (external_interrupt_mode_callback && (external_interrupt_mode_trigger & trigger)) {
             external_interrupt_mode_callback();
             resume_main_loop();
