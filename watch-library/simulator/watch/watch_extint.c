@@ -27,6 +27,7 @@
 #include <emscripten.h>
 
 static bool external_interrupt_enabled = false;
+static bool button_callbacks_installed = false;
 static ext_irq_cb_t external_interrupt_mode_callback = NULL;
 static watch_interrupt_trigger external_interrupt_mode_trigger = INTERRUPT_TRIGGER_NONE;
 static ext_irq_cb_t external_interrupt_light_callback = NULL;
@@ -34,25 +35,49 @@ static watch_interrupt_trigger external_interrupt_light_trigger = INTERRUPT_TRIG
 static ext_irq_cb_t external_interrupt_alarm_callback = NULL;
 static watch_interrupt_trigger external_interrupt_alarm_trigger = INTERRUPT_TRIGGER_NONE;
 
-void watch_enable_external_interrupts(void) {
-    external_interrupt_enabled = true;
-
+static void install_button_callbacks(void) {
     EM_ASM({
+        const invoke = Module.cwrap('watch_invoke_interrupt_callback', 'null', ['number', 'number']);
+        const RISING = 1;
+        const FALLING = 2;
         for (let i = 1; i <= 3; i++) {
             const element = document.querySelector('#btn' + i);
-            const fireEvent = (trigger) => Module.ccall('watch_invoke_interrupt_callback', 'null', ['number, number'], [i, trigger]);
-            element.addEventListener('mousedown', () => fireEvent(1));
-            element.addEventListener('mouseup', () => fireEvent(2));
-            element.addEventListener('touchstart', (event) => {
+            
+            let mouseDown = false;
+            element.addEventListener('mousedown', (event) => {
+                invoke(i, RISING);
+                mouseDown = true;
                 event.preventDefault();
-                fireEvent(1);
+            });
+            element.addEventListener('mouseup', (event) => {
+                invoke(i, FALLING);
+                mouseDown = false;
+                event.preventDefault();
+            });
+            element.addEventListener('mouseout', (event) => {
+                if (mouseDown) invoke(i, FALLING);
+                mouseDown = false;
+                event.preventDefault();
+            });
+            element.addEventListener('touchstart', (event) => {
+                invoke(i, RISING);
+                event.preventDefault();
             });
             element.addEventListener('touchend', (event) => {
+                invoke(i, FALLING);
                 event.preventDefault();
-                fireEvent(2);
             });
         }
     });
+}
+
+void watch_enable_external_interrupts(void) {
+    external_interrupt_enabled = true;
+
+    if (!button_callbacks_installed) {
+        install_button_callbacks();
+        button_callbacks_installed = true;
+    }
 }
 
 void watch_disable_external_interrupts(void) {
@@ -63,6 +88,8 @@ void watch_invoke_interrupt_callback(uint32_t button, uint32_t trigger);
 
 EMSCRIPTEN_KEEPALIVE
 void watch_invoke_interrupt_callback(uint32_t button, uint32_t trigger) {
+    if (!external_interrupt_enabled) return;
+
     void resume_main_loop(void);
 
     if (button == 2) {
