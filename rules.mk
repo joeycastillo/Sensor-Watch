@@ -13,8 +13,7 @@ endif
 $(BUILD)/$(BIN).html: $(OBJS)
 	@echo HTML $@
 	@$(CC) $(LDFLAGS) $(OBJS) $(LIBS) -o $@ \
-		-s EXPORTED_FUNCTIONS=_main,_watch_invoke_interrupt_callback \
-		-s EXPORTED_RUNTIME_METHODS=cwrap \
+		-s EXPORTED_FUNCTIONS=_main \
 		--shell-file=$(TOP)/watch-library/simulator/shell.html
 
 $(BUILD)/$(BIN).elf: $(OBJS)
