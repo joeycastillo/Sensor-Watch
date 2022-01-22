@@ -27,9 +27,16 @@
 #include "hpl_slcd_config.h"
 
 #include <emscripten.h>
+#include <emscripten/html5.h>
 
- //////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////
 // Segmented Display
+
+static char blink_character;
+static bool blink_state;
+static long blink_interval_id;
+static bool tick_state;
+static long tick_interval_id;
 
 void watch_enable_display(void) {
     watch_clear_display();
@@ -56,54 +63,53 @@ void watch_clear_display(void) {
     });
 }
 
-void watch_start_character_blink(char character, uint32_t duration) {
-    // SLCD->CTRLD.bit.FC0EN = 0;
-    // _sync_slcd();
-    // 
-    // if (duration <= SLCD_FC_BYPASS_MAX_MS) {
-    //     SLCD->FC0.reg = SLCD_FC0_PB | ((duration / (1000 / SLCD_FRAME_FREQUENCY)) - 1);
-    // } else {
-    //     SLCD->FC0.reg = (((duration / (1000 / SLCD_FRAME_FREQUENCY)) / 8 - 1));
-    // }
-    // SLCD->CTRLD.bit.FC0EN = 1;
+static void watch_invoke_blink_callback(void *userData) {
+    blink_state = !blink_state;
+    watch_display_character(blink_state ? blink_character : ' ', 7);
+    watch_clear_pixel(2, 10); // clear segment B of position 7 since it can't blink
+}
 
+void watch_start_character_blink(char character, uint32_t duration) {
     watch_display_character(character, 7);
     watch_clear_pixel(2, 10); // clear segment B of position 7 since it can't blink
 
-    // SLCD->CTRLD.bit.BLINK = 0;
-    // SLCD->CTRLA.bit.ENABLE = 0;
-    // _sync_slcd();
-
-    // SLCD->BCFG.bit.BSS0 = 0x07;
-    // SLCD->BCFG.bit.BSS1 = 0x07;
-
-    // SLCD->CTRLD.bit.BLINK = 1;
-    // _sync_slcd();
-    // SLCD->CTRLA.bit.ENABLE = 1;
-    // _sync_slcd();
+    blink_state = true;
+    blink_character = character;
+    blink_interval_id = emscripten_set_interval(watch_invoke_blink_callback, (double)duration, NULL);
 }
 
 void watch_stop_blink(void) {
-    // SLCD->CTRLD.bit.FC0EN = 0;
-    // SLCD->CTRLD.bit.BLINK = 0;
+    emscripten_clear_timeout(blink_interval_id);
+    blink_interval_id = 0;
+    blink_state = false;
+}
+
+static void watch_invoke_tick_callback(void *userData) {
+    tick_state = !tick_state;
+    if (tick_state) {
+        watch_clear_pixel(0, 2);
+        watch_set_pixel(0, 3);
+    } else {
+        watch_clear_pixel(0, 3);
+        watch_set_pixel(0, 2);
+    }
 }
 
 void watch_start_tick_animation(uint32_t duration) {
     watch_display_character(' ', 8);
-    const uint32_t segs[] = { SLCD_SEGID(0, 2)};
-    // TODO: (a2) hook to UI
-    // slcd_sync_start_animation(&SEGMENT_LCD_0, segs, 1, duration);
-    (void)segs;
+
+    tick_state = true;
+    tick_interval_id = emscripten_set_interval(watch_invoke_tick_callback, (double)duration, NULL);
 }
 
 bool watch_tick_animation_is_running(void) {
-    // return hri_slcd_get_CTRLD_CSREN_bit(SLCD);
-    return false;
+    return tick_interval_id != 0;
 }
 
 void watch_stop_tick_animation(void) {
-    const uint32_t segs[] = { SLCD_SEGID(0, 2)};
-    // slcd_sync_stop_animation(&SEGMENT_LCD_0, segs, 1);
-    (void)segs;
+    emscripten_clear_timeout(tick_interval_id);
+    tick_interval_id = 0;
+    tick_state = false;
+
     watch_display_character(' ', 8);
 }
