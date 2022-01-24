@@ -52,8 +52,10 @@ extern "C" {
 #include <stdint.h>
 #include <stdbool.h>
 
+#ifndef __EMSCRIPTEN__
 #ifndef _UNIT_TEST_
 #include "parts.h"
+#endif
 #endif
 #include "err_codes.h"
 

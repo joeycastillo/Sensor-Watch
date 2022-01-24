@@ -25,7 +25,7 @@
 #include "watch_slcd.h"
 #include "watch_private_display.h"
 
-static const uint32_t IndicatorSegments[6] = {
+static const uint32_t IndicatorSegments[] = {
     SLCD_SEGID(0, 17), // WATCH_INDICATOR_SIGNAL
     SLCD_SEGID(0, 16), // WATCH_INDICATOR_BELL
     SLCD_SEGID(2, 17), // WATCH_INDICATOR_PM

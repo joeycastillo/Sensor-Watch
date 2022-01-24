@@ -21,6 +21,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#ifndef _WATCH_PRIVATE_DISPLAY_H_INCLUDED
+#define _WATCH_PRIVATE_DISPLAY_H_INCLUDED
 
 #include "hpl_slcd_config.h"
 #include "driver_init.h"
@@ -140,3 +142,5 @@ static const uint64_t Segment_Map[] = {
 static const uint8_t Num_Chars = 10;
 
 void watch_display_character(uint8_t character, uint8_t position);
+
+#endif

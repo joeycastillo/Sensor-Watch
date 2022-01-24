@@ -55,9 +55,7 @@
 
 void watch_enable_debug_uart(uint32_t baud) {}
 
-void watch_debug_putc(char c) {
-    // TODO: (a2) hook to UI
-}
+void watch_debug_putc(char c) {}
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
