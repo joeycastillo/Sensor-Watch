@@ -134,14 +134,12 @@ INCLUDES += \
   -I$(TOP)/watch-library/shared/driver/ \
   -I$(TOP)/watch-library/shared/config/ \
   -I$(TOP)/watch-library/shared/watch/ \
-  -I$(TOP)/watch-library/simulator/hal/utils/include/ \
   -I$(TOP)/watch-library/simulator/hpl/port/ \
   -I$(TOP)/watch-library/hardware/include/component \
   -I$(TOP)/watch-library/hardware/hal/include/ \
   -I$(TOP)/watch-library/hardware/hal/utils/include/ \
   -I$(TOP)/watch-library/hardware/hpl/slcd/ \
   -I$(TOP)/watch-library/hardware/hw/ \
-  -I$(TOP)/watch-library \
 
 SRCS += \
   $(TOP)/watch-library/simulator/main.c \
