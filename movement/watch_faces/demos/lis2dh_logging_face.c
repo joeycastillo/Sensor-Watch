@@ -36,10 +36,11 @@
 // Pressing the alarm button enters the log mode, where the main display shows the number of interrupts detected in each of the last
 // 24 hours (the hour is shown in the top right digit and AM/PM indicator, if the clock is set to 12 hour mode)
 
-static void _lis2dh_logging_face_update_display(movement_settings_t *settings, lis2dh_logger_state_t *logger_state, lis2dh_interrupt_state interrupt_state, watch_date_time date_time) {
+static void _lis2dh_logging_face_update_display(movement_settings_t *settings, lis2dh_logger_state_t *logger_state, lis2dh_interrupt_state interrupt_state) {
     char buf[14];
     char time_indication_character;
     int8_t pos;
+    watch_date_time date_time;
 
     if (logger_state->log_ticks) {
         pos = (logger_state->data_points - 1 - logger_state->display_index) % LIS2DH_LOGGING_NUM_DATA_POINTS;
@@ -58,16 +59,16 @@ static void _lis2dh_logging_face_update_display(movement_settings_t *settings, l
             }
             switch (logger_state->axis_index) {
                 case 0:
-                    sprintf(buf, "3A%2d%02d%4ld", date_time.unit.hour, date_time.unit.minute, logger_state->data[pos].x_interrupts + logger_state->data[pos].y_interrupts + logger_state->data[pos].z_interrupts);
+                    sprintf(buf, "3A%2d%02d%4lu", date_time.unit.hour, date_time.unit.minute, logger_state->data[pos].x_interrupts + logger_state->data[pos].y_interrupts + logger_state->data[pos].z_interrupts);
                     break;
                 case 1:
-                    sprintf(buf, "XA%2d%02d%4ld", date_time.unit.hour, date_time.unit.minute, logger_state->data[pos].x_interrupts);
+                    sprintf(buf, "XA%2d%02d%4lu", date_time.unit.hour, date_time.unit.minute, logger_state->data[pos].x_interrupts);
                     break;
                 case 2:
-                    sprintf(buf, "YA%2d%02d%4ld", date_time.unit.hour, date_time.unit.minute, logger_state->data[pos].y_interrupts);
+                    sprintf(buf, "YA%2d%02d%4lu", date_time.unit.hour, date_time.unit.minute, logger_state->data[pos].y_interrupts);
                     break;
                 case 3:
-                    sprintf(buf, "ZA%2d%02d%4ld", date_time.unit.hour, date_time.unit.minute, logger_state->data[pos].z_interrupts);
+                    sprintf(buf, "ZA%2d%02d%4lu", date_time.unit.hour, date_time.unit.minute, logger_state->data[pos].z_interrupts);
                     break;
             }
         }
@@ -145,7 +146,6 @@ void lis2dh_logging_face_activate(movement_settings_t *settings, void *context) 
 bool lis2dh_logging_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     lis2dh_logger_state_t *logger_state = (lis2dh_logger_state_t *)context;
     lis2dh_interrupt_state interrupt_state = 0;
-    watch_date_time date_time;
 
     switch (event.event_type) {
         case EVENT_MODE_BUTTON_UP:
@@ -157,13 +157,13 @@ bool lis2dh_logging_face_loop(movement_event_t event, movement_settings_t *setti
         case EVENT_LIGHT_BUTTON_DOWN:
             logger_state->axis_index = (logger_state->axis_index + 1) % 4;
             logger_state->log_ticks = 255;
-            _lis2dh_logging_face_update_display(settings, logger_state, interrupt_state, date_time);
+            _lis2dh_logging_face_update_display(settings, logger_state, interrupt_state);
             break;
         case EVENT_ALARM_BUTTON_UP:
             if (logger_state->log_ticks) logger_state->display_index = (logger_state->display_index + 1) % LIS2DH_LOGGING_NUM_DATA_POINTS;
             logger_state->log_ticks = 255;
             logger_state->axis_index = 0;
-            _lis2dh_logging_face_update_display(settings, logger_state, interrupt_state, date_time);
+            _lis2dh_logging_face_update_display(settings, logger_state, interrupt_state);
             break;
         case EVENT_ACTIVATE:
         case EVENT_TICK:
@@ -182,7 +182,7 @@ bool lis2dh_logging_face_loop(movement_event_t event, movement_settings_t *setti
             } else {
                 watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
             }
-            _lis2dh_logging_face_update_display(settings, logger_state, interrupt_state, date_time);
+            _lis2dh_logging_face_update_display(settings, logger_state, interrupt_state);
             break;
         case EVENT_BACKGROUND_TASK:
             _lis2dh_logging_face_log_data(logger_state);

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Joey Castillo
+ * Copyright (c) 2020 Joey Castillo
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,22 +22,30 @@
  * SOFTWARE.
  */
 
-#ifndef DEMO_FACE_H_
-#define DEMO_FACE_H_
+#include "watch_i2c.h"
 
-#include "movement.h"
+void watch_enable_i2c(void) {}
 
-void demo_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
-void demo_face_activate(movement_settings_t *settings, void *context);
-bool demo_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
-void demo_face_resign(movement_settings_t *settings, void *context);
+void watch_disable_i2c(void) {}
 
-#define demo_face ((const watch_face_t){ \
-    demo_face_setup, \
-    demo_face_activate, \
-    demo_face_loop, \
-    demo_face_resign, \
-    NULL, \
-})
+void watch_i2c_send(int16_t addr, uint8_t *buf, uint16_t length) {}
 
-#endif // DEMO_FACE_H_
+void watch_i2c_receive(int16_t addr, uint8_t *buf, uint16_t length) {}
+
+void watch_i2c_write8(int16_t addr, uint8_t reg, uint8_t data) {}
+
+uint8_t watch_i2c_read8(int16_t addr, uint8_t reg) {
+    return 0;
+}
+
+uint16_t watch_i2c_read16(int16_t addr, uint8_t reg) {
+    return 0;
+}
+
+uint32_t watch_i2c_read24(int16_t addr, uint8_t reg) {
+    return 0;
+}
+
+uint32_t watch_i2c_read32(int16_t addr, uint8_t reg) {
+    return 0;
+}

@@ -58,12 +58,12 @@ void countdown_face_activate(movement_settings_t *settings, void *context);
 bool countdown_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void countdown_face_resign(movement_settings_t *settings, void *context);
 
-static const watch_face_t countdown_face = {
-    countdown_face_setup,
-    countdown_face_activate,
-    countdown_face_loop,
-    countdown_face_resign,
-    NULL
-};
+#define countdown_face ((const watch_face_t){ \
+    countdown_face_setup, \
+    countdown_face_activate, \
+    countdown_face_loop, \
+    countdown_face_resign, \
+    NULL, \
+})
 
 #endif // COUNTDOWN_FACE_H_

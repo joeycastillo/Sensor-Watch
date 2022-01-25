@@ -55,12 +55,12 @@ bool lis2dh_logging_face_loop(movement_event_t event, movement_settings_t *setti
 void lis2dh_logging_face_resign(movement_settings_t *settings, void *context);
 bool lis2dh_logging_face_wants_background_task(movement_settings_t *settings, void *context);
 
-static const watch_face_t lis2dh_logging_face = {
-    lis2dh_logging_face_setup,
-    lis2dh_logging_face_activate,
-    lis2dh_logging_face_loop,
-    lis2dh_logging_face_resign,
-    lis2dh_logging_face_wants_background_task
-};
+#define lis2dh_logging_face ((const watch_face_t){ \
+    lis2dh_logging_face_setup, \
+    lis2dh_logging_face_activate, \
+    lis2dh_logging_face_loop, \
+    lis2dh_logging_face_resign, \
+    lis2dh_logging_face_wants_background_task, \
+})
 
 #endif // LIS2DH_LOGGING_FACE_H_

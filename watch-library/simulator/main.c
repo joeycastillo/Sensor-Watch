@@ -22,22 +22,49 @@
  * SOFTWARE.
  */
 
-#ifndef DEMO_FACE_H_
-#define DEMO_FACE_H_
+#include <stdio.h>
+#include "watch.h"
 
-#include "movement.h"
+#include <emscripten.h>
+#include <emscripten/html5.h>
 
-void demo_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
-void demo_face_activate(movement_settings_t *settings, void *context);
-bool demo_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
-void demo_face_resign(movement_settings_t *settings, void *context);
+static bool sleeping = true;
 
-#define demo_face ((const watch_face_t){ \
-    demo_face_setup, \
-    demo_face_activate, \
-    demo_face_loop, \
-    demo_face_resign, \
-    NULL, \
-})
+static EM_BOOL main_loop(double time, void *userData) {
+    if (sleeping) {
+        sleeping = false;
+        app_wake_from_standby();
+    }
 
-#endif // DEMO_FACE_H_
+    bool can_sleep = app_loop();
+
+    if (can_sleep) {
+        app_prepare_for_standby();
+        sleeping = true;
+        return EM_FALSE;
+    }
+
+    return EM_TRUE;
+}
+
+// make compiler happy
+void resume_main_loop(void);
+
+EMSCRIPTEN_KEEPALIVE
+void resume_main_loop(void) {
+    if (sleeping) {
+        emscripten_request_animation_frame_loop(main_loop, NULL);
+    }
+}
+
+int main(void) {
+    printf("Hello, world!\n");
+
+    app_init();
+    _watch_init();
+    app_setup();
+
+    resume_main_loop();
+
+    return 0;
+}

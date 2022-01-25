@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Joey Castillo
+ * Copyright (c) 2020 Joey Castillo
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,22 +22,39 @@
  * SOFTWARE.
  */
 
-#ifndef DEMO_FACE_H_
-#define DEMO_FACE_H_
+#include "watch_buzzer.h"
 
-#include "movement.h"
+inline void watch_enable_buzzer(void) {
+    // TODO: (a2) hook to UI
+}
+inline void watch_set_buzzer_period(uint32_t period) {
+    // TODO: (a2) hook to UI
+}
 
-void demo_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
-void demo_face_activate(movement_settings_t *settings, void *context);
-bool demo_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
-void demo_face_resign(movement_settings_t *settings, void *context);
+void watch_disable_buzzer(void) {
+    _watch_disable_tcc();
+}
 
-#define demo_face ((const watch_face_t){ \
-    demo_face_setup, \
-    demo_face_activate, \
-    demo_face_loop, \
-    demo_face_resign, \
-    NULL, \
-})
+inline void watch_set_buzzer_on(void) {
+    // TODO: (a2) hook to UI
+}
 
-#endif // DEMO_FACE_H_
+inline void watch_set_buzzer_off(void) {
+    // TODO: (a2) hook to UI
+}
+
+// note: the buzzer uses a 1 MHz clock. these values were determined by dividing 1,000,000 by the target frequency.
+// i.e. for a 440 Hz tone (A4 on the piano), 1MHz/440Hz = 2273
+const uint16_t NotePeriods[108] = {0};
+
+void watch_buzzer_play_note(BuzzerNote note, uint16_t duration_ms) {
+    if (note == BUZZER_NOTE_REST) {
+        watch_set_buzzer_off();
+    } // else {
+    //     hri_tcc_write_PERBUF_reg(TCC0, NotePeriods[note]);
+    //     hri_tcc_write_CCBUF_reg(TCC0, WATCH_BUZZER_TCC_CHANNEL, NotePeriods[note] / 2);
+    //     watch_set_buzzer_on();
+    // }
+    // delay_ms(duration_ms);
+    // watch_set_buzzer_off();
+}

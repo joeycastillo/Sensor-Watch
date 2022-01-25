@@ -27,6 +27,23 @@
 
 #include "watch.h"
 
+// matches adc.h
+#ifndef ADC_REFCTRL_REFSEL_INTREF_Val
+#define ADC_REFCTRL_REFSEL_INTREF_Val 0x0
+#endif
+
+#ifndef ADC_REFCTRL_REFSEL_INTVCC0_Val
+#define ADC_REFCTRL_REFSEL_INTVCC0_Val 0x1
+#endif
+
+#ifndef ADC_REFCTRL_REFSEL_INTVCC1_Val
+#define ADC_REFCTRL_REFSEL_INTVCC1_Val 0x2
+#endif
+
+#ifndef ADC_REFCTRL_REFSEL_INTVCC2_Val
+#define ADC_REFCTRL_REFSEL_INTVCC2_Val 0x5
+#endif
+
 /** @addtogroup adc Analog Input
   * @brief This section covers functions related to the SAM L22's analog-to-digital converter,
   *        as well as configuring and reading values from the five analog-capable pins on the

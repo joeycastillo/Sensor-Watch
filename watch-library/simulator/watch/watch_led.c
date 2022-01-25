@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Joey Castillo
+ * Copyright (c) 2020 Joey Castillo
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,22 +22,42 @@
  * SOFTWARE.
  */
 
-#ifndef DEMO_FACE_H_
-#define DEMO_FACE_H_
+#include "watch_led.h"
 
-#include "movement.h"
+#include <emscripten.h>
 
-void demo_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
-void demo_face_activate(movement_settings_t *settings, void *context);
-bool demo_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
-void demo_face_resign(movement_settings_t *settings, void *context);
+void watch_enable_leds(void) {}
 
-#define demo_face ((const watch_face_t){ \
-    demo_face_setup, \
-    demo_face_activate, \
-    demo_face_loop, \
-    demo_face_resign, \
-    NULL, \
-})
+void watch_disable_leds(void) {}
 
-#endif // DEMO_FACE_H_
+void watch_enable_led(bool unused) {
+    (void)unused;
+    watch_enable_leds();
+}
+
+void watch_disable_led(bool unused) {
+    (void)unused;
+    watch_disable_leds();
+}
+
+void watch_set_led_color(uint8_t red, uint8_t green) {
+    EM_ASM({
+        document.getElementById('light').style.opacity = $1 / 255;
+    }, red, green);
+}
+
+void watch_set_led_red(void) {
+    watch_set_led_color(255, 0);
+}
+
+void watch_set_led_green(void) {
+    watch_set_led_color(0, 255);
+}
+
+void watch_set_led_yellow(void) {
+    watch_set_led_color(255, 255);
+}
+
+void watch_set_led_off(void) {
+    watch_set_led_color(0, 0);
+}

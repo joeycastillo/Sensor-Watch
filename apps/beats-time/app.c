@@ -3,7 +3,7 @@
 #include <math.h>
 #include "watch.h"
 
-const uint8_t UTC_OFFSET = 4; // set to your current UTC offset to see correct beats time
+const int8_t UTC_OFFSET = 4; // set to your current UTC offset to see correct beats time
 const uint8_t BEAT_REFRESH_FREQUENCY = 8;
 
 typedef enum ApplicationMode {
@@ -160,7 +160,7 @@ float clock2beats(uint16_t hours, uint16_t minutes, uint16_t seconds, int16_t ut
     float beats = seconds + ((float)application_state.subsecond / (float)BEAT_REFRESH_FREQUENCY);
     beats += 60 * minutes;
     beats += (float)hours * 60 * 60;
-    beats += (utc_offset + 1) * 60 * 60; // offset from utc + 1 since beats in in UTC+1
+    beats += (1 - utc_offset) * 60 * 60; // offset from utc + 1 since beats in in UTC+1
 
     beats /= 86.4; // convert to beats
     while(beats > 1000) beats -= 1000; // beats %= 1000 but for a float

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Joey Castillo
+ * Copyright (c) 2020 Joey Castillo
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,22 +22,26 @@
  * SOFTWARE.
  */
 
-#ifndef DEMO_FACE_H_
-#define DEMO_FACE_H_
+#include "watch_gpio.h"
 
-#include "movement.h"
+static bool pin_levels[UINT8_MAX];
 
-void demo_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
-void demo_face_activate(movement_settings_t *settings, void *context);
-bool demo_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
-void demo_face_resign(movement_settings_t *settings, void *context);
+void watch_enable_digital_input(const uint8_t pin) {}
 
-#define demo_face ((const watch_face_t){ \
-    demo_face_setup, \
-    demo_face_activate, \
-    demo_face_loop, \
-    demo_face_resign, \
-    NULL, \
-})
+void watch_disable_digital_input(const uint8_t pin) {}
 
-#endif // DEMO_FACE_H_
+void watch_enable_pull_up(const uint8_t pin) {}
+
+void watch_enable_pull_down(const uint8_t pin) {}
+
+bool watch_get_pin_level(const uint8_t pin) {
+    return pin_levels[pin];
+}
+
+void watch_enable_digital_output(const uint8_t pin) {}
+
+void watch_disable_digital_output(const uint8_t pin) {}
+
+void watch_set_pin_level(const uint8_t pin, const bool level) {
+    pin_levels[pin] = level;
+}

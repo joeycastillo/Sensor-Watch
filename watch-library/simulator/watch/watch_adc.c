@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Joey Castillo
+ * Copyright (c) 2020 Joey Castillo
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,22 +22,27 @@
  * SOFTWARE.
  */
 
-#ifndef DEMO_FACE_H_
-#define DEMO_FACE_H_
+#include "watch_adc.h"
 
-#include "movement.h"
+void watch_enable_adc(void) {}
 
-void demo_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
-void demo_face_activate(movement_settings_t *settings, void *context);
-bool demo_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
-void demo_face_resign(movement_settings_t *settings, void *context);
+void watch_enable_analog_input(const uint8_t pin) {}
 
-#define demo_face ((const watch_face_t){ \
-    demo_face_setup, \
-    demo_face_activate, \
-    demo_face_loop, \
-    demo_face_resign, \
-    NULL, \
-})
+uint16_t watch_get_analog_pin_level(const uint8_t pin) {
+    return 0;
+}
 
-#endif // DEMO_FACE_H_
+void watch_set_analog_num_samples(uint16_t samples) {}
+
+void watch_set_analog_sampling_length(uint8_t cycles) {}
+
+void watch_set_analog_reference_voltage(watch_adc_reference_voltage reference) {}
+
+uint16_t watch_get_vcc_voltage(void) {
+    // TODO: (a2) hook to UI
+    return 3000;
+}
+
+inline void watch_disable_analog_input(const uint8_t pin) {}
+
+inline void watch_disable_adc(void) {}

@@ -29,6 +29,10 @@
 #include "movement.h"
 #include "movement_config.h"
 
+#if __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 movement_state_t movement_state;
 void * watch_face_contexts[MOVEMENT_NUM_FACES];
 watch_date_time scheduled_tasks[MOVEMENT_NUM_FACES];
@@ -149,7 +153,16 @@ static void _movement_handle_scheduled_tasks(void) {
 
 void movement_request_tick_frequency(uint8_t freq) {
     if (freq == 128) return; // Movement uses the 128 Hz tick internally
-    RTC->MODE2.INTENCLR.reg = 0xFE; // disable all callbacks except the 128 Hz one
+
+    // disable all callbacks except the 128 Hz one
+#if __EMSCRIPTEN__
+    for (int i = 1; i < 128; i = i << 1) {
+        watch_rtc_disable_periodic_callback(i);
+    }
+#else
+    RTC->MODE2.INTENCLR.reg = 0xFE;
+#endif
+
     movement_state.subsecond = 0;
     movement_state.tick_frequency = freq;
     if (freq) watch_rtc_register_periodic_callback(cb_tick, freq);
@@ -215,6 +228,18 @@ void app_init(void) {
     movement_state.light_ticks = -1;
     movement_state.alarm_ticks = -1;
     _movement_reset_inactivity_countdown();
+
+#if __EMSCRIPTEN__
+    int32_t time_zone_offset = EM_ASM_INT({
+        return -new Date().getTimezoneOffset();
+    });
+    for (int i = 0, count = sizeof(movement_timezone_offsets) / sizeof(movement_timezone_offsets[0]); i < count; i++) {
+        if (movement_timezone_offsets[i] == time_zone_offset) {
+            movement_state.settings.bit.time_zone = i;
+            break;
+        }
+    }
+#endif
 }
 
 void app_wake_from_backup(void) {

@@ -4,7 +4,17 @@ OBJS = $(addprefix $(BUILD)/, $(notdir %/$(subst .c,.o, $(SRCS))))
 
 SUBMODULES = tinyusb
 
+ifndef EMSCRIPTEN
 all: directory $(SUBMODULES) $(BUILD)/$(BIN).elf $(BUILD)/$(BIN).hex $(BUILD)/$(BIN).bin $(BUILD)/$(BIN).uf2 size
+else
+all: directory $(SUBMODULES) $(BUILD)/$(BIN).html
+endif
+
+$(BUILD)/$(BIN).html: $(OBJS)
+	@echo HTML $@
+	@$(CC) $(LDFLAGS) $(OBJS) $(LIBS) -o $@ \
+		-s EXPORTED_FUNCTIONS=_main \
+		--shell-file=$(TOP)/watch-library/simulator/shell.html
 
 $(BUILD)/$(BIN).elf: $(OBJS)
 	@echo LD $@
