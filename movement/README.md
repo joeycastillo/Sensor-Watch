@@ -31,6 +31,8 @@ To create a new watch face, you should create a new C header and source file in 
 })
 ```
 
+You will also have to add your watch face to the `Makefile` so that it will be compiled in, and to `movement_faces.h` so that it will be available to add to the carousel. A good example of the changes required [can be found here](https://github.com/joeycastillo/Sensor-Watch/commit/2a59ae950f653a1730686ede8f77d74aea125efe).
+
 This section will go over how each function works. The section headings use the watch_face prefix, but know that you should implement each function with your own prefix as described above.
 
 ### watch_face_setup
@@ -58,6 +60,8 @@ In addition to the settings and context, this function receives another paramete
 There is also a `subsecond` property on the event that contains the fractional second of the event. If you are using 1 Hz updates, subsecond will always be 0.
 
 You should set up a switch statement that handles, at the very least, the `EVENT_TICK` and `EVENT_MODE_BUTTON_UP` event types. The mode button up event occurs when the user presses the MODE button. **Your loop function SHOULD call the movement_move_to_next_face function in response to this event.** If you have a very good reason to override this behavior (e.g. your user interface requires all three buttons), you may do so, but the user will have to long-press the Mode button to advance to the next watch face.
+
+Note that `watch_face_loop` returns a boolean value. This boolean value indicates to Movement whether the watch can enter standby mode after handling your loop (true), or whether it should stay awake (false). You SHOULD almost always return true here, as the watch uses significantly more power when idling as opposed to standing by. The only times you would return false here are if you are PWM'ing the LED or emitting a sound from the buzzer. Your watch face would want to keep the watch awake in this case because the PWM driver does not run in standby.
 
 ### watch_face_resign
 
