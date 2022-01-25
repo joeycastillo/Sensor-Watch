@@ -18,6 +18,7 @@ INCLUDES += \
   -I../watch_faces/demo/ \
   -I../lib/TOTP-MCU/ \
   -I../lib/sunriset/ \
+  -I../lib/vsop87/ \
 
 # If you add any other source files you wish to compile, add them after ../app.c
 # Note that you will need to add a backslash at the end of any line you wish to continue, i.e.
@@ -29,6 +30,7 @@ SRCS += \
   ../lib/TOTP-MCU/sha1.c \
   ../lib/TOTP-MCU/TOTP.c \
   ../lib/sunriset/sunriset.c \
+  ../lib/vsop87/vsop87a_micro.c \
   ../movement.c \
   ../watch_faces/clock/simple_clock_face.c \
   ../watch_faces/clock/world_clock_face.c \
@@ -51,6 +53,7 @@ SRCS += \
   ../watch_faces/complication/countdown_face.c \
   ../watch_faces/complication/blinky_face.c \
   ../watch_faces/complication/moon_phase_face.c \
+  ../watch_faces/complication/orrery_face.c \
 # New watch faces go above this line.
 
 # Leave this line at the bottom of the file; it has all the targets for making your project.
