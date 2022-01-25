@@ -32,6 +32,7 @@ SRCS += \
   ../movement.c \
   ../watch_faces/clock/simple_clock_face.c \
   ../watch_faces/clock/world_clock_face.c \
+  ../watch_faces/clock/beats_face.c \
   ../watch_faces/settings/preferences_face.c \
   ../watch_faces/settings/set_time_face.c \
   ../watch_faces/complications/pulsometer_face.c \
@@ -43,7 +44,6 @@ SRCS += \
   ../watch_faces/demos/lis2dh_logging_face.c \
   ../watch_faces/demos/demo_face.c \
   ../watch_faces/demos/hello_there_face.c \
-  ../watch_faces/complications/beats_face.c \
   ../watch_faces/complications/day_one_face.c \
   ../watch_faces/complications/stopwatch_face.c \
   ../watch_faces/complications/totp_face.c \
