@@ -40,7 +40,6 @@ jobs:
         run: emmake make
         working-directory: 'movement/make'
       - name: Archive simulator build
-        if: ${{ matrix.target == 'simulator' }}
         working-directory: 'movement/make/build'
         run: |
           cp watch.html index.html
