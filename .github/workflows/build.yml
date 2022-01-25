@@ -36,12 +36,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Compile starter-project app
-        run: emmake make
-        working-directory: 'apps/starter-project'
-      - name: Compile accelerometer-test app
-        run: emmake make
-        working-directory: 'apps/accelerometer-test'
       - name: Compile movement
         run: emmake make
         working-directory: 'movement/make'
