@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Joey Castillo
+ * Copyright (c) <#year#> <#author_name#>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,28 +22,27 @@
  * SOFTWARE.
  */
 
-#ifndef MOVEMENT_FACES_H_
-#define MOVEMENT_FACES_H_
+#ifndef <#WATCH_FACE_NAME#>_FACE_H_
+#define <#WATCH_FACE_NAME#>_FACE_H_
 
-#include "simple_clock_face.h"
-#include "world_clock_face.h"
-#include "preferences_face.h"
-#include "set_time_face.h"
-#include "pulsometer_face.h"
-#include "thermistor_readout_face.h"
-#include "thermistor_logging_face.h"
-#include "character_set_face.h"
-#include "beats_face.h"
-#include "day_one_face.h"
-#include "voltage_face.h"
-#include "stopwatch_face.h"
-#include "totp_face.h"
-#include "lis2dh_logging_face.h"
-#include "demo_face.h"
-#include "hello_there_face.h"
-#include "sunrise_sunset_face.h"
-#include "countdown_face.h"
-#include "blinky_face.h"
-// New includes go above this line.
+#include "movement.h"
 
-#endif // MOVEMENT_FACES_H_
+typedef struct {
+    // Anything you need to keep track of, put it here!
+    uint8_t unused;
+} <#watch_face_name#>_state_t;
+
+void <#watch_face_name#>_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
+void <#watch_face_name#>_face_activate(movement_settings_t *settings, void *context);
+bool <#watch_face_name#>_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void <#watch_face_name#>_face_resign(movement_settings_t *settings, void *context);
+
+#define <#watch_face_name#>_face ((const watch_face_t){ \
+    <#watch_face_name#>_face_setup, \
+    <#watch_face_name#>_face_activate, \
+    <#watch_face_name#>_face_loop, \
+    <#watch_face_name#>_face_resign, \
+    NULL, \
+})
+
+#endif // <#WATCH_FACE_NAME#>_FACE_H_
