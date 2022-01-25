@@ -23,6 +23,7 @@
  */
 
 #include "watch_adc.h"
+#include "driver_init.h"
 
 static void _watch_sync_adc(void) {
     while (ADC->SYNCBUSY.reg);
@@ -138,13 +139,30 @@ void watch_set_analog_sampling_length(uint8_t cycles) {
     _watch_sync_adc();
 }
 
+static inline uint32_t _watch_adc_get_reference_voltage(const watch_adc_reference_voltage reference) {
+    switch (reference) {
+        case ADC_REFERENCE_INTREF:
+            return ADC_REFCTRL_REFSEL_INTREF_Val;
+            break;
+        case ADC_REFERENCE_VCC_DIV1POINT6:
+            return ADC_REFCTRL_REFSEL_INTVCC0_Val;
+            break;
+        case ADC_REFERENCE_VCC_DIV2:
+            return ADC_REFCTRL_REFSEL_INTVCC1_Val;
+            break;
+        case ADC_REFERENCE_VCC:
+            return ADC_REFCTRL_REFSEL_INTVCC2_Val;
+            break;
+    }
+}
+
 void watch_set_analog_reference_voltage(watch_adc_reference_voltage reference) {
     ADC->CTRLA.bit.ENABLE = 0;
 
     if (reference == ADC_REFERENCE_INTREF) SUPC->VREF.bit.VREFOE = 1;
     else SUPC->VREF.bit.VREFOE = 0;
 
-    ADC->REFCTRL.bit.REFSEL = reference;
+    ADC->REFCTRL.bit.REFSEL = _watch_adc_get_reference_voltage(reference);
     ADC->CTRLA.bit.ENABLE = 1;
     _watch_sync_adc();
     // throw away one measurement after reference change (the channel doesn't matter).
