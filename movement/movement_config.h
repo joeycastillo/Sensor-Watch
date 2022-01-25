@@ -47,6 +47,8 @@
 
 const watch_face_t watch_faces[] = {
     simple_clock_face,
+    beats_face,
+    voltage_face,
     preferences_face,
     set_time_face,
 };
