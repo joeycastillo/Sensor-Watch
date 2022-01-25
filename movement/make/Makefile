@@ -13,9 +13,9 @@ INCLUDES += \
   -I../watch_faces/ \
   -I../watch_faces/clock/ \
   -I../watch_faces/settings/ \
-  -I../watch_faces/complications/ \
+  -I../watch_faces/complication/ \
   -I../watch_faces/thermistor/ \
-  -I../watch_faces/demos/ \
+  -I../watch_faces/demo/ \
   -I../lib/TOTP-MCU/ \
   -I../lib/sunriset/ \
 
@@ -35,21 +35,21 @@ SRCS += \
   ../watch_faces/clock/beats_face.c \
   ../watch_faces/settings/preferences_face.c \
   ../watch_faces/settings/set_time_face.c \
-  ../watch_faces/complications/pulsometer_face.c \
   ../watch_faces/thermistor/thermistor_driver.c \
   ../watch_faces/thermistor/thermistor_readout_face.c \
   ../watch_faces/thermistor/thermistor_logging_face.c \
-  ../watch_faces/demos/character_set_face.c \
-  ../watch_faces/demos/voltage_face.c \
-  ../watch_faces/demos/lis2dh_logging_face.c \
-  ../watch_faces/demos/demo_face.c \
-  ../watch_faces/demos/hello_there_face.c \
-  ../watch_faces/complications/day_one_face.c \
-  ../watch_faces/complications/stopwatch_face.c \
-  ../watch_faces/complications/totp_face.c \
-  ../watch_faces/complications/sunrise_sunset_face.c \
-  ../watch_faces/complications/countdown_face.c \
-  ../watch_faces/complications/blinky_face.c \
+  ../watch_faces/demo/character_set_face.c \
+  ../watch_faces/demo/voltage_face.c \
+  ../watch_faces/demo/lis2dh_logging_face.c \
+  ../watch_faces/demo/demo_face.c \
+  ../watch_faces/demo/hello_there_face.c \
+  ../watch_faces/complication/pulsometer_face.c \
+  ../watch_faces/complication/day_one_face.c \
+  ../watch_faces/complication/stopwatch_face.c \
+  ../watch_faces/complication/totp_face.c \
+  ../watch_faces/complication/sunrise_sunset_face.c \
+  ../watch_faces/complication/countdown_face.c \
+  ../watch_faces/complication/blinky_face.c \
 
 # Leave this line at the bottom of the file; it has all the targets for making your project.
 include $(TOP)/rules.mk
