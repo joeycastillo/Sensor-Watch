@@ -43,7 +43,6 @@
 #include "hello_there_face.h"
 #include "sunrise_sunset_face.h"
 #include "countdown_face.h"
-#include "blinky_face.h"
 // New includes go above this line.
 
 #endif // MOVEMENT_FACES_H_
