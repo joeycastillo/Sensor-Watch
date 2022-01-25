@@ -28,3 +28,24 @@ jobs:
         with:
           name: watch.uf2
           path: movement/make/build/watch.uf2
+
+  build-simulator:
+    container:
+      image: emscripten/emsdk
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Compile movement
+        run: emmake make
+        working-directory: 'movement/make'
+      - name: Archive simulator build
+        working-directory: 'movement/make/build'
+        run: |
+          cp watch.html index.html
+          tar -czf simulator.tar.gz index.html watch.wasm watch.js
+      - name: Upload simulator build
+        uses: actions/upload-artifact@v2
+        with:
+          name: simulator.tar.gz
+          path: movement/make/build/simulator.tar.gz
