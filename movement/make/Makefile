@@ -49,6 +49,7 @@ SRCS += \
   ../watch_faces/complication/totp_face.c \
   ../watch_faces/complication/sunrise_sunset_face.c \
   ../watch_faces/complication/countdown_face.c \
+  ../watch_faces/complication/blinky_face.c \
 # New watch faces go above this line.
 
 # Leave this line at the bottom of the file; it has all the targets for making your project.
