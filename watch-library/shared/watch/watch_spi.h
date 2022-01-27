@@ -56,8 +56,9 @@ bool watch_spi_write(const uint8_t *buf, uint16_t length);
 bool watch_spi_read(uint8_t *buf, uint16_t length);
 
 /** @brief Reads a series of values from a device on the SPI bus.
-  * @param buf Storage for the incoming bytes; on return, it will contain the received data.
-  * @param length The number of bytes that you wish to receive.
+  * @param data_out Storage for outgoing bytes.
+  * @param data_in Storage for incoming bytes.
+  * @param length The number of bytes to transfer.
   * @note This function does not manage the chip select pin (usually A3).
   */
 bool watch_spi_transfer(const uint8_t *data_out, uint8_t *data_in, uint16_t length);

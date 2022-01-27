@@ -46,7 +46,8 @@
             - @ref gpio - This section covers functions related to general-purpose input and output signals.
             - @ref i2c - This section covers functions related to the SAM L22's built-I2C driver, including configuring
                          the I2C bus, putting values directly on the bus and reading data from registers on I2C devices.
-            - @ref debug - This section covers functions related to the debug UART, available on pin D1 of the 9-pin connector.
+            - @ref spi - This section covers functions related to the SAM L22's built-in SPI driver.
+            - @ref uart - This section covers functions related to the UART peripheral.
             - @ref deepsleep - This section covers functions related to preparing for and entering BACKUP mode, the
                                deepest sleep mode available on the SAM L22.
  */

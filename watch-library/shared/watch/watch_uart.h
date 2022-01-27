@@ -27,7 +27,7 @@
 
 #include "watch.h"
 
-/** @addtogroup debug UART
+/** @addtogroup uart UART
   * @brief This section covers functions related to the UART peripheral.
   **/
 /// @{
