@@ -113,13 +113,17 @@ void watch_rtc_disable_periodic_callback(uint8_t frequency) {
     }
 }
 
-void watch_rtc_disable_all_periodic_callbacks(void) {
+void watch_rtc_disable_matching_periodic_callbacks(uint8_t mask) {
     for (int i = 0; i < 8; i++) {
-        if (tick_callbacks[i] != -1) {
+        if (tick_callbacks[i] != -1 && (mask & (1 << i)) != 0) {
             emscripten_clear_interval(tick_callbacks[i]);
             tick_callbacks[i] = -1;
         }
     }
+}
+
+void watch_rtc_disable_all_periodic_callbacks(void) {
+    watch_rtc_disable_matching_periodic_callbacks(0xFF);
 }
 
 static void watch_invoke_alarm_interval_callback(void *userData) {

@@ -102,8 +102,12 @@ void watch_rtc_disable_periodic_callback(uint8_t frequency) {
     RTC->MODE2.INTENCLR.reg = 1 << per_n;
 }
 
+void watch_rtc_disable_matching_periodic_callbacks(uint8_t mask) {
+    RTC->MODE2.INTENCLR.reg = mask;
+}
+
 void watch_rtc_disable_all_periodic_callbacks(void) {
-    RTC->MODE2.INTENCLR.reg = 0xFF;
+    watch_rtc_disable_matching_periodic_callbacks(0xFF);
 }
 
 void watch_rtc_register_alarm_callback(ext_irq_cb_t callback, watch_date_time alarm_time, watch_rtc_alarm_match mask) {
