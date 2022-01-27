@@ -46,3 +46,4 @@ void <#watch_face_name#>_face_resign(movement_settings_t *settings, void *contex
 })
 
 #endif // <#WATCH_FACE_NAME#>_FACE_H_
+

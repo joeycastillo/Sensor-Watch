@@ -89,3 +89,4 @@ void <#watch_face_name#>_face_resign(movement_settings_t *settings, void *contex
 
     // handle any cleanup before your watch face goes off-screen.
 }
+
