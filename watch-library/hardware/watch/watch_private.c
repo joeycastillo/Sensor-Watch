@@ -71,6 +71,8 @@ static inline void _watch_wait_for_entropy() {
 }
 
 // this function is called by arc4random to get entropy for random number generation.
+int getentropy(void *buf, size_t buflen);
+
 // let's use the SAM L22's true random number generator to seed the PRNG!
 int getentropy(void *buf, size_t buflen) {
     hri_mclk_set_APBCMASK_TRNG_bit(MCLK);
@@ -94,17 +96,6 @@ int getentropy(void *buf, size_t buflen) {
 
     hri_trng_clear_CTRLA_ENABLE_bit(TRNG);
     hri_mclk_clear_APBCMASK_TRNG_bit(MCLK);
-
-    return 0;
-}
-
-int _gettimeofday(struct timeval *tv, void *tzvp) {
-    (void)tzvp;
-    watch_date_time date_time = watch_rtc_get_date_time();
-
-    // FIXME: this assumes the system time is UTC! Will break for any other time zone.
-    tv->tv_sec = watch_utility_date_time_to_unix_time(date_time, 0);
-    tv->tv_usec = 0;
 
     return 0;
 }
