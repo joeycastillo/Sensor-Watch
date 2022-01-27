@@ -90,16 +90,6 @@ void SPI_0_PORT_init(void) {
 	gpio_set_pin_direction(A1, GPIO_DIRECTION_OUT);
 
 	gpio_set_pin_function(A1, PINMUX_PB01C_SERCOM3_PAD3);
-
-	gpio_set_pin_level(A3,
-	                   // <y> Initial level
-	                   // <id> pad_initial_level
-	                   // <false"> Low
-	                   // <true"> High
-	                   true);
-
-	// Set pin direction to output
-	gpio_set_pin_direction(A3, GPIO_DIRECTION_OUT);
 }
 
 void SPI_0_CLOCK_init(void) {

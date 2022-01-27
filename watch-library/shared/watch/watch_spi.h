@@ -41,19 +41,26 @@ void watch_enable_spi(void);
   */
 void watch_disable_spi(void);
 
-/** @brief Sends a series of values to a device on the SPI bus.
+/** @brief Writes a series of values to a device on the SPI bus.
   * @param buf A series of unsigned bytes; the data you wish to transmit.
   * @param length The number of bytes in buf that you wish to send.
   * @note This function does not manage the chip select pin (usually A3).
   */
-void watch_spi_send(uint8_t *buf, uint16_t length);
+bool watch_spi_write(const uint8_t *buf, uint16_t length);
 
-/** @brief Receives a series of values from a device on the SPI bus.
+/** @brief Reads a series of values from a device on the SPI bus.
   * @param buf Storage for the incoming bytes; on return, it will contain the received data.
   * @param length The number of bytes that you wish to receive.
   * @note This function does not manage the chip select pin (usually A3).
   */
-void watch_spi_receive(uint8_t *buf, uint16_t length);
+bool watch_spi_read(uint8_t *buf, uint16_t length);
+
+/** @brief Reads a series of values from a device on the SPI bus.
+  * @param buf Storage for the incoming bytes; on return, it will contain the received data.
+  * @param length The number of bytes that you wish to receive.
+  * @note This function does not manage the chip select pin (usually A3).
+  */
+bool watch_spi_transfer(const uint8_t *data_out, uint8_t *data_in, uint16_t length);
 
 /// @}
 #endif

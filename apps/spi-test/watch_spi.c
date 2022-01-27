@@ -37,18 +37,10 @@ void watch_disable_spi(void) {
     spi_io = NULL;
 }
 
-bool watch_spi_write(const uint8_t *buf, uint16_t length) {
-	return !!io_write(spi_io, buf, length);
+void watch_spi_read(const uint8_t *buf, uint16_t length) {
+	io_write(spi_io, buf, length);
 }
 
-bool watch_spi_read(uint8_t *buf, uint16_t length) {
-	return !!io_read(spi_io, buf, length);
-}
-
-bool watch_spi_transfer(const uint8_t *data_out, uint8_t *data_in, uint16_t length) {
-    struct spi_xfer xfer;
-    xfer.txbuf = (uint8_t *)data_out;
-    xfer.rxbuf = data_in;
-    xfer.size = length;
-    return !!spi_m_sync_transfer(&SPI_0, &xfer);
+void watch_spi_read(uint8_t *buf, uint16_t length) {
+	io_read(spi_io, buf, length);
 }

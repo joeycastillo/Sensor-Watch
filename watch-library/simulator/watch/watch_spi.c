@@ -28,6 +28,8 @@ void watch_enable_spi(void) {}
 
 void watch_disable_spi(void) {}
 
-void watch_spi_send(uint8_t *buf, uint16_t length) {}
+bool watch_spi_write(const uint8_t *buf, uint16_t length) { return false; }
 
-void watch_spi_receive(uint8_t *buf, uint16_t length) {}
+bool watch_spi_read(uint8_t *buf, uint16_t length) { return false; }
+
+bool watch_spi_transfer(const uint8_t *data_out, uint8_t *data_in, uint16_t length) { return false; }
