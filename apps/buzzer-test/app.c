@@ -115,7 +115,7 @@ bool app_loop(void) {
             900,
         };
         application_state.play = false;
-        for(size_t i = 0; i < sizeof(rains); i++) {
+        for(size_t i = 0, count = sizeof(rains) / sizeof(rains[0]); i < count; i++) {
             char buf[9] = {0};
             if (rains[i] == BUZZER_NOTE_REST) {
                 printf("rest for %d ms\n", durations[i]);
