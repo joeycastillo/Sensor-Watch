@@ -120,6 +120,7 @@ SRCS += \
   $(TOP)/watch-library/shared/driver/lis2dh.c \
   $(TOP)/watch-library/shared/driver/lis2dw.c \
   $(TOP)/watch-library/shared/driver/spiflash.c \
+  $(TOP)/watch-library/shared/watch/watch_private_buzzer.c \
   $(TOP)/watch-library/shared/watch/watch_private_display.c \
   $(TOP)/watch-library/shared/watch/watch_utility.c \
 
@@ -137,6 +138,7 @@ INCLUDES += \
   -I$(TOP)/watch-library/shared/driver/ \
   -I$(TOP)/watch-library/shared/config/ \
   -I$(TOP)/watch-library/shared/watch/ \
+  -I$(TOP)/watch-library/simulator/watch/ \
   -I$(TOP)/watch-library/simulator/hpl/port/ \
   -I$(TOP)/watch-library/hardware/include/component \
   -I$(TOP)/watch-library/hardware/hal/include/ \
@@ -159,6 +161,7 @@ SRCS += \
   $(TOP)/watch-library/simulator/watch/watch_deepsleep.c \
   $(TOP)/watch-library/simulator/watch/watch_private.c \
   $(TOP)/watch-library/simulator/watch/watch.c \
+  $(TOP)/watch-library/shared/watch/watch_private_buzzer.c \
   $(TOP)/watch-library/shared/watch/watch_private_display.c \
   $(TOP)/watch-library/shared/watch/watch_utility.c \
 

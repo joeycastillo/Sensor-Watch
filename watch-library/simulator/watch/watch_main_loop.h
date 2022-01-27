@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 Joey Castillo
+ * Copyright (c) 2022 Joey Castillo
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,39 +22,12 @@
  * SOFTWARE.
  */
 
-#include "watch_buzzer.h"
+#include "driver_init.h"
 
- inline void watch_enable_buzzer(void) {
-    if (!hri_tcc_get_CTRLA_reg(TCC0, TCC_CTRLA_ENABLE)) {
-        _watch_enable_tcc();
-    }
-}
-inline void watch_set_buzzer_period(uint32_t period) {
-    hri_tcc_write_PERBUF_reg(TCC0, period);
-}
+void suspend_main_loop(void);
 
-void watch_disable_buzzer(void) {
-    _watch_disable_tcc();
-}
+void resume_main_loop(void);
 
-inline void watch_set_buzzer_on(void) {
-    gpio_set_pin_direction(BUZZER, GPIO_DIRECTION_OUT);
-    gpio_set_pin_function(BUZZER, WATCH_BUZZER_TCC_PINMUX);
-}
+void main_loop_sleep(uint32_t ms);
 
-inline void watch_set_buzzer_off(void) {
-    gpio_set_pin_direction(BUZZER, GPIO_DIRECTION_OFF);
-    gpio_set_pin_function(BUZZER, GPIO_PIN_FUNCTION_OFF);
-}
-
-void watch_buzzer_play_note(BuzzerNote note, uint16_t duration_ms) {
-    if (note == BUZZER_NOTE_REST) {
-        watch_set_buzzer_off();
-    } else {
-        hri_tcc_write_PERBUF_reg(TCC0, NotePeriods[note]);
-        hri_tcc_write_CCBUF_reg(TCC0, WATCH_BUZZER_TCC_CHANNEL, NotePeriods[note] / 2);
-        watch_set_buzzer_on();
-    }
-    delay_ms(duration_ms);
-    watch_set_buzzer_off();
-}
+bool main_loop_is_sleeping(void);
