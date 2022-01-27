@@ -78,7 +78,7 @@ bool <#watch_face_name#>_face_loop(movement_event_t event, movement_settings_t *
             break;
     }
 
-    // return true if the watch can enter standby mode. If you are PWM'ing an LED or buzzing the buzzer nere,
+    // return true if the watch can enter standby mode. If you are PWM'ing an LED or buzzing the buzzer here,
     // you should return false since the PWM driver does not operate in standby mode.
     return true;
 }
