@@ -35,6 +35,7 @@ static uint32_t watch_backup_data[8];
 
 void watch_register_extwake_callback(uint8_t pin, ext_irq_cb_t callback, bool level) {
     if (pin == BTN_ALARM) {
+        watch_enable_external_interrupts();
         watch_register_interrupt_callback(pin, callback, level ? INTERRUPT_TRIGGER_RISING : INTERRUPT_TRIGGER_FALLING);
     }
 }

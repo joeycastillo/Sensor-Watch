@@ -24,37 +24,79 @@
 
 #include "watch_buzzer.h"
 
-inline void watch_enable_buzzer(void) {
-    // TODO: (a2) hook to UI
+#include <emscripten.h>
+
+static bool buzzer_enabled = false;
+static uint32_t buzzer_period;
+
+void watch_enable_buzzer(void) {
+    buzzer_enabled = true;
+    buzzer_period = NotePeriods[BUZZER_NOTE_A4];
+
+    EM_ASM({
+        Module['audioContext'] = new (window.AudioContext || window.webkitAudioContext)();
+    });
 }
-inline void watch_set_buzzer_period(uint32_t period) {
-    // TODO: (a2) hook to UI
+
+void watch_set_buzzer_period(uint32_t period) {
+    if (!buzzer_enabled) return;
+    buzzer_period = period;
 }
 
 void watch_disable_buzzer(void) {
-    _watch_disable_tcc();
+    buzzer_enabled = false;
+    buzzer_period = NotePeriods[BUZZER_NOTE_A4];
+
+    EM_ASM({
+        if (Module['audioContext']) {
+            Module['audioContext'].close();
+            Module['audioContext'] = null;
+        }
+    });
 }
 
-inline void watch_set_buzzer_on(void) {
-    // TODO: (a2) hook to UI
+void watch_set_buzzer_on(void) {
+    if (!buzzer_enabled) return;
+
+    EM_ASM({
+        const audioContext = Module['audioContext'];
+        if (!audioContext) return;
+
+        if (!(audioContext._oscillator && audioContext._gain)) {
+            const oscillator = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            oscillator.type = 'triangle';
+            oscillator.connect(gain);
+            gain.connect(audioContext.destination);
+            oscillator.start(0);
+
+            audioContext._oscillator = oscillator;
+            audioContext._gain = gain;
+        }
+
+        audioContext._oscillator.frequency.value = 1e6/$0;
+        audioContext._gain.gain.value = 1;
+    }, buzzer_period);
 }
 
-inline void watch_set_buzzer_off(void) {
-    // TODO: (a2) hook to UI
-}
+void watch_set_buzzer_off(void) {
+    if (!buzzer_enabled) return;
 
-// note: the buzzer uses a 1 MHz clock. these values were determined by dividing 1,000,000 by the target frequency.
-// i.e. for a 440 Hz tone (A4 on the piano), 1MHz/440Hz = 2273
-const uint16_t NotePeriods[108] = {0};
+    EM_ASM({
+        const audioContext = Module['audioContext'];
+        if (audioContext && audioContext._gain) {
+            audioContext._gain.gain.value = 0;
+        }
+    });
+}
 
 void watch_buzzer_play_note(BuzzerNote note, uint16_t duration_ms) {
     if (note == BUZZER_NOTE_REST) {
         watch_set_buzzer_off();
-    } // else {
-    //     hri_tcc_write_PERBUF_reg(TCC0, NotePeriods[note]);
-    //     hri_tcc_write_CCBUF_reg(TCC0, WATCH_BUZZER_TCC_CHANNEL, NotePeriods[note] / 2);
-    //     watch_set_buzzer_on();
-    // }
-    // delay_ms(duration_ms);
-    // watch_set_buzzer_off();
+    } else {
+        watch_set_buzzer_period(NotePeriods[note]);
+        watch_set_buzzer_on();
+    }
+    emscripten_sleep(duration_ms);
+    watch_set_buzzer_off();
 }
