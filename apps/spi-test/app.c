@@ -10,12 +10,9 @@ void app_init(void) {
     spi_flash_init();
 
     uint8_t buf[3] = {1, 2, 3};
-    flash_enable();
     spi_flash_command(CMD_ENABLE_WRITE);
-    // note that you will need to erase the sector to write different values later:
-    // spi_flash_sector_command(CMD_SECTOR_ERASE, 0);
+    // note that you will need to erase the sector to write different values later
     spi_flash_write_data(0, buf, 3);
-    flash_disable();
 }
 
 void app_wake_from_backup(void) {
@@ -34,11 +31,9 @@ void app_wake_from_standby(void) {
 bool app_loop(void) {
     uint8_t buf[3] = {0};
 
-    flash_enable();
     // should print 1, 2, 3
     spi_flash_read_data(0, buf, 3);
     printf("data: %x, %x, %x\n", buf[0], buf[1], buf[2]);
-    flash_disable();
 
     delay_ms(100);
 
