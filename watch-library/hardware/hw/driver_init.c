@@ -15,6 +15,8 @@ struct slcd_sync_descriptor SEGMENT_LCD_0;
 
 struct i2c_m_sync_desc I2C_0;
 
+struct spi_m_sync_descriptor SPI_0;
+
 void I2C_0_PORT_init(void) {
 
 	gpio_set_pin_pull_mode(SDA,
@@ -48,6 +50,68 @@ void I2C_0_init(void) {
 	I2C_0_CLOCK_init();
 	i2c_m_sync_init(&I2C_0, SERCOM1);
 	I2C_0_PORT_init();
+}
+
+void SPI_0_PORT_init(void) {
+
+	gpio_set_pin_level(A2,
+	                   // <y> Initial level
+	                   // <id> pad_initial_level
+	                   // <false"> Low
+	                   // <true"> High
+	                   false);
+
+	// Set pin direction to output
+	gpio_set_pin_direction(A2, GPIO_DIRECTION_OUT);
+
+	gpio_set_pin_function(A2, PINMUX_PB02C_SERCOM3_PAD0);
+
+	// Set pin direction to input
+	gpio_set_pin_direction(A4, GPIO_DIRECTION_IN);
+
+	gpio_set_pin_pull_mode(A4,
+	                       // <y> Pull configuration
+	                       // <id> pad_pull_config
+	                       // <GPIO_PULL_OFF"> Off
+	                       // <GPIO_PULL_UP"> Pull-up
+	                       // <GPIO_PULL_DOWN"> Pull-down
+	                       GPIO_PULL_OFF);
+
+	gpio_set_pin_function(A4, PINMUX_PB00C_SERCOM3_PAD2);
+
+	gpio_set_pin_level(A1,
+	                   // <y> Initial level
+	                   // <id> pad_initial_level
+	                   // <false"> Low
+	                   // <true"> High
+	                   false);
+
+	// Set pin direction to output
+	gpio_set_pin_direction(A1, GPIO_DIRECTION_OUT);
+
+	gpio_set_pin_function(A1, PINMUX_PB01C_SERCOM3_PAD3);
+
+	gpio_set_pin_level(A3,
+	                   // <y> Initial level
+	                   // <id> pad_initial_level
+	                   // <false"> Low
+	                   // <true"> High
+	                   true);
+
+	// Set pin direction to output
+	gpio_set_pin_direction(A3, GPIO_DIRECTION_OUT);
+}
+
+void SPI_0_CLOCK_init(void) {
+	hri_gclk_write_PCHCTRL_reg(GCLK, SERCOM3_GCLK_ID_CORE, CONF_GCLK_SERCOM3_CORE_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
+	hri_gclk_write_PCHCTRL_reg(GCLK, SERCOM3_GCLK_ID_SLOW, CONF_GCLK_SERCOM3_SLOW_SRC | (1 << GCLK_PCHCTRL_CHEN_Pos));
+	hri_mclk_set_APBCMASK_SERCOM3_bit(MCLK);
+}
+
+void SPI_0_init(void) {
+	SPI_0_CLOCK_init();
+	spi_m_sync_init(&SPI_0, SERCOM3);
+	SPI_0_PORT_init();
 }
 
 void delay_driver_init(void) {
