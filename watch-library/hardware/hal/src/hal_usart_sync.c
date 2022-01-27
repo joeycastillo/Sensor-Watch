@@ -48,6 +48,7 @@ static int32_t usart_sync_read(struct io_descriptor *const io_descr, uint8_t *co
  */
 int32_t usart_sync_init(struct usart_sync_descriptor *const descr, void *const hw, void *const func)
 {
+	(void)func;
 	int32_t init_status;
 	ASSERT(descr && hw);
 	init_status = _usart_sync_init(&descr->device, hw);
