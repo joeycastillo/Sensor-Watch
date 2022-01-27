@@ -95,6 +95,7 @@ SRCS += \
   $(TOP)/watch-library/hardware/hal/src/hal_gpio.c \
   $(TOP)/watch-library/hardware/hal/src/hal_i2c_m_sync.c \
   $(TOP)/watch-library/hardware/hal/src/hal_spi_m_sync.c \
+  $(TOP)/watch-library/hardware/hal/src/hal_usart_sync.c \
   $(TOP)/watch-library/hardware/hal/src/hal_init.c \
   $(TOP)/watch-library/hardware/hal/src/hal_io.c \
   $(TOP)/watch-library/hardware/hal/src/hal_slcd_sync.c \

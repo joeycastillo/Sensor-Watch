@@ -33,12 +33,15 @@ extern "C" {
 #include <hal_ext_irq.h>
 #include <hal_i2c_m_sync.h>
 #include <hal_spi_m_sync.h>
+#include <hal_usart_sync.h>
 #include <hal_delay.h>
 #include <hal_slcd_sync.h>
 
 extern struct adc_sync_descriptor ADC_0;
 
 extern struct i2c_m_sync_desc I2C_0;
+
+extern struct usart_sync_descriptor USART_0;
 
 extern struct slcd_sync_descriptor SEGMENT_LCD_0;
 

@@ -27,32 +27,49 @@
 
 #include "watch.h"
 
-/** @addtogroup debug Debug UART
-  * @brief This section covers functions related to the debug UART, available on
-  *        pin D1 of the 9-pin connector.
-  * @warning These functions were used early on in development, before the TinyUSB
-  *          CDC was implemented. You can now print debug messages to the USB console
-  *          using printf, rendering this bit irrelevant. These methods will likely
-  *          be refactored out in the future, in favor of a more full-featured UART
-  *          on the nine-pin connector.
+/** @addtogroup debug UART
+  * @brief This section covers functions related to the UART peripheral.
   **/
 /// @{
+
+/** @brief Initializes the debug UART.
+  * @param tx_pin The pin the watch will use to transmit, or 0 for a receive-only UART.
+  *               If specified, must be either A2 or A4.
+  * @param rx_pin The pin the watch will use to receive, or 0 for a transmit-only UART.
+  *               If specified, must be A1, A2, A3 or A4 (pin A0 cannot receive UART data).
+  * @param baud The baud rate for the UART. A typical value is 19200.
+  */
+void watch_enable_uart(const uint8_t tx_pin, const uint8_t rx_pin, uint32_t baud);
+
+/** @brief Transmits a string of bytes on the UART's TX pin.
+  * @param s A null-terminated string containing the bytes you wish to transmit.
+  */
+void watch_uart_puts(char *s);
+
+/** @brief Receives a single byte from the UART's RX pin.
+  * @return the received byte.
+  * @note This method will block until a byte is received!
+  */
+char watch_uart_getc(void);
+
+// Begin deprecated functions:
+
 /** @brief Initializes the debug UART.
   * @param baud The baud rate
   */
-__attribute__((deprecated("Use printf to log debug messages over USB.")))
+__attribute__((deprecated("Use watch_enable_uart to enable the UART.")))
 void watch_enable_debug_uart(uint32_t baud);
 
 /** @brief Outputs a single character on the debug UART.
   * @param c The character you wish to output.
   */
-__attribute__((deprecated("Use printf to log debug messages over USB.")))
+__attribute__((deprecated("Use watch_uart_puts to print to the UART, or printf to log debug messages over USB.")))
 void watch_debug_putc(char c);
 
 /** @brief Outputs a string on the debug UART.
   * @param s A null-terminated string.
   */
-__attribute__((deprecated("Use printf to log debug messages over USB.")))
+__attribute__((deprecated("Use watch_uart_puts to print to the UART, or printf to log debug messages over USB.")))
 void watch_debug_puts(char *s);
 /// @}
 #endif
