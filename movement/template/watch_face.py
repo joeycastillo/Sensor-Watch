@@ -22,6 +22,7 @@
 
 import os
 import re
+import datetime
 import argparse
 
 
@@ -32,10 +33,9 @@ INCLUDE_INDICATOR = "// New includes go above this line.\n"
 def replace_placeholders(contents, args):
     modified_contents = contents.replace("<#WATCH_FACE_NAME#>", args.watch_face_name.upper())
     modified_contents = modified_contents.replace("<#watch_face_name#>", args.watch_face_name)
+    modified_contents = modified_contents.replace("<#year#>", datetime.datetime.now().strftime("%Y"))
     if args.author_name:
         modified_contents = modified_contents.replace("<#author_name#>", " ".join(args.author_name))
-    if args.year:
-        modified_contents = modified_contents.replace("<#year#>", args.year)
 
     return modified_contents
 
@@ -70,7 +70,6 @@ def main():
     parser.add_argument("watch_face_type", metavar="face_type", type=str, choices=["complication", "clock"], help="The type of watch face to create, either \"complication\" or \"clock\"")
     parser.add_argument("watch_face_name", metavar="face_name", type=str, help="The name of the watch face")
     parser.add_argument("--author_name", metavar="author_name", type=str, nargs='*', help="The name of the author")
-    parser.add_argument("--year", metavar="year", type=str, help="The copyright year")
 
     args = parser.parse_args()
     
