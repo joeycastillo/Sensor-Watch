@@ -10,7 +10,9 @@ void app_init(void) {
     spi_flash_init();
 
     uint8_t buf[3] = {1, 2, 3};
+    watch_set_pin_level(A3, false);
     spi_flash_command(CMD_ENABLE_WRITE);
+    watch_set_pin_level(A3, true);
     // note that you will need to erase the sector to write different values later
     spi_flash_write_data(0, buf, 3);
 }
