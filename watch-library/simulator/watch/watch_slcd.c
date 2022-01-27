@@ -34,9 +34,9 @@
 
 static char blink_character;
 static bool blink_state;
-static long blink_interval_id;
+static long blink_interval_id = - 1;
 static bool tick_state;
-static long tick_interval_id;
+static long tick_interval_id = -1;
 
 void watch_enable_display(void) {
     watch_clear_display();
@@ -70,6 +70,7 @@ static void watch_invoke_blink_callback(void *userData) {
 }
 
 void watch_start_character_blink(char character, uint32_t duration) {
+    if (blink_interval_id != -1) return;
     watch_display_character(character, 7);
     watch_clear_pixel(2, 10); // clear segment B of position 7 since it can't blink
 
@@ -80,7 +81,7 @@ void watch_start_character_blink(char character, uint32_t duration) {
 
 void watch_stop_blink(void) {
     emscripten_clear_timeout(blink_interval_id);
-    blink_interval_id = 0;
+    blink_interval_id = -1;
     blink_state = false;
 }
 
@@ -96,6 +97,7 @@ static void watch_invoke_tick_callback(void *userData) {
 }
 
 void watch_start_tick_animation(uint32_t duration) {
+    if (tick_interval_id != -1) return;
     watch_display_character(' ', 8);
 
     tick_state = true;
@@ -103,12 +105,12 @@ void watch_start_tick_animation(uint32_t duration) {
 }
 
 bool watch_tick_animation_is_running(void) {
-    return tick_interval_id != 0;
+    return tick_interval_id != -1;
 }
 
 void watch_stop_tick_animation(void) {
     emscripten_clear_timeout(tick_interval_id);
-    tick_interval_id = 0;
+    tick_interval_id = -1;
     tick_state = false;
 
     watch_display_character(' ', 8);

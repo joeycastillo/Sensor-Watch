@@ -23,6 +23,7 @@
  */
 
 #include "watch_extint.h"
+#include "watch_main_loop.h"
 
 #include <emscripten.h>
 #include <emscripten/html5.h>
@@ -41,7 +42,7 @@ static watch_interrupt_trigger external_interrupt_alarm_trigger = INTERRUPT_TRIG
 #define BTN_ID_LIGHT 1
 #define BTN_ID_MODE 2
 static const uint8_t BTN_IDS[] = { BTN_ID_ALARM, BTN_ID_LIGHT, BTN_ID_MODE };
-static void watch_invoke_interrupt_callback(const uint8_t button_id, watch_interrupt_trigger trigger);
+static EM_BOOL watch_invoke_interrupt_callback(const uint8_t button_id, watch_interrupt_trigger trigger);
 
 static EM_BOOL watch_invoke_key_callback(int eventType, const EmscriptenKeyboardEvent *keyEvent, void *userData) {
     if (output_focused || keyEvent->repeat) return EM_FALSE;
@@ -68,23 +69,20 @@ static EM_BOOL watch_invoke_key_callback(int eventType, const EmscriptenKeyboard
     }
 
     watch_interrupt_trigger trigger = eventType == EMSCRIPTEN_EVENT_KEYDOWN ? INTERRUPT_TRIGGER_RISING : INTERRUPT_TRIGGER_FALLING;
-    watch_invoke_interrupt_callback(button_id, trigger);
-    return EM_TRUE;
+    return watch_invoke_interrupt_callback(button_id, trigger);
 }
 
 static EM_BOOL watch_invoke_mouse_callback(int eventType, const EmscriptenMouseEvent *mouseEvent, void *userData) {
     if (eventType == EMSCRIPTEN_EVENT_MOUSEOUT && mouseEvent->buttons == 0) return EM_FALSE;
     uint8_t button_id = *(const char *)userData;
     watch_interrupt_trigger trigger = eventType == EMSCRIPTEN_EVENT_MOUSEDOWN ? INTERRUPT_TRIGGER_RISING : INTERRUPT_TRIGGER_FALLING;
-    watch_invoke_interrupt_callback(button_id, trigger);
-    return EM_TRUE;
+    return watch_invoke_interrupt_callback(button_id, trigger);
 }
 
 static EM_BOOL watch_invoke_touch_callback(int eventType, const EmscriptenTouchEvent *touchEvent, void *userData) {
     uint8_t button_id = *(const char *)userData;
     watch_interrupt_trigger trigger = eventType == EMSCRIPTEN_EVENT_TOUCHSTART ? INTERRUPT_TRIGGER_RISING : INTERRUPT_TRIGGER_FALLING;
-    watch_invoke_interrupt_callback(button_id, trigger);
-    return EM_TRUE;
+    return watch_invoke_interrupt_callback(button_id, trigger);
 }
 
 static EM_BOOL watch_invoke_focus_callback(int eventType, const EmscriptenFocusEvent *focusEvent, void *userData) {
@@ -126,9 +124,7 @@ void watch_disable_external_interrupts(void) {
     external_interrupt_enabled = false;
 }
 
-static void watch_invoke_interrupt_callback(const uint8_t button_id, watch_interrupt_trigger event) {
-    if (!external_interrupt_enabled) return;
-
+static EM_BOOL watch_invoke_interrupt_callback(const uint8_t button_id, watch_interrupt_trigger event) {
     ext_irq_cb_t callback;
     watch_interrupt_trigger trigger;
     uint8_t pin;
@@ -149,7 +145,7 @@ static void watch_invoke_interrupt_callback(const uint8_t button_id, watch_inter
             trigger = external_interrupt_alarm_trigger;
             break;
         default:
-            return;
+            return EM_FALSE;
     }
 
     const bool level = (event & INTERRUPT_TRIGGER_RISING) != 0;
@@ -159,14 +155,18 @@ static void watch_invoke_interrupt_callback(const uint8_t button_id, watch_inter
         $1 ? classList.add(highlight) : classList.remove(highlight);
     }, button_id, level);
 
+    if (!external_interrupt_enabled || main_loop_is_sleeping()) {
+        return EM_FALSE;
+    }
+
     watch_set_pin_level(pin, level);
 
     if (callback && (event & trigger) != 0) {
         callback();
-
-        void resume_main_loop(void);
         resume_main_loop();
     }
+
+    return EM_TRUE;
 }
 
 void watch_register_interrupt_callback(const uint8_t pin, ext_irq_cb_t callback, watch_interrupt_trigger trigger) {

@@ -23,6 +23,7 @@
  */
 
 #include "watch_buzzer.h"
+#include "watch_main_loop.h"
 
 #include <emscripten.h>
 
@@ -97,6 +98,7 @@ void watch_buzzer_play_note(BuzzerNote note, uint16_t duration_ms) {
         watch_set_buzzer_period(NotePeriods[note]);
         watch_set_buzzer_on();
     }
-    emscripten_sleep(duration_ms);
+
+    main_loop_sleep(duration_ms);
     watch_set_buzzer_off();
 }
