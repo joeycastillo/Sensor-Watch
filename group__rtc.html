@@ -135,6 +135,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grou
 <tr class="memitem:ga4e025485bb50e1c93abd4a185447705f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__rtc.html#ga4e025485bb50e1c93abd4a185447705f">watch_rtc_disable_periodic_callback</a> (uint8_t frequency)</td></tr>
 <tr class="memdesc:ga4e025485bb50e1c93abd4a185447705f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Disables the tick callback for the given period.  <a href="group__rtc.html#ga4e025485bb50e1c93abd4a185447705f">More...</a><br /></td></tr>
 <tr class="separator:ga4e025485bb50e1c93abd4a185447705f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gadccd826da474b5fe24cac8d8edc88ae6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__rtc.html#gadccd826da474b5fe24cac8d8edc88ae6">watch_rtc_disable_matching_periodic_callbacks</a> (uint8_t mask)</td></tr>
+<tr class="memdesc:gadccd826da474b5fe24cac8d8edc88ae6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Disables tick callbacks for the given periods (as a bitmask).  <a href="group__rtc.html#gadccd826da474b5fe24cac8d8edc88ae6">More...</a><br /></td></tr>
+<tr class="separator:gadccd826da474b5fe24cac8d8edc88ae6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga0150da34307ba61e44f1a00aa90a7f0f"><td class="memItemLeft" align="right" valign="top"><a id="ga0150da34307ba61e44f1a00aa90a7f0f"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__rtc.html#ga0150da34307ba61e44f1a00aa90a7f0f">watch_rtc_disable_all_periodic_callbacks</a> (void)</td></tr>
 <tr class="memdesc:ga0150da34307ba61e44f1a00aa90a7f0f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Disables all periodic callbacks, including the once-per-second tick callback. <br /></td></tr>
@@ -225,6 +228,32 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="grou
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">date_time</td><td>A struct representing the date and time you wish to set. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="gadccd826da474b5fe24cac8d8edc88ae6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gadccd826da474b5fe24cac8d8edc88ae6">&#9670;&nbsp;</a></span>watch_rtc_disable_matching_periodic_callbacks()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void watch_rtc_disable_matching_periodic_callbacks </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>mask</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Disables tick callbacks for the given periods (as a bitmask). </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">mask</td><td>The frequencies of tick callbacks you wish to disable, in Hz. The 128 Hz callback is 0b1, the 64 Hz callback is 0b10, the 32 Hz callback is 0b100, etc. </td></tr>
   </table>
   </dd>
 </dl>
