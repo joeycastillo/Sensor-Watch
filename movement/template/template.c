@@ -22,13 +22,15 @@
  * SOFTWARE.
  */
 
+#include <stdlib.h>
+#include <string.h>
 #include "<#watch_face_name#>_face.h"
 
 void <#watch_face_name#>_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(<#watch_face_name#>_state_t));
-        memset(*context_ptr, 0, sizeof(<#watch_face_name#>));
+        memset(*context_ptr, 0, sizeof(<#watch_face_name#>_state_t));
         // Do any one-time tasks in here; the inside of this conditional happens only at boot.
     }
     // Do any pin or peripheral setup here; this will be called whenever the watch wakes from deep sleep.
@@ -76,7 +78,7 @@ bool <#watch_face_name#>_face_loop(movement_event_t event, movement_settings_t *
             break;
     }
 
-    // return true if the watch can enter standby mode. If you are PWM'ing an LED or buzzing the buzzer nere,
+    // return true if the watch can enter standby mode. If you are PWM'ing an LED or buzzing the buzzer here,
     // you should return false since the PWM driver does not operate in standby mode.
     return true;
 }
@@ -87,3 +89,4 @@ void <#watch_face_name#>_face_resign(movement_settings_t *settings, void *contex
 
     // handle any cleanup before your watch face goes off-screen.
 }
+

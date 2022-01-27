@@ -27,23 +27,6 @@
 
 #include "watch.h"
 
-// matches adc.h
-#ifndef ADC_REFCTRL_REFSEL_INTREF_Val
-#define ADC_REFCTRL_REFSEL_INTREF_Val 0x0
-#endif
-
-#ifndef ADC_REFCTRL_REFSEL_INTVCC0_Val
-#define ADC_REFCTRL_REFSEL_INTVCC0_Val 0x1
-#endif
-
-#ifndef ADC_REFCTRL_REFSEL_INTVCC1_Val
-#define ADC_REFCTRL_REFSEL_INTVCC1_Val 0x2
-#endif
-
-#ifndef ADC_REFCTRL_REFSEL_INTVCC2_Val
-#define ADC_REFCTRL_REFSEL_INTVCC2_Val 0x5
-#endif
-
 /** @addtogroup adc Analog Input
   * @brief This section covers functions related to the SAM L22's analog-to-digital converter,
   *        as well as configuring and reading values from the five analog-capable pins on the
@@ -112,10 +95,10 @@ void watch_set_analog_num_samples(uint16_t samples);
 void watch_set_analog_sampling_length(uint8_t cycles);
 
 typedef enum {
-    ADC_REFERENCE_INTREF = ADC_REFCTRL_REFSEL_INTREF_Val,
-    ADC_REFERENCE_VCC_DIV1POINT6 = ADC_REFCTRL_REFSEL_INTVCC0_Val,
-    ADC_REFERENCE_VCC_DIV2 = ADC_REFCTRL_REFSEL_INTVCC1_Val,
-    ADC_REFERENCE_VCC = ADC_REFCTRL_REFSEL_INTVCC2_Val,
+    ADC_REFERENCE_INTREF = 0,
+    ADC_REFERENCE_VCC_DIV1POINT6,
+    ADC_REFERENCE_VCC_DIV2,
+    ADC_REFERENCE_VCC,
 } watch_adc_reference_voltage;
 
 
