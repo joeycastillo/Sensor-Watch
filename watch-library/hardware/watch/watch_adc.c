@@ -154,6 +154,8 @@ static inline uint32_t _watch_adc_get_reference_voltage(const watch_adc_referenc
             return ADC_REFCTRL_REFSEL_INTVCC2_Val;
             break;
     }
+
+    return 0;
 }
 
 void watch_set_analog_reference_voltage(watch_adc_reference_voltage reference) {
