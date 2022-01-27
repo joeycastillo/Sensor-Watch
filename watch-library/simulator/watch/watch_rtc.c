@@ -115,7 +115,7 @@ void watch_rtc_disable_periodic_callback(uint8_t frequency) {
 
 void watch_rtc_disable_matching_periodic_callbacks(uint8_t mask) {
     for (int i = 0; i < 8; i++) {
-        if (tick_callbacks[i] != -1 && (mask & (1 << i)) != 0) {
+        if (tick_callbacks[i] != -1 && (mask & (1 << (7 - i))) != 0) {
             emscripten_clear_interval(tick_callbacks[i]);
             tick_callbacks[i] = -1;
         }
