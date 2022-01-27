@@ -88,7 +88,9 @@ bool spi_flash_write_data(uint32_t address, uint8_t *data, uint32_t data_length)
     address_to_bytes(address, request + 1);
     flash_enable();
     bool status = watch_spi_write(request, 4);
+    printf("status? ");
     if (status) {
+        printf("status! Writing %d bytes to %02x %02x %02x\n", data_length, request[1], request[2], request[3]);
         status = watch_spi_write(data, data_length);
     }
     flash_disable();
