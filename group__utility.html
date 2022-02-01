@@ -87,6 +87,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ga396e56109234aaa00993c3dd84f3f43c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="unionwatch__date__time.html">watch_date_time</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__utility.html#ga396e56109234aaa00993c3dd84f3f43c">watch_utility_date_time_from_unix_time</a> (uint32_t timestamp, uint32_t utc_offset)</td></tr>
 <tr class="memdesc:ga396e56109234aaa00993c3dd84f3f43c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the UNIX time (seconds since 1970) for a given <a class="el" href="unionwatch__date__time.html">watch_date_time</a> struct.  <a href="group__utility.html#ga396e56109234aaa00993c3dd84f3f43c">More...</a><br /></td></tr>
 <tr class="separator:ga396e56109234aaa00993c3dd84f3f43c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga470a4c7199afac6319c259fc459881f4"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__utility.html#ga470a4c7199afac6319c259fc459881f4">watch_utility_convert_to_12_hour</a> (<a class="el" href="unionwatch__date__time.html">watch_date_time</a> *date_time)</td></tr>
+<tr class="memdesc:ga470a4c7199afac6319c259fc459881f4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts a <a class="el" href="unionwatch__date__time.html">watch_date_time</a> for 12-hour display.  <a href="group__utility.html#ga470a4c7199afac6319c259fc459881f4">More...</a><br /></td></tr>
+<tr class="separator:ga470a4c7199afac6319c259fc459881f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga94f038ec0e1b8f3c48c4364b56566327"><td class="memItemLeft" align="right" valign="top"><a class="el" href="unionwatch__date__time.html">watch_date_time</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__utility.html#ga94f038ec0e1b8f3c48c4364b56566327">watch_utility_date_time_convert_zone</a> (<a class="el" href="unionwatch__date__time.html">watch_date_time</a> date_time, uint32_t origin_utc_offset, uint32_t destination_utc_offset)</td></tr>
 <tr class="memdesc:ga94f038ec0e1b8f3c48c4364b56566327"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts a time from a given time zone to another time zone.  <a href="group__utility.html#ga94f038ec0e1b8f3c48c4364b56566327">More...</a><br /></td></tr>
 <tr class="separator:ga94f038ec0e1b8f3c48c4364b56566327"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -97,6 +100,34 @@ Functions</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>This section covers various useful functions that don't fit anywhere else. </p>
 <h2 class="groupheader">Function Documentation</h2>
+<a id="ga470a4c7199afac6319c259fc459881f4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga470a4c7199afac6319c259fc459881f4">&#9670;&nbsp;</a></span>watch_utility_convert_to_12_hour()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool watch_utility_convert_to_12_hour </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="unionwatch__date__time.html">watch_date_time</a> *&#160;</td>
+          <td class="paramname"><em>date_time</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Converts a <a class="el" href="unionwatch__date__time.html">watch_date_time</a> for 12-hour display. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">date_time</td><td>A pointer to the <a class="el" href="unionwatch__date__time.html">watch_date_time</a> that you wish to convert for display. Note that this function will OVERWRITE the original date/time, rendering it invalid for date/time calculations. Midnight (hour 0) will become 12, and hours in the afternoon will wrap back around to values from 1-11. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>True if the value is in the afternoon. You can use this value to determine whether to set the PM indicator on the LCD. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>This function sort of abuses the <a class="el" href="unionwatch__date__time.html">watch_date_time</a> struct; the date/time that results from calling this function is clamped to the hours of 1:00:00 AM through 12:59:59 PM. It no longer reflects a valid <a class="el" href="unionwatch__date__time.html">watch_date_time</a> for writing to an RTC register. </dd></dl>
+
+</div>
+</div>
 <a id="ga94f5cc404949bf4c0ac4bc4770ec8eda"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga94f5cc404949bf4c0ac4bc4770ec8eda">&#9670;&nbsp;</a></span>watch_utility_convert_to_unix_time()</h2>
 
