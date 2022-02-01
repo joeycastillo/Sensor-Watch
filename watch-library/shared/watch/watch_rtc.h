@@ -137,6 +137,12 @@ void watch_rtc_register_periodic_callback(ext_irq_cb_t callback, uint8_t frequen
   */
 void watch_rtc_disable_periodic_callback(uint8_t frequency);
 
+/** @brief Disables tick callbacks for the given periods (as a bitmask).
+  * @param mask The frequencies of tick callbacks you wish to disable, in Hz.
+  * The 128 Hz callback is 0b1, the 64 Hz callback is 0b10, the 32 Hz callback is 0b100, etc.
+  */
+void watch_rtc_disable_matching_periodic_callbacks(uint8_t mask);
+
 /** @brief Disables all periodic callbacks, including the once-per-second tick callback.
   */
 void watch_rtc_disable_all_periodic_callbacks(void);
