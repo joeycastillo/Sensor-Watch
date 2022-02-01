@@ -70,6 +70,19 @@ uint32_t watch_utility_date_time_to_unix_time(watch_date_time date_time, uint32_
   */
 watch_date_time watch_utility_date_time_from_unix_time(uint32_t timestamp, uint32_t utc_offset);
 
+/** @brief Converts a watch_date_time for 12-hour display.
+  * @param date_time A pointer to the watch_date_time that you wish to convert for display. Note that this
+  *                  function will OVERWRITE the original date/time, rendering it invalid for date/time
+  *                  calculations. Midnight (hour 0) will become 12, and hours in the afternoon will wrap
+  *                  back around to values from 1-11.
+  * @return True if the value is in the afternoon. You can use this value to determine whether to set the
+  *         PM indicator on the LCD.
+  * @note This function sort of abuses the watch_date_time struct; the date/time that results from calling
+  *       this function is clamped to the hours of 1:00:00 AM through 12:59:59 PM. It no longer reflects a
+  *       valid watch_date_time for writing to an RTC register.
+  */
+bool watch_utility_convert_to_12_hour(watch_date_time *date_time);
+
 /** @brief Converts a time from a given time zone to another time zone.
   * @param date_time The watch_date_time that you wish to convert
   * @param origin_utc_offset The number of seconds from UTC in the origin time zone

@@ -151,6 +151,13 @@ watch_date_time watch_utility_date_time_convert_zone(watch_date_time date_time, 
     return watch_utility_date_time_from_unix_time(timestamp, destination_utc_offset);
 }
 
+bool watch_utility_convert_to_12_hour(watch_date_time *date_time) {
+    bool is_pm = date_time->unit.hour > 11;
+    date_time->unit.hour %= 12;
+    if (date_time->unit.hour == 0) date_time->unit.hour = 12;
+    return is_pm;
+}
+
 float watch_utility_thermistor_temperature(uint16_t value, bool highside, float b_coefficient, float nominal_temperature, float nominal_resistance, float series_resistance) {
     float reading = (float)value;
 
