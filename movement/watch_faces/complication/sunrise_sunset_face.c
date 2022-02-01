@@ -115,7 +115,7 @@ static int16_t _sunrise_sunset_face_latlon_from_struct(sunrise_sunset_lat_lon_se
 static sunrise_sunset_lat_lon_settings_t _sunrise_sunset_face_struct_from_latlon(int16_t val) {
     sunrise_sunset_lat_lon_settings_t retval;
 
-    if (val < 0) retval.sign = 1;
+    retval.sign = val < 0;
     val = abs(val);
     retval.hundredths = val % 10;
     val /= 10;
