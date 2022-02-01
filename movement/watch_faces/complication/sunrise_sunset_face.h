@@ -41,6 +41,7 @@ typedef struct {
 
 typedef struct {
     uint8_t page;
+    uint8_t rise_index;
     uint8_t active_digit;
     bool location_changed;
     sunrise_sunset_lat_lon_settings_t working_latitude;

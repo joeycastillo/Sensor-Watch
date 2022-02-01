@@ -33,23 +33,52 @@
 #include "watch_utility.h"
 #include "sunriset.h"
 
-static void _sunrise_sunset_face_update(movement_settings_t *settings) {
+static void _sunrise_sunset_face_update(movement_settings_t *settings, sunrise_sunset_state_t *state) {
     char buf[14];
-    double rise, set, minutes;
-    // TODO: allow user to set location, using New York for now.
+    double rise, set, minutes, seconds;
+    bool show_next_match = false;
     movement_location_t movement_location = (movement_location_t) watch_get_backup_data(1);
 
-    // TODO: account for time zone, currently only operates in GMT.
-    watch_date_time date_time = watch_rtc_get_date_time(); // the current date / time
+    // some locations for testing, can remove eventually
+    // NYC
+    // movement_location.bit.latitude = 4073; movement_location.bit.longitude = -7393;
+
+    // Seattle
+    // movement_location.bit.latitude = 4760; movement_location.bit.longitude = -12233;
+
+    // Pago Pago
+    // movement_location.bit.latitude = -1428; movement_location.bit.longitude = -17070;
+
+    // Fairbanks
+    // movement_location.bit.latitude = 6484; movement_location.bit.longitude = -14765;
+
+    // Auckland
+    // movement_location.bit.latitude = -3685; movement_location.bit.longitude = 17478;
+
+    if (movement_location.reg == 0) {
+        watch_display_string("RI  no Loc", 0);
+        return;
+    }
+
+    watch_date_time date_time = watch_rtc_get_date_time(); // the current local date / time
     watch_date_time utc_now = watch_utility_date_time_convert_zone(date_time, movement_timezone_offsets[settings->bit.time_zone] * 60, 0); // the current date / time in UTC
     watch_date_time scratch_time; // scratchpad, contains different values at different times
-    scratch_time.reg = date_time.reg;
+    scratch_time.reg = utc_now.reg;
+
+    // Weird quirky unsigned things were happening when I tried to cast these directly to doubles below.
+    // it looks redundant, but extracting them to local int16's seemed to fix it.
     int16_t lat_centi = (int16_t)movement_location.bit.latitude;
     int16_t lon_centi = (int16_t)movement_location.bit.longitude;
 
     double lat = (double)lat_centi / 100.0;
     double lon = (double)lon_centi / 100.0;
 
+    // sunriset returns the rise/set times as signed decimal hours in UTC.
+    // this can mean hours below 0 or above 31, which won't fit into a watch_date_time struct.
+    // to deal with this, we set aside the offset in hours, and add it back before converting it to a watch_date_time.
+    double hours_from_utc = ((double)movement_timezone_offsets[settings->bit.time_zone]) / 60.0;
+
+    // we loop twice because if it's after sunset today, we need to recalculate to display values for tomorrow.
     for(int i = 0; i < 2; i++) {
         uint8_t result = sun_rise_set(scratch_time.unit.year + WATCH_RTC_REFERENCE_YEAR, scratch_time.unit.month, scratch_time.unit.day, lon, lat, &rise, &set);
 
@@ -63,38 +92,53 @@ static void _sunrise_sunset_face_update(movement_settings_t *settings) {
         }
 
         watch_set_colon();
-        // TODO: account for user's 12H/24H preference
-        watch_set_indicator(WATCH_INDICATOR_24H);
+        if (settings->bit.clock_mode_24h) watch_set_indicator(WATCH_INDICATOR_24H);
+
+        rise += hours_from_utc;
+        set += hours_from_utc;
 
         minutes = 60.0 * fmod(rise, 1);
+        seconds = 60.0 * fmod(minutes, 1);
         scratch_time.unit.hour = floor(rise);
-        scratch_time.unit.minute = floor(minutes);
-        scratch_time.unit.second = 60.0 * fmod(minutes, 1);
+        if (seconds < 30) scratch_time.unit.minute = floor(minutes);
+        else scratch_time.unit.minute = ceil(minutes);
 
-        if (utc_now.reg < scratch_time.reg) {
-            // display today's sunrise, it hasn't happened yet
-            scratch_time = watch_utility_date_time_convert_zone(scratch_time, 0, movement_timezone_offsets[settings->bit.time_zone] * 60);
-            sprintf(buf, "rI%2d%2d%02d%02d", scratch_time.unit.day, scratch_time.unit.hour, scratch_time.unit.minute, scratch_time.unit.second);
-            watch_display_string(buf, 0);
-            return;
+        if (date_time.reg < scratch_time.reg || show_next_match) {
+            if (state->rise_index == 0 || show_next_match) {
+                if (!settings->bit.clock_mode_24h) {
+                    if (watch_utility_convert_to_12_hour(&scratch_time)) watch_set_indicator(WATCH_INDICATOR_PM);
+                    else watch_clear_indicator(WATCH_INDICATOR_PM);
+                }
+                sprintf(buf, "rI%2d%2d%02d  ", scratch_time.unit.day, scratch_time.unit.hour, scratch_time.unit.minute);
+                watch_display_string(buf, 0);
+                return;
+            } else {
+                show_next_match = true;
+            }
         }
 
         minutes = 60.0 * fmod(set, 1);
+        seconds = 60.0 * fmod(minutes, 1);
         scratch_time.unit.hour = floor(set);
-        scratch_time.unit.minute = floor(minutes);
-        scratch_time.unit.second = 60.0 * fmod(minutes, 1);
+        if (seconds < 30) scratch_time.unit.minute = floor(minutes);
+        else scratch_time.unit.minute = ceil(minutes);
 
-        if (utc_now.reg < scratch_time.reg) {
-            // display today's sunset, it hasn't happened yet
-            scratch_time = watch_utility_date_time_convert_zone(scratch_time, 0, movement_timezone_offsets[settings->bit.time_zone] * 60);
-            sprintf(buf, "SE%2d%02d%02d%02d", scratch_time.unit.day, scratch_time.unit.hour, scratch_time.unit.minute, scratch_time.unit.second);
-            watch_display_string(buf, 0);
-            return;
+        if (date_time.reg < scratch_time.reg || show_next_match) {
+            if (state->rise_index == 0 || show_next_match) {
+                if (!settings->bit.clock_mode_24h) {
+                    if (watch_utility_convert_to_12_hour(&scratch_time)) watch_set_indicator(WATCH_INDICATOR_PM);
+                    else watch_clear_indicator(WATCH_INDICATOR_PM);
+                }
+                sprintf(buf, "SE%2d%2d%02d  ", scratch_time.unit.day, scratch_time.unit.hour, scratch_time.unit.minute);
+                watch_display_string(buf, 0);
+                return;
+            } else {
+                show_next_match = true;
+            }
         }
 
-
-        // it's after sunset. we need to display sunrise for tomorrow.
-        uint32_t timestamp = watch_utility_date_time_to_unix_time(date_time, 0);
+        // it's after sunset. we need to display sunrise/sunset for tomorrow.
+        uint32_t timestamp = watch_utility_date_time_to_unix_time(utc_now, 0);
         timestamp += 86400;
         scratch_time = watch_utility_date_time_from_unix_time(timestamp, 0);
     }
@@ -252,7 +296,7 @@ bool sunrise_sunset_face_loop(movement_event_t event, movement_settings_t *setti
 
     switch (event.event_type) {
         case EVENT_ACTIVATE:
-            _sunrise_sunset_face_update(settings);
+            _sunrise_sunset_face_update(settings, state);
             break;
         case EVENT_LOW_ENERGY_UPDATE:
         case EVENT_TICK:
@@ -276,7 +320,7 @@ bool sunrise_sunset_face_loop(movement_event_t event, movement_settings_t *setti
             }
             if (state->page == 0) {
                 movement_request_tick_frequency(1);
-                _sunrise_sunset_face_update(settings);
+                _sunrise_sunset_face_update(settings, state);
             }
             break;
         case EVENT_LIGHT_BUTTON_UP:
@@ -285,6 +329,9 @@ bool sunrise_sunset_face_loop(movement_event_t event, movement_settings_t *setti
             if (state->page) {
                 _sunrise_sunset_face_advance_digit(state);
                 _sunrise_sunset_face_update_settings_display(event, context);
+            } else {
+                state->rise_index = (state->rise_index + 1) % 2;
+                _sunrise_sunset_face_update(settings, state);
             }
             break;
         case EVENT_ALARM_LONG_PRESS:
@@ -311,5 +358,6 @@ void sunrise_sunset_face_resign(movement_settings_t *settings, void *context) {
     sunrise_sunset_state_t *state = (sunrise_sunset_state_t *)context;
     state->page = 0;
     state->active_digit = 0;
+    state->rise_index = 0;
     _sunrise_sunset_face_update_location_register(state);
 }
