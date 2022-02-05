@@ -68,6 +68,20 @@ bool simple_clock_face_loop(movement_event_t event, movement_settings_t *setting
             previous_date_time = state->previous_date_time;
             state->previous_date_time = date_time.reg;
 
+            // check the battery voltage once a day...
+            if (date_time.unit.day != state->last_battery_check) {
+                state->last_battery_check = date_time.unit.day;
+                watch_enable_adc();
+                uint16_t voltage = watch_get_vcc_voltage();
+                watch_disable_adc();
+                // 2.2 volts will happen when the battery has maybe 5-10% remaining?
+                // we can refine this later.
+                state->battery_low = (voltage < 2200);
+            }
+
+            // ...and set the LAP indicator if low.
+            if (state->battery_low) watch_set_indicator(WATCH_INDICATOR_LAP);
+
             if (date_time.reg >> 6 == previous_date_time >> 6 && event.event_type != EVENT_LOW_ENERGY_UPDATE) {
                 // everything before seconds is the same, don't waste cycles setting those segments.
                 pos = 8;

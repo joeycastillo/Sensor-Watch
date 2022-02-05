@@ -29,8 +29,10 @@
 
 typedef struct {
     uint32_t previous_date_time;
+    uint8_t last_battery_check;
     uint8_t watch_face_index;
     bool signal_enabled;
+    bool battery_low;
 } simple_clock_state_t;
 
 void simple_clock_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
