@@ -33,6 +33,11 @@
 #include "watch_utility.h"
 #include "sunriset.h"
 
+static void _sunrise_sunset_set_expiration(sunrise_sunset_state_t *state, watch_date_time next_rise_set) {
+    uint32_t timestamp = watch_utility_date_time_to_unix_time(next_rise_set, 0);
+    state->rise_set_expires = watch_utility_date_time_from_unix_time(timestamp + 60, 0);
+}
+
 static void _sunrise_sunset_face_update(movement_settings_t *settings, sunrise_sunset_state_t *state) {
     char buf[14];
     double rise, set, minutes, seconds;
@@ -87,6 +92,8 @@ static void _sunrise_sunset_face_update(movement_settings_t *settings, sunrise_s
         if (seconds < 30) scratch_time.unit.minute = floor(minutes);
         else scratch_time.unit.minute = ceil(minutes);
 
+        if (date_time.reg < scratch_time.reg) _sunrise_sunset_set_expiration(state, scratch_time);
+
         if (date_time.reg < scratch_time.reg || show_next_match) {
             if (state->rise_index == 0 || show_next_match) {
                 if (!settings->bit.clock_mode_24h) {
@@ -106,6 +113,8 @@ static void _sunrise_sunset_face_update(movement_settings_t *settings, sunrise_s
         scratch_time.unit.hour = floor(set);
         if (seconds < 30) scratch_time.unit.minute = floor(minutes);
         else scratch_time.unit.minute = ceil(minutes);
+
+        if (date_time.reg < scratch_time.reg) _sunrise_sunset_set_expiration(state, scratch_time);
 
         if (date_time.reg < scratch_time.reg || show_next_match) {
             if (state->rise_index == 0 || show_next_match) {
@@ -269,6 +278,7 @@ void sunrise_sunset_face_setup(movement_settings_t *settings, uint8_t watch_face
 
 void sunrise_sunset_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
+    if (watch_tick_animation_is_running()) watch_stop_tick_animation();
     sunrise_sunset_state_t *state = (sunrise_sunset_state_t *)context;
     movement_location_t movement_location = (movement_location_t) watch_get_backup_data(1);
     state->working_latitude = _sunrise_sunset_face_struct_from_latlon(movement_location.bit.latitude);
@@ -284,7 +294,19 @@ bool sunrise_sunset_face_loop(movement_event_t event, movement_settings_t *setti
             break;
         case EVENT_LOW_ENERGY_UPDATE:
         case EVENT_TICK:
-            if (state->page) _sunrise_sunset_face_update_settings_display(event, state);
+            if (state->page == 0) {
+                // if entering low energy mode, start tick animation
+                if (event.event_type == EVENT_LOW_ENERGY_UPDATE && !watch_tick_animation_is_running()) watch_start_tick_animation(1000);
+                // check if we need to update the display
+                watch_date_time date_time = watch_rtc_get_date_time();
+                if (date_time.reg >= state->rise_set_expires.reg) {
+                    // and on the off chance that this happened before EVENT_TIMEOUT snapped us back to rise/set 0, go back now
+                    state->rise_index = 0;
+                    _sunrise_sunset_face_update(settings, state);
+                }
+            } else {
+                _sunrise_sunset_face_update_settings_display(event, state);
+            }
             break;
         case EVENT_MODE_BUTTON_UP:
             movement_move_to_next_face();
