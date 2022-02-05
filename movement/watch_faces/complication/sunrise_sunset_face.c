@@ -75,7 +75,7 @@ static void _sunrise_sunset_face_update(movement_settings_t *settings, sunrise_s
             watch_clear_colon();
             watch_clear_indicator(WATCH_INDICATOR_PM);
             watch_clear_indicator(WATCH_INDICATOR_24H);
-            sprintf(buf, "%s%d none ", (result == 1) ? "SE" : "rI", scratch_time.unit.day);
+            sprintf(buf, "%s%2d none ", (result == 1) ? "SE" : "rI", scratch_time.unit.day);
             watch_display_string(buf, 0);
             return;
         }
