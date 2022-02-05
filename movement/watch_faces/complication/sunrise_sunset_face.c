@@ -39,22 +39,6 @@ static void _sunrise_sunset_face_update(movement_settings_t *settings, sunrise_s
     bool show_next_match = false;
     movement_location_t movement_location = (movement_location_t) watch_get_backup_data(1);
 
-    // some locations for testing, can remove eventually
-    // NYC
-    // movement_location.bit.latitude = 4073; movement_location.bit.longitude = -7393;
-
-    // Seattle
-    // movement_location.bit.latitude = 4760; movement_location.bit.longitude = -12233;
-
-    // Pago Pago
-    // movement_location.bit.latitude = -1428; movement_location.bit.longitude = -17070;
-
-    // Fairbanks
-    // movement_location.bit.latitude = 6484; movement_location.bit.longitude = -14765;
-
-    // Auckland
-    // movement_location.bit.latitude = -3685; movement_location.bit.longitude = 17478;
-
     if (movement_location.reg == 0) {
         watch_display_string("RI  no Loc", 0);
         return;
