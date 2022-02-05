@@ -3,7 +3,7 @@
 <eagle version="9.6.2">
 <drawing>
 <settings>
-<setting alwaysvectorfont="yes"/>
+<setting alwaysvectorfont="no"/>
 <setting keepoldvectorfont="yes"/>
 <setting verticaltext="up"/>
 </settings>
@@ -220,15 +220,15 @@ A0: LIS2DW12 INT1
 <package name="FH19C9S05SH10-FFC">
 <description>&lt;b&gt;FH19C-9S-0.5SH(10)-1&lt;/b&gt;&lt;br&gt;
 </description>
-<smd name="1" x="2" y="-2.25" dx="2.5" dy="0.347" layer="16" rot="R90"/>
-<smd name="2" x="1.5" y="-2.25" dx="2.5" dy="0.347" layer="16" rot="R90"/>
-<smd name="3" x="1" y="-2.25" dx="2.5" dy="0.347" layer="16" rot="R90"/>
-<smd name="4" x="0.5" y="-2.25" dx="2.5" dy="0.347" layer="16" rot="R90"/>
-<smd name="5" x="0" y="-2.25" dx="2.5" dy="0.347" layer="16" rot="R90"/>
-<smd name="6" x="-0.5" y="-2.25" dx="2.5" dy="0.347" layer="16" rot="R90"/>
-<smd name="7" x="-1" y="-2.25" dx="2.5" dy="0.347" layer="16" rot="R90"/>
-<smd name="8" x="-1.5" y="-2.25" dx="2.5" dy="0.347" layer="16" rot="R90"/>
-<smd name="9" x="-2" y="-2.25" dx="2.5" dy="0.347" layer="16" rot="R90"/>
+<smd name="1" x="2" y="-2.25" dx="2.5" dy="0.347" layer="16" rot="R90" cream="no"/>
+<smd name="2" x="1.5" y="-2.25" dx="2.5" dy="0.347" layer="16" rot="R90" cream="no"/>
+<smd name="3" x="1" y="-2.25" dx="2.5" dy="0.347" layer="16" rot="R90" cream="no"/>
+<smd name="4" x="0.5" y="-2.25" dx="2.5" dy="0.347" layer="16" rot="R90" cream="no"/>
+<smd name="5" x="0" y="-2.25" dx="2.5" dy="0.347" layer="16" rot="R90" cream="no"/>
+<smd name="6" x="-0.5" y="-2.25" dx="2.5" dy="0.347" layer="16" rot="R90" cream="no"/>
+<smd name="7" x="-1" y="-2.25" dx="2.5" dy="0.347" layer="16" rot="R90" cream="no"/>
+<smd name="8" x="-1.5" y="-2.25" dx="2.5" dy="0.347" layer="16" rot="R90" cream="no"/>
+<smd name="9" x="-2" y="-2.25" dx="2.5" dy="0.347" layer="16" rot="R90" cream="no"/>
 <wire x1="-2.4892" y1="0" x2="-2.4892" y2="-3.35" width="0" layer="20"/>
 <wire x1="-2.3392" y1="-3.5" x2="2.3392" y2="-3.5" width="0" layer="20"/>
 <wire x1="2.4892" y1="0" x2="2.4892" y2="-3.35" width="0" layer="20"/>
