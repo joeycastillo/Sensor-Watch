@@ -321,15 +321,21 @@ bool sunrise_sunset_face_loop(movement_event_t event, movement_settings_t *setti
         case EVENT_ALARM_LONG_PRESS:
             if (state->page == 0) {
                 state->page++;
+                state->active_digit = 0;
                 watch_clear_display();
                 movement_request_tick_frequency(4);
                 _sunrise_sunset_face_update_settings_display(event, context);
             }
             break;
         case EVENT_TIMEOUT:
-            if (state->page != 0) {
-                movement_move_to_face(0);
+            if (state->page || state->rise_index) {
+                // on timeout, exit settings mode and return to the next sunrise or sunset
+                state->page = 0;
+                state->rise_index = 0;
+                movement_request_tick_frequency(1);
+                _sunrise_sunset_face_update(settings, state);
             }
+            break;
         default:
             break;
     }
