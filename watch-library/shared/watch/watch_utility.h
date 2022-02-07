@@ -32,6 +32,14 @@
   * @brief This section covers various useful functions that don't fit anywhere else.
   **/
 /// @{
+
+typedef struct {
+    uint8_t seconds;  // 0-59
+    uint8_t minutes;  // 0-59
+    uint8_t hours;    // 0-23
+    uint32_t days;    // 0-4294967295
+} watch_duration_t;
+
 /** @brief Returns a two-letter weekday for the given timestamp, suitable for display
   *        in positions 0-1 of the watch face
   * @param date_time The watch_date_time whose weekday you want.
@@ -59,6 +67,12 @@ uint32_t watch_utility_convert_to_unix_time(uint16_t year, uint8_t month, uint8_
   * @return A UNIX timestamp for the given watch_date_time and UTC offset.
   */
 uint32_t watch_utility_date_time_to_unix_time(watch_date_time date_time, uint32_t utc_offset);
+
+/** @brief Converts a duration in seconds to a watch_duration_t struct.
+  * @param seconds A positive number of seconds that you wish to convert to a formatted duration.
+  * @return A populated struct with the number of days, hours, minutes and seconds elapsed.
+  */
+watch_duration_t watch_utility_seconds_to_duration(uint32_t seconds);
 
 /** @brief Returns the UNIX time (seconds since 1970) for a given watch_date_time struct.
   * @param timestamp The UNIX timestamp that you wish to convert.

@@ -151,6 +151,17 @@ watch_date_time watch_utility_date_time_convert_zone(watch_date_time date_time, 
     return watch_utility_date_time_from_unix_time(timestamp, destination_utc_offset);
 }
 
+watch_duration_t watch_utility_seconds_to_duration(uint32_t seconds) {
+    watch_duration_t retval;
+
+    retval.seconds = (seconds % 60);
+    retval.minutes = (seconds % 3600) / 60;
+    retval.hours = (seconds % 86400) / 3600;
+    retval.days = seconds / 86400;
+
+    return retval;
+}
+
 bool watch_utility_convert_to_12_hour(watch_date_time *date_time) {
     bool is_pm = date_time->unit.hour > 11;
     date_time->unit.hour %= 12;
