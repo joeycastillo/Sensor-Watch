@@ -64,7 +64,9 @@ $(function() {
 
 <div class="header">
   <div class="summary">
-<a href="#func-members">Functions</a>  </div>
+<a href="#nested-classes">Data Structures</a> &#124;
+<a href="#func-members">Functions</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">Utility Functions</div></div>
 </div><!--header-->
 <div class="contents">
@@ -72,6 +74,11 @@ $(function() {
 <p>This section covers various useful functions that don't fit anywhere else.  
 <a href="#details">More...</a></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Data Structures</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structwatch__duration__t.html">watch_duration_t</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:gaad14860c068aeed7a60e57874cad92b4"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__utility.html#gaad14860c068aeed7a60e57874cad92b4">watch_utility_get_weekday</a> (<a class="el" href="unionwatch__date__time.html">watch_date_time</a> date_time)</td></tr>
@@ -83,6 +90,9 @@ Functions</h2></td></tr>
 <tr class="memitem:gaffafef58755ff2704cf93fe1a0849a27"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__utility.html#gaffafef58755ff2704cf93fe1a0849a27">watch_utility_date_time_to_unix_time</a> (<a class="el" href="unionwatch__date__time.html">watch_date_time</a> date_time, uint32_t utc_offset)</td></tr>
 <tr class="memdesc:gaffafef58755ff2704cf93fe1a0849a27"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the UNIX time (seconds since 1970) for a given <a class="el" href="unionwatch__date__time.html">watch_date_time</a> struct.  <a href="group__utility.html#gaffafef58755ff2704cf93fe1a0849a27">More...</a><br /></td></tr>
 <tr class="separator:gaffafef58755ff2704cf93fe1a0849a27"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga5d6af930688b240d0f075806b5730d21"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structwatch__duration__t.html">watch_duration_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__utility.html#ga5d6af930688b240d0f075806b5730d21">watch_utility_seconds_to_duration</a> (uint32_t seconds)</td></tr>
+<tr class="memdesc:ga5d6af930688b240d0f075806b5730d21"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts a duration in seconds to a <a class="el" href="structwatch__duration__t.html">watch_duration_t</a> struct.  <a href="group__utility.html#ga5d6af930688b240d0f075806b5730d21">More...</a><br /></td></tr>
+<tr class="separator:ga5d6af930688b240d0f075806b5730d21"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga396e56109234aaa00993c3dd84f3f43c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="unionwatch__date__time.html">watch_date_time</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__utility.html#ga396e56109234aaa00993c3dd84f3f43c">watch_utility_date_time_from_unix_time</a> (uint32_t timestamp, uint32_t utc_offset)</td></tr>
 <tr class="memdesc:ga396e56109234aaa00993c3dd84f3f43c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the UNIX time (seconds since 1970) for a given <a class="el" href="unionwatch__date__time.html">watch_date_time</a> struct.  <a href="group__utility.html#ga396e56109234aaa00993c3dd84f3f43c">More...</a><br /></td></tr>
 <tr class="separator:ga396e56109234aaa00993c3dd84f3f43c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -95,6 +105,21 @@ Functions</h2></td></tr>
 <tr class="memitem:ga2753ff031c28202d23b0f3e80de2c920"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__utility.html#ga2753ff031c28202d23b0f3e80de2c920">watch_utility_thermistor_temperature</a> (uint16_t value, bool highside, float b_coefficient, float nominal_temperature, float nominal_resistance, float series_resistance)</td></tr>
 <tr class="memdesc:ga2753ff031c28202d23b0f3e80de2c920"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a temperature in degrees Celsius for a given thermistor voltage divider circuit.  <a href="group__utility.html#ga2753ff031c28202d23b0f3e80de2c920">More...</a><br /></td></tr>
 <tr class="separator:ga2753ff031c28202d23b0f3e80de2c920"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:ga214dcb4a04944fec63818c52e6c4096f"><td class="memItemLeft" align="right" valign="top"><a id="ga214dcb4a04944fec63818c52e6c4096f" name="ga214dcb4a04944fec63818c52e6c4096f"></a>
+uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>watch_duration_t::seconds</b></td></tr>
+<tr class="separator:ga214dcb4a04944fec63818c52e6c4096f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gafc7fa57c207237df2190f4979a625053"><td class="memItemLeft" align="right" valign="top"><a id="gafc7fa57c207237df2190f4979a625053" name="gafc7fa57c207237df2190f4979a625053"></a>
+uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>watch_duration_t::minutes</b></td></tr>
+<tr class="separator:gafc7fa57c207237df2190f4979a625053"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga05216f93223bb35b5166b03ab59098a1"><td class="memItemLeft" align="right" valign="top"><a id="ga05216f93223bb35b5166b03ab59098a1" name="ga05216f93223bb35b5166b03ab59098a1"></a>
+uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>watch_duration_t::hours</b></td></tr>
+<tr class="separator:ga05216f93223bb35b5166b03ab59098a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga64f074551349a7dd1c922287dc731c15"><td class="memItemLeft" align="right" valign="top"><a id="ga64f074551349a7dd1c922287dc731c15" name="ga64f074551349a7dd1c922287dc731c15"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>watch_duration_t::days</b></td></tr>
+<tr class="separator:ga64f074551349a7dd1c922287dc731c15"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p >This section covers various useful functions that don't fit anywhere else. </p>
@@ -348,6 +373,33 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a id="ga5d6af930688b240d0f075806b5730d21" name="ga5d6af930688b240d0f075806b5730d21"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga5d6af930688b240d0f075806b5730d21">&#9670;&nbsp;</a></span>watch_utility_seconds_to_duration()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structwatch__duration__t.html">watch_duration_t</a> watch_utility_seconds_to_duration </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>seconds</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Converts a duration in seconds to a <a class="el" href="structwatch__duration__t.html">watch_duration_t</a> struct. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">seconds</td><td>A positive number of seconds that you wish to convert to a formatted duration. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A populated struct with the number of days, hours, minutes and seconds elapsed. </dd></dl>
 
 </div>
 </div>
