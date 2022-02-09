@@ -321,6 +321,8 @@
   <p style="text-align: center;"><a href="https://github.com/alexisphilip/Casio-F-91W">Original F-91W SVG</a> is &copy; 2020 Alexis Philip, and is used here under the terms of the MIT license.</p>
 </div>
 
+<button onclick="getLocation()">Set location register (will prompt for access)</button>
+<br>
 <textarea id="output" rows="8" style="width: 100%"></textarea>
 
 <script type='text/javascript'>
@@ -361,6 +363,33 @@
       if (text) Module.printErr('[post-exception status] ' + text);
     };
   };
+  lat = 0;
+  lon = 0;
+  function updateLocation(location) {
+    lat = Math.round(location.coords.latitude * 100);
+    lon = Math.round(location.coords.longitude * 100);
+  }
+  function showError(error) {
+    switch(error.code) {
+      case error.PERMISSION_DENIED:
+        alert("Permission denied");
+        break;
+      case error.POSITION_UNAVAILABLE:
+        alert("Location unavailable");
+        break;
+      case error.TIMEOUT:
+        alert("Request timed out");
+        break;
+      case error.UNKNOWN_ERROR:
+        alert("Unknown error");
+        break;
+    }
+  }
+  function getLocation() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(updateLocation, showError);
+    }
+  }
 </script>
 {{{ SCRIPT }}}
 </body>

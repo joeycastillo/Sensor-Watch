@@ -33,6 +33,10 @@
 #include "watch_utility.h"
 #include "sunriset.h"
 
+#if __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 static void _sunrise_sunset_set_expiration(sunrise_sunset_state_t *state, watch_date_time next_rise_set) {
     uint32_t timestamp = watch_utility_date_time_to_unix_time(next_rise_set, 0);
     state->rise_set_expires = watch_utility_date_time_from_unix_time(timestamp + 60, 0);
@@ -279,6 +283,23 @@ void sunrise_sunset_face_setup(movement_settings_t *settings, uint8_t watch_face
 void sunrise_sunset_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
     if (watch_tick_animation_is_running()) watch_stop_tick_animation();
+
+#if __EMSCRIPTEN__
+    int16_t browser_lat = EM_ASM_INT({
+        return lat;
+    });
+    int16_t browser_lon = EM_ASM_INT({
+        return lon;
+    });
+    if ((watch_get_backup_data(1) == 0) && (browser_lat || browser_lon)) {
+        movement_location_t browser_loc;
+        browser_loc.bit.latitude = browser_lat;
+        browser_loc.bit.longitude = browser_lon;
+        watch_store_backup_data(browser_loc.reg, 1);
+    }
+#endif
+
+
     sunrise_sunset_state_t *state = (sunrise_sunset_state_t *)context;
     movement_location_t movement_location = (movement_location_t) watch_get_backup_data(1);
     state->working_latitude = _sunrise_sunset_face_struct_from_latlon(movement_location.bit.latitude);
