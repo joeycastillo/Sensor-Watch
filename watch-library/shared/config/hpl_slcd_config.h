@@ -80,7 +80,7 @@
 // <3=>128
 // <id> slcd_arch_presc
 #ifndef CONF_SLCD_PRESC
-#define CONF_SLCD_PRESC 1
+#define CONF_SLCD_PRESC 2
 #endif
 
 // <o> Clock Divider
@@ -95,7 +95,7 @@
 // <7=>8
 // <id> slcd_arch_ckdiv
 #ifndef CONF_SLCD_CKDIV
-#define CONF_SLCD_CKDIV 5
+#define CONF_SLCD_CKDIV 4
 #endif
 
 /* TODO add frame frequency check */
