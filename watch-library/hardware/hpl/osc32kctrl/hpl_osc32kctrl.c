@@ -82,5 +82,7 @@ void _osc32kctrl_init_sources(void)
 #endif
 
 	hri_osc32kctrl_write_RTCCTRL_reg(hw, OSC32KCTRL_RTCCTRL_RTCSEL(CONF_RTCCTRL));
+	hri_osc32kctrl_write_SLCDCTRL_SLCDSEL_bit(hw, CONF_SLCDCTRL_SRC);
+
 	(void)calib;
 }

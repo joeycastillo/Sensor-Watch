@@ -50,12 +50,12 @@
 
 // <h> SLCD source control
 // <y> SLCD Clock Source Selection
-// <GCLK_GENCTRL_SRC_OSCULP32K"> 32kHz Ultra Low Power Internal Oscillator (OSCULP32K)
-// <GCLK_GENCTRL_SRC_XOSC32K"> 32kHz External Crystal Oscillator (XOSC32K)
+// <0> 32kHz Ultra Low Power Internal Oscillator (OSCULP32K)
+// <1> 32kHz External Crystal Oscillator (XOSC32K)
 // <i> This defines the clock source for SLCD
 // <id> slcd_source_oscillator
 #ifndef CONF_SLCDCTRL_SRC
-#define CONF_SLCDCTRL_SRC GCLK_GENCTRL_SRC_XOSC32K
+#define CONF_SLCDCTRL_SRC 0
 #endif
 
 // </h>
