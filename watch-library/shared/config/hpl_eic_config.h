@@ -12,7 +12,7 @@
 // <0x1=> Clocked by ULPOSC32K
 // <id> eic_arch_cksel
 #ifndef CONF_EIC_CKSEL
-#define CONF_EIC_CKSEL 0
+#define CONF_EIC_CKSEL 1
 #endif
 
 // </h>
