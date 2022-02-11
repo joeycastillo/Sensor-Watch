@@ -110,7 +110,7 @@
 // <5=>62.5Hz
 // <id> slcd_arch_rrf
 #ifndef CONF_SLCD_RRF
-#define CONF_SLCD_RRF 0
+#define CONF_SLCD_RRF 5
 #endif
 
 // <o> Power Refresh Frequency
