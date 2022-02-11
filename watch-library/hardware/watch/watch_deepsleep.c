@@ -42,7 +42,6 @@ void watch_register_extwake_callback(uint8_t pin, ext_irq_cb_t callback, bool le
             config &= ~(3 << RTC_TAMPCTRL_IN0ACT_Pos);
             config &= ~(1 << RTC_TAMPCTRL_TAMLVL0_Pos);
             config |= 1 << RTC_TAMPCTRL_IN0ACT_Pos;
-            config |= 1 << RTC_TAMPCTRL_DEBNC0_Pos;
             if (level) config |= 1 << RTC_TAMPCTRL_TAMLVL0_Pos;
             break;
         case A2:
@@ -51,7 +50,6 @@ void watch_register_extwake_callback(uint8_t pin, ext_irq_cb_t callback, bool le
             config &= ~(3 << RTC_TAMPCTRL_IN1ACT_Pos);
             config &= ~(1 << RTC_TAMPCTRL_TAMLVL1_Pos);
             config |= 1 << RTC_TAMPCTRL_IN1ACT_Pos;
-            config |= 1 << RTC_TAMPCTRL_DEBNC1_Pos;
             if (level) config |= 1 << RTC_TAMPCTRL_TAMLVL1_Pos;
             break;
         case BTN_ALARM:
@@ -61,7 +59,6 @@ void watch_register_extwake_callback(uint8_t pin, ext_irq_cb_t callback, bool le
             config &= ~(3 << RTC_TAMPCTRL_IN2ACT_Pos);
             config &= ~(1 << RTC_TAMPCTRL_TAMLVL2_Pos);
             config |= 1 << RTC_TAMPCTRL_IN2ACT_Pos;
-            config |= 1 << RTC_TAMPCTRL_DEBNC2_Pos;
             if (level) config |= 1 << RTC_TAMPCTRL_TAMLVL2_Pos;
             break;
         default:
