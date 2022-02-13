@@ -26,15 +26,18 @@
 #define WORLD_CLOCK_FACE_H_
 
 #include "movement.h"
-
-typedef struct {
-    uint8_t char_0;
-    uint8_t char_1;
-    uint8_t timezone_index;
+typedef union {
+    struct {
+        uint8_t char_0;
+        uint8_t char_1;
+        uint8_t timezone_index;
+    } bit;
+    uint32_t reg;
 } world_clock_settings_t;
 
 typedef struct {
     world_clock_settings_t settings;
+    uint8_t backup_register;
     uint8_t current_screen;
     uint32_t previous_date_time;
 } world_clock_state_t;

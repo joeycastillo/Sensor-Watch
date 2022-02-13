@@ -33,10 +33,13 @@ void world_clock_face_setup(movement_settings_t *settings, uint8_t watch_face_in
     (void) watch_face_index;
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(world_clock_state_t));
-        world_clock_state_t *state = (world_clock_state_t *)*context_ptr;
-        state->settings.char_0 = 0;
-        state->settings.char_1 = 0;
-        state->settings.timezone_index = 0; // start at UTC
+        memset(*context_ptr, 0, sizeof(world_clock_state_t));
+        uint8_t backup_register = movement_claim_backup_register();
+        if (backup_register) {
+            world_clock_state_t *state = (world_clock_state_t *)*context_ptr;
+            state->settings.reg = watch_get_backup_data(backup_register);
+            state->backup_register = backup_register;
+        }
     }
 }
 
@@ -64,7 +67,7 @@ static bool world_clock_face_do_display_mode(movement_event_t event, movement_se
         case EVENT_LOW_ENERGY_UPDATE:
             date_time = watch_rtc_get_date_time();
             timestamp = watch_utility_date_time_to_unix_time(date_time, movement_timezone_offsets[settings->bit.time_zone] * 60);
-            date_time = watch_utility_date_time_from_unix_time(timestamp, movement_timezone_offsets[state->settings.timezone_index] * 60);
+            date_time = watch_utility_date_time_from_unix_time(timestamp, movement_timezone_offsets[state->settings.bit.timezone_index] * 60);
             previous_date_time = state->previous_date_time;
             state->previous_date_time = date_time.reg;
 
@@ -92,15 +95,15 @@ static bool world_clock_face_do_display_mode(movement_event_t event, movement_se
                 if (event.event_type == EVENT_LOW_ENERGY_UPDATE) {
                     if (!watch_tick_animation_is_running()) watch_start_tick_animation(500);
                     sprintf(buf, "%c%c%2d%2d%02d  ",
-                        movement_valid_position_0_chars[state->settings.char_0],
-                        movement_valid_position_1_chars[state->settings.char_1],
+                        movement_valid_position_0_chars[state->settings.bit.char_0],
+                        movement_valid_position_1_chars[state->settings.bit.char_1],
                         date_time.unit.day,
                         date_time.unit.hour,
                         date_time.unit.minute);
                 } else {
                     sprintf(buf, "%c%c%2d%2d%02d%02d",
-                        movement_valid_position_0_chars[state->settings.char_0],
-                        movement_valid_position_1_chars[state->settings.char_1],
+                        movement_valid_position_0_chars[state->settings.bit.char_0],
+                        movement_valid_position_1_chars[state->settings.bit.char_1],
                         date_time.unit.day,
                         date_time.unit.hour,
                         date_time.unit.minute,
@@ -129,6 +132,7 @@ static bool world_clock_face_do_display_mode(movement_event_t event, movement_se
 static bool _world_clock_face_do_settings_mode(movement_event_t event, movement_settings_t *settings, world_clock_state_t *state) {
     switch (event.event_type) {
         case EVENT_MODE_BUTTON_UP:
+            if (state->backup_register) watch_store_backup_data(state->settings.reg, state->backup_register);
             movement_move_to_next_face();
             return false;
         case EVENT_LIGHT_BUTTON_DOWN:
@@ -137,26 +141,27 @@ static bool _world_clock_face_do_settings_mode(movement_event_t event, movement_
                 movement_request_tick_frequency(1);
                 state->current_screen = 0;
                 state->previous_date_time = 0xFFFFFFFF;
+                if (state->backup_register) watch_store_backup_data(state->settings.reg, state->backup_register);
                 world_clock_face_do_display_mode(event, settings, state);
             }
             break;
         case EVENT_ALARM_BUTTON_DOWN:
             switch (state->current_screen) {
                 case 1:
-                    state->settings.char_0++;
-                    if (state->settings.char_0 >= strlen(movement_valid_position_0_chars)) {
-                        state->settings.char_0 = 0;
+                    state->settings.bit.char_0++;
+                    if (state->settings.bit.char_0 >= strlen(movement_valid_position_0_chars)) {
+                        state->settings.bit.char_0 = 0;
                     }
                     break;
                 case 2:
-                    state->settings.char_1++;
-                    if (state->settings.char_1 >= strlen(movement_valid_position_1_chars)) {
-                        state->settings.char_1 = 0;
+                    state->settings.bit.char_1++;
+                    if (state->settings.bit.char_1 >= strlen(movement_valid_position_1_chars)) {
+                        state->settings.bit.char_1 = 0;
                     }
                     break;
                 case 3:
-                    state->settings.timezone_index++;
-                    if (state->settings.timezone_index > 40) state->settings.timezone_index = 0;
+                    state->settings.bit.timezone_index++;
+                    if (state->settings.bit.timezone_index > 40) state->settings.bit.timezone_index = 0;
                     break;
             }
             break;
@@ -169,10 +174,10 @@ static bool _world_clock_face_do_settings_mode(movement_event_t event, movement_
 
     char buf[13];
     sprintf(buf, "%c%c %3d%02d  ",
-        movement_valid_position_0_chars[state->settings.char_0],
-        movement_valid_position_1_chars[state->settings.char_1],
-        (int8_t) (movement_timezone_offsets[state->settings.timezone_index] / 60),
-        (int8_t) (movement_timezone_offsets[state->settings.timezone_index] % 60) * (movement_timezone_offsets[state->settings.timezone_index] < 0 ? -1 : 1));
+        movement_valid_position_0_chars[state->settings.bit.char_0],
+        movement_valid_position_1_chars[state->settings.bit.char_1],
+        (int8_t) (movement_timezone_offsets[state->settings.bit.timezone_index] / 60),
+        (int8_t) (movement_timezone_offsets[state->settings.bit.timezone_index] % 60) * (movement_timezone_offsets[state->settings.bit.timezone_index] < 0 ? -1 : 1));
     watch_set_colon();
     watch_clear_indicator(WATCH_INDICATOR_PM);
 
