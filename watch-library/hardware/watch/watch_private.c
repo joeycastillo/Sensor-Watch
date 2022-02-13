@@ -28,7 +28,7 @@
 
 void _watch_init(void) {
     // disable the LED pin (it may have been enabled by the bootloader)
-    watch_disable_digital_output(RED);
+    watch_disable_digital_output(GPIO(GPIO_PORTA, 20));
 
     // RAM should be back-biased in STANDBY
     PM->STDBYCFG.bit.BBIASHS = 1;
