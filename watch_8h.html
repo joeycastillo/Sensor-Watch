@@ -93,35 +93,11 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a16023aa6b668de61af59b40b2bee5d1d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="watch_8h.html#a16023aa6b668de61af59b40b2bee5d1d">watch_is_battery_low</a> (void)</td></tr>
-<tr class="memdesc:a16023aa6b668de61af59b40b2bee5d1d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns true when the battery voltage dips below 2.5V.  <a href="watch_8h.html#a16023aa6b668de61af59b40b2bee5d1d">More...</a><br /></td></tr>
-<tr class="separator:a16023aa6b668de61af59b40b2bee5d1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6df21baf06b4a5392d95dd3cdde75d94"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="watch_8h.html#a6df21baf06b4a5392d95dd3cdde75d94">watch_is_buzzer_or_led_enabled</a> (void)</td></tr>
 <tr class="memdesc:a6df21baf06b4a5392d95dd3cdde75d94"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns true if either the buzzer or the LED driver is enabled.  <a href="watch_8h.html#a6df21baf06b4a5392d95dd3cdde75d94">More...</a><br /></td></tr>
 <tr class="separator:a6df21baf06b4a5392d95dd3cdde75d94"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="a16023aa6b668de61af59b40b2bee5d1d" name="a16023aa6b668de61af59b40b2bee5d1d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a16023aa6b668de61af59b40b2bee5d1d">&#9670;&nbsp;</a></span>watch_is_battery_low()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool watch_is_battery_low </td>
-          <td>(</td>
-          <td class="paramtype">void&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Returns true when the battery voltage dips below 2.5V. </p>
-<p >A CR2016 battery will have a nominal voltage between 2.9 and 3 volts for most of its lifespan. Once the battery discharges to about 60%, the voltage will drift slightly lower; this may manifest as a dimmer LED. By the time the battery voltage has fallen to 2.5 volts, it will have probably less than 10% of its capacity remaining, and you can expect the voltage to drop relatively quickly as the battery dies. </p>
-
-</div>
-</div>
 <a id="a6df21baf06b4a5392d95dd3cdde75d94" name="a6df21baf06b4a5392d95dd3cdde75d94"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a6df21baf06b4a5392d95dd3cdde75d94">&#9670;&nbsp;</a></span>watch_is_buzzer_or_led_enabled()</h2>
 
