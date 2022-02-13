@@ -268,6 +268,9 @@ typedef struct {
     uint8_t tick_frequency;
     uint8_t last_second;
     uint8_t subsecond;
+
+    // backup register stuff
+    uint8_t next_available_backup_register;
 } movement_state_t;
 
 void movement_move_to_face(uint8_t watch_face_index);
@@ -286,5 +289,7 @@ void movement_cancel_background_task(void);
 
 void movement_play_signal(void);
 void movement_play_alarm(void);
+
+uint8_t movement_claim_backup_register(void);
 
 #endif // MOVEMENT_H_

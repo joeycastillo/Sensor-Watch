@@ -216,6 +216,11 @@ void movement_play_alarm(void) {
     _movement_enable_fast_tick_if_needed();
 }
 
+uint8_t movement_claim_backup_register(void) {
+    if (movement_state.next_available_backup_register >= 8) return 0;
+    return movement_state.next_available_backup_register++;
+}
+
 void app_init(void) {
     memset(&movement_state, 0, sizeof(movement_state));
 
@@ -226,6 +231,7 @@ void app_init(void) {
     movement_state.settings.bit.time_zone = 16; // default to GMT
     movement_state.light_ticks = -1;
     movement_state.alarm_ticks = -1;
+    movement_state.next_available_backup_register = 4;
     _movement_reset_inactivity_countdown();
 
 #if __EMSCRIPTEN__
