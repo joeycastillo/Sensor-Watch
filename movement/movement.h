@@ -274,8 +274,6 @@ void movement_move_to_face(uint8_t watch_face_index);
 void movement_move_to_next_face(void);
 void movement_illuminate_led(void);
 
-// note: requesting a tick frequency of 0 will break any scheduled background tasks.
-// this will be fixed in a future refactor of the tick mechanism.
 void movement_request_tick_frequency(uint8_t freq);
 
 // note: watch faces can only schedule a background task when in the foreground, since
