@@ -155,8 +155,10 @@ void watch_enter_sleep_mode(void) {
     // disable tick interrupt
     watch_rtc_disable_all_periodic_callbacks();
 
-    // disable brownout detector interrupt, which could inadvertently wake us up.
-    SUPC->INTENCLR.bit.BOD33DET = 1;
+    // set brownout detector to check voltage once an hour (64 minutes).
+    // in sleep, we're not worried about the LED causing a voltage drop and a brownout.
+    // changes to voltage will take place slowly over months, not quickly over seconds.
+    SUPC->BOD33.bit.PSEL = 0xF;
 
     // disable all pins
     _watch_disable_all_pins_except_rtc();
@@ -164,8 +166,8 @@ void watch_enter_sleep_mode(void) {
     // enter standby (4); we basically hang out here until an interrupt wakes us.
     sleep(4);
 
-    // and we awake! re-enable the brownout detector
-    SUPC->INTENSET.bit.BOD33DET = 1;
+    // and we awake! speed the brownout detector back up to 1 check per second.
+    SUPC->BOD33.bit.PSEL = 0x9;
 
     // call app_setup so the app can re-enable everything we disabled.
     app_setup();

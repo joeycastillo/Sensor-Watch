@@ -37,6 +37,18 @@ void _watch_init(void) {
     SUPC->VREG.bit.SEL = 1;
     while(!SUPC->STATUS.bit.VREGRDY);
 
+    // check the battery voltage...
+    watch_enable_adc();
+    uint16_t battery_voltage = watch_get_vcc_voltage();
+    watch_disable_adc();
+    // ...because we can enable the more efficient low power regulator if the system voltage is > 2.5V
+    // still, enable LPEFF only if the battery voltage is comfortably above this threshold.
+    if (battery_voltage >= 2700) {
+        SUPC->VREG.bit.LPEFF = 1;
+    } else {
+        SUPC->VREG.bit.LPEFF = 0;
+    }
+
     // set up the brownout detector (low battery warning)
     NVIC_DisableIRQ(SYSTEM_IRQn);
     NVIC_ClearPendingIRQ(SYSTEM_IRQn);
@@ -47,8 +59,8 @@ void _watch_init(void) {
     SUPC->BOD33.bit.RUNSTDBY = 1;   // Enable sampling mode in standby
     SUPC->BOD33.bit.STDBYCFG = 1;   // Run in standby
     SUPC->BOD33.bit.RUNBKUP = 0;    // Don't run in backup mode
-    SUPC->BOD33.bit.PSEL = 0xB;     // Check battery level every 4 seconds
-    SUPC->BOD33.bit.LEVEL = 31;     // Detect brownout at 2.5V (1.445V + level * 34mV)
+    SUPC->BOD33.bit.PSEL = 0x9;     // Check battery level every second (we'll change this before entering sleep)
+    SUPC->BOD33.bit.LEVEL = 34;     // Detect brownout at 2.6V (1.445V + level * 34mV)
     SUPC->BOD33.bit.ACTION = 0x2;   // Generate an interrupt when BOD33 is triggered
     SUPC->BOD33.bit.HYST = 0;       // Disable hysteresis
     while(!SUPC->STATUS.bit.B33SRDY);

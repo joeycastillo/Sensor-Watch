@@ -27,7 +27,13 @@
 // receives interrupts from MCLK, OSC32KCTRL, OSCCTRL, PAC, PM, SUPC and TAL, whatever that is.
 void SYSTEM_Handler(void) {
     if (SUPC->INTFLAG.bit.BOD33DET) {
+        // Our system voltage has dipped below 2.6V!
+        // Set the voltage regulator to work at low system voltage before we hit 2.5 V
+        // This voltage regulator can carry us down to 1.62 volts as the battery drains.
+        SUPC->VREG.bit.LPEFF = 0;
+        // clear the interrupt condition
         SUPC->INTENCLR.bit.BOD33DET = 1;
+        // and disable the brownout detector (TODO: add a second, "power critical" brownout condition?)
         SUPC->INTFLAG.reg &= ~SUPC_INTFLAG_BOD33DET;
     }
 }
