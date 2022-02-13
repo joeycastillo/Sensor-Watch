@@ -36,7 +36,7 @@ void world_clock_face_setup(movement_settings_t *settings, uint8_t watch_face_in
         world_clock_state_t *state = (world_clock_state_t *)*context_ptr;
         state->settings.char_0 = 0;
         state->settings.char_1 = 0;
-        state->settings.timezone_index = 16; // start at UTC
+        state->settings.timezone_index = 0; // start at UTC
     }
 }
 
