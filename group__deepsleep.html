@@ -178,7 +178,7 @@ Functions</h2></td></tr>
 
 <p>enters Deep Sleep Mode by disabling all pins and peripherals except the RTC. </p>
 <p >Short of BACKUP mode, this is the lowest power mode you can enter while retaining your application state (and the ability to wake with the alarm button). Just note that the display will be completely off, so you should document to the user of your application that they will need to press the alarm button to wake the device, or use a sensor board with support for an external wake pin.</p>
-<p >All notes from watch_enter_sleep_mode apply here, except for power consumption. You can estimate the power consumption of this mode to be on the order of 12 microwatts (about 4µA at 3 V). </p>
+<p >All notes from watch_enter_sleep_mode apply here, except for power consumption. You can estimate the power consumption of this mode to be on the order of 4µA at room temperature. </p>
 
 </div>
 </div>
@@ -201,7 +201,10 @@ Functions</h2></td></tr>
 <p>enters Sleep Mode by disabling all pins and peripherals except the RTC and the LCD. </p>
 <p >This sleep mode is not the lowest power mode available, but it has the benefit of allowing you to display a message to the user while asleep. You can also set an alarm interrupt to wake at a configfurable interval (every minute, hour or day) to update the display. You can wake from this mode by pressing the ALARM button, if you registered an extwake callback on the ALARM button. Also note that when your app wakes from this sleep mode, your app_setup method will be called again, since this function will have disabled things you set up there.</p>
 <p >Note that to wake from either the ALARM button, the A2 interrupt or the A4 interrupt, you must first configure this by calling watch_register_extwake_callback.</p>
-<p >You can estimate the power consumption of this mode to be on the order of 30 microwatts (about 10 µA at 3 V). </p>
+<p >Power consumption depends on temperature, but as a rough estimate, this mode will consume:</p><ul>
+<li>6.0 ~ 7.5µA while at normal room temperatures</li>
+<li>9.5µA while worn on a wrist (temperature ≈ 31° C) </li>
+</ul>
 
 </div>
 </div>
