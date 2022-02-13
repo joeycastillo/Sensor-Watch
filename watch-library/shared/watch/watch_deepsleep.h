@@ -116,8 +116,9 @@ uint32_t watch_get_backup_data(uint8_t reg);
   *          Note that to wake from either the ALARM button, the A2 interrupt or the A4 interrupt, you
   *          must first configure this by calling watch_register_extwake_callback.
   *
-  *          You can estimate the power consumption of this mode to be on the order of 30 microwatts
-  *          (about 10 µA at 3 V).
+  *          Power consumption depends on temperature, but as a rough estimate, this mode will consume:
+  *           * 6.0 ~ 7.5µA while at normal room temperatures
+  *           * 9.5µA while worn on a wrist (temperature ≈ 31° C)
   */
 void watch_enter_sleep_mode(void);
 
@@ -129,7 +130,7 @@ void watch_enter_sleep_mode(void);
   *          an external wake pin.
   *
   *          All notes from watch_enter_sleep_mode apply here, except for power consumption. You can estimate
-  *          the power consumption of this mode to be on the order of 12 microwatts (about 4µA at 3 V).
+  *          the power consumption of this mode to be on the order of 4µA at room temperature.
   */
 void watch_enter_deep_sleep_mode(void);
 
