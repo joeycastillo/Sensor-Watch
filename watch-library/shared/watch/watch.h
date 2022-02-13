@@ -67,14 +67,6 @@
 
 #include "watch_private.h"
 
-/** @brief Returns true when the battery voltage dips below 2.5V.
-  * @details A CR2016 battery will have a nominal voltage between 2.9 and 3 volts for most of its lifespan. Once the battery
-  *          discharges to about 60%, the voltage will drift slightly lower; this may manifest as a dimmer LED. By the time
-  *          the battery voltage has fallen to 2.5 volts, it will have probably less than 10% of its capacity remaining, and
-  *          you can expect the voltage to drop relatively quickly as the battery dies.
-  */
-bool watch_is_battery_low(void);
-
 /** @brief Returns true if either the buzzer or the LED driver is enabled.
   * @details Both the buzzer and the LED use the TCC peripheral to drive their behavior. This function returns true if that
   *          peripheral is enabled. You can use this function to determine whether you need to call the watch_disable_leds or

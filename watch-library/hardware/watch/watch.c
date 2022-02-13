@@ -24,19 +24,12 @@
 
 #include "watch.h"
 
-bool battery_is_low = false;
-
 // receives interrupts from MCLK, OSC32KCTRL, OSCCTRL, PAC, PM, SUPC and TAL, whatever that is.
 void SYSTEM_Handler(void) {
     if (SUPC->INTFLAG.bit.BOD33DET) {
-        battery_is_low = true;
         SUPC->INTENCLR.bit.BOD33DET = 1;
         SUPC->INTFLAG.reg &= ~SUPC_INTFLAG_BOD33DET;
     }
-}
-
-bool watch_is_battery_low(void) {
-    return battery_is_low;
 }
 
 bool watch_is_buzzer_or_led_enabled(void){
