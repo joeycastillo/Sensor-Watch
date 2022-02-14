@@ -30,14 +30,16 @@
 typedef enum {
     ORRERY_MODE_SELECTING_BODY = 0,
     ORRERY_MODE_CALCULATING,
-    ORRERY_MODE_DISPLAYING_RIGHT_ASCENSION,
-    ORRERY_MODE_DISPLAYING_DECLINATION,
+    ORRERY_MODE_DISPLAYING_X,
+    ORRERY_MODE_DISPLAYING_Y,
+    ORRERY_MODE_DISPLAYING_Z,
     ORRERY_MODE_NUM_MODES
 } orrery_mode_t;
 
 typedef enum {
     ORRERY_CELESTIAL_BODY_MERCURY = 0,
     ORRERY_CELESTIAL_BODY_VENUS,
+    ORRERY_CELESTIAL_BODY_EARTH,
     ORRERY_CELESTIAL_BODY_LUNA,
     ORRERY_CELESTIAL_BODY_MARS,
     ORRERY_CELESTIAL_BODY_JUPITER,
@@ -50,7 +52,9 @@ typedef enum {
 typedef struct {
     orrery_mode_t mode;
     orrery_celestial_body_t active_body;
-    ;
+    double right_ascension;
+    double declination;
+    double coords[3];
     uint8_t animation_state;
     uint16_t latitude;
     uint16_t longitude;
