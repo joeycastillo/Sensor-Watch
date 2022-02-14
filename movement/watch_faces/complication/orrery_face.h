@@ -65,12 +65,12 @@ void orrery_face_activate(movement_settings_t *settings, void *context);
 bool orrery_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void orrery_face_resign(movement_settings_t *settings, void *context);
 
-static const watch_face_t orrery_face = {
-    orrery_face_setup,
-    orrery_face_activate,
-    orrery_face_loop,
-    orrery_face_resign,
-    NULL
-};
+#define orrery_face ((const watch_face_t){ \
+    orrery_face_setup, \
+    orrery_face_activate, \
+    orrery_face_loop, \
+    orrery_face_resign, \
+    NULL, \
+})
 
 #endif // ORRERY_FACE_H_

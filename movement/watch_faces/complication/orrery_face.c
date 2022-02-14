@@ -46,7 +46,7 @@ static double jd2et(double jd) {
 
 static void _orrery_face_recalculate(movement_settings_t *settings, orrery_state_t *state) {
     watch_date_time date_time = watch_rtc_get_date_time();
-    time_t timestamp = watch_utility_date_time_to_unix_time(date_time, movement_timezone_offsets[settings->bit.time_zone] * 60);
+    uint32_t timestamp = watch_utility_date_time_to_unix_time(date_time, movement_timezone_offsets[settings->bit.time_zone] * 60);
     date_time = watch_utility_date_time_from_unix_time(timestamp, 0);
 
     uint32_t jd = _julian_date(date_time.unit.year + WATCH_RTC_REFERENCE_YEAR, date_time.unit.month, date_time.unit.day);
