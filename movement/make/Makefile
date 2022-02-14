@@ -31,6 +31,7 @@ SRCS += \
   ../lib/TOTP-MCU/TOTP.c \
   ../lib/sunriset/sunriset.c \
   ../lib/vsop87/vsop87a_micro.c \
+  ../lib/vsop87/vsop87a_milli.c \
   ../movement.c \
   ../watch_faces/clock/simple_clock_face.c \
   ../watch_faces/clock/world_clock_face.c \
