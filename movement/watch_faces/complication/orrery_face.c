@@ -94,6 +94,8 @@ static void _orrery_face_recalculate(movement_settings_t *settings, orrery_state
     state->coords[0] = r[0];
     state->coords[1] = r[1];
     state->coords[2] = r[2];
+
+    printf("Calculated coordinates for %s: \n\tx = %f\n\ty = %f\n\tz = %f\n", orrery_celestial_body_names[state->active_body], r[0], r[1], r[2]);
 }
 
 static void _orrery_face_update(movement_event_t event, movement_settings_t *settings, orrery_state_t *state) {
