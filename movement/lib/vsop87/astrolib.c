@@ -16,6 +16,7 @@
 #include <math.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include "astrolib.h"
 #include "vsop87a_milli.h"
 
@@ -37,20 +38,21 @@ astro_equatorial_coordinates_t astro_get_ra_dec(double jd, astro_body_t body, do
     //Rotate ecliptic coordinates to J2000 coordinates
     body_coords = astro_rotate_from_vsop_to_J2000(body_coords);
 
-    //TODO: rotate body for precession, nutation and bias
-    // if(calculate_precession) {
-    //     precession = astrolib.getPrecessionMatrix(jdTT);
-    //     body_coords = astrolib.vecMatrixMul(body_coords,precession);
-    // }
+    astro_matrix_t precession;
+    // TODO: rotate body for precession, nutation and bias
+    if(calculate_precession) {
+        precession = astro_get_precession_matrix(jdTT);
+        body_coords = astro_vector_multiply_vector_by_matrix(body_coords, precession);
+    }
 
     //Convert to topocentric
     astro_cartesian_coordinates_t observerXYZ = astro_get_observer_geocentric_coords(jdTT, lat, lon);
 
-    // if(calculate_precession) {
-    //     //TODO: rotate observerXYZ for precession, nutation and bias
-    //     const precessionInv=astrolib.transpose(precession);
-    //     observerXYZ=astrolib.vecMatrixMul(observerXYZ,precessionInv);
-    // }
+    if(calculate_precession) {
+        //TODO: rotate observerXYZ for precession, nutation and bias
+        astro_matrix_t precessionInv = astro_transpose_matrix(precession);
+        observerXYZ = astro_vector_multiply_vector_by_matrix(observerXYZ, precessionInv);
+    }
 
     body_coords = astro_subtract_cartesian(body_coords, observerXYZ);
 
@@ -210,6 +212,86 @@ astro_matrix_t astro_get_z_rotation_matrix(double r) {
     return t;
 }
 
+void astro_print_matrix(char * title, astro_matrix_t matrix);
+void astro_print_matrix(char * title, astro_matrix_t matrix) {
+    printf("%s\n", title);
+    for(uint8_t i = 0; i < 3 ; i++) {
+        printf("\t");
+        for(uint8_t j = 0 ; j < 3 ; j++) {
+            printf("%12f", matrix.elements[i][j]);
+        }
+        printf("\n");
+    }
+    printf("\n");
+}
+
+astro_matrix_t astro_dot_product(astro_matrix_t a, astro_matrix_t b) {
+    astro_matrix_t retval;
+
+    for(uint8_t i = 0; i < 3 ; i++) {
+        for(uint8_t j = 0 ; j < 3 ; j++) {
+            double temp = 0;
+            for(uint8_t k = 0; k < 3 ; k++) {
+                temp += a.elements[i][k] * b.elements[k][j];
+            }
+            retval.elements[i][j]=temp;
+        }
+    }
+
+    return retval;
+}
+
+astro_matrix_t astro_transpose_matrix(astro_matrix_t m) {
+    astro_matrix_t retval;
+    for(uint8_t i = 0; i < 3 ; i++) {
+        for(uint8_t j = 0 ; j < 3 ; j++) {
+            retval.elements[i][j] = m.elements[j][i];
+        }
+    }
+    return retval;
+}
+
+astro_matrix_t astro_get_precession_matrix(double jd) {
+    //2006 IAU Precession.  Implemented from IERS Technical Note No 36 ch5.
+    //https://www.iers.org/SharedDocs/Publikationen/EN/IERS/Publications/tn/TechnNote36/tn36_043.pdf?__blob=publicationFile&v=1
+
+    double t = (jd - 2451545.0) / 36525.0;  //5.2
+    const double Arcsec2Radians = M_PI/180.0/60.0/60.0; //Converts arc seconds used in equations below to radians
+
+    double e0 = 84381.406 * Arcsec2Radians; //5.6.4
+    double omegaA = e0 + ((-0.025754 + (0.0512623 +	(-0.00772503 + (-0.000000467 + 0.0000003337*t) * t) * t) * t) * t) * Arcsec2Radians; //5.39
+    double psiA = ((5038.481507 +	(-1.0790069 + (-0.00114045 + (0.000132851 - 0.0000000951*t) * t) * t) * t) * t) * Arcsec2Radians; //5.39
+    double chiA = ((10.556403 + (-2.3814292 + (-0.00121197 + (0.000170663 - 0.0000000560*t) * t) * t) * t) * t) * Arcsec2Radians; //5.40
+    //Rotation matrix from 5.4.5
+    //(R1(−e0) · R3(psiA) · R1(omegaA) · R3(−chiA))
+    //Above eq rotates from "of date" to J2000, so we reverse the signs to go from J2000 to "of date"
+    astro_matrix_t m1 = astro_get_x_rotation_matrix(e0);
+    astro_matrix_t m2 = astro_get_z_rotation_matrix(-psiA);
+    astro_matrix_t m3 = astro_get_x_rotation_matrix(-omegaA);
+    astro_matrix_t m4 = astro_get_z_rotation_matrix(chiA);
+
+    astro_matrix_t m5 = astro_dot_product(m4, m3);
+    astro_matrix_t m6 = astro_dot_product(m5, m2);
+    astro_matrix_t precessionMatrix = astro_dot_product(m6, m1);
+
+    /*
+    //Compute nutation
+    double epsA = e0 - ((46.83676900 - (0.0001831 + (0.0020034 - (0.000000576 - 0.000000043400*t) *t) *t) *t) *t) * Arcsec2Radians; //5.40
+    astro_nutation_t nut = eraNut00a(0,jd);
+    double dpsi = nut[0];
+    double deps = nut[1];
+    astro_matrix_t m7 = astro_get_x_rotation_matrix(-epsA);
+    astro_matrix_t m8 = astro_get_z_rotation_matrix(dpsi);
+    astro_matrix_t m9 = astro_get_x_rotation_matrix(epsA + deps);
+    astro_matrix_t m10 = astro_dot_product(m7, m8);
+    astro_matrix_t m11 = astro_dot_product(m10, m9);
+    astro_matrix_t nutationMatrix = astro_dot_product(precessionMatrix, m11);
+    return nutationMatrix;
+    */
+
+    return precessionMatrix;
+}
+
 astro_cartesian_coordinates_t astro_vector_multiply_vector_by_matrix(astro_cartesian_coordinates_t v, astro_matrix_t m) {
     astro_cartesian_coordinates_t t;
 
@@ -363,4 +445,23 @@ astro_cartesian_coordinates_t astro_get_body_light_time_adjusted(double t, astro
     }
 
     return body_coords;
+}
+
+astro_horizontal_coordinates_t astro_convert_equatorial_coordinates_to_horizontal(double jd, double lat, double lon, double ra, double dec) {
+    double GMST = astro_get_GMST(jd) * M_PI/180.0 * 15.0;
+    double h = GMST + lon - ra;
+
+    double sina = sin(dec)*sin(lat) + cos(dec)*cos(h)*cos(lat);
+    double a = asin(sina);
+
+    double cosAz = (sin(dec)*cos(lat) - cos(dec)*cos(h)*sin(lat)) / cos(a);
+    double Az = acos(cosAz);
+
+    if(sin(h) > 0) Az = 2.0*M_PI - Az;
+
+    astro_horizontal_coordinates_t retval;
+    retval.altitude = a;
+    retval.azimuth = Az;
+
+    return retval;
 }

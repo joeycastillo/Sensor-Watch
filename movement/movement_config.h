@@ -30,10 +30,7 @@
 const watch_face_t watch_faces[] = {
     orrery_face,
     simple_clock_face,
-    beats_face,
-    voltage_face,
-    preferences_face,
-    set_time_face,
+    sunrise_sunset_face,
 };
 
 #define MOVEMENT_NUM_FACES (sizeof(watch_faces) / sizeof(watch_face_t))

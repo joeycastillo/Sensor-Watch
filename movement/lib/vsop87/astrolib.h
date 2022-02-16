@@ -46,6 +46,11 @@ typedef struct {
     double distance;
 } astro_equatorial_coordinates_t;
 
+typedef struct {
+    double altitude;
+    double azimuth;
+} astro_horizontal_coordinates_t;
+
 astro_equatorial_coordinates_t astro_get_ra_dec(double jd, astro_body_t bodyNum, double lat, double lon, bool calculate_precession);
 
 //Converts a Julian Date in UTC to Terrestrial Time (TT)
@@ -70,6 +75,8 @@ astro_matrix_t astro_get_y_rotation_matrix(double r);
 //Gets a rotation matrix about the z axis.  Angle R is in radians
 astro_matrix_t astro_get_z_rotation_matrix(double r);
 
+astro_matrix_t astro_transpose_matrix(astro_matrix_t m);
+
 astro_cartesian_coordinates_t astro_vector_multiply_vector_by_matrix(astro_cartesian_coordinates_t v, astro_matrix_t m);
 
 //Converts cartesian XYZ coordinates to polar (e.g. J2000 xyz to Right Accention and Declication)
@@ -92,5 +99,11 @@ astro_cartesian_coordinates_t astro_get_observer_geocentric_coords(double jd, do
 astro_cartesian_coordinates_t get_body_coordinates(astro_body_t bodyNum, double et);
 
 astro_cartesian_coordinates_t astro_get_body_light_time_adjusted(double t, astro_cartesian_coordinates_t origin, astro_body_t bodyNum);
+
+astro_horizontal_coordinates_t astro_convert_equatorial_coordinates_to_horizontal(double jd, double lat, double lon, double ra, double dec);
+
+astro_matrix_t astro_dot_product(astro_matrix_t a, astro_matrix_t b);
+
+astro_matrix_t astro_get_precession_matrix(double jd);
 
 #endif // ASTROLIB_H_
