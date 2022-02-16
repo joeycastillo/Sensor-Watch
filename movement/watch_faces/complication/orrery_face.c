@@ -171,15 +171,7 @@ void orrery_face_setup(movement_settings_t *settings, uint8_t watch_face_index, 
 
 void orrery_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
-    orrery_state_t *state = (orrery_state_t *)context;
-    movement_location_t movement_location = (movement_location_t) watch_get_backup_data(1);
-    int16_t lat_centi = (int16_t)movement_location.bit.latitude;
-    int16_t lon_centi = (int16_t)movement_location.bit.longitude;
-    double lat = (double)lat_centi / 100.0;
-    double lon = (double)lon_centi / 100.0;
-    state->latitude_radians = lat * (M_PI / 180.0);
-    state->longitude_radians = lon * (M_PI / 180.0);
-
+    (void) context;
     movement_request_tick_frequency(4);
 }
 

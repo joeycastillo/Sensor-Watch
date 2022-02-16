@@ -51,7 +51,24 @@ typedef struct {
     double azimuth;
 } astro_horizontal_coordinates_t;
 
+typedef struct {
+    int16_t degrees;
+    uint8_t minutes;
+    uint8_t seconds; // you may want this to be a float, watch just can't display any more digits
+} astro_angle_dms_t;
+
+typedef struct {
+    uint8_t hours;
+    uint8_t minutes;
+    uint8_t seconds; // you may want this to be a float, watch just can't display any more digits
+} astro_angle_hms_t;
+
 astro_equatorial_coordinates_t astro_get_ra_dec(double jd, astro_body_t bodyNum, double lat, double lon, bool calculate_precession);
 astro_horizontal_coordinates_t astro_ra_dec_to_alt_az(double jd, double lat, double lon, double ra, double dec);
+
+double astro_degrees_to_radians(double degrees);
+double astro_radians_to_degrees(double radians);
+astro_angle_dms_t astro_radians_to_dms(double radians);
+astro_angle_hms_t astro_radians_to_hms(double radians);
 
 #endif // ASTROLIB_H_

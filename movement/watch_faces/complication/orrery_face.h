@@ -39,8 +39,6 @@ typedef enum {
 typedef struct {
     orrery_mode_t mode;
     uint8_t active_body_index;
-    double latitude_radians;
-    double longitude_radians;
     double coords[3];
     uint8_t animation_state;
 } orrery_state_t;

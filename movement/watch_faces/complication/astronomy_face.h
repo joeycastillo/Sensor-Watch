@@ -26,6 +26,7 @@
 #define ASTRONOMY_FACE_H_
 
 #include "movement.h"
+#include "astrolib.h"
 
 typedef enum {
     ASTRONOMY_MODE_SELECTING_BODY = 0,
@@ -42,13 +43,13 @@ typedef struct {
     astronomy_mode_t mode;
     uint8_t active_body_index;
     uint8_t animation_state;
-    double latitude_radians;
-    double longitude_radians;
-    double right_ascension;
-    double declination;
-    double altitude;
-    double azimuth;
-    double distance;
+    double latitude_radians;    // this is the user location
+    double longitude_radians;   // but in radians
+    astro_angle_hms_t right_ascension;
+    astro_angle_dms_t declination;
+    double altitude;    // in decimal degrees
+    double azimuth;     // in decimal degrees
+    double distance;    // in AU
 } astronomy_state_t;
 
 void astronomy_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);

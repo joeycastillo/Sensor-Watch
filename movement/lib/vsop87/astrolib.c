@@ -468,3 +468,59 @@ astro_horizontal_coordinates_t astro_ra_dec_to_alt_az(double jd, double lat, dou
 
     return retval;
 }
+
+double astro_degrees_to_radians(double degrees) {
+    return degrees * M_PI / 180;
+}
+
+double astro_radians_to_degrees(double radians) {
+    return radians * 180.0 / M_PI;
+}
+
+astro_angle_dms_t astro_radians_to_dms(double radians) {
+    astro_angle_dms_t retval;
+    int8_t sign = (radians < 0) ? -1 : 1;
+    double degrees = fabs(astro_radians_to_degrees(radians));
+
+    retval.degrees = (uint16_t)degrees;
+    double temp = 60.0 * (degrees - retval.degrees);
+    retval.minutes = (uint8_t)temp;
+    retval.seconds = (uint8_t)round(60.0 * (temp - retval.minutes));
+
+    if (retval.seconds > 59) {
+        retval.seconds = 0.0;
+        retval.minutes++;
+    }
+
+    if (retval.minutes > 59) {
+        retval.minutes = 0;
+        retval.degrees++;
+    }
+
+    degrees *= sign;
+
+    return retval;
+}
+
+astro_angle_hms_t astro_radians_to_hms(double radians) {
+    astro_angle_hms_t retval;
+    double degrees = astro_radians_to_degrees(radians);
+    double temp = degrees / 15.0;
+
+    retval.hours = (uint8_t)temp;
+    temp = 60.0 * (temp - retval.hours);
+    retval.minutes = (uint8_t)temp;
+    retval.seconds = (uint8_t)round(60.0 * (temp - retval.minutes));
+
+    if (retval.seconds > 59) {
+        retval.seconds = 0;
+        retval.minutes++;
+    }
+
+    if (retval.minutes > 59) {
+        retval.minutes = 0;
+        retval.hours++;
+    }
+
+    return retval;
+}

@@ -28,7 +28,6 @@
 #include <math.h>
 #include "astronomy_face.h"
 #include "watch_utility.h"
-#include "astrolib.h"
 
 #define NUM_AVAILABLE_BODIES 9
 
@@ -68,27 +67,39 @@ static void _astronomy_face_recalculate(movement_settings_t *settings, astronomy
     uint32_t jd = _julian_date(date_time.unit.year + WATCH_RTC_REFERENCE_YEAR, date_time.unit.month, date_time.unit.day);
 
     astro_equatorial_coordinates_t radec_precession = astro_get_ra_dec(jd, astronomy_available_celestial_bodies[state->active_body_index], state->latitude_radians, state->longitude_radians, true);
-    printf("\nParams to convert: %ld %f %f %f %f\n", jd, state->latitude_radians * 180 / M_PI, state->longitude_radians * 180 / M_PI, radec_precession.right_ascension * 180 / M_PI, radec_precession.declination * 180 / M_PI);
+    printf("\nParams to convert: %ld %f %f %f %f\n",
+            jd,
+            astro_radians_to_degrees(state->latitude_radians),
+            astro_radians_to_degrees(state->longitude_radians),
+            astro_radians_to_degrees(radec_precession.right_ascension),
+            astro_radians_to_degrees(radec_precession.declination));
+
     astro_horizontal_coordinates_t horiz = astro_ra_dec_to_alt_az(jd, state->latitude_radians, state->longitude_radians, radec_precession.right_ascension, radec_precession.declination);
     astro_equatorial_coordinates_t radec = astro_get_ra_dec(jd, astronomy_available_celestial_bodies[state->active_body_index], state->latitude_radians, state->longitude_radians, false);
-    state->right_ascension = radec.right_ascension * 180 / M_PI;
-    state->declination = radec.declination * 180 / M_PI;
-    state->altitude = horiz.azimuth * 180 / M_PI;
-    state->azimuth = horiz.altitude * 180 / M_PI;
+    state->altitude = astro_radians_to_degrees(horiz.altitude);
+    state->azimuth = astro_radians_to_degrees(horiz.azimuth);
+    state->right_ascension = astro_radians_to_hms(radec.right_ascension);
+    state->declination = astro_radians_to_dms(radec.declination);
     state->distance = radec.distance;
 
-    printf("Calculated coordinates for %s on %ld: \n\tRA  = %f\n\tDec = %f\n\tAzi = %f\n\tAlt = %f\n\tDst = %f AU\n",
+    printf("Calculated coordinates for %s on %ld: \n\tRA  = %f / %2dh %2dm %2ds\n\tDec = %f / %3d° %3d' %3d\"\n\tAzi = %f\n\tAlt = %f\n\tDst = %f AU\n",
             astronomy_celestial_body_names[state->active_body_index],
             jd,
-            state->right_ascension,
-            state->declination,
+            astro_radians_to_degrees(radec.right_ascension),
+            state->right_ascension.hours,
+            state->right_ascension.minutes,
+            state->right_ascension.seconds,
+            astro_radians_to_degrees(radec_precession.declination),
+            state->declination.degrees,
+            state->declination.minutes,
+            state->declination.seconds,
             state->altitude,
             state->azimuth,
             state->distance);
 }
 
 static void _astronomy_face_update(movement_event_t event, movement_settings_t *settings, astronomy_state_t *state) {
-    char buf[11];
+    char buf[16];
     switch (state->mode) {
         case ASTRONOMY_MODE_SELECTING_BODY:
             watch_clear_colon();
@@ -134,19 +145,21 @@ static void _astronomy_face_update(movement_event_t event, movement_settings_t *
             watch_display_string(buf, 0);
             break;
         case ASTRONOMY_MODE_DISPLAYING_RA:
-            sprintf(buf, "ra h%6d", (int16_t)round(state->right_ascension * 100));
+            watch_set_colon();
+            sprintf(buf, "ra H%02d%02d%02d", state->right_ascension.hours, state->right_ascension.minutes, state->right_ascension.seconds);
             watch_display_string(buf, 0);
             break;
         case ASTRONOMY_MODE_DISPLAYING_DEC:
-            sprintf(buf, "de d%6d", (int16_t)round(state->declination * 100));
+            watch_clear_colon();
+            sprintf(buf, "de %3d%2d%2d", state->declination.degrees, state->declination.minutes, state->declination.seconds);
             watch_display_string(buf, 0);
             break;
         case ASTRONOMY_MODE_DISPLAYING_DIST:
-            // if >= 1,000,000 kilometers (all planets), we display distance in AU.
             if (state->distance >= 0.00668456) {
+                // if >= 1,000,000 kilometers (all planets), we display distance in AU.
                 sprintf(buf, "diAU%6d", (uint16_t)round(state->distance * 100));
             } else {
-                // otherwise distance in km fits in 6 digits. This mode will only happen for Luna.
+                // otherwise distance in kilometers fits in 6 digits. This mode will only happen for Luna.
                 sprintf(buf, "di K%6ld", (uint32_t)round(state->distance * 149597871.0));
             }
             watch_display_string(buf, 0);
@@ -174,8 +187,8 @@ void astronomy_face_activate(movement_settings_t *settings, void *context) {
     int16_t lon_centi = (int16_t)movement_location.bit.longitude;
     double lat = (double)lat_centi / 100.0;
     double lon = (double)lon_centi / 100.0;
-    state->latitude_radians = lat * (M_PI / 180.0);
-    state->longitude_radians = lon * (M_PI / 180.0);
+    state->latitude_radians = astro_degrees_to_radians(lat);
+    state->longitude_radians = astro_degrees_to_radians(lon);
 
     movement_request_tick_frequency(4);
 }
