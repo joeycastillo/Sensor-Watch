@@ -97,9 +97,9 @@ static void _orrery_face_recalculate(movement_settings_t *settings, orrery_state
             radec_precession = astro_get_ra_dec(jd, ASTRO_BODY_NEPTUNE, lat, lon, true);
             radec = astro_get_ra_dec(jd, ASTRO_BODY_NEPTUNE, lat, lon, false);
             break;
-        case ORRERY_CELESTIAL_BODY_NUM_BODIES:
+        default:
             // will not happen, just silencing warning
-            break;
+            return;
     }
     state->coords[0] = radec.right_ascension * 180 / M_PI;
     state->coords[1] = radec.declination * 180 / M_PI;
