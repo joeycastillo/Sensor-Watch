@@ -106,7 +106,7 @@ static void _orrery_face_recalculate(movement_settings_t *settings, orrery_state
     state->coords[2] = radec.distance;
 
     printf("\nParams to convert: %ld %f %f %f %f\n", jd, lat, lon, radec_precession.right_ascension * 180 / M_PI, radec_precession.declination * 180 / M_PI);
-    horiz = astro_convert_equatorial_coordinates_to_horizontal(jd, lat * (M_PI / 180.0), lon * (M_PI / 180.0), radec_precession.right_ascension, radec_precession.declination);
+    horiz = astro_ra_dec_to_alt_az(jd, lat * (M_PI / 180.0), lon * (M_PI / 180.0), radec_precession.right_ascension, radec_precession.declination);
     printf("Calculated coordinates for %s on %ld: \n\tRA  = %f\n\tDec = %f\n\tAzi = %f\n\tAlt = %f\n\tDst = %f AU\n",
             orrery_celestial_body_names[state->active_body],
             jd,

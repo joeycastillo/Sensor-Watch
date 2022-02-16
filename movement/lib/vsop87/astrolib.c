@@ -20,17 +20,36 @@
 #include "astrolib.h"
 #include "vsop87a_milli.h"
 
-//Returns an array containing the distance, declination, and right ascension (in that order) in radians.
+double astro_convert_utc_to_tt(double jd) ;
+double astro_convert_jd_to_julian_millenia_since_j2000(double jd);
+double astro_get_GMST(double ut1);
+astro_cartesian_coordinates_t astro_subtract_cartesian(astro_cartesian_coordinates_t a, astro_cartesian_coordinates_t b);
+astro_cartesian_coordinates_t astro_rotate_from_vsop_to_J2000(astro_cartesian_coordinates_t c);
+astro_matrix_t astro_get_x_rotation_matrix(double r);
+astro_matrix_t astro_get_y_rotation_matrix(double r);
+astro_matrix_t astro_get_z_rotation_matrix(double r);
+astro_matrix_t astro_transpose_matrix(astro_matrix_t m);
+astro_matrix_t astro_dot_product(astro_matrix_t a, astro_matrix_t b);
+astro_matrix_t astro_get_precession_matrix(double jd);
+astro_cartesian_coordinates_t astro_matrix_multiply(astro_cartesian_coordinates_t v, astro_matrix_t m);
+astro_cartesian_coordinates_t astro_convert_geodedic_latlon_to_ITRF_XYZ(double lat, double lon, double height);
+astro_cartesian_coordinates_t astro_convert_ITRF_to_GCRS(astro_cartesian_coordinates_t r, double ut1);
+astro_cartesian_coordinates_t astro_convert_coordinates_from_meters_to_AU(astro_cartesian_coordinates_t c);
+astro_cartesian_coordinates_t astro_get_observer_geocentric_coords(double jd, double lat, double lon);
+astro_cartesian_coordinates_t astro_get_body_coordinates(astro_body_t bodyNum, double et);
+astro_cartesian_coordinates_t astro_get_body_coordinates_light_time_adjusted(astro_body_t body, astro_cartesian_coordinates_t origin, double t);
+astro_equatorial_coordinates_t astro_convert_cartesian_to_polar(astro_cartesian_coordinates_t xyz);
+
+//Return all values in radians.
 //The positions are adjusted for the parallax of the Earth, and the offset of the observer from the Earth's center
 //All input and output angles are in radians!
-
 astro_equatorial_coordinates_t astro_get_ra_dec(double jd, astro_body_t body, double lat, double lon, bool calculate_precession) {
     double jdTT = astro_convert_utc_to_tt(jd);
     double t = astro_convert_jd_to_julian_millenia_since_j2000(jdTT);
     
     // Get current position of Earth and the target body
-    astro_cartesian_coordinates_t earth_coords = get_body_coordinates(ASTRO_BODY_EARTH, t);
-    astro_cartesian_coordinates_t body_coords = astro_get_body_light_time_adjusted(t, earth_coords, body);
+    astro_cartesian_coordinates_t earth_coords = astro_get_body_coordinates(ASTRO_BODY_EARTH, t);
+    astro_cartesian_coordinates_t body_coords = astro_get_body_coordinates_light_time_adjusted(body, earth_coords, t);
 
     // Convert to Geocentric coordinate
     body_coords = astro_subtract_cartesian(body_coords, earth_coords);
@@ -42,7 +61,7 @@ astro_equatorial_coordinates_t astro_get_ra_dec(double jd, astro_body_t body, do
     // TODO: rotate body for precession, nutation and bias
     if(calculate_precession) {
         precession = astro_get_precession_matrix(jdTT);
-        body_coords = astro_vector_multiply_vector_by_matrix(body_coords, precession);
+        body_coords = astro_matrix_multiply(body_coords, precession);
     }
 
     //Convert to topocentric
@@ -51,7 +70,7 @@ astro_equatorial_coordinates_t astro_get_ra_dec(double jd, astro_body_t body, do
     if(calculate_precession) {
         //TODO: rotate observerXYZ for precession, nutation and bias
         astro_matrix_t precessionInv = astro_transpose_matrix(precession);
-        observerXYZ = astro_vector_multiply_vector_by_matrix(observerXYZ, precessionInv);
+        observerXYZ = astro_matrix_multiply(observerXYZ, precessionInv);
     }
 
     body_coords = astro_subtract_cartesian(body_coords, observerXYZ);
@@ -59,7 +78,6 @@ astro_equatorial_coordinates_t astro_get_ra_dec(double jd, astro_body_t body, do
     //Convert to topocentric RA DEC by converting from cartesian coordinates to polar coordinates
     astro_equatorial_coordinates_t retval = astro_convert_cartesian_to_polar(body_coords);
     
-    //Returns an array containing the distance, declination, and right ascension (in that order) in radians.
     retval.declination = M_PI/2.0 - retval.declination;  //Dec.  Offset to make 0 the equator, and the poles +/-90 deg
     if(retval.right_ascension < 0) retval.right_ascension += 2*M_PI; //Ensure RA is positive
     
@@ -277,7 +295,7 @@ astro_matrix_t astro_get_precession_matrix(double jd) {
     return precessionMatrix;
 }
 
-astro_cartesian_coordinates_t astro_vector_multiply_vector_by_matrix(astro_cartesian_coordinates_t v, astro_matrix_t m) {
+astro_cartesian_coordinates_t astro_matrix_multiply(astro_cartesian_coordinates_t v, astro_matrix_t m) {
     astro_cartesian_coordinates_t t;
 
     t.x = v.x*m.elements[0][0] + v.y*m.elements[0][1] + v.z*m.elements[0][2];
@@ -334,7 +352,7 @@ astro_cartesian_coordinates_t astro_convert_ITRF_to_GCRS(astro_cartesian_coordin
     GMST =- GMST * 15.0 * M_PI / 180.0;
 
     astro_matrix_t m = astro_get_z_rotation_matrix(GMST);
-    astro_cartesian_coordinates_t t = astro_vector_multiply_vector_by_matrix(r, m);
+    astro_cartesian_coordinates_t t = astro_matrix_multiply(r, m);
 
     return t;
 }
@@ -359,7 +377,7 @@ astro_cartesian_coordinates_t astro_get_observer_geocentric_coords(double jd, do
 
 //Returns a body's cartesian coordinates centered on the Sun.
 //Requires vsop87a_milli_js, if you wish to use a different version of VSOP87, replace the class name vsop87a_milli below
-astro_cartesian_coordinates_t get_body_coordinates(astro_body_t body, double et) {
+astro_cartesian_coordinates_t astro_get_body_coordinates(astro_body_t body, double et) {
     astro_cartesian_coordinates_t retval = {0};
     double coords[3];
     switch(body) {
@@ -410,9 +428,9 @@ astro_cartesian_coordinates_t get_body_coordinates(astro_body_t body, double et)
     return retval;
 }
 
-astro_cartesian_coordinates_t astro_get_body_light_time_adjusted(double t, astro_cartesian_coordinates_t origin, astro_body_t body) {
+astro_cartesian_coordinates_t astro_get_body_coordinates_light_time_adjusted(astro_body_t body, astro_cartesian_coordinates_t origin, double t) {
     //Get current position of body
-    astro_cartesian_coordinates_t body_coords = get_body_coordinates(body, t);
+    astro_cartesian_coordinates_t body_coords = astro_get_body_coordinates(body, t);
 
     double newT = t;
 
@@ -426,13 +444,13 @@ astro_cartesian_coordinates_t astro_get_body_light_time_adjusted(double t, astro
         //Convert light time to Julian Millenia, and subtract it from the original value of t
         newT -= lightTime / 24.0 / 60.0 / 60.0 / 365250.0;  
         //Recalculate body position adjusted for light time
-        body_coords = get_body_coordinates(body, newT);
+        body_coords = astro_get_body_coordinates(body, newT);
     }
 
     return body_coords;
 }
 
-astro_horizontal_coordinates_t astro_convert_equatorial_coordinates_to_horizontal(double jd, double lat, double lon, double ra, double dec) {
+astro_horizontal_coordinates_t astro_ra_dec_to_alt_az(double jd, double lat, double lon, double ra, double dec) {
     double GMST = astro_get_GMST(jd) * M_PI/180.0 * 15.0;
     double h = GMST + lon - ra;
 
