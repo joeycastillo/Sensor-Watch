@@ -20,25 +20,34 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <math.h>
-#include "orrery_face.h"
-#include "watch.h"
+#include "astronomy_face.h"
 #include "watch_utility.h"
-#include "vsop87a_micro.h" // smaller size, less accurate
-#include "vsop87a_milli.h"
 #include "astrolib.h"
 
 #define NUM_AVAILABLE_BODIES 9
 
-static const char orrery_celestial_body_names[NUM_AVAILABLE_BODIES][3] = {
+static const char astronomy_available_celestial_bodies[NUM_AVAILABLE_BODIES] = {
+    ASTRO_BODY_SUN,
+    ASTRO_BODY_MERCURY,
+    ASTRO_BODY_VENUS,
+    ASTRO_BODY_MOON,
+    ASTRO_BODY_MARS,
+    ASTRO_BODY_JUPITER,
+    ASTRO_BODY_SATURN,
+    ASTRO_BODY_URANUS,
+    ASTRO_BODY_NEPTUNE
+};
+
+static const char astronomy_celestial_body_names[NUM_AVAILABLE_BODIES][3] = {
+    "SO",   // Sol
     "ME",   // Mercury
     "VE",   // Venus
-    "EA",   // Earth
     "LU",   // Moon (Luna)
     "MA",   // Mars
     "JU",   // Jupiter
@@ -52,66 +61,40 @@ static uint32_t _julian_date(uint16_t year, uint16_t month, uint16_t day) {
     return (1461 * (year + 4800 + (month - 14) / 12)) / 4 + (367 * (month - 2 - 12 * ((month - 14) / 12))) / 12 - (3 * ((year + 4900 + (month - 14) / 12) / 100))/4 + day - 32075;
 }
 
-// TODO: use the version of this function in libastro
- static double jd2et(double jd) {
-     return (jd - 2451545.0) / 365250.0;
- }
-
-static void _orrery_face_recalculate(movement_settings_t *settings, orrery_state_t *state) {
+static void _astronomy_face_recalculate(movement_settings_t *settings, astronomy_state_t *state) {
     watch_date_time date_time = watch_rtc_get_date_time();
     uint32_t timestamp = watch_utility_date_time_to_unix_time(date_time, movement_timezone_offsets[settings->bit.time_zone] * 60);
     date_time = watch_utility_date_time_from_unix_time(timestamp, 0);
     uint32_t jd = _julian_date(date_time.unit.year + WATCH_RTC_REFERENCE_YEAR, date_time.unit.month, date_time.unit.day);
-    double et = jd2et(jd);
-    double r[3] = {0};
 
-    switch(state->active_body_index) {
-        case 0:
-            vsop87a_milli_getMercury(et, r);
-            break;
-        case 1:
-            vsop87a_milli_getVenus(et, r);
-            break;
-        case 2:
-            vsop87a_milli_getEarth(et, r);
-            break;
-        case 3:
-            {
-                 double earth[3];
-                 double emb[3];
-                 vsop87a_milli_getEarth(et, earth);
-                 vsop87a_milli_getEmb(et, emb);
-                 vsop87a_milli_getMoon(earth, emb, r);
-             }
-            break;
-        case 4:
-            vsop87a_milli_getMars(et, r);
-            break;
-        case 5:
-            vsop87a_milli_getJupiter(et, r);
-            break;
-        case 6:
-            vsop87a_milli_getSaturn(et, r);
-            break;
-        case 7:
-            vsop87a_milli_getUranus(et, r);
-            break;
-        case 8:
-            vsop87a_milli_getNeptune(et, r);
-            break;
-    }
-    state->coords[0] = r[0];
-    state->coords[1] = r[1];
-    state->coords[2] = r[2];
+    astro_equatorial_coordinates_t radec_precession = astro_get_ra_dec(jd, astronomy_available_celestial_bodies[state->active_body_index], state->latitude_radians, state->longitude_radians, true);
+    printf("\nParams to convert: %ld %f %f %f %f\n", jd, state->latitude_radians * 180 / M_PI, state->longitude_radians * 180 / M_PI, radec_precession.right_ascension * 180 / M_PI, radec_precession.declination * 180 / M_PI);
+    astro_horizontal_coordinates_t horiz = astro_ra_dec_to_alt_az(jd, state->latitude_radians, state->longitude_radians, radec_precession.right_ascension, radec_precession.declination);
+    astro_equatorial_coordinates_t radec = astro_get_ra_dec(jd, astronomy_available_celestial_bodies[state->active_body_index], state->latitude_radians, state->longitude_radians, false);
+    state->right_ascension = radec.right_ascension * 180 / M_PI;
+    state->declination = radec.declination * 180 / M_PI;
+    state->altitude = horiz.azimuth * 180 / M_PI;
+    state->azimuth = horiz.altitude * 180 / M_PI;
+    state->distance = radec.distance;
+
+    printf("Calculated coordinates for %s on %ld: \n\tRA  = %f\n\tDec = %f\n\tAzi = %f\n\tAlt = %f\n\tDst = %f AU\n",
+            astronomy_celestial_body_names[state->active_body_index],
+            jd,
+            state->right_ascension,
+            state->declination,
+            state->altitude,
+            state->azimuth,
+            state->distance);
 }
 
-static void _orrery_face_update(movement_event_t event, movement_settings_t *settings, orrery_state_t *state) {
+static void _astronomy_face_update(movement_event_t event, movement_settings_t *settings, astronomy_state_t *state) {
     char buf[11];
     switch (state->mode) {
-        case ORRERY_MODE_SELECTING_BODY:
-            watch_display_string("Orrery", 4);
+        case ASTRONOMY_MODE_SELECTING_BODY:
+            watch_clear_colon();
+            watch_display_string(" Astro", 4);
             if (event.subsecond % 2) {
-                watch_display_string((char *)orrery_celestial_body_names[state->active_body_index], 0);
+                watch_display_string((char *)astronomy_celestial_body_names[state->active_body_index], 0);
             } else {
                 watch_display_string("  ", 0);
             }
@@ -134,44 +117,58 @@ static void _orrery_face_update(movement_event_t event, movement_settings_t *set
                 state->animation_state = (state->animation_state + 1) % 3;
             }
             break;
-        case ORRERY_MODE_CALCULATING:
+        case ASTRONOMY_MODE_CALCULATING:
             watch_clear_display();
              // this takes a moment and locks the UI, flash C for "Calculating"
             watch_start_character_blink('C', 100);
-            _orrery_face_recalculate(settings, state);
+            _astronomy_face_recalculate(settings, state);
             watch_stop_blink();
-            state->mode = ORRERY_MODE_DISPLAYING_X;
+            state->mode = ASTRONOMY_MODE_DISPLAYING_ALT;
             // fall through
-        case ORRERY_MODE_DISPLAYING_X:
-            sprintf(buf, "%s X%6d", orrery_celestial_body_names[state->active_body_index], (int16_t)round(state->coords[0] * 100));
+        case ASTRONOMY_MODE_DISPLAYING_ALT:
+            sprintf(buf, "%saL%6d", astronomy_celestial_body_names[state->active_body_index], (int16_t)round(state->altitude * 100));
             watch_display_string(buf, 0);
             break;
-        case ORRERY_MODE_DISPLAYING_Y:
-            sprintf(buf, "%s Y%6d", orrery_celestial_body_names[state->active_body_index], (int16_t)round(state->coords[1] * 100));
+        case ASTRONOMY_MODE_DISPLAYING_AZI:
+            sprintf(buf, "%saZ%6d", astronomy_celestial_body_names[state->active_body_index], (int16_t)round(state->azimuth * 100));
             watch_display_string(buf, 0);
             break;
-        case ORRERY_MODE_DISPLAYING_Z:
-            sprintf(buf, "%s Z%6d", orrery_celestial_body_names[state->active_body_index], (int16_t)round(state->coords[2] * 100));
+        case ASTRONOMY_MODE_DISPLAYING_RA:
+            sprintf(buf, "ra h%6d", (int16_t)round(state->right_ascension * 100));
             watch_display_string(buf, 0);
             break;
-        case ORRERY_MODE_NUM_MODES:
+        case ASTRONOMY_MODE_DISPLAYING_DEC:
+            sprintf(buf, "de d%6d", (int16_t)round(state->declination * 100));
+            watch_display_string(buf, 0);
+            break;
+        case ASTRONOMY_MODE_DISPLAYING_DIST:
+            // if >= 1,000,000 kilometers (all planets), we display distance in AU.
+            if (state->distance >= 0.00668456) {
+                sprintf(buf, "diAU%6d", (uint16_t)round(state->distance * 100));
+            } else {
+                // otherwise distance in km fits in 6 digits. This mode will only happen for Luna.
+                sprintf(buf, "di K%6ld", (uint32_t)round(state->distance * 149597871.0));
+            }
+            watch_display_string(buf, 0);
+            break;
+        case ASTRONOMY_MODE_NUM_MODES:
             // this case does not happen, but we need it to silence a warning.
             break;
     }
 }
 
-void orrery_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
+void astronomy_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
     (void) watch_face_index;
     if (*context_ptr == NULL) {
-        *context_ptr = malloc(sizeof(orrery_state_t));
-        memset(*context_ptr, 0, sizeof(orrery_state_t));
+        *context_ptr = malloc(sizeof(astronomy_state_t));
+        memset(*context_ptr, 0, sizeof(astronomy_state_t));
     }
 }
 
-void orrery_face_activate(movement_settings_t *settings, void *context) {
+void astronomy_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
-    orrery_state_t *state = (orrery_state_t *)context;
+    astronomy_state_t *state = (astronomy_state_t *)context;
     movement_location_t movement_location = (movement_location_t) watch_get_backup_data(1);
     int16_t lat_centi = (int16_t)movement_location.bit.latitude;
     int16_t lon_centi = (int16_t)movement_location.bit.longitude;
@@ -183,58 +180,60 @@ void orrery_face_activate(movement_settings_t *settings, void *context) {
     movement_request_tick_frequency(4);
 }
 
-bool orrery_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
-    (void) settings;
-    orrery_state_t *state = (orrery_state_t *)context;
+bool astronomy_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
+    astronomy_state_t *state = (astronomy_state_t *)context;
 
     switch (event.event_type) {
         case EVENT_ACTIVATE:
         case EVENT_TICK:
-            _orrery_face_update(event, settings, state);
+            _astronomy_face_update(event, settings, state);
             break;
         case EVENT_MODE_BUTTON_UP:
+            // You shouldn't need to change this case; Mode almost always moves to the next watch face.
             movement_move_to_next_face();
             break;
-        case EVENT_LIGHT_BUTTON_DOWN:
-            movement_illuminate_led();
-            break;
         case EVENT_LIGHT_BUTTON_UP:
+            // If you have other uses for the Light button, you can opt not to illuminate the LED for this event.
+            movement_illuminate_led();
             break;
         case EVENT_ALARM_BUTTON_UP:
             switch (state->mode) {
-                case ORRERY_MODE_SELECTING_BODY:
+                case ASTRONOMY_MODE_SELECTING_BODY:
                     // advance to next celestial body (move to calculations with a long press)
                     state->active_body_index = (state->active_body_index + 1) % NUM_AVAILABLE_BODIES;
                     break;
-                case ORRERY_MODE_CALCULATING:
+                case ASTRONOMY_MODE_CALCULATING:
                     // ignore button press during calculations
                     break;
-                case ORRERY_MODE_DISPLAYING_Z:
+                case ASTRONOMY_MODE_DISPLAYING_DIST:
                     // at last mode, wrap around
-                    state->mode = ORRERY_MODE_DISPLAYING_X;
+                    state->mode = ASTRONOMY_MODE_DISPLAYING_ALT;
                     break;
                 default:
                     // otherwise, advance to next mode
                     state->mode++;
                     break;
             }
-            _orrery_face_update(event, settings, state);
+            _astronomy_face_update(event, settings, state);
             break;
         case EVENT_ALARM_LONG_PRESS:
-            if (state->mode == ORRERY_MODE_SELECTING_BODY) {
+            if (state->mode == ASTRONOMY_MODE_SELECTING_BODY) {
                 // celestial body selected! this triggers a calculation in the update method.
-                state->mode = ORRERY_MODE_CALCULATING;
+                state->mode = ASTRONOMY_MODE_CALCULATING;
                 movement_request_tick_frequency(1);
-                _orrery_face_update(event, settings, state);
-            } else if (state->mode != ORRERY_MODE_CALCULATING) {
+                _astronomy_face_update(event, settings, state);
+            } else if (state->mode != ASTRONOMY_MODE_CALCULATING) {
                 // in all modes except "doing a calculation", return to the selection screen.
-                state->mode = ORRERY_MODE_SELECTING_BODY;
+                state->mode = ASTRONOMY_MODE_SELECTING_BODY;
                 movement_request_tick_frequency(4);
-                _orrery_face_update(event, settings, state);
+            _astronomy_face_update(event, settings, state);
             }
             break;
         case EVENT_TIMEOUT:
             movement_move_to_face(0);
+            break;
+        case EVENT_LOW_ENERGY_UPDATE:
+            // TODO?
             break;
         default:
             break;
@@ -243,8 +242,8 @@ bool orrery_face_loop(movement_event_t event, movement_settings_t *settings, voi
     return true;
 }
 
-void orrery_face_resign(movement_settings_t *settings, void *context) {
+void astronomy_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
-    orrery_state_t *state = (orrery_state_t *)context;
-    state->mode = ORRERY_MODE_SELECTING_BODY;
+    astronomy_state_t *state = (astronomy_state_t *)context;
+    state->mode = ASTRONOMY_MODE_SELECTING_BODY;
 }

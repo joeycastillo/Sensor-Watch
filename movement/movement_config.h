@@ -26,11 +26,14 @@
 #define MOVEMENT_CONFIG_H_
 
 #include "movement_faces.h"
+#include "astrolib.h"
 
 const watch_face_t watch_faces[] = {
+    astronomy_face,
     orrery_face,
     simple_clock_face,
     sunrise_sunset_face,
+    set_time_face,
 };
 
 #define MOVEMENT_NUM_FACES (sizeof(watch_faces) / sizeof(watch_face_t))

@@ -22,40 +22,46 @@
  * SOFTWARE.
  */
 
-#ifndef ORRERY_FACE_H_
-#define ORRERY_FACE_H_
+#ifndef ASTRONOMY_FACE_H_
+#define ASTRONOMY_FACE_H_
 
 #include "movement.h"
 
 typedef enum {
-    ORRERY_MODE_SELECTING_BODY = 0,
-    ORRERY_MODE_CALCULATING,
-    ORRERY_MODE_DISPLAYING_X,
-    ORRERY_MODE_DISPLAYING_Y,
-    ORRERY_MODE_DISPLAYING_Z,
-    ORRERY_MODE_NUM_MODES
-} orrery_mode_t;
+    ASTRONOMY_MODE_SELECTING_BODY = 0,
+    ASTRONOMY_MODE_CALCULATING,
+    ASTRONOMY_MODE_DISPLAYING_ALT,
+    ASTRONOMY_MODE_DISPLAYING_AZI,
+    ASTRONOMY_MODE_DISPLAYING_RA,
+    ASTRONOMY_MODE_DISPLAYING_DEC,
+    ASTRONOMY_MODE_DISPLAYING_DIST,
+    ASTRONOMY_MODE_NUM_MODES
+} astronomy_mode_t;
 
 typedef struct {
-    orrery_mode_t mode;
+    astronomy_mode_t mode;
     uint8_t active_body_index;
+    uint8_t animation_state;
     double latitude_radians;
     double longitude_radians;
-    double coords[3];
-    uint8_t animation_state;
-} orrery_state_t;
+    double right_ascension;
+    double declination;
+    double altitude;
+    double azimuth;
+    double distance;
+} astronomy_state_t;
 
-void orrery_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
-void orrery_face_activate(movement_settings_t *settings, void *context);
-bool orrery_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
-void orrery_face_resign(movement_settings_t *settings, void *context);
+void astronomy_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
+void astronomy_face_activate(movement_settings_t *settings, void *context);
+bool astronomy_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void astronomy_face_resign(movement_settings_t *settings, void *context);
 
-#define orrery_face ((const watch_face_t){ \
-    orrery_face_setup, \
-    orrery_face_activate, \
-    orrery_face_loop, \
-    orrery_face_resign, \
+#define astronomy_face ((const watch_face_t){ \
+    astronomy_face_setup, \
+    astronomy_face_activate, \
+    astronomy_face_loop, \
+    astronomy_face_resign, \
     NULL, \
 })
 
-#endif // ORRERY_FACE_H_
+#endif // ASTRONOMY_FACE_H_

@@ -46,6 +46,7 @@
 #include "blinky_face.h"
 #include "moon_phase_face.h"
 #include "orrery_face.h"
+#include "astronomy_face.h"
 // New includes go above this line.
 
 #endif // MOVEMENT_FACES_H_
