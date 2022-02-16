@@ -274,21 +274,6 @@ astro_matrix_t astro_get_precession_matrix(double jd) {
     astro_matrix_t m6 = astro_dot_product(m5, m2);
     astro_matrix_t precessionMatrix = astro_dot_product(m6, m1);
 
-    /*
-    //Compute nutation
-    double epsA = e0 - ((46.83676900 - (0.0001831 + (0.0020034 - (0.000000576 - 0.000000043400*t) *t) *t) *t) *t) * Arcsec2Radians; //5.40
-    astro_nutation_t nut = eraNut00a(0,jd);
-    double dpsi = nut[0];
-    double deps = nut[1];
-    astro_matrix_t m7 = astro_get_x_rotation_matrix(-epsA);
-    astro_matrix_t m8 = astro_get_z_rotation_matrix(dpsi);
-    astro_matrix_t m9 = astro_get_x_rotation_matrix(epsA + deps);
-    astro_matrix_t m10 = astro_dot_product(m7, m8);
-    astro_matrix_t m11 = astro_dot_product(m10, m9);
-    astro_matrix_t nutationMatrix = astro_dot_product(precessionMatrix, m11);
-    return nutationMatrix;
-    */
-
     return precessionMatrix;
 }
 
