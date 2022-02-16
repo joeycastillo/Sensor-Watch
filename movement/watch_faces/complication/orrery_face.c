@@ -101,22 +101,20 @@ static void _orrery_face_recalculate(movement_settings_t *settings, orrery_state
             // will not happen, just silencing warning
             break;
     }
-    // state->coords[0] = radec.right_ascension * 180 / M_PI;
-    // state->coords[1] = radec.declination * 180 / M_PI;
+    state->coords[0] = radec.right_ascension * 180 / M_PI;
+    state->coords[1] = radec.declination * 180 / M_PI;
     state->coords[2] = radec.distance;
 
-    printf("Params to convert: %ld %f %f %f %f\n", jd, lat, lon, radec_precession.right_ascension * 180 / M_PI, radec_precession.declination * 180 / M_PI);
+    printf("\nParams to convert: %ld %f %f %f %f\n", jd, lat, lon, radec_precession.right_ascension * 180 / M_PI, radec_precession.declination * 180 / M_PI);
     horiz = astro_convert_equatorial_coordinates_to_horizontal(jd, lat * (M_PI / 180.0), lon * (M_PI / 180.0), radec_precession.right_ascension, radec_precession.declination);
-    state->coords[0] = horiz.altitude * 180 / M_PI;
-    state->coords[1] = horiz.azimuth * 180 / M_PI;
-
-    printf("Calculated coordinates for %s on %ld: \n\tRA  = %f\n\tDec = %f\n\tAzi = %f\n\tAlt = %f\n",
+    printf("Calculated coordinates for %s on %ld: \n\tRA  = %f\n\tDec = %f\n\tAzi = %f\n\tAlt = %f\n\tDst = %f AU\n",
             orrery_celestial_body_names[state->active_body],
             jd,
             radec.right_ascension * 180 / M_PI,
             radec.declination * 180 / M_PI,
             horiz.azimuth * 180 / M_PI,
-            horiz.altitude * 180 / M_PI);
+            horiz.altitude * 180 / M_PI,
+            radec.distance);
 }
 
 static void _orrery_face_update(movement_event_t event, movement_settings_t *settings, orrery_state_t *state) {
@@ -154,11 +152,11 @@ static void _orrery_face_update(movement_event_t event, movement_settings_t *set
             state->mode = ORRERY_MODE_DISPLAYING_X;
             // fall through
         case ORRERY_MODE_DISPLAYING_X:
-            sprintf(buf, "  AL%6d", (int16_t)round(state->coords[0] * 100));
+            sprintf(buf, "rA  %6d", (int16_t)round(state->coords[0] * 100));
             watch_display_string(buf, 0);
             break;
         case ORRERY_MODE_DISPLAYING_Y:
-            sprintf(buf, "  AZ%6d", (int16_t)round(state->coords[1] * 100));
+            sprintf(buf, "dE  %6d", (int16_t)round(state->coords[1] * 100));
             watch_display_string(buf, 0);
             break;
         case ORRERY_MODE_DISPLAYING_Z:
