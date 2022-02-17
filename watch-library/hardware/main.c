@@ -30,7 +30,6 @@
 #include <stdio.h>
 #include "saml22.h"
 #include "hal_init.h"
-#include "pins.h"
 #include "watch.h"
 #include "tusb.h"
 
