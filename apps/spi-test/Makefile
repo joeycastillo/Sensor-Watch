@@ -1,10 +1,10 @@
-TOP = ../../..
+TOP = ../..
 include $(TOP)/make.mk
 
 INCLUDES += \
-  -I../
+  -I./
 
 SRCS += \
-  ../app.c
+  ./app.c
 
 include $(TOP)/rules.mk
