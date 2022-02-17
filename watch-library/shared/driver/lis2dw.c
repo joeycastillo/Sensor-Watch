@@ -50,10 +50,10 @@ bool lis2dw_have_new_data(void) {
     return retval & LIS2DW_STATUS_VAL_DRDY;
 }
 
-lis2dw_reading lis2dw_get_raw_reading(void) {
+lis2dw_reading_t lis2dw_get_raw_reading(void) {
     uint8_t buffer[6];
     uint8_t reg = LIS2DW_REG_OUT_X_L | 0x80; // set high bit for consecutive reads
-    lis2dw_reading retval;
+    lis2dw_reading_t retval;
 
     watch_i2c_send(LIS2DW_ADDRESS, &reg, 1);
     watch_i2c_receive(LIS2DW_ADDRESS, (uint8_t *)&buffer, 6);
@@ -68,8 +68,8 @@ lis2dw_reading lis2dw_get_raw_reading(void) {
     return retval;
 }
 
- lis2dw_acceleration_measurement lis2dw_get_acceleration_measurement(lis2dw_reading *out_reading) {
-    lis2dw_reading reading = lis2dw_get_raw_reading();
+ lis2dw_acceleration_measurement_t lis2dw_get_acceleration_measurement(lis2dw_reading_t *out_reading) {
+    lis2dw_reading_t reading = lis2dw_get_raw_reading();
     uint8_t range = lis2dw_get_range();
     if (out_reading != NULL) *out_reading = reading;
 
@@ -82,7 +82,7 @@ lis2dw_reading lis2dw_get_raw_reading(void) {
     if (range == LIS2DW_RANGE_8_G) lsb_value = 16;
     if (range == LIS2DW_RANGE_16_G) lsb_value = 48;
 
-    lis2dw_acceleration_measurement retval;
+    lis2dw_acceleration_measurement_t retval;
 
     retval.x = lsb_value * ((float)reading.x / 64000.0);
     retval.y = lsb_value * ((float)reading.y / 64000.0);
@@ -103,7 +103,6 @@ lis2dw_range_t lis2dw_get_range(void) {
     retval >>= 4;
     return (lis2dw_range_t)retval;
 }
-
 
 void lis2dw_set_data_rate(lis2dw_data_rate_t dataRate) {
     uint8_t val = watch_i2c_read8(LIS2DW_ADDRESS, LIS2DW_REG_CTRL1) & ~(0b1111 << 4);
@@ -136,4 +135,32 @@ void lis2dw_set_low_noise_mode(bool on) {
 
 bool lis2dw_get_low_noise_mode(void) {
     return (watch_i2c_read8(LIS2DW_ADDRESS, LIS2DW_REG_CTRL1) & LIS2DW_CTRL6_VAL_LOW_NOISE) != 0;
+}
+
+inline void lis2dw_disable_fifo(void) {
+    watch_i2c_write8(LIS2DW_ADDRESS, LIS2DW_REG_FIFO_CTRL, LIS2DW_FIFO_CTRL_MODE_OFF);
+}
+
+inline void lis2dw_enable_fifo(void) {
+    watch_i2c_write8(LIS2DW_ADDRESS, LIS2DW_REG_FIFO_CTRL, LIS2DW_FIFO_CTRL_MODE_COLLECT_AND_STOP | LIS2DW_FIFO_CTRL_FTH);
+}
+
+bool lis2dw_read_fifo(lis2dw_fifo_t *fifo_data) {
+    uint8_t temp = watch_i2c_read8(LIS2DW_ADDRESS, LIS2DW_REG_FIFO_SAMPLE);
+    bool overrun = !!(temp & LIS2DW_FIFO_SAMPLE_OVERRUN);
+    uint8_t buffer[6];
+
+    fifo_data->count = temp & LIS2DW_FIFO_SAMPLE_COUNT;
+
+    for(int i = 0; i < fifo_data->count; i++) {
+        watch_i2c_receive(LIS2DW_ADDRESS, (uint8_t *)&buffer, 6);
+        fifo_data->readings[i] = lis2dw_get_raw_reading();
+    }
+
+    return overrun;
+}
+
+void lis2dw_clear_fifo(void) {
+    watch_i2c_write8(LIS2DW_ADDRESS, LIS2DW_REG_FIFO_CTRL, LIS2DW_FIFO_CTRL_MODE_OFF);
+    watch_i2c_write8(LIS2DW_ADDRESS, LIS2DW_REG_FIFO_CTRL, LIS2DW_FIFO_CTRL_MODE_COLLECT_AND_STOP | LIS2DW_FIFO_CTRL_FTH);
 }
