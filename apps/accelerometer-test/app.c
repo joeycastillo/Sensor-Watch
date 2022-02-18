@@ -28,6 +28,10 @@ static void cb_tick(void) {
     bool overrun = lis2dw_read_fifo(&fifo);
     printf("FIFO captured %d readings.\n", fifo.count);
     if (overrun) printf("\tThere was an overrun!\n\n");
+
+    printf("%d, %d, %d\n", fifo.readings[0].x, fifo.readings[0].y, fifo.readings[0].z);
+    printf("%d, %d, %d\n", fifo.readings[10].x, fifo.readings[10].y, fifo.readings[10].z);
+    printf("%d, %d, %d\n", fifo.readings[20].x, fifo.readings[20].y, fifo.readings[20].z);
 }
 
 void app_init(void) {
