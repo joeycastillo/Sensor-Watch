@@ -38,16 +38,16 @@ static bool wait_for_flash_ready(void) {
     do {
         ok = spi_flash_read_command(CMD_READ_STATUS, read_status_response, 1);
     } while ((read_status_response[0] & 0x3) != 0);
-    delay_ms(10);
+    delay_ms(1); // why do i need this?
     watch_set_pin_level(A3, true);
     return ok;
 }
 
 static void print_records_at_page(uint16_t page) {
-    if (page < 477) return;
+    if (page < 650) return;
     acceleromter_training_record_t records[32];
-    static uint32_t timestamp;
-    static uint16_t temperature;
+    static uint32_t timestamp = 0;
+    static uint16_t temperature = 0;
     wait_for_flash_ready();
     spi_flash_read_data(page * 256, (void *)records, 256);
     for(int i = 0; i < 32; i++) {
@@ -71,7 +71,6 @@ static void print_records_at_page(uint16_t page) {
 }
 
 static void print_records() {
-    printf("printing records\n");
     uint8_t buf[256];
     for(int16_t i = 0; i < 4; i++) {
         wait_for_flash_ready();
@@ -252,7 +251,6 @@ bool app_loop(void) {
             printf("Partial write\n");
             write_buffer_to_page((uint8_t *)records, next_available_page);
             wait_for_flash_ready();
-            delay_ms(10);
         }
     }
 
