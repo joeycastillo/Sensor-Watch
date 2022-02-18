@@ -71,8 +71,8 @@ def update_include_file(file_path, indicator_line, line_to_insert):
 
 def main():
     parser = argparse.ArgumentParser(description="Create a new watch face.")
-    parser.add_argument("watch_face_type", metavar="face_type", type=str, choices=["complication", "clock"], help="The type of watch face to create, either \"complication\" or \"clock\"")
-    parser.add_argument("watch_face_name", metavar="face_name", type=str, help="The name of the watch face")
+    parser.add_argument("watch_face_type", metavar="face_type", type=str, choices=["clock", "complication", "demo", "sensor", "settings"], help="The type of watch face to create ('clock', 'complication', 'demo', 'sensor', 'settings')")
+    parser.add_argument("watch_face_name", metavar="face_name", type=str, help="The name of the watch face. Use underscores between words if you have more than one.")
     parser.add_argument("--author-name", metavar="author_name", type=str, nargs='*', help="The name of the author")
 
     args = parser.parse_args()
