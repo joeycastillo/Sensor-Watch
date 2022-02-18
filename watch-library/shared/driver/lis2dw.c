@@ -148,7 +148,6 @@ inline void lis2dw_enable_fifo(void) {
 bool lis2dw_read_fifo(lis2dw_fifo_t *fifo_data) {
     uint8_t temp = watch_i2c_read8(LIS2DW_ADDRESS, LIS2DW_REG_FIFO_SAMPLE);
     bool overrun = !!(temp & LIS2DW_FIFO_SAMPLE_OVERRUN);
-    uint8_t buffer[6];
 
     fifo_data->count = temp & LIS2DW_FIFO_SAMPLE_COUNT;
 

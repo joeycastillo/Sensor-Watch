@@ -28,9 +28,8 @@
 #include "movement_faces.h"
 
 const watch_face_t watch_faces[] = {
+    accelerometer_data_acquisition_face,
     simple_clock_face,
-    beats_face,
-    voltage_face,
     preferences_face,
     set_time_face,
 };

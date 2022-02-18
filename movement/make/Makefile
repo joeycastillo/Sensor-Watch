@@ -50,6 +50,7 @@ SRCS += \
   ../watch_faces/complication/countdown_face.c \
   ../watch_faces/complication/blinky_face.c \
   ../watch_faces/complication/moon_phase_face.c \
+  ../watch_faces/sensor/accelerometer_data_acquisition_face.c \
 # New watch faces go above this line.
 
 # Leave this line at the bottom of the file; it has all the targets for making your project.
