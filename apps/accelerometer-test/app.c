@@ -16,22 +16,13 @@ static void cb_alarm_pressed(void) {
 
 uint8_t interrupts = 0;
 uint8_t last_interrupts = 0;
-uint8_t ticks = 0;
+bool tick = false;
 char buf[13] = {0};
 
 static void cb_tick(void) {
-    watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
     if (!lis2dw_have_new_data()) return;
 
-    watch_set_indicator(WATCH_INDICATOR_SIGNAL);
-    lis2dw_fifo_t fifo;
-    bool overrun = lis2dw_read_fifo(&fifo);
-    printf("FIFO captured %d readings.\n", fifo.count);
-    if (overrun) printf("\tThere was an overrun!\n\n");
-
-    printf("%d, %d, %d\n", fifo.readings[0].x, fifo.readings[0].y, fifo.readings[0].z);
-    printf("%d, %d, %d\n", fifo.readings[10].x, fifo.readings[10].y, fifo.readings[10].z);
-    printf("%d, %d, %d\n", fifo.readings[20].x, fifo.readings[20].y, fifo.readings[20].z);
+    tick = true;
 }
 
 void app_init(void) {
@@ -68,8 +59,14 @@ void app_wake_from_standby(void) {
 }
 
 bool app_loop(void) {
-    // TODO: interrupt configuration for LIS2DW
-    watch_display_string(buf, 0);
+    if (tick) {
+        tick = false;
+        lis2dw_fifo_t fifo;
+        lis2dw_read_fifo(&fifo);
+        for(int i = 0; i < fifo.count; i++) {
+            printf("%d, %d, %d, %d, %d\n", fifo.readings[i].x, fifo.readings[i].y, fifo.readings[i].z, i, fifo.count);
+        }
+    }
 
     return true;
 }
