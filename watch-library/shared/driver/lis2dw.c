@@ -153,7 +153,6 @@ bool lis2dw_read_fifo(lis2dw_fifo_t *fifo_data) {
     fifo_data->count = temp & LIS2DW_FIFO_SAMPLE_COUNT;
 
     for(int i = 0; i < fifo_data->count; i++) {
-        watch_i2c_receive(LIS2DW_ADDRESS, (uint8_t *)&buffer, 6);
         fifo_data->readings[i] = lis2dw_get_raw_reading();
     }
 
