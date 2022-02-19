@@ -115,6 +115,30 @@ lis2dw_data_rate_t lis2dw_get_data_rate(void) {
     return watch_i2c_read8(LIS2DW_ADDRESS, LIS2DW_REG_CTRL1) >> 4;
 }
 
+void lis2dw_set_filter_type(lis2dw_filter_t bwfilter) {
+    uint8_t val = watch_i2c_read8(LIS2DW_ADDRESS, LIS2DW_REG_CTRL6) & ~(LIS2DW_CTRL6_VAL_FDS_HIGH);
+    uint8_t bits = bwfilter << 3;
+    watch_i2c_write8(LIS2DW_ADDRESS, LIS2DW_REG_CTRL6, val | bits);
+}
+
+lis2dw_filter_t lis2dw_get_filter_type(void) {
+    uint8_t retval = watch_i2c_read8(LIS2DW_ADDRESS, LIS2DW_REG_CTRL6) & (LIS2DW_CTRL6_VAL_FDS_HIGH);
+    retval >>= 3;
+    return (lis2dw_filter_t)retval;
+}
+
+void lis2dw_set_bandwidth_filtering(lis2dw_bandwidth_filtering_mode_t bwfilter) {
+    uint8_t val = watch_i2c_read8(LIS2DW_ADDRESS, LIS2DW_REG_CTRL6) & ~(LIS2DW_CTRL6_VAL_BANDWIDTH_DIV20);
+    uint8_t bits = bwfilter << 6;
+    watch_i2c_write8(LIS2DW_ADDRESS, LIS2DW_REG_CTRL6, val | bits);
+}
+
+lis2dw_bandwidth_filtering_mode_t lis2dw_get_filtering(void) {
+    uint8_t retval = watch_i2c_read8(LIS2DW_ADDRESS, LIS2DW_REG_CTRL6) & (LIS2DW_CTRL6_VAL_BANDWIDTH_DIV20);
+    retval >>= 6;
+    return (lis2dw_bandwidth_filtering_mode_t)retval;
+}
+
 void lis2dw_set_low_power_mode(lis2dw_low_power_mode_t mode) {
     uint8_t val = watch_i2c_read8(LIS2DW_ADDRESS, LIS2DW_REG_CTRL1) & ~(0b11);
     uint8_t bits = mode & 0b11;

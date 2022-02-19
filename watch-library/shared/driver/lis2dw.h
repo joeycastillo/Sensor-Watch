@@ -88,6 +88,11 @@ typedef enum {
 } lis2dw_bandwidth_filtering_mode_t;
 
 typedef enum {
+  LIS2DW_FILTER_LOW_PASS = 0,
+  LIS2DW_FILTER_HIGH_PASS = 1,
+} lis2dw_filter_t;
+
+typedef enum {
   LIS2DW_RANGE_16_G = 0b11, // +/- 16g
   LIS2DW_RANGE_8_G = 0b10,  // +/- 8g
   LIS2DW_RANGE_4_G = 0b01,  // +/- 4g
@@ -167,7 +172,8 @@ typedef enum {
 #define LIS2DW_CTRL6_VAL_RANGE_4G         (LIS2DW_RANGE_4_G << 4)
 #define LIS2DW_CTRL6_VAL_RANGE_8G         (LIS2DW_RANGE_8_G << 4)
 #define LIS2DW_CTRL6_VAL_RANGE_16G        (LIS2DW_RANGE_16_G << 4)
-#define LIS2DW_CTRL6_VAL_FDS              0b00001000
+#define LIS2DW_CTRL6_VAL_FDS_LOW          (LIS2DW_FILTER_LOW_PASS << 3)
+#define LIS2DW_CTRL6_VAL_FDS_HIGH         (LIS2DW_FILTER_HIGH_PASS << 3)
 #define LIS2DW_CTRL6_VAL_LOW_NOISE        0b00000100
 
 #define LIS2DW_REG_OUT_TEMP 0x26
@@ -276,6 +282,14 @@ lis2dw_range_t lis2dw_get_range(void);
 void lis2dw_set_data_rate(lis2dw_data_rate_t dataRate);
 
 lis2dw_data_rate_t lis2dw_get_data_rate(void);
+
+void lis2dw_set_filter_type(lis2dw_filter_t filter);
+
+lis2dw_filter_t lis2dw_get_filter_type(void);
+
+void lis2dw_set_bandwidth_filtering(lis2dw_bandwidth_filtering_mode_t bwfilter);
+
+lis2dw_bandwidth_filtering_mode_t lis2dw_get_filtering(void);
 
 void lis2dw_set_low_power_mode(lis2dw_low_power_mode_t mode);
 
