@@ -31,6 +31,7 @@ static const char activity_types[][3] = {
     "SL",   // Sleeping
     "WH",   // Washing Hands
     "WA",   // Walking
+    "WB",   // Walking with Beverage
     "JO",   // Jogging
     "RU",   // Running
     "BI",   // Biking

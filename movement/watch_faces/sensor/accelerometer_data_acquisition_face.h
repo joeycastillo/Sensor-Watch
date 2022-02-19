@@ -34,15 +34,28 @@
 
 typedef union {
     struct {
-        int16_t temperature_and_type : 16; // high two bits are record type, val & 0xFFF is temperature
+        union {
+            int16_t record_type : 2;
+            int16_t range : 2;
+            int16_t temperature : 12;
+        } info;
         int8_t char1 : 8;
         int8_t char2 : 8;
         int32_t timestamp : 32;
     } header;
     struct {
-        int16_t x_accel_and_type : 16;   // high two bits are record type, val & 0x3FFF is x_accel
-        int16_t y_accel : 16;
-        int16_t z_accel : 16;
+        union {
+            int16_t mode : 2;
+            int16_t accel : 14;
+        } x;
+        union {
+            int16_t lpmode : 2;
+            int16_t accel : 14;
+        } y;
+        union {
+            int16_t filter : 2;
+            int16_t accel : 14;
+        } z;
         int32_t counter : 16;
     } data;
     uint64_t value;
