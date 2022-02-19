@@ -31,12 +31,8 @@ bool lis2dw_begin(void) {
     }
     watch_i2c_write8(LIS2DW_ADDRESS, LIS2DW_REG_CTRL2, LIS2DW_CTRL2_VAL_BOOT);
     watch_i2c_write8(LIS2DW_ADDRESS, LIS2DW_REG_CTRL2, LIS2DW_CTRL2_VAL_SOFT_RESET);
-    // Start at lowest possible data rate and lowest possible power mode
-    watch_i2c_write8(LIS2DW_ADDRESS, LIS2DW_REG_CTRL1, LIS2DW_CTRL1_VAL_ODR_LOWEST | LIS2DW_CTRL1_VAL_MODE_LOW_POWER | LIS2DW_CTRL1_VAL_LPMODE_1);
     // Enable block data update (output registers not updated until MSB and LSB have been read) and address autoincrement
     watch_i2c_write8(LIS2DW_ADDRESS, LIS2DW_REG_CTRL2, LIS2DW_CTRL2_VAL_BDU | LIS2DW_CTRL2_VAL_IF_ADD_INC);
-    // Set range to ±2G
-    watch_i2c_write8(LIS2DW_ADDRESS, LIS2DW_REG_CTRL6, LIS2DW_CTRL6_VAL_RANGE_2G);
 
     return true;
 }

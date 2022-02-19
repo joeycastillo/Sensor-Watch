@@ -28,6 +28,7 @@
 
 static const char activity_types[][3] = {
     "ID",   // Idle
+    "OF",   // Off-wrist
     "SL",   // Sleeping
     "WH",   // Washing Hands
     "WA",   // Walking
@@ -281,7 +282,13 @@ static void advance_current_setting(accelerometer_data_acquisition_state_t *stat
 
 static void start_reading(accelerometer_data_acquisition_state_t *state) {
     (void) state;
-    printf("TODO: Activate I2C bus and turn on accelerometer\n");
+    watch_enable_i2c();
+    lis2dw_begin();
+    lis2dw_set_data_rate(LIS2DW_DATA_RATE_25_HZ);
+    lis2dw_set_range(LIS2DW_RANGE_4_G);
+    lis2dw_set_low_noise_mode(true);
+    lis2dw_enable_fifo();
+
     printf("TODO: Write header\n");
 }
 
@@ -301,5 +308,6 @@ static void finish_reading(accelerometer_data_acquisition_state_t *state) {
         state->next_available_page++;
         state->pos = 0;
     }
-    printf("TODO: Turn off accelerometer and disable I2C bus\n");
+    lis2dw_set_data_rate(LIS2DW_DATA_RATE_POWERDOWN);
+    watch_disable_i2c();
 }

@@ -36,10 +36,10 @@ void app_init(void) {
 
     watch_enable_i2c();
     lis2dw_begin();
-    lis2dw_set_low_power_mode(LIS2DW_LP_MODE_2); // lowest power 14-bit mode, 25 Hz is 3.5 µA @ 1.8V w/ low noise, 3µA without
-    lis2dw_set_low_noise_mode(true); // consumes a little more power
-    lis2dw_set_range(LIS2DW_CTRL6_VAL_RANGE_4G);
-    lis2dw_set_data_rate(LIS2DW_DATA_RATE_25_HZ); // is this enough for training?
+    lis2dw_set_data_rate(LIS2DW_DATA_RATE_25_HZ);
+    lis2dw_set_range(LIS2DW_RANGE_4_G);
+    lis2dw_set_low_noise_mode(true);
+    lis2dw_enable_fifo();
 
     lis2dw_enable_fifo();
 
