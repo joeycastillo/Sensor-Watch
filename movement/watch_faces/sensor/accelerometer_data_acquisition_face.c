@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "accelerometer_data_acquisition_face.h"
+#include "lis2dw.h"
 
 static const char activity_types[][3] = {
     "ID",   // Idle
@@ -61,7 +62,6 @@ void accelerometer_data_acquisition_face_setup(movement_settings_t *settings, ui
         state->beep_with_countdown = true;
         state->countdown_length = 10;
     }
-    // Do any pin or peripheral setup here; this will be called whenever the watch wakes from deep sleep.
 }
 
 void accelerometer_data_acquisition_face_activate(movement_settings_t *settings, void *context) {

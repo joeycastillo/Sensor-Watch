@@ -34,6 +34,16 @@ bool lis2dw_begin(void) {
     // Enable block data update (output registers not updated until MSB and LSB have been read) and address autoincrement
     watch_i2c_write8(LIS2DW_ADDRESS, LIS2DW_REG_CTRL2, LIS2DW_CTRL2_VAL_BDU | LIS2DW_CTRL2_VAL_IF_ADD_INC);
 
+    // Parameters at startup: 
+    //  * Data rate 0 (powered down)
+    //  * Low power mode enabled
+    //  * LP mode 1 (12-bit)
+    //  * Bandwidth filtering ODR/2
+    //  * Low pass filter path
+    //  * ±2g range
+    //  * Low noise mode off
+    //  * FIFO disabled
+
     return true;
 }
 

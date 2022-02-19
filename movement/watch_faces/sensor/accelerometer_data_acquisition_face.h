@@ -35,28 +35,28 @@
 typedef union {
     struct {
         union {
-            int16_t record_type : 2;
-            int16_t range : 2;
-            int16_t temperature : 12;
+            int16_t record_type : 2;    // see above, helps us identify record types when reading back
+            int16_t range : 2;          // accelerometer range (see lis2dw_range_t)
+            int16_t temperature : 12;   // raw value from the temperature sensor
         } info;
-        int8_t char1 : 8;
-        int8_t char2 : 8;
-        int32_t timestamp : 32;
+        int8_t char1 : 8;               // First character of the activity type
+        int8_t char2 : 8;               // Second character of the activity type
+        int32_t timestamp : 32;         // UNIX timestamp for the measurement
     } header;
     struct {
         union {
-            int16_t mode : 2;
-            int16_t accel : 14;
+            int16_t record_type : 2;    // duplicate; this is the same field as info above
+            int16_t accel : 14;         // X acceleration value, raw
         } x;
         union {
-            int16_t lpmode : 2;
-            int16_t accel : 14;
+            int16_t lpmode : 2;         // low power mode (see lis2dw_low_power_mode_t)
+            int16_t accel : 14;         // Y acceleration value, raw
         } y;
         union {
-            int16_t filter : 2;
-            int16_t accel : 14;
+            int16_t filter : 2;         // bandwidth filtering selection (see lis2dw_bandwidth_filtering_mode_t)
+            int16_t accel : 14;         // Z acceleration value, raw
         } z;
-        int32_t counter : 16;
+        int32_t counter : 16;           // number of seconds since timestamp in header
     } data;
     uint64_t value;
 } accelerometer_data_acquisition_record_t;
