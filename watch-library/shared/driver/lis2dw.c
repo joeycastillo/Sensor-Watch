@@ -137,7 +137,7 @@ void lis2dw_set_bandwidth_filtering(lis2dw_bandwidth_filtering_mode_t bwfilter) 
     watch_i2c_write8(LIS2DW_ADDRESS, LIS2DW_REG_CTRL6, val | bits);
 }
 
-lis2dw_bandwidth_filtering_mode_t lis2dw_get_filtering(void) {
+lis2dw_bandwidth_filtering_mode_t lis2dw_get_bandwidth_filtering(void) {
     uint8_t retval = watch_i2c_read8(LIS2DW_ADDRESS, LIS2DW_REG_CTRL6) & (LIS2DW_CTRL6_VAL_BANDWIDTH_DIV20);
     retval >>= 6;
     return (lis2dw_bandwidth_filtering_mode_t)retval;

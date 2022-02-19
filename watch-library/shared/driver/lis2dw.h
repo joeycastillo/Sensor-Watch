@@ -291,7 +291,7 @@ lis2dw_filter_t lis2dw_get_filter_type(void);
 
 void lis2dw_set_bandwidth_filtering(lis2dw_bandwidth_filtering_mode_t bwfilter);
 
-lis2dw_bandwidth_filtering_mode_t lis2dw_get_filtering(void);
+lis2dw_bandwidth_filtering_mode_t lis2dw_get_bandwidth_filtering(void);
 
 void lis2dw_set_mode(lis2dw_mode_t mode);
 
