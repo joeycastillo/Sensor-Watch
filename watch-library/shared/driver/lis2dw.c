@@ -91,6 +91,10 @@ lis2dw_reading_t lis2dw_get_raw_reading(void) {
     return retval;
 }
 
+uint16_t lis2dw_get_temperature(void) {
+    return watch_i2c_read16(LIS2DW_ADDRESS, LIS2DW_REG_OUT_TEMP_L);
+}
+
 void lis2dw_set_range(lis2dw_range_t range) {
     uint8_t val = watch_i2c_read8(LIS2DW_ADDRESS, LIS2DW_REG_CTRL6) & ~(LIS2DW_RANGE_16_G << 4);
     uint8_t bits = range << 4;

@@ -275,6 +275,8 @@ lis2dw_reading_t lis2dw_get_raw_reading(void);
 
 lis2dw_acceleration_measurement_t lis2dw_get_acceleration_measurement(lis2dw_reading_t *out_reading);
 
+uint16_t lis2dw_get_temperature(void);
+
 void lis2dw_set_range(lis2dw_range_t range);
 
 lis2dw_range_t lis2dw_get_range(void);
