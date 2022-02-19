@@ -25,7 +25,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include "accelerometer_data_acquisition_face.h"
+#include "watch_utility.h"
 #include "lis2dw.h"
+
+#define ACCELEROMETER_RANGE LIS2DW_RANGE_4_G
+#define ACCELEROMETER_LPMODE LIS2DW_LP_MODE_1
+#define ACCELEROMETER_FILTER LIS2DW_BANDWIDTH_FILTER_DIV2
+#define ACCELEROMETER_LOW_NOISE true
+#define SECONDS_TO_RECORD 15
 
 static const char activity_types[][3] = {
     "ID",   // Idle
@@ -48,7 +55,7 @@ static const char activity_types[][3] = {
 static void update(accelerometer_data_acquisition_state_t *state);
 static void update_settings(accelerometer_data_acquisition_state_t *state);
 static void advance_current_setting(accelerometer_data_acquisition_state_t *state);
-static void start_reading(accelerometer_data_acquisition_state_t *state);
+static void start_reading(accelerometer_data_acquisition_state_t *state, movement_settings_t *settings);
 static void continue_reading(accelerometer_data_acquisition_state_t *state);
 static void finish_reading(accelerometer_data_acquisition_state_t *state);
 
@@ -60,7 +67,7 @@ void accelerometer_data_acquisition_face_setup(movement_settings_t *settings, ui
         memset(*context_ptr, 0, sizeof(accelerometer_data_acquisition_state_t));
         accelerometer_data_acquisition_state_t *state = (accelerometer_data_acquisition_state_t *)*context_ptr;
         state->beep_with_countdown = true;
-        state->countdown_length = 10;
+        state->countdown_length = 3;
     }
 }
 
@@ -87,10 +94,10 @@ bool accelerometer_data_acquisition_face_loop(movement_event_t event, movement_s
                         if (state->countdown_ticks == 0) {
                             // at zero, begin reading
                             state->mode = ACCELEROMETER_DATA_ACQUISITION_MODE_SENSING;
-                            state->reading_ticks = 15;
+                            state->reading_ticks = SECONDS_TO_RECORD + 1;
                             // also beep if the user asked for it
                             if (state->beep_with_countdown) watch_buzzer_play_note(BUZZER_NOTE_C6, 75);
-                            start_reading(state);
+                            start_reading(state, settings);
                         } else if (state->countdown_ticks < 3) {
                             // beep for last two ticks before reading
                             if (state->beep_with_countdown) watch_buzzer_play_note(BUZZER_NOTE_C5, 75);
@@ -280,33 +287,112 @@ static void advance_current_setting(accelerometer_data_acquisition_state_t *stat
     }
 }
 
-static void start_reading(accelerometer_data_acquisition_state_t *state) {
+bool deleteme = false;
+
+static void start_reading(accelerometer_data_acquisition_state_t *state, movement_settings_t *settings) {
     (void) state;
     watch_enable_i2c();
     lis2dw_begin();
     lis2dw_set_data_rate(LIS2DW_DATA_RATE_25_HZ);
-    lis2dw_set_range(LIS2DW_RANGE_4_G);
-    lis2dw_set_low_noise_mode(true);
+    lis2dw_set_range(ACCELEROMETER_RANGE);
+    lis2dw_set_low_power_mode(ACCELEROMETER_LPMODE);
+    lis2dw_set_bandwidth_filtering(ACCELEROMETER_FILTER);
+    if (ACCELEROMETER_LOW_NOISE) lis2dw_set_low_noise_mode(true);
     lis2dw_enable_fifo();
 
-    printf("TODO: Write header\n");
+    accelerometer_data_acquisition_record_t record;
+    watch_date_time date_time = watch_rtc_get_date_time();
+    state->starting_timestamp = watch_utility_date_time_to_unix_time(date_time, movement_timezone_offsets[settings->bit.time_zone] * 60);
+    record.header.info.record_type = ACCELEROMETER_DATA_ACQUISITION_HEADER;
+    record.header.info.range = ACCELEROMETER_RANGE;
+    record.header.info.temperature = lis2dw_get_temperature();
+    record.header.char1 = activity_types[state->activity_type_index][0];
+    record.header.char2 = activity_types[state->activity_type_index][1];
+    record.header.timestamp = state->starting_timestamp;
+
+    uint8_t range = 0;
+
+    switch (record.header.info.range) {
+        case LIS2DW_RANGE_16_G:
+            range = 16;
+            break;
+        case LIS2DW_RANGE_8_G:
+            range = 8;
+            break;
+        case LIS2DW_RANGE_4_G:
+            range = 4;
+            break;
+        case LIS2DW_RANGE_2_G:
+            range = 2;
+            break;
+    }
+
+    state->records[state->pos++] = record;
+
+    printf("TRAINING_%c%c_%d_RANGE%d_", record.header.char1, record.header.char2, record.header.timestamp, range);
+
+    deleteme = true;
+}
+
+static void _write_page(accelerometer_data_acquisition_state_t *state) {
+    if (state->next_available_page > 0) {
+        // write_buffer_to_page((uint8_t *)records, next_available_page);
+        // wait_for_flash_ready();
+    }
+    // state->next_available_page = get_next_available_page();
+    state->next_available_page++;
+    state->pos = 0;
+    memset(state->records, 0xFF, sizeof(state->records));
+}
+
+static void _log_data_point(accelerometer_data_acquisition_state_t *state, lis2dw_reading_t reading) {
+    accelerometer_data_acquisition_record_t record;
+    record.data.x.record_type = ACCELEROMETER_DATA_ACQUISITION_DATA;
+    record.data.y.lpmode = ACCELEROMETER_LPMODE;
+    record.data.z.filter = ACCELEROMETER_FILTER;
+    record.data.x.accel = reading.x;
+    record.data.y.accel = reading.y;
+    record.data.z.accel = reading.z;
+    record.data.counter = SECONDS_TO_RECORD - state->reading_ticks + 1;
+    state->records[state->pos++] = record;
+    if (deleteme) {
+        deleteme = false;
+        uint8_t filter = 0;
+        switch (record.data.z.filter) {
+            case LIS2DW_BANDWIDTH_FILTER_DIV2:
+                filter = 2;
+                break;
+            case LIS2DW_BANDWIDTH_FILTER_DIV4:
+                filter = 4;
+                break;
+            case LIS2DW_BANDWIDTH_FILTER_DIV10:
+                filter = 10;
+                break;
+            case LIS2DW_BANDWIDTH_FILTER_DIV20:
+                filter = 20;
+                break;
+        }
+        printf("LP%d_FILT%d.CSV\n", record.data.y.lpmode + 1, filter);
+    }
+    printf("%d, %d, %d, %d\n", record.data.counter, record.data.x.accel, record.data.y.accel, record.data.z.accel);
+    if (state->pos >= 32) {
+        _write_page(state);
+    }
 }
 
 static void continue_reading(accelerometer_data_acquisition_state_t *state) {
-    printf("TODO: Write one second of data\n");
-    for(uint8_t j = 0; j < 25; j++) {
-        state->pos++;
-        if (state->pos >= 32) {
-            state->next_available_page++;
-            state->pos = 0;
-        }
+    lis2dw_fifo_t fifo;
+
+    lis2dw_read_fifo(&fifo);
+    for(int i = 0; i < fifo.count; i++) {
+        _log_data_point(state, fifo.readings[i]);
     }
 }
 
 static void finish_reading(accelerometer_data_acquisition_state_t *state) {
+    printf("finishing\n");
     if (state->pos != 0) {
-        state->next_available_page++;
-        state->pos = 0;
+        _write_page(state);
     }
     lis2dw_set_data_rate(LIS2DW_DATA_RATE_POWERDOWN);
     watch_disable_i2c();

@@ -90,6 +90,7 @@ typedef struct {
     uint8_t countdown_ticks;
     uint8_t repeat_ticks;
     uint8_t reading_ticks;
+    uint32_t starting_timestamp;
     accelerometer_data_acquisition_record_t records[32];
     uint16_t pos;
 } accelerometer_data_acquisition_state_t;
