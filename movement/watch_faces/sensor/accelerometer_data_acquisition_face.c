@@ -111,7 +111,7 @@ bool accelerometer_data_acquisition_face_loop(movement_event_t event, movement_s
                     if (state->repeat_ticks > 0) {
                         state->repeat_ticks--;
                         if (state->repeat_ticks == 0) {
-                            state->countdown_ticks = 1;
+                            state->countdown_ticks = state->countdown_length;
                             state->mode = ACCELEROMETER_DATA_ACQUISITION_MODE_COUNTDOWN;
                         }
                     }
