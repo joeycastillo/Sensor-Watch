@@ -108,8 +108,20 @@ bool accelerometer_data_acquisition_face_loop(movement_event_t event, movement_s
             switch (state->mode) {
                 case ACCELEROMETER_DATA_ACQUISITION_MODE_IDLE:
                     update(state);
+                    if (state->repeat_ticks > 0) {
+                        state->repeat_ticks--;
+                        if (state->repeat_ticks == 0) {
+                            state->countdown_ticks = 1;
+                            state->mode = ACCELEROMETER_DATA_ACQUISITION_MODE_COUNTDOWN;
+                        }
+                    }
                     break;
                 case ACCELEROMETER_DATA_ACQUISITION_MODE_COUNTDOWN:
+                    if (state->next_available_page < 0) {
+                        state->countdown_ticks = 0;
+                        state->repeat_ticks = 0;
+                        state->mode = ACCELEROMETER_DATA_ACQUISITION_MODE_IDLE;
+                    }
                     if (state->countdown_ticks > 0) {
                         state->countdown_ticks--;
                         printf("countdown: %d\n", state->countdown_ticks);
@@ -123,16 +135,6 @@ bool accelerometer_data_acquisition_face_loop(movement_event_t event, movement_s
                         } else if (state->countdown_ticks < 3) {
                             // beep for last two ticks before reading
                             if (state->beep_with_countdown) watch_buzzer_play_note(BUZZER_NOTE_C5, 75);
-                        }
-                        if (state->countdown_ticks == 1) {
-                            watch_enable_i2c();
-                            lis2dw_begin();
-                            lis2dw_set_data_rate(LIS2DW_DATA_RATE_25_HZ);
-                            lis2dw_set_range(ACCELEROMETER_RANGE);
-                            lis2dw_set_low_power_mode(ACCELEROMETER_LPMODE);
-                            lis2dw_set_bandwidth_filtering(ACCELEROMETER_FILTER);
-                            if (ACCELEROMETER_LOW_NOISE) lis2dw_set_low_noise_mode(true);
-                            lis2dw_enable_fifo();
                         }
                     }
                     update(state);
@@ -294,7 +296,12 @@ static void update_settings(accelerometer_data_acquisition_state_t *state) {
             watch_display_string(buf, 0);
             break;
         case ACCELEROMETER_DATA_ACQUISITION_SETTINGS_PAGE_REPEAT:
-            watch_display_string("rE  no1n&p", 0);
+            if (state->repeat_interval == 0) {
+                watch_display_string("rE  none  ", 0);
+            } else {
+                sprintf(buf, "rE  %2dn&in", state->repeat_interval / 60);
+                watch_display_string(buf, 0);
+            }
             break;
     }
 }
@@ -312,7 +319,11 @@ static void advance_current_setting(accelerometer_data_acquisition_state_t *stat
             else state->countdown_length = 1;
             break;
         case ACCELEROMETER_DATA_ACQUISITION_SETTINGS_PAGE_REPEAT:
-            // TODO: repeat setting
+            if (state->repeat_interval == 0) state->repeat_interval = 60;
+            else if (state->repeat_interval == 60) state->repeat_interval = 600;
+            else if (state->repeat_interval == 600) state->repeat_interval = 1800;
+            else if (state->repeat_interval == 1800) state->repeat_interval = 3600;
+            else state->repeat_interval = 0;
             break;
     }
 }
@@ -395,8 +406,8 @@ static void write_page(accelerometer_data_acquisition_state_t *state) {
     if (state->next_available_page > 0) {
         write_buffer_to_page((uint8_t *)(state->records), state->next_available_page);
         wait_for_flash_ready();
+        state->next_available_page++;
     }
-    state->next_available_page++;
     state->pos = 0;
     memset(state->records, 0xFF, sizeof(state->records));
 }
@@ -419,8 +430,14 @@ static void log_data_point(accelerometer_data_acquisition_state_t *state, lis2dw
 
 static void start_reading(accelerometer_data_acquisition_state_t *state, movement_settings_t *settings) {
     printf("Start reading\n");
-    lis2dw_fifo_t fifo;
-    lis2dw_read_fifo(&fifo); // dump the fifo, this starts a fresh round of data in continue_reading
+    watch_enable_i2c();
+    lis2dw_begin();
+    lis2dw_set_data_rate(LIS2DW_DATA_RATE_25_HZ);
+    lis2dw_set_range(ACCELEROMETER_RANGE);
+    lis2dw_set_low_power_mode(ACCELEROMETER_LPMODE);
+    lis2dw_set_bandwidth_filtering(ACCELEROMETER_FILTER);
+    if (ACCELEROMETER_LOW_NOISE) lis2dw_set_low_noise_mode(true);
+    lis2dw_enable_fifo();
 
     accelerometer_data_acquisition_record_t record;
     watch_date_time date_time = watch_rtc_get_date_time();
@@ -433,6 +450,8 @@ static void start_reading(accelerometer_data_acquisition_state_t *state, movemen
     record.header.timestamp = state->starting_timestamp;
 
     state->records[state->pos++] = record;
+    lis2dw_fifo_t fifo;
+    lis2dw_read_fifo(&fifo); // dump the fifo, this starts a fresh round of data in continue_reading
 }
 
 static void continue_reading(accelerometer_data_acquisition_state_t *state) {
@@ -442,6 +461,7 @@ static void continue_reading(accelerometer_data_acquisition_state_t *state) {
 
     fifo.count = min(fifo.count, 25); // hacky, but we need a consistent data rate; if we got a 26th data point, chuck it.
     uint8_t offset = 4 * (25 - fifo.count); // also hacky: we're sometimes short at the start. align to beginning of next second.
+    // TODO: use the threshold interrupt for this, will mean we get consistent 25 Hz data as the accelerometer sees it.
 
     for(int i = 0; i < fifo.count; i++) {
         log_data_point(state, fifo.readings[i], i * 4 + offset);
@@ -455,4 +475,6 @@ static void finish_reading(accelerometer_data_acquisition_state_t *state) {
     }
     lis2dw_set_data_rate(LIS2DW_DATA_RATE_POWERDOWN);
     watch_disable_i2c();
+
+    state->repeat_ticks = state->repeat_interval;
 }
