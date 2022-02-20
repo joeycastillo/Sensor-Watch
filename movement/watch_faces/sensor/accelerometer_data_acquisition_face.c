@@ -27,14 +27,16 @@
 #include "accelerometer_data_acquisition_face.h"
 #include "watch_utility.h"
 #include "lis2dw.h"
+#include "spiflash.h"
 
 #define ACCELEROMETER_RANGE LIS2DW_RANGE_4_G
-#define ACCELEROMETER_LPMODE LIS2DW_LP_MODE_1
+#define ACCELEROMETER_LPMODE LIS2DW_LP_MODE_2
 #define ACCELEROMETER_FILTER LIS2DW_BANDWIDTH_FILTER_DIV2
 #define ACCELEROMETER_LOW_NOISE true
 #define SECONDS_TO_RECORD 15
 
 static const char activity_types[][3] = {
+    "TE",   // Testing
     "ID",   // Idle
     "OF",   // Off-wrist
     "SL",   // Sleeping
@@ -49,7 +51,6 @@ static const char activity_types[][3] = {
     "SU",   // Stairs Up
     "SD",   // Stairs Down
     "WL",   // Weight Lifting
-    "TE",   // Testing
 };
 
 static void update(accelerometer_data_acquisition_state_t *state);
@@ -58,23 +59,43 @@ static void advance_current_setting(accelerometer_data_acquisition_state_t *stat
 static void start_reading(accelerometer_data_acquisition_state_t *state, movement_settings_t *settings);
 static void continue_reading(accelerometer_data_acquisition_state_t *state);
 static void finish_reading(accelerometer_data_acquisition_state_t *state);
+static bool wait_for_flash_ready(void);
+static int16_t get_next_available_page(void);
+static void write_buffer_to_page(uint8_t *buf, uint16_t page);
+static void write_page(accelerometer_data_acquisition_state_t *state);
+static void log_data_point(accelerometer_data_acquisition_state_t *state, lis2dw_reading_t reading, uint8_t centiseconds);
 
 void accelerometer_data_acquisition_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
     (void) watch_face_index;
+    accelerometer_data_acquisition_state_t *state = (accelerometer_data_acquisition_state_t *)*context_ptr;
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(accelerometer_data_acquisition_state_t));
         memset(*context_ptr, 0, sizeof(accelerometer_data_acquisition_state_t));
-        accelerometer_data_acquisition_state_t *state = (accelerometer_data_acquisition_state_t *)*context_ptr;
+        state = (accelerometer_data_acquisition_state_t *)*context_ptr;
         state->beep_with_countdown = true;
         state->countdown_length = 3;
     }
+    spi_flash_init();
+    wait_for_flash_ready();
+    uint8_t buf[256] = {0xFF};
+    spi_flash_read_data(0, buf, 256);
+    if (buf[0] & 0xF0) {
+        // mark first four pages as used
+        buf[0] = 0x0F;
+        wait_for_flash_ready();
+        watch_set_pin_level(A3, false);
+        spi_flash_command(CMD_ENABLE_WRITE);
+        wait_for_flash_ready();
+        spi_flash_write_data(0, buf, 256);
+    }
+
 }
 
 void accelerometer_data_acquisition_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
     accelerometer_data_acquisition_state_t *state = (accelerometer_data_acquisition_state_t *)context;
-    state->next_available_page = 123;
+    state->next_available_page = get_next_available_page();
 }
 
 bool accelerometer_data_acquisition_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
@@ -91,6 +112,7 @@ bool accelerometer_data_acquisition_face_loop(movement_event_t event, movement_s
                 case ACCELEROMETER_DATA_ACQUISITION_MODE_COUNTDOWN:
                     if (state->countdown_ticks > 0) {
                         state->countdown_ticks--;
+                        printf("countdown: %d\n", state->countdown_ticks);
                         if (state->countdown_ticks == 0) {
                             // at zero, begin reading
                             state->mode = ACCELEROMETER_DATA_ACQUISITION_MODE_SENSING;
@@ -101,6 +123,16 @@ bool accelerometer_data_acquisition_face_loop(movement_event_t event, movement_s
                         } else if (state->countdown_ticks < 3) {
                             // beep for last two ticks before reading
                             if (state->beep_with_countdown) watch_buzzer_play_note(BUZZER_NOTE_C5, 75);
+                        }
+                        if (state->countdown_ticks == 1) {
+                            watch_enable_i2c();
+                            lis2dw_begin();
+                            lis2dw_set_data_rate(LIS2DW_DATA_RATE_25_HZ);
+                            lis2dw_set_range(ACCELEROMETER_RANGE);
+                            lis2dw_set_low_power_mode(ACCELEROMETER_LPMODE);
+                            lis2dw_set_bandwidth_filtering(ACCELEROMETER_FILTER);
+                            if (ACCELEROMETER_LOW_NOISE) lis2dw_set_low_noise_mode(true);
+                            lis2dw_enable_fifo();
                         }
                     }
                     update(state);
@@ -187,8 +219,6 @@ bool accelerometer_data_acquisition_face_loop(movement_event_t event, movement_s
             break;
     }
 
-    // return true if the watch can enter standby mode. If you are PWM'ing an LED or buzzing the buzzer here,
-    // you should return false since the PWM driver does not operate in standby mode.
     return true;
 }
 
@@ -231,8 +261,9 @@ static void update(accelerometer_data_acquisition_state_t *state) {
 
     watch_set_colon();
 
-    // special case: display full if full
+    // special case: display full if full, <1% if nearly full
     if (state->next_available_page < 0) watch_display_string(" FUL", 6);
+    else if (state->next_available_page > 8110) watch_display_string("<1", 6);
 
     // Bell if beep enabled
     if (state->beep_with_countdown) watch_set_indicator(WATCH_INDICATOR_BELL);
@@ -249,7 +280,6 @@ static void update(accelerometer_data_acquisition_state_t *state) {
 }
 
 static void update_settings(accelerometer_data_acquisition_state_t *state) {
-    printf("TODO: Settings screen\n");
     char buf[12];
     watch_clear_colon();
     if (state->beep_with_countdown) watch_set_indicator(WATCH_INDICATOR_BELL);
@@ -287,18 +317,110 @@ static void advance_current_setting(accelerometer_data_acquisition_state_t *stat
     }
 }
 
-bool deleteme = false;
+static int16_t get_next_available_page(void) {
+    uint8_t buf[256] = {0};
+
+    uint16_t page = 0;
+    for(int16_t i = 0; i < 4; i++) {
+        wait_for_flash_ready();
+        spi_flash_read_data(i * 256, buf, 256);
+        for(int16_t j = 0; j < 256; j++) {
+            if(buf[j] == 0) {
+                page += 8;
+            } else {
+                page += __builtin_clz(((uint32_t)buf[j]) << 24);
+                break;
+            }
+        }
+    }
+
+    if (page >= 8192) return -1;
+
+    return page;
+}
+
+static void write_buffer_to_page(uint8_t *buf, uint16_t page) {
+    uint32_t address = 256 * page;
+
+    wait_for_flash_ready();
+    watch_set_pin_level(A3, false);
+    spi_flash_command(CMD_ENABLE_WRITE);
+    wait_for_flash_ready();
+    watch_set_pin_level(A3, false);
+    spi_flash_write_data(address, buf, 256);
+    wait_for_flash_ready();
+
+    uint8_t buf2[256];
+    watch_set_pin_level(A3, false);
+    spi_flash_read_data(address, buf2, 256);
+    wait_for_flash_ready();
+
+    uint8_t used_pages[256] = {0xFF};
+    uint16_t address_to_mark_used = page / 8;
+    uint8_t header_page = address_to_mark_used / 256;
+    uint8_t used_byte = 0x7F >> (page % 8);
+    uint8_t offset_in_buf = address_to_mark_used % 256;
+
+    printf("\twrite 256 bytes to address %ld, page %d.\n", address, page);
+    for(int i = 0; i < 256; i++) {
+        if (buf[i] != buf2[i]) {
+            printf("\tData mismatch detected at offset  %d: %d != %d.\n", i, buf[i], buf2[i]);
+        }
+    }
+
+    watch_set_pin_level(A3, false);
+    spi_flash_read_data(header_page * 256, used_pages, 256);
+    used_pages[offset_in_buf] = used_byte;
+    watch_set_pin_level(A3, false);
+    spi_flash_command(CMD_ENABLE_WRITE);
+    wait_for_flash_ready();
+    watch_set_pin_level(A3, false);
+    spi_flash_write_data(header_page * 256, used_pages, 256);
+    wait_for_flash_ready();
+}
+
+static bool wait_for_flash_ready(void) {
+    watch_set_pin_level(A3, false);
+    bool ok = true;
+    uint8_t read_status_response[1] = {0x00};
+    do {
+        ok = spi_flash_read_command(CMD_READ_STATUS, read_status_response, 1);
+    } while ((read_status_response[0] & 0x3) != 0);
+    delay_ms(1); // why do i need this?
+    watch_set_pin_level(A3, true);
+    return ok;
+}
+
+static void write_page(accelerometer_data_acquisition_state_t *state) {
+    if (state->next_available_page > 0) {
+        write_buffer_to_page((uint8_t *)(state->records), state->next_available_page);
+        wait_for_flash_ready();
+    }
+    state->next_available_page++;
+    state->pos = 0;
+    memset(state->records, 0xFF, sizeof(state->records));
+}
+
+static void log_data_point(accelerometer_data_acquisition_state_t *state, lis2dw_reading_t reading, uint8_t centiseconds) {
+    accelerometer_data_acquisition_record_t record;
+    record.data.x.record_type = ACCELEROMETER_DATA_ACQUISITION_DATA;
+    record.data.y.lpmode = ACCELEROMETER_LPMODE;
+    record.data.z.filter = ACCELEROMETER_FILTER;
+    record.data.x.accel = (reading.x >> 2) + 8192;
+    record.data.y.accel = (reading.y >> 2) + 8192;
+    record.data.z.accel = (reading.z >> 2) + 8192;
+    record.data.counter = 100 * (SECONDS_TO_RECORD - state->reading_ticks + 1) + centiseconds;
+    printf("logged data point for %d\n", record.data.counter);
+    state->records[state->pos++] = record;
+    if (state->pos >= 32) {
+        write_page(state);
+    }
+}
 
 static void start_reading(accelerometer_data_acquisition_state_t *state, movement_settings_t *settings) {
-    (void) state;
-    watch_enable_i2c();
-    lis2dw_begin();
-    lis2dw_set_data_rate(LIS2DW_DATA_RATE_25_HZ);
-    lis2dw_set_range(ACCELEROMETER_RANGE);
-    lis2dw_set_low_power_mode(ACCELEROMETER_LPMODE);
-    lis2dw_set_bandwidth_filtering(ACCELEROMETER_FILTER);
-    if (ACCELEROMETER_LOW_NOISE) lis2dw_set_low_noise_mode(true);
-    lis2dw_enable_fifo();
+    printf("Start reading\n");
+    lis2dw_fifo_t fifo;
+    lis2dw_read_fifo(&fifo); // dump the fifo, this starts a fresh round of data in continue_reading
 
     accelerometer_data_acquisition_record_t record;
     watch_date_time date_time = watch_rtc_get_date_time();
@@ -310,89 +432,26 @@ static void start_reading(accelerometer_data_acquisition_state_t *state, movemen
     record.header.char2 = activity_types[state->activity_type_index][1];
     record.header.timestamp = state->starting_timestamp;
 
-    uint8_t range = 0;
-
-    switch (record.header.info.range) {
-        case LIS2DW_RANGE_16_G:
-            range = 16;
-            break;
-        case LIS2DW_RANGE_8_G:
-            range = 8;
-            break;
-        case LIS2DW_RANGE_4_G:
-            range = 4;
-            break;
-        case LIS2DW_RANGE_2_G:
-            range = 2;
-            break;
-    }
-
     state->records[state->pos++] = record;
-
-    printf("TRAINING_%c%c_%d_RANGE%d_", record.header.char1, record.header.char2, record.header.timestamp, range);
-
-    deleteme = true;
-}
-
-static void _write_page(accelerometer_data_acquisition_state_t *state) {
-    if (state->next_available_page > 0) {
-        // write_buffer_to_page((uint8_t *)records, next_available_page);
-        // wait_for_flash_ready();
-    }
-    // state->next_available_page = get_next_available_page();
-    state->next_available_page++;
-    state->pos = 0;
-    memset(state->records, 0xFF, sizeof(state->records));
-}
-
-static void _log_data_point(accelerometer_data_acquisition_state_t *state, lis2dw_reading_t reading) {
-    accelerometer_data_acquisition_record_t record;
-    record.data.x.record_type = ACCELEROMETER_DATA_ACQUISITION_DATA;
-    record.data.y.lpmode = ACCELEROMETER_LPMODE;
-    record.data.z.filter = ACCELEROMETER_FILTER;
-    record.data.x.accel = reading.x;
-    record.data.y.accel = reading.y;
-    record.data.z.accel = reading.z;
-    record.data.counter = SECONDS_TO_RECORD - state->reading_ticks + 1;
-    state->records[state->pos++] = record;
-    if (deleteme) {
-        deleteme = false;
-        uint8_t filter = 0;
-        switch (record.data.z.filter) {
-            case LIS2DW_BANDWIDTH_FILTER_DIV2:
-                filter = 2;
-                break;
-            case LIS2DW_BANDWIDTH_FILTER_DIV4:
-                filter = 4;
-                break;
-            case LIS2DW_BANDWIDTH_FILTER_DIV10:
-                filter = 10;
-                break;
-            case LIS2DW_BANDWIDTH_FILTER_DIV20:
-                filter = 20;
-                break;
-        }
-        printf("LP%d_FILT%d.CSV\n", record.data.y.lpmode + 1, filter);
-    }
-    printf("%d, %d, %d, %d\n", record.data.counter, record.data.x.accel, record.data.y.accel, record.data.z.accel);
-    if (state->pos >= 32) {
-        _write_page(state);
-    }
 }
 
 static void continue_reading(accelerometer_data_acquisition_state_t *state) {
+    printf("Continue reading\n");
     lis2dw_fifo_t fifo;
-
     lis2dw_read_fifo(&fifo);
+
+    fifo.count = min(fifo.count, 25); // hacky, but we need a consistent data rate; if we got a 26th data point, chuck it.
+    uint8_t offset = 4 * (25 - fifo.count); // also hacky: we're sometimes short at the start. align to beginning of next second.
+
     for(int i = 0; i < fifo.count; i++) {
-        _log_data_point(state, fifo.readings[i]);
+        log_data_point(state, fifo.readings[i], i * 4 + offset);
     }
 }
 
 static void finish_reading(accelerometer_data_acquisition_state_t *state) {
-    printf("finishing\n");
+    printf("Finish reading\n");
     if (state->pos != 0) {
-        _write_page(state);
+        write_page(state);
     }
     lis2dw_set_data_rate(LIS2DW_DATA_RATE_POWERDOWN);
     watch_disable_i2c();

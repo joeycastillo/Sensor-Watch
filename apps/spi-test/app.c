@@ -5,31 +5,41 @@
 #include "watch.h"
 #include "watch_utility.h"
 #include "spiflash.h"
+#include "lis2dw.h"
 
-#define ACCELEROMETER_TRAINING_RECORD_DELETED ((uint64_t)(0b00))
-#define ACCELEROMETER_TRAINING_RECORD_DATA ((uint64_t)(0b01))
-#define ACCELEROMETER_TRAINING_RECORD_HEADER ((uint64_t)(0b10))
-#define ACCELEROMETER_TRAINING_RECORD_INVALID ((uint64_t)(0b11))
+#define ACCELEROMETER_DATA_ACQUISITION_INVALID ((uint64_t)(0b11))   // all bits are 1 when the flash is erased
+#define ACCELEROMETER_DATA_ACQUISITION_HEADER ((uint64_t)(0b10))
+#define ACCELEROMETER_DATA_ACQUISITION_DATA ((uint64_t)(0b01))    
+#define ACCELEROMETER_DATA_ACQUISITION_DELETED ((uint64_t)(0b00))   // You can always write a 0 to any 1 bit
 
 typedef union {
     struct {
-        int16_t temperature : 16;
-        int8_t char1 : 8;
-        int8_t char2 : 8;
-        int32_t timestamp : 32;
+        struct {
+            uint16_t record_type : 2;   // see above, helps us identify record types when reading back
+            uint16_t range : 2;         // accelerometer range (see lis2dw_range_t)
+            uint16_t temperature : 12;  // raw value from the temperature sensor
+        } info;
+        uint8_t char1 : 8;              // First character of the activity type
+        uint8_t char2 : 8;              // Second character of the activity type
+        uint32_t timestamp : 32;        // UNIX timestamp for the measurement
     } header;
     struct {
-        int16_t x_accel : 16;
-        int16_t y_accel : 16;
-        int16_t z_accel : 16;
-        int32_t counter : 16;
+        struct {
+            uint16_t record_type : 2;   // duplicate; this is the same field as info above
+            uint16_t accel : 14;        // X acceleration value, raw, offset by 16384
+        } x;
+        struct {
+            uint16_t lpmode : 2;        // low power mode (see lis2dw_low_power_mode_t)
+            uint16_t accel : 14;        // Y acceleration value, raw, offset by 16384
+        } y;
+        struct {
+            uint16_t filter : 2;        // bandwidth filtering selection (see lis2dw_bandwidth_filtering_mode_t)
+            uint16_t accel : 14;        // Z acceleration value, raw, offset by 16384
+        } z;
+        uint32_t counter : 16;          // number of seconds since timestamp in header
     } data;
     uint64_t value;
-} acceleromter_training_record_t;
-
-static void cb_alarm_pressed(void) {
-    printf("Alarm button was pressed!\n");
-}
+} accelerometer_data_acquisition_record_t;
 
 static bool wait_for_flash_ready(void) {
     watch_set_pin_level(A3, false);
@@ -41,125 +51,6 @@ static bool wait_for_flash_ready(void) {
     delay_ms(1); // why do i need this?
     watch_set_pin_level(A3, true);
     return ok;
-}
-
-static void print_records_at_page(uint16_t page) {
-    if (page < 650) return;
-    acceleromter_training_record_t records[32];
-    static uint32_t timestamp = 0;
-    static uint16_t temperature = 0;
-    wait_for_flash_ready();
-    spi_flash_read_data(page * 256, (void *)records, 256);
-    for(int i = 0; i < 32; i++) {
-        switch (records[i].header.temperature >> 14) {
-            case ACCELEROMETER_TRAINING_RECORD_DELETED:
-                break;
-            case ACCELEROMETER_TRAINING_RECORD_DATA:
-                printf("%ld,%d,%d,%d,%d\n", timestamp + records[i].data.counter, records[i].data.x_accel, records[i].data.y_accel, records[i].data.z_accel, temperature);
-                break;
-            case ACCELEROMETER_TRAINING_RECORD_HEADER:
-                printf("=== BEGIN %c%c EVENT AT %d ===\n", records[i].header.char1, records[i].header.char2, records[i].header.timestamp);
-                printf("timestamp,x_raw,y_raw,z_raw,temperature\n");
-                timestamp = records[i].header.timestamp;
-                temperature = records[i].header.temperature & 0x3FFF;
-                break;
-            case ACCELEROMETER_TRAINING_RECORD_INVALID:
-                printf(",,,,\n");
-                break;
-        }
-    }
-}
-
-static void print_records() {
-    uint8_t buf[256];
-    for(int16_t i = 0; i < 4; i++) {
-        wait_for_flash_ready();
-        spi_flash_read_data(i * 256, buf, 256);
-        for(int16_t j = 0; j < 256; j++) {
-            uint8_t pages_written = buf[j];
-            uint8_t start = 0;
-            if (i == 0 && j == 0) {
-                pages_written <<= 4;
-                start = 4;
-            }
-            for(int k = start; k < 7; k++) {
-                if ((pages_written & 0x80) == 0) {
-                    print_records_at_page(i * 2048 + j * 8 + k);
-                }
-                pages_written <<= 1;
-            }
-        }
-    }
-
-}
-
-void app_init(void) {
-    delay_ms(5000);
-    spi_flash_init();
-    watch_register_extwake_callback(BTN_ALARM, cb_alarm_pressed, true);
-
-    bool erase = false;
-    if (erase) {
-        printf("Erasing...\n");
-        wait_for_flash_ready();
-        watch_set_pin_level(A3, false);
-        spi_flash_command(CMD_ENABLE_WRITE);
-        wait_for_flash_ready();
-        watch_set_pin_level(A3, false);
-        spi_flash_command(CMD_CHIP_ERASE);
-        delay_ms(10000);
-    }
-
-    uint8_t buf[256] = {0xFF};
-
-    wait_for_flash_ready();
-    spi_flash_read_data(0, buf, 256);
-    printf("byte 0 was %02x\n", buf[0]);
-    if (buf[0] & 0xF0) {
-        buf[0] = 0x0F;
-        printf("setting it to 0x0F\n");
-        wait_for_flash_ready();
-        watch_set_pin_level(A3, false);
-        spi_flash_command(CMD_ENABLE_WRITE);
-        wait_for_flash_ready();
-        spi_flash_write_data(0, buf, 256);
-    }
-
-    print_records();
-}
-
-void app_wake_from_backup(void) {
-}
-
-void app_setup(void) {
-}
-
-void app_prepare_for_standby(void) {
-}
-
-void app_wake_from_standby(void) {
-}
-
-static int16_t get_next_available_page(void) {
-    uint8_t buf[256] = {0};
-
-    uint16_t page = 0;
-    for(int16_t i = 0; i < 4; i++) {
-        wait_for_flash_ready();
-        spi_flash_read_data(i * 256, buf, 256);
-        for(int16_t j = 0; j < 256; j++) {
-            if(buf[j] == 0) {
-                page += 8;
-            } else {
-                page += __builtin_clz(((uint32_t)buf[j]) << 24);
-                break;
-            }
-        }
-    }
-
-    if (page >= 8192) return -1;
-
-    return page;
 }
 
 static void write_buffer_to_page(uint8_t *buf, uint16_t page) {
@@ -184,14 +75,6 @@ static void write_buffer_to_page(uint8_t *buf, uint16_t page) {
     uint8_t used_byte = 0x7F >> (page % 8);
     uint8_t offset_in_buf = address_to_mark_used % 256;
 
-    printf("\tWe wrote 256 bytes to address %ld, which was page %d.\n", address, page);
-
-    for(int i = 0; i < 256; i++) {
-        if (buf[i] != buf2[i]) {
-            printf("\tData mismatch detected at offset  %d: %d != %d.\n", i, buf[i], buf2[i]);
-        }
-    }
-
     watch_set_pin_level(A3, false);
     spi_flash_read_data(header_page * 256, used_pages, 256);
     used_pages[offset_in_buf] = used_byte;
@@ -203,58 +86,134 @@ static void write_buffer_to_page(uint8_t *buf, uint16_t page) {
     wait_for_flash_ready();
 }
 
-bool app_loop(void) {
-    // delay_ms(5000);
+static void print_records_at_page(uint16_t page) {
+    accelerometer_data_acquisition_record_t records[32];
+    static uint64_t timestamp = 0;
+    // static uint16_t temperature = 0;
+    static lis2dw_range_t range = LIS2DW_RANGE_2_G;
+    static double lsb_value = 1;
+    static bool printing_header = false;
 
-    return;
-        
-    // simulate logging 15 seconds of data
-    watch_date_time date_time = watch_rtc_get_date_time();
-    acceleromter_training_record_t record;
-
-    record.header.temperature = 0xC30;
-    record.header.temperature |= (ACCELEROMETER_TRAINING_RECORD_HEADER << 14);
-    record.header.char1 = 'W';
-    record.header.char2 = 'A';
-    record.header.timestamp = watch_utility_date_time_to_unix_time(date_time, 0);;
-
-    acceleromter_training_record_t records[32];
-    memset(records, 0xFF, sizeof(records));
-    records[0] = record;
-    uint16_t pos = 1;
-    uint32_t counter = 0;
-
-    printf("logging 15*25 data points for timestamp %ld\n", record.header.timestamp);
-    for(uint8_t i = 0; i < 15; i++) {
-        for(uint8_t j = 0; j < 25; j++) {
-            record.data.x_accel = arc4random() & 0x3FFF;
-            record.data.x_accel |= ACCELEROMETER_TRAINING_RECORD_DATA << 14;
-            record.data.y_accel = arc4random() & 0x3FFF;
-            record.data.z_accel = arc4random() & 0x3FFF;
-            record.data.counter = i;
-            records[pos++] = record;
-            if (pos >= 32) {
-                printf("pos overflowed at counter %ld\n", counter);
-                int16_t next_available_page = get_next_available_page();
-                if (next_available_page > 0) {
-                    write_buffer_to_page((uint8_t *)records, next_available_page);
-                    wait_for_flash_ready();
+    wait_for_flash_ready();
+    spi_flash_read_data(page * 256, (void *)records, 256);
+    for(int i = 0; i < 32; i++) {
+        switch (records[i].header.info.record_type) {
+            case ACCELEROMETER_DATA_ACQUISITION_HEADER:
+                printing_header = true;
+                timestamp = records[i].header.timestamp;
+                // temperature = records[i].header.info.temperature;
+                printf("%c%c.sample%lld.", records[i].header.char1, records[i].header.char2, timestamp);
+                range = records[i].header.info.range;
+                break;
+            case ACCELEROMETER_DATA_ACQUISITION_DATA:
+                if (printing_header) {
+                    printing_header = false;
+                    uint8_t filter = 0;
+                    switch (records[i].data.z.filter) {
+                        case LIS2DW_BANDWIDTH_FILTER_DIV2:
+                            filter = 2;
+                            break;
+                        case LIS2DW_BANDWIDTH_FILTER_DIV4:
+                            filter = 4;
+                            break;
+                        case LIS2DW_BANDWIDTH_FILTER_DIV10:
+                            filter = 10;
+                            break;
+                        case LIS2DW_BANDWIDTH_FILTER_DIV20:
+                            filter = 20;
+                            break;
+                    }
+                    switch (range) {
+                        case LIS2DW_RANGE_16_G:
+                            lsb_value = (records[i].data.y.lpmode == LIS2DW_LP_MODE_1) ? 7.808 : 1.952;
+                            break;
+                        case LIS2DW_RANGE_8_G:
+                            lsb_value = (records[i].data.y.lpmode == LIS2DW_LP_MODE_1) ? 3.904 : 0.976;
+                            break;
+                        case LIS2DW_RANGE_4_G:
+                            lsb_value = (records[i].data.y.lpmode == LIS2DW_LP_MODE_1) ? 1.952 : 0.488;
+                            break;
+                        case LIS2DW_RANGE_2_G:
+                            lsb_value = (records[i].data.y.lpmode == LIS2DW_LP_MODE_1) ? 0.976 : 0.244;
+                            break;
+                    }
+                    printf("RANGE%d_LP%d_FILT%d.CSV\n", range, records[i].data.y.lpmode + 1, filter);
+                    printf("timestamp,accX,accY,accZ\n");
                 }
-                pos = 0;
-                memset(records, 0xFF, sizeof(records));
+                printf("%lld,%f,%f,%f\n",
+                        (timestamp * 100 + records[i].data.counter) * 10,
+                        9.80665 * ((double)(records[i].data.x.accel - 8192)) * lsb_value / 1000,
+                        9.80665 * ((double)(records[i].data.y.accel - 8192)) * lsb_value / 1000,
+                        9.80665 * ((double)(records[i].data.z.accel - 8192)) * lsb_value / 1000);
+                break;
+            case ACCELEROMETER_DATA_ACQUISITION_INVALID:
+            case ACCELEROMETER_DATA_ACQUISITION_DELETED:
+                // don't print anything
+                break;
+        }
+        records[i].header.info.record_type = ACCELEROMETER_DATA_ACQUISITION_DELETED;
+    }
+
+    // uncomment this to mark all pages deleted
+    // write_buffer_to_page((uint8_t *)records, page);
+}
+
+static void print_records() {
+    uint8_t buf[256];
+    for(int16_t i = 0; i < 4; i++) {
+        wait_for_flash_ready();
+        spi_flash_read_data(i * 256, buf, 256);
+        for(int16_t j = 0; j < 256; j++) {
+            uint8_t pages_written = buf[j];
+            uint8_t start = 0;
+            if (i == 0 && j == 0) {
+                pages_written <<= 4;
+                start = 4;
+            }
+            for(int k = start; k < 8; k++) {
+                if ((pages_written & 0x80) == 0) {
+                    print_records_at_page(i * 2048 + j * 8 + k);
+                }
+                pages_written <<= 1;
             }
         }
     }
-    if (records[0].header.temperature >> 14 != ACCELEROMETER_TRAINING_RECORD_INVALID) {
-        int16_t next_available_page = get_next_available_page();
-        if (next_available_page > 0) {
-            printf("Partial write\n");
-            write_buffer_to_page((uint8_t *)records, next_available_page);
-            wait_for_flash_ready();
-        }
-    }
 
-    delay_ms(60000);
+}
 
-    return false;
+void app_init(void) {
+}
+
+void app_wake_from_backup(void) {
+}
+
+void app_setup(void) {
+    spi_flash_init();
+    delay_ms(5000);
+
+    // bool erase = false;
+    // if (erase) {
+    //     printf("Erasing...\n");
+    //     wait_for_flash_ready();
+    //     watch_set_pin_level(A3, false);
+    //     spi_flash_command(CMD_ENABLE_WRITE);
+    //     wait_for_flash_ready();
+    //     watch_set_pin_level(A3, false);
+    //     spi_flash_command(CMD_CHIP_ERASE);
+    //     delay_ms(10000);
+    // }
+ 
+    print_records();
+}
+
+void app_prepare_for_standby(void) {
+}
+
+void app_wake_from_standby(void) {
+}
+
+bool app_loop(void) {
+    delay_ms(5000);
+
+    return true;
 }
