@@ -56,7 +56,7 @@ typedef union {
             uint16_t filter : 2;        // bandwidth filtering selection (see lis2dw_bandwidth_filtering_mode_t)
             uint16_t accel : 14;        // Z acceleration value, raw, offset by 16384
         } z;
-        uint32_t counter : 16;          // number of seconds since timestamp in header
+        uint32_t counter : 16;          // number of centiseconds since timestamp in header
     } data;
     uint64_t value;
 } accelerometer_data_acquisition_record_t;
