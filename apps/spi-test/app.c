@@ -102,7 +102,7 @@ static void print_records_at_page(uint16_t page) {
                 printing_header = true;
                 timestamp = records[i].header.timestamp;
                 // temperature = records[i].header.info.temperature;
-                printf("%c%c.sample%lld.", records[i].header.char1, records[i].header.char2, timestamp);
+                printf("%c%c.%lld.", records[i].header.char1, records[i].header.char2, timestamp);
                 range = records[i].header.info.range;
                 break;
             case ACCELEROMETER_DATA_ACQUISITION_DATA:
@@ -126,15 +126,19 @@ static void print_records_at_page(uint16_t page) {
                     switch (range) {
                         case LIS2DW_RANGE_16_G:
                             lsb_value = (records[i].data.y.lpmode == LIS2DW_LP_MODE_1) ? 7.808 : 1.952;
+                            range = 16;
                             break;
                         case LIS2DW_RANGE_8_G:
                             lsb_value = (records[i].data.y.lpmode == LIS2DW_LP_MODE_1) ? 3.904 : 0.976;
+                            range = 8;
                             break;
                         case LIS2DW_RANGE_4_G:
                             lsb_value = (records[i].data.y.lpmode == LIS2DW_LP_MODE_1) ? 1.952 : 0.488;
+                            range = 4;
                             break;
                         case LIS2DW_RANGE_2_G:
                             lsb_value = (records[i].data.y.lpmode == LIS2DW_LP_MODE_1) ? 0.976 : 0.244;
+                            range = 2;
                             break;
                     }
                     printf("RANGE%d_LP%d_FILT%d.CSV\n", range, records[i].data.y.lpmode + 1, filter);
@@ -179,6 +183,7 @@ static void print_records() {
         }
     }
 
+    printf("=== END ===\n");
 }
 
 void app_init(void) {
