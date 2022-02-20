@@ -46,15 +46,15 @@ typedef union {
     struct {
         struct {
             uint16_t record_type : 2;   // duplicate; this is the same field as info above
-            uint16_t accel : 14;        // X acceleration value, raw, offset by 16384
+            uint16_t accel : 14;        // X acceleration value, raw, offset by 8192
         } x;
         struct {
             uint16_t lpmode : 2;        // low power mode (see lis2dw_low_power_mode_t)
-            uint16_t accel : 14;        // Y acceleration value, raw, offset by 16384
+            uint16_t accel : 14;        // Y acceleration value, raw, offset by 8192
         } y;
         struct {
             uint16_t filter : 2;        // bandwidth filtering selection (see lis2dw_bandwidth_filtering_mode_t)
-            uint16_t accel : 14;        // Z acceleration value, raw, offset by 16384
+            uint16_t accel : 14;        // Z acceleration value, raw, offset by 8192
         } z;
         uint32_t counter : 16;          // number of centiseconds since timestamp in header
     } data;
