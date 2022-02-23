@@ -29,6 +29,10 @@
 #include "astronomy_face.h"
 #include "watch_utility.h"
 
+#if __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 #define NUM_AVAILABLE_BODIES 9
 
 static const char astronomy_available_celestial_bodies[NUM_AVAILABLE_BODIES] = {
@@ -56,6 +60,25 @@ static const char astronomy_celestial_body_names[NUM_AVAILABLE_BODIES][3] = {
 };
 
 static void _astronomy_face_recalculate(movement_settings_t *settings, astronomy_state_t *state) {
+#if __EMSCRIPTEN__
+    int16_t browser_lat = EM_ASM_INT({
+        return lat;
+    });
+    int16_t browser_lon = EM_ASM_INT({
+        return lon;
+    });
+    if ((watch_get_backup_data(1) == 0) && (browser_lat || browser_lon)) {
+        movement_location_t browser_loc;
+        browser_loc.bit.latitude = browser_lat;
+        browser_loc.bit.longitude = browser_lon;
+        watch_store_backup_data(browser_loc.reg, 1);
+        double lat = (double)browser_lat / 100.0;
+        double lon = (double)browser_lon / 100.0;
+        state->latitude_radians = astro_degrees_to_radians(lat);
+        state->longitude_radians = astro_degrees_to_radians(lon);
+    }
+#endif
+
     watch_date_time date_time = watch_rtc_get_date_time();
     uint32_t timestamp = watch_utility_date_time_to_unix_time(date_time, movement_timezone_offsets[settings->bit.time_zone] * 60);
     date_time = watch_utility_date_time_from_unix_time(timestamp, 0);
