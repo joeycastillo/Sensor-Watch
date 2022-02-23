@@ -14,7 +14,7 @@ INCLUDES += \
   -I../watch_faces/clock/ \
   -I../watch_faces/settings/ \
   -I../watch_faces/complication/ \
-  -I../watch_faces/thermistor/ \
+  -I../watch_faces/sensor/ \
   -I../watch_faces/demo/ \
   -I../lib/TOTP-MCU/ \
   -I../lib/sunriset/ \
@@ -39,9 +39,8 @@ SRCS += \
   ../watch_faces/clock/beats_face.c \
   ../watch_faces/settings/preferences_face.c \
   ../watch_faces/settings/set_time_face.c \
-  ../watch_faces/thermistor/thermistor_driver.c \
-  ../watch_faces/thermistor/thermistor_readout_face.c \
-  ../watch_faces/thermistor/thermistor_logging_face.c \
+  ../watch_faces/sensor/thermistor_readout_face.c \
+  ../watch_faces/sensor/thermistor_logging_face.c \
   ../watch_faces/demo/character_set_face.c \
   ../watch_faces/demo/voltage_face.c \
   ../watch_faces/demo/lis2dh_logging_face.c \

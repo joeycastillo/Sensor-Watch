@@ -32,13 +32,18 @@ typedef struct {
     int16_t x;
     int16_t y;
     int16_t z;
-} lis2dw_reading;
+} lis2dw_reading_t;
 
 typedef struct {
     float x;
     float y;
     float z;
-} lis2dw_acceleration_measurement;
+} lis2dw_acceleration_measurement_t;
+
+typedef struct {
+    int8_t count;
+    lis2dw_reading_t readings[32];
+} lis2dw_fifo_t;
 
 typedef enum {
   LIS2DW_DATA_RATE_POWERDOWN = 0,
@@ -59,6 +64,14 @@ typedef enum {
   LIS2DW_MODE_HIGH_PERFORMANCE = 0b01,
   LIS2DW_MODE_ON_DEMAND = 0b10,
 } lis2dw_mode_t;
+
+typedef enum {
+  LIS2DW_FIFO_MODE_OFF = 0b000,
+  LIS2DW_FIFO_MODE_COLLECT_AND_STOP = 0b001,
+  LIS2DW_FIFO_MODE_CONTINUOUS_TO_FIFO = 0b011,
+  LIS2DW_FIFO_MODE_BYPASS_TO_CONTINUOUS = 0b100,
+  LIS2DW_FIFO_MODE_COLLECT_CONTINUOUS = 0b110,
+} lis2dw_fifo_mode_t;
 
 typedef enum {
   LIS2DW_LP_MODE_1 = 0b00, // 12-bit
@@ -177,7 +190,17 @@ typedef enum {
 #define LIS2DW_REG_OUT_Z_H 0x2D
 
 #define LIS2DW_REG_FIFO_CTRL 0x2E
-#define LIS2DW_REG_FIFO_SRC 0x2F
+#define LIS2DW_FIFO_CTRL_MODE_OFF                   (LIS2DW_FIFO_MODE_OFF << 5)
+#define LIS2DW_FIFO_CTRL_MODE_COLLECT_AND_STOP      (LIS2DW_FIFO_MODE_COLLECT_AND_STOP << 5)
+#define LIS2DW_FIFO_CTRL_MODE_CONTINUOUS_TO_FIFO    (LIS2DW_FIFO_MODE_CONTINUOUS_TO_FIFO << 5)
+#define LIS2DW_FIFO_CTRL_MODE_BYPASS_TO_CONTINUOUS  (LIS2DW_FIFO_MODE_BYPASS_TO_CONTINUOUS << 5)
+#define LIS2DW_FIFO_CTRL_MODE_COLLECT_CONTINUOUS    (LIS2DW_FIFO_MODE_COLLECT_CONTINUOUS << 5)
+#define LIS2DW_FIFO_CTRL_FTH                        (0b00011111)
+
+#define LIS2DW_REG_FIFO_SAMPLE 0x2F
+#define LIS2DW_FIFO_SAMPLE_THRESHOLD (1 << 7)
+#define LIS2DW_FIFO_SAMPLE_OVERRUN (1 << 6)
+#define LIS2DW_FIFO_SAMPLE_COUNT (0b00111111)
 
 #define LIS2DW_REG_TAP_THS_X 0x30
 #define LIS2DW_REG_TAP_THS_Y 0x31
@@ -242,9 +265,9 @@ uint8_t lis2dw_get_device_id(void);
 
 bool lis2dw_have_new_data(void);
 
-lis2dw_reading lis2dw_get_raw_reading(void);
+lis2dw_reading_t lis2dw_get_raw_reading(void);
 
-lis2dw_acceleration_measurement lis2dw_get_acceleration_measurement(lis2dw_reading *out_reading);
+lis2dw_acceleration_measurement_t lis2dw_get_acceleration_measurement(lis2dw_reading_t *out_reading);
 
 void lis2dw_set_range(lis2dw_range_t range);
 
@@ -261,5 +284,13 @@ lis2dw_low_power_mode_t lis2dw_get_low_power_mode(void);
 void lis2dw_set_low_noise_mode(bool on);
 
 bool lis2dw_get_low_noise_mode(void);
+
+void lis2dw_disable_fifo(void);
+
+void lis2dw_enable_fifo(void);
+
+bool lis2dw_read_fifo(lis2dw_fifo_t *fifo_data);
+
+void lis2dw_clear_fifo(void);
 
 #endif // LIS2DW_H
