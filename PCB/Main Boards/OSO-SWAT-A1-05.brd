@@ -3302,6 +3302,10 @@ Please make sure your boards conform to these design rules.
 <via x="19.4056" y="7.4803" extent="1-16" drill="0.3048"/>
 <via x="19.9136" y="5.1943" extent="1-16" drill="0.3048"/>
 <via x="17.907" y="10.2235" extent="1-16" drill="0.3048"/>
+<wire x1="13.492" y1="22.836440625" x2="13.492" y2="21.4249" width="0.254" layer="1"/>
+<wire x1="13.492" y1="21.4249" x2="13.2334" y2="21.4249" width="0.254" layer="1"/>
+<wire x1="13.2334" y1="21.4249" x2="13.1826" y2="21.3741" width="0.254" layer="1"/>
+<wire x1="13.1826" y1="21.3741" x2="13.1826" y2="21.2725" width="0.254" layer="1"/>
 </signal>
 <signal name="!RESET">
 <contactref element="!RST" pad="P$1"/>
