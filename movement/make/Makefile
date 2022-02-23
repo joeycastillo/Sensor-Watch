@@ -19,6 +19,7 @@ INCLUDES += \
   -I../lib/TOTP-MCU/ \
   -I../lib/sunriset/ \
   -I../lib/vsop87/ \
+  -I../lib/astrolib/ \
 
 # If you add any other source files you wish to compile, add them after ../app.c
 # Note that you will need to add a backslash at the end of any line you wish to continue, i.e.
@@ -30,9 +31,8 @@ SRCS += \
   ../lib/TOTP-MCU/sha1.c \
   ../lib/TOTP-MCU/TOTP.c \
   ../lib/sunriset/sunriset.c \
-  ../lib/vsop87/vsop87a_micro.c \
   ../lib/vsop87/vsop87a_milli.c \
-  ../lib/vsop87/astrolib.c \
+  ../lib/astrolib/astrolib.c \
   ../movement.c \
   ../watch_faces/clock/simple_clock_face.c \
   ../watch_faces/clock/world_clock_face.c \
