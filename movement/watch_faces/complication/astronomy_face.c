@@ -84,7 +84,7 @@ static void _astronomy_face_recalculate(movement_settings_t *settings, astronomy
             state->right_ascension.hours,
             state->right_ascension.minutes,
             state->right_ascension.seconds,
-            astro_radians_to_degrees(radec_precession.declination),
+            astro_radians_to_degrees(radec.declination),
             state->declination.degrees,
             state->declination.minutes,
             state->declination.seconds,
