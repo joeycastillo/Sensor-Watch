@@ -94,7 +94,7 @@ Functions</h2></td></tr>
 <tr class="memdesc:ga5d6af930688b240d0f075806b5730d21"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts a duration in seconds to a <a class="el" href="structwatch__duration__t.html">watch_duration_t</a> struct.  <a href="group__utility.html#ga5d6af930688b240d0f075806b5730d21">More...</a><br /></td></tr>
 <tr class="separator:ga5d6af930688b240d0f075806b5730d21"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga396e56109234aaa00993c3dd84f3f43c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="unionwatch__date__time.html">watch_date_time</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__utility.html#ga396e56109234aaa00993c3dd84f3f43c">watch_utility_date_time_from_unix_time</a> (uint32_t timestamp, uint32_t utc_offset)</td></tr>
-<tr class="memdesc:ga396e56109234aaa00993c3dd84f3f43c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the UNIX time (seconds since 1970) for a given <a class="el" href="unionwatch__date__time.html">watch_date_time</a> struct.  <a href="group__utility.html#ga396e56109234aaa00993c3dd84f3f43c">More...</a><br /></td></tr>
+<tr class="memdesc:ga396e56109234aaa00993c3dd84f3f43c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a <a class="el" href="unionwatch__date__time.html">watch_date_time</a> struct for a given UNIX time and UTC offset.  <a href="group__utility.html#ga396e56109234aaa00993c3dd84f3f43c">More...</a><br /></td></tr>
 <tr class="separator:ga396e56109234aaa00993c3dd84f3f43c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga470a4c7199afac6319c259fc459881f4"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__utility.html#ga470a4c7199afac6319c259fc459881f4">watch_utility_convert_to_12_hour</a> (<a class="el" href="unionwatch__date__time.html">watch_date_time</a> *date_time)</td></tr>
 <tr class="memdesc:ga470a4c7199afac6319c259fc459881f4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts a <a class="el" href="unionwatch__date__time.html">watch_date_time</a> for 12-hour display.  <a href="group__utility.html#ga470a4c7199afac6319c259fc459881f4">More...</a><br /></td></tr>
@@ -299,7 +299,7 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>watch_duration_t:
       </table>
 </div><div class="memdoc">
 
-<p>Returns the UNIX time (seconds since 1970) for a given <a class="el" href="unionwatch__date__time.html">watch_date_time</a> struct. </p>
+<p>Returns a <a class="el" href="unionwatch__date__time.html">watch_date_time</a> struct for a given UNIX time and UTC offset. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">timestamp</td><td>The UNIX timestamp that you wish to convert. </td></tr>
