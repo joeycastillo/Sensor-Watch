@@ -74,7 +74,7 @@ uint32_t watch_utility_date_time_to_unix_time(watch_date_time date_time, uint32_
   */
 watch_duration_t watch_utility_seconds_to_duration(uint32_t seconds);
 
-/** @brief Returns the UNIX time (seconds since 1970) for a given watch_date_time struct.
+/** @brief Returns a watch_date_time struct for a given UNIX time and UTC offset.
   * @param timestamp The UNIX timestamp that you wish to convert.
   * @param utc_offset The number of seconds that you wish date_time to be offset from UTC.
   * @return A watch_date_time for the given UNIX timestamp and UTC offset, or if outside the range that
