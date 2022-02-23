@@ -47,22 +47,12 @@ static const char orrery_celestial_body_names[NUM_AVAILABLE_BODIES][3] = {
     "NE"    // Neptune
 };
 
-// TODO: fractional julian date, this is in libastro
-static uint32_t _julian_date(uint16_t year, uint16_t month, uint16_t day) {
-    return (1461 * (year + 4800 + (month - 14) / 12)) / 4 + (367 * (month - 2 - 12 * ((month - 14) / 12))) / 12 - (3 * ((year + 4900 + (month - 14) / 12) / 100))/4 + day - 32075;
-}
-
-// TODO: use the version of this function in libastro
- static double jd2et(double jd) {
-     return (jd - 2451545.0) / 365250.0;
- }
-
 static void _orrery_face_recalculate(movement_settings_t *settings, orrery_state_t *state) {
     watch_date_time date_time = watch_rtc_get_date_time();
     uint32_t timestamp = watch_utility_date_time_to_unix_time(date_time, movement_timezone_offsets[settings->bit.time_zone] * 60);
     date_time = watch_utility_date_time_from_unix_time(timestamp, 0);
-    uint32_t jd = _julian_date(date_time.unit.year + WATCH_RTC_REFERENCE_YEAR, date_time.unit.month, date_time.unit.day);
-    double et = jd2et(jd);
+    double jd = astro_convert_date_to_julian_date(date_time.unit.year + WATCH_RTC_REFERENCE_YEAR, date_time.unit.month, date_time.unit.day, date_time.unit.hour, date_time.unit.minute, date_time.unit.second);
+    double et = astro_convert_jd_to_julian_millenia_since_j2000(jd);
     double r[3] = {0};
 
     switch(state->active_body_index) {

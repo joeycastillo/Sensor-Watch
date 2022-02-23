@@ -55,19 +55,14 @@ static const char astronomy_celestial_body_names[NUM_AVAILABLE_BODIES][3] = {
     "NE"    // Neptune
 };
 
-// TODO: fractional julian date, this is in libastro
-static uint32_t _julian_date(uint16_t year, uint16_t month, uint16_t day) {
-    return (1461 * (year + 4800 + (month - 14) / 12)) / 4 + (367 * (month - 2 - 12 * ((month - 14) / 12))) / 12 - (3 * ((year + 4900 + (month - 14) / 12) / 100))/4 + day - 32075;
-}
-
 static void _astronomy_face_recalculate(movement_settings_t *settings, astronomy_state_t *state) {
     watch_date_time date_time = watch_rtc_get_date_time();
     uint32_t timestamp = watch_utility_date_time_to_unix_time(date_time, movement_timezone_offsets[settings->bit.time_zone] * 60);
     date_time = watch_utility_date_time_from_unix_time(timestamp, 0);
-    uint32_t jd = _julian_date(date_time.unit.year + WATCH_RTC_REFERENCE_YEAR, date_time.unit.month, date_time.unit.day);
+    double jd = astro_convert_date_to_julian_date(date_time.unit.year + WATCH_RTC_REFERENCE_YEAR, date_time.unit.month, date_time.unit.day, date_time.unit.hour, date_time.unit.minute, date_time.unit.second);
 
     astro_equatorial_coordinates_t radec_precession = astro_get_ra_dec(jd, astronomy_available_celestial_bodies[state->active_body_index], state->latitude_radians, state->longitude_radians, true);
-    printf("\nParams to convert: %ld %f %f %f %f\n",
+    printf("\nParams to convert: %f %f %f %f %f\n",
             jd,
             astro_radians_to_degrees(state->latitude_radians),
             astro_radians_to_degrees(state->longitude_radians),
@@ -82,7 +77,7 @@ static void _astronomy_face_recalculate(movement_settings_t *settings, astronomy
     state->declination = astro_radians_to_dms(radec.declination);
     state->distance = radec.distance;
 
-    printf("Calculated coordinates for %s on %ld: \n\tRA  = %f / %2dh %2dm %2ds\n\tDec = %f / %3d° %3d' %3d\"\n\tAzi = %f\n\tAlt = %f\n\tDst = %f AU\n",
+    printf("Calculated coordinates for %s on %f: \n\tRA  = %f / %2dh %2dm %2ds\n\tDec = %f / %3d° %3d' %3d\"\n\tAzi = %f\n\tAlt = %f\n\tDst = %f AU\n",
             astronomy_celestial_body_names[state->active_body_index],
             jd,
             astro_radians_to_degrees(radec.right_ascension),

@@ -1,6 +1,9 @@
 /*
  * Partial C port of Greg Miller's public domain astro library (gmiller@gregmiller.net) 2019
- * https://github.com/gmiller123456/astrogreg *
+ * https://github.com/gmiller123456/astrogreg
+ * 
+ * Ported by Joey Castillo for Sensor Watch
+ * https://github.com/joeycastillo/Sensor-Watch/
  *
  * Public Domain
  *
@@ -21,7 +24,6 @@
 #include "vsop87a_milli.h"
 
 double astro_convert_utc_to_tt(double jd) ;
-double astro_convert_jd_to_julian_millenia_since_j2000(double jd);
 double astro_get_GMST(double ut1);
 astro_cartesian_coordinates_t astro_subtract_cartesian(astro_cartesian_coordinates_t a, astro_cartesian_coordinates_t b);
 astro_cartesian_coordinates_t astro_rotate_from_vsop_to_J2000(astro_cartesian_coordinates_t c);
@@ -39,6 +41,34 @@ astro_cartesian_coordinates_t astro_get_observer_geocentric_coords(double jd, do
 astro_cartesian_coordinates_t astro_get_body_coordinates(astro_body_t bodyNum, double et);
 astro_cartesian_coordinates_t astro_get_body_coordinates_light_time_adjusted(astro_body_t body, astro_cartesian_coordinates_t origin, double t);
 astro_equatorial_coordinates_t astro_convert_cartesian_to_polar(astro_cartesian_coordinates_t xyz);
+
+//Special "Math.floor()" function used by convertDateToJulianDate()
+static double _astro_special_floor(double d) {
+    if(d > 0) {
+        return floor(d);
+    }
+    return floor(d) - 1;
+}
+
+double astro_convert_date_to_julian_date(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second) {
+    if (month < 3){
+        year = year - 1;
+        month = month + 12;
+    }
+
+    double b = 0;
+    if (!(year < 1582 || (year == 1582 && (month < 10 || (month == 10 && day < 5))))) {
+        double a = _astro_special_floor(year / 100.0);
+        b = 2 - a + _astro_special_floor(a / 4.0);
+    }
+
+    double jd = _astro_special_floor(365.25 * (year + 4716)) + _astro_special_floor(30.6001 * (month + 1)) + day + b - 1524.5;
+    jd += hour / 24.0;
+    jd += minute / 24.0 / 60.0;
+    jd += second / 24.0 / 60.0 / 60.0;
+
+    return jd;
+}
 
 //Return all values in radians.
 //The positions are adjusted for the parallax of the Earth, and the offset of the observer from the Earth's center
@@ -127,7 +157,6 @@ double astro_convert_utc_to_tt(double jd) {
     */
 }
 
-//Converts a Julan Date to Julian Millenia since J2000, which is what VSOP87 expects as input
 double astro_convert_jd_to_julian_millenia_since_j2000(double jd) {
     return (jd - 2451545.0) / 365250.0;
 }

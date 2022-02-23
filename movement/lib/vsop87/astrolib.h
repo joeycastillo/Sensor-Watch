@@ -63,6 +63,12 @@ typedef struct {
     uint8_t seconds; // you may want this to be a float, watch just can't display any more digits
 } astro_angle_hms_t;
 
+// must be UTC!
+double astro_convert_date_to_julian_date(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second);
+
+//Converts a Julan Date to Julian Millenia since J2000, which is what VSOP87 expects as input
+double astro_convert_jd_to_julian_millenia_since_j2000(double jd);
+
 astro_equatorial_coordinates_t astro_get_ra_dec(double jd, astro_body_t bodyNum, double lat, double lon, bool calculate_precession);
 astro_horizontal_coordinates_t astro_ra_dec_to_alt_az(double jd, double lat, double lon, double ra, double dec);
 
