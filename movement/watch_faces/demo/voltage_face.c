@@ -74,6 +74,7 @@ bool voltage_face_loop(movement_event_t event, movement_settings_t *settings, vo
             }
             break;
         case EVENT_LOW_ENERGY_UPDATE:
+            watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
             watch_display_string("BA  SLEEP ", 0);
             break;
         default:
