@@ -29,7 +29,11 @@
 
 static void _voltage_face_update_display(void) {
     char buf[14];
+
+    watch_enable_adc();
     float voltage = (float)watch_get_vcc_voltage() / 1000.0;
+    watch_disable_adc();
+
     sprintf(buf, "BA  %4.2f V", voltage);
     // printf("%s\n", buf);
     watch_display_string(buf, 0);
@@ -44,9 +48,6 @@ void voltage_face_setup(movement_settings_t *settings, uint8_t watch_face_index,
 void voltage_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
-    watch_enable_adc();
-    // if we set the reference voltage here, watch_get_vcc_voltage won't do it over and over
-    watch_set_analog_reference_voltage(ADC_REFERENCE_INTREF);
 }
 
 bool voltage_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
@@ -85,7 +86,4 @@ bool voltage_face_loop(movement_event_t event, movement_settings_t *settings, vo
 void voltage_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
-    // make sure to restore the default in the end.
-    watch_set_analog_reference_voltage(ADC_REFERENCE_VCC);
-    watch_disable_adc();
 }
