@@ -28,6 +28,23 @@
 #include "watch_utility.h"
 #include "mars_time_face.h"
 
+// note: lander coordinates come from Mars24's `marslandmarks.xml` file
+static double site_longitudes[MARS_TIME_NUM_SITES] = {
+    0,                      // Mars Coordinated Time, at the meridian
+    360.0 - 137.441635,     // Curiosity lander site
+    360.0 - 135.623447,     // InSight lander site
+    360.0 - 77.45088572,    // Perseverance lander site
+    360.0 - 109.9           // Zhurong lander site
+};
+
+static char site_names[MARS_TIME_NUM_SITES][3] = {
+    "MC",
+    "CU",
+    "IN",
+    "PE",
+    "ZH"
+};
+
 typedef struct {
     uint8_t hour;
     uint8_t minute;
@@ -42,7 +59,7 @@ static void _h_to_hms(mars_clock_hms_t *date_time, double h) {
 	date_time->second = round(seconds % 60);
 }
 
-static void _update(movement_settings_t *settings) {
+static void _update(movement_settings_t *settings, mars_time_state_t *state) {
     char buf[11];
     watch_date_time date_time = watch_rtc_get_date_time();
     uint32_t now = watch_utility_date_time_to_unix_time(date_time, movement_timezone_offsets[settings->bit.time_zone] * 60);
@@ -51,9 +68,19 @@ static void _update(movement_settings_t *settings) {
     double jd2k = jdtt - 2451545.0;
     double msd = ((jd2k - 4.5) / 1.0274912517) + 44796.0 - 0.0009626;
     double mtc = fmod(24 * msd, 24);
+    double lmt;
+
+    if (state->current_site == 0) {
+        lmt = mtc;
+    } else {
+        double longitude = site_longitudes[state->current_site];
+        double lmst = mtc - ((longitude * 24.0) / 360.0);
+        lmt = fmod(lmst + 24, 24);
+    }
+
     mars_clock_hms_t mars_time;
-    _h_to_hms(&mars_time, mtc);
-    sprintf(&buf[0], "MC  %02d%02d%02d", mars_time.hour, mars_time.minute, mars_time.second);
+    _h_to_hms(&mars_time, lmt);
+    sprintf(&buf[0], "%s  %02d%02d%02d", site_names[state->current_site], mars_time.hour, mars_time.minute, mars_time.second);
     watch_set_colon();
     watch_set_indicator(WATCH_INDICATOR_24H);
     watch_display_string(buf, 0);
@@ -75,12 +102,11 @@ void mars_time_face_activate(movement_settings_t *settings, void *context) {
 
 bool mars_time_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     mars_time_state_t *state = (mars_time_state_t *)context;
-    (void) state;
 
     switch (event.event_type) {
         case EVENT_ACTIVATE:
         case EVENT_TICK:
-            _update(settings);
+            _update(settings, state);
             break;
         case EVENT_MODE_BUTTON_UP:
             movement_move_to_next_face();
@@ -89,6 +115,8 @@ bool mars_time_face_loop(movement_event_t event, movement_settings_t *settings, 
             movement_illuminate_led();
             break;
         case EVENT_ALARM_BUTTON_UP:
+            state->current_site = (state->current_site + 1) % MARS_TIME_NUM_SITES;
+            _update(settings, state);
             break;
         case EVENT_TIMEOUT:
             // TODO: make this lower power so we can avoid timeout

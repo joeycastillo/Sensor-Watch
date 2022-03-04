@@ -27,8 +27,17 @@
 
 #include "movement.h"
 
+typedef enum {
+    MARS_TIME_MERIDIAN,
+    MARS_TIME_CURIOSITY_SITE,
+    MARS_TIME_INSIGHT_SITE,
+    MARS_TIME_PERSEVERANCE_SITE,
+    MARS_TIME_ZHURONG_SITE,
+    MARS_TIME_NUM_SITES,
+} mars_time_site_t;
+
 typedef struct {
-    uint8_t unused;
+    mars_time_site_t current_site;
 } mars_time_state_t;
 
 void mars_time_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
