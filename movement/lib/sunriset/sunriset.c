@@ -17,6 +17,7 @@ Released to the public domain by Paul Schlyter, December 1992
 #include <math.h>
 #include "sunriset.h"
 
+static void sunpos( double d, double *lon, double *r );
 
 /* A macro to compute the number of days elapsed since 2000 Jan 0.0 */
 /* (which is equal to 1999 Dec 31, 0h UT)                           */
@@ -199,7 +200,7 @@ double __daylen__( int year, int month, int day, double lon, double lat,
 
 /* This function computes the Sun's position at any instant */
 
-void sunpos( double d, double *lon, double *r )
+static void sunpos( double d, double *lon, double *r )
 /******************************************************/
 /* Computes the Sun's ecliptic longitude and distance */
 /* at an instant given in d, number of days since     */
