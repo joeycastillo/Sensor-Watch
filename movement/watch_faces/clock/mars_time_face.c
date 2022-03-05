@@ -31,18 +31,26 @@
 // note: lander coordinates come from Mars24's `marslandmarks.xml` file
 static double site_longitudes[MARS_TIME_NUM_SITES] = {
     0,                      // Mars Coordinated Time, at the meridian
-    360.0 - 137.441635,     // Curiosity lander site
-    360.0 - 135.623447,     // InSight lander site
+    360.0 - 109.9,          // Zhurong lander site
     360.0 - 77.45088572,    // Perseverance lander site
-    360.0 - 109.9           // Zhurong lander site
+    360.0 - 135.623447,     // InSight lander site
+    360.0 - 137.441635,     // Curiosity lander site
 };
 
 static char site_names[MARS_TIME_NUM_SITES][3] = {
     "MC",
-    "CU",
-    "IN",
+    "ZH",
     "PE",
-    "ZH"
+    "IN",
+    "CU",
+};
+
+static uint16_t landing_sols[MARS_TIME_NUM_SITES] = {
+    0,
+    52387,
+    52304,
+    51511,
+    49269,
 };
 
 typedef struct {
@@ -63,6 +71,8 @@ static void _update(movement_settings_t *settings, mars_time_state_t *state) {
     char buf[11];
     watch_date_time date_time = watch_rtc_get_date_time();
     uint32_t now = watch_utility_date_time_to_unix_time(date_time, movement_timezone_offsets[settings->bit.time_zone] * 60);
+    // TODO: I'm skipping over some steps here.
+    // https://www.giss.nasa.gov/tools/mars24/help/algorithm.html
     double jdut = 2440587.5 + ((double)now / 86400.0);
     double jdtt = jdut + ((37.0 + 32.184) / 86400.0);
     double jd2k = jdtt - 2451545.0;
@@ -78,11 +88,21 @@ static void _update(movement_settings_t *settings, mars_time_state_t *state) {
         lmt = fmod(lmst + 24, 24);
     }
 
-    mars_clock_hms_t mars_time;
-    _h_to_hms(&mars_time, lmt);
-    sprintf(&buf[0], "%s  %02d%02d%02d", site_names[state->current_site], mars_time.hour, mars_time.minute, mars_time.second);
-    watch_set_colon();
-    watch_set_indicator(WATCH_INDICATOR_24H);
+    if (state->displaying_sol) {
+        // TODO: this is not right, mission sol should turn over at midnight local time?
+        uint16_t sol = floor(msd) - landing_sols[state->current_site];
+        if (sol < 1000) sprintf(&buf[0], "%s  Sol%3d", site_names[state->current_site], sol);
+        else sprintf(&buf[0], "%s s%6d", site_names[state->current_site], sol);
+        watch_clear_colon();
+        watch_clear_indicator(WATCH_INDICATOR_24H);        
+    } else {
+        mars_clock_hms_t mars_time;
+        _h_to_hms(&mars_time, lmt);
+        sprintf(&buf[0], "%s  %02d%02d%02d", site_names[state->current_site], mars_time.hour, mars_time.minute, mars_time.second);
+        watch_set_colon();
+        watch_set_indicator(WATCH_INDICATOR_24H);        
+    }
+
     watch_display_string(buf, 0);
 }
 
@@ -112,6 +132,10 @@ bool mars_time_face_loop(movement_event_t event, movement_settings_t *settings, 
             movement_move_to_next_face();
             break;
         case EVENT_LIGHT_BUTTON_UP:
+            state->displaying_sol = !state->displaying_sol;
+            _update(settings, state);
+            break;
+        case EVENT_LIGHT_LONG_PRESS:
             movement_illuminate_led();
             break;
         case EVENT_ALARM_BUTTON_UP:
