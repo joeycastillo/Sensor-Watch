@@ -33,7 +33,6 @@ const watch_face_t watch_faces[] = {
     voltage_face,
     preferences_face,
     set_time_face,
-	counter_face,
 };
 
 #define MOVEMENT_NUM_FACES (sizeof(watch_faces) / sizeof(watch_face_t))
