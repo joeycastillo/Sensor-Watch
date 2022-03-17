@@ -54,7 +54,6 @@ SRCS += \
   ../watch_faces/complication/countdown_face.c \
   ../watch_faces/complication/blinky_face.c \
   ../watch_faces/complication/moon_phase_face.c \
-  ../watch_faces/complication/counter_face.c \
   ../watch_faces/complication/orrery_face.c \
   ../watch_faces/complication/astronomy_face.c \
   ../watch_faces/complication/counter_face.c \
