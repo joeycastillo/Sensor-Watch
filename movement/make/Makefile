@@ -56,7 +56,6 @@ SRCS += \
   ../watch_faces/complication/moon_phase_face.c \
   ../watch_faces/complication/orrery_face.c \
   ../watch_faces/complication/astronomy_face.c \
-  ../watch_faces/complication/counter_face.c \
 # New watch faces go above this line.
 
 # Leave this line at the bottom of the file; it has all the targets for making your project.
