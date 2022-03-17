@@ -22,32 +22,38 @@
  * SOFTWARE.
  */
 
-#ifndef MOVEMENT_FACES_H_
-#define MOVEMENT_FACES_H_
+#ifndef ORRERY_FACE_H_
+#define ORRERY_FACE_H_
 
-#include "simple_clock_face.h"
-#include "world_clock_face.h"
-#include "preferences_face.h"
-#include "set_time_face.h"
-#include "pulsometer_face.h"
-#include "thermistor_readout_face.h"
-#include "thermistor_logging_face.h"
-#include "character_set_face.h"
-#include "beats_face.h"
-#include "day_one_face.h"
-#include "voltage_face.h"
-#include "stopwatch_face.h"
-#include "totp_face.h"
-#include "lis2dh_logging_face.h"
-#include "demo_face.h"
-#include "hello_there_face.h"
-#include "sunrise_sunset_face.h"
-#include "countdown_face.h"
-#include "blinky_face.h"
-#include "moon_phase_face.h"
-#include "orrery_face.h"
-#include "astronomy_face.h"
-#include "counter_face.h"
-// New includes go above this line.
+#include "movement.h"
 
-#endif // MOVEMENT_FACES_H_
+typedef enum {
+    ORRERY_MODE_SELECTING_BODY = 0,
+    ORRERY_MODE_CALCULATING,
+    ORRERY_MODE_DISPLAYING_X,
+    ORRERY_MODE_DISPLAYING_Y,
+    ORRERY_MODE_DISPLAYING_Z,
+    ORRERY_MODE_NUM_MODES
+} orrery_mode_t;
+
+typedef struct {
+    orrery_mode_t mode;
+    uint8_t active_body_index;
+    double coords[3];
+    uint8_t animation_state;
+} orrery_state_t;
+
+void orrery_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
+void orrery_face_activate(movement_settings_t *settings, void *context);
+bool orrery_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void orrery_face_resign(movement_settings_t *settings, void *context);
+
+#define orrery_face ((const watch_face_t){ \
+    orrery_face_setup, \
+    orrery_face_activate, \
+    orrery_face_loop, \
+    orrery_face_resign, \
+    NULL, \
+})
+
+#endif // ORRERY_FACE_H_
