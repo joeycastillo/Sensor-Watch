@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Joey Castillo
+ * Copyright (c) 2022 Wesley Ellis
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,32 +22,42 @@
  * SOFTWARE.
  */
 
-#ifndef MOVEMENT_FACES_H_
-#define MOVEMENT_FACES_H_
+#ifndef TOMATO_FACE_H_
+#define TOMATO_FACE_H_
 
-#include "simple_clock_face.h"
-#include "world_clock_face.h"
-#include "preferences_face.h"
-#include "set_time_face.h"
-#include "pulsometer_face.h"
-#include "thermistor_readout_face.h"
-#include "thermistor_logging_face.h"
-#include "character_set_face.h"
-#include "beats_face.h"
-#include "day_one_face.h"
-#include "voltage_face.h"
-#include "stopwatch_face.h"
-#include "totp_face.h"
-#include "lis2dh_logging_face.h"
-#include "demo_face.h"
-#include "hello_there_face.h"
-#include "sunrise_sunset_face.h"
-#include "countdown_face.h"
-#include "blinky_face.h"
-#include "moon_phase_face.h"
-#include "orrery_face.h"
-#include "astronomy_face.h"
-#include "tomato_face.h"
-// New includes go above this line.
+#include "movement.h"
 
-#endif // MOVEMENT_FACES_H_
+typedef enum {
+    tomato_ready,
+    tomato_run,
+    // to_pause, // TODO implement pausing
+} tomato_mode;
+
+typedef enum {
+    tomato_break,
+    tomato_focus,
+} tomato_kind;
+
+typedef struct {
+    uint32_t target_ts;
+    uint32_t now_ts;
+    tomato_mode mode;
+    tomato_kind kind;
+    uint8_t done_count;
+} tomato_state_t;
+
+void tomato_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
+void tomato_face_activate(movement_settings_t *settings, void *context);
+bool tomato_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void tomato_face_resign(movement_settings_t *settings, void *context);
+
+#define tomato_face ((const watch_face_t){ \
+    tomato_face_setup, \
+    tomato_face_activate, \
+    tomato_face_loop, \
+    tomato_face_resign, \
+    NULL, \
+})
+
+#endif // TOMATO_FACE_H_
+
