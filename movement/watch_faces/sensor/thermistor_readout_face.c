@@ -63,7 +63,7 @@ bool thermistor_readout_face_loop(movement_event_t event, movement_settings_t *s
         case EVENT_LIGHT_BUTTON_DOWN:
             movement_illuminate_led();
             break;
-        case EVENT_ALARM_BUTTON_UP:
+        case EVENT_ALARM_BUTTON_DOWN:
             settings->bit.use_imperial_units = !settings->bit.use_imperial_units;
             _thermistor_readout_face_update_display(settings->bit.use_imperial_units);
             break;
