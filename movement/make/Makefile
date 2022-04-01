@@ -41,6 +41,7 @@ SRCS += \
   ../watch_faces/settings/set_time_face.c \
   ../watch_faces/sensor/thermistor_readout_face.c \
   ../watch_faces/sensor/thermistor_logging_face.c \
+  ../watch_faces/sensor/thermistor_testing_face.c \
   ../watch_faces/demo/character_set_face.c \
   ../watch_faces/demo/voltage_face.c \
   ../watch_faces/demo/lis2dh_logging_face.c \
