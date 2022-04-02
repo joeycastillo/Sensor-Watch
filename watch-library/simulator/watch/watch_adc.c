@@ -29,7 +29,7 @@ void watch_enable_adc(void) {}
 void watch_enable_analog_input(const uint8_t pin) {}
 
 uint16_t watch_get_analog_pin_level(const uint8_t pin) {
-    return 0;
+    return 32767; // pretend it's half of VCC
 }
 
 void watch_set_analog_num_samples(uint16_t samples) {}
