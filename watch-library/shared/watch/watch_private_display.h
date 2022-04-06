@@ -112,7 +112,7 @@ static const uint8_t Character_Set[] =
     0b01110011, // p
     0b01100111, // q
     0b01010000, // r
-    0b00101101, // s (removes middle segment to distinguish from 5)
+    0b01101101, // s
     0b01111000, // t
     0b01100010, // u (appears in (u)pper half to work in more positions)
     0b00011100, // v (looks like u but in the lower half)
