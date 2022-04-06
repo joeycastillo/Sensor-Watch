@@ -188,3 +188,11 @@ float watch_utility_thermistor_temperature(uint16_t value, bool highside, float 
 
     return reading;
 }
+
+uint32_t watch_utility_offset_timestamp(uint32_t now, int8_t hours, int8_t minutes, int8_t seconds) {
+    uint32_t new = now;
+    new += hours * 60 * 60;
+    new += minutes * 60;
+    new += seconds;
+    return new;
+}

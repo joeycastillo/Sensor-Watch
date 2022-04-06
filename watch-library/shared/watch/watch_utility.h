@@ -124,4 +124,12 @@ watch_date_time watch_utility_date_time_convert_zone(watch_date_time date_time, 
   */
 float watch_utility_thermistor_temperature(uint16_t value, bool highside, float b_coefficient, float nominal_temperature, float nominal_resistance, float series_resistance);
 
+/** @brief Offset a timestamp by a given amount
+ * @param now Timestamp to offset from
+ * @param hours Number of hours to offset
+ * @param minutes Nmber of minutes to offset
+ * @param seconds Number of secodns to offset
+ */
+uint32_t watch_utility_offset_timestamp(uint32_t now, int8_t hours, int8_t minutes, int8_t seconds);
+
 #endif

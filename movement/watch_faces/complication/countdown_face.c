@@ -35,14 +35,6 @@
 #define DEFAULT_MINUTES 3
 
 
-static uint32_t offset_date_time(uint32_t now, int8_t hours, int8_t minutes, int8_t seconds) {
-    uint32_t new = now;
-    new += hours * 60 * 60;
-    new += minutes * 60;
-    new += seconds;
-    return new;
-}
-
 static inline int32_t get_tz_offset(movement_settings_t *settings) {
     return movement_timezone_offsets[settings->bit.time_zone] * 60;
 }
@@ -52,7 +44,7 @@ static void start(countdown_state_t *state, movement_settings_t *settings) {
 
     state->mode = cd_running;
     state->now_ts = watch_utility_date_time_to_unix_time(now, get_tz_offset(settings));
-    state->target_ts = offset_date_time(state->now_ts, 0, state->minutes, state->seconds);
+    state->target_ts = watch_utility_offset_timestamp(state->now_ts, 0, state->minutes, state->seconds);
     watch_date_time target_dt = watch_utility_date_time_from_unix_time(state->target_ts, get_tz_offset(settings));
     movement_schedule_background_task(target_dt);
     watch_set_indicator(WATCH_INDICATOR_BELL);
