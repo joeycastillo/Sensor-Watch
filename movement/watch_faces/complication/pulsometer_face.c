@@ -73,7 +73,7 @@ bool pulsometer_face_loop(movement_event_t event, movement_settings_t *settings,
                         watch_display_string(" Alarn", 4);
                         break;
                     case 2:
-                        watch_display_string("+   Count ", 0);
+                        watch_display_string("*   Count ", 0);
                         break;
                     case 3:
                         watch_display_string("  30Beats ", 0);
