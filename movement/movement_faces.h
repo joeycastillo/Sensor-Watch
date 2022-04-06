@@ -32,6 +32,7 @@
 #include "pulsometer_face.h"
 #include "thermistor_readout_face.h"
 #include "thermistor_logging_face.h"
+#include "thermistor_testing_face.h"
 #include "character_set_face.h"
 #include "beats_face.h"
 #include "day_one_face.h"
@@ -46,6 +47,9 @@
 #include "blinky_face.h"
 #include "moon_phase_face.h"
 #include "mars_time_face.h"
+#include "orrery_face.h"
+#include "astronomy_face.h"
+#include "tomato_face.h"
 // New includes go above this line.
 
 #endif // MOVEMENT_FACES_H_

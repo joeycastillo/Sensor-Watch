@@ -24,11 +24,16 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "thermistor_readout_face.h"
+#include "thermistor_testing_face.h"
 #include "thermistor_driver.h"
 #include "watch.h"
 
-static void _thermistor_readout_face_update_display(bool in_fahrenheit) {
+// This watch face is designed for testing temperature sensor boards.
+// It displays temperature readings at a relatively fast rate of 8 Hz,
+// and disables low energy mode so my testing device doesn't sleep.
+// You more than likely want to use thermistor_readout_face instead.
+
+static void _thermistor_testing_face_update_display(bool in_fahrenheit) {
     thermistor_driver_enable();
     float temperature_c = thermistor_driver_get_temperature();
     char buf[14];
@@ -41,49 +46,34 @@ static void _thermistor_readout_face_update_display(bool in_fahrenheit) {
     thermistor_driver_disable();
 }
 
-void thermistor_readout_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
-    (void) settings;
+void thermistor_testing_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) watch_face_index;
     (void) context_ptr;
+    // force one setting: never enter low energy mode.
+    // I'm using this watch face to test the temperature sensor boards; there's no need for it.
+    settings->bit.le_interval = 0;
 }
 
-void thermistor_readout_face_activate(movement_settings_t *settings, void *context) {
+void thermistor_testing_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
     watch_display_string("TE", 0);
+    movement_request_tick_frequency(8);
 }
 
-bool thermistor_readout_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
+bool thermistor_testing_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     (void) context;
-    watch_date_time date_time = watch_rtc_get_date_time();
     switch (event.event_type) {
         case EVENT_MODE_BUTTON_UP:
             movement_move_to_next_face();
             break;
-        case EVENT_LIGHT_BUTTON_DOWN:
-            movement_illuminate_led();
-            break;
         case EVENT_ALARM_BUTTON_DOWN:
             settings->bit.use_imperial_units = !settings->bit.use_imperial_units;
-            _thermistor_readout_face_update_display(settings->bit.use_imperial_units);
+            _thermistor_testing_face_update_display(settings->bit.use_imperial_units);
             break;
         case EVENT_ACTIVATE:
-            // force a measurement to be taken immediately.
-            date_time.unit.second = 0;
-            // fall through
         case EVENT_TICK:
-            if (date_time.unit.second % 5 == 4) {
-                // Not 100% on this, but I like the idea of using the signal indicator to indicate that we're sensing data.
-                // In this case we turn the indicator on a second before the reading is taken, and clear it when we're done.
-                // In reality the measurement takes a fraction of a second, but this is just to show something is happening.
-                watch_set_indicator(WATCH_INDICATOR_SIGNAL);
-            } else if (date_time.unit.second % 5 == 0) {
-                _thermistor_readout_face_update_display(settings->bit.use_imperial_units);
-                watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
-            }
-            break;
-        case EVENT_LOW_ENERGY_UPDATE:
-            watch_display_string("TE  SLEEP ", 0);
+            _thermistor_testing_face_update_display(settings->bit.use_imperial_units);
             break;
         default:
             break;
@@ -92,7 +82,7 @@ bool thermistor_readout_face_loop(movement_event_t event, movement_settings_t *s
     return true;
 }
 
-void thermistor_readout_face_resign(movement_settings_t *settings, void *context) {
+void thermistor_testing_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
 }

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Joey Castillo
+ * Copyright (c) 2022 Wesley Ellis
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,21 +22,42 @@
  * SOFTWARE.
  */
 
-#ifndef MOVEMENT_CONFIG_H_
-#define MOVEMENT_CONFIG_H_
+#ifndef TOMATO_FACE_H_
+#define TOMATO_FACE_H_
 
-#include "movement_faces.h"
+#include "movement.h"
 
-const watch_face_t watch_faces[] = {
-    simple_clock_face,
-    world_clock_face,
-    sunrise_sunset_face,
-    moon_phase_face,
-    thermistor_readout_face,
-    preferences_face,
-    set_time_face,
-};
+typedef enum {
+    tomato_ready,
+    tomato_run,
+    // to_pause, // TODO implement pausing
+} tomato_mode;
 
-#define MOVEMENT_NUM_FACES (sizeof(watch_faces) / sizeof(watch_face_t))
+typedef enum {
+    tomato_break,
+    tomato_focus,
+} tomato_kind;
 
-#endif // MOVEMENT_CONFIG_H_
+typedef struct {
+    uint32_t target_ts;
+    uint32_t now_ts;
+    tomato_mode mode;
+    tomato_kind kind;
+    uint8_t done_count;
+} tomato_state_t;
+
+void tomato_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
+void tomato_face_activate(movement_settings_t *settings, void *context);
+bool tomato_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void tomato_face_resign(movement_settings_t *settings, void *context);
+
+#define tomato_face ((const watch_face_t){ \
+    tomato_face_setup, \
+    tomato_face_activate, \
+    tomato_face_loop, \
+    tomato_face_resign, \
+    NULL, \
+})
+
+#endif // TOMATO_FACE_H_
+

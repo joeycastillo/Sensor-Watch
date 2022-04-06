@@ -22,21 +22,38 @@
  * SOFTWARE.
  */
 
-#ifndef MOVEMENT_CONFIG_H_
-#define MOVEMENT_CONFIG_H_
+#ifndef ORRERY_FACE_H_
+#define ORRERY_FACE_H_
 
-#include "movement_faces.h"
+#include "movement.h"
 
-const watch_face_t watch_faces[] = {
-    simple_clock_face,
-    world_clock_face,
-    sunrise_sunset_face,
-    moon_phase_face,
-    thermistor_readout_face,
-    preferences_face,
-    set_time_face,
-};
+typedef enum {
+    ORRERY_MODE_SELECTING_BODY = 0,
+    ORRERY_MODE_CALCULATING,
+    ORRERY_MODE_DISPLAYING_X,
+    ORRERY_MODE_DISPLAYING_Y,
+    ORRERY_MODE_DISPLAYING_Z,
+    ORRERY_MODE_NUM_MODES
+} orrery_mode_t;
 
-#define MOVEMENT_NUM_FACES (sizeof(watch_faces) / sizeof(watch_face_t))
+typedef struct {
+    orrery_mode_t mode;
+    uint8_t active_body_index;
+    double coords[3];
+    uint8_t animation_state;
+} orrery_state_t;
 
-#endif // MOVEMENT_CONFIG_H_
+void orrery_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
+void orrery_face_activate(movement_settings_t *settings, void *context);
+bool orrery_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void orrery_face_resign(movement_settings_t *settings, void *context);
+
+#define orrery_face ((const watch_face_t){ \
+    orrery_face_setup, \
+    orrery_face_activate, \
+    orrery_face_loop, \
+    orrery_face_resign, \
+    NULL, \
+})
+
+#endif // ORRERY_FACE_H_

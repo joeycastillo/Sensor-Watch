@@ -22,21 +22,22 @@
  * SOFTWARE.
  */
 
-#ifndef MOVEMENT_CONFIG_H_
-#define MOVEMENT_CONFIG_H_
+#ifndef THERMISTOR_TESTING_FACE_H_
+#define THERMISTOR_TESTING_FACE_H_
 
-#include "movement_faces.h"
+#include "movement.h"
 
-const watch_face_t watch_faces[] = {
-    simple_clock_face,
-    world_clock_face,
-    sunrise_sunset_face,
-    moon_phase_face,
-    thermistor_readout_face,
-    preferences_face,
-    set_time_face,
-};
+void thermistor_testing_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
+void thermistor_testing_face_activate(movement_settings_t *settings, void *context);
+bool thermistor_testing_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void thermistor_testing_face_resign(movement_settings_t *settings, void *context);
 
-#define MOVEMENT_NUM_FACES (sizeof(watch_faces) / sizeof(watch_face_t))
+#define thermistor_testing_face ((const watch_face_t){ \
+    thermistor_testing_face_setup, \
+    thermistor_testing_face_activate, \
+    thermistor_testing_face_loop, \
+    thermistor_testing_face_resign, \
+    NULL, \
+})
 
-#endif // MOVEMENT_CONFIG_H_
+#endif // THERMISTOR_TESTING_FACE_H_

@@ -108,6 +108,7 @@ static void _update(movement_settings_t *settings, mars_time_state_t *state) {
 
 void mars_time_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
+    (void) watch_face_index;
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(mars_time_state_t));
         memset(*context_ptr, 0, sizeof(mars_time_state_t));

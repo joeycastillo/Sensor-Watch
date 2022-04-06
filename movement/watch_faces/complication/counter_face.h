@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Joey Castillo
+ * Copyright (c) 2022 Shogo Okamoto
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,21 +22,30 @@
  * SOFTWARE.
  */
 
-#ifndef MOVEMENT_CONFIG_H_
-#define MOVEMENT_CONFIG_H_
+#ifndef COUNTER_FACE_H_
+#define COUNTER_FACE_H_
 
-#include "movement_faces.h"
+#include "movement.h"
 
-const watch_face_t watch_faces[] = {
-    simple_clock_face,
-    world_clock_face,
-    sunrise_sunset_face,
-    moon_phase_face,
-    thermistor_readout_face,
-    preferences_face,
-    set_time_face,
-};
+// Counter face is designed to count the number of running laps during excercises.
+typedef struct {
+    uint8_t counter_idx;
+} counter_state_t;
 
-#define MOVEMENT_NUM_FACES (sizeof(watch_faces) / sizeof(watch_face_t))
 
-#endif // MOVEMENT_CONFIG_H_
+void counter_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
+void counter_face_activate(movement_settings_t *settings, void *context);
+bool counter_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void counter_face_resign(movement_settings_t *settings, void *context);
+
+void print_counter(counter_state_t *state);
+
+#define counter_face ((const watch_face_t){ \
+    counter_face_setup, \
+    counter_face_activate, \
+    counter_face_loop, \
+    counter_face_resign, \
+    NULL, \
+})
+
+#endif // COUNTER_FACE_H_
