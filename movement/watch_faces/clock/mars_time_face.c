@@ -92,7 +92,7 @@ static void _update(movement_settings_t *settings, mars_time_state_t *state) {
         // TODO: this is not right, mission sol should turn over at midnight local time?
         uint16_t sol = floor(msd) - landing_sols[state->current_site];
         if (sol < 1000) sprintf(&buf[0], "%s  Sol%3d", site_names[state->current_site], sol);
-        else sprintf(&buf[0], "%s s%6d", site_names[state->current_site], sol);
+        else sprintf(&buf[0], "%s $%6d", site_names[state->current_site], sol);
         watch_clear_colon();
         watch_clear_indicator(WATCH_INDICATOR_24H);        
     } else {
