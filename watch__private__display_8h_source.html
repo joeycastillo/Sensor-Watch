@@ -105,14 +105,14 @@ $(function() {
 <div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>    0b01100000, <span class="comment">// ! (L in the top half for positions 4 and 6)</span></div>
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>    0b00100010, <span class="comment">// &quot;</span></div>
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>    0b01100011, <span class="comment">// # (degree symbol, hash mark doesn&#39;t fit)</span></div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>    0b00000000, <span class="comment">// $ (unused)</span></div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>    0b00101101, <span class="comment">// $ (S without the center segment)</span></div>
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>    0b00000000, <span class="comment">// % (unused)</span></div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>    0b01000100, <span class="comment">// &amp; (&quot;lowercase 7&quot; for positions 4 and 6)</span></div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>    0b00100000, <span class="comment">// &#39;</span></div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    0b00111001, <span class="comment">// (</span></div>
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>    0b00001111, <span class="comment">// )</span></div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>    0b00000000, <span class="comment">// * (unused)</span></div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>    0b11000000, <span class="comment">// + (only works in position 0)</span></div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>    0b11000000, <span class="comment">// * (The + sign for use in position 0)</span></div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>    0b01110000, <span class="comment">// + (segments E, F and G; looks like ┣╸)</span></div>
 <div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    0b00000100, <span class="comment">// ,</span></div>
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    0b01000000, <span class="comment">// -</span></div>
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    0b01000000, <span class="comment">// . (same as -, semantically most useful)</span></div>
@@ -192,9 +192,9 @@ $(function() {
 <div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>    0b01111110, <span class="comment">// x</span></div>
 <div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>    0b01101110, <span class="comment">// y</span></div>
 <div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>    0b00011011, <span class="comment">// z</span></div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>    0b00111001, <span class="comment">// {</span></div>
-<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>    0b00110000, <span class="comment">// |</span></div>
-<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>    0b00001111, <span class="comment">// }</span></div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>    0b00010110, <span class="comment">// { (open brace doesn&#39;t really work; overriden to represent the two character ligature &quot;il&quot;)</span></div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>    0b00110110, <span class="comment">// | (overriden to represent the two character ligature &quot;ll&quot;)</span></div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>    0b00110100, <span class="comment">// } (overriden to represent the two character ligature &quot;li&quot;)</span></div>
 <div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>    0b00000001, <span class="comment">// ~</span></div>
 <div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>};</div>
 <div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span> </div>
