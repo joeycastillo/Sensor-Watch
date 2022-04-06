@@ -105,6 +105,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ga2753ff031c28202d23b0f3e80de2c920"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__utility.html#ga2753ff031c28202d23b0f3e80de2c920">watch_utility_thermistor_temperature</a> (uint16_t value, bool highside, float b_coefficient, float nominal_temperature, float nominal_resistance, float series_resistance)</td></tr>
 <tr class="memdesc:ga2753ff031c28202d23b0f3e80de2c920"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a temperature in degrees Celsius for a given thermistor voltage divider circuit.  <a href="group__utility.html#ga2753ff031c28202d23b0f3e80de2c920">More...</a><br /></td></tr>
 <tr class="separator:ga2753ff031c28202d23b0f3e80de2c920"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga176fd2c04778c2049f6ae8b9d374725c"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__utility.html#ga176fd2c04778c2049f6ae8b9d374725c">watch_utility_offset_timestamp</a> (uint32_t now, int8_t hours, int8_t minutes, int8_t seconds)</td></tr>
+<tr class="memdesc:ga176fd2c04778c2049f6ae8b9d374725c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Offset a timestamp by a given amount.  <a href="group__utility.html#ga176fd2c04778c2049f6ae8b9d374725c">More...</a><br /></td></tr>
+<tr class="separator:ga176fd2c04778c2049f6ae8b9d374725c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
@@ -370,6 +373,57 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>watch_duration_t:
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">date_time</td><td>The <a class="el" href="unionwatch__date__time.html">watch_date_time</a> whose weekday you want. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ga176fd2c04778c2049f6ae8b9d374725c" name="ga176fd2c04778c2049f6ae8b9d374725c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga176fd2c04778c2049f6ae8b9d374725c">&#9670;&nbsp;</a></span>watch_utility_offset_timestamp()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t watch_utility_offset_timestamp </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>now</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int8_t&#160;</td>
+          <td class="paramname"><em>hours</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int8_t&#160;</td>
+          <td class="paramname"><em>minutes</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int8_t&#160;</td>
+          <td class="paramname"><em>seconds</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Offset a timestamp by a given amount. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">now</td><td>Timestamp to offset from </td></tr>
+    <tr><td class="paramname">hours</td><td>Number of hours to offset </td></tr>
+    <tr><td class="paramname">minutes</td><td>Nmber of minutes to offset </td></tr>
+    <tr><td class="paramname">seconds</td><td>Number of secodns to offset </td></tr>
   </table>
   </dd>
 </dl>
