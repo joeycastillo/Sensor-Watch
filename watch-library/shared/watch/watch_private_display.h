@@ -33,14 +33,14 @@ static const uint8_t Character_Set[] =
     0b01100000, // ! (L in the top half for positions 4 and 6)
     0b00100010, // "
     0b01100011, // # (degree symbol, hash mark doesn't fit)
-    0b00000000, // $ (unused)
+    0b00101101, // $ (S without the center segment)
     0b00000000, // % (unused)
     0b01000100, // & ("lowercase 7" for positions 4 and 6)
     0b00100000, // '
     0b00111001, // (
     0b00001111, // )
-    0b00000000, // * (unused)
-    0b11000000, // + (only works in position 0)
+    0b11000000, // * (The + sign for use in position 0)
+    0b01110000, // + (segments E, F and G; looks like ┣╸)
     0b00000100, // ,
     0b01000000, // -
     0b01000000, // . (same as -, semantically most useful)
@@ -120,9 +120,9 @@ static const uint8_t Character_Set[] =
     0b01111110, // x
     0b01101110, // y
     0b00011011, // z
-    0b00111001, // {
-    0b00110000, // |
-    0b00001111, // }
+    0b00010110, // { (open brace doesn't really work; overriden to represent the two character ligature "il")
+    0b00110110, // | (overriden to represent the two character ligature "ll")
+    0b00110100, // } (overriden to represent the two character ligature "li")
     0b00000001, // ~
 };
 

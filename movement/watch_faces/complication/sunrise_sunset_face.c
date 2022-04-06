@@ -188,10 +188,10 @@ static void _sunrise_sunset_face_update_settings_display(movement_event_t event,
 
     switch (state->page) {
         case 1:
-            sprintf(buf, "LA  %c %04d", state->working_latitude.sign ? '-' : 'F', abs(_sunrise_sunset_face_latlon_from_struct(state->working_latitude))); // F looks sorta like a plus sign in position 1
+            sprintf(buf, "LA  %c %04d", state->working_latitude.sign ? '-' : '+', abs(_sunrise_sunset_face_latlon_from_struct(state->working_latitude)));
             break;
         case 2:
-            sprintf(buf, "LO  %c%05d", state->working_longitude.sign ? '-' : 'F', abs(_sunrise_sunset_face_latlon_from_struct(state->working_longitude)));
+            sprintf(buf, "LO  %c%05d", state->working_longitude.sign ? '-' : '+', abs(_sunrise_sunset_face_latlon_from_struct(state->working_longitude)));
             break;
     }
     if (event.subsecond % 2) {
