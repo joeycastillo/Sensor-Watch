@@ -30,16 +30,6 @@ void watch_enable_leds(void) {}
 
 void watch_disable_leds(void) {}
 
-void watch_enable_led(bool unused) {
-    (void)unused;
-    watch_enable_leds();
-}
-
-void watch_disable_led(bool unused) {
-    (void)unused;
-    watch_disable_leds();
-}
-
 void watch_set_led_color(uint8_t red, uint8_t green) {
     EM_ASM({
         document.getElementById('light').style.opacity = $1 / 255;

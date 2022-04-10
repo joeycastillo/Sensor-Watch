@@ -52,24 +52,5 @@ void watch_uart_puts(char *s);
   */
 char watch_uart_getc(void);
 
-// Begin deprecated functions:
-
-/** @brief Initializes the debug UART.
-  * @param baud The baud rate
-  */
-__attribute__((deprecated("Use watch_enable_uart to enable the UART.")))
-void watch_enable_debug_uart(uint32_t baud);
-
-/** @brief Outputs a single character on the debug UART.
-  * @param c The character you wish to output.
-  */
-__attribute__((deprecated("Use watch_uart_puts to print to the UART, or printf to log debug messages over USB.")))
-void watch_debug_putc(char c);
-
-/** @brief Outputs a string on the debug UART.
-  * @param s A null-terminated string.
-  */
-__attribute__((deprecated("Use watch_uart_puts to print to the UART, or printf to log debug messages over USB.")))
-void watch_debug_puts(char *s);
 /// @}
 #endif

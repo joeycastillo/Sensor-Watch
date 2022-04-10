@@ -34,16 +34,6 @@ void watch_disable_leds(void) {
     _watch_disable_tcc();
 }
 
-void watch_enable_led(bool unused) {
-    (void)unused;
-    watch_enable_leds();
-}
-
-void watch_disable_led(bool unused) {
-    (void)unused;
-    watch_disable_leds();
-}
-
 void watch_set_led_color(uint8_t red, uint8_t green) {
     if (hri_tcc_get_CTRLA_reg(TCC0, TCC_CTRLA_ENABLE)) {
         uint32_t period = hri_tcc_get_PER_reg(TCC0, TCC_PER_MASK);

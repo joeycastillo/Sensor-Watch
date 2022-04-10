@@ -260,15 +260,6 @@ int _read(void) {
     return 0;
 }
 
-// Alternate function that outputs to the debug UART. useful for debugging USB issues.
-// int _write(int file, char *ptr, int len) {
-//     (void)file;
-//     int pos = 0;
-//     while(pos < len) watch_debug_putc(ptr[pos++]);
-
-//     return 0;
-// }
-
 void USB_Handler(void) {
     tud_int_handler(0);
 }

@@ -197,32 +197,3 @@ void watch_rtc_disable_alarm_callback(void) {
         alarm_interval_id = -1;
     }
 }
-
-///////////////////////
-// Deprecated functions
-
-void watch_set_date_time(struct calendar_date_time date_time) {
-    watch_date_time val;
-    val.unit.second = date_time.time.sec;
-    val.unit.minute = date_time.time.min;
-    val.unit.hour = date_time.time.hour;
-    val.unit.day = date_time.date.day;
-    val.unit.month = date_time.date.month;
-    val.unit.year = date_time.date.year - WATCH_RTC_REFERENCE_YEAR;
-    watch_rtc_set_date_time(val);
-}
-
-void watch_get_date_time(struct calendar_date_time *date_time) {
-    if (date_time == NULL) return;
-    watch_date_time val = watch_rtc_get_date_time();
-    date_time->time.sec = val.unit.second;
-    date_time->time.min = val.unit.minute;
-    date_time->time.hour = val.unit.hour;
-    date_time->date.day = val.unit.day;
-    date_time->date.month = val.unit.month;
-    date_time->date.year = val.unit.year + WATCH_RTC_REFERENCE_YEAR;
-}
-
-void watch_register_tick_callback(ext_irq_cb_t callback) {
-    watch_rtc_register_tick_callback(callback);
-}
