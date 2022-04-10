@@ -69,7 +69,7 @@ void watch_register_extwake_callback(uint8_t pin, ext_irq_cb_t callback, bool le
 
     // disable the RTC
     RTC->MODE2.CTRLA.bit.ENABLE = 0;
-    while (RTC->MODE2.SYNCBUSY.bit.ENABLE);
+    while (RTC->MODE2.SYNCBUSY.bit.ENABLE); // wait for RTC to be disabled
 
     // update the configuration
     RTC->MODE2.TAMPCTRL.reg = config;

@@ -35,7 +35,7 @@ void _watch_init(void) {
 
     // Use switching regulator for lower power consumption.
     SUPC->VREG.bit.SEL = 1;
-    while(!SUPC->STATUS.bit.VREGRDY);
+    while(!SUPC->STATUS.bit.VREGRDY); // wait for voltage regulator to become ready
 
     // check the battery voltage...
     watch_enable_adc();
@@ -63,7 +63,7 @@ void _watch_init(void) {
     SUPC->BOD33.bit.LEVEL = 34;     // Detect brownout at 2.6V (1.445V + level * 34mV)
     SUPC->BOD33.bit.ACTION = 0x2;   // Generate an interrupt when BOD33 is triggered
     SUPC->BOD33.bit.HYST = 0;       // Disable hysteresis
-    while(!SUPC->STATUS.bit.B33SRDY);
+    while(!SUPC->STATUS.bit.B33SRDY); // wait for BOD33 to sync
 
     // Enable interrupt on BOD33 detect
     SUPC->INTENSET.bit.BOD33DET = 1;
@@ -198,7 +198,7 @@ void _watch_enable_usb(void) {
 
     // assign DFLL to GCLK1
     GCLK->GENCTRL[1].reg = GCLK_GENCTRL_SRC(GCLK_GENCTRL_SRC_DFLL48M) | GCLK_GENCTRL_DIV(1) | GCLK_GENCTRL_GENEN;// | GCLK_GENCTRL_OE;
-    while (GCLK->SYNCBUSY.bit.GENCTRL1);
+    while (GCLK->SYNCBUSY.bit.GENCTRL1); // wait for generator control 1 to sync
 
     // assign GCLK1 to USB
     hri_gclk_write_PCHCTRL_reg(GCLK, USB_GCLK_ID, GCLK_PCHCTRL_GEN_GCLK1_Val | GCLK_PCHCTRL_CHEN);
