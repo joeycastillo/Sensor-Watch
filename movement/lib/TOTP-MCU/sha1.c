@@ -84,7 +84,7 @@ static void addUncounted(uint8_t data) {
   }
 }
 
-void write(uint8_t data) {
+static void __write(uint8_t data) {
   ++byteCount;
   addUncounted(data);
 
@@ -93,7 +93,7 @@ void write(uint8_t data) {
 
 void writeArray(uint8_t *buffer, uint8_t size){
     while (size--) {
-        write(*buffer++);
+        __write(*buffer++);
     }
 }
 
@@ -144,7 +144,7 @@ void initHmac(const uint8_t* key, uint8_t keyLength) {
   if (keyLength > BLOCK_LENGTH) {
     // Hash long keys
     init();
-    for (;keyLength--;) write(*key++);
+    for (;keyLength--;) __write(*key++);
     memcpy(keyBuffer,result(),HASH_LENGTH);
   } else {
     // Block length keys are used as is
@@ -153,7 +153,7 @@ void initHmac(const uint8_t* key, uint8_t keyLength) {
   // Start inner hash
   init();
   for (i=0; i<BLOCK_LENGTH; i++) {
-    write(keyBuffer[i] ^ HMAC_IPAD);
+    __write(keyBuffer[i] ^ HMAC_IPAD);
   }
 }
 
@@ -163,7 +163,7 @@ uint8_t* resultHmac(void) {
   memcpy(innerHash,result(),HASH_LENGTH);
   // Calculate outer hash
   init();
-  for (i=0; i<BLOCK_LENGTH; i++) write(keyBuffer[i] ^ HMAC_OPAD);
-  for (i=0; i<HASH_LENGTH; i++) write(innerHash[i]);
+  for (i=0; i<BLOCK_LENGTH; i++) __write(keyBuffer[i] ^ HMAC_OPAD);
+  for (i=0; i<HASH_LENGTH; i++) __write(innerHash[i]);
   return result();
 }
