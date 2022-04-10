@@ -3,7 +3,7 @@ BUILD = ./build
 BIN = watch
 
 ifndef BOARD
-override BOARD = OSO-SWAT-A1-04
+override BOARD = OSO-SWAT-A1-05
 endif
 
 ##############################################################################
