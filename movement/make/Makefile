@@ -44,7 +44,6 @@ SRCS += \
   ../watch_faces/sensor/thermistor_testing_face.c \
   ../watch_faces/demo/character_set_face.c \
   ../watch_faces/demo/voltage_face.c \
-  ../watch_faces/demo/lis2dh_logging_face.c \
   ../watch_faces/demo/demo_face.c \
   ../watch_faces/demo/hello_there_face.c \
   ../watch_faces/complication/pulsometer_face.c \
