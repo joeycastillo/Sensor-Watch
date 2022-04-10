@@ -4,6 +4,8 @@ OBJS = $(addprefix $(BUILD)/, $(notdir %/$(subst .c,.o, $(SRCS))))
 
 SUBMODULES = tinyusb
 
+COBRA = cobra -f
+
 ifndef EMSCRIPTEN
 all: directory $(SUBMODULES) $(BUILD)/$(BIN).elf $(BUILD)/$(BIN).hex $(BUILD)/$(BIN).bin $(BUILD)/$(BIN).uf2 size
 else
@@ -53,5 +55,8 @@ size: $(BUILD)/$(BIN).elf
 clean:
 	@echo clean
 	@-rm -rf $(BUILD)
+
+analyze:
+	@$(COBRA) basic $(INCLUDES) $(DEFINES) $(SRCS)
 
 -include $(wildcard $(BUILD)/*.d)
