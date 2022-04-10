@@ -82,11 +82,11 @@ bool simple_clock_face_loop(movement_event_t event, movement_settings_t *setting
             // ...and set the LAP indicator if low.
             if (state->battery_low) watch_set_indicator(WATCH_INDICATOR_LAP);
 
-            if (date_time.reg >> 6 == previous_date_time >> 6 && event.event_type != EVENT_LOW_ENERGY_UPDATE) {
+            if ((date_time.reg >> 6) == (previous_date_time >> 6) && event.event_type != EVENT_LOW_ENERGY_UPDATE) {
                 // everything before seconds is the same, don't waste cycles setting those segments.
                 pos = 8;
                 sprintf(buf, "%02d", date_time.unit.second);
-            } else if (date_time.reg >> 12 == previous_date_time >> 12 && event.event_type != EVENT_LOW_ENERGY_UPDATE) {
+            } else if ((date_time.reg >> 12) == (previous_date_time >> 12) && event.event_type != EVENT_LOW_ENERGY_UPDATE) {
                 // everything before minutes is the same.
                 pos = 6;
                 sprintf(buf, "%02d%02d", date_time.unit.minute, date_time.unit.second);
