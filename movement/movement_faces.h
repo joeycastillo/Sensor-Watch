@@ -39,6 +39,7 @@
 #include "voltage_face.h"
 #include "stopwatch_face.h"
 #include "totp_face.h"
+#include "lis2dw_logging_face.h"
 #include "demo_face.h"
 #include "hello_there_face.h"
 #include "sunrise_sunset_face.h"
