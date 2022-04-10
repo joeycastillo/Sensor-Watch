@@ -141,98 +141,11 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>watch_rtc_disable_tic
 void&#160;</td><td class="memItemRight" valign="bottom"><b>watch_rtc_disable_all_periodic_callbacks</b> (void)</td></tr>
 <tr class="memdesc:ga0150da34307ba61e44f1a00aa90a7f0f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Disables all periodic callbacks, including the once-per-second tick callback. <br /></td></tr>
 <tr class="separator:ga0150da34307ba61e44f1a00aa90a7f0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga98366c1b71e09089b441d704193bb0d4"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__rtc.html#ga98366c1b71e09089b441d704193bb0d4">__attribute__</a> ((deprecated(&quot;Use <a class="el" href="group__rtc.html#gadfcc143db9d71e95c2d2dc45732ab4e5">watch_rtc_set_date_time</a> function instead&quot;))) void watch_set_date_time(struct calendar_date_time date_time)</td></tr>
-<tr class="memdesc:ga98366c1b71e09089b441d704193bb0d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the system date and time.  <a href="group__rtc.html#ga98366c1b71e09089b441d704193bb0d4">More...</a><br /></td></tr>
-<tr class="separator:ga98366c1b71e09089b441d704193bb0d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga7ce8c01a25eb364efb7ae6ed6dbca373"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__rtc.html#ga7ce8c01a25eb364efb7ae6ed6dbca373">__attribute__</a> ((deprecated(&quot;Use the <a class="el" href="group__rtc.html#ga166b575563d39a0061dc9a28ad0309a7">watch_rtc_get_date_time</a> function instead&quot;))) void watch_get_date_time(struct calendar_date_time *date_time)</td></tr>
-<tr class="memdesc:ga7ce8c01a25eb364efb7ae6ed6dbca373"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the system date and time in the provided struct.  <a href="group__rtc.html#ga7ce8c01a25eb364efb7ae6ed6dbca373">More...</a><br /></td></tr>
-<tr class="separator:ga7ce8c01a25eb364efb7ae6ed6dbca373"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga811201003a3985a040f1f6bd3c5a69eb"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__rtc.html#ga811201003a3985a040f1f6bd3c5a69eb">__attribute__</a> ((deprecated(&quot;Use the <a class="el" href="group__rtc.html#ga969ea57aaedf13d4950edbeacff3f2be">watch_rtc_register_tick_callback</a> function instead&quot;))) void watch_register_tick_callback(ext_irq_cb_t callback)</td></tr>
-<tr class="memdesc:ga811201003a3985a040f1f6bd3c5a69eb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Registers a "tick" callback that will be called once per second.  <a href="group__rtc.html#ga811201003a3985a040f1f6bd3c5a69eb">More...</a><br /></td></tr>
-<tr class="separator:ga811201003a3985a040f1f6bd3c5a69eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p >This section covers functions related to the SAM L22's real-time clock peripheral, including date, time and alarm functions. </p>
 <p >The real-time clock is the only peripheral that main.c enables for you. It is the cornerstone of low power operation on the watch, and it is required for several key functions that we assume will be available, namely the wake from BACKUP mode and the callback on the ALARM button. It is also required for the operation of the 1 Hz tick interrupt, which you will most likely use to wake from STANDBY mode. </p>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="ga7ce8c01a25eb364efb7ae6ed6dbca373" name="ga7ce8c01a25eb364efb7ae6ed6dbca373"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga7ce8c01a25eb364efb7ae6ed6dbca373">&#9670;&nbsp;</a></span>__attribute__() <span class="overload">[1/3]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">__attribute__ </td>
-          <td>(</td>
-          <td class="paramtype">(deprecated(&quot;Use the <a class="el" href="group__rtc.html#ga166b575563d39a0061dc9a28ad0309a7">watch_rtc_get_date_time</a> function instead&quot;))&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Returns the system date and time in the provided struct. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">date_time</td><td>A pointer to a calendar_date_time struct. It will have with the correct date and time on return. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a id="ga811201003a3985a040f1f6bd3c5a69eb" name="ga811201003a3985a040f1f6bd3c5a69eb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga811201003a3985a040f1f6bd3c5a69eb">&#9670;&nbsp;</a></span>__attribute__() <span class="overload">[2/3]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">__attribute__ </td>
-          <td>(</td>
-          <td class="paramtype">(deprecated(&quot;Use the <a class="el" href="group__rtc.html#ga969ea57aaedf13d4950edbeacff3f2be">watch_rtc_register_tick_callback</a> function instead&quot;))&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Registers a "tick" callback that will be called once per second. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">callback</td><td>The function you wish to have called when the clock ticks. If you pass in NULL, the tick interrupt will still be enabled, but no callback function will be called. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a id="ga98366c1b71e09089b441d704193bb0d4" name="ga98366c1b71e09089b441d704193bb0d4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga98366c1b71e09089b441d704193bb0d4">&#9670;&nbsp;</a></span>__attribute__() <span class="overload">[3/3]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">__attribute__ </td>
-          <td>(</td>
-          <td class="paramtype">(deprecated(&quot;Use <a class="el" href="group__rtc.html#gadfcc143db9d71e95c2d2dc45732ab4e5">watch_rtc_set_date_time</a> function instead&quot;))&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Sets the system date and time. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">date_time</td><td>A struct representing the date and time you wish to set. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
 <a id="gadccd826da474b5fe24cac8d8edc88ae6" name="gadccd826da474b5fe24cac8d8edc88ae6"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#gadccd826da474b5fe24cac8d8edc88ae6">&#9670;&nbsp;</a></span>watch_rtc_disable_matching_periodic_callbacks()</h2>
 

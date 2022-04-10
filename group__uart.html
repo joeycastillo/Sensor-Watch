@@ -83,70 +83,10 @@ Functions</h2></td></tr>
 <tr class="memitem:ga0c400bfcd52bb71e8de62c5ab2373db6"><td class="memItemLeft" align="right" valign="top">char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__uart.html#ga0c400bfcd52bb71e8de62c5ab2373db6">watch_uart_getc</a> (void)</td></tr>
 <tr class="memdesc:ga0c400bfcd52bb71e8de62c5ab2373db6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Receives a single byte from the UART's RX pin.  <a href="group__uart.html#ga0c400bfcd52bb71e8de62c5ab2373db6">More...</a><br /></td></tr>
 <tr class="separator:ga0c400bfcd52bb71e8de62c5ab2373db6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gab9e48ca472abf422d1e6389f371d8fbf"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__uart.html#gab9e48ca472abf422d1e6389f371d8fbf">__attribute__</a> ((deprecated(&quot;Use <a class="el" href="group__uart.html#ga38e750d3e02939bf056fde77f4ef6235">watch_enable_uart</a> to enable the UART.&quot;))) void watch_enable_debug_uart(uint32_t baud)</td></tr>
-<tr class="memdesc:gab9e48ca472abf422d1e6389f371d8fbf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the debug UART.  <a href="group__uart.html#gab9e48ca472abf422d1e6389f371d8fbf">More...</a><br /></td></tr>
-<tr class="separator:gab9e48ca472abf422d1e6389f371d8fbf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga42455c49e1756fc2eabbabec6f0bd530"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__uart.html#ga42455c49e1756fc2eabbabec6f0bd530">__attribute__</a> ((deprecated(&quot;Use <a class="el" href="group__uart.html#ga5d62683298c511f24adaab4bf6615c50">watch_uart_puts</a> to print to the UART, or printf to log debug messages over USB.&quot;))) void watch_debug_putc(char c)</td></tr>
-<tr class="memdesc:ga42455c49e1756fc2eabbabec6f0bd530"><td class="mdescLeft">&#160;</td><td class="mdescRight">Outputs a single character on the debug UART.  <a href="group__uart.html#ga42455c49e1756fc2eabbabec6f0bd530">More...</a><br /></td></tr>
-<tr class="separator:ga42455c49e1756fc2eabbabec6f0bd530"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p >This section covers functions related to the UART peripheral. </p>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="gab9e48ca472abf422d1e6389f371d8fbf" name="gab9e48ca472abf422d1e6389f371d8fbf"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gab9e48ca472abf422d1e6389f371d8fbf">&#9670;&nbsp;</a></span>__attribute__() <span class="overload">[1/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">__attribute__ </td>
-          <td>(</td>
-          <td class="paramtype">(deprecated(&quot;Use <a class="el" href="group__uart.html#ga38e750d3e02939bf056fde77f4ef6235">watch_enable_uart</a> to enable the UART.&quot;))&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Initializes the debug UART. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">baud</td><td>The baud rate </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a id="ga42455c49e1756fc2eabbabec6f0bd530" name="ga42455c49e1756fc2eabbabec6f0bd530"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga42455c49e1756fc2eabbabec6f0bd530">&#9670;&nbsp;</a></span>__attribute__() <span class="overload">[2/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">__attribute__ </td>
-          <td>(</td>
-          <td class="paramtype">(deprecated(&quot;Use <a class="el" href="group__uart.html#ga5d62683298c511f24adaab4bf6615c50">watch_uart_puts</a> to print to the UART, or printf to log debug messages over USB.&quot;))&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Outputs a single character on the debug UART. </p>
-<p >Outputs a string on the debug UART.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">c</td><td>The character you wish to output.</td></tr>
-    <tr><td class="paramname">s</td><td>A null-terminated string. </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
 <a id="ga38e750d3e02939bf056fde77f4ef6235" name="ga38e750d3e02939bf056fde77f4ef6235"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga38e750d3e02939bf056fde77f4ef6235">&#9670;&nbsp;</a></span>watch_enable_uart()</h2>
 

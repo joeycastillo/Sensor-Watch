@@ -105,21 +105,10 @@ $(function() {
 <div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span> </div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno"><a class="line" href="group__uart.html#ga0c400bfcd52bb71e8de62c5ab2373db6">   53</a></span><span class="keywordtype">char</span> <a class="code hl_function" href="group__uart.html#ga0c400bfcd52bb71e8de62c5ab2373db6">watch_uart_getc</a>(<span class="keywordtype">void</span>);</div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span> </div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span><span class="comment">// Begin deprecated functions:</span></div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span> </div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno"><a class="line" href="group__uart.html#gab9e48ca472abf422d1e6389f371d8fbf">   60</a></span><a class="code hl_function" href="group__uart.html#gab9e48ca472abf422d1e6389f371d8fbf">__attribute__</a>((deprecated(<span class="stringliteral">&quot;Use watch_enable_uart to enable the UART.&quot;</span>)))</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>void watch_enable_debug_uart(uint32_t baud);</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span> </div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno"><a class="line" href="group__uart.html#ga42455c49e1756fc2eabbabec6f0bd530">   66</a></span><a class="code hl_function" href="group__uart.html#gab9e48ca472abf422d1e6389f371d8fbf">__attribute__</a>((deprecated(&quot;Use <a class="code hl_function" href="group__uart.html#ga5d62683298c511f24adaab4bf6615c50">watch_uart_puts</a> to print to the UART, or printf to log debug messages over USB.&quot;)))</div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span><span class="keywordtype">void</span> watch_debug_putc(<span class="keywordtype">char</span> c);</div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span> </div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span><a class="code hl_function" href="group__uart.html#gab9e48ca472abf422d1e6389f371d8fbf">__attribute__</a>((deprecated(&quot;Use <a class="code hl_function" href="group__uart.html#ga5d62683298c511f24adaab4bf6615c50">watch_uart_puts</a> to print to the UART, or printf to log debug messages over USB.&quot;)))</div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span><span class="keywordtype">void</span> watch_debug_puts(<span class="keywordtype">char</span> *s);</div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span><span class="preprocessor">#endif</span></div>
 <div class="ttc" id="agroup__uart_html_ga0c400bfcd52bb71e8de62c5ab2373db6"><div class="ttname"><a href="group__uart.html#ga0c400bfcd52bb71e8de62c5ab2373db6">watch_uart_getc</a></div><div class="ttdeci">char watch_uart_getc(void)</div><div class="ttdoc">Receives a single byte from the UART's RX pin.</div></div>
 <div class="ttc" id="agroup__uart_html_ga38e750d3e02939bf056fde77f4ef6235"><div class="ttname"><a href="group__uart.html#ga38e750d3e02939bf056fde77f4ef6235">watch_enable_uart</a></div><div class="ttdeci">void watch_enable_uart(const uint8_t tx_pin, const uint8_t rx_pin, uint32_t baud)</div><div class="ttdoc">Initializes the debug UART.</div></div>
 <div class="ttc" id="agroup__uart_html_ga5d62683298c511f24adaab4bf6615c50"><div class="ttname"><a href="group__uart.html#ga5d62683298c511f24adaab4bf6615c50">watch_uart_puts</a></div><div class="ttdeci">void watch_uart_puts(char *s)</div><div class="ttdoc">Transmits a string of bytes on the UART's TX pin.</div></div>
-<div class="ttc" id="agroup__uart_html_gab9e48ca472abf422d1e6389f371d8fbf"><div class="ttname"><a href="group__uart.html#gab9e48ca472abf422d1e6389f371d8fbf">__attribute__</a></div><div class="ttdeci">__attribute__((deprecated(&quot;Use watch_enable_uart to enable the UART.&quot;))) void watch_enable_debug_uart(uint32_t baud)</div><div class="ttdoc">Initializes the debug UART.</div></div>
 <div class="ttc" id="awatch_8h_html"><div class="ttname"><a href="watch_8h.html">watch.h</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
