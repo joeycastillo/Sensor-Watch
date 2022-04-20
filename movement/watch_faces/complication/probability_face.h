@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Joey Castillo
+ * Copyright (c) 2022 Spencer Bywater
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,23 +22,28 @@
  * SOFTWARE.
  */
 
-#ifndef MOVEMENT_CONFIG_H_
-#define MOVEMENT_CONFIG_H_
+#ifndef PROBABILITY_FACE_H_
+#define PROBABILITY_FACE_H_
 
-#include "movement_faces.h"
+#include "movement.h"
 
-const watch_face_t watch_faces[] = {
-    simple_clock_face,
-    pulsometer_face,
-    probability_face,
-    moon_phase_face,
-    thermistor_readout_face,
-    world_clock_face,
-    sunrise_sunset_face,
-    preferences_face,
-    set_time_face,
-};
+typedef struct {
+    uint16_t dice_sides;
+    uint16_t rolled_value;
+} probability_state_t;
 
-#define MOVEMENT_NUM_FACES (sizeof(watch_faces) / sizeof(watch_face_t))
+void probability_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
+void probability_face_activate(movement_settings_t *settings, void *context);
+bool probability_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void probability_face_resign(movement_settings_t *settings, void *context);
 
-#endif // MOVEMENT_CONFIG_H_
+#define probability_face ((const watch_face_t){ \
+    probability_face_setup, \
+    probability_face_activate, \
+    probability_face_loop, \
+    probability_face_resign, \
+    NULL, \
+})
+
+#endif // PROBABILITY_FACE_H_
+
