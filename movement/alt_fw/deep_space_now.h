@@ -27,6 +27,21 @@
 
 #include "movement_faces.h"
 
+// Preset Goldstone (GO), Madrid (MA), and Canberra (CA) time zones.
+
+#define MOVEMENT_CUSTOM_BOOT_COMMANDS() { \
+    /* Standard Time */\
+    /*\
+    watch_store_backup_data(0x1e0c0c, 4);\
+    watch_store_backup_data(0x010115, 5);\
+    watch_store_backup_data(0x130105, 6);\
+    */\
+    /* Daylight Saving Time */\
+    watch_store_backup_data(0x1f0c0c, 4);\
+    watch_store_backup_data(0x020115, 5);\
+    watch_store_backup_data(0x110105, 6);\
+}
+
 const watch_face_t watch_faces[] = {
     simple_clock_face,
     mars_time_face,
