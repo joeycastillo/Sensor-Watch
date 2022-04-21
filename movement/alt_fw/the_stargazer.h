@@ -30,6 +30,7 @@
 #define MOVEMENT_CUSTOM_BOOT_COMMANDS() { \
     movement_state.settings.bit.led_green_color = 0x0;\
     movement_state.settings.bit.led_red_color = 0xF;\
+    watch_store_backup_data(movement_state.settings.reg, 0);\
 }
 
 const watch_face_t watch_faces[] = {
