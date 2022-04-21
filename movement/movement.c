@@ -268,6 +268,10 @@ void app_wake_from_backup(void) {
 }
 
 void app_setup(void) {
+    #ifdef MOVEMENT_CUSTOM_BOOT_COMMANDS
+    MOVEMENT_CUSTOM_BOOT_COMMANDS()
+    #endif
+
     watch_store_backup_data(movement_state.settings.reg, 0);
 
     static bool is_first_launch = true;
