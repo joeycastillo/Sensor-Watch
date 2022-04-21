@@ -5,7 +5,7 @@
 #---------------------------------------------------------------------------
 DOXYFILE_ENCODING      = UTF-8
 PROJECT_NAME           = "Sensor Watch"
-PROJECT_NUMBER         = "0.0.0"
+PROJECT_NUMBER         = "0.0.1"
 PROJECT_BRIEF          = "A board replacement for the classic Casio F-91W wristwatch, powered by a Microchip SAM L22 microcontroller."
 PROJECT_LOGO           =
 OUTPUT_DIRECTORY       = "."
