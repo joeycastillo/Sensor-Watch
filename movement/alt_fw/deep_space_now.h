@@ -28,6 +28,7 @@
 #include "movement_faces.h"
 
 // Preset Goldstone (GO), Madrid (MA), and Canberra (CA) time zones.
+// Also prepopulate the Day One register with Voyager 1's launch (September 5, 1977)
 
 #define MOVEMENT_CUSTOM_BOOT_COMMANDS() { \
     /* Standard Time */\
@@ -40,6 +41,7 @@
     watch_store_backup_data(0x1f0c0c, 4);\
     watch_store_backup_data(0x020115, 5);\
     watch_store_backup_data(0x110105, 6);\
+    watch_store_backup_data(0x0597b9, 2);\
 }
 
 const watch_face_t watch_faces[] = {
