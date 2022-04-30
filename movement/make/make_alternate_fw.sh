@@ -22,11 +22,11 @@ do
     do
         COLOR=$(echo "$color" | tr '[:lower:]' '[:upper:]')
         make clean
-        make LED=$COLOR FIRMWARE=$VARIANT
+        make LED=$COLOR FIRMWARE=$VARIANT -j `nproc`
         mv "build/watch.uf2" "$fw_dir/$variant-$color.uf2"
     done
     make clean
-    emmake make FIRMWARE=$VARIANT
+    emmake make FIRMWARE=$VARIANT -j `nproc`
     mkdir "$sim_dir/$variant/"
     mv "build/watch.wasm" "$sim_dir/$variant/"
     mv "build/watch.js" "$sim_dir/$variant/"
