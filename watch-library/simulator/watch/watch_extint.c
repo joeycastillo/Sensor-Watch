@@ -181,11 +181,3 @@ void watch_register_interrupt_callback(const uint8_t pin, ext_irq_cb_t callback,
         external_interrupt_alarm_trigger = trigger;
     }
 }
-
-void watch_register_button_callback(const uint8_t pin, ext_irq_cb_t callback) {
-    watch_register_interrupt_callback(pin, callback, INTERRUPT_TRIGGER_RISING);
-}
-
-void watch_enable_buttons(void) {
-    watch_enable_external_interrupts();
-}

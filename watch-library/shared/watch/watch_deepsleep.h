@@ -151,10 +151,5 @@ void watch_enter_deep_sleep_mode(void);
   */
 void watch_enter_backup_mode(void);
 
-__attribute__((deprecated("Use watch_enter_sleep_mode or watch_enter_deep_sleep_mode instead")))
-void watch_enter_shallow_sleep(bool display_on);
-
-__attribute__((deprecated("Use watch_enter_backup_mode instead")))
-void watch_enter_deep_sleep(void);
 /// @}
 #endif

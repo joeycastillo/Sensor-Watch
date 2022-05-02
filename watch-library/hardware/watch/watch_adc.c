@@ -36,7 +36,7 @@ static uint16_t _watch_get_analog_value(uint16_t channel) {
     }
 
     ADC->SWTRIG.bit.START = 1;
-    while (!ADC->INTFLAG.bit.RESRDY);
+    while (!ADC->INTFLAG.bit.RESRDY); // wait for "result ready" flag
 
     return ADC->RESULT.reg;
 }

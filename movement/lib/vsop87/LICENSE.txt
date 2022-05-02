@@ -1,0 +1,5 @@
+Author: Greg A Miller (gmiller@gregmiller.net)
+I release all of my work in this project to the public domain.
+
+Note, though, not everything here can be considered my work.  The VSOP87 theory is the work of
+Bureau des Longitudes.

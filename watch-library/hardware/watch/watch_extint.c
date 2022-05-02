@@ -101,11 +101,3 @@ void watch_register_interrupt_callback(const uint8_t pin, ext_irq_cb_t callback,
 
     ext_irq_register(pin, callback);
 }
-
-inline void watch_register_button_callback(const uint8_t pin, ext_irq_cb_t callback) {
-    watch_register_interrupt_callback(pin, callback, INTERRUPT_TRIGGER_RISING);
-}
-
-inline void watch_enable_buttons(void) {
-    watch_enable_external_interrupts();
-}

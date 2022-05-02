@@ -24,8 +24,8 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "lis2dh_logging_face.h"
-#include "lis2dh.h"
+#include "lis2dw_logging_face.h"
+#include "lis2dw.h"
 #include "watch.h"
 
 // This watch face is just for testing; if we want to build accelerometer support, it will likely have to be part of Movement itself.
@@ -36,14 +36,14 @@
 // Pressing the alarm button enters the log mode, where the main display shows the number of interrupts detected in each of the last
 // 24 hours (the hour is shown in the top right digit and AM/PM indicator, if the clock is set to 12 hour mode)
 
-static void _lis2dh_logging_face_update_display(movement_settings_t *settings, lis2dh_logger_state_t *logger_state, lis2dh_interrupt_state interrupt_state) {
+static void _lis2dw_logging_face_update_display(movement_settings_t *settings, lis2dw_logger_state_t *logger_state, lis2dw_wakeup_source wakeup_source) {
     char buf[14];
     char time_indication_character;
     int8_t pos;
     watch_date_time date_time;
 
     if (logger_state->log_ticks) {
-        pos = (logger_state->data_points - 1 - logger_state->display_index) % LIS2DH_LOGGING_NUM_DATA_POINTS;
+        pos = (logger_state->data_points - 1 - logger_state->display_index) % LIS2DW_LOGGING_NUM_DATA_POINTS;
         if (pos < 0) {
             watch_clear_colon();
             sprintf(buf, "NO   data ");
@@ -80,9 +80,9 @@ static void _lis2dh_logging_face_update_display(movement_settings_t *settings, l
         if ((59 - date_time.unit.second) < 10) time_indication_character = '0' + (59 - date_time.unit.second);
         else time_indication_character = (date_time.unit.second % 2) ? 'i' : '_';
         sprintf(buf, "%c%c%c%c%2d%2d%2d",
-            (interrupt_state & LIS2DH_INTERRUPT_STATE_Y_HIGH) ? 'Y' : ' ',
-            (interrupt_state & LIS2DH_INTERRUPT_STATE_X_HIGH) ? 'X' : ' ',
-            (interrupt_state & LIS2DH_INTERRUPT_STATE_Z_HIGH) ? 'Z' : ' ',
+            (wakeup_source & LIS2DW_WAKEUP_SRC_WAKEUP_Y) ? 'Y' : ' ',
+            (wakeup_source & LIS2DW_WAKEUP_SRC_WAKEUP_X) ? 'X' : ' ',
+            (wakeup_source & LIS2DW_WAKEUP_SRC_WAKEUP_Z) ? 'Z' : ' ',
             time_indication_character,
             logger_state->interrupts[0],
             logger_state->interrupts[1],
@@ -91,7 +91,7 @@ static void _lis2dh_logging_face_update_display(movement_settings_t *settings, l
     watch_display_string(buf, 0);
 }
 
-static void _lis2dh_logging_face_log_data(lis2dh_logger_state_t *logger_state) {
+static void _lis2dw_logging_face_log_data(lis2dw_logger_state_t *logger_state) {
     watch_date_time date_time = watch_rtc_get_date_time();
     // we get this call 15 minutes late; i.e. at 6:15 we're logging events for 6:00.
     // so: if we're at the top of the hour, roll the hour back too (7:00 task logs data for 6:45)
@@ -100,7 +100,7 @@ static void _lis2dh_logging_face_log_data(lis2dh_logger_state_t *logger_state) {
     // // then roll the minute back.
     date_time.unit.minute = (date_time.unit.minute + 45) % 60;
 
-    size_t pos = logger_state->data_points % LIS2DH_LOGGING_NUM_DATA_POINTS;
+    size_t pos = logger_state->data_points % LIS2DW_LOGGING_NUM_DATA_POINTS;
     logger_state->data[pos].timestamp.reg = date_time.reg;
     logger_state->data[pos].x_interrupts = logger_state->x_interrupts_this_hour;
     logger_state->data[pos].y_interrupts = logger_state->y_interrupts_this_hour;
@@ -111,28 +111,25 @@ static void _lis2dh_logging_face_log_data(lis2dh_logger_state_t *logger_state) {
     logger_state->z_interrupts_this_hour = 0;
 }
 
-void lis2dh_logging_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
+void lis2dw_logging_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
     (void) watch_face_index;
     if (*context_ptr == NULL) {
-        *context_ptr = malloc(sizeof(lis2dh_logger_state_t));
-        memset(*context_ptr, 0, sizeof(lis2dh_logger_state_t));
-        gpio_set_pin_direction(A0, GPIO_DIRECTION_OUT);
-        gpio_set_pin_function(A0, GPIO_PIN_FUNCTION_OFF);
-        gpio_set_pin_level(A0, true);
+        *context_ptr = malloc(sizeof(lis2dw_logger_state_t));
+        memset(*context_ptr, 0, sizeof(lis2dw_logger_state_t));
         watch_enable_i2c();
-        lis2dh_begin();
-        lis2dh_set_data_rate(LIS2DH_DATA_RATE_10_HZ);
-        lis2dh_configure_aoi_int1(
-            LIS2DH_INTERRUPT_CONFIGURATION_OR |
-            LIS2DH_INTERRUPT_CONFIGURATION_X_HIGH_ENABLE |
-            LIS2DH_INTERRUPT_CONFIGURATION_Y_HIGH_ENABLE |
-            LIS2DH_INTERRUPT_CONFIGURATION_Z_HIGH_ENABLE, 96, 0, true);
+        lis2dw_begin();
+        lis2dw_set_low_power_mode(LIS2DW_LP_MODE_2); // lowest power 14-bit mode, 25 Hz is 3.5 µA @ 1.8V w/ low noise, 3µA without
+        lis2dw_set_low_noise_mode(true); // consumes a little more power
+        lis2dw_set_range(LIS2DW_CTRL6_VAL_RANGE_4G);
+        lis2dw_set_data_rate(LIS2DW_DATA_RATE_25_HZ); // is this enough for training?
+        // threshold is 1/64th of full scale, so for a FS of ±4G this is 1.25G
+        lis2dw_configure_wakeup_int1(10, true, false);
     }
 }
 
-void lis2dh_logging_face_activate(movement_settings_t *settings, void *context) {
-    lis2dh_logger_state_t *logger_state = (lis2dh_logger_state_t *)context;
+void lis2dw_logging_face_activate(movement_settings_t *settings, void *context) {
+    lis2dw_logger_state_t *logger_state = (lis2dw_logger_state_t *)context;
     // force two settings: never enter low energy mode, and always snap back to screen 0.
     // this assumes the accelerometer face is first in the watch_faces list.
     settings->bit.le_interval = 0;
@@ -140,12 +137,13 @@ void lis2dh_logging_face_activate(movement_settings_t *settings, void *context) 
 
     logger_state->display_index = 0;
     logger_state->log_ticks = 0;
-    watch_enable_digital_input(A1);
+    watch_enable_digital_input(A0);
 }
 
-bool lis2dh_logging_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
-    lis2dh_logger_state_t *logger_state = (lis2dh_logger_state_t *)context;
-    lis2dh_interrupt_state interrupt_state = 0;
+bool lis2dw_logging_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
+    lis2dw_logger_state_t *logger_state = (lis2dw_logger_state_t *)context;
+    lis2dw_wakeup_source wakeup_source = 0;
+    lis2dw_interrupt_source interrupt_source = 0;
 
     switch (event.event_type) {
         case EVENT_MODE_BUTTON_UP:
@@ -157,13 +155,13 @@ bool lis2dh_logging_face_loop(movement_event_t event, movement_settings_t *setti
         case EVENT_LIGHT_BUTTON_DOWN:
             logger_state->axis_index = (logger_state->axis_index + 1) % 4;
             logger_state->log_ticks = 255;
-            _lis2dh_logging_face_update_display(settings, logger_state, interrupt_state);
+            _lis2dw_logging_face_update_display(settings, logger_state, wakeup_source);
             break;
         case EVENT_ALARM_BUTTON_UP:
-            if (logger_state->log_ticks) logger_state->display_index = (logger_state->display_index + 1) % LIS2DH_LOGGING_NUM_DATA_POINTS;
+            if (logger_state->log_ticks) logger_state->display_index = (logger_state->display_index + 1) % LIS2DW_LOGGING_NUM_DATA_POINTS;
             logger_state->log_ticks = 255;
             logger_state->axis_index = 0;
-            _lis2dh_logging_face_update_display(settings, logger_state, interrupt_state);
+            _lis2dw_logging_face_update_display(settings, logger_state, wakeup_source);
             break;
         case EVENT_ACTIVATE:
         case EVENT_TICK:
@@ -172,20 +170,21 @@ bool lis2dh_logging_face_loop(movement_event_t event, movement_settings_t *setti
             } else {
                 logger_state->display_index = 0;
             }
-            if (watch_get_pin_level(A1)) {
+            interrupt_source = lis2dw_get_interrupt_source();
+            if (interrupt_source) {
                 watch_set_indicator(WATCH_INDICATOR_SIGNAL);
-                interrupt_state = lis2dh_get_int1_state();
+                wakeup_source = lis2dw_get_wakeup_source();
                 logger_state->interrupts[0]++;
-                if (interrupt_state & LIS2DH_INTERRUPT_STATE_X_HIGH) logger_state->x_interrupts_this_hour++;
-                if (interrupt_state & LIS2DH_INTERRUPT_STATE_Y_HIGH) logger_state->y_interrupts_this_hour++;
-                if (interrupt_state & LIS2DH_INTERRUPT_STATE_Z_HIGH) logger_state->z_interrupts_this_hour++;
+                if (wakeup_source & LIS2DW_WAKEUP_SRC_WAKEUP_X) logger_state->x_interrupts_this_hour++;
+                if (wakeup_source & LIS2DW_WAKEUP_SRC_WAKEUP_Y) logger_state->y_interrupts_this_hour++;
+                if (wakeup_source & LIS2DW_WAKEUP_SRC_WAKEUP_Z) logger_state->z_interrupts_this_hour++;
             } else {
                 watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
             }
-            _lis2dh_logging_face_update_display(settings, logger_state, interrupt_state);
+            _lis2dw_logging_face_update_display(settings, logger_state, wakeup_source);
             break;
         case EVENT_BACKGROUND_TASK:
-            _lis2dh_logging_face_log_data(logger_state);
+            _lis2dw_logging_face_log_data(logger_state);
             break;
         default:
             break;
@@ -194,15 +193,15 @@ bool lis2dh_logging_face_loop(movement_event_t event, movement_settings_t *setti
     return true;
 }
 
-void lis2dh_logging_face_resign(movement_settings_t *settings, void *context) {
+void lis2dw_logging_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
-    watch_disable_digital_input(A1);
+    watch_disable_digital_input(A0);
 }
 
-bool lis2dh_logging_face_wants_background_task(movement_settings_t *settings, void *context) {
+bool lis2dw_logging_face_wants_background_task(movement_settings_t *settings, void *context) {
     (void) settings;
-    lis2dh_logger_state_t *logger_state = (lis2dh_logger_state_t *)context;
+    lis2dw_logger_state_t *logger_state = (lis2dw_logger_state_t *)context;
     watch_date_time date_time = watch_rtc_get_date_time();
 
     // this is kind of an abuse of the API, but, let's use the 1 minute tick to shift all our data over.

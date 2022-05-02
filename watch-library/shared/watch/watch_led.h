@@ -84,10 +84,5 @@ void watch_set_led_yellow(void);
 /** @brief Turns both the red and the green LEDs off. */
 void watch_set_led_off(void);
 
-__attribute__((deprecated("Use watch_enable_leds instead")))
-void watch_enable_led(bool unused);
-
-__attribute__((deprecated("Use watch_disable_leds instead")))
-void watch_disable_led(bool unused);
 /// @}
 #endif

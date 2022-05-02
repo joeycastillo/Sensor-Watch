@@ -3,7 +3,7 @@ BUILD = ./build
 BIN = watch
 
 ifndef BOARD
-override BOARD = OSO-SWAT-A1-04
+override BOARD = OSO-SWAT-A1-05
 endif
 
 ##############################################################################
@@ -161,6 +161,7 @@ SRCS += \
   $(TOP)/watch-library/simulator/watch/watch_deepsleep.c \
   $(TOP)/watch-library/simulator/watch/watch_private.c \
   $(TOP)/watch-library/simulator/watch/watch.c \
+  $(TOP)/watch-library/shared/driver/thermistor_driver.c \
   $(TOP)/watch-library/shared/watch/watch_private_buzzer.c \
   $(TOP)/watch-library/shared/watch/watch_private_display.c \
   $(TOP)/watch-library/shared/watch/watch_utility.c \
@@ -169,6 +170,11 @@ endif
 
 ifeq ($(LED), BLUE)
 CFLAGS += -DWATCH_SWAP_LED_PINS
+endif
+
+ifdef FIRMWARE
+CFLAGS += -DMOVEMENT_FIRMWARE_$(FIRMWARE)=1
+CFLAGS += -DMOVEMENT_FIRMWARE=MOVEMENT_FIRMWARE_$(FIRMWARE)
 endif
 
 ifeq ($(BOARD), OSO-FEAL-A1-00)

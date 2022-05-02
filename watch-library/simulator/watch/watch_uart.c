@@ -45,14 +45,3 @@ char watch_uart_getc(void) {
     }
     return 0;
 }
-
-void watch_enable_debug_uart(uint32_t baud) {}
-
-void watch_debug_putc(char c) {}
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-void watch_debug_puts(char *s) {
-    while (*s) watch_debug_putc(*s++);
-}
-#pragma GCC diagnostic pop

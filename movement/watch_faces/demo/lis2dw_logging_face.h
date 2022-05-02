@@ -22,20 +22,20 @@
  * SOFTWARE.
  */
 
-#ifndef LIS2DH_LOGGING_FACE_H_
-#define LIS2DH_LOGGING_FACE_H_
+#ifndef LIS2DW_LOGGING_FACE_H_
+#define LIS2DW_LOGGING_FACE_H_
 
 #include "movement.h"
 #include "watch.h"
 
-#define LIS2DH_LOGGING_NUM_DATA_POINTS (96)
+#define LIS2DW_LOGGING_NUM_DATA_POINTS (96)
 
 typedef struct {
     watch_date_time timestamp;
     uint32_t x_interrupts;
     uint32_t y_interrupts;
     uint32_t z_interrupts;
-} lis2dh_logger_data_point_t;
+} lis2dw_logger_data_point_t;
 
 typedef struct {
     uint8_t display_index;  // the index we are displaying on screen
@@ -46,21 +46,21 @@ typedef struct {
     uint32_t x_interrupts_this_hour;  // the number of interrupts we have logged in the last hour
     uint32_t y_interrupts_this_hour;  // the number of interrupts we have logged in the last hour
     uint32_t z_interrupts_this_hour;  // the number of interrupts we have logged in the last hour
-    lis2dh_logger_data_point_t data[LIS2DH_LOGGING_NUM_DATA_POINTS];
-} lis2dh_logger_state_t;
+    lis2dw_logger_data_point_t data[LIS2DW_LOGGING_NUM_DATA_POINTS];
+} lis2dw_logger_state_t;
 
-void lis2dh_logging_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
-void lis2dh_logging_face_activate(movement_settings_t *settings, void *context);
-bool lis2dh_logging_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
-void lis2dh_logging_face_resign(movement_settings_t *settings, void *context);
-bool lis2dh_logging_face_wants_background_task(movement_settings_t *settings, void *context);
+void lis2dw_logging_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
+void lis2dw_logging_face_activate(movement_settings_t *settings, void *context);
+bool lis2dw_logging_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void lis2dw_logging_face_resign(movement_settings_t *settings, void *context);
+bool lis2dw_logging_face_wants_background_task(movement_settings_t *settings, void *context);
 
-#define lis2dh_logging_face ((const watch_face_t){ \
-    lis2dh_logging_face_setup, \
-    lis2dh_logging_face_activate, \
-    lis2dh_logging_face_loop, \
-    lis2dh_logging_face_resign, \
-    lis2dh_logging_face_wants_background_task, \
+#define lis2dw_logging_face ((const watch_face_t){ \
+    lis2dw_logging_face_setup, \
+    lis2dw_logging_face_activate, \
+    lis2dw_logging_face_loop, \
+    lis2dw_logging_face_resign, \
+    lis2dw_logging_face_wants_background_task, \
 })
 
-#endif // LIS2DH_LOGGING_FACE_H_
+#endif // LIS2DW_LOGGING_FACE_H_

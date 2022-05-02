@@ -69,7 +69,7 @@ void watch_register_extwake_callback(uint8_t pin, ext_irq_cb_t callback, bool le
 
     // disable the RTC
     RTC->MODE2.CTRLA.bit.ENABLE = 0;
-    while (RTC->MODE2.SYNCBUSY.bit.ENABLE);
+    while (RTC->MODE2.SYNCBUSY.bit.ENABLE); // wait for RTC to be disabled
 
     // update the configuration
     RTC->MODE2.TAMPCTRL.reg = config;
@@ -191,16 +191,4 @@ void watch_enter_backup_mode(void) {
 
     // go into backup sleep mode (5). when we exit, the reset controller will take over.
     sleep(5);
-}
-
-// deprecated
-void watch_enter_shallow_sleep(bool display_on) {
-    if (display_on) watch_enter_sleep_mode();
-    else watch_enter_deep_sleep_mode();
-}
-
-// deprecated
-void watch_enter_deep_sleep(void) {
-    watch_register_extwake_callback(BTN_ALARM, NULL, true);
-    watch_enter_backup_mode();
 }

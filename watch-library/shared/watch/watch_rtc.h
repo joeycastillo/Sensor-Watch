@@ -147,24 +147,5 @@ void watch_rtc_disable_matching_periodic_callbacks(uint8_t mask);
   */
 void watch_rtc_disable_all_periodic_callbacks(void);
 
-/** @brief Sets the system date and time.
-  * @param date_time A struct representing the date and time you wish to set.
-  */
-__attribute__((deprecated("Use watch_rtc_set_date_time function instead")))
-void watch_set_date_time(struct calendar_date_time date_time);
-
-/** @brief Returns the system date and time in the provided struct.
-  * @param date_time A pointer to a calendar_date_time struct. It will have with the correct date and time on return.
-  */
-__attribute__((deprecated("Use the watch_rtc_get_date_time function instead")))
-void watch_get_date_time(struct calendar_date_time *date_time);
-
-/** @brief Registers a "tick" callback that will be called once per second.
-  * @param callback The function you wish to have called when the clock ticks. If you pass in NULL, the tick
-  *                 interrupt will still be enabled, but no callback function will be called.
-  */
-__attribute__((deprecated("Use the watch_rtc_register_tick_callback function instead")))
-void watch_register_tick_callback(ext_irq_cb_t callback);
-
 /// @}
 #endif

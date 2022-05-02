@@ -74,7 +74,7 @@ uint32_t watch_utility_date_time_to_unix_time(watch_date_time date_time, uint32_
   */
 watch_duration_t watch_utility_seconds_to_duration(uint32_t seconds);
 
-/** @brief Returns the UNIX time (seconds since 1970) for a given watch_date_time struct.
+/** @brief Returns a watch_date_time struct for a given UNIX time and UTC offset.
   * @param timestamp The UNIX timestamp that you wish to convert.
   * @param utc_offset The number of seconds that you wish date_time to be offset from UTC.
   * @return A watch_date_time for the given UNIX timestamp and UTC offset, or if outside the range that
@@ -123,5 +123,13 @@ watch_date_time watch_utility_date_time_convert_zone(watch_date_time date_time, 
   *       https://github.com/adafruit/Adafruit_CircuitPython_Thermistor/blob/main/adafruit_thermistor.py
   */
 float watch_utility_thermistor_temperature(uint16_t value, bool highside, float b_coefficient, float nominal_temperature, float nominal_resistance, float series_resistance);
+
+/** @brief Offset a timestamp by a given amount
+ * @param now Timestamp to offset from
+ * @param hours Number of hours to offset
+ * @param minutes Nmber of minutes to offset
+ * @param seconds Number of secodns to offset
+ */
+uint32_t watch_utility_offset_timestamp(uint32_t now, int8_t hours, int8_t minutes, int8_t seconds);
 
 #endif

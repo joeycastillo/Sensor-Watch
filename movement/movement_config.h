@@ -28,8 +28,11 @@
 #include "movement_faces.h"
 
 const watch_face_t watch_faces[] = {
-    accelerometer_data_acquisition_face,
     simple_clock_face,
+    world_clock_face,
+    sunrise_sunset_face,
+    moon_phase_face,
+    thermistor_readout_face,
     preferences_face,
     set_time_face,
 };

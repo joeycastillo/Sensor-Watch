@@ -52,14 +52,15 @@ void watch_display_character(uint8_t character, uint8_t position) {
         if (character == 'T') character = 't'; // uppercase T only works in positions 0 and 1
     }
     if (position == 1) {
-        if (character == 'o') character = 'O'; // O needs to be uppercase
-        if (character == 'i') character = 'l'; // I needs to be uppercase (use an l, it looks the same)
-        if (character == 'n') character = 'N'; // N needs to be uppercase
-        if (character == 'r') character = 'R'; // R needs to be uppercase
-        if (character == 'd') character = 'D'; // D needs to be uppercase
-        if (character == 'v' || character == 'V' || character == 'u') character = 'U'; // side segments shared, make uppercase
-        if (character == 'b') character = 'B'; // B needs to be uppercase
-        if (character == 'c') character = 'C'; // C needs to be uppercase
+        if (character == 'a') character = 'A'; // A needs to be uppercase
+        else if (character == 'o') character = 'O'; // O needs to be uppercase
+        else if (character == 'i') character = 'l'; // I needs to be uppercase (use an l, it looks the same)
+        else if (character == 'n') character = 'N'; // N needs to be uppercase
+        else if (character == 'r') character = 'R'; // R needs to be uppercase
+        else if (character == 'd') character = 'D'; // D needs to be uppercase
+        else if (character == 'v' || character == 'V' || character == 'u') character = 'U'; // side segments shared, make uppercase
+        else if (character == 'b') character = 'B'; // B needs to be uppercase
+        else if (character == 'c') character = 'C'; // C needs to be uppercase
     } else {
         if (character == 'R') character = 'r'; // R needs to be lowercase almost everywhere
     }

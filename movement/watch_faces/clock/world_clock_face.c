@@ -44,14 +44,11 @@ void world_clock_face_setup(movement_settings_t *settings, uint8_t watch_face_in
 }
 
 void world_clock_face_activate(movement_settings_t *settings, void *context) {
+    (void) settings;
     world_clock_state_t *state = (world_clock_state_t *)context;
     state->current_screen = 0;
-    state->previous_date_time = 0xFFFFFFFF;
 
     if (watch_tick_animation_is_running()) watch_stop_tick_animation();
-    if (settings->bit.clock_mode_24h) watch_set_indicator(WATCH_INDICATOR_24H);
-
-    watch_set_colon();
 }
 
 static bool world_clock_face_do_display_mode(movement_event_t event, movement_settings_t *settings, world_clock_state_t *state) {
@@ -63,6 +60,10 @@ static bool world_clock_face_do_display_mode(movement_event_t event, movement_se
     watch_date_time date_time;
     switch (event.event_type) {
         case EVENT_ACTIVATE:
+            if (settings->bit.clock_mode_24h) watch_set_indicator(WATCH_INDICATOR_24H);
+            watch_set_colon();
+            state->previous_date_time = 0xFFFFFFFF;
+            // fall through
         case EVENT_TICK:
         case EVENT_LOW_ENERGY_UPDATE:
             date_time = watch_rtc_get_date_time();
@@ -71,11 +72,11 @@ static bool world_clock_face_do_display_mode(movement_event_t event, movement_se
             previous_date_time = state->previous_date_time;
             state->previous_date_time = date_time.reg;
 
-            if (date_time.reg >> 6 == previous_date_time >> 6 && event.event_type != EVENT_LOW_ENERGY_UPDATE) {
+            if ((date_time.reg >> 6) == (previous_date_time >> 6) && event.event_type != EVENT_LOW_ENERGY_UPDATE) {
                 // everything before seconds is the same, don't waste cycles setting those segments.
                 pos = 8;
                 sprintf(buf, "%02d", date_time.unit.second);
-            } else if (date_time.reg >> 12 == previous_date_time >> 12 && event.event_type != EVENT_LOW_ENERGY_UPDATE) {
+            } else if ((date_time.reg >> 12) == (previous_date_time >> 12) && event.event_type != EVENT_LOW_ENERGY_UPDATE) {
                 // everything before minutes is the same.
                 pos = 6;
                 sprintf(buf, "%02d%02d", date_time.unit.minute, date_time.unit.second);
@@ -140,9 +141,9 @@ static bool _world_clock_face_do_settings_mode(movement_event_t event, movement_
             if (state->current_screen > 3) {
                 movement_request_tick_frequency(1);
                 state->current_screen = 0;
-                state->previous_date_time = 0xFFFFFFFF;
                 if (state->backup_register) watch_store_backup_data(state->settings.reg, state->backup_register);
-                world_clock_face_do_display_mode(event, settings, state);
+                event.event_type = EVENT_ACTIVATE;
+                return world_clock_face_do_display_mode(event, settings, state);
             }
             break;
         case EVENT_ALARM_BUTTON_DOWN:

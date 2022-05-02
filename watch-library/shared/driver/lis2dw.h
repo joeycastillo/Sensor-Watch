@@ -99,6 +99,24 @@ typedef enum {
   LIS2DW_RANGE_2_G = 0b00   // +/- 2g (default value)
 } lis2dw_range_t;
 
+typedef enum {
+  LIS2DW_INTERRUPT_SRC_SLEEP_CHANGE = 0b00100000,
+  LIS2DW_INTERRUPT_SRC_6D           = 0b00010000,
+  LIS2DW_INTERRUPT_SRC_DOUBLE_TAP   = 0b00001000,
+  LIS2DW_INTERRUPT_SRC_SINGLE_TAP   = 0b00000100,
+  LIS2DW_INTERRUPT_SRC_WU           = 0b00000010,
+  LIS2DW_INTERRUPT_SRC_FF           = 0b00000001
+} lis2dw_interrupt_source;
+
+typedef enum {
+  LIS2DW_WAKEUP_SRC_FREEFALL    = 0b00100000,
+  LIS2DW_WAKEUP_SRC_SLEEP_STATE = 0b00010000,
+  LIS2DW_WAKEUP_SRC_WAKEUP      = 0b00001000,
+  LIS2DW_WAKEUP_SRC_WAKEUP_X    = 0b00000100,
+  LIS2DW_WAKEUP_SRC_WAKEUP_Y    = 0b00000010,
+  LIS2DW_WAKEUP_SRC_WAKEUP_Z    = 0b00000001
+} lis2dw_wakeup_source;
+
 // Assumes SA0 is high; if low, its 0x18
 #define LIS2DW_ADDRESS (0x19)
 
@@ -135,15 +153,15 @@ typedef enum {
 #define LIS2DW_CTRL2_VAL_IF_ADD_INC 0b00000100
 
 #define LIS2DW_REG_CTRL3 0x22
-#define LIS2DW_CTRL4_VAL_SELF_TEST_POS  0b10000000
-#define LIS2DW_CTRL4_VAL_SELF_TEST_NEG  0b01000000
+#define LIS2DW_CTRL3_VAL_SELF_TEST_POS  0b10000000
+#define LIS2DW_CTRL3_VAL_SELF_TEST_NEG  0b01000000
 #define LIS2DW_CTRL3_VAL_PP_OD          0b00100000
 #define LIS2DW_CTRL3_VAL_LIR            0b00010000
 #define LIS2DW_CTRL3_VAL_H_L_ACTIVE     0b00001000
 #define LIS2DW_CTRL3_VAL_SLP_MODE_SEL   0b00000010
 #define LIS2DW_CTRL3_VAL_SLP_MODE_1     0b00000001
 
-#define LIS2DW_REG_CTRL4 0x23
+#define LIS2DW_REG_CTRL4_INT1 0x23
 #define LIS2DW_CTRL4_INT1_6D          0b10000000
 #define LIS2DW_CTRL4_INT1_SINGLE_TAP  0b01000000
 #define LIS2DW_CTRL4_INT1_WU          0b00100000
@@ -153,7 +171,7 @@ typedef enum {
 #define LIS2DW_CTRL4_INT1_FTH         0b00000010
 #define LIS2DW_CTRL4_INT1_DRDY        0b00000001
 
-#define LIS2DW_REG_CTRL5 0x24
+#define LIS2DW_REG_CTRL5_INT2 0x24
 #define LIS2DW_CTRL5_INT2_SLEEP_STATE 0b10000000
 #define LIS2DW_CTRL5_INT2_SLEEP_CHG   0b01000000
 #define LIS2DW_CTRL5_INT2_BOOT        0b00100000
@@ -212,7 +230,11 @@ typedef enum {
 #define LIS2DW_REG_TAP_THS_Y 0x31
 #define LIS2DW_REG_TAP_THS_Z 0x32
 #define LIS2DW_REG_INT1_DUR 0x33
+
 #define LIS2DW_REG_WAKE_UP_THS 0x34
+#define LIS2DW_WAKE_UP_THS_VAL_TAP_EVENT_ENABLED 0b10000000
+#define LIS2DW_WAKE_UP_THS_VAL_SLEEP_ON          0b01000000
+
 #define LIS2DW_REG_WAKE_UP_DUR 0x35
 #define LIS2DW_REG_FREE_FALL 0x36
 #define LIS2DW_REG_STATUS_DUP 0x37
@@ -312,5 +334,11 @@ void lis2dw_enable_fifo(void);
 bool lis2dw_read_fifo(lis2dw_fifo_t *fifo_data);
 
 void lis2dw_clear_fifo(void);
+
+void lis2dw_configure_wakeup_int1(uint8_t threshold, bool latch, bool active_state);
+
+lis2dw_interrupt_source lis2dw_get_interrupt_source(void);
+
+lis2dw_wakeup_source lis2dw_get_wakeup_source(void);
 
 #endif // LIS2DW_H
