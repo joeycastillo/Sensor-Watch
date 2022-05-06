@@ -64,6 +64,7 @@
 #include "watch_i2c.h"
 #include "watch_spi.h"
 #include "watch_uart.h"
+#include "watch_storage.h"
 #include "watch_deepsleep.h"
 
 #include "watch_private.h"
