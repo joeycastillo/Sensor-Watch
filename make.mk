@@ -71,6 +71,7 @@ SRCS += \
   $(TOP)/tinyusb/src/tusb.c \
   $(TOP)/tinyusb/src/common/tusb_fifo.c \
   $(TOP)/tinyusb/src/class/cdc/cdc_device.c \
+  $(TOP)/tinyusb/src/class/msc/msc_device.c \
   $(TOP)/tinyusb/src/device/usbd.c \
   $(TOP)/tinyusb/src/device/usbd_control.c \
   $(TOP)/tinyusb/src/portable/microchip/samd/dcd_samd.c \
