@@ -77,7 +77,7 @@ int filesystem_get_free_space(void) {
 static int filesystem_ls(lfs_t *lfs, const char *path) {
     lfs_dir_t dir;
     int err = lfs_dir_open(lfs, &dir, path);
-    if (err) {
+    if (err < 0) {
         return err;
     }
 
@@ -104,7 +104,7 @@ static int filesystem_ls(lfs_t *lfs, const char *path) {
     }
 
     err = lfs_dir_close(lfs, &dir);
-    if (err) {
+    if (err < 0) {
         return err;
     }
 
@@ -116,10 +116,10 @@ bool filesystem_init(void) {
 
     // reformat if we can't mount the filesystem
     // this should only happen on the first boot
-    if (err) {
+    if (err < 0) {
         printf("Ignore that error! Formatting filesystem...\n");
         err = lfs_format(&lfs, &cfg);
-        if (err) return false;
+        if (err < 0) return false;
         err = lfs_mount(&lfs, &cfg) == LFS_ERR_OK;
         printf("Filesystem mounted with %d bytes free.\n", filesystem_get_free_space());
     }
@@ -157,9 +157,9 @@ bool filesystem_read_file(char *filename, char *buf, int32_t length) {
     int32_t file_size = filesystem_get_file_size(filename);
     if (file_size > 0) {
         int err = lfs_file_open(&lfs, &file, filename, LFS_O_RDONLY);
-        if (err) return false;
+        if (err < 0) return false;
         err = lfs_file_read(&lfs, &file, buf, min(length, file_size));
-        if (err) return false;
+        if (err < 0) return false;
         return lfs_file_close(&lfs, &file) == LFS_ERR_OK;
     }
 
@@ -185,9 +185,9 @@ static void filesystem_cat(char *filename) {
 
 bool filesystem_write_file(char *filename, char *text, int32_t length) {
     int err = lfs_file_open(&lfs, &file, filename, LFS_O_RDWR | LFS_O_CREAT | LFS_O_TRUNC);
-    if (err) return false;
+    if (err < 0) return false;
     err = lfs_file_write(&lfs, &file, text, length);
-    if (err) return false;
+    if (err < 0) return false;
     return lfs_file_close(&lfs, &file) == LFS_ERR_OK;
 }
 
