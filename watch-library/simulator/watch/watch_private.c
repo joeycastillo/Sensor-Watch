@@ -63,7 +63,7 @@ int _write(int file, char *ptr, int len) {
     return 0;
 }
 
-// this method could be overridden to read stuff from the USB console? but no need rn.
-int _read(void) {
+int _read(int file, char *ptr, int len) {
+    // TODO: hook to UI
     return 0;
 }
