@@ -254,6 +254,8 @@ void app_init(void) {
     movement_state.next_available_backup_register = 4;
     _movement_reset_inactivity_countdown();
 
+    filesystem_init();
+
 #if __EMSCRIPTEN__
     int32_t time_zone_offset = EM_ASM_INT({
         return -new Date().getTimezoneOffset();
@@ -450,7 +452,7 @@ bool app_loop(void) {
 #else
         read(0, line, 256);
 #endif
-        if (strlen(line)) printf(line);
+        if (strlen(line)) filesystem_process_command(line);
     }
 
     event.subsecond = 0;

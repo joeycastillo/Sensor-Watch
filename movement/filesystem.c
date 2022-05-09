@@ -117,9 +117,11 @@ bool filesystem_init(void) {
     // reformat if we can't mount the filesystem
     // this should only happen on the first boot
     if (err) {
+        printf("Ignore that error! Formatting filesystem...\n");
         err = lfs_format(&lfs, &cfg);
         if (err) return false;
         err = lfs_mount(&lfs, &cfg) == LFS_ERR_OK;
+        printf("Filesystem mounted with %d bytes free.\n", filesystem_get_free_space());
     }
 
     return err == LFS_ERR_OK;

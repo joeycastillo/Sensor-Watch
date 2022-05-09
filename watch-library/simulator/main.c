@@ -102,8 +102,6 @@ static void main_loop_set_sleeping(bool sleeping) {
 }
 
 int main(void) {
-    printf("Hello, world!\n");
-
     app_init();
     _watch_init();
     app_setup();
