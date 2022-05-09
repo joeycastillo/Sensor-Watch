@@ -76,6 +76,10 @@
   */
 bool watch_is_buzzer_or_led_enabled(void);
 
+/** @brief Returns true if USB is enabled.
+  */
+bool watch_is_usb_enabled(void);
+
 /** @brief Reads up to len bytes from the USB serial.
   * @param file ignored, you can pass in 0
   * @param ptr pointer to a buffer of at least len bytes

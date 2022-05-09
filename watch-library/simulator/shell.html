@@ -323,6 +323,9 @@
 
 <button onclick="getLocation()">Set location register (will prompt for access)</button>
 <br>
+<input id="input" style="width: 500px"></input>
+<button id="submit" onclick="sendText()">Send</button>
+<br>
 <textarea id="output" rows="8" style="width: 100%"></textarea>
 
 <script type='text/javascript'>
@@ -365,9 +368,15 @@
   };
   lat = 0;
   lon = 0;
+  tx = "";
   function updateLocation(location) {
     lat = Math.round(location.coords.latitude * 100);
     lon = Math.round(location.coords.longitude * 100);
+  }
+  function sendText() {
+    var inputElement = document.getElementById('input');
+    tx = inputElement.value + "\n";
+    inputElement.value = "";
   }
   function showError(error) {
     switch(error.code) {
