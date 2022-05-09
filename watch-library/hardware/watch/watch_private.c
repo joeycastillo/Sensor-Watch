@@ -255,7 +255,7 @@ int _write(int file, char *ptr, int len) {
     return 0;
 }
 
-char buf[256] = {0};
+static char buf[256] = {0};
 
 int _read(int file, char *ptr, int len) {
     (void)file;
