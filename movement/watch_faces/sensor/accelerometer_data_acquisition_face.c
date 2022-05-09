@@ -282,7 +282,7 @@ static void update(accelerometer_data_acquisition_state_t *state) {
 }
 
 static void update_settings(accelerometer_data_acquisition_state_t *state) {
-    char buf[12];
+    char buf[13];
     watch_clear_colon();
     if (state->beep_with_countdown) watch_set_indicator(WATCH_INDICATOR_BELL);
     else watch_clear_indicator(WATCH_INDICATOR_BELL);
