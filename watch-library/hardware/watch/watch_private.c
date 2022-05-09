@@ -275,8 +275,7 @@ static void cdc_task(void) {
     if (tud_cdc_n_available(0)) {
         tud_cdc_n_read(0, buf, sizeof(buf));
     } else {
-        memset(buf, 0, 64);
-        // buf[0] = 0;
+        memset(buf, 0, 256);
     }
 }
 
