@@ -15,6 +15,20 @@ ARG AARCH64_TOOLCHAIN_CHECKSUM="c20b0535d01f8d4418341d893c62a782"
 
 WORKDIR /setup
 
+# Install required packages
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+    # make is used as the build system
+    make \
+    # git is used for fetching submodules & interactive development
+    git \
+    # bzip2 is required to extract the Arm toolchain
+    bzip2 \
+    # ca certs need to be available for fetching git submodules
+    ca-certificates \
+    # python is used to convert binaries to uf2 files
+    python3 python-is-python3
+
 # Download and verify both x86-64 and aarch64 toolchains. This is unfortunate and
 # slows down the build, but it's a clean-ish option until buildkit can be used.
 ADD $X86_64_TOOLCHAIN $X86_64_TOOLCHAIN_FILENAME
@@ -34,17 +48,3 @@ RUN /bin/sh -c 'set -ex && \
 
 RUN rm $X86_64_TOOLCHAIN_FILENAME
 RUN rm $AARCH64_TOOLCHAIN_FILENAME
-
-# Install required packages
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-    # make is used as the build system
-    make \
-    # git is used for fetching submodules & interactive development
-    git \
-    # bzip2 is required to extract the Arm toolchain
-    bzip2 \
-    # ca certs need to be available for fetching git submodules
-    ca-certificates \
-    # python is used to convert binaries to uf2 files
-    python3 python-is-python3
