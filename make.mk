@@ -29,6 +29,17 @@ else
   MKDIR = mkdir
 endif
 
+ifeq ($(DETECTED_OS), LINUX)
+  MAKEFLAGS += -j `nproc`
+endif
+ifeq ($(DETECTED_OS), OSX)
+  NPROCS = $(shell sysctl hw.ncpu  | grep -o '[0-9]\+')
+  MAKEFLAGS += -j $(NPROCS)
+endif
+ifeq ($(DETECTED_OS), WINDOWS)
+  MAKEFLAGS += -j $(NUMBER_OF_PROCESSORS)
+endif
+
 ifndef EMSCRIPTEN
 CC = arm-none-eabi-gcc
 OBJCOPY = arm-none-eabi-objcopy
