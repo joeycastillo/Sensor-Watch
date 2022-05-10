@@ -36,7 +36,7 @@ bool filesystem_init(void);
 /** @brief Gets the space available on the filesystem.
   * @return the free space in bytes
   */
-int filesystem_get_free_space(void);
+int32_t filesystem_get_free_space(void);
 
 /** @brief Checks for the existence of a file on the filesystem.
   * @param filename the file you wish to check
@@ -49,6 +49,12 @@ bool filesystem_file_exists(char *filename);
   * @return true if the file was deleted successfully; false otherwise
   */
 bool filesystem_rm(char *filename);
+
+/** @brief Gets the size of a file on the filesystem.
+  * @param filename the file whose size you wish to determine
+  * @return the file's size in bytes, or -1 if the file does not exist.
+  */
+int32_t filesystem_get_file_size(char *filename);
 
 /** @brief Reads a file from the filesystem into a buffer
   * @param filename the file you wish to read

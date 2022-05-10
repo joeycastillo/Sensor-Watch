@@ -60,7 +60,7 @@ static int _traverse_df_cb(void *p, lfs_block_t block) {
 	return 0;
 }
 
-int filesystem_get_free_space(void) {
+int32_t filesystem_get_free_space(void) {
 	int err;
 
 	uint32_t free_blocks = 0;
@@ -71,7 +71,7 @@ int filesystem_get_free_space(void) {
 
 	uint32_t available = cfg.block_count * cfg.block_size - free_blocks * cfg.block_size;
 
-	return available;
+	return (int32_t)available;
 }
 
 static int filesystem_ls(lfs_t *lfs, const char *path) {
@@ -121,7 +121,7 @@ bool filesystem_init(void) {
         err = lfs_format(&lfs, &cfg);
         if (err < 0) return false;
         err = lfs_mount(&lfs, &cfg) == LFS_ERR_OK;
-        printf("Filesystem mounted with %d bytes free.\n", filesystem_get_free_space());
+        printf("Filesystem mounted with %ld bytes free.\n", filesystem_get_free_space());
     }
 
     return err == LFS_ERR_OK;
@@ -144,7 +144,7 @@ bool filesystem_rm(char *filename) {
     }
 }
 
-static int32_t filesystem_get_file_size(char *filename) {
+int32_t filesystem_get_file_size(char *filename) {
     if (filesystem_file_exists(filename)) {
         return info.size; // info struct was just populated by filesystem_file_exists
     }
@@ -210,7 +210,7 @@ void filesystem_process_command(char *line) {
             filesystem_cat(filename);
         }
     } else if (strcmp(command, "df") == 0) {
-        printf("free space: %d bytes\n", filesystem_get_free_space());
+        printf("free space: %ld bytes\n", filesystem_get_free_space());
     } else if (strcmp(command, "rm") == 0) {
         char *filename = strtok(NULL, " \n");
         if (filename == NULL) {
