@@ -171,7 +171,7 @@ void watch_set_analog_reference_voltage(watch_adc_reference_voltage reference) {
     _watch_get_analog_value(ADC_INPUTCTRL_MUXPOS_SCALEDCOREVCC);
 }
 
-uint16_t watch_get_vcc_voltage(void) {
+uint32_t watch_get_raw_vcc_voltage(void) {
     // stash the previous reference so we can restore it when we're done.
     uint8_t oldref = ADC->REFCTRL.bit.REFSEL;
 
@@ -183,6 +183,12 @@ uint16_t watch_get_vcc_voltage(void) {
 
     // restore the old reference, if needed.
     if (oldref != ADC_REFERENCE_INTREF) watch_set_analog_reference_voltage(oldref);
+
+    return raw_val;
+}
+
+uint16_t watch_get_vcc_voltage(void) {
+    uint32_t raw_val = watch_get_raw_vcc_voltage();
 
     return (uint16_t)((raw_val * 1000) / (1024 * 1 << ADC->AVGCTRL.bit.SAMPLENUM));
 }

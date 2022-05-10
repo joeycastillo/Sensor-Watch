@@ -141,6 +141,13 @@ void watch_set_analog_reference_voltage(watch_adc_reference_voltage reference);
   */
 uint16_t watch_get_vcc_voltage(void);
 
+/** @brief Returns the voltage of the VCC supply as the raw ADC value that corresponds to VCC / 4.
+ *    If running on a coin cell, this will be the battery voltage.
+ * @note This function depends on INTREF being 1.024V. If you have changed it by poking at the supply
+ *       controller's VREF.SEL bits, this function will return inaccurate values.
+ */
+uint32_t watch_get_raw_vcc_voltage(void);
+
 /** @brief Disables the analog circuitry on the selected pin.
   * @param pin One of pins A0-A4.
   */
