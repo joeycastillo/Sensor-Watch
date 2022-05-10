@@ -24,6 +24,7 @@ else
 endif
 $(if ${VERBOSE},$(info OS detected: $(DETECTED_OS)))
 
+ifeq ($(OS), Windows_NT)
   MKDIR = gmkdir
 else
   MKDIR = mkdir
