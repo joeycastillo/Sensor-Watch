@@ -26,8 +26,8 @@ RUN echo "${AARCH64_TOOLCHAIN_CHECKSUM} ${AARCH64_TOOLCHAIN_FILENAME}" | md5sum 
 # Extract toolchain directly into /usr
 RUN /bin/sh -c 'set -ex && \
     ARCH=`uname -m` && \
-    if [ "$ARCH" == "x86_64" ]; then \
-       tar --strip-components=1 -C /usr -xjf $X86_64_TOOLCHAIN_FILENAME \
+    if [ "$ARCH" = "x86_64" ]; then \
+       tar --strip-components=1 -C /usr -xjf $X86_64_TOOLCHAIN_FILENAME ; \
     else \
        tar --strip-components=1 -C /usr -xjf $AARCH64_TOOLCHAIN_FILENAME ; \
     fi'
