@@ -9,7 +9,21 @@ endif
 ##############################################################################
 .PHONY: all directory clean size
 
-ifeq ($(OS), Windows_NT)
+# OS detection, adapted from https://gist.github.com/sighingnow/deee806603ec9274fd47
+DETECTED_OS :=
+ifeq ($(OS),Windows_NT)
+  DETECTED_OS = WINDOWS
+else
+  UNAME_S := $(shell uname -s)
+  ifeq ($(UNAME_S),Linux)
+    DETECTED_OS = LINUX
+  endif
+  ifeq ($(UNAME_S),Darwin)
+    DETECTED_OS = OSX
+  endif
+endif
+$(if ${VERBOSE},$(info OS detected: $(DETECTED_OS)))
+
   MKDIR = gmkdir
 else
   MKDIR = mkdir
