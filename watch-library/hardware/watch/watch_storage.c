@@ -53,21 +53,21 @@ bool watch_storage_write(uint32_t row, uint32_t offset, const uint8_t *buffer, u
 
     watch_storage_sync();
 
-	uint32_t nvm_address = address / 2;
-	uint16_t i, data;
+    uint32_t nvm_address = address / 2;
+    uint16_t i, data;
 
-	hri_nvmctrl_write_CTRLA_reg(NVMCTRL, NVMCTRL_CTRLA_CMD_PBC | NVMCTRL_CTRLA_CMDEX_KEY);
+    hri_nvmctrl_write_CTRLA_reg(NVMCTRL, NVMCTRL_CTRLA_CMD_PBC | NVMCTRL_CTRLA_CMDEX_KEY);
     watch_storage_sync();
 
-	for (i = 0; i < size; i += 2) {
-		data = buffer[i];
-		if (i < NVMCTRL_PAGE_SIZE - 1) {
-			data |= (buffer[i + 1] << 8);
-		}
-		NVM_MEMORY[nvm_address++] = data;
-	}
-	hri_nvmctrl_write_ADDR_reg(NVMCTRL, address / 2);
-	hri_nvmctrl_write_CTRLA_reg(NVMCTRL, NVMCTRL_CTRLA_CMD_RWWEEWP | NVMCTRL_CTRLA_CMDEX_KEY);
+    for (i = 0; i < size; i += 2) {
+        data = buffer[i];
+        if (i < NVMCTRL_PAGE_SIZE - 1) {
+            data |= (buffer[i + 1] << 8);
+        }
+        NVM_MEMORY[nvm_address++] = data;
+    }
+    hri_nvmctrl_write_ADDR_reg(NVMCTRL, address / 2);
+    hri_nvmctrl_write_CTRLA_reg(NVMCTRL, NVMCTRL_CTRLA_CMD_RWWEEWP | NVMCTRL_CTRLA_CMDEX_KEY);
 
     return true;
 }
