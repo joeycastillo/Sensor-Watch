@@ -22,37 +22,37 @@
  * SOFTWARE.
  */
 
-#ifndef MOVEMENT_FACES_H_
-#define MOVEMENT_FACES_H_
+#ifndef MARS_TIME_FACE_H_
+#define MARS_TIME_FACE_H_
 
-#include "simple_clock_face.h"
-#include "world_clock_face.h"
-#include "preferences_face.h"
-#include "set_time_face.h"
-#include "pulsometer_face.h"
-#include "thermistor_readout_face.h"
-#include "thermistor_logging_face.h"
-#include "thermistor_testing_face.h"
-#include "character_set_face.h"
-#include "beats_face.h"
-#include "day_one_face.h"
-#include "voltage_face.h"
-#include "stopwatch_face.h"
-#include "totp_face.h"
-#include "lis2dw_logging_face.h"
-#include "demo_face.h"
-#include "hello_there_face.h"
-#include "sunrise_sunset_face.h"
-#include "countdown_face.h"
-#include "counter_face.h"
-#include "blinky_face.h"
-#include "moon_phase_face.h"
-#include "accelerometer_data_acquisition_face.h"
-#include "mars_time_face.h"
-#include "orrery_face.h"
-#include "astronomy_face.h"
-#include "tomato_face.h"
-#include "probability_face.h"
-// New includes go above this line.
+#include "movement.h"
 
-#endif // MOVEMENT_FACES_H_
+typedef enum {
+    MARS_TIME_MERIDIAN,
+    MARS_TIME_ZHURONG_SITE,
+    MARS_TIME_PERSEVERANCE_SITE,
+    MARS_TIME_INSIGHT_SITE,
+    MARS_TIME_CURIOSITY_SITE,
+    MARS_TIME_NUM_SITES,
+} mars_time_site_t;
+
+typedef struct {
+    mars_time_site_t current_site;
+    bool displaying_sol;
+} mars_time_state_t;
+
+void mars_time_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
+void mars_time_face_activate(movement_settings_t *settings, void *context);
+bool mars_time_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void mars_time_face_resign(movement_settings_t *settings, void *context);
+
+#define mars_time_face ((const watch_face_t){ \
+    mars_time_face_setup, \
+    mars_time_face_activate, \
+    mars_time_face_loop, \
+    mars_time_face_resign, \
+    NULL, \
+})
+
+#endif // MARS_TIME_FACE_H_
+

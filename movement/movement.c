@@ -27,7 +27,24 @@
 #include <limits.h>
 #include "watch.h"
 #include "movement.h"
+
+#ifndef MOVEMENT_FIRMWARE
 #include "movement_config.h"
+#elif MOVEMENT_FIRMWARE == MOVEMENT_FIRMWARE_STANDARD
+#include "alt_fw/standard.h"
+#elif MOVEMENT_FIRMWARE == MOVEMENT_FIRMWARE_ALT_TIME
+#include "alt_fw/alt_time.h"
+#elif MOVEMENT_FIRMWARE == MOVEMENT_FIRMWARE_FOCUS
+#include "alt_fw/focus.h"
+#elif MOVEMENT_FIRMWARE == MOVEMENT_FIRMWARE_THE_BACKPACKER
+#include "alt_fw/the_backpacker.h"
+#elif MOVEMENT_FIRMWARE == MOVEMENT_FIRMWARE_THE_ATHLETE
+#include "alt_fw/the_athlete.h"
+#elif MOVEMENT_FIRMWARE == MOVEMENT_FIRMWARE_THE_STARGAZER
+#include "alt_fw/the_stargazer.h"
+#elif MOVEMENT_FIRMWARE == MOVEMENT_FIRMWARE_DEEP_SPACE_NOW
+#include "alt_fw/deep_space_now.h"
+#endif
 
 #if __EMSCRIPTEN__
 #include <emscripten.h>
@@ -256,6 +273,10 @@ void app_setup(void) {
     static bool is_first_launch = true;
 
     if (is_first_launch) {
+        #ifdef MOVEMENT_CUSTOM_BOOT_COMMANDS
+        MOVEMENT_CUSTOM_BOOT_COMMANDS()
+        #endif
+
         for(uint8_t i = 0; i < MOVEMENT_NUM_FACES; i++) {
             watch_face_contexts[i] = NULL;
             scheduled_tasks[i].reg = 0;

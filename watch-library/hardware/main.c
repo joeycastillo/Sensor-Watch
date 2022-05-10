@@ -66,6 +66,13 @@ int main(void) {
     // Watch library code. Set initial parameters for the device and enable the RTC.
     _watch_init();
 
+    // if date/time register is 0 (power on reset state), default year to 2022.
+    watch_date_time date_time = watch_rtc_get_date_time();
+    if (date_time.reg == 0) {
+        date_time.unit.year = 2;
+        watch_rtc_set_date_time(date_time);
+    }
+
     // User code. Give the app a chance to enable and set up peripherals.
     app_setup();
 

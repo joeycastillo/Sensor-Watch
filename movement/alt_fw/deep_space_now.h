@@ -22,37 +22,40 @@
  * SOFTWARE.
  */
 
-#ifndef MOVEMENT_FACES_H_
-#define MOVEMENT_FACES_H_
+#ifndef MOVEMENT_CONFIG_H_
+#define MOVEMENT_CONFIG_H_
 
-#include "simple_clock_face.h"
-#include "world_clock_face.h"
-#include "preferences_face.h"
-#include "set_time_face.h"
-#include "pulsometer_face.h"
-#include "thermistor_readout_face.h"
-#include "thermistor_logging_face.h"
-#include "thermistor_testing_face.h"
-#include "character_set_face.h"
-#include "beats_face.h"
-#include "day_one_face.h"
-#include "voltage_face.h"
-#include "stopwatch_face.h"
-#include "totp_face.h"
-#include "lis2dw_logging_face.h"
-#include "demo_face.h"
-#include "hello_there_face.h"
-#include "sunrise_sunset_face.h"
-#include "countdown_face.h"
-#include "counter_face.h"
-#include "blinky_face.h"
-#include "moon_phase_face.h"
-#include "accelerometer_data_acquisition_face.h"
-#include "mars_time_face.h"
-#include "orrery_face.h"
-#include "astronomy_face.h"
-#include "tomato_face.h"
-#include "probability_face.h"
-// New includes go above this line.
+#include "movement_faces.h"
 
-#endif // MOVEMENT_FACES_H_
+// Preset Goldstone (GO), Madrid (MA), and Canberra (CA) time zones.
+// Also prepopulate the Day One register with Voyager 1's launch (September 5, 1977)
+
+#define MOVEMENT_CUSTOM_BOOT_COMMANDS() { \
+    /* Standard Time */\
+    /*\
+    watch_store_backup_data(0x1e0c0c, 4);\
+    watch_store_backup_data(0x010115, 5);\
+    watch_store_backup_data(0x130105, 6);\
+    */\
+    /* Daylight Saving Time */\
+    watch_store_backup_data(0x1f0c0c, 4);\
+    watch_store_backup_data(0x020115, 5);\
+    watch_store_backup_data(0x110105, 6);\
+    watch_store_backup_data(0x0597b9, 2);\
+}
+
+const watch_face_t watch_faces[] = {
+    simple_clock_face,
+    mars_time_face,
+    world_clock_face,
+    world_clock_face,
+    world_clock_face,
+    day_one_face,
+
+    preferences_face,
+    set_time_face,
+};
+
+#define MOVEMENT_NUM_FACES (sizeof(watch_faces) / sizeof(watch_face_t))
+
+#endif // MOVEMENT_CONFIG_H_

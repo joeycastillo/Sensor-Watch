@@ -1,0 +1,2 @@
+set key autotitle columnhead
+set yrange [-40:40]

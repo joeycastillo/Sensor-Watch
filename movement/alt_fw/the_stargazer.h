@@ -22,37 +22,27 @@
  * SOFTWARE.
  */
 
-#ifndef MOVEMENT_FACES_H_
-#define MOVEMENT_FACES_H_
+#ifndef MOVEMENT_CONFIG_H_
+#define MOVEMENT_CONFIG_H_
 
-#include "simple_clock_face.h"
-#include "world_clock_face.h"
-#include "preferences_face.h"
-#include "set_time_face.h"
-#include "pulsometer_face.h"
-#include "thermistor_readout_face.h"
-#include "thermistor_logging_face.h"
-#include "thermistor_testing_face.h"
-#include "character_set_face.h"
-#include "beats_face.h"
-#include "day_one_face.h"
-#include "voltage_face.h"
-#include "stopwatch_face.h"
-#include "totp_face.h"
-#include "lis2dw_logging_face.h"
-#include "demo_face.h"
-#include "hello_there_face.h"
-#include "sunrise_sunset_face.h"
-#include "countdown_face.h"
-#include "counter_face.h"
-#include "blinky_face.h"
-#include "moon_phase_face.h"
-#include "accelerometer_data_acquisition_face.h"
-#include "mars_time_face.h"
-#include "orrery_face.h"
-#include "astronomy_face.h"
-#include "tomato_face.h"
-#include "probability_face.h"
-// New includes go above this line.
+#include "movement_faces.h"
 
-#endif // MOVEMENT_FACES_H_
+#define MOVEMENT_CUSTOM_BOOT_COMMANDS() { \
+    movement_state.settings.bit.led_green_color = 0x0;\
+    movement_state.settings.bit.led_red_color = 0xF;\
+    watch_store_backup_data(movement_state.settings.reg, 0);\
+}
+
+const watch_face_t watch_faces[] = {
+    simple_clock_face,
+    astronomy_face,
+    sunrise_sunset_face,
+    moon_phase_face,
+
+    preferences_face,
+    set_time_face,
+};
+
+#define MOVEMENT_NUM_FACES (sizeof(watch_faces) / sizeof(watch_face_t))
+
+#endif // MOVEMENT_CONFIG_H_

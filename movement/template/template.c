@@ -52,6 +52,7 @@ bool <#watch_face_name#>_face_loop(movement_event_t event, movement_settings_t *
             break;
         case EVENT_TICK:
             // If needed, update your display here.
+            break;
         case EVENT_MODE_BUTTON_UP:
             // You shouldn't need to change this case; Mode almost always moves to the next watch face.
             movement_move_to_next_face();
