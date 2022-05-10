@@ -22,92 +22,160 @@
  * SOFTWARE.
  */
 
+#include <time.h>
 #include <stdlib.h>
 #include <string.h>
 #include "probability_face.h"
 
-#define DEFAULT_DICE_SIDES 2;
+#define DEFAULT_DICE_SIDES 2
+#define PROBABILITY_ANIMATION_TICK_FREQUENCY 8
+const uint16_t NUM_DICE_TYPES = 8; // Keep this consistent with # of dice types below
+const uint16_t DICE_TYPES[] = {2, 4, 6, 8, 10, 12, 20, 100};
 
+
+// --------------
+// Custom methods
+// --------------
+
+static void display_dice_roll(probability_state_t *state) {
+    char buf[7]; // Num chars needed + 1 for \0
+    if (state->rolled_value == 0) {
+        if (state->dice_sides == 100) {
+            sprintf(buf, " C    ", state->dice_sides);
+        } else {
+            sprintf(buf, "%2d    ", state->dice_sides);
+        }
+    } else if (state->dice_sides == 2) {
+        if (state->rolled_value == 1) {
+            sprintf(buf, "%2d   H", state->dice_sides);
+        } else {
+            sprintf(buf, "%2d   T", state->dice_sides);
+        }
+    } else if (state->dice_sides == 100) {
+        sprintf(buf, " C %3d", state->rolled_value);
+    } else {
+        sprintf(buf, "%2d %3d", state->dice_sides, state->rolled_value);
+    }
+    watch_display_string(buf, 4);
+}
+
+// According to SO this is the better way to roll a random number to avoid introducing skew.
+// https://stackoverflow.com/a/2999130
+// (As opposed to using modulus like: `state->rolled_value = rand() % state->dice_sides + 1;`)
+static void generate_random_number(probability_state_t *state) {
+    int limit = state->dice_sides - 1;
+    int divisor = RAND_MAX/(limit+1);
+    int retval;
+
+    do {
+        retval = rand() / divisor;
+    } while (retval > limit);
+
+    // Add 1 to shift from 0-based to actual roll number
+    state->rolled_value = retval + 1;
+}
+
+static void display_dice_roll_animation(probability_state_t *state) {
+    if (state->is_rolling) {
+        if (state->animation_frame == 0) {
+            watch_display_string("   ", 7);
+            watch_set_pixel(1, 4);
+            watch_set_pixel(1, 6);
+            state->animation_frame = 1;
+        } else if (state->animation_frame == 1) {
+            watch_clear_pixel(1, 4);
+            watch_clear_pixel(1, 6);
+            watch_set_pixel(2, 4);
+            watch_set_pixel(0, 6);
+            state->animation_frame = 2;
+        } else if (state->animation_frame == 2) {
+            watch_clear_pixel(2, 4);
+            watch_clear_pixel(0, 6);
+            watch_set_pixel(2, 5);
+            watch_set_pixel(0, 5);
+            state->animation_frame = 3;
+        } else if (state->animation_frame == 3) {
+            state->animation_frame = 0;
+            state->is_rolling = false;
+            movement_request_tick_frequency(1);
+            display_dice_roll(state);
+        }
+    }
+}
+
+
+// ---------------------------
+// Standard watch face methods
+// ---------------------------
 void probability_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(probability_state_t));
         memset(*context_ptr, 0, sizeof(probability_state_t));
-        // Do any one-time tasks in here; the inside of this conditional happens only at boot.
-        printf("Probability!\n");
+
+        // Seed random number generator
+        srand(time(NULL));
     }
-    // Do any pin or peripheral setup here; this will be called whenever the watch wakes from deep sleep.
 }
 
 void probability_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
     probability_state_t *state = (probability_state_t *)context;
 
-    // Handle any tasks related to your watch face coming on screen.
     state->dice_sides = DEFAULT_DICE_SIDES;
     state->rolled_value = 0;
-    printf("Probability activate!\n");
 }
 
 bool probability_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     probability_state_t *state = (probability_state_t *)context;
 
+    if (state->is_rolling && event.event_type != EVENT_TICK) {
+        return true;
+    }
+
     switch (event.event_type) {
         case EVENT_ACTIVATE:
-            // Show your initial UI here.
-            watch_display_string("20  1234", 2);
-            printf("Probability loop activate!\n");
+            display_dice_roll(state);
             break;
         case EVENT_TICK:
-            // If needed, update your display here.
-            printf("Probability loop TICK!\n");
+            display_dice_roll_animation(state);
             break;
-        // case EVENT_MODE_BUTTON_DOWN:
-        //     printf("Probability loop button down!\n");
-        //     break;
-        // case EVENT_MODE_LONG_PRESS:
-        //     printf("Probability loop button long press!\n");
-        //     break;
         case EVENT_MODE_BUTTON_UP:
-            // You shouldn't need to change this case; Mode almost always moves to the next watch face.
-            printf("Probability loop button up!\n");
             movement_move_to_next_face();
             break;
         case EVENT_LIGHT_BUTTON_UP:
-            // If you have other uses for the Light button, you can opt not to illuminate the LED for this event.
-            // TODO Use this to roll
-            movement_illuminate_led();
+            // Change how many sides the die has
+            for (int i = 0; i < NUM_DICE_TYPES; i++) {
+                if (DICE_TYPES[i] == state->dice_sides) {
+                    if (i == NUM_DICE_TYPES - 1) {
+                        state->dice_sides = DICE_TYPES[0];
+                    } else {
+                        state->dice_sides = DICE_TYPES[i + 1];
+                    }
+                    break;
+                }
+            }
+            state->rolled_value = 0;
+            display_dice_roll(state);
             break;
         case EVENT_ALARM_BUTTON_UP:
-            // Just in case you have need for another button.
-            // TODO use this for changing the dice_sides
+            // Roll the die
+            generate_random_number(state);
+            state->is_rolling = true;
+            // Dice rolling animation begins on next tick and new roll will be displayed on completion
+            movement_request_tick_frequency(PROBABILITY_ANIMATION_TICK_FREQUENCY);
             break;
         case EVENT_TIMEOUT:
-            // Your watch face will receive this event after a period of inactivity. If it makes sense to resign,
-            // you may uncomment this line to move back to the first watch face in the list:
-            // movement_move_to_face(0);
-            printf("Probability loop timeout!\n");
-            break;
-        case EVENT_LOW_ENERGY_UPDATE:
-            // If you did not resign in EVENT_TIMEOUT, you can use this event to update the display once a minute.
-            // Avoid displaying fast-updating values like seconds, since the display won't update again for 60 seconds.
-            // You should also consider starting the tick animation, to show the wearer that this is sleep mode:
-            // watch_start_tick_animation(500);
+            movement_move_to_face(0);
             break;
         default:
             break;
     }
 
-    // return true if the watch can enter standby mode. If you are PWM'ing an LED or buzzing the buzzer here,
-    // you should return false since the PWM driver does not operate in standby mode.
     return true;
 }
 
 void probability_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
-
-    // handle any cleanup before your watch face goes off-screen.
-    printf("Probability resign!\n");
 }
-

@@ -30,6 +30,8 @@
 typedef struct {
     uint16_t dice_sides;
     uint16_t rolled_value;
+    uint16_t animation_frame;
+    bool is_rolling;
 } probability_state_t;
 
 void probability_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
