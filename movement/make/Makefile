@@ -21,6 +21,7 @@ INCLUDES += \
   -I../lib/sunriset/ \
   -I../lib/vsop87/ \
   -I../lib/astrolib/ \
+  -I../lib/base32/ \
 
 # If you add any other source files you wish to compile, add them after ../app.c
 # Note that you will need to add a backslash at the end of any line you wish to continue, i.e.
@@ -34,6 +35,7 @@ SRCS += \
   ../lib/sunriset/sunriset.c \
   ../lib/vsop87/vsop87a_milli.c \
   ../lib/astrolib/astrolib.c \
+  ../lib/base32/base32.c \
   ../../littlefs/lfs.c \
   ../../littlefs/lfs_util.c \
   ../movement.c \

@@ -4,10 +4,13 @@
 #include "movement.h"
 
 typedef struct {
+    char site_name[3];
+    uint8_t hmac_key[10];
     uint32_t timestamp;
     uint8_t steps;
     uint32_t current_code;
-
+    uint8_t my_filename_index;
+    bool valid;
 } totp_state_t;
 
 void totp_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
