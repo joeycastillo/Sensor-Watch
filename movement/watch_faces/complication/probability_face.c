@@ -22,7 +22,6 @@
  * SOFTWARE.
  */
 
-#include <time.h>
 #include <stdlib.h>
 #include <string.h>
 #include "probability_face.h"
@@ -38,10 +37,10 @@ const uint16_t DICE_TYPES[] = {2, 4, 6, 8, 10, 12, 20, 100};
 // --------------
 
 static void display_dice_roll(probability_state_t *state) {
-    char buf[7]; // Num chars needed + 1 for \0
+    char buf[8];
     if (state->rolled_value == 0) {
         if (state->dice_sides == 100) {
-            sprintf(buf, " C    ", state->dice_sides);
+            sprintf(buf, " C    ");
         } else {
             sprintf(buf, "%2d    ", state->dice_sides);
         }
@@ -59,20 +58,8 @@ static void display_dice_roll(probability_state_t *state) {
     watch_display_string(buf, 4);
 }
 
-// According to SO this is the better way to roll a random number to avoid introducing skew.
-// https://stackoverflow.com/a/2999130
-// (As opposed to using modulus like: `state->rolled_value = rand() % state->dice_sides + 1;`)
 static void generate_random_number(probability_state_t *state) {
-    int limit = state->dice_sides - 1;
-    int divisor = RAND_MAX/(limit+1);
-    int retval;
-
-    do {
-        retval = rand() / divisor;
-    } while (retval > limit);
-
-    // Add 1 to shift from 0-based to actual roll number
-    state->rolled_value = retval + 1;
+    state->rolled_value = arc4random_uniform(state->dice_sides) + 1;
 }
 
 static void display_dice_roll_animation(probability_state_t *state) {
@@ -109,12 +96,10 @@ static void display_dice_roll_animation(probability_state_t *state) {
 // ---------------------------
 void probability_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
+    (void) watch_face_index;
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(probability_state_t));
         memset(*context_ptr, 0, sizeof(probability_state_t));
-
-        // Seed random number generator
-        srand(time(NULL));
     }
 }
 
@@ -124,9 +109,11 @@ void probability_face_activate(movement_settings_t *settings, void *context) {
 
     state->dice_sides = DEFAULT_DICE_SIDES;
     state->rolled_value = 0;
+    watch_display_string("PR", 0);
 }
 
 bool probability_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
+    (void) settings;
     probability_state_t *state = (probability_state_t *)context;
 
     if (state->is_rolling && event.event_type != EVENT_TICK) {

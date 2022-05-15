@@ -31,8 +31,11 @@ const watch_face_t watch_faces[] = {
     simple_clock_face,
     world_clock_face,
     sunrise_sunset_face,
-    moon_phase_face,
     thermistor_readout_face,
+    probability_face,
+    moon_phase_face,
+    stopwatch_face,
+    voltage_face,
     preferences_face,
     set_time_face,
 };

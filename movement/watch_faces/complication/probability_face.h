@@ -28,9 +28,9 @@
 #include "movement.h"
 
 typedef struct {
-    uint16_t dice_sides;
-    uint16_t rolled_value;
-    uint16_t animation_frame;
+    uint8_t dice_sides;
+    uint8_t rolled_value;
+    uint8_t animation_frame;
     bool is_rolling;
 } probability_state_t;
 
