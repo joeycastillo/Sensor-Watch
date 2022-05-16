@@ -22,6 +22,11 @@
  * SOFTWARE.
  */
 
+// Emulator only: need time() to seed the random number generator.
+#if __EMSCRIPTEN__
+#include <time.h>
+#endif
+
 #include <stdlib.h>
 #include <string.h>
 #include "probability_face.h"
@@ -59,7 +64,12 @@ static void display_dice_roll(probability_state_t *state) {
 }
 
 static void generate_random_number(probability_state_t *state) {
+    // Emulator: use rand. Hardware: use arc4random.
+    #if __EMSCRIPTEN__
+    state->rolled_value = rand() % state->dice_sides + 1;
+    #else
     state->rolled_value = arc4random_uniform(state->dice_sides) + 1;
+    #endif
 }
 
 static void display_dice_roll_animation(probability_state_t *state) {
@@ -101,6 +111,10 @@ void probability_face_setup(movement_settings_t *settings, uint8_t watch_face_in
         *context_ptr = malloc(sizeof(probability_state_t));
         memset(*context_ptr, 0, sizeof(probability_state_t));
     }
+    // Emulator only: Seed random number generator
+    #if __EMSCRIPTEN__
+    srand(time(NULL));
+    #endif
 }
 
 void probability_face_activate(movement_settings_t *settings, void *context) {
