@@ -1,0 +1,17 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
+// https://github.com/microsoft/vscode-dev-containers/tree/v0.231.6/containers/docker-existing-dockerfile
+{
+    "name": "GNU Arm Embedded Environment",
+    // Sets the run context to one level up instead of the .devcontainer folder.
+    "context": "..",
+    // Set the location of the dockerfile to use
+    "dockerFile": "Dockerfile",
+    // Set *default* container specific settings.json values on container create.
+    "settings": {},
+    // Add the IDs of extensions you want installed when the container is created.
+    "extensions": [
+        "ms-vscode.cpptools"
+    ]
+    // Uncomment to connect as a non-root user if you've added one. See https://aka.ms/vscode-remote/containers/non-root.
+    // "remoteUser": "vscode"
+}
