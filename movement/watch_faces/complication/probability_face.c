@@ -166,8 +166,9 @@ bool probability_face_loop(movement_event_t event, movement_settings_t *settings
             // Dice rolling animation begins on next tick and new roll will be displayed on completion
             movement_request_tick_frequency(PROBABILITY_ANIMATION_TICK_FREQUENCY);
             break;
-        case EVENT_TIMEOUT:
-            movement_move_to_face(0);
+        case EVENT_LOW_ENERGY_UPDATE:
+            watch_display_string("      ", 4);
+            if (!watch_tick_animation_is_running()) watch_start_tick_animation(500);
             break;
         default:
             break;
