@@ -9,10 +9,36 @@ endif
 ##############################################################################
 .PHONY: all directory clean size
 
+# OS detection, adapted from https://gist.github.com/sighingnow/deee806603ec9274fd47
+DETECTED_OS :=
+ifeq ($(OS),Windows_NT)
+  DETECTED_OS = WINDOWS
+else
+  UNAME_S := $(shell uname -s)
+  ifeq ($(UNAME_S),Linux)
+    DETECTED_OS = LINUX
+  endif
+  ifeq ($(UNAME_S),Darwin)
+    DETECTED_OS = OSX
+  endif
+endif
+$(if ${VERBOSE},$(info OS detected: $(DETECTED_OS)))
+
 ifeq ($(OS), Windows_NT)
   MKDIR = gmkdir
 else
   MKDIR = mkdir
+endif
+
+ifeq ($(DETECTED_OS), LINUX)
+  MAKEFLAGS += -j `nproc`
+endif
+ifeq ($(DETECTED_OS), OSX)
+  NPROCS = $(shell sysctl hw.ncpu  | grep -o '[0-9]\+')
+  MAKEFLAGS += -j $(NPROCS)
+endif
+ifeq ($(DETECTED_OS), WINDOWS)
+  MAKEFLAGS += -j $(NUMBER_OF_PROCESSORS)
 endif
 
 ifndef EMSCRIPTEN
