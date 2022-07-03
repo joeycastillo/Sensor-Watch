@@ -39,7 +39,8 @@ static inline int32_t get_tz_offset(movement_settings_t *settings) {
 
 static void _wake_face_adjust(wake_face_state_t *state) {
     switch(state->caret) {
-    case wake_face_caret_display:
+    case wake_face_caret_mode:
+        state->mode = (state->wake_mode + 1) % WAKE_FACE_MODES;
         break;
     case wake_face_caret_hour:
         state->hour = (state->hour + 1) % 24;
@@ -47,12 +48,6 @@ static void _wake_face_adjust(wake_face_state_t *state) {
     case wake_face_caret_minute:
         // Step 10min per click
         state->minute = (state->minute + 10) % 60;
-        break;
-    case wake_face_caret_signal:
-        state->wake_mode ^= wake_face_mode_signal;
-        break;
-    case wake_face_caret_led:
-        state->wake_mode ^= wake_face_mode_led;
         break;
     default:
         // If we get here, something has gone wrong
@@ -63,7 +58,12 @@ static void _wake_face_adjust(wake_face_state_t *state) {
 
 static void _wake_face_update_display(wake_face_state_t *state) {
     // TODO
+    // NOTHING FLASHING IN caret_signal
 }
+
+//
+// Exported
+//
 
 void wake_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void **context_ptr) {
     (void) settings;
@@ -74,7 +74,7 @@ void wake_face_setup(movement_settings_t *settings, uint8_t watch_face_index, vo
         wake_face_state_t *state = (wake_face_state_t *)*context_ptr;
         memset(*context_ptr, 0, sizeof(wake_face_state_t));
 
-        // Default wake-up time: 5am, default wake mode: off
+        // Default wake time: 5am, default mode: off
         state->mode = wake_face_mode_off;
         state->hour = 5;
         state->minute = 0;
@@ -84,9 +84,9 @@ void wake_face_setup(movement_settings_t *settings, uint8_t watch_face_index, vo
 void wake_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
 
-    // Always welcome the user in display mode
+    // Always welcome the user with the caret on the mode selector
     wake_face_state_t *state = (wake_face_state_t *)context;
-    state->caret = wake_face_caret_display;
+    state->caret = wake_face_caret_mode;
 }
 
 bool wake_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
@@ -115,19 +115,19 @@ bool wake_face_loop(movement_event_t event, movement_settings_t *settings, void 
         break;
 
     case EVENT_ALARM_BUTTON_UP:
-        // When we’re in adjust mode (caret ≠ display),
-        // the alarm button iterates the value of the selected element
+        // The alarm button iterates the value of the selected UI element
+        // (mode, hour, minute)
         _wake_face_adjust(state);
         _wake_face_update_display(state);
         break;
 
     case EVENT_BACKGROUND_TASK:
-        if (state->wake_mode & wake_face_mode_signal)
+        if (state->mode & wake_face_mode_piezo)
             movement_play_signal();
 
         // TODO: This is not right. We want it to CONTINUE for 30s
         // Might need to fork it?
-        if (state->wake_mode & wake_face_mode_led) {
+        if (state->mode & wake_face_mode_led) {
             if (event.subsecond % 2 == 0)
                 watch_set_led_off();
             else
@@ -150,7 +150,7 @@ bool wake_face_loop(movement_event_t event, movement_settings_t *settings, void 
 void wake_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
-    // Nothing to do: We tidy up the UI in wake_face_activate()
+    // Nothing to do — we position the caret in wake_face_activate()
 }
 
 bool wake_face_wants_background_task(movement_settings_t *settings, void *context) {

@@ -42,27 +42,27 @@ even if the watch has gone into deep sleep
 // off: 0, signal: 1<<0, led: 1<<1, both: ring | flash
 typedef enum {
     wake_face_mode_off,
-    wake_face_mode_signal,
+    wake_face_mode_piezo,
     wake_face_mode_led,
     wake_face_mode_both,
 } wake_face_mode_t;
 
+#define WAKE_FACE_MODES (4);
+
 // UI caret
 typedef enum {
-    wake_face_caret_display,
+    wake_face_caret_mode,
     wake_face_caret_hour,
     wake_face_caret_minute,
-    wake_face_caret_signal,
-    wake_face_caret_led,
 } wake_face_caret_t;
 
-#define WAKE_FACE_CARET_POSITIONS (5);
+#define WAKE_FACE_CARET_POSITIONS (3);
 
 typedef struct {
     wake_face_mode_t mode;
+    wake_face_caret_t caret;
     uint8_t hour;
     uint8_t minute;
-    wake_face_caret_t caret;
 } wake_face_state_t;
 
 
