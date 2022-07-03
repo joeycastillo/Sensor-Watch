@@ -38,10 +38,10 @@ even if the watch has gone into deep sleep
 */
 
 
-// On-wake modes
-// off: 0, signal: 1<<0, led: 1<<1, both: ring | flash
+// Wake modes
+// none: 0, piezo: 1<<0, led: 1<<1, both: piezo | led
 typedef enum {
-    wake_face_mode_off,
+    wake_face_mode_none,
     wake_face_mode_piezo,
     wake_face_mode_led,
     wake_face_mode_both,

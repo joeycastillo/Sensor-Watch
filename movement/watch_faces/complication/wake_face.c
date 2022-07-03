@@ -49,14 +49,14 @@ static void _wake_face_adjust(wake_face_state_t *state) {
         state->minute = (state->minute + 10) % 60;
         break;
     default:
-        // If we get here, something has gone wrong
+        // If we get here, we’re in trouble
         break;
     }
     return;
 }
 
 static void _wake_face_update_display(wake_face_state_t *state, uint8_t subsecond) {
-    char lcdbuf[16];
+    static char lcdbuf[14];
 
     sprintf(lcdbuf, "WA    %2d%02d%c%c", state->hour, state->minute,
         state->mode & wake_face_mode_piezo ? 'P' : ' ',
@@ -74,8 +74,9 @@ static void _wake_face_update_display(wake_face_state_t *state, uint8_t subsecon
         }
     }
 
+    // In addition to the P and L, show the bell if either signal is on
     watch_set_indicator(WATCH_INDICATOR_BELL);
-    if (state->mode == wake_face_mode_off)
+    if (state->mode == wake_face_mode_none)
         watch_clear_indicator(WATCH_INDICATOR_BELL);
 
     watch_display_string(lcdbuf, 0);
@@ -87,21 +88,12 @@ static void *_wake_face_led(void *thrd_id) {
     // TODO: Add flashing using a loop to sleep for 500ms, toggling the light?
     // But perhaps a solid light is less intrusive
     // We want the signal to be ›just‹ intrusive enough
+    // Warrants real-world testing
 
     watch_set_led_yellow();
     sleep(DURATION_SECONDS);
     watch_set_led_off();
     thrd_exit(EXIT_SUCCESS);
-
-/* // An expensive approach ...
-    uint32_t start = watch_rtc_get_date_time().second;
-    watch_set_led_yellow();
-    while (true) {
-        uint32_t now = watch_rtc_get_date_time().second;
-        if (abs((watch_rtc_get_date_time().second - start) % 60) > DURATION_SECONDS)
-            break;
-    }
-*/
 }
 
 //
@@ -118,7 +110,7 @@ void wake_face_setup(movement_settings_t *settings, uint8_t watch_face_index, vo
         memset(*context_ptr, 0, sizeof(wake_face_state_t));
 
         // Default wake time: 5am, default mode: off
-        state->mode = wake_face_mode_off;
+        state->mode = wake_face_mode_none;
         state->hour = 5;
         state->minute = 0;
     }
@@ -169,7 +161,7 @@ bool wake_face_loop(movement_event_t event, movement_settings_t *settings, void 
     case EVENT_BACKGROUND_TASK:
         // Spawn a thread to activate the LED
         if (state->mode & wake_face_mode_led) {
-            static led_thread;
+            static thrd_t led_thread;
             int rc = thrd_create(&led_thread, (thrd_start_t) _wake_face_led, (void *)0);
             if (rc == thrd_error)
                 fprintf(stderr, "wake_face_loop(): Could not spawn LED thread\n");
