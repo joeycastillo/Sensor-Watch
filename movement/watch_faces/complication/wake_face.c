@@ -30,12 +30,7 @@
 #include "watch.h"
 #include "watch_utility.h"
 
-// TODO
-// update_display, loop
-
-static inline int32_t get_tz_offset(movement_settings_t *settings) {
-    return movement_timezone_offsets[settings->bit.time_zone] * 60;
-}
+// TODO: loop
 
 static void _wake_face_adjust(wake_face_state_t *state) {
     switch(state->caret) {
@@ -56,9 +51,30 @@ static void _wake_face_adjust(wake_face_state_t *state) {
     return;
 }
 
-static void _wake_face_update_display(wake_face_state_t *state) {
-    // TODO
-    // NOTHING FLASHING IN caret_signal
+static void _wake_face_update_display(wake_face_state_t *state, uint8_t subsecond) {
+    char lcdbuf[16];
+
+    sprintf(lcdbuf, "WA    %2d%02d%c%c", state->hour, state->minute,
+        state->mode & wake_face_mode_piezo ? 'P' : ' ',
+        state->mode & wake_face_mode_led ? 'L' : ' ' );
+
+    // Flash the hour and minute to indicate presence of the caret
+    // My heart says roll the hour and minute in advance, with ?: in sprintf()
+    // But this is more efficient
+    if (subsecond % 2) {
+        if (state->caret == wake_face_caret_hour) {
+            lcdbuf[6] = lcdbuf[7] = ' ';
+        }
+        else if (state->caret == wake_face_caret_minute) {
+            lcdbuf[8] = lcdbuf[9] = ' ';
+        }
+    }
+
+    watch_set_indicator(WATCH_INDICATOR_BELL);
+    if (state->mode == wake_face_mode_off)
+        watch_clear_indicator(WATCH_INDICATOR_BELL);
+
+    watch_display_string(lcdbuf, 0);
 }
 
 //
@@ -96,7 +112,7 @@ bool wake_face_loop(movement_event_t event, movement_settings_t *settings, void 
     switch (event.event_type) {
     case EVENT_ACTIVATE:
     case EVENT_TICK:
-        _wake_face_update_display(state);
+        _wake_face_update_display(state, event.subsecond);
         break;
 
     case EVENT_MODE_BUTTON_UP:
@@ -106,7 +122,7 @@ bool wake_face_loop(movement_event_t event, movement_settings_t *settings, void 
     case EVENT_LIGHT_BUTTON_UP:
         // The light button steps the caret
         state->caret = (state->caret + 1) % WAKE_FACE_CARET_POSITIONS;
-        _wake_face_update_display(state);
+        _wake_face_update_display(state, event.subsecond);
         break;
 
     case EVENT_LIGHT_LONG_PRESS:
@@ -118,15 +134,14 @@ bool wake_face_loop(movement_event_t event, movement_settings_t *settings, void 
         // The alarm button iterates the value of the selected UI element
         // (mode, hour, minute)
         _wake_face_adjust(state);
-        _wake_face_update_display(state);
+        _wake_face_update_display(state, event.subsecond);
         break;
 
     case EVENT_BACKGROUND_TASK:
         if (state->mode & wake_face_mode_piezo)
             movement_play_signal();
 
-        // TODO: This is not right. We want it to CONTINUE for 30s
-        // Might need to fork it?
+        // TODO. Spawn a background thread to flash the LED for 8s?
         if (state->mode & wake_face_mode_led) {
             if (event.subsecond % 2 == 0)
                 watch_set_led_off();
