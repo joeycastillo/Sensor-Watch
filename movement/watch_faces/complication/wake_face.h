@@ -47,16 +47,12 @@ typedef enum {
     wake_face_mode_both,
 } wake_face_mode_t;
 
-#define WAKE_FACE_MODES (4);
-
 // UI caret
 typedef enum {
     wake_face_caret_mode,
     wake_face_caret_hour,
     wake_face_caret_minute,
 } wake_face_caret_t;
-
-#define WAKE_FACE_CARET_POSITIONS (3);
 
 typedef struct {
     wake_face_mode_t mode;

@@ -26,16 +26,20 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <threads.h>
+
 #include "wake_face.h"
 #include "watch.h"
 #include "watch_utility.h"
 
-// TODO: loop
 
 static void _wake_face_adjust(wake_face_state_t *state) {
+    const int WAKE_FACE_MODES = (int)wake_face_mode_both + 1;
+
     switch(state->caret) {
     case wake_face_caret_mode:
-        state->mode = (state->wake_mode + 1) % WAKE_FACE_MODES;
+        state->mode = (state->mode + 1) % WAKE_FACE_MODES;
         break;
     case wake_face_caret_hour:
         state->hour = (state->hour + 1) % 24;
@@ -60,7 +64,7 @@ static void _wake_face_update_display(wake_face_state_t *state, uint8_t subsecon
 
     // Flash the hour and minute to indicate presence of the caret
     // My heart says roll the hour and minute in advance, with ?: in sprintf()
-    // But this is more efficient
+    // But this is more efficient computewise
     if (subsecond % 2) {
         if (state->caret == wake_face_caret_hour) {
             lcdbuf[6] = lcdbuf[7] = ' ';
@@ -75,6 +79,29 @@ static void _wake_face_update_display(wake_face_state_t *state, uint8_t subsecon
         watch_clear_indicator(WATCH_INDICATOR_BELL);
 
     watch_display_string(lcdbuf, 0);
+}
+
+static void *_wake_face_led(void *thrd_id) {
+    const double DURATION_SECONDS = 8.0;
+
+    // TODO: Add flashing using a loop to sleep for 500ms, toggling the light?
+    // But perhaps a solid light is less intrusive
+    // We want the signal to be ›just‹ intrusive enough
+
+    watch_set_led_yellow();
+    sleep(DURATION_SECONDS);
+    watch_set_led_off();
+    thrd_exit(EXIT_SUCCESS);
+
+/* // An expensive approach ...
+    uint32_t start = watch_rtc_get_date_time().second;
+    watch_set_led_yellow();
+    while (true) {
+        uint32_t now = watch_rtc_get_date_time().second;
+        if (abs((watch_rtc_get_date_time().second - start) % 60) > DURATION_SECONDS)
+            break;
+    }
+*/
 }
 
 //
@@ -106,6 +133,8 @@ void wake_face_activate(movement_settings_t *settings, void *context) {
 }
 
 bool wake_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
+    const int WAKE_FACE_CARET_POSITIONS = (int)wake_face_caret_minute + 1;
+
     (void) settings;
     wake_state_t *state = (wake_state_t *)context;
 
@@ -138,16 +167,17 @@ bool wake_face_loop(movement_event_t event, movement_settings_t *settings, void 
         break;
 
     case EVENT_BACKGROUND_TASK:
+        // Spawn a thread to activate the LED
+        if (state->mode & wake_face_mode_led) {
+            static led_thread;
+            int rc = thrd_create(&led_thread, (thrd_start_t) _wake_face_led, (void *)0);
+            if (rc == thrd_error)
+                fprintf(stderr, "wake_face_loop(): Could not spawn LED thread\n");
+        }
+
         if (state->mode & wake_face_mode_piezo)
             movement_play_signal();
 
-        // TODO. Spawn a background thread to flash the LED for 8s?
-        if (state->mode & wake_face_mode_led) {
-            if (event.subsecond % 2 == 0)
-                watch_set_led_off();
-            else
-                watch_set_led_yellow();
-        }
         break;
 
     case EVENT_TIMEOUT:
@@ -172,6 +202,8 @@ bool wake_face_wants_background_task(movement_settings_t *settings, void *contex
     // Called at the top of every minute
     // TODO: Risk of interrupt timing aliasing causing us to miss the wake time
     // should be vanishingly small, but need to check this in practice
+
+    (void) settings;
 
     wake_state_t *state = (wake_state_t *)context;
     watch_date_time time = watch_rtc_get_date_time();
