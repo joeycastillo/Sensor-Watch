@@ -59,6 +59,7 @@ typedef struct {
     wake_face_caret_t caret;
     uint8_t hour;
     uint8_t minute;
+    bool dismiss_once;
 } wake_face_state_t;
 
 

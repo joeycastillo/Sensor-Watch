@@ -33,6 +33,12 @@
 #include "watch.h"
 #include "watch_utility.h"
 
+// TODO
+// UI documentation
+
+//
+// Private
+//
 
 static void _wake_face_adjust(wake_face_state_t *state) {
     const int WAKE_FACE_MODES = (int)wake_face_mode_both + 1;
@@ -79,6 +85,11 @@ static void _wake_face_update_display(wake_face_state_t *state, uint8_t subsecon
     if (state->mode == wake_face_mode_none)
         watch_clear_indicator(WATCH_INDICATOR_BELL);
 
+    // Show LAP if the “dismiss the next wake” flag is set
+    watch_clear_indicator(WATCH_INDICATOR_LAP);
+    if (state->dismiss_once)
+        watch_set_indicator(WATCH_INDICATOR_LAP);
+
     watch_display_string(lcdbuf, 0);
 }
 
@@ -109,10 +120,11 @@ void wake_face_setup(movement_settings_t *settings, uint8_t watch_face_index, vo
         wake_face_state_t *state = (wake_face_state_t *)*context_ptr;
         memset(*context_ptr, 0, sizeof(wake_face_state_t));
 
-        // Default wake time: 5am, default mode: off
+        // Default wake time: 5am, default mode: none
         state->mode = wake_face_mode_none;
         state->hour = 5;
         state->minute = 0;
+        state->dismiss_once = false;
     }
 }
 
@@ -158,7 +170,19 @@ bool wake_face_loop(movement_event_t event, movement_settings_t *settings, void 
         _wake_face_update_display(state, event.subsecond);
         break;
 
+    case EVENT_ALARM_LONG_PRESS:
+        // Long press toggles the “dismiss just for the next scheduled wake”
+        state->dismiss_once = !state->dismiss_once;
+        _wake_face_update_display(state, event.subsecond);
+        break;
+
     case EVENT_BACKGROUND_TASK:
+        // If the dismiss flag is set, reset it and skip the signals
+        if (state->dismiss_once) {
+            state->dismiss_once = false;
+            break;
+        }
+
         // Spawn a thread to activate the LED
         if (state->mode & wake_face_mode_led) {
             static thrd_t led_thread;
