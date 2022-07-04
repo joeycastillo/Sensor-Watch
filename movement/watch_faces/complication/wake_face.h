@@ -29,14 +29,6 @@
 
 #include "movement.h"
 
-/*
-A wake-up alarm face
-
-In contrast to countdown_face, uses _face_wants_background_task()
-(like thermistor_logging_face) so the alarm will get checked
-even if the watch has gone into deep sleep
-*/
-
 
 // Wake modes
 // none: 0, piezo: 1<<0, led: 1<<1, both: piezo | led
@@ -59,11 +51,11 @@ typedef struct {
     wake_face_caret_t caret;
     uint8_t hour;
     uint8_t minute;
-    bool dismiss_once;
+    //bool dismiss_once;
 } wake_face_state_t;
 
 
-void wake_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
+void wake_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void **context_ptr);
 void wake_face_activate(movement_settings_t *settings, void *context);
 bool wake_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void wake_face_resign(movement_settings_t *settings, void *context);
