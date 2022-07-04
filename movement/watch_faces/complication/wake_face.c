@@ -33,8 +33,16 @@
 #include "watch.h"
 #include "watch_utility.h"
 
-// TODO
-// UI documentation
+/*
+    UI Notes
+
+    º Light button steps the adjustment caret — signal mode selector, hour, minute
+    º Alarm/function button steps through values for the above
+    º Signal modes: None, piezo, LED, both
+    º Minute adjustment is in steps of 10min
+    º Long-press Light for the LED
+    º Long-press Alarm to toggle the “dismiss next wake” flag
+*/
 
 //
 // Private
