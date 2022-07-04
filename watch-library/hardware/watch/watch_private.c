@@ -142,7 +142,7 @@ void _watch_enable_tcc(void) {
     #endif
     // The buzzer will set the period depending on the tone it wants to play, but we have to set some period here to
     // get the LED working. Almost any period will do, tho it should be below 20000 (i.e. 50 Hz) to avoid flickering.
-    hri_tcc_write_PER_reg(TCC0, 4096);
+    hri_tcc_write_PER_reg(TCC0, 1024);
     // Set the duty cycle of all pins to 0: LED's off, buzzer not buzzing.
     hri_tcc_write_CC_reg(TCC0, WATCH_BUZZER_TCC_CHANNEL, 0);
     hri_tcc_write_CC_reg(TCC0, WATCH_RED_TCC_CHANNEL, 0);
