@@ -38,7 +38,6 @@ typedef enum {
     wake_face_mode_led,
     wake_face_mode_both,
 } wake_face_mode_t;
-const int WAKE_FACE_MODES = 4;
 
 // UI caret
 typedef enum {
@@ -47,28 +46,27 @@ typedef enum {
     wake_face_caret_minute,
     wake_face_caret_mode,
 } wake_face_caret_t;
-const int WAKE_FACE_CARET_POSITIONS = 4;
 
 typedef struct {
     wake_face_mode_t mode;
     wake_face_caret_t caret;
     uint8_t hour;
     uint8_t minute;
-    bool dismiss_once;
+    bool dismiss_next;
 } wake_face_state_t;
 
 void wake_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void **context_ptr);
 void wake_face_activate(movement_settings_t *settings, void *context);
 bool wake_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void wake_face_resign(movement_settings_t *settings, void *context);
-bool wake_face_wants_background_task(movement_settings_t *settings, void *context);
+//bool wake_face_wants_background_task(movement_settings_t *settings, void *context);
 
 #define wake_face ((const watch_face_t){ \
     wake_face_setup, \
     wake_face_activate, \
     wake_face_loop, \
     wake_face_resign, \
-    wake_face_wants_background_task, \
+    NULL \
 })
 
 #endif // WAKE_FACE_H_
