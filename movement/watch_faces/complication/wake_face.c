@@ -105,15 +105,16 @@ void _wake_face_update_display(movement_event_t *event, movement_settings_t *set
     }
 
     static char lcdbuf[11];
-    sprintf(lcdbuf, "WA%c %2d%02d  ",
-        state->mode & wake_face_mode_led ? 'o' : ' ',
+    sprintf(lcdbuf, "WA%c%c%2d%02d  ",
+        state->mode ? 'o' : ' ',
+        state->mode == wake_face_mode_led_double ? 'o' : ' ',
         hour, state->minute);
     watch_display_string(lcdbuf, 0);
 }
 
 static
 void *_wake_face_led(void *thrd_id) {
-    const uint8_t DURATION_SECONDS = 8;
+    uint8_t DURATION_SECONDS = (uint8_t)thrd_id * 8;
         // The sleep() we’re using comes from
         // watch-library/hardware/hal/include/hal_sleep.h:62
         // and is defined for an arg of type uint8_t
@@ -172,6 +173,16 @@ bool wake_face_loop(movement_event_t event, movement_settings_t *settings, void 
         movement_move_to_next_face();
         break;
 
+    case EVENT_LIGHT_BUTTON_UP:
+        _wake_face_adjust(settings, state, wake_face_action_hour_fwd);
+        _wake_face_update_display(&event, settings, state);
+        break;
+
+    case EVENT_LIGHT_LONG_PRESS:
+        _wake_face_adjust(settings, state, wake_face_action_hour_back);
+        _wake_face_update_display(&event, settings, state);
+        break;
+
     case EVENT_ALARM_LONG_PRESS:
         _wake_face_adjust(settings, state, wake_face_action_mode_fwd);
         //movement_request_tick_frequency(4);
@@ -183,28 +194,17 @@ bool wake_face_loop(movement_event_t event, movement_settings_t *settings, void 
         _wake_face_update_display(&event, settings, state);
         break;
 
-    case EVENT_LIGHT_BUTTON_UP:
-        _wake_face_adjust(settings, state, wake_face_action_hour_fwd);
-        _wake_face_update_display(&event, settings, state);
-        break;
-
-    case EVENT_LIGHT_LONG_PRESS:
-        _wake_face_adjust(settings, state, wake_face_action_hour_back);
-        _wake_face_update_display(&event, settings, state);
-        break;
-
     case EVENT_BACKGROUND_TASK:
         // Spawn a thread to activate the LED
-        if (state->mode & wake_face_mode_led) {
+        if (state->mode) {
             static thrd_t led_thread;
-            int rc = thrd_create(&led_thread, (thrd_start_t) _wake_face_led, (void *)0);
+            int rc = thrd_create(&led_thread, (thrd_start_t) _wake_face_led, (void *)state->mode);
+                // We use the thread id arg to pass the signal mode
+                // This tells _wake_face_led() how long to run the LED
+                // (could use it to indicate flashing patterns too)
             if (rc == thrd_error)
                 fprintf(stderr, "wake_face_loop(): Could not spawn LED thread\n");
         }
-
-        //if (state->mode & wake_face_mode_piezo)
-        //    movement_play_signal();
-
         break;
 
     case EVENT_TIMEOUT:

@@ -34,10 +34,8 @@
 typedef enum {
     wake_face_mode_none,
     wake_face_mode_led,
+    wake_face_mode_led_double,
     WAKE_FACE_MODES,
-    // Modes past this point are those we’re not using at present
-    wake_face_mode_piezo,
-    wake_face_mode_both,
 } wake_face_mode_t;
 
 // UI actions
