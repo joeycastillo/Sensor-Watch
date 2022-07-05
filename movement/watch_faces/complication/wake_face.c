@@ -114,15 +114,10 @@ void _wake_face_update_display(movement_event_t *event, movement_settings_t *set
 
 static
 void *_wake_face_led(void *thrd_id) {
-    uint8_t DURATION_SECONDS = (uint8_t)thrd_id * 8;
+    uint8_t DURATION_SECONDS = (uint8_t)((int)thrd_id * 8);
         // The sleep() we’re using comes from
         // watch-library/hardware/hal/include/hal_sleep.h:62
         // and is defined for an arg of type uint8_t
-
-    // TODO: Add flashing using a loop to sleep for 500ms, toggling the light?
-    // But perhaps a solid light is less intrusive
-    // We want the signal to be ›just‹ intrusive enough
-    // Warrants real-world testing
 
     fprintf(stderr, "_wake_face_led(): Entered\n");
 
