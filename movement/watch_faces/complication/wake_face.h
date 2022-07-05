@@ -31,22 +31,22 @@
 
 
 // Wake modes
-// none: 0, piezo: 1<<0, led: 1<<1, both: piezo | led
 typedef enum {
     wake_face_mode_none,
-    wake_face_mode_piezo,
     wake_face_mode_led,
+    WAKE_FACE_MODES,
+    // Modes past this point are those we’re not using at present
+    wake_face_mode_piezo,
     wake_face_mode_both,
 } wake_face_mode_t;
 
-// UI caret
-/*typedef enum {
-    wake_face_caret_display,
-    wake_face_caret_hour,
-    wake_face_caret_minute,
-    wake_face_caret_mode,
-} wake_face_caret_t;
-*/
+// UI actions
+typedef enum {
+    wake_face_action_hour_fwd,
+    wake_face_action_hour_back,
+    wake_face_action_minute_fwd,
+    wake_face_action_mode_fwd,
+} wake_face_action_t;
 
 typedef struct {
     uint32_t hour : 5;

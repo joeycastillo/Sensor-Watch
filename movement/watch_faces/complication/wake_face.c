@@ -35,30 +35,17 @@
 
 /*
     TODO — make it actually work
-    TODO
-    Bit field struct
-    No dismiss
-    No caret:
-    Alarm advances minute by 10
-    Light advances hour by 1
-    Light long press retreats hour by 4
-    Alarm long press cycles mode
 
     UI Notes
-
-    º Alarm long press steps adjustment caret — display (no selection), hour, minute, signal mode
-    º Alarm press through values for the above
-    º Signal modes: None, piezo, LED, both
-    º Minute adjustment is in steps of 10min
-    º Light long press toggles “dismiss next” flag
+    º Light advances hour by 1
+    º Light long press retreats hour by 4
+    º Alarm advances minute by 10
+    º Alarm long press cycles through signal modes
 */
 
 //
 // Private
 //
-
-static const int WAKE_FACE_MODES = 4;
-static const int WAKE_FACE_CARET_POSITIONS = 4;
 
 static
 inline int32_t get_tz_offset(movement_settings_t *settings) {
@@ -66,41 +53,39 @@ inline int32_t get_tz_offset(movement_settings_t *settings) {
 }
 
 static
-void _wake_face_adjust(movement_settings_t *settings, wake_face_state_t *state) {
-    switch(state->caret) {
-    case wake_face_caret_hour:
+void _wake_face_adjust(movement_settings_t *settings, wake_face_state_t *state, wake_face_action_t action) {
+    switch(action) {
+    case wake_face_action_hour_fwd:
+        // 1h steps
         state->hour = (state->hour + 1) % 24;
         break;
-    case wake_face_caret_minute:
-        // Step 10min per click
+    case wake_face_action_hour_back:
+        // 4h steps
+        state->hour = (state->hour + 20) % 24;
+        break;
+    case wake_face_action_minute_fwd:
+        // 10min steps
         state->minute = (state->minute + 10) % 60;
         break;
-    case wake_face_caret_mode:
+    case wake_face_action_mode_fwd:
         state->mode = (state->mode + 1) % WAKE_FACE_MODES;
-        if (state->mode == wake_face_mode_none)
-            movement_cancel_background_task();
-        else {
-            watch_date_time now = watch_rtc_get_date_time();
-            uint32_t now_ts = watch_utility_date_time_to_unix_time(now, get_tz_offset(settings));
-            uint32_t wake_ts = watch_utility_offset_timestamp(now_ts, state->hour, state->minute, 0);
-            watch_date_time wake_dt = watch_utility_date_time_from_unix_time(wake_ts, get_tz_offset(settings));;
-            movement_schedule_background_task(wake_dt);
-        }
-        break;
-    case wake_face_caret_display:
     default:
         break;
     }
+
+    // TODO: MAKE THIS WORK
+    watch_date_time now = watch_rtc_get_date_time();
+    uint32_t now_ts = watch_utility_date_time_to_unix_time(now, get_tz_offset(settings));
+    uint32_t wake_ts = watch_utility_offset_timestamp(now_ts, state->hour, state->minute, 0);
+    watch_date_time wake_dt = watch_utility_date_time_from_unix_time(wake_ts, get_tz_offset(settings));;
+    movement_schedule_background_task(wake_dt);
+
     return;
 }
 
 static
 void _wake_face_update_display(movement_event_t *event, movement_settings_t *settings, wake_face_state_t *state) {
-    static char lcdbuf[11];
-
-    uint32_t subsecond = event->subsecond;
-    bool clock_mode_24h = settings->bit.clock_mode_24h;
-    uint8_t hour = state->hour;
+    (void) event;
 
     watch_clear_display();
     watch_set_colon();
@@ -110,46 +95,19 @@ void _wake_face_update_display(movement_event_t *event, movement_settings_t *set
     watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
     watch_clear_indicator(WATCH_INDICATOR_LAP);
 
-    if (clock_mode_24h)
+    uint8_t hour = state->hour;
+    if (settings->bit.clock_mode_24h)
         watch_set_indicator(WATCH_INDICATOR_24H);
     else {
         if (hour >= 12)
             watch_set_indicator(WATCH_INDICATOR_PM);
         hour = hour % 12 ? hour % 12 : 12;
     }
-    if (state->mode & wake_face_mode_piezo)
-        watch_set_indicator(WATCH_INDICATOR_BELL);
-    if (state->mode & wake_face_mode_led)
-        watch_set_indicator(WATCH_INDICATOR_SIGNAL);
-    if (state->dismiss_next)
-        watch_set_indicator(WATCH_INDICATOR_LAP);
-        // Show LAP if the “dismiss the next wake” flag is set
 
-    sprintf(lcdbuf, "WA  %2d%02d  ", hour, state->minute);
-
-    // Flash the hour, minute, and legend to indicate presence of the caret
-    if (subsecond % 4 == 0) {
-        fprintf(stderr, "_wake_face_update_display(): subsecond % 4 == 0\n");
-        switch (state->caret) {
-        case wake_face_caret_hour:
-            lcdbuf[4] = lcdbuf[5] = ' ';
-            fprintf(stderr, "_wake_face_update_display(): Blanked the hour\n");
-            break;
-        case wake_face_caret_minute:
-            lcdbuf[6] = lcdbuf[7] = ' ';
-            fprintf(stderr, "_wake_face_update_display(): Blanked the minute\n");
-            break;
-        case wake_face_caret_mode:
-            lcdbuf[0] = lcdbuf[1] = ' ';
-            fprintf(stderr, "_wake_face_update_display(): Blanked the legend\n");
-            break;
-        case wake_face_caret_display:
-        default:
-            break;
-        }
-    }
-
-    watch_set_colon();
+    static char lcdbuf[11];
+    sprintf(lcdbuf, "WA%c %2d%02d  ",
+        state->mode & wake_face_mode_led ? 'o' : ' ',
+        hour, state->minute);
     watch_display_string(lcdbuf, 0);
 }
 
@@ -192,16 +150,12 @@ void wake_face_setup(movement_settings_t *settings, uint8_t watch_face_index, vo
         state->mode = wake_face_mode_none;
         state->hour = 5;
         state->minute = 0;
-        state->dismiss_next = false;
     }
 }
 
 void wake_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
-
-    // Always welcome the user in display mode (no selector caret)
-    wake_face_state_t *state = (wake_face_state_t *)context;
-    state->caret = wake_face_caret_display;
+    (void) context;
 }
 
 bool wake_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
@@ -219,37 +173,27 @@ bool wake_face_loop(movement_event_t event, movement_settings_t *settings, void 
         break;
 
     case EVENT_ALARM_LONG_PRESS:
-        // Alarm long press button steps the caret
-        state->caret = (state->caret + 1) % WAKE_FACE_CARET_POSITIONS;
-        movement_request_tick_frequency(4);
+        _wake_face_adjust(settings, state, wake_face_action_mode_fwd);
+        //movement_request_tick_frequency(4);
         _wake_face_update_display(&event, settings, state);
         break;
 
     case EVENT_ALARM_BUTTON_UP:
-        // The alarm button iterates the value of the selected UI element
-        // (mode, hour, minute)
-        _wake_face_adjust(settings, state);
+        _wake_face_adjust(settings, state, wake_face_action_minute_fwd);
         _wake_face_update_display(&event, settings, state);
         break;
 
     case EVENT_LIGHT_BUTTON_UP:
-        movement_illuminate_led();
+        _wake_face_adjust(settings, state, wake_face_action_hour_fwd);
+        _wake_face_update_display(&event, settings, state);
         break;
 
     case EVENT_LIGHT_LONG_PRESS:
-        // Light long press toggles the dismiss next flag
-        state->dismiss_next = !state->dismiss_next;
+        _wake_face_adjust(settings, state, wake_face_action_hour_back);
         _wake_face_update_display(&event, settings, state);
         break;
 
     case EVENT_BACKGROUND_TASK:
-        // If the dismiss next flag is set, reset it and skip the signals
-        if (state->dismiss_next) {
-            state->dismiss_next = false;
-            fprintf(stderr, "wake_face_loop(): Reset the dismiss_next flag\n");
-            break;
-        }
-
         // Spawn a thread to activate the LED
         if (state->mode & wake_face_mode_led) {
             static thrd_t led_thread;
@@ -258,8 +202,8 @@ bool wake_face_loop(movement_event_t event, movement_settings_t *settings, void 
                 fprintf(stderr, "wake_face_loop(): Could not spawn LED thread\n");
         }
 
-        if (state->mode & wake_face_mode_piezo)
-            movement_play_signal();
+        //if (state->mode & wake_face_mode_piezo)
+        //    movement_play_signal();
 
         break;
 
