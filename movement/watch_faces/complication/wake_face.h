@@ -29,19 +29,17 @@
 
 #include "movement.h"
 
-
 // Wake modes
 typedef enum {
     wake_face_mode_none,
     wake_face_mode_led,
-    wake_face_mode_led_double,
     WAKE_FACE_MODES,
 } wake_face_mode_t;
 
 // UI actions
 typedef enum {
     wake_face_action_hour_fwd,
-    wake_face_action_hour_back,
+    wake_face_action_hour_6h,
     wake_face_action_minute_fwd,
     wake_face_action_mode_fwd,
 } wake_face_action_t;
@@ -56,14 +54,14 @@ void wake_face_setup(movement_settings_t *settings, uint8_t watch_face_index, vo
 void wake_face_activate(movement_settings_t *settings, void *context);
 bool wake_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void wake_face_resign(movement_settings_t *settings, void *context);
-//bool wake_face_wants_background_task(movement_settings_t *settings, void *context);
+void wake_face_wants_background_task(movement_settings_t *settings, void *context);
 
 #define wake_face ((const watch_face_t){ \
     wake_face_setup, \
     wake_face_activate, \
     wake_face_loop, \
     wake_face_resign, \
-    NULL \
+    wake_face_wants_background_task \
 })
 
 #endif // WAKE_FACE_H_
