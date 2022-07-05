@@ -33,8 +33,6 @@
 #include "watch_utility.h"
 
 /*
-    TODO — make it actually work
-
     UI Notes
     º Light advances hour by 1
     º Light long press advances hour by 6
@@ -45,36 +43,6 @@
 //
 // Private
 //
-
-static
-inline int32_t get_tz_offset(movement_settings_t *settings) {
-    return movement_timezone_offsets[settings->bit.time_zone] * 60;
-}
-
-static
-void _wake_face_adjust(movement_settings_t *settings, wake_face_state_t *state, wake_face_action_t action) {
-    (void) settings;
-    switch(action) {
-    case wake_face_action_hour_fwd:
-        // 1h steps
-        state->hour = (state->hour + 1) % 24;
-        break;
-    case wake_face_action_hour_6h:
-        // 6h steps
-        state->hour = (state->hour + 6) % 24;
-        break;
-    case wake_face_action_minute_fwd:
-        // 10min steps
-        state->minute = (state->minute + 10) % 60;
-        break;
-    case wake_face_action_mode_fwd:
-        state->mode = (state->mode + 1) % WAKE_FACE_MODES;
-        break;
-    default:
-        break;
-    }
-    return;
-}
 
 static
 void _wake_face_update_display(movement_settings_t *settings, wake_face_state_t *state) {
@@ -99,23 +67,6 @@ void _wake_face_update_display(movement_settings_t *settings, wake_face_state_t 
     watch_display_string(lcdbuf, 0);
 }
 
-static
-void *_wake_face_led(void *thrd_id) {
-    uint8_t DURATION_SECONDS = (uint8_t)((int)thrd_id * 8);
-        // The sleep() we’re using comes from
-        // watch-library/hardware/hal/include/hal_sleep.h:62
-        // and is defined for an arg of type uint8_t
-
-    fprintf(stderr, "_wake_face_led(): Entered\n");
-
-    watch_set_led_yellow();
-    sleep(DURATION_SECONDS);
-    watch_set_led_off();
-    fprintf(stderr, "_wake_face_led(): Completed LED activation\n");
-
-    thrd_exit(EXIT_SUCCESS);
-}
-
 //
 // Exported
 //
@@ -129,16 +80,36 @@ void wake_face_setup(movement_settings_t *settings, uint8_t watch_face_index, vo
         wake_face_state_t *state = (wake_face_state_t *)*context_ptr;
         memset(*context_ptr, 0, sizeof(wake_face_state_t));
 
-        // Default wake time: 5am, default mode: none
         state->hour = 5;
         state->minute = 0;
-        state->mode = wake_face_mode_none;
+        state->mode = 0;
     }
 }
 
 void wake_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
+}
+void wake_face_resign(movement_settings_t *settings, void *context) {
+    (void) settings;
+    (void) context;
+}
+
+bool wake_face_wants_background_task(movement_settings_t *settings, void *context) {
+    (void) settings;
+    wake_face_state_t *state = (wake_face_state_t *)context;
+
+    bool rc = false;
+    if ( state->mode ) {
+        watch_date_time now = watch_rtc_get_date_time();
+        rc = state->hour==now.unit.hour && state->minute==now.unit.minute;
+        // FIXME. We’re at the mercy of the wants_background_task handler
+        // In the emulator, it’s triggering at the ›end‹ of the minute
+        // Converting to Unix timestamps and taking a difference between now and wake
+        // is not an easy win — because the timestamp for wake has to rely on now
+        // for its date
+    }
+    return rc;
 }
 
 bool wake_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
@@ -150,63 +121,35 @@ bool wake_face_loop(movement_event_t event, movement_settings_t *settings, void 
     case EVENT_TICK:
         _wake_face_update_display(settings, state);
         break;
-
+    case EVENT_LIGHT_BUTTON_UP:
+        state->hour = (state->hour + 1) % 24;
+        _wake_face_update_display(settings, state);
+        break;
+    case EVENT_LIGHT_LONG_PRESS:
+        state->hour = (state->hour + 6) % 24;
+        _wake_face_update_display(settings, state);
+        break;
+    case EVENT_ALARM_BUTTON_UP:
+        state->minute = (state->minute + 10) % 60;
+        _wake_face_update_display(settings, state);
+        break;
+    case EVENT_ALARM_LONG_PRESS:
+        state->mode ^= 1;
+        _wake_face_update_display(settings, state);
+        break;
+    case EVENT_BACKGROUND_TASK:
+        movement_play_signal();
+        break;
     case EVENT_MODE_BUTTON_UP:
         movement_move_to_next_face();
         break;
-
-    case EVENT_LIGHT_BUTTON_UP:
-        _wake_face_adjust(settings, state, wake_face_action_hour_fwd);
-        _wake_face_update_display(settings, state);
-        break;
-
-    case EVENT_LIGHT_LONG_PRESS:
-        _wake_face_adjust(settings, state, wake_face_action_hour_6h);
-        _wake_face_update_display(settings, state);
-        break;
-
-    case EVENT_ALARM_LONG_PRESS:
-        _wake_face_adjust(settings, state, wake_face_action_mode_fwd);
-        _wake_face_update_display(settings, state);
-        break;
-
-    case EVENT_ALARM_BUTTON_UP:
-        _wake_face_adjust(settings, state, wake_face_action_minute_fwd);
-        _wake_face_update_display(settings, state);
-        break;
-
-    case EVENT_BACKGROUND_TASK:
-        // Spawn a thread to activate the LED
-        if ( state->mode ) {
-            thrd_t led_thread;
-            int rc = thrd_create(&led_thread, (thrd_start_t) _wake_face_led, (void *)state->mode);
-                // We use the thread id arg to pass the signal mode
-            if (rc == thrd_error)
-                fprintf(stderr, "wake_face_loop(): Could not spawn LED thread\n");
-        }
-        break;
-
     case EVENT_TIMEOUT:
         movement_move_to_face(0);
         break;
-
     case EVENT_LOW_ENERGY_UPDATE:
     default:
       break;
     }
 
     return true;
-}
-
-void wake_face_resign(movement_settings_t *settings, void *context) {
-    (void) settings;
-    (void) context;
-}
-
-void wake_face_wants_background_task(movement_settings_t *settings, void *context) {
-    (void) settings;
-    wake_face_state_t *state = (wake_face_state_t *)context;
-
-    watch_date_time now = watch_rtc_get_date_time();
-    return now.unit.hour==state->hour && now.unit.minute==state->minute;
 }
