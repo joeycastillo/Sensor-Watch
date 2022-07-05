@@ -35,6 +35,14 @@
 
 /*
     TODO — make it actually work
+    TODO
+    Bit field struct
+    No dismiss
+    No caret:
+    Alarm advances minute by 10
+    Light advances hour by 1
+    Light long press retreats hour by 4
+    Alarm long press cycles mode
 
     UI Notes
 
