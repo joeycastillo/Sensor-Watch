@@ -37,7 +37,7 @@
     º Light advances hour by 1
     º Light long press advances hour by 6
     º Alarm advances minute by 10
-    º Alarm long press cycles through signal modes
+    º Alarm long press cycles through signal modes (just one at the moment)
 */
 
 //
@@ -136,7 +136,7 @@ bool wake_face_loop(movement_event_t event, movement_settings_t *settings, void 
         _wake_face_update_display(settings, state);
         break;
     case EVENT_ALARM_LONG_PRESS:
-        state->mode = (state->mode + 1) % WAKE_FACE_MODES;
+        state->mode ^= 1;
         _wake_face_update_display(settings, state);
         break;
     case EVENT_BACKGROUND_TASK:
