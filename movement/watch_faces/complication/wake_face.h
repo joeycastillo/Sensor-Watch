@@ -32,8 +32,10 @@
 typedef struct {
     uint32_t hour : 5;
     uint32_t minute : 6;
-    uint32_t mode : 1;
+    uint32_t mode : 2;
 } wake_face_state_t;
+
+#define WAKE_FACE_MODES (4)
 
 void wake_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void **context_ptr);
 void wake_face_activate(movement_settings_t *settings, void *context);

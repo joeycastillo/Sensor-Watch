@@ -37,7 +37,7 @@
     º Light advances hour by 1
     º Light long press advances hour by 6
     º Alarm advances minute by 10
-    º Alarm long press cycles through signal modes (at the moment just none/signal)
+    º Alarm long press cycles through signal modes
 */
 
 //
@@ -60,7 +60,7 @@ void _wake_face_update_display(movement_settings_t *settings, wake_face_state_t 
 
     static char lcdbuf[11];
     sprintf(lcdbuf, "WA%c %2d%02d  ",
-        state->mode ? 'o' : ' ',
+        state->mode ? '0' + state->mode : ' ',
         hour, state->minute);
 
     watch_set_colon();
@@ -136,11 +136,11 @@ bool wake_face_loop(movement_event_t event, movement_settings_t *settings, void 
         _wake_face_update_display(settings, state);
         break;
     case EVENT_ALARM_LONG_PRESS:
-        state->mode ^= 1;
+        state->mode = (state->mode + 1) % WAKE_FACE_MODES;
         _wake_face_update_display(settings, state);
         break;
     case EVENT_BACKGROUND_TASK:
-        for ( int i = 0; i < 3; ++i )
+        for ( int i = 0; i < state->mode; ++i )
             movement_play_signal();
         break;
     case EVENT_MODE_BUTTON_UP:
