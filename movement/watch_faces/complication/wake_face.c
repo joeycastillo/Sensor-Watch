@@ -26,7 +26,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <threads.h>
+// #include <threads.h>
 
 #include "wake_face.h"
 #include "watch.h"
@@ -37,7 +37,7 @@
     º Light advances hour by 1
     º Light long press advances hour by 6
     º Alarm advances minute by 10
-    º Alarm long press cycles through signal modes
+    º Alarm long press cycles through signal modes (at the moment just none/signal)
 */
 
 //
@@ -103,11 +103,13 @@ bool wake_face_wants_background_task(movement_settings_t *settings, void *contex
     if ( state->mode ) {
         watch_date_time now = watch_rtc_get_date_time();
         rc = state->hour==now.unit.hour && state->minute==now.unit.minute;
-        // FIXME. We’re at the mercy of the wants_background_task handler
+        // We’re at the mercy of the wants_background_task handler
         // In the emulator, it’s triggering at the ›end‹ of the minute
         // Converting to Unix timestamps and taking a difference between now and wake
         // is not an easy win — because the timestamp for wake has to rely on now
-        // for its date
+        // for its date. So first we’d have to see if the TOD of wake is after that
+        // of now. If it is, take tomorrow’s date, calculating month and year rollover
+        // if need be.
     }
     return rc;
 }
@@ -138,7 +140,8 @@ bool wake_face_loop(movement_event_t event, movement_settings_t *settings, void 
         _wake_face_update_display(settings, state);
         break;
     case EVENT_BACKGROUND_TASK:
-        movement_play_signal();
+        for ( int i = 0; i < 3; ++i )
+            movement_play_signal();
         break;
     case EVENT_MODE_BUTTON_UP:
         movement_move_to_next_face();
