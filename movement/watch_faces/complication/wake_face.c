@@ -104,7 +104,7 @@ bool wake_face_wants_background_task(movement_settings_t *settings, void *contex
         watch_date_time now = watch_rtc_get_date_time();
         rc = state->hour==now.unit.hour && state->minute==now.unit.minute;
         // We’re at the mercy of the wants_background_task handler
-        // In the emulator, it’s triggering at the ›end‹ of the minute
+        // In Safari, the emulator triggers at the ›end‹ of the minute
         // Converting to Unix timestamps and taking a difference between now and wake
         // is not an easy win — because the timestamp for wake has to rely on now
         // for its date. So first we’d have to see if the TOD of wake is after that
@@ -140,8 +140,13 @@ bool wake_face_loop(movement_event_t event, movement_settings_t *settings, void 
         _wake_face_update_display(settings, state);
         break;
     case EVENT_BACKGROUND_TASK:
-        for ( int i = 0; i < state->mode; ++i )
-            movement_play_signal();
+        // Play an arpeggiated G for my man Tom Petty
+        for ( int i = 0; i < 3; ++i ) {
+            watch_buzzer_play_note(BUZZER_NOTE_G5, 180);
+            watch_buzzer_play_note(BUZZER_NOTE_B5, 180);
+            watch_buzzer_play_note(BUZZER_NOTE_D5, 180);
+            watch_buzzer_play_note(BUZZER_NOTE_REST, 240);
+        }
         break;
     case EVENT_MODE_BUTTON_UP:
         movement_move_to_next_face();
