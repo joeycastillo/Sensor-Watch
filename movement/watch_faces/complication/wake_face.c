@@ -140,8 +140,10 @@ bool wake_face_loop(movement_event_t event, movement_settings_t *settings, void 
         _wake_face_update_display(settings, state);
         break;
     case EVENT_BACKGROUND_TASK:
-        for ( int i = 0; i < state->mode; ++i )
+        for ( int i = 0; i < state->mode; ++i ) {
             movement_play_signal();
+            sleep(1);
+        }
         break;
     case EVENT_MODE_BUTTON_UP:
         movement_move_to_next_face();
