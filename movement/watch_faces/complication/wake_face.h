@@ -50,3 +50,4 @@ bool wake_face_wants_background_task(movement_settings_t *settings, void *contex
 })
 
 #endif // WAKE_FACE_H_
+
