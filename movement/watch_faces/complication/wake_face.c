@@ -140,12 +140,9 @@ bool wake_face_loop(movement_event_t event, movement_settings_t *settings, void 
         _wake_face_update_display(settings, state);
         break;
     case EVENT_BACKGROUND_TASK:
-        // Play an arpeggiated G for my man Tom Petty
         for ( int i = 0; i < 3; ++i ) {
-            watch_buzzer_play_note(BUZZER_NOTE_G5, 180);
-            watch_buzzer_play_note(BUZZER_NOTE_B5, 180);
-            watch_buzzer_play_note(BUZZER_NOTE_D5, 180);
-            watch_buzzer_play_note(BUZZER_NOTE_REST, 240);
+            movement_play_signal();
+            watch_buzzer_play_note(BUZZER_NOTE_REST, 500);
         }
         break;
     case EVENT_MODE_BUTTON_UP:
