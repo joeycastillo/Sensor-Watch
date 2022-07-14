@@ -45,7 +45,7 @@ ifndef EMSCRIPTEN
 CC = arm-none-eabi-gcc
 OBJCOPY = arm-none-eabi-objcopy
 SIZE = arm-none-eabi-size
-UF2 = python $(TOP)/utils/uf2conv.py
+UF2 = python3 $(TOP)/utils/uf2conv.py
 
 CFLAGS += -W -Wall -Wextra -Wmissing-prototypes -Wmissing-declarations
 CFLAGS += --std=gnu99 -Os
