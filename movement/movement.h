@@ -257,6 +257,7 @@ typedef struct {
     // background task handling
     bool needs_background_tasks_handled;
     bool has_scheduled_background_task;
+    bool needs_wake;
 
     // low energy mode countdown
     int32_t le_mode_ticks;
@@ -286,6 +287,8 @@ void movement_schedule_background_task(watch_date_time date_time);
 // note: watch faces can only cancel their background task when in the foreground, since
 // movement will associate the scheduled task with the currently active face.
 void movement_cancel_background_task(void);
+
+void movement_request_wake();
 
 void movement_play_signal(void);
 void movement_play_alarm(void);

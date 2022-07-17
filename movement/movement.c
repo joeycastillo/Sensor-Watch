@@ -222,6 +222,11 @@ void movement_cancel_background_task(void) {
     movement_state.has_scheduled_background_task = other_tasks_scheduled;
 }
 
+void movement_request_wake() {
+    movement_state.needs_wake = true;
+    _movement_reset_inactivity_countdown();
+}
+
 void movement_play_signal(void) {
     watch_buzzer_play_note(BUZZER_NOTE_C8, 75);
     watch_buzzer_play_note(BUZZER_NOTE_REST, 100);
@@ -229,7 +234,11 @@ void movement_play_signal(void) {
 }
 
 void movement_play_alarm(void) {
-    movement_state.alarm_ticks = 128 * 5 - 80; // 80 ticks short of 5 seconds, or 4.375 seconds (our beep is 0.375 seconds)
+    movement_request_wake();
+    // alarm length: 75 ticks short of 5 seconds, or 4.414 seconds:
+    // our tone is 0.375 seconds of beep and 0.625 of silence, repeated five times.
+    // so 4.375 + a few ticks to wake up from sleep mode.
+    movement_state.alarm_ticks = 128 * 5 - 75;
     _movement_enable_fast_tick_if_needed();
 }
 
@@ -319,6 +328,23 @@ void app_prepare_for_standby(void) {
 void app_wake_from_standby(void) {
 }
 
+static void _sleep_mode_app_loop(void) {
+    movement_state.needs_wake = false;
+    // as long as le_mode_ticks is -1 (i.e. we are in low energy mode), we wake up here, update the screen, and go right back to sleep.
+    while (movement_state.le_mode_ticks == -1) {
+        // we also have to handle background tasks here in the mini-runloop
+        if (movement_state.needs_background_tasks_handled) _movement_handle_background_tasks();
+
+        event.event_type = EVENT_LOW_ENERGY_UPDATE;
+        watch_faces[movement_state.current_watch_face].loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
+
+        // if we need to wake immediately, do it!
+        if (movement_state.needs_wake) return;
+        // otherwise enter sleep mode, and when the extwake handler is called, it will reset le_mode_ticks and force us out at the next loop.
+        else watch_enter_sleep_mode();
+    }
+}
+
 bool app_loop(void) {
     if (movement_state.watch_face_changed) {
         if (movement_state.settings.bit.button_should_sound) {
@@ -360,17 +386,10 @@ bool app_loop(void) {
         event.event_type = EVENT_NONE;
         event.subsecond = 0;
 
-        // this is a little mini-runloop.
-        // as long as le_mode_ticks is -1 (i.e. we are in low energy mode), we wake up here, update the screen, and go right back to sleep.
-        while (movement_state.le_mode_ticks == -1) {
-            // we also have to handle background tasks here in the mini-runloop
-            if (movement_state.needs_background_tasks_handled) _movement_handle_background_tasks();
-
-            event.event_type = EVENT_LOW_ENERGY_UPDATE;
-            watch_faces[movement_state.current_watch_face].loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
-            watch_enter_sleep_mode();
-        }
-        // as soon as le_mode_ticks is reset by the extwake handler, we bail out of the loop and reactivate ourselves.
+        // _sleep_mode_app_loop takes over at this point and loops until le_mode_ticks is reset by the extwake handler,
+        // or wake is requested using the movement_request_wake function.
+        _sleep_mode_app_loop();
+        // as soon as _sleep_mode_app_loop returns, we reactivate ourselves.
         event.event_type = EVENT_ACTIVATE;
         // this is a hack tho: waking from sleep mode, app_setup does get called, but it happens before we have reset our ticks.
         // need to figure out if there's a better heuristic for determining how we woke up.
