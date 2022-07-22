@@ -70,31 +70,33 @@ static void cb_tick(void) {
 #define SI1133_PARAM_QUERY_MASK 0x40 // 0b01......
 #define SI1133_PARAM_SET_MASK 0x80 // 0b10......
 
-#define SI1133_PARAM_CHAN_LIST 0x01
-#define SI1133_PARAM_ADCCONFIG0 0x02
-#define SI1133_PARAM_ADCSENS0 0x03
-#define SI1133_PARAM_ADCPOST0 0x04
-#define SI1133_PARAM_MEASCONFIG0 0x05
-#define SI1133_PARAM_ADCCONFIG1 0x06
-#define SI1133_PARAM_ADCSENS1 0x07
-#define SI1133_PARAM_ADCPOST1 0x08
-#define SI1133_PARAM_MEASCONFIG1 0x09
-#define SI1133_PARAM_ADCCONFIG2 0x0a
-#define SI1133_PARAM_ADCSENS2 0x0b
-#define SI1133_PARAM_ADCPOST2 0x0c
-#define SI1133_PARAM_MEASCONFIG2 0x0d
-#define SI1133_PARAM_ADCCONFIG3 0x0e
-#define SI1133_PARAM_ADCSENS3 0x0f
-#define SI1133_PARAM_ADCPOST3 0x10
-#define SI1133_PARAM_MEASCONFIG3 0x11
-#define SI1133_PARAM_ADCCONFIG4 0x12
-#define SI1133_PARAM_ADCSENS4 0x13
-#define SI1133_PARAM_ADCPOST4 0x14
-#define SI1133_PARAM_MEASCONFIG4 0x15
-#define SI1133_PARAM_ADCCONFIG5 0x16
-#define SI1133_PARAM_ADCSENS5 0x17
-#define SI1133_PARAM_ADCPOST5 0x18
-#define SI1133_PARAM_MEASCONFIG5 0x19
+typedef enum {
+  SI1133_PARAM_CHAN_LIST = 0x01, 
+  SI1133_PARAM_ADCCONFIG0 = 0x02,
+  SI1133_PARAM_ADCSENS0 = 0x03,
+  SI1133_PARAM_ADCPOST0 = 0x04,
+  SI1133_PARAM_MEASCONFIG0= 0x05,
+  SI1133_PARAM_ADCCONFIG1 = 0x06,
+  SI1133_PARAM_ADCSENS1 = 0x07,
+  SI1133_PARAM_ADCPOST1 = 0x08,
+  SI1133_PARAM_MEASCONFIG1 = 0x09,
+  SI1133_PARAM_ADCCONFIG2 = 0x0a,
+  SI1133_PARAM_ADCSENS2 = 0x0b,
+  SI1133_PARAM_ADCPOST2 = 0x0c,
+  SI1133_PARAM_MEASCONFIG2 = 0x0d,
+  SI1133_PARAM_ADCCONFIG3 = 0x0e,
+  SI1133_PARAM_ADCSENS3 = 0x0f,
+  SI1133_PARAM_ADCPOST3 = 0x10,
+  SI1133_PARAM_MEASCONFIG3 = 0x11,
+  SI1133_PARAM_ADCCONFIG4 = 0x12,
+  SI1133_PARAM_ADCSENS4 = 0x13,
+  SI1133_PARAM_ADCPOST4 = 0x14,
+  SI1133_PARAM_MEASCONFIG4 = 0x15,
+  SI1133_PARAM_ADCCONFIG5 = 0x16,
+  SI1133_PARAM_ADCSENS5 = 0x17,
+  SI1133_PARAM_ADCPOST5 = 0x18,
+  SI1133_PARAM_MEASCONFIG5 = 0x19,
+} si1133_params;
 
 typedef enum {
   SI1133_ADCMUX_SMALL_IR = 0x00,
@@ -195,7 +197,7 @@ int si1133_configure_channel(
  * @details
  * See section 5.1 of the si1133 datasheet for more details
  */
-int si1133_set_param(uint8_t param, uint8_t value);
+int si1133_set_param(si1133_params param, uint8_t value);
 
 void app_init(void) {
     watch_enable_display();
@@ -243,10 +245,27 @@ void si1133_init(void) {
     if (response != 0) {
         error("failed to reset");
     }
+
+    // --- set CHAN_LIST
+    printf("writing chan list stuff\r\n");
+    response = si1133_set_param(SI1133_PARAM_CHAN_LIST, 1);
+    printf("response: 0x%02x\r\n", response);
+
+    si1133_configure_channel(
+            SI1133_ADCMUX_UV,
+            SI1133_DECIM_0,
+            SI1133_RANGING_OFF,
+            SI1133_HW_GAIN_11,
+            SI1133_SW_GAIN_0,
+            SI1133_16_BIT,
+            SI1133_POST_SHIFT_0,
+            SI1133_THRESH_DISABLE,
+            SI1133_COUNTER_DISABLE
+            );
 }
 
 
-int si1133_set_param(uint8_t param, uint8_t value) {
+int si1133_set_param(si1133_params param, uint8_t value) {
     // setting parameter is done via writing value to HOSTIN0 then writting param addres to COMMAND
     // the data written to command is 0b10xxxxxx where the 6 low bits are the param address
     watch_i2c_write8(SI1133_ADDR, SI1133_REG_HOSTIN0, value);
@@ -298,7 +317,7 @@ int si1133_configure_channel(
     return 0;
 }
 
-bool setup_needed = true;
+uint8_t readings = 0;
 
 bool app_loop(void) {
     if (tick) {
@@ -321,45 +340,29 @@ bool app_loop(void) {
          * 4. read values out of HOSTOUTx
          */
 
-        
-        uint8_t response;
-        // --- set CHAN_LIST
-        printf("writing chan list stuff\r\n");
-        response = si1133_set_param(SI1133_PARAM_CHAN_LIST, 1);
-        printf("response: 0x%02x\r\n", response);
-
-        si1133_configure_channel(
-                SI1133_ADCMUX_UV,
-                SI1133_DECIM_0,
-                SI1133_RANGING_OFF,
-                SI1133_HW_GAIN_11,
-                SI1133_SW_GAIN_4,
-                SI1133_16_BIT,
-                SI1133_POST_SHIFT_0,
-                SI1133_THRESH_DISABLE,
-                SI1133_COUNTER_DISABLE
-                );
-                
-
         // ------------ do readings
 
+        printf("starting read...\r\n");
         // FORCE mode
         watch_i2c_write8(SI1133_ADDR, SI1133_REG_COMMAND, SI1133_CMD_FORCE);
 
         // read IRQ_STATUS until 0x01?
         uint8_t irq_status = 0;
+        uint32_t waits = 0;
         while(irq_status != 0x01) {
             irq_status = watch_i2c_read8(SI1133_ADDR, SI1133_REG_IRQ_STATUS);
-            ////printf("IRQ_STATUS: 0x%02x\r\n", irq_status);
+            waits++;
         }
+        printf("waits %d\r\n", waits);
 
         uint8_t hostout0 = watch_i2c_read8(SI1133_ADDR, SI1133_REG_HOSTOUT0);
         uint8_t hostout1 = watch_i2c_read8(SI1133_ADDR, SI1133_REG_HOSTOUT1);
         uint16_t adccount = hostout0 << 8 | hostout1;
         //printf("adccount: 0x%04x\r\n", adccount);
-        sprintf(buf, "    %04x", adccount);
+        sprintf(buf, "  %02x%04x", readings, adccount);
         watch_display_string(buf, 0);
         printf("%s\r\n", buf);
+        readings++;
 
     }
     return true;
