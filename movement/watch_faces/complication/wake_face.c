@@ -58,10 +58,11 @@ void _wake_face_update_display(movement_settings_t *settings, wake_face_state_t 
         hour = hour % 12 ? hour % 12 : 12;
     }
 
+    if ( state->mode )
+        watch_set_indicator(WATCH_INDICATOR_BELL);
+
     static char lcdbuf[11];
-    sprintf(lcdbuf, "WA%c %2d%02d  ",
-        state->mode ? 'o' : ' ',
-        hour, state->minute);
+    sprintf(lcdbuf, "WA  %2d%02d  ", hour, state->minute);
 
     watch_set_colon();
     watch_display_string(lcdbuf, 0);
@@ -140,10 +141,8 @@ bool wake_face_loop(movement_event_t event, movement_settings_t *settings, void 
         _wake_face_update_display(settings, state);
         break;
     case EVENT_BACKGROUND_TASK:
-        for ( int i = 0; i < 3; ++i ) {
-            movement_play_signal();
-            watch_buzzer_play_note(BUZZER_NOTE_REST, 500);
-        }
+        movement_play_alarm();
+            // 2022-07-23: Thx @joeycastillo for the dedicated “alarm” signal
         break;
     case EVENT_MODE_BUTTON_UP:
         movement_move_to_next_face();

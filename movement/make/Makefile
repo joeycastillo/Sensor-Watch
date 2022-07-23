@@ -63,7 +63,9 @@ SRCS += \
   ../watch_faces/complication/tomato_face.c \
   ../watch_faces/complication/probability_face.c \
   ../watch_faces/complication/wake_face.c \
+  ../watch_faces/complication/interval_face.c \
 # wake_face.c: Josh Berson, 2022-07-04
+# interval_face.c: Josh Berson, 2022-07-16
 # New watch faces go above this line.
 
 # Leave this line at the bottom of the file; it has all the targets for making your project.

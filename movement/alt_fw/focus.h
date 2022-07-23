@@ -32,6 +32,7 @@ const watch_face_t watch_faces[] = {
     tomato_face,
     stopwatch_face,
     countdown_face,
+    wake_face, // added by @joshber 2022-07-23, per @joeycastillo
 
     preferences_face,
     set_time_face,

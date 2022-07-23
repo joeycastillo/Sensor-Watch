@@ -29,7 +29,11 @@
 
 const watch_face_t watch_faces[] = {
     simple_clock_face,
+    wake_face,
     interval_face,
+    stopwatch_face,
+    sunrise_sunset_face,
+
     preferences_face,
     set_time_face,
 };
