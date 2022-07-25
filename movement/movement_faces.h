@@ -53,6 +53,8 @@
 #include "astronomy_face.h"
 #include "tomato_face.h"
 #include "probability_face.h"
+#include "wake_face.h"
+// #include "interval_face.h"
 // New includes go above this line.
 
 #endif // MOVEMENT_FACES_H_

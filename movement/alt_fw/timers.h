@@ -29,10 +29,10 @@
 
 const watch_face_t watch_faces[] = {
     simple_clock_face,
-    tomato_face,
+    wake_face,
+    interval_face,
     stopwatch_face,
-    countdown_face,
-    wake_face, // added by @joshber 2022-07-23, per @joeycastillo
+    sunrise_sunset_face,
 
     preferences_face,
     set_time_face,
