@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "watch.h"
+#include "watch_extint.h"
 
 static void cb_light_pressed(void) {
 }
@@ -11,6 +12,12 @@ static void cb_mode_pressed(void) {
 }
 
 static void cb_alarm_pressed(void) {
+}
+
+static bool si1133_ready = false;
+
+static void cb_si1133_int(void) {
+    si1133_ready = true;
 }
 
 static bool tick = false;
@@ -30,7 +37,8 @@ static void cb_tick(void) {
 #define SI1133_REG_HOSTIN2 0x08
 #define SI1133_REG_HOSTIN1 0x09
 #define SI1133_REG_HOSTIN0 0x0a
-#define SI1133_REG_COMMAND 0x0B
+#define SI1133_REG_COMMAND 0x0b
+#define SI1133_REG_IRQENABLE 0x0f
 #define SI1133_REG_RESPONSE1 0x10
 #define SI1133_REG_RESPONSE0 0x11
 #define SI1133_REG_IRQ_STATUS 0x12
@@ -69,6 +77,15 @@ static void cb_tick(void) {
 
 #define SI1133_PARAM_QUERY_MASK 0x40 // 0b01......
 #define SI1133_PARAM_SET_MASK 0x80 // 0b10......
+
+typedef enum {
+    SI1133_CHAN_0 = 0,
+    SI1133_CHAN_1 = 1,
+    SI1133_CHAN_2 = 2,
+    SI1133_CHAN_3 = 3,
+    SI1133_CHAN_4 = 4,
+    SI1133_CHAN_5 = 5,
+} si1133_channels;
 
 typedef enum {
   SI1133_PARAM_CHAN_LIST = 0x01, 
@@ -179,6 +196,7 @@ void si1133_init(void);
  * @brief configure channel
  */
 int si1133_configure_channel(
+        si1133_channels channel,
         si1133_adcmux adcmux,
         si1133_decim decim_rate,
         si1133_ranging ranging,
@@ -206,8 +224,12 @@ void app_init(void) {
     watch_register_interrupt_callback(BTN_MODE, cb_mode_pressed, INTERRUPT_TRIGGER_RISING);
     watch_register_interrupt_callback(BTN_LIGHT, cb_light_pressed, INTERRUPT_TRIGGER_RISING);
     watch_register_interrupt_callback(BTN_ALARM, cb_alarm_pressed, INTERRUPT_TRIGGER_RISING);
-    
+
     watch_enable_leds();
+
+    watch_register_interrupt_callback(A2, cb_si1133_int, INTERRUPT_TRIGGER_FALLING);
+    watch_enable_pull_up(A2);
+    
     si1133_init();
 
     watch_rtc_register_periodic_callback(cb_tick, 1);
@@ -226,11 +248,13 @@ void app_wake_from_standby(void) {
 }
 
 char *error_msg = "";
+uint8_t error_count = 0;
 
 void error(char *msg) {
     printf("error: %s\r\n", msg);
     error_msg = msg;
     watch_set_led_color(255, 0);
+    error_count++;
 }
 
 void si1133_init(void) {
@@ -246,22 +270,26 @@ void si1133_init(void) {
         error("failed to reset");
     }
 
+    // from linux driver it looks like this is probably a mask for which channel should be enabled but it's not in datasheet
+    watch_i2c_write8(SI1133_ADDR, SI1133_REG_IRQENABLE, 0xf);
+
     // --- set CHAN_LIST
-    printf("writing chan list stuff\r\n");
     response = si1133_set_param(SI1133_PARAM_CHAN_LIST, 1);
-    printf("response: 0x%02x\r\n", response);
 
     si1133_configure_channel(
+            SI1133_CHAN_0,
             SI1133_ADCMUX_UV,
             SI1133_DECIM_0,
             SI1133_RANGING_OFF,
             SI1133_HW_GAIN_11,
-            SI1133_SW_GAIN_0,
+            SI1133_SW_GAIN_4,
             SI1133_16_BIT,
             SI1133_POST_SHIFT_0,
             SI1133_THRESH_DISABLE,
             SI1133_COUNTER_DISABLE
             );
+
+
 }
 
 
@@ -276,6 +304,7 @@ int si1133_set_param(si1133_params param, uint8_t value) {
 }
 
 int si1133_configure_channel(
+        si1133_channels channel,
         si1133_adcmux adcmux,
         si1133_decim decim_rate,
         si1133_ranging ranging,
@@ -287,12 +316,15 @@ int si1133_configure_channel(
         si1133_count_config count_config
         ) {
     uint8_t response;
+
+    uint8_t addr_base = (4 * channel);
     
     // --- set ADCCONFIG
     // see 7.2.1 in datasheet
     // decim_rate [6:5], adcmux [4:0]
     uint8_t adcconfig = (decim_rate << 5) | adcmux;
-    response = si1133_set_param(SI1133_PARAM_ADCCONFIG0, adcconfig);
+    si1133_params adcconfig_param = (si1133_params) SI1133_PARAM_ADCCONFIG0 + addr_base; 
+    response = si1133_set_param(adcconfig_param, adcconfig);
 
     // --- set ADCSENS
     // [7] ranging bit?
@@ -300,18 +332,18 @@ int si1133_configure_channel(
     // [4:0] hardware gain
     //uint8_t adcsens = 0x0b;
     uint8_t adcsens = (ranging << 6) | (sw_gain << 4) | hw_gain;
-    response = si1133_set_param(SI1133_PARAM_ADCSENS0, adcsens);
-    printf("response: 0x%02x\r\n", response);
+    si1133_params adcsense_param = (si1133_params) SI1133_PARAM_ADCSENS0 + addr_base; 
+    response = si1133_set_param(adcsense_param, adcsens);
 
     // --- set ADCPOST
     uint8_t adcpost = (measurement_size << 5) | (post_shift << 2) | thresh_config;
-    response = si1133_set_param(SI1133_PARAM_ADCPOST0, adcpost);
-    printf("response: 0x%02x\r\n", response);
+    si1133_params adcpost_param = (si1133_params) SI1133_PARAM_ADCPOST0 + addr_base; 
+    response = si1133_set_param(adcpost_param, adcpost);
 
     // --- set MEASCONFIG
     uint8_t measconfig = count_config << 5;
-    response = si1133_set_param(SI1133_PARAM_MEASCONFIG0, measconfig);
-    printf("response: 0x%02x\r\n", response);
+    si1133_params measconfig_param = (si1133_params) SI1133_PARAM_MEASCONFIG0 + addr_base; 
+    response = si1133_set_param(measconfig_param, measconfig);
 
     // TODO return response if error?
     return 0;
@@ -325,43 +357,56 @@ bool app_loop(void) {
 
         if (strlen(error_msg) > 0) {
             printf("error: %s\r\n", error_msg);
-            //watch_set_led_color(0, 255);
+            watch_set_led_color(0, 255);
         }
         printf("--- tick\r\n");
 
-        /*
-         * ok so plan is
-         *
-         * 1. enable channel 1
-         *  a. measure rate needs to be set? no, only for autonomous mode
-         *  b. chan_list bit 1 needs set
-         * 2. set up channel 1 registers to take UV reading
-         * 3. set force mode to take 1 reading?
-         * 4. read values out of HOSTOUTx
-         */
+        if(si1133_ready) {
+            printf("INTERUPT FIRED!!!\r\n");
+        }
 
         // ------------ do readings
 
         printf("starting read...\r\n");
         // FORCE mode
         watch_i2c_write8(SI1133_ADDR, SI1133_REG_COMMAND, SI1133_CMD_FORCE);
+        uint8_t response = watch_i2c_read8(SI1133_ADDR, SI1133_REG_RESPONSE0);
+        printf("Force mode status: %02x\r\n", response);
+        if ((response & 0x10)) {
+            printf("error! %02x\r\n", (response & 0x08));
+            error_count++;
+        }
 
         // read IRQ_STATUS until 0x01?
         uint8_t irq_status = 0;
         uint32_t waits = 0;
         while(irq_status != 0x01) {
+
+            if(si1133_ready) {
+                printf("INTERUPT FIRED!!!\r\n");
+            }
+            bool a2_pin = watch_get_pin_level(A2);
+            if(!a2_pin) {
+                printf("pin went low\r\n");
+            }
             irq_status = watch_i2c_read8(SI1133_ADDR, SI1133_REG_IRQ_STATUS);
             waits++;
+            if (waits > 500) {
+                error_count++;
+                printf("timeout waiting for measurement\r\n");
+            }
+            delay_ms(100);
         }
-        printf("waits %d\r\n", waits);
+        printf("waits %lu\r\n", waits);
 
         uint8_t hostout0 = watch_i2c_read8(SI1133_ADDR, SI1133_REG_HOSTOUT0);
         uint8_t hostout1 = watch_i2c_read8(SI1133_ADDR, SI1133_REG_HOSTOUT1);
         uint16_t adccount = hostout0 << 8 | hostout1;
-        //printf("adccount: 0x%04x\r\n", adccount);
-        sprintf(buf, "  %02x%04x", readings, adccount);
+        sprintf(buf, "%02x%02x%04x",error_count, readings, adccount);
         watch_display_string(buf, 0);
-        printf("%s\r\n", buf);
+        printf("reading: %04x\r\n", adccount);
+        printf("reading count: %02x\r\n", readings);
+        printf("error count: %02x\r\n", error_count);
         readings++;
 
     }
