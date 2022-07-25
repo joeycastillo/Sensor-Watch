@@ -288,7 +288,7 @@ void movement_schedule_background_task(watch_date_time date_time);
 // movement will associate the scheduled task with the currently active face.
 void movement_cancel_background_task(void);
 
-void movement_request_wake();
+void movement_request_wake(void);
 
 void movement_play_signal(void);
 void movement_play_alarm(void);
