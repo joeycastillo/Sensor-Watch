@@ -191,6 +191,7 @@ typedef enum {
 
 void error(char *msg);
 void si1133_init(void);
+void si1133_start_measurement(void);
 
 /**
  * @brief configure channel
@@ -218,6 +219,8 @@ int si1133_configure_channel(
 int si1133_set_param(si1133_params param, uint8_t value);
 
 void app_init(void) {
+    delay_ms(1000);
+
     watch_enable_display();
 
     watch_enable_external_interrupts();
@@ -227,10 +230,17 @@ void app_init(void) {
 
     watch_enable_leds();
 
-    watch_register_interrupt_callback(A2, cb_si1133_int, INTERRUPT_TRIGGER_FALLING);
-    watch_enable_pull_up(A2);
-    
     si1133_init();
+
+    /*
+     * Interrupts are not working at the moment and I can't seem to figure out why
+     * Symptoms:
+     *  - callback fires immediately after registering it, but doesn't seem to fire again after that?
+     *  - callback seems to wake device from sleep (but callback isn't triggered) and measurement isn't ready when this happens
+     *  - pin does seem to go low before when I do poll the status register
+    */
+    watch_register_extwake_callback(A2, cb_si1133_int, false); // trigger on falling edge
+    watch_enable_pull_up(A2);
 
     watch_rtc_register_periodic_callback(cb_tick, 1);
 }
@@ -274,7 +284,7 @@ void si1133_init(void) {
     watch_i2c_write8(SI1133_ADDR, SI1133_REG_IRQENABLE, 0xf);
 
     // --- set CHAN_LIST
-    response = si1133_set_param(SI1133_PARAM_CHAN_LIST, 1);
+    si1133_set_param(SI1133_PARAM_CHAN_LIST, 1);
 
     si1133_configure_channel(
             SI1133_CHAN_0,
@@ -282,14 +292,12 @@ void si1133_init(void) {
             SI1133_DECIM_0,
             SI1133_RANGING_OFF,
             SI1133_HW_GAIN_11,
-            SI1133_SW_GAIN_4,
+            SI1133_SW_GAIN_0,
             SI1133_16_BIT,
             SI1133_POST_SHIFT_0,
             SI1133_THRESH_DISABLE,
             SI1133_COUNTER_DISABLE
             );
-
-
 }
 
 
@@ -315,8 +323,6 @@ int si1133_configure_channel(
         si1133_threshold_config thresh_config,
         si1133_count_config count_config
         ) {
-    uint8_t response;
-
     uint8_t addr_base = (4 * channel);
     
     // --- set ADCCONFIG
@@ -324,7 +330,7 @@ int si1133_configure_channel(
     // decim_rate [6:5], adcmux [4:0]
     uint8_t adcconfig = (decim_rate << 5) | adcmux;
     si1133_params adcconfig_param = (si1133_params) SI1133_PARAM_ADCCONFIG0 + addr_base; 
-    response = si1133_set_param(adcconfig_param, adcconfig);
+    si1133_set_param(adcconfig_param, adcconfig);
 
     // --- set ADCSENS
     // [7] ranging bit?
@@ -333,17 +339,17 @@ int si1133_configure_channel(
     //uint8_t adcsens = 0x0b;
     uint8_t adcsens = (ranging << 6) | (sw_gain << 4) | hw_gain;
     si1133_params adcsense_param = (si1133_params) SI1133_PARAM_ADCSENS0 + addr_base; 
-    response = si1133_set_param(adcsense_param, adcsens);
+    si1133_set_param(adcsense_param, adcsens);
 
     // --- set ADCPOST
     uint8_t adcpost = (measurement_size << 5) | (post_shift << 2) | thresh_config;
     si1133_params adcpost_param = (si1133_params) SI1133_PARAM_ADCPOST0 + addr_base; 
-    response = si1133_set_param(adcpost_param, adcpost);
+    si1133_set_param(adcpost_param, adcpost);
 
     // --- set MEASCONFIG
     uint8_t measconfig = count_config << 5;
     si1133_params measconfig_param = (si1133_params) SI1133_PARAM_MEASCONFIG0 + addr_base; 
-    response = si1133_set_param(measconfig_param, measconfig);
+    si1133_set_param(measconfig_param, measconfig);
 
     // TODO return response if error?
     return 0;
@@ -351,53 +357,32 @@ int si1133_configure_channel(
 
 uint8_t readings = 0;
 
+void si1133_start_measurement(void) {
+    watch_i2c_write8(SI1133_ADDR, SI1133_REG_COMMAND, SI1133_CMD_FORCE);
+    uint8_t response = watch_i2c_read8(SI1133_ADDR, SI1133_REG_RESPONSE0);
+    if (response & 0x10) {
+        error("bad response code");
+        printf("error! %02x\r\n", (response & 0x08));
+    }
+}
+
 bool app_loop(void) {
     if (tick) {
+        printf("--- tick\r\n");
         tick = false;
 
         if (strlen(error_msg) > 0) {
             printf("error: %s\r\n", error_msg);
             watch_set_led_color(0, 255);
         }
-        printf("--- tick\r\n");
 
-        if(si1133_ready) {
-            printf("INTERUPT FIRED!!!\r\n");
-        }
+        si1133_start_measurement();
 
-        // ------------ do readings
-
-        printf("starting read...\r\n");
-        // FORCE mode
-        watch_i2c_write8(SI1133_ADDR, SI1133_REG_COMMAND, SI1133_CMD_FORCE);
-        uint8_t response = watch_i2c_read8(SI1133_ADDR, SI1133_REG_RESPONSE0);
-        printf("Force mode status: %02x\r\n", response);
-        if ((response & 0x10)) {
-            printf("error! %02x\r\n", (response & 0x08));
-            error_count++;
-        }
-
-        // read IRQ_STATUS until 0x01?
-        uint8_t irq_status = 0;
-        uint32_t waits = 0;
+        uint8_t irq_status = watch_i2c_read8(SI1133_ADDR, SI1133_REG_IRQ_STATUS);
         while(irq_status != 0x01) {
-
-            if(si1133_ready) {
-                printf("INTERUPT FIRED!!!\r\n");
-            }
-            bool a2_pin = watch_get_pin_level(A2);
-            if(!a2_pin) {
-                printf("pin went low\r\n");
-            }
+            delay_ms(10);
             irq_status = watch_i2c_read8(SI1133_ADDR, SI1133_REG_IRQ_STATUS);
-            waits++;
-            if (waits > 500) {
-                error_count++;
-                printf("timeout waiting for measurement\r\n");
-            }
-            delay_ms(100);
         }
-        printf("waits %lu\r\n", waits);
 
         uint8_t hostout0 = watch_i2c_read8(SI1133_ADDR, SI1133_REG_HOSTOUT0);
         uint8_t hostout1 = watch_i2c_read8(SI1133_ADDR, SI1133_REG_HOSTOUT1);
