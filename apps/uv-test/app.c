@@ -10,13 +10,46 @@
 
 void fatal_error(char *error_msg, uint8_t error_no, uint8_t extra);
 
+static bool needs_setup = true;
+
+static si1133_adcmux current_mux = SI1133_ADCMUX_UV;
 static void cb_light_pressed(void) {
+    switch (current_mux) {
+        case SI1133_ADCMUX_SMALL_IR:
+            current_mux = SI1133_ADCMUX_MEDIUM_IR;
+            break;
+        case SI1133_ADCMUX_MEDIUM_IR:
+            current_mux = SI1133_ADCMUX_LARGE_IR;
+            break;
+        case SI1133_ADCMUX_LARGE_IR:
+            current_mux = SI1133_ADCMUX_WHITE;
+            break;
+        case SI1133_ADCMUX_WHITE:
+            current_mux = SI1133_ADCMUX_LARGE_WHITE;
+            break;
+        case SI1133_ADCMUX_LARGE_WHITE:
+            current_mux = SI1133_ADCMUX_UV;
+            break;
+        case SI1133_ADCMUX_UV:
+            current_mux = SI1133_ADCMUX_UV_DEEP;
+            break;
+        case SI1133_ADCMUX_UV_DEEP:
+            current_mux = SI1133_ADCMUX_SMALL_IR;
+            break;
+    }
+    needs_setup = true;
 }
 
+static si1133_hw_gain current_hw_gain = SI1133_HW_GAIN_5;
 static void cb_mode_pressed(void) {
+    current_hw_gain = (current_hw_gain + 1) % 12;
+    needs_setup = true;
 }
 
+static si1133_sw_gain current_sw_gain = SI1133_SW_GAIN_0;
 static void cb_alarm_pressed(void) {
+    current_sw_gain = (current_sw_gain + 1) % 8;
+    needs_setup = true;
 }
 
 /*
@@ -96,24 +129,61 @@ void fatal_error(char *error_msg, uint8_t error_no, uint8_t extra) {
 
 
 uint8_t readings = 0;
-uint8_t error_count = 0;
 
+bool flipflop = true;
 bool app_loop(void) {
     printf("--- tick\r\n");
 
-    if(!si1133_start_measurement()) {
-        error_count++;
-        goto end;
+    if(flipflop) {
+        watch_set_indicator(WATCH_INDICATOR_BELL);
+    } else {
+        watch_clear_indicator(WATCH_INDICATOR_BELL);
+    }
+    flipflop = !flipflop;
+
+    if (needs_setup) {
+        si1133_configure_channel(
+                SI1133_CHAN_0,
+                current_mux,
+                SI1133_DECIM_0,
+                SI1133_RANGING_OFF,
+                current_hw_gain,
+                current_sw_gain,
+                SI1133_16_BIT,
+                SI1133_POST_SHIFT_0,
+                SI1133_THRESH_DISABLE,
+                SI1133_COUNTER_DISABLE
+                );
+        needs_setup = false;
+
+        sprintf(buf, "    %02x%02x%02x", current_mux, current_hw_gain, current_sw_gain);
+        watch_display_string(buf,0);
+        delay_ms(1500);
     }
 
+
+    watch_set_indicator(WATCH_INDICATOR_SIGNAL);
+    watch_display_string("          ", 0);
+
+    if(!si1133_start_measurement()) {
+        fatal_error("unable to read", 4, readings);
+    }
+
+
     uint32_t ticks = 0;
+    uint32_t delay = 50;
+    const uint32_t timeout_s = 10;
     uint8_t irq_status = watch_i2c_read8(SI1133_ADDR, SI1133_REG_IRQ_STATUS);
     while(irq_status != 0x01) {
-        delay_ms(10);
+        delay_ms(delay);
         ticks++;
-        if (ticks > 1000) {
-            error_count++;
-            printf("timeout waiting for reading!!\r\n");
+        if (ticks & 0x80) {
+            watch_set_colon();
+        } else {
+            watch_clear_colon();
+        }
+        if ((ticks * delay) > (timeout_s * 1000)) {
+            fatal_error("timeout!", 3, 0);
             break;
         }
         irq_status = watch_i2c_read8(SI1133_ADDR, SI1133_REG_IRQ_STATUS);
@@ -123,14 +193,15 @@ bool app_loop(void) {
     uint8_t hostout0 = watch_i2c_read8(SI1133_ADDR, SI1133_REG_HOSTOUT0);
     uint8_t hostout1 = watch_i2c_read8(SI1133_ADDR, SI1133_REG_HOSTOUT1);
     uint16_t adccount = hostout0 << 8 | hostout1;
-    sprintf(buf, "%02x%02x%04x",error_count, readings, adccount);
+    sprintf(buf, "%02x%02x%04x  ",readings, current_mux, adccount);
     watch_display_string(buf, 0);
     printf("reading: %04x\r\n", adccount);
     printf("reading count: %02x\r\n", readings);
-    printf("error count: %02x\r\n", error_count);
+    printf("current mux: %02x\r\n", current_mux);
     readings++;
 
-end:
-    delay_ms(1000);
-    return true;
+    watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
+    delay_ms(2000);
+
+    return false;
 }
