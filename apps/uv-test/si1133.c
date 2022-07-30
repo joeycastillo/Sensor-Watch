@@ -24,18 +24,6 @@ void si1133_init(void) {
     // --- set CHAN_LIST
     si1133_set_param(SI1133_PARAM_CHAN_LIST, 1);
 
-    si1133_configure_channel(
-            SI1133_CHAN_0,
-            SI1133_ADCMUX_UV,
-            SI1133_DECIM_0,
-            SI1133_RANGING_OFF,
-            SI1133_HW_GAIN_11,
-            SI1133_SW_GAIN_4,
-            SI1133_16_BIT,
-            SI1133_POST_SHIFT_0,
-            SI1133_THRESH_DISABLE,
-            SI1133_COUNTER_DISABLE
-            );
 }
 
 
