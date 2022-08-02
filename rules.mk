@@ -7,9 +7,9 @@ SUBMODULES = tinyusb
 COBRA = cobra -f
 
 ifndef EMSCRIPTEN
-all: directory $(SUBMODULES) $(BUILD)/$(BIN).elf $(BUILD)/$(BIN).hex $(BUILD)/$(BIN).bin $(BUILD)/$(BIN).uf2 size
+all: $(BUILD)/$(BIN).elf $(BUILD)/$(BIN).hex $(BUILD)/$(BIN).bin $(BUILD)/$(BIN).uf2 size
 else
-all: directory $(SUBMODULES) $(BUILD)/$(BIN).html
+all: $(BUILD)/$(BIN).html
 endif
 
 $(BUILD)/$(BIN).html: $(OBJS)
@@ -35,13 +35,14 @@ $(BUILD)/$(BIN).uf2: $(BUILD)/$(BIN).bin
 	@echo UF2CONV $@
 	@$(UF2) $^ -co $@
 
+.phony: $(SUBMODULES)
 $(SUBMODULES):
 	git submodule update --init
 
 install:
 	@$(UF2) -D $(BUILD)/$(BIN).uf2
 
-%.o:
+$(BUILD)/%.o: | $(SUBMODULES) directory
 	@echo CC $@
 	@$(CC) $(CFLAGS) $(filter %/$(subst .o,.c,$(notdir $@)), $(SRCS)) -c -o $@
 
@@ -59,4 +60,6 @@ clean:
 analyze:
 	@$(COBRA) basic $(INCLUDES) $(DEFINES) $(SRCS)
 
--include $(wildcard $(BUILD)/*.d)
+DEPFILES := $(SRCS:%.c=$(BUILD)/%.d)
+
+-include $(wildcard $(DEPFILES))
