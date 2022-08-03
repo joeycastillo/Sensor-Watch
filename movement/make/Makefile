@@ -16,6 +16,7 @@ INCLUDES += \
   -I../watch_faces/complication/ \
   -I../watch_faces/sensor/ \
   -I../watch_faces/demo/ \
+  -I../../littlefs/ \
   -I../lib/TOTP-MCU/ \
   -I../lib/sunriset/ \
   -I../lib/vsop87/ \
@@ -33,7 +34,10 @@ SRCS += \
   ../lib/sunriset/sunriset.c \
   ../lib/vsop87/vsop87a_milli.c \
   ../lib/astrolib/astrolib.c \
+  ../../littlefs/lfs.c \
+  ../../littlefs/lfs_util.c \
   ../movement.c \
+  ../filesystem.c \
   ../watch_faces/clock/simple_clock_face.c \
   ../watch_faces/clock/world_clock_face.c \
   ../watch_faces/clock/beats_face.c \

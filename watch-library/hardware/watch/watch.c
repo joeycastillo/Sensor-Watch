@@ -41,3 +41,7 @@ void SYSTEM_Handler(void) {
 bool watch_is_buzzer_or_led_enabled(void){
     return hri_mclk_get_APBCMASK_TCC0_bit(MCLK);
 }
+
+bool watch_is_usb_enabled(void) {
+    return USB->DEVICE.CTRLA.bit.ENABLE;
+}

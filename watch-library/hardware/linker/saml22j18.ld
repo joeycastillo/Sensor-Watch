@@ -32,11 +32,18 @@ OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
 OUTPUT_ARCH(arm)
 SEARCH_DIR(.)
 
-/* Memory Spaces Definitions */
+/* Memory Space Definitions:
+ *  0x00000000-0x00002000: Bootloader       (length  0x2000 or 8192 bytes)
+ *  0x00002000-0x0003C000: Firmware         (length 0x3A000 or 237568 bytes)
+ *  0x0003C000-0x00040000: EEPROM Emulation (length  0x2000 or 8192 bytes)
+ *  0x20000000-0x20008000: RAM              (length  0x8000 or 32768 bytes)
+ */
 MEMORY
 {
-  rom      (rx)  : ORIGIN = 0x2000, LENGTH = 0x00040000-0x2000
-  ram      (rwx) : ORIGIN = 0x20000000, LENGTH = 0x00008000
+  bootloader (rx)  : ORIGIN = 0x0, LENGTH = 0x2000
+  rom        (rx)  : ORIGIN = 0x2000, LENGTH = 0x00040000-0x2000-0x2000
+  eeprom     (r)   : ORIGIN = 0x00040000-0x2000, LENGTH = 0x2000
+  ram        (rwx) : ORIGIN = 0x20000000, LENGTH = 0x00008000
 }
 
 /* The stack size used by the application. NOTE: you need to adjust according to your application. */

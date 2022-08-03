@@ -255,8 +255,15 @@ int _write(int file, char *ptr, int len) {
     return 0;
 }
 
-// this method could be overridden to read stuff from the USB console? but no need rn.
-int _read(void) {
+static char buf[256] = {0};
+
+int _read(int file, char *ptr, int len) {
+    (void)file;
+    int actual_length = strlen(buf);
+    if (actual_length) {
+        memcpy(ptr, buf, min(len, actual_length));
+        return actual_length;
+    }
     return 0;
 }
 
@@ -264,8 +271,17 @@ void USB_Handler(void) {
     tud_int_handler(0);
 }
 
+static void cdc_task(void) {
+    if (tud_cdc_n_available(0)) {
+        tud_cdc_n_read(0, buf, sizeof(buf));
+    } else {
+        memset(buf, 0, 256);
+    }
+}
+
 void TC0_Handler(void) {
     tud_task();
+    cdc_task();
     TC0->COUNT8.INTFLAG.reg |= TC_INTFLAG_OVF;
 }
 

@@ -44,7 +44,8 @@ void _watch_enable_usb(void);
 // this function ends up getting called by printf to log stuff to the USB console.
 int _write(int file, char *ptr, int len);
 
-// this method could be overridden to read stuff from the USB console? but no need rn.
-int _read(void);
+// i thought this would be called by gets but it doesn't? anyway it does get called by read()
+// so that's our mechanism for reading data from the USB serial console.
+int _read(int file, char *ptr, int len);
 
 #endif
