@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Joey Castillo
+ * Copyright (c) 2022 Josh Berson
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,22 +22,32 @@
  * SOFTWARE.
  */
 
-#ifndef MOVEMENT_CONFIG_H_
-#define MOVEMENT_CONFIG_H_
+//-----------------------------------------------------------------------------
 
-#include "movement_faces.h"
+#ifndef WAKE_FACE_H_
+#define WAKE_FACE_H_
 
-const watch_face_t watch_faces[] = {
-    simple_clock_face,
-    tomato_face,
-    stopwatch_face,
-    countdown_face,
-    wake_face, // added by @joshber 2022-07-23, per @joeycastillo
+#include "movement.h"
 
-    preferences_face,
-    set_time_face,
-};
+typedef struct {
+    uint32_t hour : 5;
+    uint32_t minute : 6;
+    uint32_t mode : 1;
+} wake_face_state_t;
 
-#define MOVEMENT_NUM_FACES (sizeof(watch_faces) / sizeof(watch_face_t))
+void wake_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void **context_ptr);
+void wake_face_activate(movement_settings_t *settings, void *context);
+bool wake_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void wake_face_resign(movement_settings_t *settings, void *context);
+bool wake_face_wants_background_task(movement_settings_t *settings, void *context);
 
-#endif // MOVEMENT_CONFIG_H_
+#define wake_face ((const watch_face_t){ \
+    wake_face_setup, \
+    wake_face_activate, \
+    wake_face_loop, \
+    wake_face_resign, \
+    wake_face_wants_background_task \
+})
+
+#endif // WAKE_FACE_H_
+
