@@ -21,7 +21,7 @@
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Sensor Watch<span id="projectnumber">&#160;0.0.1</span>
+   <div id="projectname">Sensor Watch<span id="projectnumber">&#160;0.0.2</span>
    </div>
    <div id="projectbrief">A board replacement for the classic Casio F-91W wristwatch, powered by a Microchip SAM L22 microcontroller.</div>
   </td>
@@ -112,14 +112,21 @@ $(function() {
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span><span class="preprocessor">#include &quot;watch_i2c.h&quot;</span></div>
 <div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span><span class="preprocessor">#include &quot;watch_spi.h&quot;</span></div>
 <div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span><span class="preprocessor">#include &quot;watch_uart.h&quot;</span></div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span><span class="preprocessor">#include &quot;watch_deepsleep.h&quot;</span></div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span> </div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span><span class="preprocessor">#include &quot;watch_private.h&quot;</span></div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span> </div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno"><a class="line" href="watch_8h.html#a6df21baf06b4a5392d95dd3cdde75d94">   76</a></span><span class="keywordtype">bool</span> <a class="code hl_function" href="watch_8h.html#a6df21baf06b4a5392d95dd3cdde75d94">watch_is_buzzer_or_led_enabled</a>(<span class="keywordtype">void</span>);</div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span> </div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span><span class="preprocessor">#endif </span><span class="comment">/* WATCH_H_ */</span><span class="preprocessor"></span></div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span><span class="preprocessor">#include &quot;watch_storage.h&quot;</span></div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span><span class="preprocessor">#include &quot;watch_deepsleep.h&quot;</span></div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span> </div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span><span class="preprocessor">#include &quot;watch_private.h&quot;</span></div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span> </div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno"><a class="line" href="watch_8h.html#a6df21baf06b4a5392d95dd3cdde75d94">   77</a></span><span class="keywordtype">bool</span> <a class="code hl_function" href="watch_8h.html#a6df21baf06b4a5392d95dd3cdde75d94">watch_is_buzzer_or_led_enabled</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span> </div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno"><a class="line" href="watch_8h.html#a1324426e2c366033abbb1b2e78b61305">   81</a></span><span class="keywordtype">bool</span> <a class="code hl_function" href="watch_8h.html#a1324426e2c366033abbb1b2e78b61305">watch_is_usb_enabled</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span> </div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno"><a class="line" href="watch_8h.html#aa0c5d610f8b61891a7cf5fca2671b6f9">   89</a></span><span class="keywordtype">int</span> <a class="code hl_function" href="watch_8h.html#aa0c5d610f8b61891a7cf5fca2671b6f9">read</a>(<span class="keywordtype">int</span> file, <span class="keywordtype">char</span> *ptr, <span class="keywordtype">int</span> len);</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span> </div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span><span class="preprocessor">#endif </span><span class="comment">/* WATCH_H_ */</span><span class="preprocessor"></span></div>
+<div class="ttc" id="awatch_8h_html_a1324426e2c366033abbb1b2e78b61305"><div class="ttname"><a href="watch_8h.html#a1324426e2c366033abbb1b2e78b61305">watch_is_usb_enabled</a></div><div class="ttdeci">bool watch_is_usb_enabled(void)</div><div class="ttdoc">Returns true if USB is enabled.</div></div>
 <div class="ttc" id="awatch_8h_html_a6df21baf06b4a5392d95dd3cdde75d94"><div class="ttname"><a href="watch_8h.html#a6df21baf06b4a5392d95dd3cdde75d94">watch_is_buzzer_or_led_enabled</a></div><div class="ttdeci">bool watch_is_buzzer_or_led_enabled(void)</div><div class="ttdoc">Returns true if either the buzzer or the LED driver is enabled.</div></div>
+<div class="ttc" id="awatch_8h_html_aa0c5d610f8b61891a7cf5fca2671b6f9"><div class="ttname"><a href="watch_8h.html#aa0c5d610f8b61891a7cf5fca2671b6f9">read</a></div><div class="ttdeci">int read(int file, char *ptr, int len)</div><div class="ttdoc">Reads up to len bytes from the USB serial.</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

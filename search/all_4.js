@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['i2c_20controller_20driver_0',['I2C Controller Driver',['../group__i2c.html',1,'']]]
+  ['flash_20storage_0',['Flash Storage',['../group__storage.html',1,'']]]
 ];

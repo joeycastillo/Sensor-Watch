@@ -21,7 +21,7 @@
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Sensor Watch<span id="projectnumber">&#160;0.0.1</span>
+   <div id="projectname">Sensor Watch<span id="projectnumber">&#160;0.0.2</span>
    </div>
    <div id="projectbrief">A board replacement for the classic Casio F-91W wristwatch, powered by a Microchip SAM L22 microcontroller.</div>
   </td>
@@ -87,6 +87,7 @@ $(function() {
 <code>#include &quot;watch_i2c.h&quot;</code><br />
 <code>#include &quot;watch_spi.h&quot;</code><br />
 <code>#include &quot;watch_uart.h&quot;</code><br />
+<code>#include &quot;watch_storage.h&quot;</code><br />
 <code>#include &quot;watch_deepsleep.h&quot;</code><br />
 <code>#include &quot;watch_private.h&quot;</code><br />
 </div>
@@ -97,8 +98,60 @@ Functions</h2></td></tr>
 <tr class="memitem:a6df21baf06b4a5392d95dd3cdde75d94"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="watch_8h.html#a6df21baf06b4a5392d95dd3cdde75d94">watch_is_buzzer_or_led_enabled</a> (void)</td></tr>
 <tr class="memdesc:a6df21baf06b4a5392d95dd3cdde75d94"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns true if either the buzzer or the LED driver is enabled.  <a href="watch_8h.html#a6df21baf06b4a5392d95dd3cdde75d94">More...</a><br /></td></tr>
 <tr class="separator:a6df21baf06b4a5392d95dd3cdde75d94"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1324426e2c366033abbb1b2e78b61305"><td class="memItemLeft" align="right" valign="top"><a id="a1324426e2c366033abbb1b2e78b61305" name="a1324426e2c366033abbb1b2e78b61305"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>watch_is_usb_enabled</b> (void)</td></tr>
+<tr class="memdesc:a1324426e2c366033abbb1b2e78b61305"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns true if USB is enabled. <br /></td></tr>
+<tr class="separator:a1324426e2c366033abbb1b2e78b61305"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa0c5d610f8b61891a7cf5fca2671b6f9"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="watch_8h.html#aa0c5d610f8b61891a7cf5fca2671b6f9">read</a> (int file, char *ptr, int len)</td></tr>
+<tr class="memdesc:aa0c5d610f8b61891a7cf5fca2671b6f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads up to len bytes from the USB serial.  <a href="watch_8h.html#aa0c5d610f8b61891a7cf5fca2671b6f9">More...</a><br /></td></tr>
+<tr class="separator:aa0c5d610f8b61891a7cf5fca2671b6f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
+<a id="aa0c5d610f8b61891a7cf5fca2671b6f9" name="aa0c5d610f8b61891a7cf5fca2671b6f9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa0c5d610f8b61891a7cf5fca2671b6f9">&#9670;&nbsp;</a></span>read()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int read </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>file</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>ptr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>len</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Reads up to len bytes from the USB serial. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">file</td><td>ignored, you can pass in 0 </td></tr>
+    <tr><td class="paramname">ptr</td><td>pointer to a buffer of at least len bytes </td></tr>
+    <tr><td class="paramname">len</td><td>the number of bytes you wish to read, max 256. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The number of bytes read, or zero if no bytes were read. </dd></dl>
+
+</div>
+</div>
 <a id="a6df21baf06b4a5392d95dd3cdde75d94" name="a6df21baf06b4a5392d95dd3cdde75d94"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a6df21baf06b4a5392d95dd3cdde75d94">&#9670;&nbsp;</a></span>watch_is_buzzer_or_led_enabled()</h2>
 
