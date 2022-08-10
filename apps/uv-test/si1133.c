@@ -3,19 +3,20 @@
 #include "si1133.h"
 
 // TODO fix this? see uv-test/app.c
-void fatal_error(char *error_msg, uint8_t error_no, uint8_t extra);
+void fatal_error(char *error_msg, si1133_fatal_error_codes error_no, uint8_t extra);
 
 void si1133_init(void) {
     watch_enable_i2c();
 
     uint8_t part_id = watch_i2c_read8(SI1133_ADDR, SI1133_REG_PART_ID);
     if (part_id != 0x33) {
-        fatal_error("bad part id", 0, 0);
+        fatal_error("bad part id", SI1133_BAD_PART, 0);
     }
     watch_i2c_write8(SI1133_ADDR, SI1133_REG_COMMAND, SI1133_CMD_RESET);
-    uint8_t response = watch_i2c_read8(SI1133_ADDR, SI1133_REG_RESPONSE0);
-    if (response & SI1133_CMD_STATUS_ERROR) {
-        fatal_error("failed to reset", 1, response);
+    si1133_response0_status status;
+    status = si1133_check_errors();
+    if (status) {
+        fatal_error("failed to reset", SI1133_RESET_FAIL, status);
     }
 
     // from linux driver it looks like this is probably a mask for which channel should be enabled but it's not in datasheet
@@ -23,11 +24,14 @@ void si1133_init(void) {
 
     // --- set CHAN_LIST
     si1133_set_param(SI1133_PARAM_CHAN_LIST, 1);
-
+    status = si1133_check_errors();
+    if (status) {
+        fatal_error("failed to enable channels", SI1133_NO_CHANNEL, status);
+    }
 }
 
 
-int si1133_set_param(si1133_params param, uint8_t value) {
+uint8_t si1133_set_param(si1133_params param, uint8_t value) {
     // setting parameter is done via writing value to HOSTIN0 then writting param addres to COMMAND
     // the data written to command is 0b10xxxxxx where the 6 low bits are the param address
     watch_i2c_write8(SI1133_ADDR, SI1133_REG_HOSTIN0, value);
@@ -81,12 +85,28 @@ int si1133_configure_channel(
     return 0;
 }
 
-bool si1133_start_measurement(void) {
+void si1133_start_measurement(void) {
     watch_i2c_write8(SI1133_ADDR, SI1133_REG_COMMAND, SI1133_CMD_FORCE);
+}
+
+bool si1133_is_error_response(uint8_t response) {
+    return response & SI1133_CMD_STATUS_ERROR;
+}
+
+uint8_t si1133_error_code_from_response(uint8_t response) {
+    return response & SI1133_CMD_STATUS_ERROR_MASK;
+}
+
+si1133_response0_status si1133_check_errors(void) {
     uint8_t response = watch_i2c_read8(SI1133_ADDR, SI1133_REG_RESPONSE0);
-    if (response & SI1133_CMD_STATUS_ERROR) {
-        printf("error! bad respones from start measurement: %02x\r\n", (response & SI1133_CMD_STATUS_ERROR_MASK));
-        return false;
+    if (si1133_is_error_response(response)) {
+        uint8_t raw_error_code = si1133_error_code_from_response(response);
+        if (raw_error_code >= 0x10 && raw_error_code <= 0x13) {
+            return (si1133_response0_status) raw_error_code;
+        } else {
+            return SI1133_ERR_UNKNOWN;
+        }
+    } else {
+        return SI1133_NO_ERR;
     }
-    return true;
 }

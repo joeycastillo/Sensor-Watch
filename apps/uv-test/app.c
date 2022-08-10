@@ -8,7 +8,7 @@
 #include "si1133.h"
 
 
-void fatal_error(char *error_msg, uint8_t error_no, uint8_t extra);
+void fatal_error(char *error_msg, si1133_fatal_error_codes error_no, uint8_t extra);
 
 static bool needs_setup = true;
 
@@ -108,11 +108,11 @@ void app_wake_from_standby(void) {
     printf("waking from standby sleep\r\n");
 }
 
-void fatal_error(char *error_msg, uint8_t error_no, uint8_t extra) {
+void fatal_error(char *error_msg, si1133_fatal_error_codes error_no, uint8_t extra) {
     watch_set_colon();
     sprintf(buf, "    %02x%0x   ", error_no, extra);
     watch_display_string(buf, 0);
-    uint8_t loops = 255;
+    uint8_t loops = 60;
     while(loops--) {
         printf("%s\r\n", error_msg);
 
@@ -165,8 +165,17 @@ bool app_loop(void) {
     watch_set_indicator(WATCH_INDICATOR_SIGNAL);
     watch_display_string("          ", 0);
 
-    if(!si1133_start_measurement()) {
-        fatal_error("unable to read", 4, readings);
+    si1133_start_measurement();
+    si1133_response0_status status;
+    status = si1133_check_errors();
+    if (status) {
+        if (status == SI1133_ERR_SATURATION) {
+            watch_display_string("    overfl", 0);
+            //TODO maybe reset if this happens
+            goto out;
+        } else {
+            fatal_error("failed to start mesaurement", SI1133_FORCE_FAIL, status);
+        }
     }
 
 
@@ -183,7 +192,7 @@ bool app_loop(void) {
             watch_clear_colon();
         }
         if ((ticks * delay) > (timeout_s * 1000)) {
-            fatal_error("timeout!", 3, 0);
+            fatal_error("timeout!", SI1133_TIMEOUT, 0);
             break;
         }
         irq_status = watch_i2c_read8(SI1133_ADDR, SI1133_REG_IRQ_STATUS);
@@ -200,6 +209,7 @@ bool app_loop(void) {
     printf("current mux: %02x\r\n", current_mux);
     readings++;
 
+out:
     watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
     delay_ms(2000);
 
