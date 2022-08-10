@@ -1,5 +1,14 @@
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
+
+typedef enum {
+    SI1133_BAD_PART = 0,
+    SI1133_RESET_FAIL = 1,
+    SI1133_NO_CHANNEL = 2,
+    SI1133_TIMEOUT = 3,
+    SI1133_FORCE_FAIL = 4,
+} si1133_fatal_error_codes;
 
 #define SI1133_ADDR 0x55 //alt is 0x52
 
@@ -166,8 +175,30 @@ typedef enum {
     SI1133_MEASCOUNT_3 = 3,
 } si1133_count_config;
 
+typedef enum {
+    SI1133_NO_ERR = 0,
+    SI1133_INVALID_CMD = 0x10,
+    SI1133_INVALID_PARAM_ACCESS = 0x11,
+    SI1133_ERR_SATURATION = 0x12,
+    SI1133_ERR_BUF_OVERFLOW = 0x13,
+    SI1133_ERR_UNKNOWN = 0xff,
+} si1133_response0_status;
+
 void si1133_init(void);
-bool si1133_start_measurement(void);
+
+void si1133_start_measurement(void);
+
+/**
+ * @brief check if value from RESPONSE0 register contains an error
+ * @param RESPONSE0 register value
+ */
+bool si1133_is_error_response(uint8_t response);
+
+/**
+ * @brief return error code from RESPONSE0, assuming it was an error
+ * @return error  code
+ */
+uint8_t si1133_error_code_from_response(uint8_t response);
 
 /**
  * @brief configure channel
@@ -189,7 +220,20 @@ int si1133_configure_channel(
  * @brief set value for given param in si1133 internal parameter table
  * @param param address of parameter you want to set (6 bits long)
  * @param value value you want set for given parameter
+ * @return nothing yet...
  * @details
  * See section 5.1 of the si1133 datasheet for more details
  */
-int si1133_set_param(si1133_params param, uint8_t value);
+uint8_t si1133_set_param(si1133_params param, uint8_t value);
+
+
+/**
+ * @brief checks for errors after issuing a command
+ * @return si1133_response0_status enum
+ * @details
+ * checks the contents of the RESPONSE0 register after a command has
+ * been run and checks if there's been an error.
+ *
+ * Intended to be used after any command that writes to the si1133
+ */
+si1133_response0_status si1133_check_errors(void);
