@@ -45,3 +45,9 @@ bool watch_is_buzzer_or_led_enabled(void){
 bool watch_is_usb_enabled(void) {
     return USB->DEVICE.CTRLA.bit.ENABLE;
 }
+
+void watch_reset_to_bootloader(void) {
+    volatile uint32_t *dbl_tap_ptr = ((volatile uint32_t *)(HSRAM_ADDR + HSRAM_SIZE - 4));
+    *dbl_tap_ptr = 0xf01669ef; // from the UF2 bootloaer: uf2.h line 255
+    NVIC_SystemReset();
+}
