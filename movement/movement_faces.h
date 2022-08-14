@@ -58,6 +58,7 @@
 #include "tomato_face.h"
 #include "probability_face.h"
 #include "wake_face.h"
+// #include "interval_face.h"
 #include "frequency_correction_face.h"
 #include "alarm_face.h"
 #include "ratemeter_face.h"
@@ -104,6 +105,7 @@
 #include "minute_repeater_decimal_face.h"
 #include "tuning_tones_face.h"
 #include "kitchen_conversions_face.h"
+#include "si1133_uv_face.h"
 // New includes go above this line.
 
 #endif // MOVEMENT_FACES_H_
