@@ -34,10 +34,18 @@ typedef enum {
 } si1133_mode;
 
 typedef enum {
+    si1133_hist_current,
+    si1133_hist_last_ten,
+    si1133_hist_all,
+} si1133_hist_mode;
+
+typedef enum {
     si1133_adcmux_setting,
     si1133_sw_gain_setting,
     si1133_hw_gain_setting
 } si1133_setting;
+
+#define SI1133_HIST_LEN 128
 
 typedef struct {
     si1133_mode mode;
@@ -48,6 +56,9 @@ typedef struct {
     si1133_adcmux current_mux;
     si1133_hw_gain current_hw_gain;
     si1133_sw_gain current_sw_gain;
+    si1133_hist_mode hist_mode;
+    uint16_t history[SI1133_HIST_LEN];
+    size_t hist_loc;
 } si1133_uv_state_t;
 
 void si1133_uv_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);

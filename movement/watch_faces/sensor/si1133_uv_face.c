@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 <#author_name#>
+ * Copyright (c) 2022 Wesley Ellis
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -59,8 +59,8 @@ void si1133_uv_face_setup(movement_settings_t *settings, uint8_t watch_face_inde
         state->mode = si1133_mode_measuring;
         state->needs_setup = true;
         state->current_mux = SI1133_ADCMUX_UV;
-        state->current_hw_gain = SI1133_HW_GAIN_7;
-        state->current_sw_gain = SI1133_SW_GAIN_3;
+        state->current_hw_gain = SI1133_HW_GAIN_11;
+        state->current_sw_gain = SI1133_SW_GAIN_2;
     }
     // Do any pin or peripheral setup here; this will be called whenever the watch wakes from deep sleep.
     si1133_init();
@@ -68,11 +68,12 @@ void si1133_uv_face_setup(movement_settings_t *settings, uint8_t watch_face_inde
 
 void si1133_uv_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
-    (void) context;
 
-    // Handle any tasks related to your watch face coming on screen.
+    si1133_uv_state_t *state = (si1133_uv_state_t *)context;
+    state->needs_setup = true;
 }
 
+// this is where we draw the settings
 static void settings_draw(si1133_uv_state_t *state) {
     char buf[13];
     switch (state->setting) {
@@ -87,6 +88,34 @@ static void settings_draw(si1133_uv_state_t *state) {
             break;
     }
     watch_display_string(buf, 0);
+}
+
+static void save_history(si1133_uv_state_t *state, uint16_t new_reading) {
+    state->history[state->hist_loc] = new_reading;
+    state->hist_loc = (state->hist_loc + 1) % SI1133_HIST_LEN;
+}
+
+static uint16_t get_history_last_ten(si1133_uv_state_t *state) {
+    uint32_t history = 0;
+    size_t marker = state->hist_loc;
+    for(int i = 0; i < 10; i++) {
+        history = history + state->history[marker];
+        if (marker == 0) {
+            marker = SI1133_HIST_LEN;
+        }
+        marker--;
+    }
+    history /= 10;
+    return (uint16_t) history;
+}
+
+static uint16_t get_history_all(si1133_uv_state_t *state) {
+    uint32_t history = 0;
+    for(int i = 0; i < SI1133_HIST_LEN; i++) {
+        history += state->history[i];
+    }
+    history /= SI1133_HIST_LEN;
+    return (uint16_t) history;
 }
 
 static void main_draw(si1133_uv_state_t *state) {
@@ -116,7 +145,6 @@ static void main_draw(si1133_uv_state_t *state) {
     }
 
     watch_set_indicator(WATCH_INDICATOR_SIGNAL);
-    watch_display_string("          ", 0);
 
     si1133_start_measurement();
     si1133_response0_status status;
@@ -155,7 +183,24 @@ static void main_draw(si1133_uv_state_t *state) {
     uint8_t hostout0 = watch_i2c_read8(SI1133_ADDR, SI1133_REG_HOSTOUT0);
     uint8_t hostout1 = watch_i2c_read8(SI1133_ADDR, SI1133_REG_HOSTOUT1);
     uint16_t adccount = hostout0 << 8 | hostout1;
-    sprintf(buf, "%02x%02x%04x  ",state->readings, state->current_mux, adccount);
+    save_history(state, adccount);
+    uint16_t to_draw = 0;
+    uint8_t hist_mode = 0;
+    switch(state->hist_mode) {
+        case si1133_hist_current:
+            to_draw = adccount;
+            hist_mode = 1;
+            break;
+        case si1133_hist_last_ten:
+            to_draw = get_history_last_ten(state);
+            hist_mode = 0xa;
+            break;
+        case si1133_hist_all:
+            to_draw = get_history_all(state);
+            hist_mode = 0x80;
+            break;
+    }
+    sprintf(buf, "%02x%02x%04x  ", hist_mode, to_draw, adccount);
     watch_display_string(buf, 0);
     printf("reading: %04x\r\n", adccount);
     printf("reading count: %02x\r\n", state->readings);
@@ -203,6 +248,20 @@ static void setting_alarm_button(si1133_uv_state_t *state) {
     state->needs_setup = true;
 }
 
+void measuring_alarm_button(si1133_uv_state_t *state) {
+    switch(state->hist_mode) {
+        case si1133_hist_all:
+            state->hist_mode = si1133_hist_current;
+            break;
+        case si1133_hist_last_ten:
+            state->hist_mode = si1133_hist_all;
+            break;
+        case si1133_hist_current:
+            state->hist_mode = si1133_hist_last_ten;
+            break;
+    }
+}
+
 bool si1133_uv_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     (void) settings;
     si1133_uv_state_t *state = (si1133_uv_state_t *)context;
@@ -220,7 +279,6 @@ bool si1133_uv_face_loop(movement_event_t event, movement_settings_t *settings, 
             }
             break;
         case EVENT_MODE_BUTTON_UP:
-            // You shouldn't need to change this case; Mode almost always moves to the next watch face.
             if(state->mode == si1133_mode_setting) {
                 switch(state->setting) {
                     case si1133_adcmux_setting:
@@ -253,6 +311,7 @@ bool si1133_uv_face_loop(movement_event_t event, movement_settings_t *settings, 
                     setting_alarm_button(state);
                     break;
                 case si1133_mode_measuring:
+                    measuring_alarm_button(state);
                     break;
             }
             break;
