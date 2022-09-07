@@ -23,6 +23,7 @@
  */
 
 #include <stdlib.h>
+#include "filesystem.h"
 #include "preferences_face.h"
 #include "watch.h"
 
@@ -190,4 +191,19 @@ void preferences_face_resign(movement_settings_t *settings, void *context) {
     (void) context;
     watch_set_led_off();
     watch_store_backup_data(settings->reg, 0);
+
+    bool needs_saving = false;
+    if (filesystem_file_exists(MOVEMENT_SETTINGS_FILE)) {
+        uint32_t saved_settings;
+        filesystem_read_file(MOVEMENT_SETTINGS_FILE, (char *)&saved_settings, sizeof(uint32_t));
+        if (saved_settings != settings->reg) {
+            needs_saving = true;
+        }
+    } else {
+        needs_saving = true;
+    }
+    
+    if (needs_saving) {
+        filesystem_write_file(MOVEMENT_SETTINGS_FILE, (char *)&settings->reg, sizeof(uint32_t));
+    }
 }

@@ -295,4 +295,6 @@ void movement_play_alarm(void);
 
 uint8_t movement_claim_backup_register(void);
 
+#define MOVEMENT_SETTINGS_FILE "settings.bin"
+
 #endif // MOVEMENT_H_
