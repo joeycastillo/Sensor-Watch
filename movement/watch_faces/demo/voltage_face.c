@@ -27,15 +27,14 @@
 #include "voltage_face.h"
 #include "watch.h"
 
-static void _voltage_face_update_display(void) {
+static void _voltage_face_update_display(bool show_units) {
     char buf[14];
 
     watch_enable_adc();
     float voltage = (float)watch_get_vcc_voltage() / 1000.0;
     watch_disable_adc();
 
-    sprintf(buf, "BA  %4.2f V", voltage);
-    // printf("%s\n", buf);
+    sprintf(buf, "BA  %4.2f %c", voltage, show_units ? 'V' : ' ');
     watch_display_string(buf, 0);
 }
 
@@ -48,6 +47,7 @@ void voltage_face_setup(movement_settings_t *settings, uint8_t watch_face_index,
 void voltage_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
+    if (watch_tick_animation_is_running()) watch_stop_tick_animation();
 }
 
 bool voltage_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
@@ -62,20 +62,25 @@ bool voltage_face_loop(movement_event_t event, movement_settings_t *settings, vo
             movement_illuminate_led();
             break;
         case EVENT_ACTIVATE:
-            _voltage_face_update_display();
+            _voltage_face_update_display(true);
             break;
         case EVENT_TICK:
             date_time = watch_rtc_get_date_time();
             if (date_time.unit.second % 5 == 4) {
                 watch_set_indicator(WATCH_INDICATOR_SIGNAL);
             } else if (date_time.unit.second % 5 == 0) {
-                _voltage_face_update_display();
+                _voltage_face_update_display(true);
                 watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
             }
             break;
         case EVENT_LOW_ENERGY_UPDATE:
             watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
-            watch_display_string("BA  SLEEP ", 0);
+            date_time = watch_rtc_get_date_time();
+            // update the battery voltage once an hour
+            if (date_time.unit.minute == 0) {
+                _voltage_face_update_display(false);
+            }
+            if (!watch_tick_animation_is_running()) watch_start_tick_animation(1000);
             break;
         default:
             break;

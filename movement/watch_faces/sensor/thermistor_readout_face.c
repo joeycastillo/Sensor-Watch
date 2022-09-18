@@ -50,6 +50,7 @@ void thermistor_readout_face_setup(movement_settings_t *settings, uint8_t watch_
 void thermistor_readout_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
+    if (watch_tick_animation_is_running()) watch_stop_tick_animation();
     watch_display_string("TE", 0);
 }
 
@@ -83,7 +84,14 @@ bool thermistor_readout_face_loop(movement_event_t event, movement_settings_t *s
             }
             break;
         case EVENT_LOW_ENERGY_UPDATE:
-            watch_display_string("TE  SLEEP ", 0);
+            watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
+            date_time = watch_rtc_get_date_time();
+            // update the temperature every 15 minutes
+            if ((date_time.unit.minute % 15) == 0) {
+                _thermistor_readout_face_update_display(settings->bit.use_imperial_units);
+                watch_display_string("  ", 8);
+            }
+            if (!watch_tick_animation_is_running()) watch_start_tick_animation(1000);
             break;
         default:
             break;
