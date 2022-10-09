@@ -1,3 +1,5 @@
+.SUFFIXES:
+
 CFLAGS += $(INCLUDES) $(DEFINES)
 
 OBJS = $(addprefix $(BUILD)/, $(notdir %/$(subst .c,.o, $(SRCS))))
@@ -60,6 +62,6 @@ clean:
 analyze:
 	@$(COBRA) basic $(INCLUDES) $(DEFINES) $(SRCS)
 
-DEPFILES := $(SRCS:%.c=$(BUILD)/%.d)
+DEPFILES := $(OBJS:%.o=%.o.d)
 
 -include $(wildcard $(DEPFILES))
