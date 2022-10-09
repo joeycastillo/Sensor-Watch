@@ -159,6 +159,7 @@ else
 
 CFLAGS += -W -Wall -Wextra -Wmissing-prototypes -Wmissing-declarations
 CFLAGS += -Wno-format -Wno-unused-parameter
+CFLAGS += -MD -MP -MT $(BUILD)/$(*F).o -MF $(BUILD)/$(@F).d
 
 INCLUDES += \
   -I$(TOP)/boards/$(BOARD) \
