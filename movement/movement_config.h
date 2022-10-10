@@ -28,7 +28,13 @@
 #include "movement_faces.h"
 
 const watch_face_t watch_faces[] = {
-    frequency_correction_face,
+    simple_clock_face,
+    world_clock_face,
+    sunrise_sunset_face,
+    moon_phase_face,
+    thermistor_readout_face,
+    preferences_face,
+    set_time_face,
 };
 
 #define MOVEMENT_NUM_FACES (sizeof(watch_faces) / sizeof(watch_face_t))
