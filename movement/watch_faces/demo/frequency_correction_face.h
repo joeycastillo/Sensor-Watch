@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Joey Castillo
+ * Copyright (c) 2022 <#author_name#>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,39 +22,27 @@
  * SOFTWARE.
  */
 
-#ifndef MOVEMENT_FACES_H_
-#define MOVEMENT_FACES_H_
+#ifndef FREQUENCY_CORRECTION_FACE_H_
+#define FREQUENCY_CORRECTION_FACE_H_
 
-#include "simple_clock_face.h"
-#include "world_clock_face.h"
-#include "preferences_face.h"
-#include "set_time_face.h"
-#include "pulsometer_face.h"
-#include "thermistor_readout_face.h"
-#include "thermistor_logging_face.h"
-#include "thermistor_testing_face.h"
-#include "character_set_face.h"
-#include "beats_face.h"
-#include "day_one_face.h"
-#include "voltage_face.h"
-#include "stopwatch_face.h"
-#include "totp_face.h"
-#include "lis2dw_logging_face.h"
-#include "demo_face.h"
-#include "hello_there_face.h"
-#include "sunrise_sunset_face.h"
-#include "countdown_face.h"
-#include "counter_face.h"
-#include "blinky_face.h"
-#include "moon_phase_face.h"
-#include "accelerometer_data_acquisition_face.h"
-#include "mars_time_face.h"
-#include "orrery_face.h"
-#include "astronomy_face.h"
-#include "tomato_face.h"
-#include "probability_face.h"
-#include "wake_face.h"
-#include "frequency_correction_face.h"
-// New includes go above this line.
+#include "movement.h"
 
-#endif // MOVEMENT_FACES_H_
+typedef struct {
+    uint8_t period_event_output;
+} frequency_correction_state_t;
+
+void frequency_correction_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
+void frequency_correction_face_activate(movement_settings_t *settings, void *context);
+bool frequency_correction_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void frequency_correction_face_resign(movement_settings_t *settings, void *context);
+
+#define frequency_correction_face ((const watch_face_t){ \
+    frequency_correction_face_setup, \
+    frequency_correction_face_activate, \
+    frequency_correction_face_loop, \
+    frequency_correction_face_resign, \
+    NULL, \
+})
+
+#endif // FREQUENCY_CORRECTION_FACE_H_
+
