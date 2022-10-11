@@ -409,7 +409,15 @@ bool app_loop(void) {
         can_sleep = watch_faces[movement_state.current_watch_face].loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
         // escape hatch: a watch face may not resign on EVENT_MODE_BUTTON_DOWN. In that case, a long press of MODE should let them out.
         if (event.event_type == EVENT_MODE_LONG_PRESS) {
-            movement_move_to_next_face();
+            if (movement_state.settings.bit.mode_long_press_home == true) {
+                if (movement_state.current_watch_face == 0) {
+                    movement_move_to_face(MODE_LONG_PRESS_HOME_REPEAT);
+                } else {
+                    movement_move_to_face(0);
+                }
+            } else {
+                movement_move_to_next_face();
+            }
             can_sleep = false;
         }
         event.event_type = EVENT_NONE;

@@ -39,4 +39,12 @@ const watch_face_t watch_faces[] = {
 
 #define MOVEMENT_NUM_FACES (sizeof(watch_faces) / sizeof(watch_face_t))
 
+/* Determines what face to go to from the first face if you've already set 
+ * a mode long press to go to the first face in preferences.
+ * Usually it makes sense to set this to the preferences face,
+ * so you can definitely get to it to disable this mode (in case one of the faces
+ * doesn't obey the short press).
+ */
+#define MODE_LONG_PRESS_HOME_REPEAT (MOVEMENT_NUM_FACES - 2)
+
 #endif // MOVEMENT_CONFIG_H_

@@ -61,7 +61,10 @@ typedef union {
         // altimeter to display feet or meters as easily as it tells a thermometer to display degrees in F or C.
         bool clock_mode_24h : 1;            // indicates whether clock should use 12 or 24 hour mode.
         bool use_imperial_units : 1;        // indicates whether to use metric units (the default) or imperial.
-        uint8_t reserved : 7;               // room for more preferences if needed.
+
+        bool mode_long_press_home : 1;      // if true, long pressing mode goes to face 0 instead of the next face.
+
+        uint8_t reserved : 6;               // room for more preferences if needed.
     } bit;
     uint32_t reg;
 } movement_settings_t;
