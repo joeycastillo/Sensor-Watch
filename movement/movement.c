@@ -413,9 +413,11 @@ bool app_loop(void) {
         // Note that it's the face's responsibility to provide some way to get to the next face, so if EVENT_MODE_BUTTON_* is
         // used for face functionality EVENT_MODE_LONG_PRESS should probably be handled and next_face() triggered in the face
         // (which would effectively disable the normal 'long press to face 0' behaviour).
-        if (event.event_type == EVENT_MODE_LONG_PRESS && movement_state.current_watch_face > 0 && movement_state.current_watch_face == movement_state.next_watch_face) {
+        if (event.event_type == EVENT_MODE_LONG_PRESS 
+            && movement_state.current_watch_face > 0 
+            && movement_state.current_watch_face == movement_state.next_watch_face) {
             movement_move_to_face(0);
-            can_sleep = false;
+            movement_state.watch_face_changed = true;
         }
         event.event_type = EVENT_NONE;
     }
@@ -481,7 +483,13 @@ bool app_loop(void) {
 
     event.subsecond = 0;
 
-    return can_sleep && (movement_state.light_ticks == -1) && !movement_state.is_buzzing;
+    // if the watch face changed, we can't sleep because we need to update the display.
+    if (movement_state.watch_face_changed) can_sleep = false;
+
+    // if the buzzer or the LED is on, we need to stay awake to keep the TCC running.
+    if (movement_state.is_buzzing || movement_state.light_ticks != -1) can_sleep = false;
+
+    return can_sleep;
 }
 
 static movement_event_type_t _figure_out_button_event(bool pin_level, movement_event_type_t button_down_event_type, uint8_t *down_timestamp) {
