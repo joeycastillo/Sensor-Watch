@@ -407,9 +407,14 @@ bool app_loop(void) {
     if (event.event_type) {
         event.subsecond = movement_state.subsecond;
         can_sleep = watch_faces[movement_state.current_watch_face].loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
-        // escape hatch: a watch face may not resign on EVENT_MODE_BUTTON_DOWN. In that case, a long press of MODE should let them out.
-        if (event.event_type == EVENT_MODE_LONG_PRESS) {
-            movement_move_to_next_face();
+
+        // Long-pressing MODE brings one back to the first face, provided that the watch face hasn't decided to send them elsewhere
+        // (and we're not currently on the first face).
+        // Note that it's the face's responsibility to provide some way to get to the next face, so if EVENT_MODE_BUTTON_* is
+        // used for face functionality EVENT_MODE_LONG_PRESS should probably be handled and next_face() triggered in the face
+        // (which would effectively disable the normal 'long press to face 0' behaviour).
+        if (event.event_type == EVENT_MODE_LONG_PRESS && movement_state.current_watch_face > 0 && movement_state.current_watch_face == movement_state.next_watch_face) {
+            movement_move_to_face(0);
             can_sleep = false;
         }
         event.event_type = EVENT_NONE;
