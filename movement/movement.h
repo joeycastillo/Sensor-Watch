@@ -174,7 +174,11 @@ typedef void (*watch_face_activate)(movement_settings_t *settings, void *context
   *              for a list of all possible event types.
   * @param settings A pointer to the global Movement settings. @see watch_face_setup.
   * @param context A pointer to your application's context. @see watch_face_setup.
-  * @return true if Movement can enter STANDBY mode; false to keep it awake. You should almost always return true.
+  * @return true if your watch face is prepared for the system to enter STANDBY mode; false to keep the system awake.
+  *         You should almost always return true.
+  *         Note that this return value has no effect if your loop function has called movement_move_to_next_face
+  *         or movement_move_to_face; in that case, your watch face will resign immediately, and the next watch
+  *         face will make the decision on entering standby mode.
   * @note There are two event types that require some extra thought:
           The EVENT_LOW_ENERGY_UPDATE event type is a special case. If you are in the foreground when the watch
           goes into low energy mode, you will receive this tick once a minute (at the top of the minute) so that
