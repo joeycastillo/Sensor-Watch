@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "watch.h"
+#include "watch_main_loop.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // This section sets up types and storage for our application state.
@@ -156,13 +157,13 @@ bool app_loop(void) {
 
     if (application_state.enter_sleep_mode) {
         // wait a moment for the user's finger to be off the button
-        delay_ms(250);
+        main_loop_sleep(250);
 
         // nap time :)
         watch_enter_deep_sleep_mode();
 
         // we just woke up; wait a moment again for the user's finger to be off the button...
-        delay_ms(250);
+        main_loop_sleep(250);
 
         // and prevent ourselves from going right back to sleep.
         application_state.enter_sleep_mode = false;
