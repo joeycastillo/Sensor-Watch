@@ -101,6 +101,10 @@ static void main_loop_set_sleeping(bool sleeping) {
     }, sleeping);
 }
 
+void delay_ms(const uint16_t ms) {
+    main_loop_sleep(ms);
+}
+
 int main(void) {
     app_init();
     _watch_init();

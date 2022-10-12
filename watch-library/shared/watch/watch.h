@@ -30,6 +30,10 @@
 #include "driver_init.h"
 #include "pins.h"
 
+#ifdef __EMSCRIPTEN__
+#include "watch_main_loop.h"
+#endif // __EMSCRIPTEN__
+
 /** @mainpage Sensor Watch Documentation
  *  @brief This documentation covers most of the functions you will use to interact with the Sensor Watch
            hardware. It is divided into the following sections:
