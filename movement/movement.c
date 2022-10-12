@@ -417,7 +417,6 @@ bool app_loop(void) {
             && movement_state.current_watch_face > 0 
             && movement_state.current_watch_face == movement_state.next_watch_face) {
             movement_move_to_face(0);
-            movement_state.watch_face_changed = true;
         }
         event.event_type = EVENT_NONE;
     }
