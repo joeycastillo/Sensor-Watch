@@ -77,6 +77,14 @@ bool filesystem_read_file(char *filename, char *buf, int32_t length);
   */
 bool filesystem_write_file(char *filename, char *text, int32_t length);
 
+/** @brief Appends text to file on the filesystem
+  * @param filename the file you wish to write
+  * @param text The contents to write
+  * @param length The number of bytes to write
+  * @return true if the write was successful; false otherwise
+  */
+bool filesystem_append_file(char *filename, char *text, int32_t length);
+
 /** @brief Handles the interactive file browser when Movement is plugged in to USB.
   * @param line The command that the user typed into the serial console.
   */

@@ -11,11 +11,23 @@
 
 #include "totp_face.h"
 
-// Reads from a file totp_uris.txt where each line is what's in a QR code:
-// e.g.
-// oTpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example
-// otpauth://totp/ACME%20Co:john.doe@email.com?secret=HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ&issuer=ACME%20Co&algorithm=SHA1&digits=6&period=30
-// Minimal sanitisation of input, however.
+/* Reads from a file totp_uris.txt where each line is what's in a QR code:
+ * e.g.
+ *   otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example
+ *   otpauth://totp/ACME%20Co:john.doe@email.com?secret=HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ&issuer=ACME%20Co&algorithm=SHA1&digits=6&period=30
+ * This is also the same as what Aegis exports in plain-text format.
+ *
+ * Minimal sanitisation of input, however.
+ *
+ * At the moment, to get the records onto the filesystem, start a serial connection and do:
+ *   echo otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example > totp_uris.txt
+ *   echo otpauth://totp/ACME%20Co:john.doe@email.com?secret=HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ&issuer=ACME%20Co&algorithm=SHA1&digits=6&period=30 >> totp_uris.txt
+ * (note the double >> in the second one)
+ *
+ * You may want to customise the characters that appear to identify the 2FA code. These are just the first two characters of the issuer,
+ * and it's fine to modify the URI.
+ */
+
 
 #define MAX_TOTP_RECORDS 20
 #define TOTP_FILE "totp_uris.txt"
@@ -56,7 +68,7 @@ static bool totp_face_read_param(struct totp_record *totp_record, char *param, c
             return false;
         }
     } else if (!strcmp(param, "digits")) {
-        if (strcmp(param, "6")) {
+        if (!strcmp(param, "6")) {
             printf("TOTP got %s, not 6 digits", value);
             return false;
         }
@@ -67,7 +79,7 @@ static bool totp_face_read_param(struct totp_record *totp_record, char *param, c
             return false;
         }
     } else if (!strcmp(param, "algorithm")) {
-        if (strcmp(param, "SHA1")) {
+        if (!strcmp(param, "SHA1")) {
             printf("TOTP ignored due to algorithm %s", value);
             return false;
         }
@@ -154,10 +166,6 @@ void totp_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
     memset(context, 0, sizeof(totp_state_t));
     totp_state_t *totp_state = (totp_state_t *)context;
-
-    // HACK since I can't restart simulator (?)
-    num_totp_records = 0;
-    totp_face_read_file(TOTP_FILE);
 
     if (num_totp_records > 0) {
         totp_state->current_index = 0;
