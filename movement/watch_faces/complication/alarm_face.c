@@ -270,8 +270,7 @@ bool alarm_face_loop(movement_event_t event, movement_settings_t *settings, void
     case EVENT_ALARM_LONG_PRESS:
         if (!state->is_setting) {
             // toggle the enabled flag for current alarm
-            if (state->alarm[state->alarm_idx].hour > 0 || state->alarm[state->alarm_idx].minute > 0)
-                state->alarm[state->alarm_idx].enabled ^= 1;
+            state->alarm[state->alarm_idx].enabled ^= 1;
         } else {
             // handle the long press settings behaviour
             switch (state->setting_state) {
