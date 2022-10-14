@@ -238,11 +238,16 @@ void movement_play_signal(void) {
 }
 
 void movement_play_alarm(void) {
+    movement_play_alarm_beeps(5, BUZZER_NOTE_C8);
+}
+
+void movement_play_alarm_beeps(uint8_t rounds, BuzzerNote alarm_note) {
+    if (rounds == 0) rounds = 1;
+    if (rounds > 20) rounds = 20;
     movement_request_wake();
-    // alarm length: 75 ticks short of 5 seconds, or 4.414 seconds:
-    // our tone is 0.375 seconds of beep and 0.625 of silence, repeated five times.
-    // so 4.375 + a few ticks to wake up from sleep mode.
-    movement_state.alarm_ticks = 128 * 5 - 75;
+    movement_state.alarm_note = alarm_note;
+    // our tone is 0.375 seconds of beep and 0.625 of silence, repeated as given.
+    movement_state.alarm_ticks = 128 * rounds - 75;
     _movement_enable_fast_tick_if_needed();
 }
 
@@ -438,7 +443,7 @@ bool app_loop(void) {
             for(uint8_t i = 0; i < 4; i++) {
                 // TODO: This method of playing the buzzer blocks the UI while it's beeping.
                 // It might be better to time it with the fast tick.
-                watch_buzzer_play_note(BUZZER_NOTE_C8, (i != 3) ? 50 : 75);
+                watch_buzzer_play_note(movement_state.alarm_note, (i != 3) ? 50 : 75);
                 if (i != 3) watch_buzzer_play_note(BUZZER_NOTE_REST, 50);
             }
         }
@@ -534,8 +539,8 @@ void cb_fast_tick(void) {
     if (movement_state.light_ticks > 0) movement_state.light_ticks--;
     if (movement_state.alarm_ticks > 0) movement_state.alarm_ticks--;
     // this is just a fail-safe; fast tick should be disabled as soon as the button is up, the LED times out, and/or the alarm finishes.
-    // but if for whatever reason it isn't, this forces the fast tick off after 10 seconds.
-    if (movement_state.fast_ticks >= 1280) watch_rtc_disable_periodic_callback(128);
+    // but if for whatever reason it isn't, this forces the fast tick off after 20 seconds.
+    if (movement_state.fast_ticks >= 128 * 20) watch_rtc_disable_periodic_callback(128);
 }
 
 void cb_tick(void) {

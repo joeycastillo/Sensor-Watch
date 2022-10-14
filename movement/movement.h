@@ -61,7 +61,8 @@ typedef union {
         // altimeter to display feet or meters as easily as it tells a thermometer to display degrees in F or C.
         bool clock_mode_24h : 1;            // indicates whether clock should use 12 or 24 hour mode.
         bool use_imperial_units : 1;        // indicates whether to use metric units (the default) or imperial.
-        uint8_t reserved : 7;               // room for more preferences if needed.
+        bool alarm_enabled : 1;             // indicates wheter there is at least one alarm enabled.
+        uint8_t reserved : 6;               // room for more preferences if needed.
     } bit;
     uint32_t reg;
 } movement_settings_t;
@@ -248,6 +249,7 @@ typedef struct {
     // alarm stuff
     int16_t alarm_ticks;
     bool is_buzzing;
+    BuzzerNote alarm_note;
 
     // button tracking for long press
     uint8_t light_down_timestamp;
@@ -292,6 +294,7 @@ void movement_request_wake(void);
 
 void movement_play_signal(void);
 void movement_play_alarm(void);
+void movement_play_alarm_beeps(uint8_t rounds, BuzzerNote alarm_note);
 
 uint8_t movement_claim_backup_register(void);
 

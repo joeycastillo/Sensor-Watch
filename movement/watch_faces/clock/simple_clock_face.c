@@ -47,6 +47,13 @@ void simple_clock_face_activate(movement_settings_t *settings, void *context) {
     if (settings->bit.clock_mode_24h) watch_set_indicator(WATCH_INDICATOR_24H);
     if (state->signal_enabled) watch_set_indicator(WATCH_INDICATOR_SIGNAL);
 
+    // show alarm indicator if there is an active alarm
+    if (settings->bit.alarm_enabled) {
+        watch_set_indicator(WATCH_INDICATOR_BELL);
+    } else {
+        watch_clear_indicator(WATCH_INDICATOR_BELL);
+    }
+
     watch_set_colon();
 
     // this ensures that none of the timestamp fields will match, so we can re-render them all.
