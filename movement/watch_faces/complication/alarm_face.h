@@ -41,7 +41,6 @@ A face for setting various alarms
 #define ALARM_DAY_WEEKEND 10
 #define ALARM_MAX_BEEP_ROUNDS 9 // maximum number of beeping rounds for an alarm slot
 #define ALARM_SETTING_STATES 6
-#define ALARM_INDICATOR_BIT 4   // arbitrary choice: this bit within the movement_setting.reserved byte will indicate if at least one alarm is set
 
 typedef struct {
     uint8_t day : 4;    // day of week: 0=MO, 1=TU, 2=WE, 3=TH, 4=FR, 5=SA, 6=SU, 7=each day, 8=one time alarm, 9=Weekdays, 10=Weekend
