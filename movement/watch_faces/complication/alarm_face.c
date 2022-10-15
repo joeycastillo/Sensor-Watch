@@ -100,7 +100,7 @@ static void _alarm_face_draw(movement_settings_t *settings, alarm_state_t *state
     }
     watch_display_string(buf, 0);
     
-    // draw pith level indicator
+    // draw pitch level indicator
     if (state->is_setting && ((subsecond % 2) == 0 || (state->setting_state != 4))) {
         for (i = 0; i <= state->alarm[state->alarm_idx].pitch && i < 3; i++)
             watch_set_pixel(_buzzer_segdata[i][0], _buzzer_segdata[i][1]);
@@ -138,6 +138,7 @@ void alarm_face_setup(movement_settings_t *settings, uint8_t watch_face_index, v
 }
 
 void alarm_face_activate(movement_settings_t *settings, void *context) {
+    (void) settings;
     (void) context;
     watch_display_string("  ", 8);
     watch_clear_indicator(WATCH_INDICATOR_LAP); // may be unnecessary, but who knows
@@ -229,7 +230,7 @@ bool alarm_face_loop(movement_event_t event, movement_settings_t *settings, void
             // cycle through the alarms
             state->alarm_idx = (state->alarm_idx + 1) % (ALARM_ALARMS);
         } else {
-            // TODO: Handle the settings behaviour
+            // handle the settings behaviour
             switch (state->setting_state) {
             case 0:
                 // alarm selection
