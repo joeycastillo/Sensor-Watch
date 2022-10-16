@@ -440,6 +440,9 @@ bool app_loop(void) {
     if (movement_state.alarm_ticks >= 0) {
         uint8_t buzzer_phase = (movement_state.alarm_ticks + 80) % 128;
         if(buzzer_phase == 127) {
+            // failsafe: buzzer could have been disabled in the meantime
+            if (!watch_is_buzzer_or_led_enabled()) watch_enable_buzzer();
+            // play 4 beeps plus pause
             for(uint8_t i = 0; i < 4; i++) {
                 // TODO: This method of playing the buzzer blocks the UI while it's beeping.
                 // It might be better to time it with the fast tick.
@@ -494,7 +497,7 @@ static movement_event_type_t _figure_out_button_event(bool pin_level, movement_e
         *down_timestamp = movement_state.fast_ticks + 1;
         return button_down_event_type;
     } else {
-        // this line is hack but it handles the situation where the light button was held for more than 10 seconds.
+        // this line is hack but it handles the situation where the light button was held for more than 20 seconds.
         // fast tick is disabled by then, and the LED would get stuck on since there's no one left decrementing light_ticks.
         if (movement_state.light_ticks == 1) movement_state.light_ticks = 0;
         // now that that's out of the way, handle falling edge
