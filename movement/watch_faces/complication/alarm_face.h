@@ -33,13 +33,13 @@
 A face for setting various alarms
 */
 
-#define ALARM_ALARMS 10      // no of available alarm slots (be aware: only 4 bits reserved for this value in struct below)
+#define ALARM_ALARMS 16     // no of available alarm slots (be aware: only 4 bits reserved for this value in struct below)
 #define ALARM_DAY_STATES 11 // no of different day settings
 #define ALARM_DAY_EACH_DAY 7
 #define ALARM_DAY_ONE_TIME 8
 #define ALARM_DAY_WORKDAY 9
 #define ALARM_DAY_WEEKEND 10
-#define ALARM_MAX_BEEP_ROUNDS 9 // maximum number of beeping rounds for an alarm slot
+#define ALARM_MAX_BEEP_ROUNDS 11 // maximum number of beeping rounds for an alarm slot (including short and long alarms)
 #define ALARM_SETTING_STATES 6
 
 typedef struct {
