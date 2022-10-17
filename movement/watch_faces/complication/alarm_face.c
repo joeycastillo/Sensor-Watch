@@ -160,7 +160,7 @@ static void _alarm_update_alarm_enabled(movement_settings_t *settings, alarm_sta
 }
 
 static void _alarm_play_short_beep(uint8_t pitch_idx) {
-    // plays a short double beep
+    // play a short double beep
     watch_buzzer_play_note(_buzzer_notes[pitch_idx], 50);
     watch_buzzer_play_note(BUZZER_NOTE_REST, 50);
     watch_buzzer_play_note(_buzzer_notes[pitch_idx], 70);
@@ -362,7 +362,7 @@ bool alarm_face_loop(movement_event_t event, movement_settings_t *settings, void
             }
         } else {
             // regular alarm beeps
-        movement_play_alarm_beeps((state->alarm[state->alarm_idx].beeps == (ALARM_MAX_BEEP_ROUNDS - 1) ? 20 : state->alarm[state->alarm_playing_idx].beeps + 1), 
+            movement_play_alarm_beeps((state->alarm[state->alarm_idx].beeps == (ALARM_MAX_BEEP_ROUNDS - 1) ? 20 : state->alarm[state->alarm_playing_idx].beeps), 
                                   _buzzer_notes[state->alarm[state->alarm_playing_idx].pitch]);
         }
         break;
