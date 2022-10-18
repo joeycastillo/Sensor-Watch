@@ -86,6 +86,8 @@ void watch_display_string(char *string, uint8_t position);
 
 void watch_display_string_morph(char *old_string, char *new_string);
 
+void watch_display_invert(bool);
+
 /** @brief Turns the colon segment on.
   */
 void watch_set_colon(void);

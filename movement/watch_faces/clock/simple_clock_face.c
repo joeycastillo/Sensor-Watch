@@ -66,24 +66,26 @@ bool simple_clock_face_loop(movement_event_t event, movement_settings_t *setting
         case EVENT_TICK:
         case EVENT_LOW_ENERGY_UPDATE:
             date_time = watch_rtc_get_date_time();
+            previous_date_time = state->previous_date_time;
+            state->previous_date_time = date_time.reg;
 
             int time_since_alarm_button = date_time.reg - state->alarm_button_down_time;
+            int previous_time_since_alarm_button = previous_date_time - state->alarm_button_down_time;
 
             if (state->alarm_button_down_time && time_since_alarm_button > 3) {
-                watch_clear_all_indicators();
-                watch_clear_colon();
-                if (date_time.reg - state->alarm_button_down_time > 6) {
-                    watch_display_string("    SENSOR", 0);
-                } else if (date_time.reg - state->alarm_button_down_time > 5) {
-                    watch_display_string_morph("____CASIO_", "____SENSOR");
-                } else {
+                if (previous_time_since_alarm_button <= 11 && time_since_alarm_button > 11) {
+                    watch_display_string_morph("    SENSOR", "    HACKED ");
+                    watch_display_invert(true);
+                } else if (previous_time_since_alarm_button <= 7 && time_since_alarm_button > 7) {
+                    watch_display_string_morph("    CASIO ", "    SENSOR");
+                } else if (previous_time_since_alarm_button <= 3 && time_since_alarm_button > 3) {
+                    watch_display_invert(false);
+                    watch_clear_all_indicators();
+                    watch_clear_colon();
                     watch_display_string("    CASIO ", 0);
                 }
                 break;
             }
-
-            previous_date_time = state->previous_date_time;
-            state->previous_date_time = date_time.reg;
 
             // check the battery voltage once a day...
             if (date_time.unit.day != state->last_battery_check) {
@@ -143,7 +145,7 @@ bool simple_clock_face_loop(movement_event_t event, movement_settings_t *setting
             state->alarm_button_down_time = 0;
             break;
         case EVENT_ALARM_LONG_PRESS:
-            if (date_time.reg - state->alarm_button_down_time > 3) {
+            if (state->previous_date_time - state->alarm_button_down_time > 3) {
                 // Force reinitialise, since we wiped our indicators.
                 state->alarm_button_down_time = 0;
                 movement_move_to_face(state->watch_face_index);

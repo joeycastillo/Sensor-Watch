@@ -27,6 +27,18 @@
 #include "hpl_slcd_config.h"
 #include "driver_init.h"
 
+// Bit position -> segment mapping for Character_Set.
+//  --0-- 
+// |     | 
+// 5     1 
+// |     | 
+//  --6-- 
+// |     | 
+// 4     2 
+// |     | 
+//  --3--
+
+
 static const uint8_t Character_Set[] =
 {
     0b00000000, //  

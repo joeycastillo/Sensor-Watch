@@ -25,6 +25,7 @@
 #include "watch_slcd.h"
 #include "watch_private_display.h"
 
+
 static const uint32_t IndicatorSegments[] = {
     SLCD_SEGID(0, 17), // WATCH_INDICATOR_SIGNAL
     SLCD_SEGID(0, 16), // WATCH_INDICATOR_BELL
@@ -32,6 +33,8 @@ static const uint32_t IndicatorSegments[] = {
     SLCD_SEGID(2, 16), // WATCH_INDICATOR_24H
     SLCD_SEGID(1, 10), // WATCH_INDICATOR_LAP
 };
+
+static bool invert = false;
 
 static uint64_t watch_convert_char_to_segdata(uint8_t character, uint8_t position) {
     // special cases for positions 4 and 6
@@ -71,23 +74,37 @@ static uint64_t watch_convert_char_to_segdata(uint8_t character, uint8_t positio
     return Character_Set[character - 0x20];
 }
 
-static void watch_display_segdata(uint64_t segdata, uint8_t position) {
-    uint64_t segmap = Segment_Map[position];
+static const uint8_t vert_invert_map[8] = {
+    3, 4, 5, 0, 1, 2, 6, 7,
+};
 
-    for (int i = 0; i < 8; i++) {
-        uint8_t com = (segmap & 0xFF) >> 6;
-        if (com > 2) {
-            // COM3 means no segment exists; skip it.
-            segmap = segmap >> 8;
-            segdata = segdata >> 1;
-            continue;
-        }
-        uint8_t seg = segmap & 0x3F;
-        watch_clear_pixel(com, seg);
-        if (segdata & 1) watch_set_pixel(com, seg);
-        segmap = segmap >> 8;
-        segdata = segdata >> 1;
+static void watch_display_segment(uint8_t position, uint8_t bit_pos, bool on) {
+    uint64_t segmap = Segment_Map[position] >> (8 * bit_pos);
+    uint8_t com = (segmap & 0xFF) >> 6;
+
+    if (com > 2) {
+        // COM3 means no segment exists; skip it.
+        return;
     }
+
+    uint8_t seg = segmap & 0x3F;
+
+    if (on) {
+        watch_set_pixel(com, seg);
+    } else {
+        watch_clear_pixel(com, seg);
+    }
+}
+
+static void watch_display_segdata(uint64_t segdata, uint8_t position) {
+    for (int i = 0; i < 8; i++) {
+        uint8_t bit_pos = invert ? vert_invert_map[i] : i;
+        watch_display_segment(position, bit_pos, (1 << i) & segdata);
+    }
+}
+
+void watch_display_invert(bool inv) {
+    invert = inv;
 }
 
 void watch_display_character(uint8_t character, uint8_t position) {
@@ -102,6 +119,8 @@ void watch_display_character(uint8_t character, uint8_t position) {
         watch_clear_pixel(0, 15);
     }
 }
+
+#define MORPH_DELAY 100
 
 void watch_display_string_morph(char *old_string, char *new_string) {
     uint8_t old_segdata[Num_Chars];
@@ -127,21 +146,16 @@ void watch_display_string_morph(char *old_string, char *new_string) {
 
             if ((old_segdata[i] & bit) != (new_segdata[i] & bit)) {
                 old_segdata[i] ^= bit;
-
-                uint64_t segmap = Segment_Map[i] >> (8 * bit_pos);
-                uint8_t com = (segmap & 0xFF) >> 6;
-                uint8_t seg = segmap & 0x3F;
-                if (old_segdata[i] & bit) {
-                    watch_set_pixel(com, seg);
-                } else {
-                    watch_clear_pixel(com, seg);
-                }
-
+                watch_display_segment(i, bit_pos, old_segdata[i] & bit);
                 // Delay after changing, so user can appreciate wonder.
-                delay_ms(100);
+                delay_ms(MORPH_DELAY);
             }
         }
     }
+
+    // This cleans up the extra tweaks that wouldn't have been done in the
+    // segment map.
+    watch_display_string(new_string, 0);
 }
 
 void watch_display_string(char *string, uint8_t position) {
@@ -154,7 +168,7 @@ void watch_display_string(char *string, uint8_t position) {
     // uncomment this line to see screen output on terminal, i.e.
     //   FR  29
     // 11 50 23
-    // note that for partial displays (positon > 0) it will only show the characters that were updated.
+    // note that for partial displays (position > 0) it will only show the characters that were updated.
     // printf("________\n  %c%c  %c%c\n%c%c %c%c %c%c\n--------\n", (position > 0) ? ' ' : string[0], (position > 1) ? ' ' : string[1 - position], (position > 2) ? ' ' : string[2 - position], (position > 3) ? ' ' : string[3 - position], (position > 4) ? ' ' : string[4 - position], (position > 5) ? ' ' : string[5 - position], (position > 6) ? ' ' : string[6 - position], (position > 7) ? ' ' : string[7 - position], (position > 8) ? ' ' : string[8 - position], (position > 9) ? ' ' : string[9 - position]);
 }
 
