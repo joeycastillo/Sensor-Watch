@@ -151,7 +151,7 @@ static const uint64_t Segment_Map[] = {
     0xc045440506468584, // Position 9, clock seconds
 };
 
-static const uint8_t Num_Chars = 10;
+#define Num_Chars 10
 
 void watch_display_character(uint8_t character, uint8_t position);
 

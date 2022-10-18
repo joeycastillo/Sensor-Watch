@@ -120,35 +120,54 @@ void watch_display_character(uint8_t character, uint8_t position) {
     }
 }
 
-#define MORPH_DELAY 100
-
-void watch_display_string_morph(char *old_string, char *new_string) {
-    uint8_t old_segdata[Num_Chars];
-    uint8_t new_segdata[Num_Chars];
+bool watch_display_string_morph(char *old_string_arg, char *new_string_arg) {
+    static char *old_string = NULL;
+    static char *new_string = NULL;
+    static uint8_t old_segdata[Num_Chars];
+    static uint8_t new_segdata[Num_Chars];
+    static size_t position = 0;
     size_t i;
-    size_t seg_len;
 
-    for (i = 0; old_string[i] && new_string[i] && i < Num_Chars; ++i) {
-        old_segdata[i] = watch_convert_char_to_segdata(old_string[i], i);
-        new_segdata[i] = watch_convert_char_to_segdata(new_string[i], i);
+    if (old_string_arg == NULL && new_string_arg == NULL) {
+        old_string = new_string = NULL;
+        return false;
     }
 
-    seg_len = i;
+    if (old_string != old_string_arg) {
+        position = 0;
+        old_string = old_string_arg;
+        for (i = 0; old_string[i] && i < Num_Chars; ++i) {
+            old_segdata[i] = watch_convert_char_to_segdata(old_string[i], i);
+        }
+        for (; i < Num_Chars; ++i) {
+            old_segdata[i] = watch_convert_char_to_segdata(' ', i);
+        }
+    }
+    if (new_string != new_string_arg) {
+        position = 0;
+        new_string = new_string_arg;
+        for (i = 0; new_string[i] && i < Num_Chars; ++i) {
+            new_segdata[i] = watch_convert_char_to_segdata(new_string[i], i);
+        }
+        for (; i < Num_Chars; ++i) {
+            new_segdata[i] = watch_convert_char_to_segdata(' ', i);
+        }
+    }
 
-    // Make old_segdata approach new_segdata, one bit at a time.
-    for (i = 0; i < seg_len; ++i) {
-        if (old_segdata[i] == new_segdata[i]) {
+    // Make old_segdata approach new_segdata by the first bit we find.
+    for (; position < Num_Chars; ++position) {
+        if (old_segdata[position] == new_segdata[position]) {
             continue;
         }
 
         for (int bit_pos = 0; bit_pos < 8; ++bit_pos) {
             int bit = 1 << bit_pos;
 
-            if ((old_segdata[i] & bit) != (new_segdata[i] & bit)) {
-                old_segdata[i] ^= bit;
-                watch_display_segment(i, bit_pos, old_segdata[i] & bit);
-                // Delay after changing, so user can appreciate wonder.
-                delay_ms(MORPH_DELAY);
+            if ((old_segdata[position] & bit) != (new_segdata[position] & bit)) {
+                old_segdata[position] ^= bit;
+                watch_display_segment(position, bit_pos, old_segdata[position] & bit);
+                // We only do one segment change. Call again to keep morphing.
+                return true;
             }
         }
     }
@@ -156,6 +175,7 @@ void watch_display_string_morph(char *old_string, char *new_string) {
     // This cleans up the extra tweaks that wouldn't have been done in the
     // segment map.
     watch_display_string(new_string, 0);
+    return false;
 }
 
 void watch_display_string(char *string, uint8_t position) {

@@ -52,6 +52,9 @@ void simple_clock_face_activate(movement_settings_t *settings, void *context) {
 
     // this ensures that none of the timestamp fields will match, so we can re-render them all.
     state->previous_date_time = 0xFFFFFFFF;
+
+    state->alarm_button_down_time = 0;
+    watch_display_string_morph(NULL, NULL);
 }
 
 bool simple_clock_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
@@ -70,15 +73,25 @@ bool simple_clock_face_loop(movement_event_t event, movement_settings_t *setting
             state->previous_date_time = date_time.reg;
 
             int time_since_alarm_button = date_time.reg - state->alarm_button_down_time;
-            int previous_time_since_alarm_button = previous_date_time - state->alarm_button_down_time;
 
+            // Easter egg from very long press of alarm button.
             if (state->alarm_button_down_time && time_since_alarm_button > 3) {
-                if (previous_time_since_alarm_button <= 11 && time_since_alarm_button > 11) {
-                    watch_display_string_morph("    SENSOR", "    HACKED ");
-                    watch_display_invert(true);
-                } else if (previous_time_since_alarm_button <= 7 && time_since_alarm_button > 7) {
-                    watch_display_string_morph("    CASIO ", "    SENSOR");
-                } else if (previous_time_since_alarm_button <= 3 && time_since_alarm_button > 3) {
+                if (time_since_alarm_button > 8) {
+                    bool morphed = watch_display_string_morph("    SENSOR", "    HACKED ");
+                    if (morphed) {
+                        movement_request_tick_frequency(16);
+                    } else {
+                        watch_display_invert(true);
+                        movement_request_tick_frequency(1);
+                    }
+                } else if (time_since_alarm_button > 5) {
+                    bool morphed = watch_display_string_morph("    CASIO ", "    SENSOR");
+                    if (morphed) {
+                        movement_request_tick_frequency(16);
+                    } else {
+                        movement_request_tick_frequency(1);
+                    }
+                } else {
                     watch_display_invert(false);
                     watch_clear_all_indicators();
                     watch_clear_colon();
@@ -145,9 +158,10 @@ bool simple_clock_face_loop(movement_event_t event, movement_settings_t *setting
             state->alarm_button_down_time = 0;
             break;
         case EVENT_ALARM_LONG_PRESS:
+            // We pressed it long enough to enter the 'special' mode.
+            // Don't do the signal_enabled thing.
             if (state->previous_date_time - state->alarm_button_down_time > 3) {
-                // Force reinitialise, since we wiped our indicators.
-                state->alarm_button_down_time = 0;
+                // Force reinitialisation of indicators etc. (incl alarm_button_down_time).
                 movement_move_to_face(state->watch_face_index);
                 return false;
             }

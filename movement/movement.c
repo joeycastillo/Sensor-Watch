@@ -173,6 +173,8 @@ static void _movement_handle_scheduled_tasks(void) {
 }
 
 void movement_request_tick_frequency(uint8_t freq) {
+    if (freq == movement_state.tick_frequency) return;
+
     // Movement uses the 128 Hz tick internally
     if (freq == 128) return;
 
