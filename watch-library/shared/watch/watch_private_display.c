@@ -33,7 +33,7 @@ static const uint32_t IndicatorSegments[] = {
     SLCD_SEGID(1, 10), // WATCH_INDICATOR_LAP
 };
 
-void watch_display_character(uint8_t character, uint8_t position) {
+static uint64_t watch_convert_char_to_segdata(uint8_t character, uint8_t position) {
     // special cases for positions 4 and 6
     if (position == 4 || position == 6) {
         if (character == '7') character = '&'; // "lowercase" 7
@@ -64,14 +64,15 @@ void watch_display_character(uint8_t character, uint8_t position) {
     } else {
         if (character == 'R') character = 'r'; // R needs to be lowercase almost everywhere
     }
-    if (position == 0) {
-        watch_clear_pixel(0, 15); // clear funky ninth segment
-    } else {
+    if (position != 0) {
         if (character == 'I') character = 'l'; // uppercase I only works in position 0
     }
 
+    return Character_Set[character - 0x20];
+}
+
+static void watch_display_segdata(uint64_t segdata, uint8_t position) {
     uint64_t segmap = Segment_Map[position];
-    uint64_t segdata = Character_Set[character - 0x20];
 
     for (int i = 0; i < 8; i++) {
         uint8_t com = (segmap & 0xFF) >> 6;
@@ -87,10 +88,60 @@ void watch_display_character(uint8_t character, uint8_t position) {
         segmap = segmap >> 8;
         segdata = segdata >> 1;
     }
+}
+
+void watch_display_character(uint8_t character, uint8_t position) {
+    watch_display_segdata(watch_convert_char_to_segdata(character, position), position);
 
     if (character == 'T' && position == 1) watch_set_pixel(1, 12); // add descender
-    else if (position == 0 && (character == 'B' || character == 'D')) watch_set_pixel(0, 15); // add funky ninth segment
-    else if (position == 1 && (character == 'B' || character == 'D' || character == '@')) watch_set_pixel(0, 12); // add funky ninth segment
+    else if (position == 1 && (character == 'B' || character == 'D' || character == 'b' || character == 'd' || character == '@')) watch_set_pixel(0, 12); // add funky ninth segment
+    else if (position == 0 && (character == 'B' || character == 'D')) {
+        // add funky ninth segment
+        watch_set_pixel(0, 15);
+    } else {
+        watch_clear_pixel(0, 15);
+    }
+}
+
+void watch_display_string_morph(char *old_string, char *new_string) {
+    uint8_t old_segdata[Num_Chars];
+    uint8_t new_segdata[Num_Chars];
+    size_t i;
+    size_t seg_len;
+
+    for (i = 0; old_string[i] && new_string[i] && i < Num_Chars; ++i) {
+        old_segdata[i] = watch_convert_char_to_segdata(old_string[i], i);
+        new_segdata[i] = watch_convert_char_to_segdata(new_string[i], i);
+    }
+
+    seg_len = i;
+
+    // Make old_segdata approach new_segdata, one bit at a time.
+    for (i = 0; i < seg_len; ++i) {
+        if (old_segdata[i] == new_segdata[i]) {
+            continue;
+        }
+
+        for (int bit_pos = 0; bit_pos < 8; ++bit_pos) {
+            int bit = 1 << bit_pos;
+
+            if ((old_segdata[i] & bit) != (new_segdata[i] & bit)) {
+                old_segdata[i] ^= bit;
+
+                uint64_t segmap = Segment_Map[i] >> (8 * bit_pos);
+                uint8_t com = (segmap & 0xFF) >> 6;
+                uint8_t seg = segmap & 0x3F;
+                if (old_segdata[i] & bit) {
+                    watch_set_pixel(com, seg);
+                } else {
+                    watch_clear_pixel(com, seg);
+                }
+
+                // Delay after changing, so user can appreciate wonder.
+                delay_ms(100);
+            }
+        }
+    }
 }
 
 void watch_display_string(char *string, uint8_t position) {

@@ -36,6 +36,7 @@ void simple_clock_face_setup(movement_settings_t *settings, uint8_t watch_face_i
         simple_clock_state_t *state = (simple_clock_state_t *)*context_ptr;
         state->signal_enabled = false;
         state->watch_face_index = watch_face_index;
+        state->alarm_button_down_time = 0;
     }
 }
 
@@ -65,6 +66,22 @@ bool simple_clock_face_loop(movement_event_t event, movement_settings_t *setting
         case EVENT_TICK:
         case EVENT_LOW_ENERGY_UPDATE:
             date_time = watch_rtc_get_date_time();
+
+            int time_since_alarm_button = date_time.reg - state->alarm_button_down_time;
+
+            if (state->alarm_button_down_time && time_since_alarm_button > 3) {
+                watch_clear_all_indicators();
+                watch_clear_colon();
+                if (date_time.reg - state->alarm_button_down_time > 6) {
+                    watch_display_string("    SENSOR", 0);
+                } else if (date_time.reg - state->alarm_button_down_time > 5) {
+                    watch_display_string_morph("____CASIO_", "____SENSOR");
+                } else {
+                    watch_display_string("    CASIO ", 0);
+                }
+                break;
+            }
+
             previous_date_time = state->previous_date_time;
             state->previous_date_time = date_time.reg;
 
@@ -110,6 +127,7 @@ bool simple_clock_face_loop(movement_event_t event, movement_settings_t *setting
                     sprintf(buf, "%s%2d%2d%02d%02d", watch_utility_get_weekday(date_time), date_time.unit.day, date_time.unit.hour, date_time.unit.minute, date_time.unit.second);
                 }
             }
+
             watch_display_string(buf, pos);
             break;
         case EVENT_MODE_BUTTON_UP:
@@ -118,8 +136,22 @@ bool simple_clock_face_loop(movement_event_t event, movement_settings_t *setting
         case EVENT_LIGHT_BUTTON_DOWN:
             movement_illuminate_led();
             break;
+        case EVENT_ALARM_BUTTON_DOWN:
+            state->alarm_button_down_time = state->previous_date_time;
+            break;
+        case EVENT_ALARM_BUTTON_UP:
+            state->alarm_button_down_time = 0;
+            break;
         case EVENT_ALARM_LONG_PRESS:
+            if (date_time.reg - state->alarm_button_down_time > 3) {
+                // Force reinitialise, since we wiped our indicators.
+                state->alarm_button_down_time = 0;
+                movement_move_to_face(state->watch_face_index);
+                return false;
+            }
             state->signal_enabled = !state->signal_enabled;
+            state->alarm_button_down_time = 0;
+
             if (state->signal_enabled) watch_set_indicator(WATCH_INDICATOR_SIGNAL);
             else watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
             break;
