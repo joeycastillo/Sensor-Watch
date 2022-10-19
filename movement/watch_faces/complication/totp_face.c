@@ -54,7 +54,7 @@ static void init_totp_record(struct totp_record *totp_record) {
 static bool totp_face_read_param(struct totp_record *totp_record, char *param, char *value) {
     if (!strcmp(param, "issuer")) {
         if (value[0] == '\0' || value[1] == '\0') {
-            printf("TOTP issuer must be >= 2 chars, got '%s'", value);
+            printf("TOTP issuer must be >= 2 chars, got '%s'\n", value);
             return false;
         }
         totp_record->label[0] = value[0];
@@ -69,18 +69,18 @@ static bool totp_face_read_param(struct totp_record *totp_record, char *param, c
         }
     } else if (!strcmp(param, "digits")) {
         if (!strcmp(param, "6")) {
-            printf("TOTP got %s, not 6 digits", value);
+            printf("TOTP got %s, not 6 digits\n", value);
             return false;
         }
     } else if (!strcmp(param, "period")) {
         totp_record->period = atoi(value);
         if (totp_record->period == 0) {
-            printf("TOTP invalid period %s", value);
+            printf("TOTP invalid period %s\n", value);
             return false;
         }
     } else if (!strcmp(param, "algorithm")) {
         if (!strcmp(param, "SHA1")) {
-            printf("TOTP ignored due to algorithm %s", value);
+            printf("TOTP ignored due to algorithm %s\n", value);
             return false;
         }
     }
@@ -96,7 +96,7 @@ static void totp_face_read_file(char *filename) {
     char *text = malloc(MAX_TOTP_RECORDS * 200);
     bool result = filesystem_read_file(filename, text, MAX_TOTP_RECORDS * 200);
     if (!result) {
-        printf("TOTP file error: %s", filename);
+        printf("TOTP file error: %s\n", filename);
         free(text);
         return;
     }
@@ -106,13 +106,13 @@ static void totp_face_read_file(char *filename) {
     line = strtok_r(text, "\n", &line_saveptr);
     do {
         if (num_totp_records == MAX_TOTP_RECORDS) {
-            printf("TOTP max records: %d", MAX_TOTP_RECORDS);
+            printf("TOTP max records: %d\n", MAX_TOTP_RECORDS);
             break;
         }
 
         // Check that it looks like a URI
         if (strncmp(TOTP_URI_START, line, uri_start_len)) {
-            printf("TOTP invalid uri start: %s", line);
+            printf("TOTP invalid uri start: %s\n", line);
             continue;
         }
 
@@ -121,7 +121,7 @@ static void totp_face_read_file(char *filename) {
         char *param_saveptr = NULL;
         char *params = strchr(line + uri_start_len, '?');
         if (params == NULL) {
-            printf("TOTP no params: %s", line);
+            printf("TOTP no params: %s\n", line);
             continue;
         }
 
@@ -146,7 +146,7 @@ static void totp_face_read_file(char *filename) {
         if (totp_records[num_totp_records].secret != NULL) {
             num_totp_records += 1;
         } else {
-            printf("TOTP missing secret: %s", line);
+            printf("TOTP missing secret: %s\n", line);
         }
     } while ((line = strtok_r(NULL, "\n", &line_saveptr)));
 

@@ -133,7 +133,7 @@ static int get_offset(int block)
  * We need this as bitwise shifting by a negative offset is undefined
  * behavior.
  */
-static unsigned char shift_right(unsigned char byte, char offset)
+static unsigned char shift_right(unsigned char byte, int offset)
 {
 	if (offset > 0)
 		return byte >>  offset;
@@ -141,7 +141,7 @@ static unsigned char shift_right(unsigned char byte, char offset)
 		return byte << -offset;
 }
 
-static unsigned char shift_left(unsigned char byte, char offset)
+static unsigned char shift_left(unsigned char byte, int offset)
 {
 	return shift_right(byte, - offset);
 }
