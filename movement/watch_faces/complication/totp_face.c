@@ -60,7 +60,7 @@ static bool totp_face_read_param(struct totp_record *totp_record, char *param, c
         totp_record->label[0] = value[0];
         totp_record->label[1] = value[1];
     } else if (!strcmp(param, "secret")) {
-        totp_record->secret = malloc(ceil(strlen(value) / 5.0) * 8);
+        totp_record->secret = malloc(BASE32_LEN(strlen(value)));
         totp_record->secret_size = base32_decode((unsigned char *)value, totp_record->secret);
         if (totp_record->secret_size == 0) {
             printf("TOTP can't decode secret: %s", value);
