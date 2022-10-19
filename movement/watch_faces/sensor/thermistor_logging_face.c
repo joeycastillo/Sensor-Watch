@@ -28,20 +28,19 @@
 #include "thermistor_driver.h"
 #include "watch.h"
 
-static void _thermistor_logging_face_log_data(thermistor_logger_state_t *logger_state) {
+static void _thermistor_logging_face_update_data(thermistor_logger_state_t *logger_state) {
     thermistor_driver_enable();
     watch_date_time date_time = watch_rtc_get_date_time();
     size_t pos = logger_state->data_points % THERMISTOR_LOGGING_NUM_DATA_POINTS;
 
     logger_state->data[pos].timestamp.reg = date_time.reg;
     logger_state->data[pos].temperature_c = thermistor_driver_get_temperature();
-    logger_state->data_points++;
 
     thermistor_driver_disable();
 }
 
 static void _thermistor_logging_face_update_display(thermistor_logger_state_t *logger_state, bool in_fahrenheit, bool clock_mode_24h) {
-    int8_t pos = (logger_state->data_points - 1 - logger_state->display_index) % THERMISTOR_LOGGING_NUM_DATA_POINTS;
+    int8_t pos = (logger_state->data_points - logger_state->display_index) % THERMISTOR_LOGGING_NUM_DATA_POINTS;
     char buf[14];
 
     watch_clear_indicator(WATCH_INDICATOR_24H);
@@ -86,10 +85,13 @@ void thermistor_logging_face_activate(movement_settings_t *settings, void *conte
     thermistor_logger_state_t *logger_state = (thermistor_logger_state_t *)context;
     logger_state->display_index = 0;
     logger_state->ts_ticks = 0;
+    _thermistor_logging_face_update_data(logger_state);
 }
 
 bool thermistor_logging_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     thermistor_logger_state_t *logger_state = (thermistor_logger_state_t *)context;
+    watch_date_time date_time = watch_rtc_get_date_time();
+
     switch (event.event_type) {
         case EVENT_TIMEOUT:
             movement_move_to_face(0);
@@ -113,12 +115,20 @@ bool thermistor_logging_face_loop(movement_event_t event, movement_settings_t *s
             _thermistor_logging_face_update_display(logger_state, settings->bit.use_imperial_units, settings->bit.clock_mode_24h);
             break;
         case EVENT_TICK:
+            if (date_time.unit.second % 5 == 4) {
+                // Show that we're about to read the temperature.
+                watch_set_indicator(WATCH_INDICATOR_SIGNAL);
+            } else if (date_time.unit.second % 5 == 0) {
+                _thermistor_logging_face_update_data(logger_state);
+                watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
+            }
             if (logger_state->ts_ticks && --logger_state->ts_ticks == 0) {
                 _thermistor_logging_face_update_display(logger_state, settings->bit.use_imperial_units, settings->bit.clock_mode_24h);
             }
             break;
         case EVENT_BACKGROUND_TASK:
-            _thermistor_logging_face_log_data(logger_state);
+            _thermistor_logging_face_update_data(logger_state);
+            logger_state->data_points++;
             break;
         default:
             break;
