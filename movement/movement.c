@@ -159,6 +159,10 @@ static void _movement_handle_scheduled_tasks(void) {
                 scheduled_tasks[i].reg = 0;
                 movement_event_t background_event = { EVENT_BACKGROUND_TASK, 0 };
                 watch_faces[i].loop(background_event, &movement_state.settings, watch_face_contexts[i]);
+                // check if loop scheduled a new task
+                if (scheduled_tasks[i].reg) {
+                    num_active_tasks++;
+                }
             } else {
                 num_active_tasks++;
             }
