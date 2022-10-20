@@ -1,7 +1,8 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Joey Castillo
+ * Copyright (c) 2022 Wesley Ellis
+ * Copyright (c) 2022 Niclas Hoyer
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,41 +23,46 @@
  * SOFTWARE.
  */
 
-#ifndef MOVEMENT_FACES_H_
-#define MOVEMENT_FACES_H_
+//-----------------------------------------------------------------------------
 
-#include "simple_clock_face.h"
-#include "world_clock_face.h"
-#include "preferences_face.h"
-#include "set_time_face.h"
-#include "pulsometer_face.h"
-#include "thermistor_readout_face.h"
-#include "thermistor_logging_face.h"
-#include "thermistor_testing_face.h"
-#include "character_set_face.h"
-#include "beats_face.h"
-#include "day_one_face.h"
-#include "voltage_face.h"
-#include "stopwatch_face.h"
-#include "totp_face.h"
-#include "lis2dw_logging_face.h"
-#include "demo_face.h"
-#include "hello_there_face.h"
-#include "sunrise_sunset_face.h"
-#include "countdown_face.h"
-#include "sailing_face.h"
-#include "counter_face.h"
-#include "blinky_face.h"
-#include "moon_phase_face.h"
-#include "accelerometer_data_acquisition_face.h"
-#include "mars_time_face.h"
-#include "orrery_face.h"
-#include "astronomy_face.h"
-#include "tomato_face.h"
-#include "probability_face.h"
-#include "wake_face.h"
-#include "frequency_correction_face.h"
-#include "ratemeter_face.h"
-// New includes go above this line.
+#ifndef SAILING_FACE_H_
+#define SAILING_FACE_H_
 
-#endif // MOVEMENT_FACES_H_
+#include "movement.h"
+
+/*
+A sailing sailing/timer face
+*/
+
+
+typedef enum {
+    sl_waiting,
+    sl_running,
+    sl_setting
+} sailing_mode_t;
+
+typedef struct {
+    uint8_t watch_face_index;
+    uint32_t target_ts;
+    uint32_t now_ts;
+    uint8_t index;
+    uint8_t minutes[6];
+    uint8_t selection;
+    sailing_mode_t mode;
+} sailing_state_t;
+
+
+void sailing_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
+void sailing_face_activate(movement_settings_t *settings, void *context);
+bool sailing_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void sailing_face_resign(movement_settings_t *settings, void *context);
+
+#define sailing_face ((const watch_face_t){ \
+    sailing_face_setup, \
+    sailing_face_activate, \
+    sailing_face_loop, \
+    sailing_face_resign, \
+    NULL, \
+})
+
+#endif // sailing_FACE_H_
