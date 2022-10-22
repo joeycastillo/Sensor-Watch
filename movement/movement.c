@@ -159,6 +159,10 @@ static void _movement_handle_scheduled_tasks(void) {
                 scheduled_tasks[i].reg = 0;
                 movement_event_t background_event = { EVENT_BACKGROUND_TASK, 0 };
                 watch_faces[i].loop(background_event, &movement_state.settings, watch_face_contexts[i]);
+                // check if loop scheduled a new task
+                if (scheduled_tasks[i].reg) {
+                    num_active_tasks++;
+                }
             } else {
                 num_active_tasks++;
             }
@@ -207,15 +211,23 @@ void movement_move_to_next_face(void) {
 }
 
 void movement_schedule_background_task(watch_date_time date_time) {
-    watch_date_time now = watch_rtc_get_date_time();
-    if (date_time.reg > now.reg) {
-        movement_state.has_scheduled_background_task = true;
-        scheduled_tasks[movement_state.current_watch_face].reg = date_time.reg;
-    }
+    movement_schedule_background_task_for_face(movement_state.current_watch_face, date_time);
 }
 
 void movement_cancel_background_task(void) {
-    scheduled_tasks[movement_state.current_watch_face].reg = 0;
+    movement_cancel_background_task_for_face(movement_state.current_watch_face);
+}
+
+void movement_schedule_background_task_for_face(uint8_t watch_face_index, watch_date_time date_time) {
+    watch_date_time now = watch_rtc_get_date_time();
+    if (date_time.reg > now.reg) {
+        movement_state.has_scheduled_background_task = true;
+        scheduled_tasks[watch_face_index].reg = date_time.reg;
+    }
+}
+
+void movement_cancel_background_task_for_face(uint8_t watch_face_index) {
+    scheduled_tasks[watch_face_index].reg = 0;
     bool other_tasks_scheduled = false;
     for(uint8_t i = 0; i < MOVEMENT_NUM_FACES; i++) {
         if (scheduled_tasks[i].reg != 0) {
