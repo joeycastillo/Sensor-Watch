@@ -52,7 +52,7 @@
 
 // Default to no secondary face behaviour.
 #ifndef MOVEMENT_SECONDARY_FACE_INDEX
-#define MOVEMENT_SECONDARY_FACE_INDEX MOVEMENT_NUM_FACES
+#define MOVEMENT_SECONDARY_FACE_INDEX 0
 #endif
 
 #if __EMSCRIPTEN__
@@ -208,7 +208,11 @@ void movement_move_to_face(uint8_t watch_face_index) {
 }
 
 void movement_move_to_next_face(void) {
-    uint16_t face_max = movement_state.current_watch_face < ((int16_t)MOVEMENT_SECONDARY_FACE_INDEX) ? MOVEMENT_SECONDARY_FACE_INDEX : MOVEMENT_NUM_FACES;
+#if MOVEMENT_SECONDARY_FACE_INDEX
+    uint16_t face_max = (movement_state.current_watch_face < (int16_t)MOVEMENT_SECONDARY_FACE_INDEX) ? MOVEMENT_SECONDARY_FACE_INDEX : MOVEMENT_NUM_FACES;
+#else
+    uint16_t face_max = MOVEMENT_NUM_FACES;
+#endif
     movement_move_to_face((movement_state.current_watch_face + 1) % face_max);
 }
 
@@ -424,7 +428,7 @@ bool app_loop(void) {
             && !movement_state.watch_face_changed) {
             if (movement_state.current_watch_face != 0) {
                 movement_move_to_face(0);
-            } else if (MOVEMENT_SECONDARY_FACE_INDEX != MOVEMENT_NUM_FACES) {
+            } else if (MOVEMENT_SECONDARY_FACE_INDEX) {
                 movement_move_to_face(MOVEMENT_SECONDARY_FACE_INDEX);
             }
         }
