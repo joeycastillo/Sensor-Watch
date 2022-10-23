@@ -90,19 +90,16 @@ static void totp_face_read_file(char *filename) {
     // For 'format' of file, see comment at top.
     const size_t uri_start_len = strlen(TOTP_URI_START);
 
-    // TODO read line at a time...
-    char *text = malloc(MAX_TOTP_RECORDS * 200);
-    bool result = filesystem_read_file(filename, text, MAX_TOTP_RECORDS * 200);
-    if (!result) {
+    if (!filesystem_file_exists(filename)) {
         printf("TOTP file error: %s\n", filename);
-        free(text);
         return;
     }
 
-    char *line_saveptr = NULL;
-    char *line;
-    line = strtok_r(text, "\n", &line_saveptr);
-    do {
+    char line[256];
+    int32_t offset = 0;
+    while (filesystem_read_line(filename, line, offset, 255) && strlen(line)) {
+        offset += strlen(line) + 1;
+        
         if (num_totp_records == MAX_TOTP_RECORDS) {
             printf("TOTP max records: %d\n", MAX_TOTP_RECORDS);
             break;
@@ -144,9 +141,7 @@ static void totp_face_read_file(char *filename) {
         } else {
             printf("TOTP missing secret: %s\n", line);
         }
-    } while ((line = strtok_r(NULL, "\n", &line_saveptr)));
-
-    free(text);
+    }
 }
 
 void totp_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
