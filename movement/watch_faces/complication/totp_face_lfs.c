@@ -9,7 +9,7 @@
 #include "watch_utility.h"
 #include "filesystem.h"
 
-#include "totp_face.h"
+#include "totp_face_lfs.h"
 
 /* Reads from a file totp_uris.txt where each line is what's in a QR code:
  * e.g.
@@ -51,7 +51,7 @@ static void init_totp_record(struct totp_record *totp_record) {
     totp_record->period = 30;
 }
 
-static bool totp_face_read_param(struct totp_record *totp_record, char *param, char *value) {
+static bool totp_face_lfs_read_param(struct totp_record *totp_record, char *param, char *value) {
     if (!strcmp(param, "issuer")) {
         if (value[0] == '\0' || value[1] == '\0') {
             printf("TOTP issuer must be >= 2 chars, got '%s'\n", value);
@@ -86,7 +86,7 @@ static bool totp_face_read_param(struct totp_record *totp_record, char *param, c
     return true;
 }
 
-static void totp_face_read_file(char *filename) {
+static void totp_face_lfs_read_file(char *filename) {
     // For 'format' of file, see comment at top.
     const size_t uri_start_len = strlen(TOTP_URI_START);
 
@@ -127,7 +127,7 @@ static void totp_face_read_file(char *filename) {
         do {
             char *param_middle = strchr(param, '=');
             *param_middle = '\0';
-            error = error || !totp_face_read_param(&totp_records[num_totp_records], param, param_middle + 1);
+            error = error || !totp_face_lfs_read_param(&totp_records[num_totp_records], param, param_middle + 1);
         } while ((param = strtok_r(NULL, "&", &param_saveptr)));
 
         if (error) {
@@ -144,19 +144,19 @@ static void totp_face_read_file(char *filename) {
     }
 }
 
-void totp_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
+void totp_face_lfs_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
     (void) watch_face_index;
     if (*context_ptr == NULL) {
-        *context_ptr = malloc(sizeof(totp_state_t));
-        totp_face_read_file(TOTP_FILE);
+        *context_ptr = malloc(sizeof(totp_lfs_state_t));
+        totp_face_lfs_read_file(TOTP_FILE);
     }
 }
 
-void totp_face_activate(movement_settings_t *settings, void *context) {
+void totp_face_lfs_activate(movement_settings_t *settings, void *context) {
     (void) settings;
-    memset(context, 0, sizeof(totp_state_t));
-    totp_state_t *totp_state = (totp_state_t *)context;
+    memset(context, 0, sizeof(totp_lfs_state_t));
+    totp_lfs_state_t *totp_state = (totp_lfs_state_t *)context;
 
     if (num_totp_records > 0) {
         totp_state->current_index = 0;
@@ -168,10 +168,10 @@ void totp_face_activate(movement_settings_t *settings, void *context) {
     }
 }
 
-bool totp_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
+bool totp_face_lfs_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     (void) settings;
 
-    totp_state_t *totp_state = (totp_state_t *)context;
+    totp_lfs_state_t *totp_state = (totp_lfs_state_t *)context;
     char buf[14];
     uint8_t valid_for;
     div_t result;
@@ -225,7 +225,7 @@ bool totp_face_loop(movement_event_t event, movement_settings_t *settings, void 
     return true;
 }
 
-void totp_face_resign(movement_settings_t *settings, void *context) {
+void totp_face_lfs_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
 }
