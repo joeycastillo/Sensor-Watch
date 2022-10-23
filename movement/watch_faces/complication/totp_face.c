@@ -35,7 +35,7 @@
 const char* TOTP_URI_START = "otpauth://totp/";
 
 struct totp_record {
-    uint8_t *secret;
+    uint8_t secret[48];
     size_t secret_size;
     char label[2];
     uint32_t period;
@@ -45,7 +45,7 @@ static struct totp_record totp_records[MAX_TOTP_RECORDS];
 static int num_totp_records = 0;
 
 static void init_totp_record(struct totp_record *totp_record) {
-    totp_record->secret = NULL;
+    totp_record->secret_size = 0;
     totp_record->label[0] = 'A';
     totp_record->label[1] = 'A';
     totp_record->period = 30;
@@ -60,11 +60,9 @@ static bool totp_face_read_param(struct totp_record *totp_record, char *param, c
         totp_record->label[0] = value[0];
         totp_record->label[1] = value[1];
     } else if (!strcmp(param, "secret")) {
-        totp_record->secret = malloc(BASE32_LEN(strlen(value)));
         totp_record->secret_size = base32_decode((unsigned char *)value, totp_record->secret);
         if (totp_record->secret_size == 0) {
             printf("TOTP can't decode secret: %s", value);
-            // free is handled in generic error handling.
             return false;
         }
     } else if (!strcmp(param, "digits")) {
@@ -136,14 +134,12 @@ static void totp_face_read_file(char *filename) {
         } while ((param = strtok_r(NULL, "&", &param_saveptr)));
 
         if (error) {
-            if (totp_records[num_totp_records].secret != NULL) {
-                free(totp_records[num_totp_records].secret);
-            }
+            totp_records[num_totp_records].secret_size = 0;
             continue;
         }
 
         // If we found a probably valid TOTP record, keep it. 
-        if (totp_records[num_totp_records].secret != NULL) {
+        if (totp_records[num_totp_records].secret_size) {
             num_totp_records += 1;
         } else {
             printf("TOTP missing secret: %s\n", line);
