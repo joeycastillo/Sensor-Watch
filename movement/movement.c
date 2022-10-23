@@ -208,11 +208,12 @@ void movement_move_to_face(uint8_t watch_face_index) {
 }
 
 void movement_move_to_next_face(void) {
-#if MOVEMENT_SECONDARY_FACE_INDEX
-    uint16_t face_max = (movement_state.current_watch_face < (int16_t)MOVEMENT_SECONDARY_FACE_INDEX) ? MOVEMENT_SECONDARY_FACE_INDEX : MOVEMENT_NUM_FACES;
-#else
-    uint16_t face_max = MOVEMENT_NUM_FACES;
-#endif
+    uint16_t face_max;
+    if (MOVEMENT_SECONDARY_FACE_INDEX) {
+        face_max = (movement_state.current_watch_face < (int16_t)MOVEMENT_SECONDARY_FACE_INDEX) ? MOVEMENT_SECONDARY_FACE_INDEX : MOVEMENT_NUM_FACES;
+    } else {
+        face_max = MOVEMENT_NUM_FACES;
+    }
     movement_move_to_face((movement_state.current_watch_face + 1) % face_max);
 }
 
