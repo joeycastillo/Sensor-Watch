@@ -56,6 +56,7 @@ SRCS += \
   ../watch_faces/complication/pulsometer_face.c \
   ../watch_faces/complication/day_one_face.c \
   ../watch_faces/complication/stopwatch_face.c \
+  ../watch_faces/complication/totp_face.c \
   ../watch_faces/complication/totp_face_lfs.c \
   ../watch_faces/complication/sunrise_sunset_face.c \
   ../watch_faces/complication/countdown_face.c \
