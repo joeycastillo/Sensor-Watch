@@ -41,7 +41,6 @@ A face for setting various alarms
 #define ALARM_DAY_WEEKEND 10
 #define ALARM_MAX_BEEP_ROUNDS 11 // maximum number of beeping rounds for an alarm slot (including short and long alarms)
 #define ALARM_SETTING_STATES 6
-#define ALARM_QUICK_MIN_TICKS 2 * 4    // number of ticks (quarter seconds) to wait until fast counting for hours and minutes kicks in
 
 typedef struct {
     uint8_t day : 4;    // day of week: 0=MO, 1=TU, 2=WE, 3=TH, 4=FR, 5=SA, 6=SU, 7=each day, 8=one time alarm, 9=Weekdays, 10=Weekend
@@ -57,7 +56,7 @@ typedef struct {
     uint8_t alarm_playing_idx : 4;
     uint8_t setting_state : 3;
     int8_t alarm_handled_minute;
-    int8_t alarm_quick_ticks;
+    bool alarm_quick_ticks : 1;
     bool is_setting : 1;
     alarm_setting_t alarm[ALARM_ALARMS];
 } alarm_state_t;

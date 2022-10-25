@@ -30,7 +30,6 @@
 const watch_face_t watch_faces[] = {
     simple_clock_face,
     world_clock_face,
-    alarm_face,
     sunrise_sunset_face,
     moon_phase_face,
     thermistor_readout_face,
@@ -39,5 +38,12 @@ const watch_face_t watch_faces[] = {
 };
 
 #define MOVEMENT_NUM_FACES (sizeof(watch_faces) / sizeof(watch_face_t))
+
+/* Determines what face to go to from the first face if you've already set 
+ * a mode long press to go to the first face in preferences, and
+ * excludes these faces from the normal rotation.
+ * Usually it makes sense to set this to the preferences face.
+ */
+#define MOVEMENT_SECONDARY_FACE_INDEX 0 // or (MOVEMENT_NUM_FACES - 2)
 
 #endif // MOVEMENT_CONFIG_H_
