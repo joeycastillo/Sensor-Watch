@@ -89,9 +89,10 @@ static void _alarm_face_draw(movement_settings_t *settings, alarm_state_t *state
     //handle am/pm for hour display
     uint8_t h = state->alarm[state->alarm_idx].hour;
     if (!settings->bit.clock_mode_24h) {
-        if (h > 12) {
+        if (h >= 12) {
             watch_set_indicator(WATCH_INDICATOR_PM);
-            h -= 12;
+            h = h % 12;
+            h += h ? 0 : 12;
         } else {
             watch_clear_indicator(WATCH_INDICATOR_PM);
         }
@@ -207,8 +208,6 @@ void alarm_face_setup(movement_settings_t *settings, uint8_t watch_face_index, v
 void alarm_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
-    watch_display_string("  ", 8);
-    watch_clear_indicator(WATCH_INDICATOR_LAP); // may be unnecessary, but who knows
     watch_set_colon();
 }
 
@@ -270,7 +269,7 @@ bool alarm_face_loop(movement_event_t event, movement_settings_t *settings, void
                         state->alarm[state->alarm_idx].minute = (state->alarm[state->alarm_idx].minute + 1) % 60;
             } else _abort_quick_ticks(state);
         } else if (!state->is_setting) break; // no need to do anything when we are not in settings mode and no quick ticks are running
-        // otherwise fall through and draw the current face state
+        // fall through
     case EVENT_ACTIVATE:
         _alarm_face_draw(settings, state, event.subsecond);
         break;
