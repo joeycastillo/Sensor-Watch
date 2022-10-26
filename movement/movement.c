@@ -52,6 +52,11 @@
 #include "alt_fw/deep_space_now.h"
 #endif
 
+// Default to no secondary face behaviour.
+#ifndef MOVEMENT_SECONDARY_FACE_INDEX
+#define MOVEMENT_SECONDARY_FACE_INDEX 0
+#endif
+
 #if __EMSCRIPTEN__
 #include <emscripten.h>
 #endif
@@ -209,7 +214,13 @@ void movement_move_to_face(uint8_t watch_face_index) {
 }
 
 void movement_move_to_next_face(void) {
-    movement_move_to_face((movement_state.current_watch_face + 1) % MOVEMENT_NUM_FACES);
+    uint16_t face_max;
+    if (MOVEMENT_SECONDARY_FACE_INDEX) {
+        face_max = (movement_state.current_watch_face < (int16_t)MOVEMENT_SECONDARY_FACE_INDEX) ? MOVEMENT_SECONDARY_FACE_INDEX : MOVEMENT_NUM_FACES;
+    } else {
+        face_max = MOVEMENT_NUM_FACES;
+    }
+    movement_move_to_face((movement_state.current_watch_face + 1) % face_max);
 }
 
 void movement_schedule_background_task(watch_date_time date_time) {
@@ -428,14 +439,18 @@ bool app_loop(void) {
         can_sleep = watch_faces[movement_state.current_watch_face].loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
 
         // Long-pressing MODE brings one back to the first face, provided that the watch face hasn't decided to send them elsewhere
-        // (and we're not currently on the first face).
+        // (and we're not currently on the first face). If we're currently on the first face, a long press
+        // of MODE sends us to the secondary faces (if defined).
         // Note that it's the face's responsibility to provide some way to get to the next face, so if EVENT_MODE_BUTTON_* is
         // used for face functionality EVENT_MODE_LONG_PRESS should probably be handled and next_face() triggered in the face
         // (which would effectively disable the normal 'long press to face 0' behaviour).
         if (event.event_type == EVENT_MODE_LONG_PRESS 
-            && movement_state.current_watch_face > 0 
             && !movement_state.watch_face_changed) {
-            movement_move_to_face(0);
+            if (movement_state.current_watch_face != 0) {
+                movement_move_to_face(0);
+            } else if (MOVEMENT_SECONDARY_FACE_INDEX) {
+                movement_move_to_face(MOVEMENT_SECONDARY_FACE_INDEX);
+            }
         }
         event.event_type = EVENT_NONE;
     }

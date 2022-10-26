@@ -55,6 +55,7 @@
 #include "probability_face.h"
 #include "wake_face.h"
 #include "frequency_correction_face.h"
+#include "alarm_face.h"
 #include "ratemeter_face.h"
 // New includes go above this line.
 

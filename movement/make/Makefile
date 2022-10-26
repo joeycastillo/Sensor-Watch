@@ -68,6 +68,7 @@ SRCS += \
   ../watch_faces/complication/probability_face.c \
   ../watch_faces/complication/wake_face.c \
   ../watch_faces/demo/frequency_correction_face.c \
+  ../watch_faces/complication/alarm_face.c \
   ../watch_faces/complication/ratemeter_face.c \
 # New watch faces go above this line.
 
