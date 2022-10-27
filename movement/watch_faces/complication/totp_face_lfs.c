@@ -30,12 +30,13 @@
 
 
 #define MAX_TOTP_RECORDS 20
+#define MAX_TOTP_SECRET_SIZE 48
 #define TOTP_FILE "totp_uris.txt"
 
 const char* TOTP_URI_START = "otpauth://totp/";
 
 struct totp_record {
-    uint8_t secret[48];
+    uint8_t secret[MAX_TOTP_SECRET_SIZE];
     size_t secret_size;
     char label[2];
     uint32_t period;
@@ -60,9 +61,13 @@ static bool totp_face_lfs_read_param(struct totp_record *totp_record, char *para
         totp_record->label[0] = value[0];
         totp_record->label[1] = value[1];
     } else if (!strcmp(param, "secret")) {
+        if (UNBASE32_LEN(strlen(value)) > MAX_TOTP_SECRET_SIZE) {
+            printf("TOTP secret too long: %s\n", value);
+            return false;
+        }
         totp_record->secret_size = base32_decode((unsigned char *)value, totp_record->secret);
         if (totp_record->secret_size == 0) {
-            printf("TOTP can't decode secret: %s", value);
+            printf("TOTP can't decode secret: %s\n", value);
             return false;
         }
     } else if (!strcmp(param, "digits")) {
@@ -149,8 +154,18 @@ void totp_face_lfs_setup(movement_settings_t *settings, uint8_t watch_face_index
     (void) watch_face_index;
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(totp_lfs_state_t));
-        totp_face_lfs_read_file(TOTP_FILE);
     }
+}
+
+static void totp_face_set_record(totp_lfs_state_t *totp_state, int i) {
+    if (num_totp_records == 0 && i >= num_totp_records) {
+        return;
+    }
+
+    totp_state->current_index = i;
+    TOTP(totp_records[i].secret, totp_records[i].secret_size, totp_records[i].period);
+    totp_state->current_code = getCodeFromTimestamp(totp_state->timestamp);
+    totp_state->steps = totp_state->timestamp / totp_records[i].period;
 }
 
 void totp_face_lfs_activate(movement_settings_t *settings, void *context) {
@@ -158,47 +173,49 @@ void totp_face_lfs_activate(movement_settings_t *settings, void *context) {
     memset(context, 0, sizeof(totp_lfs_state_t));
     totp_lfs_state_t *totp_state = (totp_lfs_state_t *)context;
 
-    if (num_totp_records > 0) {
-        totp_state->current_index = 0;
-        totp_state->steps = 0;  // Force getting a new code in the loop.
-        totp_state->timestamp = watch_utility_date_time_to_unix_time(watch_rtc_get_date_time(), movement_timezone_offsets[settings->bit.time_zone] * 60);
-        TOTP(totp_records[0].secret, totp_records[0].secret_size, totp_records[0].period);
-    } else {
-        watch_display_string("NA00000000", 0);
+    if (num_totp_records == 0) {
+        // Doing this here rather than in setup makes things a bit more pleasant in the simulator, since there's no easy way to trigger
+        // setup again after uploading the data.
+        totp_face_lfs_read_file(TOTP_FILE);
     }
+
+    totp_state->timestamp = watch_utility_date_time_to_unix_time(watch_rtc_get_date_time(), movement_timezone_offsets[settings->bit.time_zone] * 60);
+    totp_face_set_record(totp_state, 0);
+}
+
+static void totp_face_display(totp_lfs_state_t *totp_state) {
+    uint8_t index = totp_state->current_index;
+    char buf[14];
+
+    if (num_totp_records == 0) {
+        watch_display_string("NA00000000", 0);
+        return;
+    }
+
+    div_t result = div(totp_state->timestamp, totp_records[index].period);
+    if (result.quot != totp_state->steps) {
+        totp_state->current_code = getCodeFromTimestamp(totp_state->timestamp);
+        totp_state->steps = result.quot;
+    }
+    uint8_t valid_for = totp_records[index].period - result.rem;
+
+    sprintf(buf, "%c%c%2d%06lu", totp_records[index].label[0], totp_records[index].label[1], valid_for, totp_state->current_code);
+
+    watch_display_string(buf, 0);
 }
 
 bool totp_face_lfs_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     (void) settings;
 
     totp_lfs_state_t *totp_state = (totp_lfs_state_t *)context;
-    char buf[14];
-    uint8_t valid_for;
-    div_t result;
-    uint8_t index = totp_state->current_index;
 
     switch (event.event_type) {
         case EVENT_TICK:
-            if (num_totp_records == 0) {
-                break;
-            }
-
             totp_state->timestamp++;
-            // fall through
+            totp_face_display(totp_state);
+            break;
         case EVENT_ACTIVATE:
-            if (num_totp_records == 0) {
-                break;
-            }
-
-            result = div(totp_state->timestamp, totp_records[index].period);
-            if (result.quot != totp_state->steps) {
-                totp_state->current_code = getCodeFromTimestamp(totp_state->timestamp);
-                totp_state->steps = result.quot;
-            }
-            valid_for = totp_records[index].period - result.rem;
-            sprintf(buf, "%c%c%2d%06lu", totp_records[index].label[0], totp_records[index].label[1], valid_for, totp_state->current_code);
-
-            watch_display_string(buf, 0);
+            totp_face_display(totp_state);
             break;
         case EVENT_MODE_BUTTON_UP:
             movement_move_to_next_face();
@@ -210,11 +227,8 @@ bool totp_face_lfs_loop(movement_event_t event, movement_settings_t *settings, v
             movement_move_to_face(0);
             break;
         case EVENT_ALARM_BUTTON_UP:
-            if (num_totp_records == 0) {
-                break;
-            }
-            totp_state->current_index = (index + 1) % num_totp_records;
-            TOTP(totp_records[totp_state->current_index].secret, totp_records[totp_state->current_index].secret_size, totp_records[totp_state->current_index].period);
+            totp_face_set_record(totp_state, (totp_state->current_index + 1) % num_totp_records);
+            totp_face_display(totp_state);
             break;
         case EVENT_ALARM_BUTTON_DOWN:
         case EVENT_ALARM_LONG_PRESS:

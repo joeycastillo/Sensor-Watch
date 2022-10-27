@@ -174,7 +174,7 @@ bool filesystem_read_line(char *filename, char *buf, int32_t offset, int32_t len
         if (err < 0) return false;
         err = lfs_file_seek(&lfs, &file, offset, LFS_SEEK_SET);
         if (err < 0) return false;
-        err = lfs_file_read(&lfs, &file, buf, min(length, file_size - offset));
+        err = lfs_file_read(&lfs, &file, buf, min(length - 1, file_size - offset));
         if (err < 0) return false;
         for(int i = 0; i < length; i++) {
             if (buf[i] == '\n') {
