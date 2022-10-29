@@ -22,6 +22,8 @@
  * SOFTWARE.
  */
 
+#define MOVEMENT_LONG_PRESS_TICKS 64
+
 #include <stdio.h>
 #include <string.h>
 #include <limits.h>
@@ -526,7 +528,7 @@ bool app_loop(void) {
     return can_sleep;
 }
 
-static movement_event_type_t _figure_out_button_event(bool pin_level, movement_event_type_t button_down_event_type, uint8_t *down_timestamp) {
+static movement_event_type_t _figure_out_button_event(bool pin_level, movement_event_type_t button_down_event_type, uint16_t *down_timestamp) {
     // force alarm off if the user pressed a button.
     if (movement_state.alarm_ticks) movement_state.alarm_ticks = 0;
 
@@ -543,8 +545,8 @@ static movement_event_type_t _figure_out_button_event(bool pin_level, movement_e
         uint16_t diff = movement_state.fast_ticks - *down_timestamp;
         *down_timestamp = 0;
         _movement_disable_fast_tick_if_possible();
-        // any press over a half second is considered a long press.
-        if (diff > 64) return button_down_event_type + 2;
+        // any press over a half second is considered a long press. Fire the long-up event
+        if (diff > MOVEMENT_LONG_PRESS_TICKS) return button_down_event_type + 3;
         else return button_down_event_type + 1;
     }
 }
@@ -580,6 +582,18 @@ void cb_fast_tick(void) {
     movement_state.fast_ticks++;
     if (movement_state.light_ticks > 0) movement_state.light_ticks--;
     if (movement_state.alarm_ticks > 0) movement_state.alarm_ticks--;
+    // check timestamps and auto-fire the long-press events
+    // Notice: is it possible that two or more buttons have an identical timestamp? In this case
+    // only one of these buttons would receive the long press event. Don't bother for now...
+    if (movement_state.light_down_timestamp > 0)
+        if (movement_state.fast_ticks - movement_state.light_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1) 
+            event.event_type = EVENT_LIGHT_LONG_PRESS;
+    if (movement_state.mode_down_timestamp > 0)
+        if (movement_state.fast_ticks - movement_state.mode_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1) 
+            event.event_type = EVENT_MODE_LONG_PRESS;
+    if (movement_state.alarm_down_timestamp > 0)
+        if (movement_state.fast_ticks - movement_state.alarm_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1) 
+            event.event_type = EVENT_ALARM_LONG_PRESS;
     // this is just a fail-safe; fast tick should be disabled as soon as the button is up, the LED times out, and/or the alarm finishes.
     // but if for whatever reason it isn't, this forces the fast tick off after 20 seconds.
     if (movement_state.fast_ticks >= 128 * 20) watch_rtc_disable_periodic_callback(128);
