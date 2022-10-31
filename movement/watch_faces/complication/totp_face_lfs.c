@@ -186,7 +186,7 @@ static void totp_face_display(totp_lfs_state_t *totp_state) {
     char buf[14];
 
     if (num_totp_records == 0) {
-        watch_display_string("NA00000000", 0);
+        watch_display_string("No2F Codes", 0);
         return;
     }
 
