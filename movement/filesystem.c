@@ -167,7 +167,7 @@ bool filesystem_read_file(char *filename, char *buf, int32_t length) {
 }
 
 bool filesystem_read_line(char *filename, char *buf, int32_t *offset, int32_t length) {
-    memset(buf, 0, length);
+    memset(buf, 0, length + 1);
     int32_t file_size = filesystem_get_file_size(filename);
     if (file_size > 0) {
         int err = lfs_file_open(&lfs, &file, filename, LFS_O_RDONLY);

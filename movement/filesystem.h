@@ -71,7 +71,8 @@ bool filesystem_read_file(char *filename, char *buf, int32_t length);
 
 /** @brief Reads a line from a file into a buffer
   * @param filename the file you wish to read
-  * @param buf A buffer of at least length bytes; the file will be read into this buffer
+  * @param buf A buffer of at least length + 1 bytes; the file will be read into this buffer,
+  *            and the last byte (buf[length]) will be set to 0 as a null terminator.
   * @param offset Pointer to an int representing the offset into the file. This will be updated
   *               to reflect the offset of the next line.
   * @param length The maximum number of bytes to read
