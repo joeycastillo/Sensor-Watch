@@ -36,7 +36,7 @@
 const char* TOTP_URI_START = "otpauth://totp/";
 
 struct totp_record {
-    uint8_t secret[MAX_TOTP_SECRET_SIZE];
+    uint8_t *secret;
     size_t secret_size;
     char label[2];
     uint32_t period;
@@ -65,8 +65,10 @@ static bool totp_face_lfs_read_param(struct totp_record *totp_record, char *para
             printf("TOTP secret too long: %s\n", value);
             return false;
         }
+        totp_record->secret = malloc(BASE32_LEN(strlen(value)));
         totp_record->secret_size = base32_decode((unsigned char *)value, totp_record->secret);
         if (totp_record->secret_size == 0) {
+            free(totp_record->secret);
             printf("TOTP can't decode secret: %s\n", value);
             return false;
         }
@@ -153,6 +155,12 @@ void totp_face_lfs_setup(movement_settings_t *settings, uint8_t watch_face_index
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(totp_lfs_state_t));
     }
+
+#if !(__EMSCRIPTEN__)
+    if (num_totp_records == 0) {
+        totp_face_lfs_read_file(TOTP_FILE);
+    }
+#endif
 }
 
 static void totp_face_set_record(totp_lfs_state_t *totp_state, int i) {
@@ -171,11 +179,13 @@ void totp_face_lfs_activate(movement_settings_t *settings, void *context) {
     memset(context, 0, sizeof(totp_lfs_state_t));
     totp_lfs_state_t *totp_state = (totp_lfs_state_t *)context;
 
+#if __EMSCRIPTEN__
     if (num_totp_records == 0) {
         // Doing this here rather than in setup makes things a bit more pleasant in the simulator, since there's no easy way to trigger
         // setup again after uploading the data.
         totp_face_lfs_read_file(TOTP_FILE);
     }
+#endif
 
     totp_state->timestamp = watch_utility_date_time_to_unix_time(watch_rtc_get_date_time(), movement_timezone_offsets[settings->bit.time_zone] * 60);
     totp_face_set_record(totp_state, 0);
