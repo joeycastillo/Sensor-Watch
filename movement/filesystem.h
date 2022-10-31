@@ -72,11 +72,12 @@ bool filesystem_read_file(char *filename, char *buf, int32_t length);
 /** @brief Reads a line from a file into a buffer
   * @param filename the file you wish to read
   * @param buf A buffer of at least length bytes; the file will be read into this buffer
-  * @param offset An offset into the file
+  * @param offset Pointer to an int representing the offset into the file. This will be updated
+  *               to reflect the offset of the next line.
   * @param length The maximum number of bytes to read
   * @return true if the read was successful; false otherwise
   */
-bool filesystem_read_line(char *filename, char *buf, int32_t offset, int32_t length);
+bool filesystem_read_line(char *filename, char *buf, int32_t *offset, int32_t length);
 
 /** @brief Writes file to the filesystem
   * @param filename the file you wish to write

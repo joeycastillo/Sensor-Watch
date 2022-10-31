@@ -166,17 +166,18 @@ bool filesystem_read_file(char *filename, char *buf, int32_t length) {
     return false;
 }
 
-bool filesystem_read_line(char *filename, char *buf, int32_t offset, int32_t length) {
+bool filesystem_read_line(char *filename, char *buf, int32_t *offset, int32_t length) {
     memset(buf, 0, length);
     int32_t file_size = filesystem_get_file_size(filename);
     if (file_size > 0) {
         int err = lfs_file_open(&lfs, &file, filename, LFS_O_RDONLY);
         if (err < 0) return false;
-        err = lfs_file_seek(&lfs, &file, offset, LFS_SEEK_SET);
+        err = lfs_file_seek(&lfs, &file, *offset, LFS_SEEK_SET);
         if (err < 0) return false;
-        err = lfs_file_read(&lfs, &file, buf, min(length - 1, file_size - offset));
+        err = lfs_file_read(&lfs, &file, buf, min(length - 1, file_size - *offset));
         if (err < 0) return false;
         for(int i = 0; i < length; i++) {
+            (*offset)++;
             if (buf[i] == '\n') {
                 buf[i] = 0;
                 break;

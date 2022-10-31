@@ -102,9 +102,7 @@ static void totp_face_lfs_read_file(char *filename) {
 
     char line[256];
     int32_t offset = 0;
-    while (filesystem_read_line(filename, line, offset, 255) && strlen(line)) {
-        offset += strlen(line) + 1;
-        
+    while (filesystem_read_line(filename, line, &offset, 255) && strlen(line)) {
         if (num_totp_records == MAX_TOTP_RECORDS) {
             printf("TOTP max records: %d\n", MAX_TOTP_RECORDS);
             break;
