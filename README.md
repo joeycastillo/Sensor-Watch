@@ -68,6 +68,7 @@ You may want to test out changes in the emulator first. To do this, you'll need 
 
 ```
 cd movement/make
+make clean
 emmake make
 python3 -m http.server 8000 -d build
 ```
