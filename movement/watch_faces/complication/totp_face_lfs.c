@@ -65,7 +65,7 @@ static bool totp_face_lfs_read_param(struct totp_record *totp_record, char *para
             printf("TOTP secret too long: %s\n", value);
             return false;
         }
-        totp_record->secret = malloc(BASE32_LEN(strlen(value)));
+        totp_record->secret = malloc(UNBASE32_LEN(strlen(value)));
         totp_record->secret_size = base32_decode((unsigned char *)value, totp_record->secret);
         if (totp_record->secret_size == 0) {
             free(totp_record->secret);
