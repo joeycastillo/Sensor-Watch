@@ -69,6 +69,17 @@ int32_t filesystem_get_file_size(char *filename);
   */
 bool filesystem_read_file(char *filename, char *buf, int32_t length);
 
+/** @brief Reads a line from a file into a buffer
+  * @param filename the file you wish to read
+  * @param buf A buffer of at least length + 1 bytes; the file will be read into this buffer,
+  *            and the last byte (buf[length]) will be set to 0 as a null terminator.
+  * @param offset Pointer to an int representing the offset into the file. This will be updated
+  *               to reflect the offset of the next line.
+  * @param length The maximum number of bytes to read
+  * @return true if the read was successful; false otherwise
+  */
+bool filesystem_read_line(char *filename, char *buf, int32_t *offset, int32_t length);
+
 /** @brief Writes file to the filesystem
   * @param filename the file you wish to write
   * @param text The contents of the file
@@ -76,6 +87,14 @@ bool filesystem_read_file(char *filename, char *buf, int32_t length);
   * @return true if the write was successful; false otherwise
   */
 bool filesystem_write_file(char *filename, char *text, int32_t length);
+
+/** @brief Appends text to file on the filesystem
+  * @param filename the file you wish to write
+  * @param text The contents to write
+  * @param length The number of bytes to write
+  * @return true if the write was successful; false otherwise
+  */
+bool filesystem_append_file(char *filename, char *text, int32_t length);
 
 /** @brief Handles the interactive file browser when Movement is plugged in to USB.
   * @param line The command that the user typed into the serial console.
