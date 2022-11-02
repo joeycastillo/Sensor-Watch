@@ -31,7 +31,7 @@
 #include "watch_utility.h"
 
 
-#define CD_SELECTIONS 2
+#define CD_SELECTIONS 3
 #define DEFAULT_MINUTES 3
 
 
@@ -44,7 +44,7 @@ static void start(countdown_state_t *state, movement_settings_t *settings) {
 
     state->mode = cd_running;
     state->now_ts = watch_utility_date_time_to_unix_time(now, get_tz_offset(settings));
-    state->target_ts = watch_utility_offset_timestamp(state->now_ts, 0, state->minutes, state->seconds);
+    state->target_ts = watch_utility_offset_timestamp(state->now_ts, state->hours, state->minutes, state->seconds);
     watch_date_time target_dt = watch_utility_date_time_from_unix_time(state->target_ts, get_tz_offset(settings));
     movement_schedule_background_task(target_dt);
     watch_set_indicator(WATCH_INDICATOR_BELL);
@@ -55,28 +55,33 @@ static void draw(countdown_state_t *state, uint8_t subsecond) {
 
     uint32_t delta;
     div_t result;
-    uint8_t min, sec;
+    uint8_t hour, min, sec;
 
     switch (state->mode) {
         case cd_running:
             delta = state->target_ts - state->now_ts;
             result = div(delta, 60);
-            min = result.quot;
             sec = result.rem;
+            result = div(result.quot, 60);
+            hour = result.quot;
+            min = result.rem;
 
-            sprintf(buf, "CD    %2d%02d", min, sec);
+            sprintf(buf, "CD  %2d%02d%02d", hour, min, sec);
             break;
         case cd_waiting:
-            sprintf(buf, "CD    %2d%02d", state->minutes, state->seconds);
+            sprintf(buf, "CD  %2d%02d%02d", state->hours, state->minutes, state->seconds);
             break;
         case cd_setting:
-            sprintf(buf, "CD    %2d%02d", state->minutes, state->seconds);
+            sprintf(buf, "CD  %2d%02d%02d", state->hours, state->minutes, state->seconds);
             if (subsecond % 2) {
                 switch(state->selection) {
                     case 0:
-                        buf[6] = buf[7] = ' ';
+                        buf[4] = buf[5] = ' ';
                         break;
                     case 1:
+                        buf[6] = buf[7] = ' ';
+                        break;
+                    case 2:
                         buf[8] = buf[9] = ' ';
                         break;
                     default:
@@ -102,9 +107,12 @@ static void ring(countdown_state_t *state) {
 static void settings_increment(countdown_state_t *state) {
     switch(state->selection) {
         case 0:
-            state->minutes = (state->minutes + 1) % 100;
+            state->hours = (state->hours + 1) % 24;
             break;
         case 1:
+            state->minutes = (state->minutes + 1) % 60;
+            break;
+        case 2:
             state->seconds = (state->seconds + 1) % 60;
             break;
         default:
@@ -179,7 +187,7 @@ bool countdown_face_loop(movement_event_t event, movement_settings_t *settings, 
                     reset(state);
                     break;
                 case cd_waiting:
-                    if (!(state->minutes == 0 && state->seconds == 0)) {
+                    if (!(state->hours == 0 && state->minutes == 0 && state->seconds == 0)) {
                         // Only start the timer if we have a valid time.
                         start(state, settings);
                     }
@@ -195,6 +203,7 @@ bool countdown_face_loop(movement_event_t event, movement_settings_t *settings, 
             break;
         case EVENT_ALARM_LONG_PRESS:
             if (state->mode == cd_setting) {
+                    state->hours = 0;
                     state->minutes = 0;
                     state->seconds = 0;
                     draw(state, event.subsecond);
