@@ -61,7 +61,8 @@ typedef union {
         // altimeter to display feet or meters as easily as it tells a thermometer to display degrees in F or C.
         bool clock_mode_24h : 1;            // indicates whether clock should use 12 or 24 hour mode.
         bool use_imperial_units : 1;        // indicates whether to use metric units (the default) or imperial.
-        uint8_t reserved : 7;               // room for more preferences if needed.
+        bool alarm_enabled : 1;             // indicates wheter there is at least one alarm enabled.
+        uint8_t reserved : 6;               // room for more preferences if needed.
     } bit;
     uint32_t reg;
 } movement_settings_t;
@@ -108,14 +109,17 @@ typedef enum {
     EVENT_BACKGROUND_TASK,      // Your watch face is being invoked to perform a background task. Don't update the display here; you may not be in the foreground.
     EVENT_TIMEOUT,              // Your watch face has been inactive for a while. You may want to resign, depending on your watch face's intended use case.
     EVENT_LIGHT_BUTTON_DOWN,    // The light button has been pressed, but not yet released.
-    EVENT_LIGHT_BUTTON_UP,      // The light button was pressed and released.
-    EVENT_LIGHT_LONG_PRESS,     // The light button was held for >2 seconds, and released.
+    EVENT_LIGHT_BUTTON_UP,      // The light button was pressed for less than half a second, and released.
+    EVENT_LIGHT_LONG_PRESS,     // The light button was held for over half a second, but not yet released.
+    EVENT_LIGHT_LONG_UP,        // The light button was held for over half a second, and released.
     EVENT_MODE_BUTTON_DOWN,     // The mode button has been pressed, but not yet released.
-    EVENT_MODE_BUTTON_UP,       // The mode button was pressed and released.
-    EVENT_MODE_LONG_PRESS,      // The mode button was held for >2 seconds, and released. NOTE: your watch face will resign immediately after receiving this event.
+    EVENT_MODE_BUTTON_UP,       // The mode button was pressed for less than half a second, and released.
+    EVENT_MODE_LONG_PRESS,      // The mode button was held for over half a second, but not yet released.
+    EVENT_MODE_LONG_UP,         // The mode button was held for over half a second, and released. NOTE: your watch face will resign immediately after receiving this event.
     EVENT_ALARM_BUTTON_DOWN,    // The alarm button has been pressed, but not yet released.
-    EVENT_ALARM_BUTTON_UP,      // The alarm button was pressed and released.
-    EVENT_ALARM_LONG_PRESS,     // The alarm button was held for >2 seconds, and released.
+    EVENT_ALARM_BUTTON_UP,      // The alarm button was pressed for less than half a second, and released.
+    EVENT_ALARM_LONG_PRESS,     // The alarm button was held for over half a second, but not yet released.
+    EVENT_ALARM_LONG_UP,        // The alarm button was held for over half a second, and released.
 } movement_event_type_t;
 
 typedef struct {
@@ -252,11 +256,12 @@ typedef struct {
     // alarm stuff
     int16_t alarm_ticks;
     bool is_buzzing;
+    BuzzerNote alarm_note;
 
     // button tracking for long press
-    uint8_t light_down_timestamp;
-    uint8_t mode_down_timestamp;
-    uint8_t alarm_down_timestamp;
+    uint16_t light_down_timestamp;
+    uint16_t mode_down_timestamp;
+    uint16_t alarm_down_timestamp;
 
     // background task handling
     bool needs_background_tasks_handled;
@@ -292,10 +297,15 @@ void movement_schedule_background_task(watch_date_time date_time);
 // movement will associate the scheduled task with the currently active face.
 void movement_cancel_background_task(void);
 
+// these functions should work around the limitation of the above functions, which will be deprecated.
+void movement_schedule_background_task_for_face(uint8_t watch_face_index, watch_date_time date_time);
+void movement_cancel_background_task_for_face(uint8_t watch_face_index);
+
 void movement_request_wake(void);
 
 void movement_play_signal(void);
 void movement_play_alarm(void);
+void movement_play_alarm_beeps(uint8_t rounds, BuzzerNote alarm_note);
 
 uint8_t movement_claim_backup_register(void);
 

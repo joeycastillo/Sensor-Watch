@@ -22,6 +22,8 @@
  * SOFTWARE.
  */
 
+#define MOVEMENT_LONG_PRESS_TICKS 64
+
 #include <stdio.h>
 #include <string.h>
 #include <limits.h>
@@ -48,6 +50,11 @@
 #include "alt_fw/the_stargazer.h"
 #elif MOVEMENT_FIRMWARE == MOVEMENT_FIRMWARE_DEEP_SPACE_NOW
 #include "alt_fw/deep_space_now.h"
+#endif
+
+// Default to no secondary face behaviour.
+#ifndef MOVEMENT_SECONDARY_FACE_INDEX
+#define MOVEMENT_SECONDARY_FACE_INDEX 0
 #endif
 
 #if __EMSCRIPTEN__
@@ -159,6 +166,10 @@ static void _movement_handle_scheduled_tasks(void) {
                 scheduled_tasks[i].reg = 0;
                 movement_event_t background_event = { EVENT_BACKGROUND_TASK, 0 };
                 watch_faces[i].loop(background_event, &movement_state.settings, watch_face_contexts[i]);
+                // check if loop scheduled a new task
+                if (scheduled_tasks[i].reg) {
+                    num_active_tasks++;
+                }
             } else {
                 num_active_tasks++;
             }
@@ -203,19 +214,33 @@ void movement_move_to_face(uint8_t watch_face_index) {
 }
 
 void movement_move_to_next_face(void) {
-    movement_move_to_face((movement_state.current_watch_face + 1) % MOVEMENT_NUM_FACES);
+    uint16_t face_max;
+    if (MOVEMENT_SECONDARY_FACE_INDEX) {
+        face_max = (movement_state.current_watch_face < (int16_t)MOVEMENT_SECONDARY_FACE_INDEX) ? MOVEMENT_SECONDARY_FACE_INDEX : MOVEMENT_NUM_FACES;
+    } else {
+        face_max = MOVEMENT_NUM_FACES;
+    }
+    movement_move_to_face((movement_state.current_watch_face + 1) % face_max);
 }
 
 void movement_schedule_background_task(watch_date_time date_time) {
-    watch_date_time now = watch_rtc_get_date_time();
-    if (date_time.reg > now.reg) {
-        movement_state.has_scheduled_background_task = true;
-        scheduled_tasks[movement_state.current_watch_face].reg = date_time.reg;
-    }
+    movement_schedule_background_task_for_face(movement_state.current_watch_face, date_time);
 }
 
 void movement_cancel_background_task(void) {
-    scheduled_tasks[movement_state.current_watch_face].reg = 0;
+    movement_cancel_background_task_for_face(movement_state.current_watch_face);
+}
+
+void movement_schedule_background_task_for_face(uint8_t watch_face_index, watch_date_time date_time) {
+    watch_date_time now = watch_rtc_get_date_time();
+    if (date_time.reg > now.reg) {
+        movement_state.has_scheduled_background_task = true;
+        scheduled_tasks[watch_face_index].reg = date_time.reg;
+    }
+}
+
+void movement_cancel_background_task_for_face(uint8_t watch_face_index) {
+    scheduled_tasks[watch_face_index].reg = 0;
     bool other_tasks_scheduled = false;
     for(uint8_t i = 0; i < MOVEMENT_NUM_FACES; i++) {
         if (scheduled_tasks[i].reg != 0) {
@@ -238,11 +263,16 @@ void movement_play_signal(void) {
 }
 
 void movement_play_alarm(void) {
+    movement_play_alarm_beeps(5, BUZZER_NOTE_C8);
+}
+
+void movement_play_alarm_beeps(uint8_t rounds, BuzzerNote alarm_note) {
+    if (rounds == 0) rounds = 1;
+    if (rounds > 20) rounds = 20;
     movement_request_wake();
-    // alarm length: 75 ticks short of 5 seconds, or 4.414 seconds:
-    // our tone is 0.375 seconds of beep and 0.625 of silence, repeated five times.
-    // so 4.375 + a few ticks to wake up from sleep mode.
-    movement_state.alarm_ticks = 128 * 5 - 75;
+    movement_state.alarm_note = alarm_note;
+    // our tone is 0.375 seconds of beep and 0.625 of silence, repeated as given.
+    movement_state.alarm_ticks = 128 * rounds - 75;
     _movement_enable_fast_tick_if_needed();
 }
 
@@ -409,14 +439,18 @@ bool app_loop(void) {
         can_sleep = watch_faces[movement_state.current_watch_face].loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
 
         // Long-pressing MODE brings one back to the first face, provided that the watch face hasn't decided to send them elsewhere
-        // (and we're not currently on the first face).
+        // (and we're not currently on the first face). If we're currently on the first face, a long press
+        // of MODE sends us to the secondary faces (if defined).
         // Note that it's the face's responsibility to provide some way to get to the next face, so if EVENT_MODE_BUTTON_* is
         // used for face functionality EVENT_MODE_LONG_PRESS should probably be handled and next_face() triggered in the face
         // (which would effectively disable the normal 'long press to face 0' behaviour).
         if (event.event_type == EVENT_MODE_LONG_PRESS 
-            && movement_state.current_watch_face > 0 
             && !movement_state.watch_face_changed) {
-            movement_move_to_face(0);
+            if (movement_state.current_watch_face != 0) {
+                movement_move_to_face(0);
+            } else if (MOVEMENT_SECONDARY_FACE_INDEX) {
+                movement_move_to_face(MOVEMENT_SECONDARY_FACE_INDEX);
+            }
         }
         event.event_type = EVENT_NONE;
     }
@@ -441,10 +475,13 @@ bool app_loop(void) {
     if (movement_state.alarm_ticks >= 0) {
         uint8_t buzzer_phase = (movement_state.alarm_ticks + 80) % 128;
         if(buzzer_phase == 127) {
+            // failsafe: buzzer could have been disabled in the meantime
+            if (!watch_is_buzzer_or_led_enabled()) watch_enable_buzzer();
+            // play 4 beeps plus pause
             for(uint8_t i = 0; i < 4; i++) {
                 // TODO: This method of playing the buzzer blocks the UI while it's beeping.
                 // It might be better to time it with the fast tick.
-                watch_buzzer_play_note(BUZZER_NOTE_C8, (i != 3) ? 50 : 75);
+                watch_buzzer_play_note(movement_state.alarm_note, (i != 3) ? 50 : 75);
                 if (i != 3) watch_buzzer_play_note(BUZZER_NOTE_REST, 50);
             }
         }
@@ -491,7 +528,7 @@ bool app_loop(void) {
     return can_sleep;
 }
 
-static movement_event_type_t _figure_out_button_event(bool pin_level, movement_event_type_t button_down_event_type, uint8_t *down_timestamp) {
+static movement_event_type_t _figure_out_button_event(bool pin_level, movement_event_type_t button_down_event_type, uint16_t *down_timestamp) {
     // force alarm off if the user pressed a button.
     if (movement_state.alarm_ticks) movement_state.alarm_ticks = 0;
 
@@ -501,15 +538,15 @@ static movement_event_type_t _figure_out_button_event(bool pin_level, movement_e
         *down_timestamp = movement_state.fast_ticks + 1;
         return button_down_event_type;
     } else {
-        // this line is hack but it handles the situation where the light button was held for more than 10 seconds.
+        // this line is hack but it handles the situation where the light button was held for more than 20 seconds.
         // fast tick is disabled by then, and the LED would get stuck on since there's no one left decrementing light_ticks.
         if (movement_state.light_ticks == 1) movement_state.light_ticks = 0;
         // now that that's out of the way, handle falling edge
         uint16_t diff = movement_state.fast_ticks - *down_timestamp;
         *down_timestamp = 0;
         _movement_disable_fast_tick_if_possible();
-        // any press over a half second is considered a long press.
-        if (diff > 64) return button_down_event_type + 2;
+        // any press over a half second is considered a long press. Fire the long-up event
+        if (diff > MOVEMENT_LONG_PRESS_TICKS) return button_down_event_type + 3;
         else return button_down_event_type + 1;
     }
 }
@@ -545,9 +582,21 @@ void cb_fast_tick(void) {
     movement_state.fast_ticks++;
     if (movement_state.light_ticks > 0) movement_state.light_ticks--;
     if (movement_state.alarm_ticks > 0) movement_state.alarm_ticks--;
+    // check timestamps and auto-fire the long-press events
+    // Notice: is it possible that two or more buttons have an identical timestamp? In this case
+    // only one of these buttons would receive the long press event. Don't bother for now...
+    if (movement_state.light_down_timestamp > 0)
+        if (movement_state.fast_ticks - movement_state.light_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1) 
+            event.event_type = EVENT_LIGHT_LONG_PRESS;
+    if (movement_state.mode_down_timestamp > 0)
+        if (movement_state.fast_ticks - movement_state.mode_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1) 
+            event.event_type = EVENT_MODE_LONG_PRESS;
+    if (movement_state.alarm_down_timestamp > 0)
+        if (movement_state.fast_ticks - movement_state.alarm_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1) 
+            event.event_type = EVENT_ALARM_LONG_PRESS;
     // this is just a fail-safe; fast tick should be disabled as soon as the button is up, the LED times out, and/or the alarm finishes.
-    // but if for whatever reason it isn't, this forces the fast tick off after 10 seconds.
-    if (movement_state.fast_ticks >= 1280) watch_rtc_disable_periodic_callback(128);
+    // but if for whatever reason it isn't, this forces the fast tick off after 20 seconds.
+    if (movement_state.fast_ticks >= 128 * 20) watch_rtc_disable_periodic_callback(128);
 }
 
 void cb_tick(void) {

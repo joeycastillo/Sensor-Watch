@@ -59,7 +59,7 @@ bool pulsometer_face_loop(movement_event_t event, movement_settings_t *settings,
             movement_request_tick_frequency(PULSOMETER_FACE_FREQUENCY);
             break;
         case EVENT_ALARM_BUTTON_UP:
-        case EVENT_ALARM_LONG_PRESS:
+        case EVENT_ALARM_LONG_UP:
             pulsometer_state->measuring = false;
             movement_request_tick_frequency(1);
             break;
