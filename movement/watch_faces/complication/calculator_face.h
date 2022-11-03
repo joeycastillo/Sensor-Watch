@@ -27,7 +27,7 @@
 
 #include "movement.h"
 
-#define CALC_STACK_SIZE 20
+#define CALC_MAX_STACK_SIZE 20
 
 enum calculator_mode {
     CALC_OPERATION = 0,
@@ -35,8 +35,8 @@ enum calculator_mode {
 };
 
 typedef struct {
-    double stack[CALC_STACK_SIZE];
-    uint8_t stack_index;
+    double stack[CALC_MAX_STACK_SIZE];
+    uint8_t stack_size;  // this is the current stack top + 1 (so that '0' means nothing on the stack)
     uint8_t fn_index;
 
     double min;
