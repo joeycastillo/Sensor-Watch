@@ -27,11 +27,11 @@
 
 #include "movement.h"
 
-#define CALC_STACK_SIZE 10
+#define CALC_STACK_SIZE 20
 
 enum calculator_mode {
-    OPERATION = 0,
-    NUMBER,
+    CALC_OPERATION = 0,
+    CALC_NUMBER,
 };
 
 typedef struct {

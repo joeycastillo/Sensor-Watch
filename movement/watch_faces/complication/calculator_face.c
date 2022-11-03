@@ -27,8 +27,12 @@
 #include <math.h>
 #include "calculator_face.h"
 
+static void show_fn(calculator_state_t *state, uint8_t subsecond);
+
 void calculator_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
+    (void) watch_face_index;
+
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(calculator_state_t));
         memset(*context_ptr, 0, sizeof(calculator_state_t));
@@ -108,91 +112,182 @@ static void calculator_face_display_number(double num) {
     watch_display_string(buf, 2);
 }
 
-#define S(x) (state->x)
-#define C S(stack[state->stack_index])
-#define PUSH(x) (state->stack[++state->stack_index] = x)
-#define POP() (state->stack[state->stack_index--])
+#define C (s->stack[s->stack_index])
+#define PUSH(x) (s->stack[++s->stack_index] = x)
+#define POP() (s->stack[s->stack_index--])
 
 void calculator_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
-    calculator_state_t *state = (calculator_state_t *)context;
-    state->min = state->max = NAN;
+    calculator_state_t *s = (calculator_state_t *)context;
+    s->min = s->max = NAN;
 }
 
-static void fn_number(calculator_state_t *state) {
+static void change_mode(calculator_state_t *s, enum calculator_mode mode) {
+    s->mode = mode;
+    s->fn_index = 0;
+    show_fn(s, 0);
+    // Faster tick in operation mode so we can blink.
+    movement_request_tick_frequency(mode == CALC_OPERATION ? 4 : 1);
+}
+
+// Binary search to find the right number. direction is +1 if it should be bigger, -1 if it should be smaller.
+static void adjust_number(calculator_state_t *s, int direction) {
+    if (direction > 0) {
+        s->min = C;
+    } else {
+        s->max = C;
+    }
+
+    // If the direction we want to go has no bound (i.e. isnan),
+    // then first get the sign right (moving to 0, then +-8), and
+    // after than go up by *10.
+    if (isnan(direction > 0 ? s->max : s->min)) {
+        if (direction * C < 0) {
+            C = 0;
+        } else if (C == 0) {
+            C = direction * 8;
+        } else {
+            C *= 10;
+        }
+    } else {
+        // We have a higher and lower bound. Split them.
+        C = (s->max + s->min) / 2;
+        if (fabs(s->max - s->min) > 1.5) {
+            // Only start going non-integer when we've eliminated all integer possibles.
+            C = round(C);
+        }
+    }
+}
+
+static void fn_number(calculator_state_t *s) {
     PUSH(8);
-    S(min) = S(max) = NAN;
-    S(mode) = NUMBER;
+    s->min = s->max = NAN;
+    change_mode(s, CALC_NUMBER);
 }
 
-static void fn_add(calculator_state_t *state) {
-    PUSH(POP() + POP());
+static void fn_add(calculator_state_t *s) {
+    double a = POP();
+    double b = POP();
+    PUSH(a + b);
 }
 
-static void fn_sub(calculator_state_t *state) {
-    float a = POP();
-    float b = POP();
-    PUSH(b - a);
+static void fn_sub(calculator_state_t *s) {
+    double a = POP();
+    double b = POP();
+    PUSH(a - b);
 }
 
-static void fn_mul(calculator_state_t *state) {
-    PUSH(POP() * POP());
+static void fn_mul(calculator_state_t *s) {
+    double a = POP();
+    double b = POP();
+    PUSH(a * b);
 }
 
-static void fn_div(calculator_state_t *state) {
-    float a = POP();
-    float b = POP();
-    PUSH(b / a);
+static void fn_div(calculator_state_t *s) {
+    double a = POP();
+    double b = POP();
+    PUSH(a / b);
+}
+
+static void fn_pow(calculator_state_t *s) {
+    double a = POP();
+    double b = POP();
+    PUSH(pow(a, b));
+}
+
+static void fn_sqrt(calculator_state_t *s) {
+    double x = POP();
+    PUSH(sqrt(x));
+}
+
+static void fn_log(calculator_state_t *s) {
+    double x = POP();
+    PUSH(log(x));
+}
+
+static void fn_log10(calculator_state_t *s) {
+    double x = POP();
+    PUSH(log10(x));
+}
+
+static void fn_e(calculator_state_t *s) {
+    PUSH(M_E);
+}
+
+static void fn_sin(calculator_state_t *s) {
+    double x = POP();
+    PUSH(sin(x));
+}
+
+static void fn_cos(calculator_state_t *s) {
+    double x = POP();
+    PUSH(cos(x));
+}
+
+static void fn_tan(calculator_state_t *s) {
+    double x = POP();
+    PUSH(tan(x));
+}
+
+static void fn_pi(calculator_state_t *s) {
+    PUSH(M_PI);
 }
 
 struct {
     char name[2];
+    uint8_t input;
+    uint8_t output;
     void (*func)(calculator_state_t *);
 } functions[] = {
-    {{'n', 'o'}, fn_number},
-    {{'+', ' '}, fn_add},
-    {{'-', ' '}, fn_sub},
-    {{'*', ' '}, fn_mul},
-    {{'/', ' '}, fn_div},
+    {{'n', 'o'}, 0, 1, fn_number},
+    {{'+', ' '}, 2, 1, fn_add},
+    {{'-', ' '}, 2, 1, fn_sub},
+    {{'*', ' '}, 2, 1, fn_mul},
+    {{'/', ' '}, 2, 1, fn_div},
+    {{'P', 'o'}, 2, 1, fn_pow},
+    {{'S', 't'}, 1, 1, fn_sqrt},
+    {{'L', 'n'}, 1, 1, fn_log},
+    {{'L', 'o'}, 1, 1, fn_log10},
+    {{'e', ' '}, 0, 1, fn_e},
+    {{'P', 'i'}, 0, 1, fn_pi},
+    {{'C', 'o'}, 1, 1, fn_cos},
+    {{'S', 'i'}, 1, 1, fn_sin},
+    {{'T', 'a'}, 1, 1, fn_tan},
 };
 
 #define FUNCTIONS_LEN (sizeof(functions) / sizeof(functions[0]))
 
-static void show_fn(calculator_state_t *state) {
-    char *name = functions[S(fn_index)].name;
-    char buf[3] = {name[0], name[1], '\0'};
-    watch_display_string(buf, 0);
+static void show_fn(calculator_state_t *s, uint8_t subsecond) {
+    if (subsecond % 2) {
+        // blink
+        watch_display_string("  ", 0);
+    } else {
+        char *name = functions[s->fn_index].name;
+        char buf[3] = {name[0], name[1], '\0'};
+        watch_display_string(buf, 0);
+    }
 }
 
-
 bool calculator_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
-    calculator_state_t *state = (calculator_state_t *)context;
+    calculator_state_t *s = (calculator_state_t *)context;
 
     switch (event.event_type) {
         case EVENT_ACTIVATE:
+            if (C == 0 && s->stack_index == 0) {
+                fn_number(s);
+            } else {
+                change_mode(s, CALC_OPERATION);
+            }
             calculator_face_display_number(C);
-            show_fn(state);
             break;
         case EVENT_TICK:
-            // Blink?
+            if (s->mode == CALC_OPERATION) {
+                show_fn(s, event.subsecond);
+            }
             break;
         case EVENT_MODE_BUTTON_UP:
-            if (S(mode) == NUMBER) {
-                S(max) = C;
-                if (isnan(S(min))) {
-                    if (C > 0) {
-                        C = 0;
-                    } else if (C == 0) {
-                        C = -8;
-                    } else {
-                        C *= 10;
-                    }
-                } else {
-                    C = (S(max) + S(min)) / 2;
-                    if (fabs(S(max) - S(min)) > 1.5) {
-                        C = round(C);
-                    }
-                }
+            if (s->mode == CALC_NUMBER) {
+                adjust_number(s, -1);
                 calculator_face_display_number(C);
             } else {
                 movement_move_to_next_face();
@@ -200,51 +295,38 @@ bool calculator_face_loop(movement_event_t event, movement_settings_t *settings,
             }
             break;
         case EVENT_LIGHT_BUTTON_UP:
-            if (S(mode) == NUMBER) {
-                S(mode) = OPERATION;
-            } else {
-                functions[S(fn_index)].func(state);
+            if (s->mode == CALC_NUMBER) {
+                change_mode(s, CALC_OPERATION);
+            } else if (functions[s->fn_index].input <= s->stack_index && s->stack_index + functions[s->fn_index].output < CALC_STACK_SIZE) {
+                functions[s->fn_index].func(s);
                 calculator_face_display_number(C);
+                s->fn_index = 0;
+                show_fn(s, 0);
+            } else {
+                movement_play_signal();
+                break;
             }
 
-            S(fn_index) = 0;
-            show_fn(state);
             break;
         case EVENT_ALARM_BUTTON_UP:
-            // Just in case you have need for another button.
-            if (S(mode) == NUMBER) {
-                S(min) = C;
-                if (isnan(S(max))) {
-                    if (C < 0) {
-                        C = 0;
-                    } else if (C == 0) {
-                        C = 8;
-                    } else {
-                        C *= 10;
-                    }
-                } else {
-                    C = (S(max) + S(min)) / 2;
-                    if (fabs(S(max) - S(min)) > 1.5) {
-                        C = round(C);
-                    }
-                }
+            if (s->mode == CALC_NUMBER) {
+                adjust_number(s, 1);
                 calculator_face_display_number(C);
             } else {
-                S(fn_index) = (S(fn_index) + 1) % FUNCTIONS_LEN;
-                show_fn(state);
+                s->fn_index = (s->fn_index + 1) % FUNCTIONS_LEN;
+                show_fn(s, 0);
+            }
+            break;
+        case EVENT_ALARM_LONG_PRESS:
+            if (s->mode == CALC_OPERATION) {
+                s->fn_index = 0;
+                show_fn(s, 0);
             }
             break;
         case EVENT_TIMEOUT:
-            // Your watch face will receive this event after a period of inactivity. If it makes sense to resign,
-            // you may uncomment this line to move back to the first watch face in the list:
-            // movement_move_to_face(0);
+            movement_move_to_face(0);
             break;
         case EVENT_LOW_ENERGY_UPDATE:
-            // If you did not resign in EVENT_TIMEOUT, you can use this event to update the display once a minute.
-            // Avoid displaying fast-updating values like seconds, since the display won't update again for 60 seconds.
-            // You should also consider starting the tick animation, to show the wearer that this is sleep mode:
-            // watch_start_tick_animation(500);
-            break;
         default:
             break;
     }
