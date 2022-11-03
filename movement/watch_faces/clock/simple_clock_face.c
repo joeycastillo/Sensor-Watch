@@ -171,7 +171,7 @@ bool simple_clock_face_loop(movement_event_t event, movement_settings_t *setting
         case EVENT_ALARM_BUTTON_UP:
             state->alarm_button_down_time = 0;
             break;
-        case EVENT_ALARM_LONG_PRESS:
+        case EVENT_ALARM_LONG_UP:
             // We pressed it long enough to enter the 'special' mode.
             // Don't do the signal_enabled thing.
             if (state->previous_date_time - state->alarm_button_down_time > 3) {
@@ -179,6 +179,7 @@ bool simple_clock_face_loop(movement_event_t event, movement_settings_t *setting
                 movement_move_to_face(state->watch_face_index);
                 return false;
             }
+
             state->signal_enabled = !state->signal_enabled;
             state->alarm_button_down_time = 0;
 
