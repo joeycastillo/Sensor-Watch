@@ -50,6 +50,8 @@
 #include "alt_fw/the_stargazer.h"
 #elif MOVEMENT_FIRMWARE == MOVEMENT_FIRMWARE_DEEP_SPACE_NOW
 #include "alt_fw/deep_space_now.h"
+#elif MOVEMENT_FIRMWARE == MOVEMENT_FIRMWARE_CUSTOM
+#include "alt_fw/custom.h"
 #endif
 
 // Default to no secondary face behaviour.
@@ -191,8 +193,8 @@ void movement_request_tick_frequency(uint8_t freq) {
     // If we are asked for an invalid frequency, default back to 1 Hz.
     if (freq == 0 || __builtin_popcount(freq) != 1) freq = 1;
 
-    // disable all callbacks except the 128 Hz one
-    watch_rtc_disable_matching_periodic_callbacks(0xFE);
+    // disable all callbacks except the 128 Hz and 32 Hz ones
+    watch_rtc_disable_matching_periodic_callbacks(0xFA);
 
     movement_state.subsecond = 0;
     movement_state.tick_frequency = freq;
