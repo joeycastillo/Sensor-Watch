@@ -108,6 +108,7 @@ SRCS += \
   $(TOP)/watch-library/hardware/watch/watch_extint.c \
   $(TOP)/watch-library/hardware/watch/watch_led.c \
   $(TOP)/watch-library/hardware/watch/watch_buzzer.c \
+  $(TOP)/watch-library/hardware/watch/watch_buzzer_seq.c \
   $(TOP)/watch-library/hardware/watch/watch_adc.c \
   $(TOP)/watch-library/hardware/watch/watch_gpio.c \
   $(TOP)/watch-library/hardware/watch/watch_i2c.c \
@@ -181,6 +182,7 @@ SRCS += \
   $(TOP)/watch-library/simulator/watch/watch_extint.c \
   $(TOP)/watch-library/simulator/watch/watch_led.c \
   $(TOP)/watch-library/simulator/watch/watch_buzzer.c \
+  $(TOP)/watch-library/simulator/watch/watch_buzzer_seq.c \
   $(TOP)/watch-library/simulator/watch/watch_adc.c \
   $(TOP)/watch-library/simulator/watch/watch_gpio.c \
   $(TOP)/watch-library/simulator/watch/watch_i2c.c \
