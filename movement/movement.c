@@ -184,8 +184,8 @@ static void _movement_handle_scheduled_tasks(void) {
 }
 
 void movement_request_tick_frequency(uint8_t freq) {
-    // Movement uses the 128 Hz tick internally
-    if (freq == 128) return;
+    // Movement uses the 128 Hz tick internally, buzzer uses 32 Hz tick
+    if (freq == 128 || freq == 32) return;
 
     // Movement requires at least a 1 Hz tick.
     // If we are asked for an invalid frequency, default back to 1 Hz.
