@@ -58,7 +58,6 @@
 #include "frequency_correction_face.h"
 #include "alarm_face.h"
 #include "ratemeter_face.h"
-#include "buzzer_demo_face.h"
 // New includes go above this line.
 
 #endif // MOVEMENT_FACES_H_
