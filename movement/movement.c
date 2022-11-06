@@ -50,8 +50,6 @@
 #include "alt_fw/the_stargazer.h"
 #elif MOVEMENT_FIRMWARE == MOVEMENT_FIRMWARE_DEEP_SPACE_NOW
 #include "alt_fw/deep_space_now.h"
-#elif MOVEMENT_FIRMWARE == MOVEMENT_FIRMWARE_CUSTOM
-#include "alt_fw/custom.h"
 #endif
 
 // Default to no secondary face behaviour.
