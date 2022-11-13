@@ -22,9 +22,10 @@
  * SOFTWARE.
  */
 
+#include <string.h>
 #include "watch_rtc.h"
 
-ext_irq_cb_t tick_callbacks[8];
+ext_irq_cb_t tick_callbacks[8][4];  // 8 frequencies, 4 callbacks each
 ext_irq_cb_t alarm_callback;
 ext_irq_cb_t btn_alarm_callback;
 ext_irq_cb_t a2_callback;
@@ -42,6 +43,9 @@ void _watch_rtc_init(void) {
     MCLK->APBAMASK.reg |= MCLK_APBAMASK_RTC;
 
     if (_watch_rtc_is_enabled()) return; // don't reset the RTC if it's already set up.
+
+    // clear all callbacks
+    memset(tick_callbacks, 0, sizeof(tick_callbacks));
 
     RTC->MODE2.CTRLA.bit.ENABLE = 0;
     _sync_rtc();
@@ -89,25 +93,63 @@ void watch_rtc_register_periodic_callback(ext_irq_cb_t callback, uint8_t frequen
     uint8_t per_n = __builtin_clz(tmp);
 
     // this also maps nicely to an index for our list of tick callbacks.
-    tick_callbacks[per_n] = callback;
+    tick_callbacks[per_n][0] = callback;
 
     NVIC_ClearPendingIRQ(RTC_IRQn);
     NVIC_EnableIRQ(RTC_IRQn);
     RTC->MODE2.INTENSET.reg = 1 << per_n;
 }
 
-void watch_rtc_disable_periodic_callback(uint8_t frequency) {
-    if (__builtin_popcount(frequency) != 1) return;
+int8_t watch_rtc_register_periodic_callback_slot(ext_irq_cb_t callback, uint8_t frequency) {
+    // check for valid frequency and slot
+    if (__builtin_popcount(frequency) != 1) return -1;
+
+    // map frequency to array index
     uint8_t per_n = __builtin_clz(frequency << 24);
-    RTC->MODE2.INTENCLR.reg = 1 << per_n;
+
+    // find free callback slot
+    for (uint8_t i = 1; i < 4; i++) {
+        if (tick_callbacks[per_n][i] == NULL) {
+            // register callback in slot
+            tick_callbacks[per_n][i] = callback;
+
+            NVIC_ClearPendingIRQ(RTC_IRQn);
+            NVIC_EnableIRQ(RTC_IRQn);
+            RTC->MODE2.INTENSET.reg = 1 << per_n;
+            return i;
+        }
+    }
+    // no free slot available
+    return -1;
+}
+
+void watch_rtc_disable_periodic_callback(uint8_t frequency) {
+    watch_rtc_disable_periodic_callback_slot(frequency, 0);
+}
+
+void watch_rtc_disable_periodic_callback_slot(uint8_t frequency, uint8_t slot) {
+    if (__builtin_popcount(frequency) != 1 || slot > 4) return;
+    uint8_t per_n = __builtin_clz(frequency << 24);
+    // unregister callback slot
+    tick_callbacks[per_n][slot] = NULL;
+    // disable the corresponding interrupt if no aktive slots are present
+    if (tick_callbacks[per_n][0] == NULL
+        && tick_callbacks[per_n][1] == NULL
+        && tick_callbacks[per_n][2] == NULL
+        && tick_callbacks[per_n][3] == NULL) RTC->MODE2.INTENCLR.reg = 1 << per_n;
 }
 
 void watch_rtc_disable_matching_periodic_callbacks(uint8_t mask) {
-    RTC->MODE2.INTENCLR.reg = mask;
+    // disable all matching callbacks in slot 0
+    for (uint8_t i = 0; i < 8; i++) {
+        if (mask & (1 << (7 - i))) watch_rtc_disable_periodic_callback_slot((1 << i), 0);
+    }
 }
 
 void watch_rtc_disable_all_periodic_callbacks(void) {
-    watch_rtc_disable_matching_periodic_callbacks(0xFF);
+    // disable all periodic callbacks in all slots
+    RTC->MODE2.INTENCLR.reg = 0xFF;
+    memset(tick_callbacks, 0, sizeof(tick_callbacks));
 }
 
 void watch_rtc_register_alarm_callback(ext_irq_cb_t callback, watch_date_time alarm_time, watch_rtc_alarm_match mask) {
@@ -133,8 +175,11 @@ void RTC_Handler(void) {
         // start from PER7, the 1 Hz tick.
         for(int8_t i = 7; i >= 0; i--) {
             if ((interrupt_status & interrupt_enabled) & (1 << i)) {
-                if (tick_callbacks[i] != NULL) {
-                    tick_callbacks[i]();
+                // loop over all 4 callback slots
+                for (int8_t j = 0; j < 4; j++) {
+                    if (tick_callbacks[i][j] != NULL) {
+                        tick_callbacks[i][j]();
+                    }
                 }
                 RTC->MODE2.INTFLAG.reg = 1 << i;
                 break;

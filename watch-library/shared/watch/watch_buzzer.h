@@ -162,14 +162,13 @@ extern const uint16_t NotePeriods[108];
 
 /** @brief Plays the given sequence of notes in a non-blocking way.
   * @param note_sequence A pointer to the sequence of buzzer note & duration tuples, ending with a zero. A simple
-  *        RLE logic is implemented: if you present a negative number instead of a buzzer note, the sequence
-  *        is rewinded by the given number of notes. The byte following a negative number determines the number
+  *        RLE logic is implemented: a negative number instead of a buzzer note means that the sequence
+  *        is rewound by the given number of notes. The byte following a negative number determines the number
   *        of loops. I.e. if you want to repeat the last three notes of the sequence one time, you should provide 
   *        the tuple -3, 1. The repeated notes must not contain any other repeat markers, or you will end up with 
   *        an eternal loop.
   * @param callback_on_end A pointer to a callback function to be invoked when the sequence has finished playing.
-  * @note This function plays the sequence asynchronously, so the UI will not be blocked. Be aware that
-  *       it internally relies on the 32 Hz tick callback, so you will not be able to use that otherwise!
+  * @note This function plays the sequence asynchronously, so the UI will not be blocked. 
   *       Hint: It is not possible to play the lowest note BUZZER_NOTE_A1 (55.00 Hz). The note is represented by a 
   *       zero byte, which is used here as the end-of-sequence marker. But hey, a frequency that low cannot be
   *       played properly by the watch's buzzer, anyway.

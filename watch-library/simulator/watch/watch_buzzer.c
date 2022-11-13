@@ -34,11 +34,12 @@ void cb_watch_buzzer_seq(void);
 
 static uint16_t _seq_position;
 static int8_t _tone_ticks, _repeat_counter;
+static int8_t _callback_slot = -1;
 static int8_t *_sequence;
 static void (*_cb_finished)(void);
 
 void watch_buzzer_play_sequence(int8_t *note_sequence, void (*callback_on_end)(void)) {
-    watch_rtc_disable_periodic_callback(32);
+    if (_callback_slot >= 0) watch_rtc_disable_periodic_callback_slot(64, _callback_slot);
     watch_set_buzzer_off();
     _sequence = note_sequence;
     _cb_finished = callback_on_end;
@@ -47,15 +48,15 @@ void watch_buzzer_play_sequence(int8_t *note_sequence, void (*callback_on_end)(v
     _repeat_counter = -1;
     // prepare buzzer
     watch_enable_buzzer();
-    // register 32 hz callback
-    watch_rtc_register_periodic_callback(cb_watch_buzzer_seq, 32);
+    // register 64 hz callback
+    _callback_slot = watch_rtc_register_periodic_callback_slot(cb_watch_buzzer_seq, 64);
 }
 
 void cb_watch_buzzer_seq(void) {
     // callback for reading the note sequence
     if (_tone_ticks == 0) {
         if (_sequence[_seq_position] < 0 && _sequence[_seq_position + 1]) {
-            // repeat indicator
+            // repeat indicator found
             if (_repeat_counter == -1) {
                 // first encounter: load repeat counter
                 _repeat_counter = _sequence[_seq_position + 1];
@@ -94,7 +95,7 @@ void cb_watch_buzzer_seq(void) {
 
 void watch_buzzer_abort_sequence(void) {
     // ends/aborts the sequence
-    watch_rtc_disable_periodic_callback(32);
+    if (_callback_slot >= 0) watch_rtc_disable_periodic_callback_slot(64, _callback_slot);
     watch_set_buzzer_off();
 }
 
