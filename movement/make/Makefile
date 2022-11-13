@@ -73,6 +73,7 @@ SRCS += \
   ../watch_faces/demo/frequency_correction_face.c \
   ../watch_faces/complication/alarm_face.c \
   ../watch_faces/complication/ratemeter_face.c \
+  ../watch_faces/complication/interval_face.c \
 # New watch faces go above this line.
 
 # Leave this line at the bottom of the file; it has all the targets for making your project.
