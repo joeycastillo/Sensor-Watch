@@ -31,7 +31,7 @@ else
 endif
 
 ifeq ($(DETECTED_OS), LINUX)
-  MAKEFLAGS += -j `nproc`
+  MAKEFLAGS += -j $(shell nproc)
 endif
 ifeq ($(DETECTED_OS), OSX)
   NPROCS = $(shell sysctl hw.ncpu  | grep -o '[0-9]\+')

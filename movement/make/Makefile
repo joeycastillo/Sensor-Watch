@@ -18,6 +18,7 @@ INCLUDES += \
   -I../watch_faces/demo/ \
   -I../../littlefs/ \
   -I../lib/TOTP-MCU/ \
+  -I../lib/base32/ \
   -I../lib/sunriset/ \
   -I../lib/vsop87/ \
   -I../lib/astrolib/ \
@@ -31,6 +32,7 @@ INCLUDES += \
 SRCS += \
   ../lib/TOTP-MCU/sha1.c \
   ../lib/TOTP-MCU/TOTP.c \
+  ../lib/base32/base32.c \
   ../lib/sunriset/sunriset.c \
   ../lib/vsop87/vsop87a_milli.c \
   ../lib/astrolib/astrolib.c \
@@ -55,6 +57,7 @@ SRCS += \
   ../watch_faces/complication/day_one_face.c \
   ../watch_faces/complication/stopwatch_face.c \
   ../watch_faces/complication/totp_face.c \
+  ../watch_faces/complication/totp_face_lfs.c \
   ../watch_faces/complication/sunrise_sunset_face.c \
   ../watch_faces/complication/countdown_face.c \
   ../watch_faces/complication/counter_face.c \

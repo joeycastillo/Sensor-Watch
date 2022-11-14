@@ -95,7 +95,7 @@ static void reset(countdown_state_t *state) {
 }
 
 static void ring(countdown_state_t *state) {
-    movement_play_signal();
+    movement_play_alarm();
     reset(state);
 }
 
@@ -179,7 +179,10 @@ bool countdown_face_loop(movement_event_t event, movement_settings_t *settings, 
                     reset(state);
                     break;
                 case cd_waiting:
-                    start(state, settings);
+                    if (!(state->minutes == 0 && state->seconds == 0)) {
+                        // Only start the timer if we have a valid time.
+                        start(state, settings);
+                    }
                     break;
                 case cd_setting:
                     settings_increment(state);
@@ -192,7 +195,7 @@ bool countdown_face_loop(movement_event_t event, movement_settings_t *settings, 
             break;
         case EVENT_ALARM_LONG_PRESS:
             if (state->mode == cd_setting) {
-                    state->minutes = DEFAULT_MINUTES;
+                    state->minutes = 0;
                     state->seconds = 0;
                     draw(state, event.subsecond);
                     break;

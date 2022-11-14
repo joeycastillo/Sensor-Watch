@@ -166,6 +166,29 @@ bool filesystem_read_file(char *filename, char *buf, int32_t length) {
     return false;
 }
 
+bool filesystem_read_line(char *filename, char *buf, int32_t *offset, int32_t length) {
+    memset(buf, 0, length + 1);
+    int32_t file_size = filesystem_get_file_size(filename);
+    if (file_size > 0) {
+        int err = lfs_file_open(&lfs, &file, filename, LFS_O_RDONLY);
+        if (err < 0) return false;
+        err = lfs_file_seek(&lfs, &file, *offset, LFS_SEEK_SET);
+        if (err < 0) return false;
+        err = lfs_file_read(&lfs, &file, buf, min(length - 1, file_size - *offset));
+        if (err < 0) return false;
+        for(int i = 0; i < length; i++) {
+            (*offset)++;
+            if (buf[i] == '\n') {
+                buf[i] = 0;
+                break;
+            }
+        }
+        return lfs_file_close(&lfs, &file) == LFS_ERR_OK;
+    }
+
+    return false;
+}
+
 static void filesystem_cat(char *filename) {
     info.type = 0;
     lfs_stat(&lfs, filename, &info);
@@ -185,6 +208,14 @@ static void filesystem_cat(char *filename) {
 
 bool filesystem_write_file(char *filename, char *text, int32_t length) {
     int err = lfs_file_open(&lfs, &file, filename, LFS_O_RDWR | LFS_O_CREAT | LFS_O_TRUNC);
+    if (err < 0) return false;
+    err = lfs_file_write(&lfs, &file, text, length);
+    if (err < 0) return false;
+    return lfs_file_close(&lfs, &file) == LFS_ERR_OK;
+}
+
+bool filesystem_append_file(char *filename, char *text, int32_t length) {
+    int err = lfs_file_open(&lfs, &file, filename, LFS_O_WRONLY | LFS_O_CREAT | LFS_O_APPEND);
     if (err < 0) return false;
     err = lfs_file_write(&lfs, &file, text, length);
     if (err < 0) return false;
@@ -223,7 +254,7 @@ void filesystem_process_command(char *line) {
         memset(text, 0, 248);
         size_t pos = 0;
         char *word = strtok(NULL, " \n");
-        while (strcmp(word, ">")) {
+        while (strcmp(word, ">") && strcmp(word, ">>")) {
             sprintf(text + pos, "%s ", word);
             pos += strlen(word) + 1;
             word = strtok(NULL, " \n");
@@ -235,8 +266,12 @@ void filesystem_process_command(char *line) {
             printf("usage: echo text > file\n");
         } else if (strchr(filename, '/') || strchr(filename, '\\')) {
             printf("subdirectories are not supported\n");
-        } else {
+        } else if (!strcmp(word, ">")) {
             filesystem_write_file(filename, text, strlen(text));
+            filesystem_append_file(filename, "\n", 1);
+        } else if (!strcmp(word, ">>")) {
+            filesystem_append_file(filename, text, strlen(text));
+            filesystem_append_file(filename, "\n", 1);
         }
         free(text);
     } else {
