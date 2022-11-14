@@ -141,7 +141,7 @@ uint8_t _timer_run_state;
 
 static inline void _inc_uint8(uint8_t *value, uint8_t step, uint8_t max) {
     *value += step;
-    if (*value == max) *value = 0;
+    if (*value >= max) *value = 0;
 }
 
 static uint32_t _get_now_ts() {
