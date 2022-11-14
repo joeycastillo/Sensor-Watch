@@ -22,6 +22,15 @@
  * SOFTWARE.
  */
 
+// RPN Calculator face.
+// Operations appear in the 'day' section; ALARM changes between operations when operation is flashing.
+// LIGHT executes current operation. If 'NO' is selected, this jumps to 'enter a number' mode, in which
+// ALARM makes the number bigger, and MODE makes the number smaller (i.e. MODE no longer performs its
+// normal function when entering numbers). Hit LIGHT to add current number to the stack.
+// Long press alarm when operation is flashing (selectable) returns to 'NO' operation. If 'NO' operation
+// already selected, jump to stack operations.
+// See 'functions' below for names of all operations.
+
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
@@ -137,7 +146,7 @@ static void change_mode(calculator_state_t *s, enum calculator_mode mode) {
     movement_request_tick_frequency(mode == CALC_OPERATION ? 4 : 1);
 }
 
-// Binary search to find the right number. direction is +1 if it should be bigger, -1 if it should be smaller.
+// Binary-ish search to find the right number. direction is +1 if it should be bigger, -1 if it should be smaller.
 static void adjust_number(calculator_state_t *s, int direction) {
     if (direction > 0) {
         s->min = C;
@@ -159,13 +168,16 @@ static void adjust_number(calculator_state_t *s, int direction) {
     } else {
         // We have a higher and lower bound. Split them.
         C = (s->max + s->min) / 2;
-        // Subtract 0.1 so we ignore things that are _exactly_ 1/10/100 apart.
+        // Subtract 0.1 so we don't apply most significant rounding to things that are _exactly_ 1/10/100 apart.
         double mag = log10(fabs(s->max - s->min)) - 0.1;
         if (mag > 0.0) {
-            // Only start going non-integer when we've eliminated all integer possibles.
-            // Also, round to 'most significant digit'.
+            // i.e. the different is >= 2, which means we want to round aggressively
+            // to not show people complicated looking numbers.
+            // e.g. this takes a number like 3.2 to 3, or a number like 464 to 500
+            // (depending on how fine-grained 'mag' tells us to be).
             float div = pow(10, floor(mag));
-            C = floor(C / div) * div;
+            int sign = C < 0 ? -1 : 1;
+            C = sign * floor(fabs(C) / div) * div;
         }
     }
 }
