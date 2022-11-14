@@ -257,7 +257,7 @@ static void fn_pi(calculator_state_t *s) {
 }
 
 static void fn_pop(calculator_state_t *s) {
-    POP();
+    --s->stack_size;
 }
 
 static void fn_swap(calculator_state_t *s) {
@@ -272,7 +272,8 @@ static void fn_clear(calculator_state_t *s) {
 }
 
 static void fn_size(calculator_state_t *s) {
-    PUSH(s->stack_size);
+    double a = s->stack_size;
+    PUSH(a);
 }
 
 struct {
