@@ -197,7 +197,7 @@ static void fn_add(calculator_state_t *s) {
 static void fn_sub(calculator_state_t *s) {
     double a = POP();
     double b = POP();
-    PUSH(a - b);
+    PUSH(b - a);
 }
 
 static void fn_mul(calculator_state_t *s) {
@@ -209,13 +209,13 @@ static void fn_mul(calculator_state_t *s) {
 static void fn_div(calculator_state_t *s) {
     double a = POP();
     double b = POP();
-    PUSH(a / b);
+    PUSH(b / a);
 }
 
 static void fn_pow(calculator_state_t *s) {
     double a = POP();
     double b = POP();
-    PUSH(pow(a, b));
+    PUSH(pow(b, a));
 }
 
 static void fn_sqrt(calculator_state_t *s) {
