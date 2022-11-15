@@ -124,6 +124,7 @@ void tomato_face_activate(movement_settings_t *settings, void *context) {
     if (state->mode == tomato_run) {
         watch_date_time now = watch_rtc_get_date_time();
         state->now_ts = watch_utility_date_time_to_unix_time(now, get_tz_offset(settings));
+        watch_set_indicator(WATCH_INDICATOR_BELL);
     }
     watch_set_colon();
 }
