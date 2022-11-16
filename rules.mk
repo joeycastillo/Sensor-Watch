@@ -4,8 +4,6 @@ CFLAGS += $(INCLUDES) $(DEFINES)
 
 OBJS = $(addprefix $(BUILD)/, $(notdir %/$(subst .c,.o, $(SRCS))))
 
-SUBMODULES = tinyusb
-
 COBRA = cobra -f
 
 ifndef EMSCRIPTEN
@@ -37,14 +35,10 @@ $(BUILD)/$(BIN).uf2: $(BUILD)/$(BIN).bin
 	@echo UF2CONV $@
 	@$(UF2) $^ -co $@
 
-.phony: $(SUBMODULES)
-$(SUBMODULES):
-	git submodule update --init
-
 install:
 	@$(UF2) -D $(BUILD)/$(BIN).uf2
 
-$(BUILD)/%.o: | $(SUBMODULES) directory
+$(BUILD)/%.o: | directory
 	@echo CC $@
 	@$(CC) $(CFLAGS) $(filter %/$(subst .o,.c,$(notdir $@)), $(SRCS)) -c -o $@
 

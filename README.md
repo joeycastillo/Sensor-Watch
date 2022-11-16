@@ -73,3 +73,11 @@ python3 -m http.server 8000 -d build
 ```
 
 Finally, visit [watch.html](http://localhost:8000/watch.html) to see your work.
+
+Updating external dependencies
+----------------------------
+``bash
+rm -rf littlefs && git clone --depth 1 --branch=v2.5.0 https://github.com/littlefs-project/littlefs littlefs && rm -rf littlefs/.git
+rm -rf tinyusb && git clone --recurse-submodules=hw/mcu/microchip https://github.com/hathach/tinyusb.git tinyusb && git -C tinyusb checkout --recurse-submodules f8288be && rm -rf tinyusb/.git tinyusb/**/.git
+```
+
