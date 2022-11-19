@@ -138,7 +138,7 @@ void watch_rtc_disable_periodic_callback(uint8_t frequency) {
 }
 
 void watch_rtc_disable_periodic_callback_slot(uint8_t frequency, uint8_t slot) {
-    if (__builtin_popcount(frequency) != 1 || slot > 4) return;
+    if (__builtin_popcount(frequency) != 1 || slot >= 4) return;
     uint8_t per_n = __builtin_clz(frequency << 24);
     // unregister callback slot
     if (tick_callbacks[per_n][slot] != -1) {
