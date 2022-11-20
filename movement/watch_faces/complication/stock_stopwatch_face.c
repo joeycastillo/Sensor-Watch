@@ -34,7 +34,7 @@
     including counting hundredths of seconds and lap timing. There are two
     improvements compared to the functionality of the original: 
     1. When reaching 59:59 the counter does not simply jump back to zero,
-       but kee#ps track of hours in the upper right hand corner. (Up to 24h)
+       but keeps track of hours in the upper right hand corner. (Up to 24h)
     2. Long pressing the light button toggles the led behaviour: it either
        turns on on each button press or it doesn't.
 */
