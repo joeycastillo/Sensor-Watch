@@ -40,7 +40,6 @@
 */
 
 
-static int8_t _callback_slot;
 static uint32_t _ticks;
 static uint32_t _lap_ticks;
 static uint8_t _blink_ticks;
@@ -49,7 +48,6 @@ static uint8_t _old_minutes;
 static uint8_t _hours;
 static bool _colon;
 static bool _is_running;
-static bool _light_on_button;
 
 static void _fast_tick_callback() {
     _ticks++;
@@ -136,11 +134,15 @@ static inline void _set_colon() {
 void stock_stopwatch_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
     (void) watch_face_index;
-    (void) context_ptr;
+    if (*context_ptr == NULL) {
+        *context_ptr = malloc(sizeof(stock_stopwatch_state_t));
+        memset(*context_ptr, 0, sizeof(stock_stopwatch_state_t));
+        stock_stopwatch_state_t *state = (stock_stopwatch_state_t *)*context_ptr;
     _ticks = _lap_ticks = _blink_ticks = _old_minutes = _old_seconds = _hours = 0;
     _is_running = _colon = false;
-    _light_on_button = true;
-    _callback_slot = -1;
+        state->light_on_button = true;
+        state->callback_slot = -1;
+    }
 }
 
 void stock_stopwatch_face_activate(movement_settings_t *settings, void *context) {
@@ -149,13 +151,13 @@ void stock_stopwatch_face_activate(movement_settings_t *settings, void *context)
 }
 
 bool stock_stopwatch_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
-    (void) context;
+    stock_stopwatch_state_t *state = (stock_stopwatch_state_t *)context;
 
     // handle overflow of fast ticks
-    if (_ticks >= (128 * 60 * 60)) {
+    while (_ticks >= (128 * 60 * 60)) {
         _ticks -= (128 * 60 * 60);
         _hours++;
-        if (_hours > 23) _hours = 0;
+        if (_hours >= 24) _hours -= 24;
         // initiate a re-draw
         _old_minutes = 59;
     }
@@ -176,22 +178,22 @@ bool stock_stopwatch_face_loop(movement_event_t event, movement_settings_t *sett
             break;
         case EVENT_LIGHT_LONG_PRESS:
             // kind od hidden feature: long press toggles light on or off
-            _light_on_button = !_light_on_button;
-            if (_light_on_button) movement_illuminate_led();
+            state->light_on_button = !state->light_on_button;
+            if (state->light_on_button) movement_illuminate_led();
             else watch_set_led_off();
             break;
         case EVENT_ALARM_BUTTON_DOWN:
             _is_running = !_is_running;
             if (_is_running) {
                 // start or continue stopwatch
-                if (_callback_slot >= 0) watch_rtc_disable_periodic_callback_slot(128, _callback_slot);
+                if (state->callback_slot >= 0) watch_rtc_disable_periodic_callback_slot(128, state->callback_slot);
                 // register 128 hz callback for time measuring
-                _callback_slot = watch_rtc_register_periodic_callback_slot(_fast_tick_callback, 128);
+                state->callback_slot = watch_rtc_register_periodic_callback_slot(_fast_tick_callback, 128);
                 // update the display at 16 hz
                 movement_request_tick_frequency(16);
             } else {
                 // stop the stopwatch
-                if (_callback_slot >= 0) watch_rtc_disable_periodic_callback_slot(128, _callback_slot);
+                if (state->callback_slot >= 0) watch_rtc_disable_periodic_callback_slot(128, state->callback_slot);
                 movement_request_tick_frequency(1);
                 _set_colon();
             }
@@ -199,7 +201,7 @@ bool stock_stopwatch_face_loop(movement_event_t event, movement_settings_t *sett
             _button_beep(settings);
             break;
         case EVENT_LIGHT_BUTTON_DOWN:
-            if (_light_on_button) movement_illuminate_led();
+            if (state->light_on_button) movement_illuminate_led();
             if (_is_running) {
                 if (_lap_ticks) {
                     // clear lap and continue running

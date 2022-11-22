@@ -30,7 +30,12 @@
 // This watch face relies heavily on static vars in stock_stopwatch.c.
 // The disadvantage is that you cannot use more than one instance of this watch face on
 // your custom firmware - but then again, who would want that? The advantage is that accessing
-// the state vars is more direct and faster, and we can save some precious cpu cycles  :-) 
+// vars is more direct and faster, and we can save some precious cpu cycles  :-) 
+
+typedef struct {
+    bool light_on_button;   // determines whether the light button actually triggers the led
+    int8_t callback_slot;
+} stock_stopwatch_state_t;
 
 void stock_stopwatch_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
 void stock_stopwatch_face_activate(movement_settings_t *settings, void *context);
