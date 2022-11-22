@@ -28,9 +28,9 @@ do
     make clean
     emmake make FIRMWARE=$VARIANT
     mkdir "$sim_dir/$variant/"
-    mv "build/watch.wasm" "$sim_dir/$variant/"
-    mv "build/watch.js" "$sim_dir/$variant/"
-    mv "build/watch.html" "$sim_dir/$variant/index.html"
+    mv "build-sim/watch.wasm" "$sim_dir/$variant/"
+    mv "build-sim/watch.js" "$sim_dir/$variant/"
+    mv "build-sim/watch.html" "$sim_dir/$variant/index.html"
 done
 
 echo "Done."
