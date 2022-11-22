@@ -38,7 +38,6 @@ void watch_set_led_color(uint8_t red, uint8_t green) {
         // this changes the color of the gradient to match the red+green combination
         let filter = document.getElementById("ledcolor");
         let color_matrix = filter.children[0].values.baseVal;
-        console.log($0, $1);
         color_matrix[1].value = $0  / 255; // red value
         color_matrix[6].value = $1 / 255; // green value
         document.getElementById('light').style.opacity = Math.min(255, $0 + $1) / 255;
