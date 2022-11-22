@@ -51,6 +51,14 @@
         <stop offset="0.94" stop-color="#000d00" stop-opacity="0.05"/>
         <stop offset="1" stop-opacity="0"/>
       </radialGradient>
+      <filter id="ledcolor">
+        <feColorMatrix in="SourceGraphic" type="matrix"
+                       values=" 0      0      0      0 0
+                                0      1      0      0 0 
+                                0      0      0      0 0 
+                                0      0      0      1 0  "/>
+     
+      </filter>
     </defs>
     <g id="Calque">
       <g id="Contours">
@@ -71,7 +79,7 @@
           <rect x="293.5" y="520" width="683" height="334" rx="34.68" style="fill: #777b7a"/>
         </g>
         <g id="light" style="opacity: 0">
-          <rect x="293.5" y="520" width="683" height="334" rx="34.68" style="fill: url(#Dégradé_sans_nom_3)"/>
+          <rect x="293.5" y="520" width="683" height="334" rx="34.68" style="fill: url(#Dégradé_sans_nom_3)" filter="url(#ledcolor)"/>
         </g>
       </g>
       <g id="Textes">
