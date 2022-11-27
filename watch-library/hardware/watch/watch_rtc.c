@@ -175,12 +175,11 @@ void RTC_Handler(void) {
         // start from PER7, the 1 Hz tick.
         for(int8_t i = 7; i >= 0; i--) {
             if ((interrupt_status & interrupt_enabled) & (1 << i)) {
-                // loop over all 4 callback slots
-                for (int8_t j = 0; j < 4; j++) {
-                    if (tick_callbacks[i][j] != NULL) {
-                        tick_callbacks[i][j]();
-                    }
-                }
+                // check all 4 callback slots (no loop, because we want to save cpu cycles)
+                if (tick_callbacks[i][0] != NULL) tick_callbacks[i][1]();
+                if (tick_callbacks[i][1] != NULL) tick_callbacks[i][2]();
+                if (tick_callbacks[i][2] != NULL) tick_callbacks[i][3]();
+                if (tick_callbacks[i][3] != NULL) tick_callbacks[i][4]();
                 RTC->MODE2.INTFLAG.reg = 1 << i;
                 break;
             }
