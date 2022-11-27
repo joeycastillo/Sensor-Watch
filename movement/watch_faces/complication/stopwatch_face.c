@@ -77,7 +77,6 @@ void stopwatch_face_activate(movement_settings_t *settings, void *context) {
 }
 
 bool stopwatch_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
-    (void) settings;
     stopwatch_state_t *stopwatch_state = (stopwatch_state_t *)context;
 
     switch (event.event_type) {
@@ -103,6 +102,9 @@ bool stopwatch_face_loop(movement_event_t event, movement_settings_t *settings, 
             }
             break;
         case EVENT_ALARM_BUTTON_DOWN:
+            if (settings->bit.button_should_sound) {
+                watch_buzzer_play_note(BUZZER_NOTE_C8, 50);
+            }
             stopwatch_state->running = !stopwatch_state->running;
             if (stopwatch_state->running) {
                 // we're running now, so we need to set the start_time.
