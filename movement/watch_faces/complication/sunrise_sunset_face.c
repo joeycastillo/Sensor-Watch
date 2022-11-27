@@ -93,8 +93,16 @@ static void _sunrise_sunset_face_update(movement_settings_t *settings, sunrise_s
         minutes = 60.0 * fmod(rise, 1);
         seconds = 60.0 * fmod(minutes, 1);
         scratch_time.unit.hour = floor(rise);
-        if (seconds < 30) scratch_time.unit.minute = floor(minutes);
-        else scratch_time.unit.minute = ceil(minutes);
+        if (seconds < 30) {
+            scratch_time.unit.minute = floor(minutes);
+        }
+        else {
+            scratch_time.unit.minute = ceil(minutes);
+            if (scratch_time.unit.minute == 60) {
+                scratch_time.unit.minute = 0;
+                scratch_time.unit.hour = (scratch_time.unit.hour + 1) % 24;
+            }
+        }
 
         if (date_time.reg < scratch_time.reg) _sunrise_sunset_set_expiration(state, scratch_time);
 
