@@ -29,6 +29,12 @@
 #include "watch.h"
 #include "watch_utility.h"
 
+// distant future for background task: January 1, 2083
+// see stopwatch_face_activate for details
+static const watch_date_time distant_future = {
+    .unit = {0, 0, 0, 1, 1, 63}
+};
+
 void stopwatch_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
     (void) watch_face_index;
@@ -49,6 +55,7 @@ static void _stopwatch_face_update_display(stopwatch_state_t *stopwatch_state, b
     if (stopwatch_state->seconds_counted >= 3456000) {
         // display maxes out just shy of 40 days, thanks to the limit on the day digits (0-39)
         stopwatch_state->running = false;
+        movement_cancel_background_task();
         watch_display_string("st39235959", 0);
         return;
     }
@@ -72,8 +79,18 @@ static void _stopwatch_face_update_display(stopwatch_state_t *stopwatch_state, b
 
 void stopwatch_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
-    (void) context;
     if (watch_tick_animation_is_running()) watch_stop_tick_animation();
+
+    stopwatch_state_t *stopwatch_state = (stopwatch_state_t *)context;
+    if (stopwatch_state->running) {
+        // because the low power update happens on the minute mark, and the wearer could start
+        // the stopwatch anytime, the low power update could fire up to 59 seconds later than
+        // we need it to, causing the stopwatch to display stale data.
+        // So let's schedule a background task that will never fire. This will keep the watch
+        // from entering low energy mode while the stopwatch is on screen. This background task
+        // will remain scheduled until the stopwatch stops OR this watch face resigns.
+        movement_schedule_background_task(distant_future);
+    }
 }
 
 bool stopwatch_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
@@ -120,6 +137,11 @@ bool stopwatch_face_loop(movement_event_t event, movement_settings_t *settings, 
                     // and resume from the "virtual" start time that's that many seconds ago.
                     stopwatch_state->start_time = watch_utility_date_time_from_unix_time(timestamp, 0);
                 }
+                // schedule our keepalive task when running...
+                movement_schedule_background_task(distant_future);
+            } else {
+                // and cancel it when stopped.
+                movement_cancel_background_task();
             }
             break;
         case EVENT_TIMEOUT:
@@ -127,8 +149,16 @@ bool stopwatch_face_loop(movement_event_t event, movement_settings_t *settings, 
             break;
         case EVENT_LOW_ENERGY_UPDATE:
             if (!watch_tick_animation_is_running()) watch_start_tick_animation(500);
-            _stopwatch_face_update_display(stopwatch_state, false);
-            watch_set_indicator(WATCH_INDICATOR_BELL);
+            if (!stopwatch_state->running) {
+                // since the tick animation is running, displaying the stopped time could be misleading,
+                // as it could imply that the stopwatch is running. instead, show a blank display to
+                // indicate that we are in sleep mode.
+                watch_display_string("st  ----  ", 0);
+            } else {
+                // this OTOH shouldn't happen anymore; if we're running, we shouldn't enter low energy mode
+                _stopwatch_face_update_display(stopwatch_state, false);
+                watch_set_indicator(WATCH_INDICATOR_BELL);
+            }
             break;
         default:
             break;
@@ -140,4 +170,8 @@ bool stopwatch_face_loop(movement_event_t event, movement_settings_t *settings, 
 void stopwatch_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
+
+    // regardless of whether we're running or stopped, cancel the task
+    // that was keeping us awake while on screen.
+    movement_cancel_background_task();
 }
