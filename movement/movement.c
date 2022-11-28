@@ -57,6 +57,14 @@
 #define MOVEMENT_SECONDARY_FACE_INDEX 0
 #endif
 
+// Set default LED colors if not set
+#ifndef MOVEMENT_DEFAULT_RED_COLOR
+#define MOVEMENT_DEFAULT_RED_COLOR 0x0
+#endif
+#ifndef MOVEMENT_DEFAULT_GREEN_COLOR
+#define MOVEMENT_DEFAULT_GREEN_COLOR 0xF
+#endif
+
 #if __EMSCRIPTEN__
 #include <emscripten.h>
 #endif
@@ -284,7 +292,8 @@ uint8_t movement_claim_backup_register(void) {
 void app_init(void) {
     memset(&movement_state, 0, sizeof(movement_state));
 
-    movement_state.settings.bit.led_green_color = 0xF;
+    movement_state.settings.bit.led_red_color = MOVEMENT_DEFAULT_RED_COLOR;
+    movement_state.settings.bit.led_green_color = MOVEMENT_DEFAULT_GREEN_COLOR;
     movement_state.settings.bit.button_should_sound = true;
     movement_state.settings.bit.le_interval = 1;
     movement_state.settings.bit.led_duration = 1;
