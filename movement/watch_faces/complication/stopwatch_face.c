@@ -148,7 +148,7 @@ bool stopwatch_face_loop(movement_event_t event, movement_settings_t *settings, 
             // explicitly ignore the timeout event so we stay on screen
             break;
         case EVENT_LOW_ENERGY_UPDATE:
-            if (!watch_tick_animation_is_running()) watch_start_tick_animation(500);
+            if (!watch_tick_animation_is_running()) watch_start_tick_animation(1000);
             if (!stopwatch_state->running) {
                 // since the tick animation is running, displaying the stopped time could be misleading,
                 // as it could imply that the stopwatch is running. instead, show a blank display to
