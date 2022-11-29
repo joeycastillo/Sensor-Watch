@@ -3,7 +3,7 @@
 fw_dir="firmware/download"
 sim_dir="firmware/simulate"
 colors=("green" "blue")
-variants=("standard" "alt_time" "deep_space_now" "focus" "the_athlete" "the_backpacker" "the_stargazer")
+variants=("standard" "backer" "alt_time" "deep_space_now" "focus" "the_athlete" "the_backpacker" "the_stargazer")
 
 if [ -d "$fw_dir" ] ; then
     rm -r "$fw_dir"
@@ -25,7 +25,7 @@ do
         make LED=$COLOR FIRMWARE=$VARIANT
         mv "build/watch.uf2" "$fw_dir/$variant-$color.uf2"
     done
-    make clean
+    rm -rf ./build-sim
     emmake make FIRMWARE=$VARIANT
     mkdir "$sim_dir/$variant/"
     mv "build-sim/watch.wasm" "$sim_dir/$variant/"

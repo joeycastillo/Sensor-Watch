@@ -37,7 +37,9 @@
 #ifndef MOVEMENT_FIRMWARE
 #include "movement_config.h"
 #elif MOVEMENT_FIRMWARE == MOVEMENT_FIRMWARE_STANDARD
-#include "alt_fw/standard.h"
+#include "movement_config.h"
+#elif MOVEMENT_FIRMWARE == MOVEMENT_FIRMWARE_BACKER
+#include "alt_fw/backer.h"
 #elif MOVEMENT_FIRMWARE == MOVEMENT_FIRMWARE_ALT_TIME
 #include "alt_fw/alt_time.h"
 #elif MOVEMENT_FIRMWARE == MOVEMENT_FIRMWARE_FOCUS
