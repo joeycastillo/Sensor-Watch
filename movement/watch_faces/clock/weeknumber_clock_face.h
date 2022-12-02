@@ -22,43 +22,32 @@
  * SOFTWARE.
  */
 
-#ifndef MOVEMENT_FACES_H_
-#define MOVEMENT_FACES_H_
+#ifndef WEEKNUMBER_CLOCK_FACE_H_
+#define WEEKNUMBER_CLOCK_FACE_H_
 
-#include "simple_clock_face.h"
-#include "world_clock_face.h"
-#include "preferences_face.h"
-#include "set_time_face.h"
-#include "pulsometer_face.h"
-#include "thermistor_readout_face.h"
-#include "thermistor_logging_face.h"
-#include "thermistor_testing_face.h"
-#include "character_set_face.h"
-#include "beats_face.h"
-#include "day_one_face.h"
-#include "voltage_face.h"
-#include "stopwatch_face.h"
-#include "totp_face.h"
-#include "totp_face_lfs.h"
-#include "lis2dw_logging_face.h"
-#include "demo_face.h"
-#include "hello_there_face.h"
-#include "sunrise_sunset_face.h"
-#include "countdown_face.h"
-#include "counter_face.h"
-#include "blinky_face.h"
-#include "moon_phase_face.h"
-#include "accelerometer_data_acquisition_face.h"
-#include "mars_time_face.h"
-#include "orrery_face.h"
-#include "astronomy_face.h"
-#include "tomato_face.h"
-#include "probability_face.h"
-#include "wake_face.h"
-#include "frequency_correction_face.h"
-#include "alarm_face.h"
-#include "ratemeter_face.h"
-#include "weeknumber_clock_face.h"
-// New includes go above this line.
+#include "movement.h"
 
-#endif // MOVEMENT_FACES_H_
+typedef struct {
+    uint32_t previous_date_time;
+    uint8_t last_battery_check;
+    uint8_t watch_face_index;
+    bool signal_enabled;
+    bool battery_low;
+    bool alarm_enabled;
+} weeknumber_clock_state_t;
+
+void weeknumber_clock_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
+void weeknumber_clock_face_activate(movement_settings_t *settings, void *context);
+bool weeknumber_clock_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void weeknumber_clock_face_resign(movement_settings_t *settings, void *context);
+bool weeknumber_clock_face_wants_background_task(movement_settings_t *settings, void *context);
+
+#define weeknumber_clock_face ((const watch_face_t){ \
+    weeknumber_clock_face_setup, \
+    weeknumber_clock_face_activate, \
+    weeknumber_clock_face_loop, \
+    weeknumber_clock_face_resign, \
+    weeknumber_clock_face_wants_background_task, \
+})
+
+#endif // SIMPLE_CLOCK_FACE_H_
