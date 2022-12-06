@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Joey Castillo
+ * Copyright (c) 2022 Navaneeth Bhardwaj
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,29 +22,28 @@
  * SOFTWARE.
  */
 
-#ifndef MOVEMENT_CONFIG_H_
-#define MOVEMENT_CONFIG_H_
+#ifndef MILK_LOG_FACE_H_
+#define MILK_LOG_FACE_H_
 
-#include "movement_faces.h"
+#include "movement.h"
 
-const watch_face_t watch_faces[] = {
-    simple_clock_face,
-    milk_log_face,
-    world_clock_face,
-    sunrise_sunset_face,
-    moon_phase_face,
-    stopwatch_face,
-    preferences_face,
-    set_time_face,
-};
+typedef struct {
+    // Anything you need to keep track of, put it here!
+    uint8_t unused;
+} milk_log_state_t;
 
-#define MOVEMENT_NUM_FACES (sizeof(watch_faces) / sizeof(watch_face_t))
+void milk_log_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
+void milk_log_face_activate(movement_settings_t *settings, void *context);
+bool milk_log_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void milk_log_face_resign(movement_settings_t *settings, void *context);
 
-/* Determines what face to go to from the first face if you've already set
- * a mode long press to go to the first face in preferences, and
- * excludes these faces from the normal rotation.
- * Usually it makes sense to set this to the preferences face.
- */
-#define MOVEMENT_SECONDARY_FACE_INDEX 0 // or (MOVEMENT_NUM_FACES - 2)
+#define milk_log_face ((const watch_face_t){ \
+    milk_log_face_setup, \
+    milk_log_face_activate, \
+    milk_log_face_loop, \
+    milk_log_face_resign, \
+    NULL, \
+})
 
-#endif // MOVEMENT_CONFIG_H_
+#endif // MILK_LOG_FACE_H_
+
