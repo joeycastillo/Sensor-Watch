@@ -57,6 +57,7 @@ void _watch_rtc_init(void) {
 }
 
 void watch_rtc_set_date_time(watch_date_time date_time) {
+    _sync_rtc();
     RTC->MODE2.CLOCK.reg = date_time.reg;
     _sync_rtc();
 }
@@ -137,7 +138,7 @@ void RTC_Handler(void) {
                     tick_callbacks[i]();
                 }
                 RTC->MODE2.INTFLAG.reg = 1 << i;
-                break;
+//                break;
             }
         }
     } else if ((interrupt_status & interrupt_enabled) & RTC_MODE2_INTFLAG_TAMPER) {

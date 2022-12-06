@@ -27,6 +27,9 @@
 #include "hello_there_face.h"
 #include "watch.h"
 
+char pi_data[] = "314159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535940812848111745028410270193852110555964462294895493038196";
+//we show 8 characters per screen, so 200/8=25 screens
+
 void hello_there_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     // These next two lines just silence the compiler warnings associated with unused parameters.
     // We have no use for the settings or the watch_face_index, so we make that explicit here.
@@ -50,27 +53,31 @@ void hello_there_face_activate(movement_settings_t *settings, void *context) {
     state->animating = true;
 }
 
+static void display(int page)
+{
+    char buf[14];
+    sprintf(buf, "PI%2d", page);
+    watch_display_string(buf, 0);
+    for(int i=0;i<6;i++)
+        watch_display_character(pi_data[page*6+i], 4+i);//only 6 digits per page
+}
+
 bool hello_there_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     (void) settings;
     hello_there_state_t *state = (hello_there_state_t *)context;
 
     switch (event.event_type) {
         case EVENT_ACTIVATE:
+             display(state->current_word);
         case EVENT_TICK:
             // on activate and tick, if we are animating,
-            if (state->animating) {
-                // we display the current word,
-                if (state->current_word == 0) watch_display_string("Hello ", 4);
-                else watch_display_string(" there", 4);
-                // and increment it so that it will update on the next tick.
-                state->current_word = (state->current_word + 1) % 2;
-            }
             break;
         case EVENT_LIGHT_BUTTON_UP:
             // when the user presses 'light', we illuminate the LED. We could override this if
             // our UI needed an additional button for input, consuming the light button press
             // but not illuminating the LED.
-            movement_illuminate_led();
+            state->current_word = (state->current_word + 24) % 25;   
+            display(state->current_word);
             break;
         case EVENT_MODE_BUTTON_UP:
             // when the user presses 'mode', we tell movement to move to the next watch face.
@@ -81,7 +88,8 @@ bool hello_there_face_loop(movement_event_t event, movement_settings_t *settings
         case EVENT_ALARM_BUTTON_UP:
             // when the user presses 'alarm', we toggle the state of the animation. If animating,
             // we stop; if stopped, we resume.
-            state->animating = !state->animating;   
+            state->current_word = (state->current_word + 1) % 25;   
+            display(state->current_word);
             break;
         case EVENT_LOW_ENERGY_UPDATE:
             // This low energy mode update occurs once a minute, if the watch face is in the

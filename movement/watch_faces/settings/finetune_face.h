@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Joey Castillo
+ * Copyright (c) 2022 <#author_name#>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,31 +22,29 @@
  * SOFTWARE.
  */
 
-#ifndef MOVEMENT_CONFIG_H_
-#define MOVEMENT_CONFIG_H_
+#ifndef FINETUNE_FACE_H_
+#define FINETUNE_FACE_H_
 
-#include "movement_faces.h"
+#include "movement.h"
 
-const watch_face_t watch_faces[] = {
-    simple_clock_face,
-    sunrise_sunset_face,
-    stopwatch_face,
-    thermistor_readout_face,
-    preferences_face,
-    voltage_face,
-    set_time_face,
-    nanosec_face,
-    finetune_face,
-    hello_there_face,
-};
+typedef struct {
+    // Anything you need to keep track of, put it here!
+    uint8_t unused;
+} finetune_state_t;
 
-#define MOVEMENT_NUM_FACES (sizeof(watch_faces) / sizeof(watch_face_t))
+void finetune_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
+void finetune_face_activate(movement_settings_t *settings, void *context);
+bool finetune_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void finetune_face_resign(movement_settings_t *settings, void *context);
+void finetune_adjust_subseconds(int delta);
 
-/* Determines what face to go to from the first face if you've already set 
- * a mode long press to go to the first face in preferences, and
- * excludes these faces from the normal rotation.
- * Usually it makes sense to set this to the preferences face.
- */
-#define MOVEMENT_SECONDARY_FACE_INDEX 0 // or (MOVEMENT_NUM_FACES - 2)
+#define finetune_face ((const watch_face_t){ \
+    finetune_face_setup, \
+    finetune_face_activate, \
+    finetune_face_loop, \
+    finetune_face_resign, \
+    NULL, \
+})
 
-#endif // MOVEMENT_CONFIG_H_
+#endif // FINETUNE_FACE_H_
+

@@ -58,6 +58,8 @@
 #include "frequency_correction_face.h"
 #include "alarm_face.h"
 #include "ratemeter_face.h"
+#include "nanosec_face.h"
+#include "finetune_face.h"
 // New includes go above this line.
 
 #endif // MOVEMENT_FACES_H_
