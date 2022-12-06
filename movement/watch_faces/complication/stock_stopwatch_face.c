@@ -39,19 +39,44 @@
        turns on on each button press or it doesn't.
 */
 
+// distant future for background task: January 1, 2083
+static const watch_date_time distant_future = {
+    .unit = {0, 0, 0, 1, 1, 63}
+};
 
 static uint32_t _ticks;
 static uint32_t _lap_ticks;
+static uint32_t _last_ticks_stopped;
 static uint8_t _blink_ticks;
 static uint32_t _old_seconds;
 static uint8_t _old_minutes;
 static uint8_t _hours;
+static watch_date_time _start_time;
+static watch_date_time _resume_time;
+static watch_date_time _compare_time;
+static uint8_t *_measure_ticks;
+static uint8_t _tick_offset_start;
+static uint8_t _tick_offset_resume;
 static bool _colon;
 static bool _is_running;
 
 static void _fast_tick_callback() {
-    _ticks++;
-    // overflow is handled further down in the app loop, to keep this callback is as simple as possible
+    _ticks++;  // overflow is handled further down in the app loop, to save cycles here
+    if (_measure_ticks != NULL) {
+        // we need to keep track of the tick offset to the next full rtc second (to be able to adjust the timer
+        // when we wake up from low energy mode)
+        watch_date_time current_time = watch_rtc_get_date_time();
+        if (current_time.unit.second != _compare_time.unit.second) {
+            // we are done counting
+            if (_measure_ticks == &_tick_offset_resume) {
+                // we have just woken up from low energy mode, so adjusts the ticks here
+                _ticks -= *_measure_ticks;
+                _old_minutes -= 1;  // initiate a redraw (no need to bother about overflows)
+            }
+            _measure_ticks = NULL;
+        } else
+            *_measure_ticks++;
+    }
 }
 
 static inline void _button_beep(movement_settings_t *settings) {
@@ -59,8 +84,10 @@ static inline void _button_beep(movement_settings_t *settings) {
     if (settings->bit.button_should_sound) watch_buzzer_play_note(BUZZER_NOTE_C7, 50);
 }
 
+/// @brief Display minutes, seconds and fractions derived from 128 Hz tick counter
+///        on the lcd.
+/// @param ticks
 static void _display_ticks(uint32_t ticks) {
-    // show minutes, seconds and fractions derived from 128 Hz tick counter
     char buf[14];
     uint8_t sec_100 = (ticks & 0x7F) * 100 / 128;
     uint32_t seconds = ticks >> 7;
@@ -72,8 +99,8 @@ static void _display_ticks(uint32_t ticks) {
     watch_display_string(buf, 2);
 }
 
+/// @brief Displays the current stopwatch time on the LCD (more optimized than _display_ticks())
 static void _draw() {
-    // update the display
     if (_lap_ticks == 0) {
         char buf[14];
         uint8_t sec_100 = (_ticks & 0x7F) * 100 / 128;
@@ -138,16 +165,34 @@ void stock_stopwatch_face_setup(movement_settings_t *settings, uint8_t watch_fac
         *context_ptr = malloc(sizeof(stock_stopwatch_state_t));
         memset(*context_ptr, 0, sizeof(stock_stopwatch_state_t));
         stock_stopwatch_state_t *state = (stock_stopwatch_state_t *)*context_ptr;
-    _ticks = _lap_ticks = _blink_ticks = _old_minutes = _old_seconds = _hours = 0;
+        _ticks = _last_ticks_stopped = _lap_ticks = _blink_ticks = _old_minutes = _old_seconds = _hours = 0;
     _is_running = _colon = false;
+        _start_time.reg = _resume_time.reg = _compare_time.reg = 0;
+        _measure_ticks = NULL;
         state->light_on_button = true;
         state->callback_slot = -1;
+    } else if (_is_running) {
+        // we are resuming from low energy mode and are still running, so we need to set up some timing adjustments
+        stock_stopwatch_state_t *state = (stock_stopwatch_state_t *)*context_ptr;
+        if (state->callback_slot >= 0) watch_rtc_disable_periodic_callback_slot(128, state->callback_slot);
+        _ticks = _last_ticks_stopped;
+        watch_date_time _resume_time = watch_rtc_get_date_time();
+        _compare_time = _resume_time;
+        _ticks += (watch_utility_date_time_to_unix_time(_resume_time, 0) - watch_utility_date_time_to_unix_time(_start_time, 0)) * 128 + _tick_offset_start;
+        _tick_offset_resume = 0;
+        _measure_ticks = &_tick_offset_resume;
+        // register 128 hz callback for time measuring
+        state->callback_slot = watch_rtc_register_periodic_callback_slot(_fast_tick_callback, 128);
     }
 }
 
 void stock_stopwatch_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
+    if (_is_running) {
+        // The background task will keep the watch from entering low energy mode while the stopwatch is on screen.
+        movement_schedule_background_task(distant_future);
+    }
 }
 
 bool stock_stopwatch_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
@@ -187,15 +232,24 @@ bool stock_stopwatch_face_loop(movement_event_t event, movement_settings_t *sett
             if (_is_running) {
                 // start or continue stopwatch
                 if (state->callback_slot >= 0) watch_rtc_disable_periodic_callback_slot(128, state->callback_slot);
-                // register 128 hz callback for time measuring
-                state->callback_slot = watch_rtc_register_periodic_callback_slot(_fast_tick_callback, 128);
+                _compare_time = watch_rtc_get_date_time();
+                _start_time = _compare_time;
+                _tick_offset_start = 0;
+                _measure_ticks = &_tick_offset_start;
                 // update the display at 16 hz
                 movement_request_tick_frequency(16);
+                // register 128 hz callback for time measuring
+                state->callback_slot = watch_rtc_register_periodic_callback_slot(_fast_tick_callback, 128);
+                // schedule the keepalive task when running
+                movement_schedule_background_task(distant_future);
             } else {
                 // stop the stopwatch
                 if (state->callback_slot >= 0) watch_rtc_disable_periodic_callback_slot(128, state->callback_slot);
                 movement_request_tick_frequency(1);
+                _last_ticks_stopped = _ticks;
                 _set_colon();
+                // cancel the keepalive task
+                movement_cancel_background_task();
             }
             _draw();
             _button_beep(settings);
@@ -219,7 +273,7 @@ bool stock_stopwatch_face_loop(movement_event_t event, movement_settings_t *sett
                     _lap_ticks = 0;
                 } else if (_ticks) {
                     // reset stopwatch
-                    _ticks = _lap_ticks = _blink_ticks = _old_minutes = _old_seconds = _hours = 0;
+                    _ticks = _last_ticks_stopped = _lap_ticks = _blink_ticks = _old_minutes = _old_seconds = _hours = 0;
                     _button_beep(settings);
                 }
             }
@@ -235,14 +289,12 @@ bool stock_stopwatch_face_loop(movement_event_t event, movement_settings_t *sett
         default:
             break;
     }
-#if __EMSCRIPTEN__
-    return true;            // returning false in simulator seems to cause problems
-#else
-    return !_is_running;    // do not enter sleep mode if we have a running stopwatch
-#endif    
+    return true;
 }
 
 void stock_stopwatch_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
+    // cancel the keepalive task
+    movement_cancel_background_task();
 }
