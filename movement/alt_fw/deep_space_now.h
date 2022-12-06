@@ -32,15 +32,15 @@
 
 #define MOVEMENT_CUSTOM_BOOT_COMMANDS() { \
     /* Standard Time */\
-    /*\
     watch_store_backup_data(0x1e0c0c, 4);\
     watch_store_backup_data(0x010115, 5);\
     watch_store_backup_data(0x130105, 6);\
-    */\
     /* Daylight Saving Time */\
+    /*\
     watch_store_backup_data(0x1f0c0c, 4);\
     watch_store_backup_data(0x020115, 5);\
     watch_store_backup_data(0x110105, 6);\
+    */\
     watch_store_backup_data(0x0597b9, 2);\
 }
 

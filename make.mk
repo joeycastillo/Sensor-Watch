@@ -1,5 +1,9 @@
 ##############################################################################
+ifndef EMSCRIPTEN
 BUILD = ./build
+else
+BUILD = ./build-sim
+endif
 BIN = watch
 
 ifndef BOARD
