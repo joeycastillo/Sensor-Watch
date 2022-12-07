@@ -25,9 +25,46 @@
 #include <stdlib.h>
 #include <string.h>
 #include "milk_log_face.h"
+#include <math.h>
 
+/*
+    UI Notes
+    * Home screen displays the total milk purchased in litres
+    * Light shows the outstanding amount in Rs (total_litres x price_per_litre) for a few ticks
+    * Alarm long press starts the edit mode for the log entry
+        * Light advances the value by 0.5l
+        * Alram decreases the value by 0.5l
+        * Mode enters the value into the log and exits the edit mode
+*/
+
+/*Private Functions*/
+static void _milk_log_face_update_display(movement_settings_t *settings, milk_log_state_t *logger_state) {
+    (void) settings;
+    char buf[11];
+    uint16_t outstanding_amt = ceilf(logger_state->consumption*logger_state->price_per_litre);
+
+    switch(logger_state->curr_view) {
+        case SUMMARY_VIEW:
+            sprintf(buf, "ML   %2.1fL ", logger_state->consumption);
+            break;
+        case LOG_ENTRY_VIEW:
+            if(logger_state->new_log_entry >=0)
+                sprintf(buf, "Ad   %2.1fL ", logger_state->new_log_entry);
+            else
+                sprintf(buf, "Ad  %2.1fL ", logger_state->new_log_entry);
+            break;
+        case OUTSTANDING_AMT_VIEW:
+            sprintf(buf, "ML  %4drs", outstanding_amt);
+            break;
+        default: break;
+    }
+    watch_display_string(buf, 0);
+}
+
+/*Public Functions*/
 void milk_log_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
+    (void) watch_face_index;
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(milk_log_state_t));
         memset(*context_ptr, 0, sizeof(milk_log_state_t));
@@ -38,39 +75,75 @@ void milk_log_face_setup(movement_settings_t *settings, uint8_t watch_face_index
 
 void milk_log_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
-    milk_log_state_t *state = (milk_log_state_t *)context;
-
+    milk_log_state_t *logger_state = (milk_log_state_t *)context;
+    logger_state->ts_ticks = 0;
+    logger_state->curr_view = SUMMARY_VIEW;
     // Handle any tasks related to your watch face coming on screen.
+    logger_state->price_per_litre = 45;
+    logger_state->consumption = 1.5f;
+    logger_state->new_log_entry = 0.0f;
+    char buf[11] = "doodh";
+    watch_display_string(buf, 5);
 }
 
 bool milk_log_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
-    milk_log_state_t *state = (milk_log_state_t *)context;
-    char buf[11] = "ML";
+    milk_log_state_t *logger_state = (milk_log_state_t *)context;
 
 
     switch (event.event_type) {
         case EVENT_ACTIVATE:
             // Show your initial UI here.
-            watch_display_string(buf, 0);
+            _milk_log_face_update_display(settings, logger_state);
             break;
         case EVENT_TICK:
             // If needed, update your display here.
+            if (logger_state->ts_ticks && --logger_state->ts_ticks == 0) {
+                logger_state->curr_view = SUMMARY_VIEW;
+            }
+            _milk_log_face_update_display(settings, logger_state);
             break;
         case EVENT_MODE_BUTTON_UP:
-            // You shouldn't need to change this case; Mode almost always moves to the next watch face.
-            movement_move_to_next_face();
+            if(logger_state->curr_view == LOG_ENTRY_VIEW) {
+                logger_state->consumption += logger_state->new_log_entry;
+                logger_state->new_log_entry = 0.0f;
+                logger_state->curr_view = SUMMARY_VIEW;
+                _milk_log_face_update_display(settings, logger_state);
+            }else {
+                movement_move_to_next_face();
+            }
             break;
-        case EVENT_LIGHT_BUTTON_UP:
-            // If you have other uses for the Light button, you can opt not to illuminate the LED for this event.
+        case EVENT_LIGHT_LONG_PRESS:
+            // light button shows the outstanding amount, but if you need the light, long press it.
             movement_illuminate_led();
             break;
+        case EVENT_LIGHT_BUTTON_DOWN:
+            // Briefly show the amount from the summary view
+            if(logger_state->curr_view == SUMMARY_VIEW) {
+                logger_state->ts_ticks = OUTSTANDING_AMOUnT_VIEW_TIMEOUT;
+                logger_state->curr_view = OUTSTANDING_AMT_VIEW;
+                _milk_log_face_update_display(settings, logger_state);
+            }
+            break;
+        case EVENT_LIGHT_BUTTON_UP:
+            if(logger_state->curr_view == LOG_ENTRY_VIEW) {
+                logger_state->new_log_entry -= 0.5f;
+                _milk_log_face_update_display(settings, logger_state);
+            }
+            break;
+        case EVENT_ALARM_LONG_PRESS:
+            logger_state->curr_view = LOG_ENTRY_VIEW;
+            _milk_log_face_update_display(settings, logger_state);
+            break;
         case EVENT_ALARM_BUTTON_UP:
-            // Just in case you have need for another button.
+            if(logger_state->curr_view == LOG_ENTRY_VIEW) {
+                logger_state->new_log_entry += 0.5f;
+                _milk_log_face_update_display(settings, logger_state);
+            }
             break;
         case EVENT_TIMEOUT:
             // Your watch face will receive this event after a period of inactivity. If it makes sense to resign,
             // you may uncomment this line to move back to the first watch face in the list:
-            // movement_move_to_face(0);
+            movement_move_to_face(0);
             break;
         case EVENT_LOW_ENERGY_UPDATE:
             // If you did not resign in EVENT_TIMEOUT, you can use this event to update the display once a minute.
