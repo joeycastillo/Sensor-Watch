@@ -22,31 +22,22 @@
  * SOFTWARE.
  */
 
-#ifndef MOVEMENT_CONFIG_H_
-#define MOVEMENT_CONFIG_H_
+#ifndef DATABANK_FACE_H_
+#define DATABANK_FACE_H_
 
-#include "movement_faces.h"
+#include "movement.h"
 
-const watch_face_t watch_faces[] = {
-    simple_clock_face,
-    sunrise_sunset_face,
-    stopwatch_face,
-    thermistor_readout_face,
-    preferences_face,
-    voltage_face,
-    set_time_hackwatch_face,
-    databank_face,
-    nanosec_face,
-    finetune_face,
-};
+void databank_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
+void databank_face_activate(movement_settings_t *settings, void *context);
+bool databank_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void databank_face_resign(movement_settings_t *settings, void *context);
 
-#define MOVEMENT_NUM_FACES (sizeof(watch_faces) / sizeof(watch_face_t))
+#define databank_face ((const watch_face_t){ \
+    databank_face_setup, \
+    databank_face_activate, \
+    databank_face_loop, \
+    databank_face_resign, \
+    NULL, \
+})
 
-/* Determines what face to go to from the first face if you've already set 
- * a mode long press to go to the first face in preferences, and
- * excludes these faces from the normal rotation.
- * Usually it makes sense to set this to the preferences face.
- */
-#define MOVEMENT_SECONDARY_FACE_INDEX 7 // or (MOVEMENT_NUM_FACES - 2)
-
-#endif // MOVEMENT_CONFIG_H_
+#endif // DATABANK_FACE_H_

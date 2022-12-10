@@ -1,8 +1,8 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Joey Castillo
- *
+ * Copyright (c) 2022 Mikhail Svarichevsky
+ * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -20,57 +20,88 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+ * 
+ * Displays some pre-defined data
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "hello_there_face.h"
+#include "databank_face.h"
 #include "watch.h"
+#include "watch_private_display.h"
 
-void hello_there_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
+const int databank_num_pages = 6;
+
+char *pi_data[] = {"PI", "314159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535940812848111745028410270193852110555964462294895493038196442",
+                   "S ", "9192631770",
+                   "31", "2147483648",
+                   "32", "4294967296",
+                   "63", "9223372036854775808",
+                   "64", "18446744073709551616"};
+//we show 8 characters per screen, so 200/8=25 screens
+
+struct {
+    uint8_t current_word;
+    uint8_t databank_page;
+    bool animating;
+} databank_state;
+
+void databank_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     // These next two lines just silence the compiler warnings associated with unused parameters.
     // We have no use for the settings or the watch_face_index, so we make that explicit here.
     (void) settings;
+    (void) context_ptr;
     (void) watch_face_index;
     // At boot, context_ptr will be NULL indicating that we don't have anyplace to store our context.
-    if (*context_ptr == NULL) {
-        // in this case, we allocate an area of memory sufficient to store the stuff we need to track.
-        *context_ptr = malloc(sizeof(hello_there_state_t));
+}
+
+void databank_face_activate(movement_settings_t *settings, void *context) {
+    // same as above: silence the warning, we don't need to check the settings.
+    (void) settings;
+    (void) context;
+    // we do however need to set some things in our context. Here we cast it to the correct type...
+    databank_state.current_word = 0;
+    databank_state.animating = true;
+}
+
+static void display()
+{
+    char buf[14];
+    int page = databank_state.current_word;
+    sprintf(buf, "%s%2d", pi_data[databank_state.databank_page*2+0], page);
+    watch_display_string(buf, 0);
+    bool data_ended = false;
+    for(int i=0;i<6;i++)
+    {
+        if(pi_data[databank_state.databank_page*2+1][page*6+i] == 0)data_ended = true;
+        if(!data_ended)
+            watch_display_character(pi_data[databank_state.databank_page*2+1][page*6+i], 4+i); else//only 6 digits per page
+            watch_display_character(' ', 4+i);
     }
 }
 
-void hello_there_face_activate(movement_settings_t *settings, void *context) {
-    // same as above: silence the warning, we don't need to check the settings.
+bool databank_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     (void) settings;
-    // we do however need to set some things in our context. Here we cast it to the correct type...
-    hello_there_state_t *state = (hello_there_state_t *)context;
-    // ...and set the initial state of our watch face. We start out displaying the word 'Hello',
-    state->current_word = 0;
-    // and animate by default.
-    state->animating = true;
-}
-
-bool hello_there_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
-    (void) settings;
-    hello_there_state_t *state = (hello_there_state_t *)context;
+    (void) context;
+    int max_words = (strlen(pi_data[databank_state.databank_page*2+1])-1)/6+1;
 
     switch (event.event_type) {
         case EVENT_ACTIVATE:
+             display();
         case EVENT_TICK:
             // on activate and tick, if we are animating,
-            if (state->animating) {
-                // we display the current word,
-                if (state->current_word == 0) watch_display_string("Hello ", 4);
-                else watch_display_string(" there", 4);
-                // and increment it so that it will update on the next tick.
-                state->current_word = (state->current_word + 1) % 2;
-            }
             break;
         case EVENT_LIGHT_BUTTON_UP:
             // when the user presses 'light', we illuminate the LED. We could override this if
             // our UI needed an additional button for input, consuming the light button press
             // but not illuminating the LED.
-            movement_illuminate_led();
+            databank_state.current_word = (databank_state.current_word + max_words - 1) % max_words;   
+            display();
+            break;
+        case EVENT_LIGHT_LONG_PRESS:
+            databank_state.databank_page=(databank_state.databank_page+databank_num_pages-1) % databank_num_pages;
+            databank_state.current_word = 0;   
+            display();
             break;
         case EVENT_MODE_BUTTON_UP:
             // when the user presses 'mode', we tell movement to move to the next watch face.
@@ -78,10 +109,16 @@ bool hello_there_face_loop(movement_event_t event, movement_settings_t *settings
             // to the next watch face in the list.
             movement_move_to_next_face();
             break;
+        case EVENT_ALARM_LONG_PRESS:
+            databank_state.databank_page=(databank_state.databank_page + 1) % databank_num_pages;
+            databank_state.current_word = 0;   
+            display();
+            break;
         case EVENT_ALARM_BUTTON_UP:
             // when the user presses 'alarm', we toggle the state of the animation. If animating,
             // we stop; if stopped, we resume.
-            state->animating = !state->animating;   
+            databank_state.current_word = (databank_state.current_word + 1) % max_words;   
+            display();
             break;
         case EVENT_LOW_ENERGY_UPDATE:
             // This low energy mode update occurs once a minute, if the watch face is in the
@@ -104,7 +141,7 @@ bool hello_there_face_loop(movement_event_t event, movement_settings_t *settings
     return true;
 }
 
-void hello_there_face_resign(movement_settings_t *settings, void *context) {
+void databank_face_resign(movement_settings_t *settings, void *context) {
     // our watch face, like most watch faces, has nothing special to do when resigning.
     // watch faces that enable a peripheral or interact with a sensor may want to turn it off here.
     (void) settings;
