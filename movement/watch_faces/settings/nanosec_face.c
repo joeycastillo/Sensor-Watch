@@ -326,7 +326,7 @@ bool nanosec_face_loop(movement_event_t event, movement_settings_t *settings, vo
             //Default 32kHz correciton factor is -0.034, centered around 25°C
             float dt = temperature_c-nanosec_state.center_temperature/100.0;
             int16_t correction = round((
-                                    nanosec_state.freq_correction + 
+                                    nanosec_state.freq_correction/10.0f + 
                                    (-nanosec_state.quadratic_tempco/100000.0*10.0)*dt*dt + 
                                     (nanosec_state.cubic_tempco  /10000000.0*10.0)*dt*dt*dt + 
                                     (voltage-3.0)*voltage_coefficient
