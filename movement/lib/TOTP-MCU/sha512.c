@@ -351,10 +351,11 @@ void mbedtls_sha512( const unsigned char *input, size_t ilen,
 void HMAC_SHA512(const uint8_t* key, size_t key_length, const uint8_t *in, size_t n, uint8_t out[SHA512_DIGEST_LENGTH], int is384){
 
   uint8_t i;
-  uint8_t k_ipad[SHA512_BLOCK_LENGTH];
-  uint8_t k_opad[SHA512_BLOCK_LENGTH];
+  uint8_t k_ipad[SHA512_BLOCK_LENGTH]; /* inner padding - key XORd with ipad */
+  uint8_t k_opad[SHA512_BLOCK_LENGTH]; /* outer padding - key XORd with opad */
   uint8_t buffer[SHA512_BLOCK_LENGTH + SHA512_DIGEST_LENGTH];
 
+  /* start out by storing key in pads */
   memset(k_ipad, 0, sizeof(k_ipad));
   memset(k_opad, 0, sizeof(k_opad));
 
@@ -368,17 +369,20 @@ void HMAC_SHA512(const uint8_t* key, size_t key_length, const uint8_t *in, size_
       memcpy(k_opad, k_ipad, SHA512_BLOCK_LENGTH);
   }
 
+  /* XOR key with ipad and opad values */
   for (i = 0; i < SHA512_BLOCK_LENGTH; i++) {
       k_ipad[i] ^= HMAC_IPAD;
       k_opad[i] ^= HMAC_OPAD;
   }
   
+  // perform inner SHA512
   memcpy(buffer, k_ipad, SHA512_BLOCK_LENGTH);
   memcpy(buffer + SHA512_BLOCK_LENGTH, in, n);
   mbedtls_sha512(buffer, SHA512_BLOCK_LENGTH + n, out, is384);
   
   memset(buffer, 0, SHA512_BLOCK_LENGTH + n);
 
+  // perform outer SHA512
   memcpy(buffer, k_opad, SHA512_BLOCK_LENGTH);
   memcpy(buffer + SHA512_BLOCK_LENGTH, out, SHA512_DIGEST_LENGTH);
   mbedtls_sha512(buffer, SHA512_BLOCK_LENGTH + SHA512_DIGEST_LENGTH, out, is384);

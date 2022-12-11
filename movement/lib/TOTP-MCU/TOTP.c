@@ -10,7 +10,7 @@ uint8_t _timeZoneOffset;
 uint32_t _timeStep;
 hmac_alg _algorithm;
 
-// Init the library with the private key, its length and the timeStep duration
+// Init the library with the private key, its length, the timeStep duration and the algorithm that should be used
 void TOTP(uint8_t* hmacKey, uint8_t keyLength, uint32_t timeStep, hmac_alg algorithm) {
     _hmacKey = hmacKey;
     _keyLength = keyLength;

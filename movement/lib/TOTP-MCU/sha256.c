@@ -301,10 +301,11 @@ void mbedtls_sha256( const unsigned char *input, size_t ilen,
 void HMAC_SHA256(const uint8_t* key, size_t key_length, const uint8_t *in, size_t n, uint8_t out[SHA256_DIGEST_LENGTH], int is224){
 
   uint8_t i;
-  uint8_t k_ipad[SHA256_BLOCK_LENGTH];
-  uint8_t k_opad[SHA256_BLOCK_LENGTH];
+  uint8_t k_ipad[SHA256_BLOCK_LENGTH]; /* inner padding - key XORd with ipad */
+  uint8_t k_opad[SHA256_BLOCK_LENGTH]; /* outer padding - key XORd with opad */
   uint8_t buffer[SHA256_BLOCK_LENGTH + SHA256_DIGEST_LENGTH];
 
+  /* start out by storing key in pads */
   memset(k_ipad, 0, sizeof(k_ipad));
   memset(k_opad, 0, sizeof(k_opad));
 
@@ -318,17 +319,20 @@ void HMAC_SHA256(const uint8_t* key, size_t key_length, const uint8_t *in, size_
       memcpy(k_opad, k_ipad, SHA256_BLOCK_LENGTH);
   }
 
+  /* XOR key with ipad and opad values */
   for (i = 0; i < SHA256_BLOCK_LENGTH; i++) {
       k_ipad[i] ^= HMAC_IPAD;
       k_opad[i] ^= HMAC_OPAD;
   }
   
+  // perform inner SHA256
   memcpy(buffer, k_ipad, SHA256_BLOCK_LENGTH);
   memcpy(buffer + SHA256_BLOCK_LENGTH, in, n);
   mbedtls_sha256(buffer, SHA256_BLOCK_LENGTH + n, out, is224);
   
   memset(buffer, 0, SHA256_BLOCK_LENGTH + n);
 
+  // perform outer SHA256
   memcpy(buffer, k_opad, SHA256_BLOCK_LENGTH);
   memcpy(buffer + SHA256_BLOCK_LENGTH, out, SHA256_DIGEST_LENGTH);
   mbedtls_sha256(buffer, SHA256_BLOCK_LENGTH + SHA256_DIGEST_LENGTH, out, is224);
