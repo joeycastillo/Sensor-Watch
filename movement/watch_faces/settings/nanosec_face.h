@@ -28,7 +28,7 @@
 #include "movement.h"
 
 #define nanosec_profile_count 5
-typedef union {
+typedef struct {
     //0 - static hardware correction. 
     //1 - static correction with dithering. 
     //2 - datasheet quadratic correction (universal). 
@@ -39,6 +39,8 @@ typedef union {
     int16_t center_temperature;//Multiplied by 100, +25.0->+2500
     int16_t quadratic_tempco;//0.034 -> 3400, multiplied by 100000. Stored positive, used as negative.
     int16_t cubic_tempco;//default 0, 0.000136 -> 1360, multiplied by 10000000. Stored positive, used positive.
+    int8_t correction_cadence;
+    uint32_t last_correction_time;//Not used at the moment - but will in the future
 } nanosec_state_t;
 
 void nanosec_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);

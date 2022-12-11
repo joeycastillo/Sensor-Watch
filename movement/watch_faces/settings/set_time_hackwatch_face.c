@@ -27,7 +27,8 @@
 #include "watch.h"
 
 #define set_time_hackwatch_face_NUM_SETTINGS (7)
-const char set_time_hackwatch_face_titles[set_time_hackwatch_face_NUM_SETTINGS][3] = {"HR", "M1", "SE", "YR", "MO", "DA", "ZO"};
+//const
+ char set_time_hackwatch_face_titles[set_time_hackwatch_face_NUM_SETTINGS][3] = {"HR", "M1", "SE", "YR", "MO", "DA", "ZO"};
 watch_date_time date_time_settings;
 
 void set_time_hackwatch_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
@@ -38,9 +39,16 @@ void set_time_hackwatch_face_setup(movement_settings_t *settings, uint8_t watch_
 
 void set_time_hackwatch_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
-    *((uint8_t *)context) = 0;
+    *((uint8_t *)context) = 3;
     movement_request_tick_frequency(32);
     date_time_settings = watch_rtc_get_date_time();
+}
+
+void hackwatch_rtc_en(bool en)
+{
+    while (RTC->MODE2.SYNCBUSY.reg);
+    RTC->MODE2.CTRLA.bit.ENABLE = en?1:0;
+    while (RTC->MODE2.SYNCBUSY.reg);
 }
 
 bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
@@ -50,38 +58,46 @@ bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *s
     if(event.subsecond==15)//Delay displayed time update by ~0.5 seconds, to align phase exactly to main clock at 1Hz
         date_time_settings = watch_rtc_get_date_time();
     
-    static int8_t seconds_reset_sequence = 0;
+    static int8_t seconds_reset_sequence;
 
     switch (event.event_type) {
         case EVENT_MODE_BUTTON_UP:
-            if(current_page == 2)RTC->MODE2.CTRLA.bit.ENABLE = 1;
+            if(current_page == 2)hackwatch_rtc_en(true);
             movement_move_to_next_face();
             return false;
         case EVENT_LIGHT_BUTTON_UP:
-            if(current_page == 2)RTC->MODE2.CTRLA.bit.ENABLE = 1; 
+            if(current_page == 2)hackwatch_rtc_en(true); 
+            
             current_page = (current_page + 1) % set_time_hackwatch_face_NUM_SETTINGS;
+            if(current_page == 2)
+                seconds_reset_sequence = 0;
+            
             *((uint8_t *)context) = current_page;
             break;
         case EVENT_TICK:
+            //Let's wait for 2 events, not one
             if(current_page == 2 && seconds_reset_sequence == 1 && event.subsecond==15)//wait ~0.5sec - until we reach half second point
             {
-                //We got to halfsecond - stop the timer
-                watch_rtc_set_date_time(date_time_settings);
-
-                RTC->MODE2.CTRLA.bit.ENABLE = 0;
-                while (RTC->MODE2.SYNCBUSY.reg);
+                hackwatch_rtc_en(false);
                 seconds_reset_sequence = 2;
+
+                //Set new time while RTC is off, to get perfect start
+                if(date_time_settings.unit.second>30) 
+                    date_time_settings.unit.minute = (date_time_settings.unit.minute + 1) % 60;//Roll to next minute if we are almost there
+                date_time_settings.unit.second = 0;
+                watch_rtc_set_date_time(date_time_settings);
             }
             break;
         case EVENT_ALARM_BUTTON_DOWN:
             if(current_page == 2)
             {
+                hackwatch_rtc_en(true);//If it is disabled accidentally - re-enable it
                 seconds_reset_sequence = 1;//Waiting for whole second
-                watch_rtc_set_date_time(date_time_settings);
             }
             break;             
-        case EVENT_ALARM_LONG_PRESS:
+        //case EVENT_ALARM_LONG_PRESS:
         case EVENT_ALARM_BUTTON_UP:
+        case EVENT_ALARM_LONG_UP:
             switch (current_page) {
                 case 0: // hour
                     date_time_settings.unit.hour = (date_time_settings.unit.hour + 1) % 24;
@@ -90,12 +106,8 @@ bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *s
                     date_time_settings.unit.minute = (date_time_settings.unit.minute + 1) % 60;
                     break;
                 case 2: // second
-                    if(date_time_settings.unit.second>30) 
-                        date_time_settings.unit.minute = (date_time_settings.unit.minute + 1) % 60;//Roll to next minute if we are almost there
-                    date_time_settings.unit.second = 0;
                     seconds_reset_sequence = 0;
-                    RTC->MODE2.CTRLA.bit.ENABLE = 1;//restart timer
-                    while (RTC->MODE2.SYNCBUSY.reg);
+                    hackwatch_rtc_en(true);
                     break;
                 case 3: // year
                     // only allow 2021-2061. fix this sometime later
@@ -117,7 +129,10 @@ bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *s
                     if (settings->bit.time_zone > 40) settings->bit.time_zone = 0;
                     break;
             }
-            watch_rtc_set_date_time(date_time_settings);
+            if(current_page!=2)//Do not set time when we are at seconds, it was already set previously
+                watch_rtc_set_date_time(date_time_settings);
+                
+            //TODO: Do not update whole RTC, just what we are changing
             break;
         case EVENT_TIMEOUT:
             movement_move_to_face(0);

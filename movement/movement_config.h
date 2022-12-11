@@ -34,10 +34,10 @@ const watch_face_t watch_faces[] = {
     thermistor_readout_face,
     preferences_face,
     voltage_face,
-    set_time_hackwatch_face,
     databank_face,
     nanosec_face,
     finetune_face,
+    set_time_hackwatch_face,
 };
 
 #define MOVEMENT_NUM_FACES (sizeof(watch_faces) / sizeof(watch_face_t))
@@ -47,6 +47,6 @@ const watch_face_t watch_faces[] = {
  * excludes these faces from the normal rotation.
  * Usually it makes sense to set this to the preferences face.
  */
-#define MOVEMENT_SECONDARY_FACE_INDEX 7 // or (MOVEMENT_NUM_FACES - 2)
+#define MOVEMENT_SECONDARY_FACE_INDEX 6 // or (MOVEMENT_NUM_FACES - 2)
 
 #endif // MOVEMENT_CONFIG_H_

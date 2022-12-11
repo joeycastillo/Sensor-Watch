@@ -24,9 +24,15 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "finetune_face.h"
+#include "nanosec_face.h"
+#include "watch_utility.h"
 
-int total_adjustment; 
+extern nanosec_state_t nanosec_state;
+
+int total_adjustment;
+int8_t finetune_page;
 
 void finetune_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
@@ -42,6 +48,7 @@ void finetune_face_activate(movement_settings_t *settings, void *context) {
     // Handle any tasks related to your watch face coming on screen.
     watch_display_string("FT", 0);
     total_adjustment = 0;
+    finetune_page = 0;
 }
 
 void finetune_adjust_subseconds(int delta)
@@ -64,6 +71,51 @@ void finetune_adjust_subseconds(int delta)
     while (RTC->MODE2.SYNCBUSY.reg);
 }
 
+float finetune_get_hours_passed(void);
+float finetune_get_hours_passed()
+{
+    uint32_t current_time = watch_utility_date_time_to_unix_time(watch_rtc_get_date_time(), 0);
+    return (current_time - nanosec_state.last_correction_time)/3600.0f;
+}
+
+float finetune_get_correction(void);
+float finetune_get_correction()
+{
+    return total_adjustment/(finetune_get_hours_passed()*3600.0f)*1000.0f;
+}
+
+void finetune_update_display(void) {
+
+    char buf[25];
+    if(finetune_page==0)
+    {
+        watch_date_time date_time = watch_rtc_get_date_time();
+        sprintf(buf, "%02d", date_time.unit.second);
+        watch_display_string(buf, 8);
+
+        sprintf(buf, "%04d", abs(total_adjustment));
+        watch_display_string(buf, 4);
+        
+        if(total_adjustment<0)
+            watch_display_string("--", 2);else
+            watch_display_string("  ", 2);
+    } else
+    if(finetune_page==1)
+    {
+        float hours = finetune_get_hours_passed(); 
+        
+        sprintf(buf, "DT  %4d%02d", (int)hours, (int)(remainderf(hours, 1.)*100));
+        watch_display_string(buf, 0);
+    } else
+    if(finetune_page==2)
+    {
+        float correction = finetune_get_correction();
+        
+        sprintf(buf, " F%s%2d%04d", (total_adjustment<0)?" -":"  ", ((int)fabsf(correction)), (int)(remainderf(fabsf(correction), 1.)*10000));
+        watch_display_string(buf, 0);
+    }
+}
+
 bool finetune_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
 
     (void) settings;
@@ -76,41 +128,63 @@ bool finetune_face_loop(movement_event_t event, movement_settings_t *settings, v
         case EVENT_TICK:
             // If needed, update your display here, at canonical 0.5sec position.
             {
-                watch_date_time date_time = watch_rtc_get_date_time();
-                char buf[11];
-                sprintf(buf, "%02d", date_time.unit.second);
-                watch_display_string(buf, 8);
-
-                sprintf(buf, "%04d", abs(total_adjustment));
-                watch_display_string(buf, 4);
-                
-                if(total_adjustment<0)
-                    watch_display_string("--", 2);else
-                    watch_display_string("  ", 2);
+                finetune_update_display();
             }
             break;
+        
         case EVENT_MODE_BUTTON_UP:
-            // You shouldn't need to change this case; Mode almost always moves to the next watch face.
-            movement_move_to_next_face();
+            // Only allow for fast exit when correction is 0!!!
+            if(finetune_page==0 && total_adjustment==0)
+                movement_move_to_next_face();else
+                finetune_page=(finetune_page+1)%3;
             break;
+
+        case EVENT_MODE_LONG_UP:
+            // You shouldn't need to change this case; Mode almost always moves to the next watch face.
+            finetune_page=(finetune_page+1)%3;
+            break;
+            
         case EVENT_LIGHT_LONG_PRESS:
-            // We are making it faster by 250ms
-            finetune_adjust_subseconds(750);
+            // We are making it slower by 250ms
+            if(finetune_page==0)
+            {
+                finetune_adjust_subseconds(250);
+                finetune_update_display();
+            } else
+            if(finetune_page==2)//Applying correction
+            {
+                nanosec_state.freq_correction += (int)round(finetune_get_correction()*100);
+                finetune_face_resign(settings, context);
+            }
             break;
 
         case EVENT_LIGHT_BUTTON_UP:
-            // We are making it faster by 25ms
-            finetune_adjust_subseconds(975);
+            // We are making it slower by 25ms
+            if(finetune_page==0)
+            {
+                finetune_adjust_subseconds(25);
+                finetune_update_display();
+            }
             break;
         
         case EVENT_ALARM_LONG_PRESS:
-            // Just in case you have need for another button.
-            finetune_adjust_subseconds(250);
+            if(finetune_page==0)
+            {
+                finetune_adjust_subseconds(750);
+                finetune_update_display();
+            } else
+            if(finetune_page==2)//Exit without applying correction to ppm
+            {
+                movement_move_to_next_face();
+            }
             break;
         
         case EVENT_ALARM_BUTTON_UP:
-            // Just in case you have need for another button.
-            finetune_adjust_subseconds(25);
+            if(finetune_page==0)
+            {
+                finetune_adjust_subseconds(975);
+                finetune_update_display();
+            }
             break;
         case EVENT_TIMEOUT:
             // Your watch face will receive this event after a period of inactivity. If it makes sense to resign,
@@ -136,6 +210,12 @@ void finetune_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
 
-    // handle any cleanup before your watch face goes off-screen.
+    //Remember when we last corrected time
+    if(total_adjustment!=0)
+    {
+        nanosec_state.last_correction_time = watch_utility_date_time_to_unix_time(watch_rtc_get_date_time(), 0);
+        nanosec_save();
+        movement_move_to_face(0);//Go to main face after saving settings
+    }
 }
 

@@ -50,6 +50,7 @@
 #include "thermistor_driver.h"
 #include "nanosec_face.h"
 #include "filesystem.h"
+#include "watch_utility.h"
 
 //(int8_t)RTC->MODE2.FREQCORR.reg
 
@@ -57,7 +58,7 @@ int16_t freq_correction_residual = 0;//Dithering 0.1ppm correction, defaults to 
 int16_t freq_correction_previous = -30000;
 nanosec_state_t nanosec_state;
 
-#define nanosec_max_screen 5
+#define nanosec_max_screen 6
 int8_t nanosec_screen = 0;
 
 const float voltage_coefficient = 2.41666667;//10*ppm/V. Nominal frequency is at 3V.
@@ -105,6 +106,9 @@ static void apply_RTC_correction(int16_t correction)
 
 void nanosec_save()
 {
+    if(nanosec_state.correction_profile==0)
+        apply_RTC_correction(nanosec_state.freq_correction/10);//Will be divided by 10 again inside, final resolution is mere 1ppm
+
     filesystem_write_file("nanosec.ini", (char*)&nanosec_state, sizeof(nanosec_state));
 }
 
@@ -133,12 +137,15 @@ void nanosec_face_activate(movement_settings_t *settings, void *context) {
     // Handle any tasks related to your watch face coming on screen.
 }
 
-static void _update_display() {
+static void nanosec_update_display() {
     char buf[14];
     
     switch (nanosec_screen){
         case 4://Profile
             sprintf(buf, "PR      P%1d", nanosec_state.correction_profile);
+            break;
+        case 5://Cadence
+            sprintf(buf, "CD      %2d", nanosec_state.correction_cadence);
             break;
         case 0:
             sprintf(buf, "FC  %6d", nanosec_state.freq_correction);
@@ -158,6 +165,10 @@ static void _update_display() {
 
 void nanosec_init_profile()
 {
+
+    nanosec_state.correction_cadence = 10;
+    watch_date_time date_time = watch_rtc_get_date_time();
+    nanosec_state.last_correction_time = watch_utility_date_time_to_unix_time(date_time, 0);
 
     //init data after changing profile - do that once per profile selection
     switch (nanosec_state.correction_profile)
@@ -198,9 +209,6 @@ void nanosec_init_profile()
 static void value_increase(int16_t delta)
 {
     switch (nanosec_screen){
-        case 4://Profile
-            nanosec_state.correction_profile=(nanosec_state.correction_profile+delta)%nanosec_profile_count;
-            break;
         case 0:
             nanosec_state.freq_correction += delta;
             break;
@@ -213,9 +221,23 @@ static void value_increase(int16_t delta)
         case 3:
             nanosec_state.cubic_tempco += delta;
             break;
+        case 4://Profile
+            nanosec_state.correction_profile=(nanosec_state.correction_profile+delta)%nanosec_profile_count;
+            break;
+        case 5://cadence
+            switch(nanosec_state.correction_cadence)
+            {
+                case 1:nanosec_state.correction_cadence=(delta>0)?5:60;break;
+                case 5:nanosec_state.correction_cadence=(delta>0)?10:1;break;
+                case 10:nanosec_state.correction_cadence=(delta>0)?20:5;break;
+                case 20:nanosec_state.correction_cadence=(delta>0)?60:10;break;
+                case 60:nanosec_state.correction_cadence=(delta>0)?1:20;break;
+            }
+            nanosec_state.correction_profile=(nanosec_state.correction_profile+delta)%nanosec_profile_count;
+            break;
     }
 
-    _update_display();
+    nanosec_update_display();
 }
 
 void nanosec_next_edit_screen()
@@ -223,11 +245,9 @@ void nanosec_next_edit_screen()
     if(nanosec_screen==0)//We were changing static correction
     {
         //If profile == 0 - write immidiately to hardware 
-        if(nanosec_state.correction_profile==0)
-            apply_RTC_correction(nanosec_state.freq_correction/10);//Will be divided by 10 again inside, final resolution is just 1ppm
-    } else
+    };
     nanosec_screen=(nanosec_screen+1)%nanosec_max_screen;
-    _update_display();
+    nanosec_update_display();
 }
 
 bool nanosec_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
@@ -237,8 +257,8 @@ bool nanosec_face_loop(movement_event_t event, movement_settings_t *settings, vo
     switch (event.event_type) {
         case EVENT_ACTIVATE:
             // Show your initial UI here.
-            nanosec_screen =-0;//Start at page 0
-            _update_display();
+            nanosec_screen = 0;//Start at page 0
+            nanosec_update_display();
             break;
         case EVENT_TICK:
             // If needed, update your display here.
@@ -256,28 +276,27 @@ bool nanosec_face_loop(movement_event_t event, movement_settings_t *settings, vo
             }*/
             break;
         case EVENT_MODE_BUTTON_UP:
-            // You shouldn't need to change this case; Mode almost always moves to the next watch face.
-            if(nanosec_screen==0)
-            {
+            if(nanosec_screen==5 || nanosec_screen==0){
                 filesystem_write_file("nanosec.ini", (char*)&nanosec_state, sizeof(nanosec_state));
                 movement_move_to_next_face();
-            }else
-            {
+            } else
                 nanosec_next_edit_screen();
-                
-            }
             break;
-        case EVENT_MODE_LONG_PRESS:
-            nanosec_screen=(nanosec_screen+1)%nanosec_max_screen;
-            _update_display();
-            // You shouldn't need to change this case; Mode almost always moves to the next watch face.
+        case EVENT_MODE_LONG_UP:
+            nanosec_next_edit_screen();
             
             break;
         case EVENT_LIGHT_BUTTON_UP:
              value_increase(1);
             break;
         case EVENT_LIGHT_LONG_PRESS:
-             value_increase(50);
+             if(nanosec_screen==4)//If we are in profile - apply profiles
+             {
+                nanosec_init_profile();
+                nanosec_screen = 0;
+                nanosec_update_display();
+             }else
+                value_increase(50);
             break;
         case EVENT_ALARM_BUTTON_UP:
              value_increase(-1);
@@ -351,6 +370,6 @@ bool nanosec_face_wants_background_task(movement_settings_t *settings, void *con
     if(nanosec_state.correction_profile==0)return 0;//No need for background correction if we are on profile 0 - static hardware correction.
     watch_date_time date_time = watch_rtc_get_date_time();
 
-    return date_time.unit.minute % 10 == 0;//We run freq correction every 10 minutes
+    return date_time.unit.minute % nanosec_state.correction_cadence == 0;
 }
 
