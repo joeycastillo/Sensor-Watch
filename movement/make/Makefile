@@ -31,6 +31,8 @@ INCLUDES += \
 #   ../watch_faces/fitness/step_count_face.c
 SRCS += \
   ../lib/TOTP-MCU/sha1.c \
+  ../lib/TOTP-MCU/sha256.c \
+  ../lib/TOTP-MCU/sha512.c \
   ../lib/TOTP-MCU/TOTP.c \
   ../lib/base32/base32.c \
   ../lib/sunriset/sunriset.c \
