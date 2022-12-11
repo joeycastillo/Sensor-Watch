@@ -85,19 +85,19 @@ static bool totp_face_lfs_read_param(struct totp_record *totp_record, char *para
             return false;
         }
     } else if (!strcmp(param, "algorithm")) {
-        if (!strcmp(param, "SHA1")) {
+        if (!strcmp(value, "SHA1")) {
             totp_record->algorithm = SHA1;
         }
-        else if (!strcmp(param, "SHA224")) {
+        else if (!strcmp(value, "SHA224")) {
             totp_record->algorithm = SHA224;
         }
-        else if (!strcmp(param, "SHA256")) {
+        else if (!strcmp(value, "SHA256")) {
             totp_record->algorithm = SHA256;
         }
-        else if (!strcmp(param, "SHA384")) {
+        else if (!strcmp(value, "SHA384")) {
             totp_record->algorithm = SHA384;
         }
-        else if (!strcmp(param, "SHA512")) {
+        else if (!strcmp(value, "SHA512")) {
             totp_record->algorithm = SHA512;
         }
         else {
