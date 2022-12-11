@@ -6,16 +6,20 @@
 #include "TOTP.h"
 
 // Use https://cryptii.com/pipes/base32-to-hex to convert base32 to hex
-// Use https://totp.danhersam.com/ to generate test codes for verification
+// Use https://github.com/susam/mintotp to generate test codes for verification
 
-static const uint8_t num_keys = 2;
+static const uint8_t num_keys = 6;
 static uint8_t keys[] = {
     0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x21, 0xde, 0xad, 0xbe, 0xef, // 1 - JBSWY3DPEHPK3PXP
     0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x21, 0xde, 0xad, 0xbe, 0xef, // 2 - JBSWY3DPEHPK3PXP
     0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x21, 0xde, 0xad, 0xbe, 0xef, // 3 - JBSWY3DPEHPK3PXP
-    0x5c, 0x0d, 0x27, 0x6b, 0x6d, 0x9a, 0x01, 0x22, 0x20, 0x4f  // 4 - E9M348K0ADIDFBC2
+    0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x21, 0xde, 0xad, 0xbe, 0xef, // 4 - JBSWY3DPEHPK3PXP
+    0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x21, 0xde, 0xad, 0xbe, 0xef, // 5 - JBSWY3DPEHPK3PXP
+    0x5c, 0x0d, 0x27, 0x6b, 0x6d, 0x9a, 0x01, 0x22, 0x20, 0x4f  // 6 - E9M348K0ADIDFBC2
 };
 static const uint8_t key_sizes[] = {
+    10,
+    10,
     10,
     10,
     10,
@@ -25,18 +29,24 @@ static const uint32_t timesteps[] = {
     30,
     30,
     30,
+    30,
+    30,
     30
 };
 static const char labels[][2] = {
     { 'a', 'b' },
     { 'c', 'd' },
-    { 'd', 'e' },
-    { 'f', 'g' }
+    { 'e', 'f' },
+    { 'g', 'h' },
+    { 'i', 'j' },
+    { 'k', 'l' }
 };
 
 static const hmac_alg algorithms[] = {
     SHA1,
+    SHA224,
     SHA256,
+    SHA384,
     SHA512,
     SHA1
 };

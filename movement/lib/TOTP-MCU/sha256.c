@@ -249,7 +249,7 @@ static const unsigned char sha256_padding[SHA256_BLOCK_LENGTH] =
 /*
  * SHA-256 final digest
  */
-void mbedtls_sha256_finish( mbedtls_sha256_context *ctx, unsigned char output[SHA256_DIGEST_LENGTH] )
+void mbedtls_sha256_finish( mbedtls_sha256_context *ctx, unsigned char* output )
 {
     uint32_t last, padn;
     uint32_t high, low;
@@ -284,7 +284,7 @@ void mbedtls_sha256_finish( mbedtls_sha256_context *ctx, unsigned char output[SH
  * output = SHA-256( input buffer )
  */
 void mbedtls_sha256( const unsigned char *input, size_t ilen,
-             unsigned char output[SHA256_DIGEST_LENGTH], int is224 )
+             unsigned char* output, int is224 )
 {
     mbedtls_sha256_context ctx;
 
@@ -298,12 +298,16 @@ void mbedtls_sha256( const unsigned char *input, size_t ilen,
 /*
 * Compute HMAC_SHA224/256 using key, key length, text to hash, size of the text, output buffer and a switch for SHA224
 */
-void HMAC_SHA256(const uint8_t* key, size_t key_length, const uint8_t *in, size_t n, uint8_t out[SHA256_DIGEST_LENGTH], int is224){
-
+void HMAC_SHA256(const uint8_t* key, size_t key_length, const uint8_t *in, size_t n, uint8_t* out, int is224){
+  int digest_length = SHA256_DIGEST_LENGTH;
+  if (is224 == 1) {
+    digest_length = SHA224_DIGEST_LENGTH;
+  }
+  
   uint8_t i;
   uint8_t k_ipad[SHA256_BLOCK_LENGTH]; /* inner padding - key XORd with ipad */
   uint8_t k_opad[SHA256_BLOCK_LENGTH]; /* outer padding - key XORd with opad */
-  uint8_t buffer[SHA256_BLOCK_LENGTH + SHA256_DIGEST_LENGTH];
+  uint8_t buffer[SHA256_BLOCK_LENGTH + digest_length];
 
   /* start out by storing key in pads */
   memset(k_ipad, 0, sizeof(k_ipad));
@@ -334,21 +338,26 @@ void HMAC_SHA256(const uint8_t* key, size_t key_length, const uint8_t *in, size_
 
   // perform outer SHA256
   memcpy(buffer, k_opad, SHA256_BLOCK_LENGTH);
-  memcpy(buffer + SHA256_BLOCK_LENGTH, out, SHA256_DIGEST_LENGTH);
-  mbedtls_sha256(buffer, SHA256_BLOCK_LENGTH + SHA256_DIGEST_LENGTH, out, is224);
+  memcpy(buffer + SHA256_BLOCK_LENGTH, out, digest_length);
+  mbedtls_sha256(buffer, SHA256_BLOCK_LENGTH + digest_length, out, is224);
 }
 
 /*
 * Compute TOTP_HMAC_SHA224/256 using key, key length, text to hash, size of the text and a switch for SHA224
 */
 uint32_t TOTP_HMAC_SHA256(const uint8_t* key, size_t key_length, const uint8_t *in, size_t n, int is224){
+    int digest_length = SHA256_DIGEST_LENGTH;
+    if (is224 == 1) {
+      digest_length = SHA224_DIGEST_LENGTH;
+    }
+
     // STEP 1, get the HMAC-SHA256 hash from counter and key
-    uint8_t hash[SHA256_DIGEST_LENGTH];
+    uint8_t hash[digest_length];
     HMAC_SHA256(key, key_length, in, 8, hash, is224);
 
     // STEP 2, apply dynamic truncation to obtain a 4-bytes string
     uint32_t truncated_hash = 0;
-    uint8_t _offset = hash[SHA256_DIGEST_LENGTH - 1] & 0xF;
+    uint8_t _offset = hash[digest_length - 1] & 0xF;
     uint8_t j;
     for (j = 0; j < 4; ++j) {
         truncated_hash <<= 8;

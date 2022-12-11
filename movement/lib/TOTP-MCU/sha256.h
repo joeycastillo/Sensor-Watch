@@ -23,6 +23,7 @@
 #ifndef MBEDTLS_SHA256_H
 #define MBEDTLS_SHA256_H
 
+#define SHA224_DIGEST_LENGTH 28
 #define SHA256_DIGEST_LENGTH 32
 #define SHA256_BLOCK_LENGTH 64
 #define HMAC_IPAD 0x36
@@ -90,7 +91,7 @@ void mbedtls_sha256_update( mbedtls_sha256_context *ctx, const unsigned char *in
  * \param ctx      SHA-256 context
  * \param output   SHA-224/256 checksum result
  */
-void mbedtls_sha256_finish( mbedtls_sha256_context *ctx, unsigned char output[SHA256_DIGEST_LENGTH] );
+void mbedtls_sha256_finish( mbedtls_sha256_context *ctx, unsigned char* output );
 
 /* Internal use */
 void mbedtls_sha256_process( mbedtls_sha256_context *ctx, const unsigned char data[SHA256_BLOCK_LENGTH] );
@@ -104,8 +105,8 @@ void mbedtls_sha256_process( mbedtls_sha256_context *ctx, const unsigned char da
  * \param is224    0 = use SHA256, 1 = use SHA224
  */
 void mbedtls_sha256( const unsigned char *input, size_t ilen,
-           unsigned char output[SHA256_DIGEST_LENGTH], int is224 );
-void HMAC_SHA256(const uint8_t* key, size_t key_length, const uint8_t *in, size_t n, uint8_t out[SHA256_DIGEST_LENGTH], int is224);
+           unsigned char* output, int is224 );
+void HMAC_SHA256(const uint8_t* key, size_t key_length, const uint8_t *in, size_t n, uint8_t* out, int is224);
 uint32_t TOTP_HMAC_SHA256(const uint8_t* key, size_t key_length, const uint8_t *in, size_t n, int is224);
 
 #endif /* mbedtls_sha256.h */

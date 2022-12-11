@@ -297,7 +297,7 @@ static const unsigned char sha512_padding[SHA512_BLOCK_LENGTH] =
 /*
  * SHA-512 final digest
  */
-void mbedtls_sha512_finish( mbedtls_sha512_context *ctx, unsigned char output[SHA512_DIGEST_LENGTH] )
+void mbedtls_sha512_finish( mbedtls_sha512_context *ctx, unsigned char* output )
 {
     size_t last, padn;
     uint64_t high, low;
@@ -334,7 +334,7 @@ void mbedtls_sha512_finish( mbedtls_sha512_context *ctx, unsigned char output[SH
  * output = SHA-512( input buffer )
  */
 void mbedtls_sha512( const unsigned char *input, size_t ilen,
-             unsigned char output[SHA512_DIGEST_LENGTH], int is384 )
+             unsigned char* output, int is384 )
 {
     mbedtls_sha512_context ctx;
 
@@ -348,12 +348,16 @@ void mbedtls_sha512( const unsigned char *input, size_t ilen,
 /*
 * Compute HMAC_SHA384/512 using key, key length, text to hash, size of the text, output buffer and a switch for SHA384
 */
-void HMAC_SHA512(const uint8_t* key, size_t key_length, const uint8_t *in, size_t n, uint8_t out[SHA512_DIGEST_LENGTH], int is384){
+void HMAC_SHA512(const uint8_t* key, size_t key_length, const uint8_t *in, size_t n, uint8_t* out, int is384){
+  int digest_length = SHA512_DIGEST_LENGTH;
+  if (is384 == 1) {
+    digest_length = SHA384_DIGEST_LENGTH;
+  }
 
   uint8_t i;
   uint8_t k_ipad[SHA512_BLOCK_LENGTH]; /* inner padding - key XORd with ipad */
   uint8_t k_opad[SHA512_BLOCK_LENGTH]; /* outer padding - key XORd with opad */
-  uint8_t buffer[SHA512_BLOCK_LENGTH + SHA512_DIGEST_LENGTH];
+  uint8_t buffer[SHA512_BLOCK_LENGTH + digest_length];
 
   /* start out by storing key in pads */
   memset(k_ipad, 0, sizeof(k_ipad));
@@ -384,21 +388,26 @@ void HMAC_SHA512(const uint8_t* key, size_t key_length, const uint8_t *in, size_
 
   // perform outer SHA512
   memcpy(buffer, k_opad, SHA512_BLOCK_LENGTH);
-  memcpy(buffer + SHA512_BLOCK_LENGTH, out, SHA512_DIGEST_LENGTH);
-  mbedtls_sha512(buffer, SHA512_BLOCK_LENGTH + SHA512_DIGEST_LENGTH, out, is384);
+  memcpy(buffer + SHA512_BLOCK_LENGTH, out, digest_length);
+  mbedtls_sha512(buffer, SHA512_BLOCK_LENGTH + digest_length, out, is384);
 }
 
 /*
 * Compute TOTP_HMAC_SHA384/512 using key, key length, text to hash, size of the text and a switch for SHA384
 */
 uint32_t TOTP_HMAC_SHA512(const uint8_t* key, size_t key_length, const uint8_t *in, size_t n, int is384){
+    int digest_length = SHA512_DIGEST_LENGTH;
+    if (is384 == 1) {
+      digest_length = SHA384_DIGEST_LENGTH;
+    }
+
     // STEP 1, get the HMAC-SHA512 hash from counter and key
-    uint8_t hash[SHA512_DIGEST_LENGTH];
+    uint8_t hash[digest_length];
     HMAC_SHA512(key, key_length, in, 8, hash, is384);
 
     // STEP 2, apply dynamic truncation to obtain a 4-bytes string
     uint32_t truncated_hash = 0;
-    uint8_t _offset = hash[SHA512_DIGEST_LENGTH - 1] & 0xF;
+    uint8_t _offset = hash[digest_length - 1] & 0xF;
     uint8_t j;
     for (j = 0; j < 4; ++j) {
         truncated_hash <<= 8;

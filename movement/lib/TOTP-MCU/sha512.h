@@ -23,6 +23,7 @@
 #ifndef MBEDTLS_SHA512_H
 #define MBEDTLS_SHA512_H
 
+#define SHA384_DIGEST_LENGTH 48
 #define SHA512_DIGEST_LENGTH 64
 #define SHA512_BLOCK_LENGTH 128
 #define HMAC_IPAD 0x36
@@ -90,7 +91,7 @@ void mbedtls_sha512_update( mbedtls_sha512_context *ctx, const unsigned char *in
  * \param ctx      SHA-512 context
  * \param output   SHA-384/512 checksum result
  */
-void mbedtls_sha512_finish( mbedtls_sha512_context *ctx, unsigned char output[SHA512_DIGEST_LENGTH] );
+void mbedtls_sha512_finish( mbedtls_sha512_context *ctx, unsigned char* output );
 
 /**
  * \brief          Output = SHA-512( input buffer )
@@ -101,7 +102,7 @@ void mbedtls_sha512_finish( mbedtls_sha512_context *ctx, unsigned char output[SH
  * \param is384    0 = use SHA512, 1 = use SHA384
  */
 void mbedtls_sha512( const unsigned char *input, size_t ilen,
-             unsigned char output[SHA512_DIGEST_LENGTH], int is384 );
+             unsigned char* output, int is384 );
 
 /**
  * \brief          Checkup routine
@@ -112,7 +113,7 @@ int mbedtls_sha512_self_test( int verbose );
 
 /* Internal use */
 void mbedtls_sha512_process( mbedtls_sha512_context *ctx, const unsigned char data[SHA512_BLOCK_LENGTH] );
-void HMAC_SHA512(const uint8_t* key, size_t key_length, const uint8_t *in, size_t n, uint8_t out[SHA512_DIGEST_LENGTH], int is384);
+void HMAC_SHA512(const uint8_t* key, size_t key_length, const uint8_t *in, size_t n, uint8_t* out, int is384);
 uint32_t TOTP_HMAC_SHA512(const uint8_t* key, size_t key_length, const uint8_t *in, size_t n, int is384);
 
 #endif /* mbedtls_sha512.h */
