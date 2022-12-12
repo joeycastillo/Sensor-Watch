@@ -38,10 +38,9 @@
  Should improve TOTP experience.
  
  Default funing fork tempco: -0.034 ppm/°C2, centered around 25°C
+ We add optional cubic coefficient, which was measured in practice on my sample. 
+ Cadence (CD) - how many minutes between corrections. Default 10 minutes. Every minute might be too much. Every hour - slightly less power consumption but also less precision. 
  
- TODO: Measure & implement voltage correction coefficient, maybe once per day. Maybe 1ppm effect.
- TODO: Currently precision is reduced in low-power mode, correction granularity is only 1ppm, with 0.5ppm systematic error. For now it is recommended to disable lwo power mode.  
-    
  */
 
 #include <stdlib.h>
