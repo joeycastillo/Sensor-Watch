@@ -89,6 +89,7 @@ void finetune_update_display(void) {
     char buf[25];
     if(finetune_page==0)
     {
+        watch_display_string("FT", 0);
         watch_date_time date_time = watch_rtc_get_date_time();
         sprintf(buf, "%02d", date_time.unit.second);
         watch_display_string(buf, 8);
