@@ -91,6 +91,18 @@ Functions</h2></td></tr>
 <tr class="memitem:gaad14860c068aeed7a60e57874cad92b4"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__utility.html#gaad14860c068aeed7a60e57874cad92b4">watch_utility_get_weekday</a> (<a class="el" href="unionwatch__date__time.html">watch_date_time</a> date_time)</td></tr>
 <tr class="memdesc:gaad14860c068aeed7a60e57874cad92b4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a two-letter weekday for the given timestamp, suitable for display in positions 0-1 of the watch face.  <a href="group__utility.html#gaad14860c068aeed7a60e57874cad92b4">More...</a><br /></td></tr>
 <tr class="separator:gaad14860c068aeed7a60e57874cad92b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga284588c477ab00cdc71b7146359d39bf"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__utility.html#ga284588c477ab00cdc71b7146359d39bf">watch_utility_get_iso8601_weekday_number</a> (uint16_t year, uint8_t month, uint8_t day)</td></tr>
+<tr class="memdesc:ga284588c477ab00cdc71b7146359d39bf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a number between 1-7 representing the weekday according to ISO8601 : week starts on Monday and has index 1, Sunday has index 7.  <a href="group__utility.html#ga284588c477ab00cdc71b7146359d39bf">More...</a><br /></td></tr>
+<tr class="separator:ga284588c477ab00cdc71b7146359d39bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga1f78ba1a1d4bd130e638869da417446e"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__utility.html#ga1f78ba1a1d4bd130e638869da417446e">watch_utility_get_weeknumber</a> (uint16_t year, uint8_t month, uint8_t day)</td></tr>
+<tr class="memdesc:ga1f78ba1a1d4bd130e638869da417446e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a number between 1-53 representing the weeknumber according to ISO8601 : First week of the year always contains Thursday. If it overlaps on previous year, current year has 53 weeks.  <a href="group__utility.html#ga1f78ba1a1d4bd130e638869da417446e">More...</a><br /></td></tr>
+<tr class="separator:ga1f78ba1a1d4bd130e638869da417446e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga2d997050973c483e0e099f42b0126312"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__utility.html#ga2d997050973c483e0e099f42b0126312">watch_utility_days_since_new_year</a> (uint16_t year, uint8_t month, uint8_t day)</td></tr>
+<tr class="memdesc:ga2d997050973c483e0e099f42b0126312"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a number between 1-366 representing the elapsed days since January 1st the same year.  <a href="group__utility.html#ga2d997050973c483e0e099f42b0126312">More...</a><br /></td></tr>
+<tr class="separator:ga2d997050973c483e0e099f42b0126312"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gafa27a35234148d4f9d0216e21ddaabec"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__utility.html#gafa27a35234148d4f9d0216e21ddaabec">is_leap</a> (uint16_t year)</td></tr>
+<tr class="memdesc:gafa27a35234148d4f9d0216e21ddaabec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns 1 if year is leap and 0 otherwise.  <a href="group__utility.html#gafa27a35234148d4f9d0216e21ddaabec">More...</a><br /></td></tr>
+<tr class="separator:gafa27a35234148d4f9d0216e21ddaabec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga94f5cc404949bf4c0ac4bc4770ec8eda"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__utility.html#ga94f5cc404949bf4c0ac4bc4770ec8eda">watch_utility_convert_to_unix_time</a> (uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second, uint32_t utc_offset)</td></tr>
 <tr class="memdesc:ga94f5cc404949bf4c0ac4bc4770ec8eda"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the UNIX time (seconds since 1970) for a given date/time in UTC.  <a href="group__utility.html#ga94f5cc404949bf4c0ac4bc4770ec8eda">More...</a><br /></td></tr>
 <tr class="separator:ga94f5cc404949bf4c0ac4bc4770ec8eda"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -134,6 +146,32 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>watch_duration_t:
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p >This section covers various useful functions that don't fit anywhere else. </p>
 <h2 class="groupheader">Function Documentation</h2>
+<a id="gafa27a35234148d4f9d0216e21ddaabec" name="gafa27a35234148d4f9d0216e21ddaabec"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gafa27a35234148d4f9d0216e21ddaabec">&#9670;&#160;</a></span>is_leap()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t is_leap </td>
+          <td>(</td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>year</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns 1 if year is leap and 0 otherwise. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">year</td><td>The year (ex. 2022) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="ga470a4c7199afac6319c259fc459881f4" name="ga470a4c7199afac6319c259fc459881f4"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga470a4c7199afac6319c259fc459881f4">&#9670;&#160;</a></span>watch_utility_convert_to_12_hour()</h2>
 
@@ -360,6 +398,94 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>watch_duration_t:
 
 </div>
 </div>
+<a id="ga2d997050973c483e0e099f42b0126312" name="ga2d997050973c483e0e099f42b0126312"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga2d997050973c483e0e099f42b0126312">&#9670;&#160;</a></span>watch_utility_days_since_new_year()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint16_t watch_utility_days_since_new_year </td>
+          <td>(</td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>year</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>month</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>day</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns a number between 1-366 representing the elapsed days since January 1st the same year. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">year</td><td>The year of the date </td></tr>
+    <tr><td class="paramname">month</td><td>The month of the date (1-12) </td></tr>
+    <tr><td class="paramname">day</td><td>The day of the date (1-31) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ga284588c477ab00cdc71b7146359d39bf" name="ga284588c477ab00cdc71b7146359d39bf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga284588c477ab00cdc71b7146359d39bf">&#9670;&#160;</a></span>watch_utility_get_iso8601_weekday_number()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t watch_utility_get_iso8601_weekday_number </td>
+          <td>(</td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>year</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>month</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>day</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns a number between 1-7 representing the weekday according to ISO8601 : week starts on Monday and has index 1, Sunday has index 7. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">year</td><td>The year of the date </td></tr>
+    <tr><td class="paramname">month</td><td>The month of the date (1-12) </td></tr>
+    <tr><td class="paramname">day</td><td>The day of the date (1-31) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="gaad14860c068aeed7a60e57874cad92b4" name="gaad14860c068aeed7a60e57874cad92b4"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#gaad14860c068aeed7a60e57874cad92b4">&#9670;&#160;</a></span>watch_utility_get_weekday()</h2>
 
@@ -380,6 +506,50 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>watch_duration_t:
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">date_time</td><td>The <a class="el" href="unionwatch__date__time.html">watch_date_time</a> whose weekday you want. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="ga1f78ba1a1d4bd130e638869da417446e" name="ga1f78ba1a1d4bd130e638869da417446e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga1f78ba1a1d4bd130e638869da417446e">&#9670;&#160;</a></span>watch_utility_get_weeknumber()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t watch_utility_get_weeknumber </td>
+          <td>(</td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>year</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>month</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>day</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns a number between 1-53 representing the weeknumber according to ISO8601 : First week of the year always contains Thursday. If it overlaps on previous year, current year has 53 weeks. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">year</td><td>The year of the date </td></tr>
+    <tr><td class="paramname">month</td><td>The month of the date (1-12) </td></tr>
+    <tr><td class="paramname">day</td><td>The day of the date (1-31) </td></tr>
   </table>
   </dd>
 </dl>

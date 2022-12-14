@@ -3,7 +3,7 @@ var indexSectionsWithContent =
   0: "_abdfilnrsuw",
   1: "w",
   2: "w",
-  3: "_arw",
+  3: "_airw",
   4: "n",
   5: "bw",
   6: "bw",
