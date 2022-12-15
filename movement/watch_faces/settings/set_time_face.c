@@ -97,9 +97,10 @@ bool set_time_face_loop(movement_event_t event, movement_settings_t *settings, v
 
     switch (event.event_type) {
         case EVENT_TICK:
-            if (_quick_ticks_running) 
+            if (_quick_ticks_running) {
                 if (watch_get_pin_level(BTN_ALARM)) _handle_alarm_button(settings, date_time, current_page);
                 else _abort_quick_ticks();
+            }
             break;
         case EVENT_ALARM_LONG_PRESS:
             if (current_page != 2) {
