@@ -51,6 +51,7 @@ static void init_totp_record(struct totp_record *totp_record) {
     totp_record->label[0] = 'A';
     totp_record->label[1] = 'A';
     totp_record->period = 30;
+    totp_record->algorithm = SHA1;
 }
 
 static bool totp_face_lfs_read_param(struct totp_record *totp_record, char *param, char *value) {
