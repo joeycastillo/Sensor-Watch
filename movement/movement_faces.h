@@ -59,6 +59,7 @@
 #include "alarm_face.h"
 #include "ratemeter_face.h"
 #include "weeknumber_clock_face.h"
+#include "tachymeter_face.h"
 // New includes go above this line.
 
 #endif // MOVEMENT_FACES_H_
