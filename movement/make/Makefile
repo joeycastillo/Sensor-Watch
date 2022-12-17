@@ -17,7 +17,7 @@ INCLUDES += \
   -I../watch_faces/sensor/ \
   -I../watch_faces/demo/ \
   -I../../littlefs/ \
-  -I../lib/TOTP-MCU/ \
+  -I../lib/TOTP/ \
   -I../lib/base32/ \
   -I../lib/sunriset/ \
   -I../lib/vsop87/ \
@@ -30,10 +30,10 @@ INCLUDES += \
 #   ../drivers/lis2dh.c \
 #   ../watch_faces/fitness/step_count_face.c
 SRCS += \
-  ../lib/TOTP-MCU/sha1.c \
-  ../lib/TOTP-MCU/sha256.c \
-  ../lib/TOTP-MCU/sha512.c \
-  ../lib/TOTP-MCU/TOTP.c \
+  ../lib/TOTP/sha1.c \
+  ../lib/TOTP/sha256.c \
+  ../lib/TOTP/sha512.c \
+  ../lib/TOTP/TOTP.c \
   ../lib/base32/base32.c \
   ../lib/sunriset/sunriset.c \
   ../lib/vsop87/vsop87a_milli.c \
