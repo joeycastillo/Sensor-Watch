@@ -46,6 +46,33 @@ typedef struct {
   */
 const char * watch_utility_get_weekday(watch_date_time date_time);
 
+/** @brief Returns a number between 1-7 representing the weekday according to ISO8601 : week starts on Monday and has index 1, Sunday has index 7
+ * @param year The year of the date
+ * @param month The month of the date (1-12)
+ * @param day The day of the date (1-31)
+ */
+uint8_t watch_utility_get_iso8601_weekday_number(uint16_t year, uint8_t month, uint8_t day);
+
+
+/** @brief Returns a number between 1-53 representing the weeknumber according to ISO8601 : First week of the year always contains Thursday. If it overlaps on previous year, current year has 53 weeks
+ * @param year The year of the date
+ * @param month The month of the date (1-12)
+ * @param day The day of the date (1-31)
+ */
+uint8_t watch_utility_get_weeknumber(uint16_t year, uint8_t month, uint8_t day);
+
+/** @brief Returns a number between 1-366 representing the elapsed days since January 1st the same year.
+ * @param year The year of the date
+ * @param month The month of the date (1-12)
+ * @param day The day of the date (1-31)
+ */
+uint16_t watch_utility_days_since_new_year(uint16_t year, uint8_t month, uint8_t day);
+
+/** @brief Returns 1 if year is leap and 0 otherwise
+ * @param year The year (ex. 2022)
+ */
+uint8_t is_leap(uint16_t year);
+
 /** @brief Returns the UNIX time (seconds since 1970) for a given date/time in UTC.
   * @param date_time The watch_date_time that you wish to convert.
   * @param year The year of the date you wish to convert.

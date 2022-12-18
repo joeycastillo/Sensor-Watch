@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Shogo Okamoto
+ * Copyright (c) 2022 Joey Castillo
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,31 +22,32 @@
  * SOFTWARE.
  */
 
-#ifndef COUNTER_FACE_H_
-#define COUNTER_FACE_H_
+#ifndef WEEKNUMBER_CLOCK_FACE_H_
+#define WEEKNUMBER_CLOCK_FACE_H_
 
 #include "movement.h"
 
-// Counter face is designed to count the number of running laps during excercises.
 typedef struct {
-    uint8_t counter_idx;
-} counter_state_t;
+    uint32_t previous_date_time;
+    uint8_t last_battery_check;
+    uint8_t watch_face_index;
+    bool signal_enabled;
+    bool battery_low;
+    bool alarm_enabled;
+} weeknumber_clock_state_t;
 
+void weeknumber_clock_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
+void weeknumber_clock_face_activate(movement_settings_t *settings, void *context);
+bool weeknumber_clock_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void weeknumber_clock_face_resign(movement_settings_t *settings, void *context);
+bool weeknumber_clock_face_wants_background_task(movement_settings_t *settings, void *context);
 
-void counter_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
-void counter_face_activate(movement_settings_t *settings, void *context);
-bool counter_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
-void counter_face_resign(movement_settings_t *settings, void *context);
-
-void print_counter(counter_state_t *state);
-void beep_counter(counter_state_t *state);
-
-#define counter_face ((const watch_face_t){ \
-    counter_face_setup, \
-    counter_face_activate, \
-    counter_face_loop, \
-    counter_face_resign, \
-    NULL, \
+#define weeknumber_clock_face ((const watch_face_t){ \
+    weeknumber_clock_face_setup, \
+    weeknumber_clock_face_activate, \
+    weeknumber_clock_face_loop, \
+    weeknumber_clock_face_resign, \
+    weeknumber_clock_face_wants_background_task, \
 })
 
-#endif // COUNTER_FACE_H_
+#endif // SIMPLE_CLOCK_FACE_H_
