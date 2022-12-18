@@ -96,6 +96,11 @@ static void _sunrise_sunset_face_update(movement_settings_t *settings, sunrise_s
         if (seconds < 30) scratch_time.unit.minute = floor(minutes);
         else scratch_time.unit.minute = ceil(minutes);
 
+        if (scratch_time.unit.minute == 60) {
+            scratch_time.unit.minute = 0;
+            scratch_time.unit.hour = (scratch_time.unit.hour + 1) % 24;
+        }
+
         if (date_time.reg < scratch_time.reg) _sunrise_sunset_set_expiration(state, scratch_time);
 
         if (date_time.reg < scratch_time.reg || show_next_match) {
@@ -117,6 +122,11 @@ static void _sunrise_sunset_face_update(movement_settings_t *settings, sunrise_s
         scratch_time.unit.hour = floor(set);
         if (seconds < 30) scratch_time.unit.minute = floor(minutes);
         else scratch_time.unit.minute = ceil(minutes);
+
+        if (scratch_time.unit.minute == 60) {
+            scratch_time.unit.minute = 0;
+            scratch_time.unit.hour = (scratch_time.unit.hour + 1) % 24;
+        }
 
         if (date_time.reg < scratch_time.reg) _sunrise_sunset_set_expiration(state, scratch_time);
 
@@ -371,8 +381,11 @@ bool sunrise_sunset_face_loop(movement_event_t event, movement_settings_t *setti
             }
             break;
         case EVENT_TIMEOUT:
-            if (state->page || state->rise_index) {
-                // on timeout, exit settings mode and return to the next sunrise or sunset
+            if (watch_get_backup_data(1) == 0) {
+                // if no location set, return home
+                movement_move_to_face(0);
+            } else if (state->page || state->rise_index) {
+                // otherwise on timeout, exit settings mode and return to the next sunrise or sunset
                 state->page = 0;
                 state->rise_index = 0;
                 movement_request_tick_frequency(1);

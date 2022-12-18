@@ -69,7 +69,11 @@ You may want to test out changes in the emulator first. To do this, you'll need 
 ```
 cd movement/make
 emmake make
-python3 -m http.server 8000 -d build
+python3 -m http.server -d build-sim
 ```
 
 Finally, visit [watch.html](http://localhost:8000/watch.html) to see your work.
+
+License
+-------
+Different components of the project are licensed differently, see [LICENSE.md](https://github.com/joeycastillo/Sensor-Watch/blob/main/LICENSE.md).
