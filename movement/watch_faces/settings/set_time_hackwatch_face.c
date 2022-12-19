@@ -113,7 +113,7 @@ bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *s
                     date_time_settings.unit.year = (date_time_settings.unit.year + 50 - 1) % 50;
                     break;
                 case 4: // month
-                    date_time_settings.unit.month = (date_time_settings.unit.month +12 - 1) % 12 + 1;
+                    date_time_settings.unit.month = (date_time_settings.unit.month +12 - 2) % 12 + 1;
                     break;
                 case 5: // day
                     date_time_settings.unit.day = date_time_settings.unit.day - 1;
