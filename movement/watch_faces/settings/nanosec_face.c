@@ -53,14 +53,16 @@
 
 //(int8_t)RTC->MODE2.FREQCORR.reg
 
-int16_t freq_correction_residual = 0;//Dithering 0.1ppm correction, defaults to 0, does not need to be configured. MUST BE STORED IN RTC to work in low-power mode!
+int16_t freq_correction_residual = 0;//Dithering 0.1ppm correction, does not need to be configured. 
 int16_t freq_correction_previous = -30000;
+#define dithering 31
+
 nanosec_state_t nanosec_state;
 
 #define nanosec_max_screen 6
 int8_t nanosec_screen = 0;
 
-const float voltage_coefficient = 2.41666667;//10*ppm/V. Nominal frequency is at 3V.
+const float voltage_coefficient = 0.241666667*dithering;//10*ppm/V. Nominal frequency is at 3V.
 
 void nanosec_internal_write_RTC_correction(int16_t value, int16_t sign)
 {
@@ -73,41 +75,57 @@ void nanosec_internal_write_RTC_correction(int16_t value, int16_t sign)
         if(value==-freq_correction_previous)return;
         freq_correction_previous = -value; 
     }
-    RTC->MODE2.FREQCORR.bit.VALUE = value;
-    RTC->MODE2.FREQCORR.bit.SIGN = sign;
+    
+    RTC_FREQCORR_Type data;
 
-     //TODO: Maybe this is redundant:
-     //Testing no syncronisation. We don't care if value is applied a little later - but we save power by not waiting
-     //while(RTC->MODE2.SYNCBUSY.reg);
+    data.bit.VALUE = value;
+    data.bit.SIGN = sign;
+    
+    RTC->MODE2.FREQCORR.reg = data.reg;//Setting correction in single operation
+
+    //We do not sycnronize. We are not in a hurry
 }
 
 //Receives dithered correction, already corrected for temperature and battery voltage
 static void apply_RTC_correction(int16_t correction)
 {
+    correction += freq_correction_residual;
+    int32_t correction_lr = (int32_t)correction*2 / dithering;//Int division
+    if (correction_lr & 1)
+    {
+        if (correction_lr > 0)
+            correction_lr++;else
+            correction_lr--;
+    }
+    correction_lr >>= 1;
+    freq_correction_residual = correction - correction_lr * dithering;
+
      //Warning! Freqcorr is not signed int8!!
      //First we clamp it to 8-bit range
-     if(correction>1270)
+     if(correction_lr>127)
      {
          nanosec_internal_write_RTC_correction(127, 0);
      }else
-     if(correction<-1270)
+     if(correction_lr<-127)
      {
          nanosec_internal_write_RTC_correction(127, 1);
      }else
-         if(correction<=-10)
+         if(correction_lr<0)
          {
-           nanosec_internal_write_RTC_correction(abs(correction/10), 1);
+           nanosec_internal_write_RTC_correction(abs(correction_lr), 1);
          }else//correction
          {
-           nanosec_internal_write_RTC_correction(abs(correction/10), 0);
+           nanosec_internal_write_RTC_correction(correction_lr, 0);
          }
 }
 
 void nanosec_save()
 {
     if(nanosec_state.correction_profile==0)
-        apply_RTC_correction(nanosec_state.freq_correction/10);//Will be divided by 10 again inside, final resolution is mere 1ppm
-
+    {
+        freq_correction_residual = 0;
+        apply_RTC_correction(nanosec_state.freq_correction*1.0f*dithering/100);//Will be divided by 10 again inside, final resolution is mere 1ppm
+    }
     filesystem_write_file("nanosec.ini", (char*)&nanosec_state, sizeof(nanosec_state));
 }
 
@@ -138,7 +156,7 @@ void nanosec_face_activate(movement_settings_t *settings, void *context) {
 
 static void nanosec_update_display() {
     char buf[14];
-    
+  
     switch (nanosec_screen){
         case 4://Profile
             sprintf(buf, "PR      P%1d", nanosec_state.correction_profile);
@@ -325,24 +343,12 @@ bool nanosec_face_loop(movement_event_t event, movement_settings_t *settings, vo
             //Default 32kHz correciton factor is -0.034, centered around 25°C
             float dt = temperature_c-nanosec_state.center_temperature/100.0;
             int16_t correction = round((
-                                    nanosec_state.freq_correction/10.0f + 
-                                   (-nanosec_state.quadratic_tempco/100000.0*10.0)*dt*dt + 
-                                    (nanosec_state.cubic_tempco  /10000000.0*10.0)*dt*dt*dt + 
+                                    nanosec_state.freq_correction / 100.0f * dithering +
+                                    (-nanosec_state.quadratic_tempco / 100000.0 * dithering) * dt * dt +
+                                    (nanosec_state.cubic_tempco / 10000000.0 * dithering) * dt * dt * dt +
                                     (voltage-3.0)*voltage_coefficient
                                         )/0.95367);//1 correction unit is 0.095367ppm. 
             
-            freq_correction_residual += correction % 10;//Will be negative for negative correction
-            if(freq_correction_residual<=-10)
-            {
-                freq_correction_residual += 10;
-                correction -= 10;//Remove 1ppm correction for next interval
-            }else
-            if(freq_correction_residual>=10)
-            {
-                freq_correction_residual -= 10;
-                correction += 10;//Add 1ppm correction for next interval
-            };
-
             apply_RTC_correction(correction);
             break;
 

@@ -1,8 +1,8 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 <#author_name#>
- *
+  * Copyright (c) 2022 Mikhail Svarichevsky https://3.14.by/
+*
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -20,6 +20,11 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+ * 
+ * Warning, do not use at the first second of a month!
+ * Just wait 1 second...We are not fully replicating RTC timer behavior when RTC is off.
+ * Simulating months and years is... too much complexity.
+ * 
  */
 
 #include <stdlib.h>
@@ -61,6 +66,16 @@ void finetune_adjust_subseconds(int delta)
     {
        watch_date_time date_time = watch_rtc_get_date_time();
        date_time.unit.second=(date_time.unit.second+1)%60;
+       if(date_time.unit.second==0)//Overflow
+       {
+          date_time.unit.minute=(date_time.unit.minute+1)%60;
+          if(date_time.unit.minute==0)//Overflow
+          {
+            date_time.unit.hour=(date_time.unit.hour+1)%24;
+            if(date_time.unit.hour==0)//Overflow
+              date_time.unit.day++;
+          }
+       }
        watch_rtc_set_date_time(date_time);
         
        total_adjustment+=(delta-1000);    
@@ -71,14 +86,12 @@ void finetune_adjust_subseconds(int delta)
     while (RTC->MODE2.SYNCBUSY.reg);
 }
 
-float finetune_get_hours_passed(void);
 float finetune_get_hours_passed()
 {
     uint32_t current_time = watch_utility_date_time_to_unix_time(watch_rtc_get_date_time(), 0);
     return (current_time - nanosec_state.last_correction_time)/3600.0f;
 }
 
-float finetune_get_correction(void);
 float finetune_get_correction()
 {
     return total_adjustment/(finetune_get_hours_passed()*3600.0f)*1000.0f;
@@ -176,6 +189,7 @@ bool finetune_face_loop(movement_event_t event, movement_settings_t *settings, v
             } else
             if(finetune_page==2)//Exit without applying correction to ppm
             {
+                finetune_face_resign(settings, context);//Updating last correction time
                 movement_move_to_next_face();
             }
             break;

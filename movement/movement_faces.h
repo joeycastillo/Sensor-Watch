@@ -62,6 +62,7 @@
 #include "nanosec_face.h"
 #include "finetune_face.h"
 #include "databank_face.h"
+#include "tempchart_face.h"
 // New includes go above this line.
 
 #endif // MOVEMENT_FACES_H_

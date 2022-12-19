@@ -22,33 +22,24 @@
  * SOFTWARE.
  */
 
-#ifndef MOVEMENT_CONFIG_H_
-#define MOVEMENT_CONFIG_H_
+#ifndef TEMPCHART_FACE_H_
+#define TEMPCHART_FACE_H_
 
-#include "movement_faces.h"
+#include "movement.h"
 
-const watch_face_t watch_faces[] = {
-    simple_clock_face,
-    sunrise_sunset_face,
-    stopwatch_face,
-    thermistor_readout_face,
-    preferences_face,
-    voltage_face,
-    databank_face,
-    nanosec_face,
-    finetune_face,
-    set_time_hackwatch_face,
-    tempchart_face,
+void tempchart_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
+void tempchart_face_activate(movement_settings_t *settings, void *context);
+bool tempchart_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void tempchart_face_resign(movement_settings_t *settings, void *context);
+bool tempchart_face_wants_background_task(movement_settings_t *settings, void *context);
 
-};
 
-#define MOVEMENT_NUM_FACES (sizeof(watch_faces) / sizeof(watch_face_t))
+#define tempchart_face ((const watch_face_t){ \
+    tempchart_face_setup, \
+    tempchart_face_activate, \
+    tempchart_face_loop, \
+    tempchart_face_resign, \
+    tempchart_face_wants_background_task, \
+})
 
-/* Determines what face to go to from the first face if you've already set 
- * a mode long press to go to the first face in preferences, and
- * excludes these faces from the normal rotation.
- * Usually it makes sense to set this to the preferences face.
- */
-#define MOVEMENT_SECONDARY_FACE_INDEX 6 // or (MOVEMENT_NUM_FACES - 2)
-
-#endif // MOVEMENT_CONFIG_H_
+#endif // TEMPCHART_FACE_H_

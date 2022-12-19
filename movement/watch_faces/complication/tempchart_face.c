@@ -21,69 +21,69 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  * 
- * Displays some pre-defined data
+ * Gathers temperature statistics. Saved to file every day at 00:00
  */
 
 #include <stdlib.h>
 #include <string.h>
-#include "databank_face.h"
+#include <math.h>
+#include "tempchart_face.h"
 #include "watch.h"
 #include "watch_private_display.h"
-
-const int databank_num_pages = 6;
-
-const char *pi_data[] = {"PI", "314159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535940812848111745028410270193852110555964462294895493038196442",
-                   "S ", "9192631770",
-                   "31", "2147483648",
-                   "32", "4294967296",
-                   "63", "9223372036854775808",
-                   "64", "18446744073709551616"};
-//we show 8 characters per screen, so 200/8=25 screens
+#include "filesystem.h"
+#include "thermistor_driver.h"
 
 struct {
-    uint8_t current_word;
-    uint8_t databank_page;
-    bool animating;
-} databank_state;
+    uint8_t stat[24*70];
+    uint16_t num_div;
+} tempchart_state;
 
-void databank_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
+void tempchart_save(void);
+void tempchart_save()
+{
+    filesystem_write_file("tempchart.ini", (char*)&tempchart_state, sizeof(tempchart_state));
+}
+
+void tempchart_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     // These next two lines just silence the compiler warnings associated with unused parameters.
     // We have no use for the settings or the watch_face_index, so we make that explicit here.
     (void) settings;
     (void) context_ptr;
     (void) watch_face_index;
     // At boot, context_ptr will be NULL indicating that we don't have anyplace to store our context.
+    if(filesystem_get_file_size("tempchart.ini")!=sizeof(tempchart_state))
+    {
+        //No previous ini or old version of ini file - create new config file
+        tempchart_state.num_div = 0;
+        for(int i=0;i<24*70;i++)
+            tempchart_state.stat[i] = 0;
+        tempchart_save();
+    } else
+        filesystem_read_file("tempchart.ini", (char*)&tempchart_state, sizeof(tempchart_state));
+    
 }
 
-void databank_face_activate(movement_settings_t *settings, void *context) {
+void tempchart_face_activate(movement_settings_t *settings, void *context) {
     // same as above: silence the warning, we don't need to check the settings.
     (void) settings;
     (void) context;
     // we do however need to set some things in our context. Here we cast it to the correct type...
-    databank_state.current_word = 0;
-    databank_state.animating = true;
 }
 
 static void display()
 {
-    char buf[14];
-    int page = databank_state.current_word;
-    sprintf(buf, "%s%2d", pi_data[databank_state.databank_page*2+0], page);
+    int sum = 0;
+    for(int i=0;i<24*70;i++)
+        sum+=tempchart_state.stat[i];
+
+    char buf[24];
+    sprintf(buf, "TS%2d%6d", tempchart_state.num_div, sum);
     watch_display_string(buf, 0);
-    bool data_ended = false;
-    for(int i=0;i<6;i++)
-    {
-        if(pi_data[databank_state.databank_page*2+1][page*6+i] == 0)data_ended = true;
-        if(!data_ended)
-            watch_display_character(pi_data[databank_state.databank_page*2+1][page*6+i], 4+i); else//only 6 digits per page
-            watch_display_character(' ', 4+i);
-    }
 }
 
-bool databank_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
+bool tempchart_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
-    int max_words = (strlen(pi_data[databank_state.databank_page*2+1])-1)/6+1;
 
     switch (event.event_type) {
         case EVENT_ACTIVATE:
@@ -91,34 +91,11 @@ bool databank_face_loop(movement_event_t event, movement_settings_t *settings, v
         case EVENT_TICK:
             // on activate and tick, if we are animating,
             break;
-        case EVENT_LIGHT_BUTTON_UP:
-            // when the user presses 'light', we illuminate the LED. We could override this if
-            // our UI needed an additional button for input, consuming the light button press
-            // but not illuminating the LED.
-            databank_state.current_word = (databank_state.current_word + max_words - 1) % max_words;   
-            display();
-            break;
-        case EVENT_LIGHT_LONG_PRESS:
-            databank_state.databank_page=(databank_state.databank_page+databank_num_pages-1) % databank_num_pages;
-            databank_state.current_word = 0;   
-            display();
-            break;
         case EVENT_MODE_BUTTON_UP:
             // when the user presses 'mode', we tell movement to move to the next watch face.
             // movement will call our resign function, clear the screen, and transfer control
             // to the next watch face in the list.
             movement_move_to_next_face();
-            break;
-        case EVENT_ALARM_LONG_PRESS:
-            databank_state.databank_page=(databank_state.databank_page + 1) % databank_num_pages;
-            databank_state.current_word = 0;   
-            display();
-            break;
-        case EVENT_ALARM_BUTTON_UP:
-            // when the user presses 'alarm', we toggle the state of the animation. If animating,
-            // we stop; if stopped, we resume.
-            databank_state.current_word = (databank_state.current_word + 1) % max_words;   
-            display();
             break;
         case EVENT_LOW_ENERGY_UPDATE:
             // This low energy mode update occurs once a minute, if the watch face is in the
@@ -134,6 +111,31 @@ bool databank_face_loop(movement_event_t event, movement_settings_t *settings, v
             // and it will do it long before the watch enters low energy mode. This ensures we
             // won't be on screen, and thus opts us out of getting the EVENT_LOW_ENERGY_UPDATE above.
             movement_move_to_face(0);
+            break;
+        case EVENT_BACKGROUND_TASK:
+            // Here we measure temperature and do main frequency correction
+            thermistor_driver_enable();
+            float temperature_c = thermistor_driver_get_temperature();
+            thermistor_driver_disable();
+            watch_date_time date_time = watch_rtc_get_date_time();
+            
+            int temp=round(temperature_c*2);
+            if(temp<0)break;
+            if(temp>=70)break;
+            
+            if(tempchart_state.stat[date_time.unit.hour+temp*24]==255)//We've reached the limit
+            {
+              tempchart_state.num_div++;
+              for(int i=0;i<24*70;i++)
+                tempchart_state.stat[i]=(tempchart_state.stat[i]+1)>>1;//So that we don't loose 1
+            }
+            tempchart_state.stat[date_time.unit.hour+temp*24]++;
+            
+            if(date_time.unit.hour==0 && date_time.unit.minute==10)
+                tempchart_save();
+            
+            break;
+            
         default:
             break;
     }
@@ -141,9 +143,20 @@ bool databank_face_loop(movement_event_t event, movement_settings_t *settings, v
     return true;
 }
 
-void databank_face_resign(movement_settings_t *settings, void *context) {
+void tempchart_face_resign(movement_settings_t *settings, void *context) {
     // our watch face, like most watch faces, has nothing special to do when resigning.
     // watch faces that enable a peripheral or interact with a sensor may want to turn it off here.
     (void) settings;
     (void) context;
 }
+
+//background freq correction
+bool tempchart_face_wants_background_task(movement_settings_t *settings, void *context) {
+    (void) settings;
+    (void) context;
+    watch_date_time date_time = watch_rtc_get_date_time();
+
+    //Updating data every 5 minutes
+    return date_time.unit.minute % 5 == 0;
+}
+

@@ -38,6 +38,8 @@ bool finetune_face_loop(movement_event_t event, movement_settings_t *settings, v
 void finetune_face_resign(movement_settings_t *settings, void *context);
 void finetune_adjust_subseconds(int delta);
 void finetune_update_display(void);
+float finetune_get_hours_passed(void);
+float finetune_get_correction(void);
 
 #define finetune_face ((const watch_face_t){ \
     finetune_face_setup, \

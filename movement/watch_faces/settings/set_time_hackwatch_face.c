@@ -96,8 +96,45 @@ bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *s
             }
             break;             
         //case EVENT_ALARM_LONG_PRESS:
+        case EVENT_ALARM_LONG_UP://Long button is going negative
+            switch (current_page) {
+                case 0: // hour
+                    date_time_settings.unit.hour = (date_time_settings.unit.hour + 24 -1) % 24;
+                    break;
+                case 1: // minute
+                    date_time_settings.unit.minute = (date_time_settings.unit.minute +60 - 1) % 60;
+                    break;
+                case 2: // second
+                    seconds_reset_sequence = 0;
+                    hackwatch_rtc_en(true);
+                    break;
+                case 3: // year
+                    // only allow 2021-2061. fix this sometime later
+                    date_time_settings.unit.year = (date_time_settings.unit.year + 50 - 1) % 50;
+                    break;
+                case 4: // month
+                    date_time_settings.unit.month = (date_time_settings.unit.month +12 - 1) % 12 + 1;
+                    break;
+                case 5: // day
+                    date_time_settings.unit.day = date_time_settings.unit.day - 1;
+                    // can't set to the 29th on a leap year. if it's february 29, set to 11:59 on the 28th.
+                    // and it should roll over.
+                    if (date_time_settings.unit.day == 0) {
+                        date_time_settings.unit.day = days_in_month[date_time_settings.unit.month - 1];
+                    } else
+                        date_time_settings.unit.day++;
+                    break;
+                case 6: // time zone
+                    if(settings->bit.time_zone>0)
+                        settings->bit.time_zone--;else
+                        settings->bit.time_zone=40;
+                    break;
+            }
+            if(current_page!=2)//Do not set time when we are at seconds, it was already set previously
+                watch_rtc_set_date_time(date_time_settings);
+            //TODO: Do not update whole RTC, just what we are changing
+            break;
         case EVENT_ALARM_BUTTON_UP:
-        case EVENT_ALARM_LONG_UP:
             switch (current_page) {
                 case 0: // hour
                     date_time_settings.unit.hour = (date_time_settings.unit.hour + 1) % 24;
@@ -131,7 +168,6 @@ bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *s
             }
             if(current_page!=2)//Do not set time when we are at seconds, it was already set previously
                 watch_rtc_set_date_time(date_time_settings);
-                
             //TODO: Do not update whole RTC, just what we are changing
             break;
         case EVENT_TIMEOUT:

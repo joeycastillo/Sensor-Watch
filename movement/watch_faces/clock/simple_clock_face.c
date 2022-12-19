@@ -26,6 +26,7 @@
 #include "simple_clock_face.h"
 #include "watch.h"
 #include "watch_utility.h"
+#include "watch_private_display.h"
 
 static void _update_alarm_indicator(bool settings_alarm_enabled, simple_clock_state_t *state) {
     state->alarm_enabled = settings_alarm_enabled;
@@ -96,8 +97,9 @@ bool simple_clock_face_loop(movement_event_t event, movement_settings_t *setting
 
             if ((date_time.reg >> 6) == (previous_date_time >> 6) && event.event_type != EVENT_LOW_ENERGY_UPDATE) {
                 // everything before seconds is the same, don't waste cycles setting those segments.
-                pos = 8;
-                sprintf(buf, "%02d", date_time.unit.second);
+                watch_display_character_lp_seconds('0'+date_time.unit.second/10, 8);
+                watch_display_character_lp_seconds('0'+date_time.unit.second%10, 9);
+                break;
             } else if ((date_time.reg >> 12) == (previous_date_time >> 12) && event.event_type != EVENT_LOW_ENERGY_UPDATE) {
                 // everything before minutes is the same.
                 pos = 6;
