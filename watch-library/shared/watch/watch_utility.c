@@ -26,7 +26,7 @@
 #include "watch_utility.h"
 
 const char * watch_utility_get_weekday(watch_date_time date_time) {
-    static const char weekdays[7][3] = {"SA", "SU", "MO", "TU", "WE", "TH", "FR"};
+    static const char weekdays[][3] = {"SA", "SU", "MO", "TU", "WE", "TH", "FR"};
     date_time.unit.year += 20;
     if (date_time.unit.month <= 2) {
         date_time.unit.month += 12;

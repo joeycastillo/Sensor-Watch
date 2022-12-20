@@ -26,9 +26,9 @@
 #include "set_time_hackwatch_face.h"
 #include "watch.h"
 
-#define set_time_hackwatch_face_NUM_SETTINGS (7)
-//const
- char set_time_hackwatch_face_titles[set_time_hackwatch_face_NUM_SETTINGS][3] = {"HR", "M1", "SE", "YR", "MO", "DA", "ZO"};
+char set_time_hackwatch_face_titles[][3] = {"HR", "M1", "SE", "YR", "MO", "DA", "ZO"};
+#define set_time_hackwatch_face_NUM_SETTINGS (sizeof(set_time_hackwatch_face_titles) / sizeof(*set_time_hackwatch_face_titles))
+
 watch_date_time date_time_settings;
 
 void set_time_hackwatch_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
@@ -44,55 +44,53 @@ void set_time_hackwatch_face_activate(movement_settings_t *settings, void *conte
     date_time_settings = watch_rtc_get_date_time();
 }
 
-void hackwatch_rtc_en(bool en)
-{
-    //Writing it twice - as it's quite dangerous operation. 
-    //If write fails - we might hang with RTC off, which means no recovery possible
+static void hackwatch_rtc_en(bool en) {
+    // Writing it twice - as it's quite dangerous operation.
+    // If write fails - we might hang with RTC off, which means no recovery possible
     while (RTC->MODE2.SYNCBUSY.reg);
-    RTC->MODE2.CTRLA.bit.ENABLE = en?1:0;
+    RTC->MODE2.CTRLA.bit.ENABLE = en ? 1 : 0;
     while (RTC->MODE2.SYNCBUSY.reg);
-    RTC->MODE2.CTRLA.bit.ENABLE = en?1:0;
+    RTC->MODE2.CTRLA.bit.ENABLE = en ? 1 : 0;
     while (RTC->MODE2.SYNCBUSY.reg);
 }
 
 bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     uint8_t current_page = *((uint8_t *)context);
     const uint8_t days_in_month[12] = {31, 28, 31, 30, 31, 30, 30, 31, 30, 31, 30, 31};
-    
-    if(event.subsecond==15)//Delay displayed time update by ~0.5 seconds, to align phase exactly to main clock at 1Hz
+
+    if (event.subsecond == 15) // Delay displayed time update by ~0.5 seconds, to align phase exactly to main clock at 1Hz
         date_time_settings = watch_rtc_get_date_time();
-    
+
     static int8_t seconds_reset_sequence;
 
     switch (event.event_type) {
         case EVENT_MODE_BUTTON_UP:
-            if(current_page == 2)hackwatch_rtc_en(true);
+            if (current_page == 2)
+                hackwatch_rtc_en(true);
             movement_move_to_next_face();
             return false;
         case EVENT_LIGHT_BUTTON_UP:
-            if(current_page == 2)hackwatch_rtc_en(true); 
-            
+            if (current_page == 2)
+                hackwatch_rtc_en(true);
+
             current_page = (current_page + 1) % set_time_hackwatch_face_NUM_SETTINGS;
-            if(current_page == 2)
+            if (current_page == 2)
                 seconds_reset_sequence = 0;
-            
+
             *((uint8_t *)context) = current_page;
             break;
         case EVENT_TICK:
-            //We use it to wait for "middle" subsecond position
-            if(current_page == 2 && seconds_reset_sequence == 1 && event.subsecond==15)//wait ~0.5sec - until we reach half second point
-            {
+            // We use it to wait for "middle" subsecond position
+            if (current_page == 2 && seconds_reset_sequence == 1 && event.subsecond == 15) { // wait ~0.5sec - until we reach half second point
                 hackwatch_rtc_en(false);
                 seconds_reset_sequence = 2;
 
-                //Set new time while RTC is off, to get perfect start
-                if(date_time_settings.unit.second>30)
-                {
-                    date_time_settings.unit.minute = (date_time_settings.unit.minute + 1) % 60;//Roll to next minute if we are almost there
-                    if(date_time_settings.unit.minute==0)//Overflow
-                    {
-                        date_time_settings.unit.hour=(date_time_settings.unit.hour+1)%24;
-                        if(date_time_settings.unit.hour==0)//Overflow
+                // Set new time while RTC is off, to get perfect start
+                if (date_time_settings.unit.second > 30) {
+                    date_time_settings.unit.minute = (date_time_settings.unit.minute + 1) % 60; // Roll to next minute if we are almost there
+                    if (date_time_settings.unit.minute == 0) { // Overflow
+                        date_time_settings.unit.hour = (date_time_settings.unit.hour + 1) % 24;
+                        if (date_time_settings.unit.hour == 0) // Overflow
                             date_time_settings.unit.day++;
                     }
                 }
@@ -101,20 +99,18 @@ bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *s
             }
             break;
         case EVENT_ALARM_BUTTON_DOWN:
-            if(current_page == 2)
-            {
-                hackwatch_rtc_en(true);//If it is disabled accidentally - re-enable it
-                seconds_reset_sequence = 1;//Waiting for whole second
+            if (current_page == 2) {
+                hackwatch_rtc_en(true); // If it is disabled accidentally - re-enable it
+                seconds_reset_sequence = 1; // Waiting for whole second
             }
-            break;             
-        //case EVENT_ALARM_LONG_PRESS:
+            break;
         case EVENT_ALARM_LONG_UP://Long button is going negative
             switch (current_page) {
                 case 0: // hour
                     date_time_settings.unit.hour = (date_time_settings.unit.hour + 24 -1) % 24;
                     break;
                 case 1: // minute
-                    date_time_settings.unit.minute = (date_time_settings.unit.minute +60 - 1) % 60;
+                    date_time_settings.unit.minute = (date_time_settings.unit.minute + 60 - 1) % 60;
                     break;
                 case 2: // second
                     seconds_reset_sequence = 0;
@@ -125,7 +121,7 @@ bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *s
                     date_time_settings.unit.year = (date_time_settings.unit.year + 50 - 1) % 50;
                     break;
                 case 4: // month
-                    date_time_settings.unit.month = (date_time_settings.unit.month +12 - 2) % 12 + 1;
+                    date_time_settings.unit.month = (date_time_settings.unit.month + 12 - 2) % 12 + 1;
                     break;
                 case 5: // day
                     date_time_settings.unit.day = date_time_settings.unit.day - 2;
@@ -137,14 +133,16 @@ bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *s
                         date_time_settings.unit.day++;
                     break;
                 case 6: // time zone
-                    if(settings->bit.time_zone>0)
-                        settings->bit.time_zone--;else
-                        settings->bit.time_zone=40;
+                    if (settings->bit.time_zone > 0) {
+                        settings->bit.time_zone--;
+                    } else {
+                        settings->bit.time_zone = 40;
+                    }
                     break;
             }
-            if(current_page!=2)//Do not set time when we are at seconds, it was already set previously
+            if (current_page != 2) // Do not set time when we are at seconds, it was already set previously
                 watch_rtc_set_date_time(date_time_settings);
-            //TODO: Do not update whole RTC, just what we are changing
+            // TODO: Do not update whole RTC, just what we are changing
             break;
         case EVENT_ALARM_BUTTON_UP:
             switch (current_page) {
@@ -178,7 +176,7 @@ bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *s
                     if (settings->bit.time_zone > 40) settings->bit.time_zone = 0;
                     break;
             }
-            if(current_page!=2)//Do not set time when we are at seconds, it was already set previously
+            if (current_page != 2) // Do not set time when we are at seconds, it was already set previously
                 watch_rtc_set_date_time(date_time_settings);
             //TODO: Do not update whole RTC, just what we are changing
             break;
@@ -194,24 +192,46 @@ bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *s
         watch_set_colon();
         if (settings->bit.clock_mode_24h) {
             watch_set_indicator(WATCH_INDICATOR_24H);
-            sprintf(buf, "%s  %2d%02d%02d", set_time_hackwatch_face_titles[current_page], date_time_settings.unit.hour, date_time_settings.unit.minute, date_time_settings.unit.second);
+            sprintf(buf,
+                    "%s  %2d%02d%02d",
+                    set_time_hackwatch_face_titles[current_page],
+                    date_time_settings.unit.hour,
+                    date_time_settings.unit.minute,
+                    date_time_settings.unit.second);
         } else {
-            sprintf(buf, "%s  %2d%02d%02d", set_time_hackwatch_face_titles[current_page], (date_time_settings.unit.hour % 12) ? (date_time_settings.unit.hour % 12) : 12, date_time_settings.unit.minute, date_time_settings.unit.second);
-            if (date_time_settings.unit.hour < 12) watch_clear_indicator(WATCH_INDICATOR_PM);
-            else watch_set_indicator(WATCH_INDICATOR_PM);
+            sprintf(buf,
+                    "%s  %2d%02d%02d",
+                    set_time_hackwatch_face_titles[current_page],
+                    (date_time_settings.unit.hour % 12) ? (date_time_settings.unit.hour % 12) : 12,
+                    date_time_settings.unit.minute,
+                    date_time_settings.unit.second);
+            if (date_time_settings.unit.hour < 12) {
+                watch_clear_indicator(WATCH_INDICATOR_PM);
+            } else {
+                watch_set_indicator(WATCH_INDICATOR_PM);
+            }
         }
     } else if (current_page < 6) {
         watch_clear_colon();
         watch_clear_indicator(WATCH_INDICATOR_24H);
         watch_clear_indicator(WATCH_INDICATOR_PM);
-        sprintf(buf, "%s  %2d%02d%02d", set_time_hackwatch_face_titles[current_page], date_time_settings.unit.year + 20, date_time_settings.unit.month, date_time_settings.unit.day);
+        sprintf(buf,
+                "%s  %2d%02d%02d",
+                set_time_hackwatch_face_titles[current_page],
+                date_time_settings.unit.year + 20,
+                date_time_settings.unit.month,
+                date_time_settings.unit.day);
     } else {
         if ((event.subsecond / 8 ) % 2) {
             watch_clear_colon();
             sprintf(buf, "%s        ", set_time_hackwatch_face_titles[current_page]);
         } else {
             watch_set_colon();
-            sprintf(buf, "%s %3d%02d  ", set_time_hackwatch_face_titles[current_page], (int8_t) (movement_timezone_offsets[settings->bit.time_zone] / 60), (int8_t) (movement_timezone_offsets[settings->bit.time_zone] % 60) * (movement_timezone_offsets[settings->bit.time_zone] < 0 ? -1 : 1));
+            sprintf(buf,
+                    "%s %3d%02d  ",
+                    set_time_hackwatch_face_titles[current_page],
+                    (int8_t)(movement_timezone_offsets[settings->bit.time_zone] / 60),
+                    (int8_t)(movement_timezone_offsets[settings->bit.time_zone] % 60) * (movement_timezone_offsets[settings->bit.time_zone] < 0 ? -1 : 1));
         }
     }
 
@@ -227,7 +247,7 @@ bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *s
                 buf[6] = buf[7] = ' ';
                 break;
             case 2:
-                //Only blink first number when setting seconds, to make it easier to see subsecond error
+                // Only blink first number when setting seconds, to make it easier to see subsecond error
                 buf[8] = ' ';
                 break;
             case 5:

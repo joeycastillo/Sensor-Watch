@@ -31,7 +31,6 @@ void set_time_hackwatch_face_setup(movement_settings_t *settings, uint8_t watch_
 void set_time_hackwatch_face_activate(movement_settings_t *settings, void *context);
 bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void set_time_hackwatch_face_resign(movement_settings_t *settings, void *context);
-void hackwatch_rtc_en(bool en);
 
 #define set_time_hackwatch_face ((const watch_face_t){ \
     set_time_hackwatch_face_setup, \

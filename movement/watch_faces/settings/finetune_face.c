@@ -1,8 +1,8 @@
 /*
  * MIT License
  *
-  * Copyright (c) 2022 Mikhail Svarichevsky https://3.14.by/
-*
+ * Copyright (c) 2022 Mikhail Svarichevsky https://3.14.by/
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -20,11 +20,11 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- * 
+ *
  * Warning, do not use at the first second of a month!
  * Just wait 1 second...We are not fully replicating RTC timer behavior when RTC is off.
  * Simulating months and years is... too much complexity.
- * 
+ *
  */
 
 #include <stdlib.h>
@@ -56,52 +56,54 @@ void finetune_face_activate(movement_settings_t *settings, void *context) {
     finetune_page = 0;
 }
 
-void finetune_adjust_subseconds(int delta)
-{
+static void finetune_adjust_subseconds(int delta) {
     while (RTC->MODE2.SYNCBUSY.reg);
     RTC->MODE2.CTRLA.bit.ENABLE = 0;
     while (RTC->MODE2.SYNCBUSY.reg);
     delay_ms(delta);
-    if(delta>500)
-    {
-       watch_date_time date_time = watch_rtc_get_date_time();
-       date_time.unit.second=(date_time.unit.second+1)%60;
-       if(date_time.unit.second==0)//Overflow
-       {
-          date_time.unit.minute=(date_time.unit.minute+1)%60;
-          if(date_time.unit.minute==0)//Overflow
-          {
-            date_time.unit.hour=(date_time.unit.hour+1)%24;
-            if(date_time.unit.hour==0)//Overflow
-              date_time.unit.day++;
-          }
-       }
-       watch_rtc_set_date_time(date_time);
-        
-       total_adjustment+=(delta-1000);    
-    } else
-        total_adjustment+=delta;
+    if (delta>500) {
+        watch_date_time date_time = watch_rtc_get_date_time();
+        date_time.unit.second = (date_time.unit.second + 1) % 60;
+        if (date_time.unit.second == 0) { // Overflow
+            date_time.unit.minute = (date_time.unit.minute + 1) % 60;
+            if (date_time.unit.minute == 0) { // Overflow
+                date_time.unit.hour = (date_time.unit.hour + 1) % 24;
+                if (date_time.unit.hour == 0) // Overflow
+                    date_time.unit.day++;
+            }
+        }
+        watch_rtc_set_date_time(date_time);
+
+        total_adjustment += (delta - 1000);
+    } else {
+        total_adjustment += delta;
+    }
     while (RTC->MODE2.SYNCBUSY.reg);
     RTC->MODE2.CTRLA.bit.ENABLE = 1;
     while (RTC->MODE2.SYNCBUSY.reg);
 }
 
-float finetune_get_hours_passed()
-{
+static float finetune_get_hours_passed(void) {
     uint32_t current_time = watch_utility_date_time_to_unix_time(watch_rtc_get_date_time(), 0);
-    return (current_time - nanosec_state.last_correction_time)/3600.0f;
+    return (current_time - nanosec_state.last_correction_time) / 3600.0f;
 }
 
-float finetune_get_correction()
-{
-    return total_adjustment/(finetune_get_hours_passed()*3600.0f)*1000.0f;
+static float finetune_get_correction(void) {
+    return total_adjustment / (finetune_get_hours_passed() * 3600.0f) * 1000.0f;
 }
 
-void finetune_update_display(void) {
+static void finetune_update_correction_time(void) {
+    //Remember when we last corrected time
+    nanosec_state.last_correction_time = watch_utility_date_time_to_unix_time(watch_rtc_get_date_time(), 0);
+    nanosec_save();
+    movement_move_to_face(0);//Go to main face after saving settings
+}
 
+
+static void finetune_update_display(void) {
     char buf[25];
-    if(finetune_page==0)
-    {
+
+    if (finetune_page == 0) {
         watch_display_string("FT", 0);
         watch_date_time date_time = watch_rtc_get_date_time();
         sprintf(buf, "%02d", date_time.unit.second);
@@ -109,23 +111,21 @@ void finetune_update_display(void) {
 
         sprintf(buf, "%04d", abs(total_adjustment));
         watch_display_string(buf, 4);
-        
-        if(total_adjustment<0)
-            watch_display_string("--", 2);else
+
+        if (total_adjustment < 0) {
+            watch_display_string("--", 2);
+        } else {
             watch_display_string("  ", 2);
-    } else
-    if(finetune_page==1)
-    {
-        float hours = finetune_get_hours_passed(); 
-        
-        sprintf(buf, "DT  %4d%02d", (int)hours, (int)(fmodf(hours, 1.)*100));
+        }
+    } else if (finetune_page == 1) {
+        float hours = finetune_get_hours_passed();
+
+        sprintf(buf, "DT  %4d%02d", (int)hours, (int)(fmodf(hours, 1.) * 100));
         watch_display_string(buf, 0);
-    } else
-    if(finetune_page==2)
-    {
+    } else if (finetune_page == 2) {
         float correction = finetune_get_correction();
-        
-        sprintf(buf, " F%s%2d%04d", (total_adjustment<0)?" -":"  ", ((int)fabsf(correction)), (int)(remainderf(fabsf(correction), 1.)*10000));
+
+        sprintf(buf, " F%s%2d%04d", (total_adjustment < 0) ? " -" : "  ", (int)fabsf(correction), (int)(remainderf(fabsf(correction), 1.)*10000));
         watch_display_string(buf, 0);
     }
 }
@@ -140,76 +140,74 @@ bool finetune_face_loop(movement_event_t event, movement_settings_t *settings, v
             // Show your initial UI here.
             finetune_update_display();
             break;
+
         case EVENT_TICK:
             // If needed, update your display here, at canonical 0.5sec position.
             finetune_update_display();
             break;
-        
+
         case EVENT_MODE_BUTTON_UP:
             // Only allow for fast exit when correction is 0!!!
-            if(finetune_page==0 && total_adjustment==0)
-                movement_move_to_next_face();else
-                finetune_page=(finetune_page+1)%3;
+            if (finetune_page == 0 && total_adjustment == 0) {
+                movement_move_to_next_face();
+            } else {
+                finetune_page = (finetune_page + 1) % 3;
+            }
             break;
 
         case EVENT_MODE_LONG_UP:
             // You shouldn't need to change this case; Mode almost always moves to the next watch face.
-            finetune_page=(finetune_page+1)%3;
+            finetune_page = (finetune_page + 1) % 3;
             break;
-            
+
         case EVENT_LIGHT_LONG_PRESS:
             // We are making it slower by 250ms
-            if(finetune_page==0)
-            {
+            if (finetune_page == 0) {
                 finetune_adjust_subseconds(250);
                 finetune_update_display();
-            } else
-            if(finetune_page==2)//Applying correction
-            {
-                nanosec_state.freq_correction += (int)round(finetune_get_correction()*100);
+            } else if (finetune_page == 2) { // Applying correction
+                nanosec_state.freq_correction += (int)round(finetune_get_correction() * 100);
                 finetune_update_correction_time();
             }
             break;
 
         case EVENT_LIGHT_BUTTON_UP:
             // We are making it slower by 25ms
-            if(finetune_page==0)
-            {
+            if (finetune_page == 0) {
                 finetune_adjust_subseconds(25);
                 finetune_update_display();
             }
             break;
-        
+
         case EVENT_ALARM_LONG_PRESS:
-            if(finetune_page==0)
-            {
+            if (finetune_page == 0) {
                 finetune_adjust_subseconds(750);
                 finetune_update_display();
-            } else
-            if(finetune_page==2)//Exit without applying correction to ppm, but update correction time
-            {
+            } else if (finetune_page == 2) { // Exit without applying correction to ppm, but update correction time
                 finetune_update_correction_time();
             }
             break;
-        
+
         case EVENT_ALARM_BUTTON_UP:
-            if(finetune_page==0)
-            {
+            if (finetune_page == 0) {
                 finetune_adjust_subseconds(975);
                 finetune_update_display();
             }
             break;
+
         case EVENT_TIMEOUT:
             // Your watch face will receive this event after a period of inactivity. If it makes sense to resign,
             // you may uncomment this line to move back to the first watch face in the list:
             movement_move_to_face(0);
             break;
+
         case EVENT_LOW_ENERGY_UPDATE:
             // If you did not resign in EVENT_TIMEOUT, you can use this event to update the display once a minute.
             // Avoid displaying fast-updating values like seconds, since the display won't update again for 60 seconds.
             // You should also consider starting the tick animation, to show the wearer that this is sleep mode:
             // watch_start_tick_animation(500);
             break;
+
         default:
             break;
     }
@@ -219,21 +217,11 @@ bool finetune_face_loop(movement_event_t event, movement_settings_t *settings, v
     return true;
 }
 
-void finetune_update_correction_time()
-{
-    //Remember when we last corrected time
-    nanosec_state.last_correction_time = watch_utility_date_time_to_unix_time(watch_rtc_get_date_time(), 0);
-    nanosec_save();
-    movement_move_to_face(0);//Go to main face after saving settings
-}
-
 void finetune_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
 
-    if(total_adjustment!=0)
-    {
+    if (total_adjustment != 0) {
         finetune_update_correction_time();
     }
 }
-

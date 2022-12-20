@@ -29,18 +29,18 @@
 
 #define nanosec_profile_count 5
 typedef struct {
-    //0 - static hardware correction. 
-    //1 - static correction with dithering. 
-    //2 - datasheet quadratic correction (universal). 
-    //3 - cubic correction conservative (likely universal). 
-    //4 - cubic correction finetuned (sample-specific).
+    // 0 - static hardware correction.
+    // 1 - static correction with dithering.
+    // 2 - datasheet quadratic correction (universal).
+    // 3 - cubic correction conservative (likely universal).
+    // 4 - cubic correction finetuned (sample-specific).
     int8_t correction_profile;
-    int16_t freq_correction;//Static correction - multiplied by 100
-    int16_t center_temperature;//Multiplied by 100, +25.0->+2500
-    int16_t quadratic_tempco;//0.034 -> 3400, multiplied by 100000. Stored positive, used as negative.
-    int16_t cubic_tempco;//default 0, 0.000136 -> 1360, multiplied by 10000000. Stored positive, used positive.
+    int16_t freq_correction; // Static correction - multiplied by 100
+    int16_t center_temperature; // Multiplied by 100, +25.0 -> +2500
+    int16_t quadratic_tempco; // 0.034 -> 3400, multiplied by 100000. Stored positive, used as negative.
+    int16_t cubic_tempco; // default 0, 0.000136 -> 1360, multiplied by 10000000. Stored positive, used positive.
     int8_t correction_cadence;
-    uint32_t last_correction_time;//Not used at the moment - but will in the future
+    uint32_t last_correction_time; // Not used at the moment - but will in the future
 } nanosec_state_t;
 
 void nanosec_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
@@ -48,12 +48,9 @@ void nanosec_face_activate(movement_settings_t *settings, void *context);
 bool nanosec_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void nanosec_face_resign(movement_settings_t *settings, void *context);
 bool nanosec_face_wants_background_task(movement_settings_t *settings, void *context);
-void nanosec_internal_write_RTC_correction(int16_t value, int16_t sign);
 void nanosec_save(void);
-void nanosec_init_profile(void);
-void nanosec_next_edit_screen(void);
 
-#define nanosec_face ((const watch_face_t){ \
+#define nanosec_face ((const watch_face_t) { \
     nanosec_face_setup, \
     nanosec_face_activate, \
     nanosec_face_loop, \
