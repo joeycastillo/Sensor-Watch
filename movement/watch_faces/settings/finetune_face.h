@@ -40,6 +40,7 @@ void finetune_adjust_subseconds(int delta);
 void finetune_update_display(void);
 float finetune_get_hours_passed(void);
 float finetune_get_correction(void);
+void finetune_update_correction_time(void);
 
 #define finetune_face ((const watch_face_t){ \
     finetune_face_setup, \

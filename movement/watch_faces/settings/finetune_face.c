@@ -118,7 +118,7 @@ void finetune_update_display(void) {
     {
         float hours = finetune_get_hours_passed(); 
         
-        sprintf(buf, "DT  %4d%02d", (int)hours, (int)(remainderf(hours, 1.)*100));
+        sprintf(buf, "DT  %4d%02d", (int)hours, (int)(fmodf(hours, 1.)*100));
         watch_display_string(buf, 0);
     } else
     if(finetune_page==2)
@@ -138,12 +138,11 @@ bool finetune_face_loop(movement_event_t event, movement_settings_t *settings, v
     switch (event.event_type) {
         case EVENT_ACTIVATE:
             // Show your initial UI here.
+            finetune_update_display();
             break;
         case EVENT_TICK:
             // If needed, update your display here, at canonical 0.5sec position.
-            {
-                finetune_update_display();
-            }
+            finetune_update_display();
             break;
         
         case EVENT_MODE_BUTTON_UP:
@@ -168,7 +167,7 @@ bool finetune_face_loop(movement_event_t event, movement_settings_t *settings, v
             if(finetune_page==2)//Applying correction
             {
                 nanosec_state.freq_correction += (int)round(finetune_get_correction()*100);
-                finetune_face_resign(settings, context);
+                finetune_update_correction_time();
             }
             break;
 
@@ -187,10 +186,9 @@ bool finetune_face_loop(movement_event_t event, movement_settings_t *settings, v
                 finetune_adjust_subseconds(750);
                 finetune_update_display();
             } else
-            if(finetune_page==2)//Exit without applying correction to ppm
+            if(finetune_page==2)//Exit without applying correction to ppm, but update correction time
             {
-                finetune_face_resign(settings, context);//Updating last correction time
-                movement_move_to_next_face();
+                finetune_update_correction_time();
             }
             break;
         
@@ -221,16 +219,21 @@ bool finetune_face_loop(movement_event_t event, movement_settings_t *settings, v
     return true;
 }
 
+void finetune_update_correction_time()
+{
+    //Remember when we last corrected time
+    nanosec_state.last_correction_time = watch_utility_date_time_to_unix_time(watch_rtc_get_date_time(), 0);
+    nanosec_save();
+    movement_move_to_face(0);//Go to main face after saving settings
+}
+
 void finetune_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
 
-    //Remember when we last corrected time
     if(total_adjustment!=0)
     {
-        nanosec_state.last_correction_time = watch_utility_date_time_to_unix_time(watch_rtc_get_date_time(), 0);
-        nanosec_save();
-        movement_move_to_face(0);//Go to main face after saving settings
+        finetune_update_correction_time();
     }
 }
 
