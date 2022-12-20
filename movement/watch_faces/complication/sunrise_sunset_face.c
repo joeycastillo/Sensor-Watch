@@ -38,11 +38,10 @@
 #include <emscripten.h>
 #endif
 
-uint32_t sunrise_sunset_read_ini(void);
-uint32_t sunrise_sunset_read_ini()
+static uint32_t sunrise_sunset_read_ini(void)
 {
     movement_location_t data;
-    if(filesystem_get_file_size("location.ini")!=sizeof(data))
+    if (filesystem_get_file_size("location.ini") != sizeof(data))
     {
         return 0;
     } else
@@ -52,8 +51,7 @@ uint32_t sunrise_sunset_read_ini()
     }
 }
 
-void sunrise_sunset_write_ini(uint32_t data);
-void sunrise_sunset_write_ini(uint32_t data)
+static void sunrise_sunset_write_ini(uint32_t data)
 {
     filesystem_write_file("location.ini", (char*)&data, sizeof(data));
 }

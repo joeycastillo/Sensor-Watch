@@ -83,7 +83,7 @@ void watch_display_character(uint8_t character, uint8_t position) {
         }
         uint8_t seg = segmap & 0x3F;
 
-        if (segdata & 1) 
+        if (segdata & 1)
           watch_set_pixel(com, seg);
         else
           watch_clear_pixel(com, seg);
@@ -112,8 +112,8 @@ void watch_display_character_lp_seconds(uint8_t character, uint8_t position) {
             continue;
         }
         uint8_t seg = segmap & 0x3F;
-        
-        if (segdata & 1) 
+
+        if (segdata & 1)
           watch_set_pixel(com, seg);
         else
           watch_clear_pixel(com, seg);
