@@ -161,3 +161,27 @@ void RTC_Handler(void) {
         RTC->MODE2.INTFLAG.reg = RTC_MODE2_INTFLAG_ALARM0;
     }
 }
+
+void watch_rtc_enable(bool en)
+{
+    // Writing it twice - as it's quite dangerous operation.
+    // If write fails - we might hang with RTC off, which means no recovery possible
+    while (RTC->MODE2.SYNCBUSY.reg);
+    RTC->MODE2.CTRLA.bit.ENABLE = en ? 1 : 0;
+    while (RTC->MODE2.SYNCBUSY.reg);
+    RTC->MODE2.CTRLA.bit.ENABLE = en ? 1 : 0;
+    while (RTC->MODE2.SYNCBUSY.reg);
+}
+
+void watch_rtc_freqcorr_write(int16_t value, int16_t sign)
+{
+    RTC_FREQCORR_Type data;
+
+    data.bit.VALUE = value;
+    data.bit.SIGN = sign;
+
+    RTC->MODE2.FREQCORR.reg = data.reg; // Setting correction in single write operation
+
+    // We do not sycnronize. We are not in a hurry
+}
+

@@ -37,7 +37,7 @@
  *
  * Should improve TOTP experience.
  *
- * Default funing fork tempco: -0.034 ppm/°C2, centered around 25°C
+ * Default funing fork tempco: -0.034 ppm/ï¿½C2, centered around 25ï¿½C
  * We add optional cubic coefficient, which was measured in practice on my sample. 
  * Cadence (CD) - how many minutes between corrections. Default 10 minutes.
  *  Every minute might be too much. Every hour - slightly less power consumption but also less precision. 
@@ -113,14 +113,7 @@ static void nanosec_internal_write_RTC_correction(int16_t value, int16_t sign) {
         freq_correction_previous = -value; 
     }
 
-    RTC_FREQCORR_Type data;
-
-    data.bit.VALUE = value;
-    data.bit.SIGN = sign;
-
-    RTC->MODE2.FREQCORR.reg = data.reg; // Setting correction in single operation
-
-    // We do not sycnronize. We are not in a hurry
+    watch_rtc_freqcorr_write(value, sign);
 }
 
 //Receives dithered correction, already corrected for temperature and battery voltage
@@ -316,7 +309,7 @@ bool nanosec_face_loop(movement_event_t event, movement_settings_t *settings, vo
             thermistor_driver_disable();
             // L22 correction scaling is 0.95367ppm per 1 in FREQCORR  
             // At wrong temperature crystall starting to run slow, negative correction will speed up frequency to correct
-            // Default 32kHz correciton factor is -0.034, centered around 25°C
+            // Default 32kHz correciton factor is -0.034, centered around 25ï¿½C
             float dt = temperature_c - nanosec_state.center_temperature / 100.0;
             int16_t correction = round((
                         nanosec_state.freq_correction / 100.0f * dithering +

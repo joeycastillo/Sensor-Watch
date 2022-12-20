@@ -60,16 +60,6 @@ void set_time_hackwatch_face_activate(movement_settings_t *settings, void *conte
     date_time_settings = watch_rtc_get_date_time();
 }
 
-static void hackwatch_rtc_en(bool en) {
-    // Writing it twice - as it's quite dangerous operation.
-    // If write fails - we might hang with RTC off, which means no recovery possible
-    while (RTC->MODE2.SYNCBUSY.reg);
-    RTC->MODE2.CTRLA.bit.ENABLE = en ? 1 : 0;
-    while (RTC->MODE2.SYNCBUSY.reg);
-    RTC->MODE2.CTRLA.bit.ENABLE = en ? 1 : 0;
-    while (RTC->MODE2.SYNCBUSY.reg);
-}
-
 bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     uint8_t current_page = *((uint8_t *)context);
     const uint8_t days_in_month[12] = {31, 28, 31, 30, 31, 30, 30, 31, 30, 31, 30, 31};
@@ -82,12 +72,12 @@ bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *s
     switch (event.event_type) {
         case EVENT_MODE_BUTTON_UP:
             if (current_page == 2)
-                hackwatch_rtc_en(true);
+                watch_rtc_enable(true);
             movement_move_to_next_face();
             return false;
         case EVENT_LIGHT_BUTTON_UP:
             if (current_page == 2)
-                hackwatch_rtc_en(true);
+                watch_rtc_enable(true);
 
             current_page = (current_page + 1) % set_time_hackwatch_face_NUM_SETTINGS;
             if (current_page == 2)
@@ -98,7 +88,7 @@ bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *s
         case EVENT_TICK:
             // We use it to wait for "middle" subsecond position
             if (current_page == 2 && seconds_reset_sequence == 1 && event.subsecond == 15) { // wait ~0.5sec - until we reach half second point
-                hackwatch_rtc_en(false);
+                watch_rtc_enable(false);
                 seconds_reset_sequence = 2;
 
                 // Set new time while RTC is off, to get perfect start
@@ -116,7 +106,7 @@ bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *s
             break;
         case EVENT_ALARM_BUTTON_DOWN:
             if (current_page == 2) {
-                hackwatch_rtc_en(true); // If it is disabled accidentally - re-enable it
+                watch_rtc_enable(true); // If it is disabled accidentally - re-enable it
                 seconds_reset_sequence = 1; // Waiting for whole second
             }
             break;
@@ -130,7 +120,7 @@ bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *s
                     break;
                 case 2: // second
                     seconds_reset_sequence = 0;
-                    hackwatch_rtc_en(true);
+                    watch_rtc_enable(true);
                     break;
                 case 3: // year
                     // only allow 2021-2061. fix this sometime later
@@ -170,7 +160,7 @@ bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *s
                     break;
                 case 2: // second
                     seconds_reset_sequence = 0;
-                    hackwatch_rtc_en(true);
+                    watch_rtc_enable(true);
                     break;
                 case 3: // year
                     // only allow 2021-2061. fix this sometime later

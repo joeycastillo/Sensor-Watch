@@ -57,9 +57,7 @@ void finetune_face_activate(movement_settings_t *settings, void *context) {
 }
 
 static void finetune_adjust_subseconds(int delta) {
-    while (RTC->MODE2.SYNCBUSY.reg);
-    RTC->MODE2.CTRLA.bit.ENABLE = 0;
-    while (RTC->MODE2.SYNCBUSY.reg);
+    watch_rtc_enable(false);
     delay_ms(delta);
     if (delta > 500) {
         watch_date_time date_time = watch_rtc_get_date_time();
@@ -78,9 +76,7 @@ static void finetune_adjust_subseconds(int delta) {
     } else {
         total_adjustment += delta;
     }
-    while (RTC->MODE2.SYNCBUSY.reg);
-    RTC->MODE2.CTRLA.bit.ENABLE = 1;
-    while (RTC->MODE2.SYNCBUSY.reg);
+    watch_rtc_enable(true);
 }
 
 static float finetune_get_hours_passed(void) {
