@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *
- * Warning, do not use at the first second of a month!
+ * Warning, do not use at the first second of a month, as you might stay at the same month and it will surprise you.
  * Just wait 1 second...We are not fully replicating RTC timer behavior when RTC is off.
  * Simulating months and years is... too much complexity.
  *
@@ -61,7 +61,7 @@ static void finetune_adjust_subseconds(int delta) {
     RTC->MODE2.CTRLA.bit.ENABLE = 0;
     while (RTC->MODE2.SYNCBUSY.reg);
     delay_ms(delta);
-    if (delta>500) {
+    if (delta > 500) {
         watch_date_time date_time = watch_rtc_get_date_time();
         date_time.unit.second = (date_time.unit.second + 1) % 60;
         if (date_time.unit.second == 0) { // Overflow
