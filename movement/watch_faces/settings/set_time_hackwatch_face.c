@@ -128,7 +128,7 @@ bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *s
                     date_time_settings.unit.month = (date_time_settings.unit.month +12 - 2) % 12 + 1;
                     break;
                 case 5: // day
-                    date_time_settings.unit.day = date_time_settings.unit.day - 1;
+                    date_time_settings.unit.day = date_time_settings.unit.day - 2;
                     // can't set to the 29th on a leap year. if it's february 29, set to 11:59 on the 28th.
                     // and it should roll over.
                     if (date_time_settings.unit.day == 0) {
