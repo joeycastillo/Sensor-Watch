@@ -46,6 +46,10 @@ void set_time_hackwatch_face_activate(movement_settings_t *settings, void *conte
 
 void hackwatch_rtc_en(bool en)
 {
+    //Writing it twice - as it's quite dangerous operation. 
+    //If write fails - we might hang with RTC off, which means no recovery possible
+    while (RTC->MODE2.SYNCBUSY.reg);
+    RTC->MODE2.CTRLA.bit.ENABLE = en?1:0;
     while (RTC->MODE2.SYNCBUSY.reg);
     RTC->MODE2.CTRLA.bit.ENABLE = en?1:0;
     while (RTC->MODE2.SYNCBUSY.reg);
@@ -75,15 +79,23 @@ bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *s
             *((uint8_t *)context) = current_page;
             break;
         case EVENT_TICK:
-            //Let's wait for 2 events, not one
+            //We use it to wait for "middle" subsecond position
             if(current_page == 2 && seconds_reset_sequence == 1 && event.subsecond==15)//wait ~0.5sec - until we reach half second point
             {
                 hackwatch_rtc_en(false);
                 seconds_reset_sequence = 2;
 
                 //Set new time while RTC is off, to get perfect start
-                if(date_time_settings.unit.second>30) 
+                if(date_time_settings.unit.second>30)
+                {
                     date_time_settings.unit.minute = (date_time_settings.unit.minute + 1) % 60;//Roll to next minute if we are almost there
+                    if(date_time_settings.unit.minute==0)//Overflow
+                    {
+                        date_time_settings.unit.hour=(date_time_settings.unit.hour+1)%24;
+                        if(date_time_settings.unit.hour==0)//Overflow
+                            date_time_settings.unit.day++;
+                    }
+                }
                 date_time_settings.unit.second = 0;
                 watch_rtc_set_date_time(date_time_settings);
             }
