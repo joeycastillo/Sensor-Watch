@@ -37,7 +37,7 @@
  *
  * Should improve TOTP experience.
  *
- * Default funing fork tempco: -0.034 ppm/�C2, centered around 25�C
+ * Default funing fork tempco: -0.034 ppm/°C², centered around 25°C
  * We add optional cubic coefficient, which was measured in practice on my sample. 
  * Cadence (CD) - how many minutes between corrections. Default 10 minutes.
  *  Every minute might be too much. Every hour - slightly less power consumption but also less precision. 
