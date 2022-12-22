@@ -32,29 +32,10 @@
 #include "watch.h"
 #include "watch_utility.h"
 #include "sunriset.h"
-#include "filesystem.h"
 
 #if __EMSCRIPTEN__
 #include <emscripten.h>
 #endif
-
-static uint32_t sunrise_sunset_read_ini(void)
-{
-    movement_location_t data;
-    if (filesystem_get_file_size("location.ini") != sizeof(data))
-    {
-        return 0;
-    } else
-    {
-        filesystem_read_file("location.ini", (char*)&data, sizeof(data));
-        return data.reg;
-    }
-}
-
-static void sunrise_sunset_write_ini(uint32_t data)
-{
-    filesystem_write_file("location.ini", (char*)&data, sizeof(data));
-}
 
 static void _sunrise_sunset_set_expiration(sunrise_sunset_state_t *state, watch_date_time next_rise_set) {
     uint32_t timestamp = watch_utility_date_time_to_unix_time(next_rise_set, 0);
@@ -65,7 +46,7 @@ static void _sunrise_sunset_face_update(movement_settings_t *settings, sunrise_s
     char buf[14];
     double rise, set, minutes, seconds;
     bool show_next_match = false;
-    movement_location_t movement_location = (movement_location_t) sunrise_sunset_read_ini();
+    movement_location_t movement_location = (movement_location_t) watch_get_backup_data(1);
 
     if (movement_location.reg == 0) {
         watch_display_string("RI  no Loc", 0);
@@ -207,7 +188,7 @@ static void _sunrise_sunset_face_update_location_register(sunrise_sunset_state_t
         int16_t lon = _sunrise_sunset_face_latlon_from_struct(state->working_longitude);
         movement_location.bit.latitude = lat;
         movement_location.bit.longitude = lon;
-        sunrise_sunset_write_ini(movement_location.reg);
+        watch_store_backup_data(movement_location.reg, 1);
         state->location_changed = false;
     }
 }
@@ -320,17 +301,17 @@ void sunrise_sunset_face_activate(movement_settings_t *settings, void *context) 
     int16_t browser_lon = EM_ASM_INT({
         return lon;
     });
-    if ((sunrise_sunset_read_ini() == 0) && (browser_lat || browser_lon)) {
+    if ((watch_get_backup_data(1) == 0) && (browser_lat || browser_lon)) {
         movement_location_t browser_loc;
         browser_loc.bit.latitude = browser_lat;
         browser_loc.bit.longitude = browser_lon;
-        sunrise_sunset_write_ini(browser_loc.reg);
+        watch_store_backup_data(browser_loc.reg, 1);
     }
 #endif
 
 
     sunrise_sunset_state_t *state = (sunrise_sunset_state_t *)context;
-    movement_location_t movement_location = (movement_location_t) sunrise_sunset_read_ini();
+    movement_location_t movement_location = (movement_location_t) watch_get_backup_data(1);
     state->working_latitude = _sunrise_sunset_face_struct_from_latlon(movement_location.bit.latitude);
     state->working_longitude = _sunrise_sunset_face_struct_from_latlon(movement_location.bit.longitude);
 }
@@ -400,7 +381,7 @@ bool sunrise_sunset_face_loop(movement_event_t event, movement_settings_t *setti
             }
             break;
         case EVENT_TIMEOUT:
-            if (sunrise_sunset_read_ini() == 0) {
+            if (watch_get_backup_data(1) == 0) {
                 // if no location set, return home
                 movement_move_to_face(0);
             } else if (state->page || state->rise_index) {
