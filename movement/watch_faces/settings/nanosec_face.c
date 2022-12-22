@@ -57,12 +57,14 @@ int16_t freq_correction_previous = -30000;
 
 nanosec_state_t nanosec_state;
 
-#define nanosec_max_screen 6
+#define nanosec_max_screen 7
 int8_t nanosec_screen = 0;
+bool nanosec_changed = false;//We try to avoid saving settings when no changes were made, for example when just browsing through face
 
 const float voltage_coefficient = 0.241666667 * dithering; // 10 * ppm/V. Nominal frequency is at 3V.
 
 static void nanosec_init_profile(void) {
+    nanosec_changed = true;
     nanosec_state.correction_cadence = 10;
     watch_date_time date_time = watch_rtc_get_date_time();
     nanosec_state.last_correction_time = watch_utility_date_time_to_unix_time(date_time, 0);
@@ -74,30 +76,35 @@ static void nanosec_init_profile(void) {
             nanosec_state.center_temperature = 2500;
             nanosec_state.quadratic_tempco = 0;
             nanosec_state.cubic_tempco = 0;
+            nanosec_state.aging_ppm_pa = 0;
             break;
         case 1: // No tempco, with dithering
             nanosec_state.freq_correction = 0;
             nanosec_state.center_temperature = 2500;
             nanosec_state.quadratic_tempco = 0;
             nanosec_state.cubic_tempco = 0;        
+            nanosec_state.aging_ppm_pa = 0;
             break;
         case 2: // Datasheet correction
             nanosec_state.freq_correction = 0;
             nanosec_state.center_temperature = 2500;
             nanosec_state.quadratic_tempco = 3400;
             nanosec_state.cubic_tempco = 0;        
+            nanosec_state.aging_ppm_pa = 0;
             break;
         case 3: // Datasheet correction + cubic coefficient
             nanosec_state.freq_correction = 0;
             nanosec_state.center_temperature = 2500;
             nanosec_state.quadratic_tempco = 3400;
             nanosec_state.cubic_tempco = 1360;        
+            nanosec_state.aging_ppm_pa = 0;
             break;
         case 4: // Full custom
             nanosec_state.freq_correction = 1768;
             nanosec_state.center_temperature = 2653;
             nanosec_state.quadratic_tempco = 4091;
             nanosec_state.cubic_tempco = 1359;        
+            nanosec_state.aging_ppm_pa = 0;
             break;
     }
 }
@@ -105,18 +112,18 @@ static void nanosec_init_profile(void) {
 static void nanosec_internal_write_RTC_correction(int16_t value, int16_t sign) {
     if (sign == 0) {
         if (value == freq_correction_previous)
-            return;
+            return; // Do not write same correction value twice
         freq_correction_previous = value; 
     } else {
         if (value == -freq_correction_previous)
-            return;
+            return; // Do not write same correction value twice
         freq_correction_previous = -value; 
     }
 
     watch_rtc_freqcorr_write(value, sign);
 }
 
-//Receives dithered correction, already corrected for temperature and battery voltage
+//Receives clock correction, already corrected for temperature and battery voltage, multiplied by "dithering"
 static void apply_RTC_correction(int16_t correction) {
     correction += freq_correction_residual;
     int32_t correction_lr = (int32_t)correction * 2 / dithering; // int division
@@ -146,9 +153,13 @@ static void apply_RTC_correction(int16_t correction) {
 void nanosec_save(void) {
     if (nanosec_state.correction_profile == 0) {
         freq_correction_residual = 0;
-        apply_RTC_correction(nanosec_state.freq_correction * 1.0f * dithering / 100); // Will be divided by 10 again inside, final resolution is mere 1ppm
+        apply_RTC_correction(nanosec_state.freq_correction * 1.0f * dithering / 100); // Will be divided by dithering inside, final resolution is mere 1ppm
     }
-    filesystem_write_file("nanosec.ini", (char*)&nanosec_state, sizeof(nanosec_state));
+    if(nanosec_changed)
+    {
+        filesystem_write_file("nanosec.ini", (char*)&nanosec_state, sizeof(nanosec_state));
+        nanosec_changed = false;
+    }
 }
 
 void nanosec_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
@@ -174,6 +185,7 @@ void nanosec_face_activate(movement_settings_t *settings, void *context) {
     (void) context;
 
     // Handle any tasks related to your watch face coming on screen.
+    nanosec_changed = false;
 }
 
 static void nanosec_update_display() {
@@ -198,11 +210,16 @@ static void nanosec_update_display() {
         case 5: // Cadence
             sprintf(buf, "CD      %2d", nanosec_state.correction_cadence);
             break;
+        case 6: // Aging
+            sprintf(buf, "AA  %6d", nanosec_state.aging_ppm_pa);
+            break;
     }
     watch_display_string(buf, 0);
 }
 
 static void value_increase(int16_t delta) {
+    nanosec_changed = true;
+    
     switch (nanosec_screen) {
         case 0:
             nanosec_state.freq_correction += delta;
@@ -239,6 +256,9 @@ static void value_increase(int16_t delta) {
             }
             nanosec_state.correction_profile = (nanosec_state.correction_profile + delta) % nanosec_profile_count;
             break;
+        case 6: // Aging
+            nanosec_state.aging_ppm_pa += delta;
+            break;
     }
 
     nanosec_update_display();
@@ -248,6 +268,14 @@ static void nanosec_next_edit_screen(void) {
     nanosec_screen = (nanosec_screen + 1) % nanosec_max_screen;
     nanosec_update_display();
 }
+
+float nanosec_get_aging() // Returns aging correction in ppm
+{
+    watch_date_time date_time = watch_rtc_get_date_time();
+    float years = (watch_utility_date_time_to_unix_time(date_time, 0) - nanosec_state.last_correction_time) / 31536000.0f; // Years passed since finetune
+    return years*nanosec_state.aging_ppm_pa/100.0f;
+}
+
 
 bool nanosec_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     (void) settings;
@@ -262,14 +290,14 @@ bool nanosec_face_loop(movement_event_t event, movement_settings_t *settings, vo
         case EVENT_TICK:
             break;
         case EVENT_MODE_BUTTON_UP:
-            if (nanosec_screen == 5 || nanosec_screen == 0) {
-                filesystem_write_file("nanosec.ini", (char*)&nanosec_state, sizeof(nanosec_state));
+            if (nanosec_screen == 0) {// we can exit face only on the 0th page
+                nanosec_save();
                 movement_move_to_next_face();
             } else {
                 nanosec_next_edit_screen();
             }
             break;
-        case EVENT_MODE_LONG_UP:
+        case EVENT_MODE_LONG_PRESS:
             nanosec_next_edit_screen();
             break;
         case EVENT_LIGHT_BUTTON_UP:
@@ -309,13 +337,15 @@ bool nanosec_face_loop(movement_event_t event, movement_settings_t *settings, vo
             thermistor_driver_disable();
             // L22 correction scaling is 0.95367ppm per 1 in FREQCORR  
             // At wrong temperature crystall starting to run slow, negative correction will speed up frequency to correct
-            // Default 32kHz correciton factor is -0.034, centered around 25�C
+            // Default 32kHz correciton factor is -0.034, centered around 25°C
             float dt = temperature_c - nanosec_state.center_temperature / 100.0;
+            
             int16_t correction = round((
                         nanosec_state.freq_correction / 100.0f * dithering +
                         (-nanosec_state.quadratic_tempco / 100000.0 * dithering) * dt * dt +
                         (nanosec_state.cubic_tempco / 10000000.0 * dithering) * dt * dt * dt +
-                        (voltage - 3.0) * voltage_coefficient
+                        (voltage - 3.0) * voltage_coefficient +
+                        nanosec_get_aging() * dithering
                         ) / 0.95367); // 1 correction unit is 0.095367ppm. 
 
             apply_RTC_correction(correction);

@@ -89,7 +89,10 @@ static float finetune_get_correction(void) {
 }
 
 static void finetune_update_correction_time(void) {
-    //Remember when we last corrected time
+    // Update aging, as we update correciton time - we must bake accrued aging into static offset
+    nanosec_state.freq_correction += roundf(nanosec_get_aging()*100);
+
+    // Remember when we last corrected time
     nanosec_state.last_correction_time = watch_utility_date_time_to_unix_time(watch_rtc_get_date_time(), 0);
     nanosec_save();
     movement_move_to_face(0);//Go to main face after saving settings
@@ -151,7 +154,7 @@ bool finetune_face_loop(movement_event_t event, movement_settings_t *settings, v
             }
             break;
 
-        case EVENT_MODE_LONG_UP:
+        case EVENT_MODE_LONG_PRESS:
             // You shouldn't need to change this case; Mode almost always moves to the next watch face.
             finetune_page = (finetune_page + 1) % 3;
             break;

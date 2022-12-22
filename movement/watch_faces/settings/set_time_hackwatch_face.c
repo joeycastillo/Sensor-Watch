@@ -75,6 +75,13 @@ bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *s
                 watch_rtc_enable(true);
             movement_move_to_next_face();
             return false;
+        case EVENT_LIGHT_LONG_PRESS:
+            current_page = (current_page + set_time_hackwatch_face_NUM_SETTINGS - 1) % set_time_hackwatch_face_NUM_SETTINGS;
+            if (current_page == 2)
+                seconds_reset_sequence = 0;
+
+            *((uint8_t *)context) = current_page;
+            break;
         case EVENT_LIGHT_BUTTON_UP:
             if (current_page == 2)
                 watch_rtc_enable(true);
@@ -110,17 +117,13 @@ bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *s
                 seconds_reset_sequence = 1; // Waiting for whole second
             }
             break;
-        case EVENT_ALARM_LONG_UP://Long button is going negative
+        case EVENT_ALARM_LONG_PRESS:
             switch (current_page) {
                 case 0: // hour
                     date_time_settings.unit.hour = (date_time_settings.unit.hour + 24 -1) % 24;
                     break;
                 case 1: // minute
                     date_time_settings.unit.minute = (date_time_settings.unit.minute + 60 - 1) % 60;
-                    break;
-                case 2: // second
-                    seconds_reset_sequence = 0;
-                    watch_rtc_enable(true);
                     break;
                 case 3: // year
                     // only allow 2021-2061. fix this sometime later
@@ -148,7 +151,15 @@ bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *s
             }
             if (current_page != 2) // Do not set time when we are at seconds, it was already set previously
                 watch_rtc_set_date_time(date_time_settings);
-            // TODO: Do not update whole RTC, just what we are changing
+            break;
+        
+        case EVENT_ALARM_LONG_UP://Setting seconds on long release
+            switch (current_page) {
+                case 2: // second
+                    seconds_reset_sequence = 0;
+                    watch_rtc_enable(true);
+                    break;
+            }
             break;
         case EVENT_ALARM_BUTTON_UP:
             switch (current_page) {
