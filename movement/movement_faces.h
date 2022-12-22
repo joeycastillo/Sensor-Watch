@@ -63,6 +63,7 @@
 #include "finetune_face.h"
 #include "databank_face.h"
 #include "tempchart_face.h"
+#include "weeknumber_clock_face.h"
 // New includes go above this line.
 
 #endif // MOVEMENT_FACES_H_
