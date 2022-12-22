@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *
- * Displays some pre-defined data that you might want to remember. Numbers, birthdays, phone numbers...
+ * Displays some pre-defined data that you might want to remember. Math constants, birthdays, phone numbers...
  */
 
 #include <stdlib.h>

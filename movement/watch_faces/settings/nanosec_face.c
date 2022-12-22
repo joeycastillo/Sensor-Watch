@@ -28,8 +28,11 @@
  *
  * It implements temperature correction using tempco from datasheet (and allows to adjust these)
  * and allows to introduce offset fix. Therefore requires temperature sensor board. 
+ * 
+ * Most users will need to apply profile 3 ("default") or 2("conservative datasheet"), and tune first parameter - 
+ * static offset (as it's different for every crystal sample).
  *
- * Offset fix is "dithered" over 10 correction intervals (10x10 minutes or 10 hours), to allow 0.1ppm correction resolution. 
+ * Frequency correction is dithered over 31 correction intervals (31x10 minutes or ~5 hours), to allow <0.1ppm correction resolution. 
  * 1ppm is 0.0864 sec per day. 
  * 0.1ppm is 0.00864 sec per day. 
  *
@@ -39,8 +42,11 @@
  *
  * Default funing fork tempco: -0.034 ppm/°C², centered around 25°C
  * We add optional cubic coefficient, which was measured in practice on my sample. 
+ * 
  * Cadence (CD) - how many minutes between corrections. Default 10 minutes.
- *  Every minute might be too much. Every hour - slightly less power consumption but also less precision. 
+ * Every minute might be too much. Every hour - slightly less power consumption but also less precision. 
+ * 
+ * Can compensate crystal aging (ppm/year) - but you really should be worrying about it on second/third years of watch calibration. * 
  */
 
 #include <stdlib.h>

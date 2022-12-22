@@ -98,7 +98,7 @@ void watch_display_character(uint8_t character, uint8_t position) {
 }
 
 void watch_display_character_lp_seconds(uint8_t character, uint8_t position) {
-    //will only work for digits and for positions  8 and 9 - but less code & checks to reduce power consumption
+    // Will only work for digits and for positions  8 and 9 - but less code & checks to reduce power consumption
 
     uint64_t segmap = Segment_Map[position];
     uint64_t segdata = Character_Set[character - 0x20];

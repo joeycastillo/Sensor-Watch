@@ -57,7 +57,7 @@ void _watch_rtc_init(void) {
 }
 
 void watch_rtc_set_date_time(watch_date_time date_time) {
-    _sync_rtc();
+    _sync_rtc(); // Double sync as without it at high Hz faces setting time is unrealiable (specifically, set_time_hackwatch)
     RTC->MODE2.CLOCK.reg = date_time.reg;
     _sync_rtc();
 }
@@ -138,7 +138,7 @@ void RTC_Handler(void) {
                     tick_callbacks[i]();
                 }
                 RTC->MODE2.INTFLAG.reg = 1 << i;
-//                break;
+//                break; Uncertain if this fix is requried. We were discussing in discord. Might slightly increase power consumption. 
             }
         }
     } else if ((interrupt_status & interrupt_enabled) & RTC_MODE2_INTFLAG_TAMPER) {
