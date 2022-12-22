@@ -142,6 +142,21 @@ bool finetune_face_loop(movement_event_t event, movement_settings_t *settings, v
 
         case EVENT_TICK:
             // If needed, update your display here, at canonical 0.5sec position.
+            // We flash gree LED once per minute to measure clock error, when we are not on first screen
+            if(finetune_page!=0)
+            {
+                watch_date_time date_time;
+                date_time = watch_rtc_get_date_time();
+                if(date_time.unit.second == 0)
+                {
+                    watch_set_led_green();
+                    #ifndef __EMSCRIPTEN__
+                    delay_us(500);
+                    #endif
+                    watch_set_led_off();
+                }
+            }
+
             finetune_update_display();
             break;
 
