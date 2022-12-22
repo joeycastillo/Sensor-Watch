@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *
- * Displays some pre-defined data
+ * Displays some pre-defined data that you might want to remember. Numbers, birthdays, phone numbers...
  */
 
 #include <stdlib.h>
@@ -30,15 +30,17 @@
 #include "watch.h"
 #include "watch_private_display.h"
 
-const int databank_num_pages = 6;
+const char *pi_data[] = {
+    "PI", "314159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535940812848111745028410270193852110555964462294895493038196442",
+    "S ", "9192631770",
+    "31", "2147483648",
+    "32", "4294967296",
+    "63", "9223372036854775808",
+    "64", "18446744073709551616",
+};
+//we show 6 characters per screen
 
-const char *pi_data[] = {"PI", "314159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535940812848111745028410270193852110555964462294895493038196442",
-                   "S ", "9192631770",
-                   "31", "2147483648",
-                   "32", "4294967296",
-                   "63", "9223372036854775808",
-                   "64", "18446744073709551616"};
-//we show 8 characters per screen, so 200/8=25 screens
+const int databank_num_pages = (sizeof(pi_data) / sizeof(char*) / 2);
 
 struct {
     uint8_t current_word;

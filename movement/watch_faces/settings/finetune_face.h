@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 <#author_name#>
+ * Copyright (c) 2022 Mikhail Svarichevsky https://3.14.by/
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
