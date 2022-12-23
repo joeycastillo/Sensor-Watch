@@ -41,7 +41,7 @@ static void draw_op(char *buf, rpn_calculator_op_t op) {
             sprintf(buf, "CA     sub");
         break;
         case rpn_calculator_op_mul:
-            sprintf(buf, "CA     mul");
+            sprintf(buf, "CA    n&ul");
         break;
         case rpn_calculator_op_div:
             sprintf(buf, "CA     div");
