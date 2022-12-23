@@ -132,32 +132,10 @@ void watch_rtc_disable_tick_callback(void);
   */
 void watch_rtc_register_periodic_callback(ext_irq_cb_t callback, uint8_t frequency);
 
-/** @brief Registers a callback that will be called at a configurable period in one of three available slots (slot 0 is reserved for legacy reasons).
-  * @param callback The function you wish to have called at the specified period. If you pass in NULL, the periodic
-  *                 interrupt will still be enabled, but no callback function will be called.
-  * @note A 1 Hz tick (@see watch_rtc_register_tick_callback) is suitable for most applications, in that it gives you a
-  *       chance to update the display once a second — an ideal update rate for a watch! If however you are displaying
-  *       a value (such as an accelerometer output) that updates more frequently than once per second, you may want to
-  *       tick at 16 or 32 Hz to update the screen more quickly. Just remember that the more frequent the tick, the more
-  *       power your app will consume. Ideally you should enable the fast tick only when the user requires it (i.e. in
-  *       response to an input event), and move back to the slow tick after some time.
-  *
-  *       There are three slots available (1 - 3) for any given frequency. Your code needs to take care about de-
-  *       registering the callback function in the exact same slot it has been registered before. If no free slot
-  *       is available, this function returns -1.
-  */
-int8_t watch_rtc_register_periodic_callback_slot(ext_irq_cb_t callback, uint8_t frequency);
-
 /** @brief Disables the tick callback for the given period.
   * @param frequency The frequency of the tick you wish to disable, in Hz. **Must be a power of 2**, from 1 to 128.
   */
 void watch_rtc_disable_periodic_callback(uint8_t frequency);
-
-/** @brief Disables the tick callback for the given period in a given slot (0 - 3).
-  * @param frequency The frequency of the tick you wish to disable, in Hz. **Must be a power of 2**, from 1 to 128.
-  * @param slot The callback slot you want to disable, from 0 to 3.
-  */
- void watch_rtc_disable_periodic_callback_slot(uint8_t frequency, uint8_t slot);
 
 /** @brief Disables tick callbacks for the given periods (as a bitmask).
   * @param mask The frequencies of tick callbacks you wish to disable, in Hz.
