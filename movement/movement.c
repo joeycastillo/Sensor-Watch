@@ -78,6 +78,8 @@ const int32_t movement_le_inactivity_deadlines[8] = {INT_MAX, 3600, 7200, 21600,
 const int16_t movement_timeout_inactivity_deadlines[4] = {60, 120, 300, 1800};
 movement_event_t event;
 
+watch_date_time _cached_date_time;
+
 const int16_t movement_timezone_offsets[] = {
     0,      //  0 :   0:00:00 (UTC)
     60,     //  1 :   1:00:00 (Central European Time)
@@ -194,7 +196,7 @@ static void _movement_handle_scheduled_tasks(void) {
 }
 
 watch_date_time movement_get_date_time(void) {
-    return watch_rtc_get_date_time();
+    return _cached_date_time;
 }
 
 void movement_request_tick_frequency(uint8_t freq) {
@@ -616,13 +618,13 @@ void cb_fast_tick(void) {
 
 void cb_tick(void) {
     event.event_type = EVENT_TICK;
-    watch_date_time date_time = movement_get_date_time();
-    if (date_time.unit.second != movement_state.last_second) {
+    _cached_date_time = watch_rtc_get_date_time();
+    if (_cached_date_time.unit.second != movement_state.last_second) {
         // TODO: can we consolidate these two ticks?
         if (movement_state.settings.bit.le_interval && movement_state.le_mode_ticks > 0) movement_state.le_mode_ticks--;
         if (movement_state.timeout_ticks > 0) movement_state.timeout_ticks--;
 
-        movement_state.last_second = date_time.unit.second;
+        movement_state.last_second = _cached_date_time.unit.second;
         movement_state.subsecond = 0;
     } else {
         movement_state.subsecond++;
