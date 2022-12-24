@@ -1,0 +1,14 @@
+(module FlexyPin_1x01_P2.54mm (layer F.Cu)
+  (fp_text reference REF** (at 0 -1.25) (layer F.SilkS) (effects (font (size 1 1) (thickness 0.15))))
+  (fp_text value FlexyPin_1x01_P2.54mm (at 0 1.30) (layer F.Fab) (effects (font (size 1 1) (thickness 0.15))))
+
+  (fp_line (start -1.10 0.60) (end -1.10 -0.60) (layer F.CrtYd) (width 0.10))
+  (fp_line (start 2.70 0.60) (end -1.10 0.60) (layer F.CrtYd) (width 0.10))
+  (fp_line (start 2.70 -0.60) (end 2.70 0.60) (layer F.CrtYd) (width 0.10))
+  (fp_line (start -1.10 -0.60) (end 2.70 -0.60) (layer F.CrtYd) (width 0.10))
+
+  (pad 1 thru_hole rect (at 0 0.00) (size 1.30 0.90) (drill 0.60 (offset -0.30 0)) (layers *.Cu *.Mask))
+  (pad "" thru_hole oval (at 1.55 0.00) (size 2.00 0.95) (drill oval 1.70 0.65) (layers *.Cu *.Mask))
+  (model ${KIPRJMOD}/../3d/flexypin.step (offset (xyz 0 0.00 0)) (scale (xyz 1 1 1)) (rotate (xyz 0 0 0)))
+
+)

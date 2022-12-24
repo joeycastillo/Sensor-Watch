@@ -1,0 +1,6 @@
+(fp_lib_table
+  (lib (name "OSO-SWAT-A1-05")(type "KiCad")(uri "$(KIPRJMOD)/OSO-SWAT-A2-00.pretty")(options "")(descr ""))
+  (lib (name "FlexyPin")(type "KiCad")(uri "${KIPRJMOD}/FlexyPin.pretty")(options "")(descr ""))
+  (lib (name "OSO-FEAL-A1-00")(type "KiCad")(uri "${KIPRJMOD}/OSO-FEAL-A1-00.pretty")(options "")(descr ""))
+  (lib (name "Adafruit QT Py")(type "KiCad")(uri "/Users/joeycastillo/Desktop/Kicad QTPY/Adafruit QT Py.pretty")(options "")(descr ""))
+)

@@ -1,0 +1,134 @@
+(module FlexyPin_1x31_P1.27mm (layer F.Cu)
+  (fp_text reference REF** (at 0 -1.25) (layer F.SilkS) (effects (font (size 1 1) (thickness 0.15))))
+  (fp_text value FlexyPin_1x31_P1.27mm (at 0 39.40) (layer F.Fab) (effects (font (size 1 1) (thickness 0.15))))
+
+  (fp_line (start -1.10 38.70) (end -1.10 -0.60) (layer F.CrtYd) (width 0.10))
+  (fp_line (start 2.70 38.70) (end -1.10 38.70) (layer F.CrtYd) (width 0.10))
+  (fp_line (start 2.70 -0.60) (end 2.70 38.70) (layer F.CrtYd) (width 0.10))
+  (fp_line (start -1.10 -0.60) (end 2.70 -0.60) (layer F.CrtYd) (width 0.10))
+
+  (pad 1 thru_hole rect (at 0 0.00) (size 1.30 0.90) (drill 0.60 (offset -0.30 0)) (layers *.Cu *.Mask))
+  (pad "" thru_hole oval (at 1.55 0.00) (size 2.00 0.95) (drill oval 1.70 0.65) (layers *.Cu *.Mask))
+  (model ${KIPRJMOD}/../3d/flexypin.step (offset (xyz 0 0.00 0)) (scale (xyz 1 1 1)) (rotate (xyz 0 0 0)))
+
+  (pad 2 thru_hole rect (at 0 1.27) (size 1.30 0.90) (drill 0.60 (offset -0.30 0)) (layers *.Cu *.Mask))
+  (pad "" thru_hole oval (at 1.55 1.27) (size 2.00 0.95) (drill oval 1.70 0.65) (layers *.Cu *.Mask))
+  (model ${KIPRJMOD}/../3d/flexypin.step (offset (xyz 0 -1.27 0)) (scale (xyz 1 1 1)) (rotate (xyz 0 0 0)))
+
+  (pad 3 thru_hole rect (at 0 2.54) (size 1.30 0.90) (drill 0.60 (offset -0.30 0)) (layers *.Cu *.Mask))
+  (pad "" thru_hole oval (at 1.55 2.54) (size 2.00 0.95) (drill oval 1.70 0.65) (layers *.Cu *.Mask))
+  (model ${KIPRJMOD}/../3d/flexypin.step (offset (xyz 0 -2.54 0)) (scale (xyz 1 1 1)) (rotate (xyz 0 0 0)))
+
+  (pad 4 thru_hole rect (at 0 3.81) (size 1.30 0.90) (drill 0.60 (offset -0.30 0)) (layers *.Cu *.Mask))
+  (pad "" thru_hole oval (at 1.55 3.81) (size 2.00 0.95) (drill oval 1.70 0.65) (layers *.Cu *.Mask))
+  (model ${KIPRJMOD}/../3d/flexypin.step (offset (xyz 0 -3.81 0)) (scale (xyz 1 1 1)) (rotate (xyz 0 0 0)))
+
+  (pad 5 thru_hole rect (at 0 5.08) (size 1.30 0.90) (drill 0.60 (offset -0.30 0)) (layers *.Cu *.Mask))
+  (pad "" thru_hole oval (at 1.55 5.08) (size 2.00 0.95) (drill oval 1.70 0.65) (layers *.Cu *.Mask))
+  (model ${KIPRJMOD}/../3d/flexypin.step (offset (xyz 0 -5.08 0)) (scale (xyz 1 1 1)) (rotate (xyz 0 0 0)))
+
+  (pad 6 thru_hole rect (at 0 6.35) (size 1.30 0.90) (drill 0.60 (offset -0.30 0)) (layers *.Cu *.Mask))
+  (pad "" thru_hole oval (at 1.55 6.35) (size 2.00 0.95) (drill oval 1.70 0.65) (layers *.Cu *.Mask))
+  (model ${KIPRJMOD}/../3d/flexypin.step (offset (xyz 0 -6.35 0)) (scale (xyz 1 1 1)) (rotate (xyz 0 0 0)))
+
+  (pad 7 thru_hole rect (at 0 7.62) (size 1.30 0.90) (drill 0.60 (offset -0.30 0)) (layers *.Cu *.Mask))
+  (pad "" thru_hole oval (at 1.55 7.62) (size 2.00 0.95) (drill oval 1.70 0.65) (layers *.Cu *.Mask))
+  (model ${KIPRJMOD}/../3d/flexypin.step (offset (xyz 0 -7.62 0)) (scale (xyz 1 1 1)) (rotate (xyz 0 0 0)))
+
+  (pad 8 thru_hole rect (at 0 8.89) (size 1.30 0.90) (drill 0.60 (offset -0.30 0)) (layers *.Cu *.Mask))
+  (pad "" thru_hole oval (at 1.55 8.89) (size 2.00 0.95) (drill oval 1.70 0.65) (layers *.Cu *.Mask))
+  (model ${KIPRJMOD}/../3d/flexypin.step (offset (xyz 0 -8.89 0)) (scale (xyz 1 1 1)) (rotate (xyz 0 0 0)))
+
+  (pad 9 thru_hole rect (at 0 10.16) (size 1.30 0.90) (drill 0.60 (offset -0.30 0)) (layers *.Cu *.Mask))
+  (pad "" thru_hole oval (at 1.55 10.16) (size 2.00 0.95) (drill oval 1.70 0.65) (layers *.Cu *.Mask))
+  (model ${KIPRJMOD}/../3d/flexypin.step (offset (xyz 0 -10.16 0)) (scale (xyz 1 1 1)) (rotate (xyz 0 0 0)))
+
+  (pad 10 thru_hole rect (at 0 11.43) (size 1.30 0.90) (drill 0.60 (offset -0.30 0)) (layers *.Cu *.Mask))
+  (pad "" thru_hole oval (at 1.55 11.43) (size 2.00 0.95) (drill oval 1.70 0.65) (layers *.Cu *.Mask))
+  (model ${KIPRJMOD}/../3d/flexypin.step (offset (xyz 0 -11.43 0)) (scale (xyz 1 1 1)) (rotate (xyz 0 0 0)))
+
+  (pad 11 thru_hole rect (at 0 12.70) (size 1.30 0.90) (drill 0.60 (offset -0.30 0)) (layers *.Cu *.Mask))
+  (pad "" thru_hole oval (at 1.55 12.70) (size 2.00 0.95) (drill oval 1.70 0.65) (layers *.Cu *.Mask))
+  (model ${KIPRJMOD}/../3d/flexypin.step (offset (xyz 0 -12.70 0)) (scale (xyz 1 1 1)) (rotate (xyz 0 0 0)))
+
+  (pad 12 thru_hole rect (at 0 13.97) (size 1.30 0.90) (drill 0.60 (offset -0.30 0)) (layers *.Cu *.Mask))
+  (pad "" thru_hole oval (at 1.55 13.97) (size 2.00 0.95) (drill oval 1.70 0.65) (layers *.Cu *.Mask))
+  (model ${KIPRJMOD}/../3d/flexypin.step (offset (xyz 0 -13.97 0)) (scale (xyz 1 1 1)) (rotate (xyz 0 0 0)))
+
+  (pad 13 thru_hole rect (at 0 15.24) (size 1.30 0.90) (drill 0.60 (offset -0.30 0)) (layers *.Cu *.Mask))
+  (pad "" thru_hole oval (at 1.55 15.24) (size 2.00 0.95) (drill oval 1.70 0.65) (layers *.Cu *.Mask))
+  (model ${KIPRJMOD}/../3d/flexypin.step (offset (xyz 0 -15.24 0)) (scale (xyz 1 1 1)) (rotate (xyz 0 0 0)))
+
+  (pad 14 thru_hole rect (at 0 16.51) (size 1.30 0.90) (drill 0.60 (offset -0.30 0)) (layers *.Cu *.Mask))
+  (pad "" thru_hole oval (at 1.55 16.51) (size 2.00 0.95) (drill oval 1.70 0.65) (layers *.Cu *.Mask))
+  (model ${KIPRJMOD}/../3d/flexypin.step (offset (xyz 0 -16.51 0)) (scale (xyz 1 1 1)) (rotate (xyz 0 0 0)))
+
+  (pad 15 thru_hole rect (at 0 17.78) (size 1.30 0.90) (drill 0.60 (offset -0.30 0)) (layers *.Cu *.Mask))
+  (pad "" thru_hole oval (at 1.55 17.78) (size 2.00 0.95) (drill oval 1.70 0.65) (layers *.Cu *.Mask))
+  (model ${KIPRJMOD}/../3d/flexypin.step (offset (xyz 0 -17.78 0)) (scale (xyz 1 1 1)) (rotate (xyz 0 0 0)))
+
+  (pad 16 thru_hole rect (at 0 19.05) (size 1.30 0.90) (drill 0.60 (offset -0.30 0)) (layers *.Cu *.Mask))
+  (pad "" thru_hole oval (at 1.55 19.05) (size 2.00 0.95) (drill oval 1.70 0.65) (layers *.Cu *.Mask))
+  (model ${KIPRJMOD}/../3d/flexypin.step (offset (xyz 0 -19.05 0)) (scale (xyz 1 1 1)) (rotate (xyz 0 0 0)))
+
+  (pad 17 thru_hole rect (at 0 20.32) (size 1.30 0.90) (drill 0.60 (offset -0.30 0)) (layers *.Cu *.Mask))
+  (pad "" thru_hole oval (at 1.55 20.32) (size 2.00 0.95) (drill oval 1.70 0.65) (layers *.Cu *.Mask))
+  (model ${KIPRJMOD}/../3d/flexypin.step (offset (xyz 0 -20.32 0)) (scale (xyz 1 1 1)) (rotate (xyz 0 0 0)))
+
+  (pad 18 thru_hole rect (at 0 21.59) (size 1.30 0.90) (drill 0.60 (offset -0.30 0)) (layers *.Cu *.Mask))
+  (pad "" thru_hole oval (at 1.55 21.59) (size 2.00 0.95) (drill oval 1.70 0.65) (layers *.Cu *.Mask))
+  (model ${KIPRJMOD}/../3d/flexypin.step (offset (xyz 0 -21.59 0)) (scale (xyz 1 1 1)) (rotate (xyz 0 0 0)))
+
+  (pad 19 thru_hole rect (at 0 22.86) (size 1.30 0.90) (drill 0.60 (offset -0.30 0)) (layers *.Cu *.Mask))
+  (pad "" thru_hole oval (at 1.55 22.86) (size 2.00 0.95) (drill oval 1.70 0.65) (layers *.Cu *.Mask))
+  (model ${KIPRJMOD}/../3d/flexypin.step (offset (xyz 0 -22.86 0)) (scale (xyz 1 1 1)) (rotate (xyz 0 0 0)))
+
+  (pad 20 thru_hole rect (at 0 24.13) (size 1.30 0.90) (drill 0.60 (offset -0.30 0)) (layers *.Cu *.Mask))
+  (pad "" thru_hole oval (at 1.55 24.13) (size 2.00 0.95) (drill oval 1.70 0.65) (layers *.Cu *.Mask))
+  (model ${KIPRJMOD}/../3d/flexypin.step (offset (xyz 0 -24.13 0)) (scale (xyz 1 1 1)) (rotate (xyz 0 0 0)))
+
+  (pad 21 thru_hole rect (at 0 25.40) (size 1.30 0.90) (drill 0.60 (offset -0.30 0)) (layers *.Cu *.Mask))
+  (pad "" thru_hole oval (at 1.55 25.40) (size 2.00 0.95) (drill oval 1.70 0.65) (layers *.Cu *.Mask))
+  (model ${KIPRJMOD}/../3d/flexypin.step (offset (xyz 0 -25.40 0)) (scale (xyz 1 1 1)) (rotate (xyz 0 0 0)))
+
+  (pad 22 thru_hole rect (at 0 26.67) (size 1.30 0.90) (drill 0.60 (offset -0.30 0)) (layers *.Cu *.Mask))
+  (pad "" thru_hole oval (at 1.55 26.67) (size 2.00 0.95) (drill oval 1.70 0.65) (layers *.Cu *.Mask))
+  (model ${KIPRJMOD}/../3d/flexypin.step (offset (xyz 0 -26.67 0)) (scale (xyz 1 1 1)) (rotate (xyz 0 0 0)))
+
+  (pad 23 thru_hole rect (at 0 27.94) (size 1.30 0.90) (drill 0.60 (offset -0.30 0)) (layers *.Cu *.Mask))
+  (pad "" thru_hole oval (at 1.55 27.94) (size 2.00 0.95) (drill oval 1.70 0.65) (layers *.Cu *.Mask))
+  (model ${KIPRJMOD}/../3d/flexypin.step (offset (xyz 0 -27.94 0)) (scale (xyz 1 1 1)) (rotate (xyz 0 0 0)))
+
+  (pad 24 thru_hole rect (at 0 29.21) (size 1.30 0.90) (drill 0.60 (offset -0.30 0)) (layers *.Cu *.Mask))
+  (pad "" thru_hole oval (at 1.55 29.21) (size 2.00 0.95) (drill oval 1.70 0.65) (layers *.Cu *.Mask))
+  (model ${KIPRJMOD}/../3d/flexypin.step (offset (xyz 0 -29.21 0)) (scale (xyz 1 1 1)) (rotate (xyz 0 0 0)))
+
+  (pad 25 thru_hole rect (at 0 30.48) (size 1.30 0.90) (drill 0.60 (offset -0.30 0)) (layers *.Cu *.Mask))
+  (pad "" thru_hole oval (at 1.55 30.48) (size 2.00 0.95) (drill oval 1.70 0.65) (layers *.Cu *.Mask))
+  (model ${KIPRJMOD}/../3d/flexypin.step (offset (xyz 0 -30.48 0)) (scale (xyz 1 1 1)) (rotate (xyz 0 0 0)))
+
+  (pad 26 thru_hole rect (at 0 31.75) (size 1.30 0.90) (drill 0.60 (offset -0.30 0)) (layers *.Cu *.Mask))
+  (pad "" thru_hole oval (at 1.55 31.75) (size 2.00 0.95) (drill oval 1.70 0.65) (layers *.Cu *.Mask))
+  (model ${KIPRJMOD}/../3d/flexypin.step (offset (xyz 0 -31.75 0)) (scale (xyz 1 1 1)) (rotate (xyz 0 0 0)))
+
+  (pad 27 thru_hole rect (at 0 33.02) (size 1.30 0.90) (drill 0.60 (offset -0.30 0)) (layers *.Cu *.Mask))
+  (pad "" thru_hole oval (at 1.55 33.02) (size 2.00 0.95) (drill oval 1.70 0.65) (layers *.Cu *.Mask))
+  (model ${KIPRJMOD}/../3d/flexypin.step (offset (xyz 0 -33.02 0)) (scale (xyz 1 1 1)) (rotate (xyz 0 0 0)))
+
+  (pad 28 thru_hole rect (at 0 34.29) (size 1.30 0.90) (drill 0.60 (offset -0.30 0)) (layers *.Cu *.Mask))
+  (pad "" thru_hole oval (at 1.55 34.29) (size 2.00 0.95) (drill oval 1.70 0.65) (layers *.Cu *.Mask))
+  (model ${KIPRJMOD}/../3d/flexypin.step (offset (xyz 0 -34.29 0)) (scale (xyz 1 1 1)) (rotate (xyz 0 0 0)))
+
+  (pad 29 thru_hole rect (at 0 35.56) (size 1.30 0.90) (drill 0.60 (offset -0.30 0)) (layers *.Cu *.Mask))
+  (pad "" thru_hole oval (at 1.55 35.56) (size 2.00 0.95) (drill oval 1.70 0.65) (layers *.Cu *.Mask))
+  (model ${KIPRJMOD}/../3d/flexypin.step (offset (xyz 0 -35.56 0)) (scale (xyz 1 1 1)) (rotate (xyz 0 0 0)))
+
+  (pad 30 thru_hole rect (at 0 36.83) (size 1.30 0.90) (drill 0.60 (offset -0.30 0)) (layers *.Cu *.Mask))
+  (pad "" thru_hole oval (at 1.55 36.83) (size 2.00 0.95) (drill oval 1.70 0.65) (layers *.Cu *.Mask))
+  (model ${KIPRJMOD}/../3d/flexypin.step (offset (xyz 0 -36.83 0)) (scale (xyz 1 1 1)) (rotate (xyz 0 0 0)))
+
+  (pad 31 thru_hole rect (at 0 38.10) (size 1.30 0.90) (drill 0.60 (offset -0.30 0)) (layers *.Cu *.Mask))
+  (pad "" thru_hole oval (at 1.55 38.10) (size 2.00 0.95) (drill oval 1.70 0.65) (layers *.Cu *.Mask))
+  (model ${KIPRJMOD}/../3d/flexypin.step (offset (xyz 0 -38.10 0)) (scale (xyz 1 1 1)) (rotate (xyz 0 0 0)))
+
+)
