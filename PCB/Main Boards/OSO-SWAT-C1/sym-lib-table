@@ -1,0 +1,4 @@
+(sym_lib_table
+  (lib (name "OSO-SWAT-A1-05-eagle-import")(type "KiCad")(uri "${KIPRJMOD}/OSO-SWAT-A1-05-eagle-import.kicad_sym")(options "")(descr ""))
+  (lib (name "OSO-SWD")(type "KiCad")(uri "${KIPRJMOD}/OSO_SWD.kicad_sym")(options "")(descr ""))
+)

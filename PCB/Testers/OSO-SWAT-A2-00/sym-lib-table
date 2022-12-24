@@ -1,0 +1,5 @@
+(sym_lib_table
+  (lib (name "OSO-SWAT-A1-05-eagle-import")(type "KiCad")(uri "${KIPRJMOD}/OSO-SWAT-A1-05-eagle-import.kicad_sym")(options "")(descr ""))
+  (lib (name "OSO-FEAL-A1-00")(type "KiCad")(uri "${KIPRJMOD}/OSO-FEAL-A1-00-eagle-import.kicad_sym")(options "")(descr ""))
+  (lib (name "Adafruit QT Py")(type "KiCad")(uri "${KIPRJMOD}/Adafruit QT Py-eagle-import.kicad_sym")(options "")(descr ""))
+)
