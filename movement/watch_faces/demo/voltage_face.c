@@ -65,7 +65,7 @@ bool voltage_face_loop(movement_event_t event, movement_settings_t *settings, vo
             _voltage_face_update_display();
             break;
         case EVENT_TICK:
-            date_time = watch_rtc_get_date_time();
+            date_time = movement_get_date_time();
             if (date_time.unit.second % 5 == 4) {
                 watch_set_indicator(WATCH_INDICATOR_SIGNAL);
             } else if (date_time.unit.second % 5 == 0) {

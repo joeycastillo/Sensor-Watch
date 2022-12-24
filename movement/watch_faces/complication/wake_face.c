@@ -102,7 +102,7 @@ bool wake_face_wants_background_task(movement_settings_t *settings, void *contex
 
     bool rc = false;
     if ( state->mode ) {
-        watch_date_time now = watch_rtc_get_date_time();
+        watch_date_time now = movement_get_date_time();
         rc = state->hour==now.unit.hour && state->minute==now.unit.minute;
         // We’re at the mercy of the wants_background_task handler
         // In Safari, the emulator triggers at the ›end‹ of the minute

@@ -58,7 +58,7 @@ void moon_phase_face_activate(movement_settings_t *settings, void *context) {
 static void _update(movement_settings_t *settings, moon_phase_state_t *state, uint32_t offset) {
     (void)state;
     char buf[11];
-    watch_date_time date_time = watch_rtc_get_date_time();
+    watch_date_time date_time = movement_get_date_time();
     uint32_t now = watch_utility_date_time_to_unix_time(date_time, movement_timezone_offsets[settings->bit.time_zone] * 60) + offset;
     date_time = watch_utility_date_time_from_unix_time(now, movement_timezone_offsets[settings->bit.time_zone] * 60);
     double currentfrac = fmod(now - FIRST_MOON, LUNAR_SECONDS) / LUNAR_SECONDS;
@@ -142,13 +142,13 @@ bool moon_phase_face_loop(movement_event_t event, movement_settings_t *settings,
             break;
         case EVENT_TICK:
             // only update once an hour
-            date_time = watch_rtc_get_date_time();
+            date_time = movement_get_date_time();
             if ((date_time.unit.minute == 0) && (date_time.unit.second == 0)) _update(settings, state, state->offset);
             break;
         case EVENT_LOW_ENERGY_UPDATE:
             // update at the top of the hour OR if we're entering sleep mode with an offset.
             // also, in sleep mode, always show the current moon phase (offset = 0).
-            if (state->offset || (watch_rtc_get_date_time().unit.minute == 0)) _update(settings, state, 0);
+            if (state->offset || (movement_get_date_time().unit.minute == 0)) _update(settings, state, 0);
             // and kill the offset so when the wearer wakes up, it matches what's on screen.
             state->offset = 0;
             // finally: clear out the last two digits and replace them with the sleep mode indicator

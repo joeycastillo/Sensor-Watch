@@ -53,7 +53,7 @@ static void _sunrise_sunset_face_update(movement_settings_t *settings, sunrise_s
         return;
     }
 
-    watch_date_time date_time = watch_rtc_get_date_time(); // the current local date / time
+    watch_date_time date_time = movement_get_date_time(); // the current local date / time
     watch_date_time utc_now = watch_utility_date_time_convert_zone(date_time, movement_timezone_offsets[settings->bit.time_zone] * 60, 0); // the current date / time in UTC
     watch_date_time scratch_time; // scratchpad, contains different values at different times
     scratch_time.reg = utc_now.reg;
@@ -329,7 +329,7 @@ bool sunrise_sunset_face_loop(movement_event_t event, movement_settings_t *setti
                 // if entering low energy mode, start tick animation
                 if (event.event_type == EVENT_LOW_ENERGY_UPDATE && !watch_tick_animation_is_running()) watch_start_tick_animation(1000);
                 // check if we need to update the display
-                watch_date_time date_time = watch_rtc_get_date_time();
+                watch_date_time date_time = movement_get_date_time();
                 if (date_time.reg >= state->rise_set_expires.reg) {
                     // and on the off chance that this happened before EVENT_TIMEOUT snapped us back to rise/set 0, go back now
                     state->rise_index = 0;

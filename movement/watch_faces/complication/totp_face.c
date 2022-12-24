@@ -37,7 +37,7 @@ void totp_face_activate(movement_settings_t *settings, void *context) {
     memset(context, 0, sizeof(totp_state_t));
     totp_state_t *totp_state = (totp_state_t *)context;
     TOTP(keys, key_sizes[0], timesteps[0]);
-    totp_state->timestamp = watch_utility_date_time_to_unix_time(watch_rtc_get_date_time(), movement_timezone_offsets[settings->bit.time_zone] * 60);
+    totp_state->timestamp = watch_utility_date_time_to_unix_time(movement_get_date_time(), movement_timezone_offsets[settings->bit.time_zone] * 60);
     totp_state->current_code = getCodeFromTimestamp(totp_state->timestamp);
 }
 

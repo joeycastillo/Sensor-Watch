@@ -48,7 +48,7 @@ static const char orrery_celestial_body_names[NUM_AVAILABLE_BODIES][3] = {
 };
 
 static void _orrery_face_recalculate(movement_settings_t *settings, orrery_state_t *state) {
-    watch_date_time date_time = watch_rtc_get_date_time();
+    watch_date_time date_time = movement_get_date_time();
     uint32_t timestamp = watch_utility_date_time_to_unix_time(date_time, movement_timezone_offsets[settings->bit.time_zone] * 60);
     date_time = watch_utility_date_time_from_unix_time(timestamp, 0);
     double jd = astro_convert_date_to_julian_date(date_time.unit.year + WATCH_RTC_REFERENCE_YEAR, date_time.unit.month, date_time.unit.day, date_time.unit.hour, date_time.unit.minute, date_time.unit.second);

@@ -30,7 +30,7 @@
 
 static void _thermistor_logging_face_log_data(thermistor_logger_state_t *logger_state) {
     thermistor_driver_enable();
-    watch_date_time date_time = watch_rtc_get_date_time();
+    watch_date_time date_time = movement_get_date_time();
     size_t pos = logger_state->data_points % THERMISTOR_LOGGING_NUM_DATA_POINTS;
 
     logger_state->data[pos].timestamp.reg = date_time.reg;
@@ -137,5 +137,5 @@ bool thermistor_logging_face_wants_background_task(movement_settings_t *settings
     (void) context;
     // this will get called at the top of each minute, so all we check is if we're at the top of the hour as well.
     // if we are, we ask for a background task.
-    return watch_rtc_get_date_time().unit.minute == 0;
+    return movement_get_date_time().unit.minute == 0;
 }

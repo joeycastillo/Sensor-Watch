@@ -76,7 +76,7 @@ bool weeknumber_clock_face_loop(movement_event_t event, movement_settings_t *set
         case EVENT_ACTIVATE:
         case EVENT_TICK:
         case EVENT_LOW_ENERGY_UPDATE:
-            date_time = watch_rtc_get_date_time();
+            date_time = movement_get_date_time();
             previous_date_time = state->previous_date_time;
             state->previous_date_time = date_time.reg;
 
@@ -165,7 +165,7 @@ bool weeknumber_clock_face_wants_background_task(movement_settings_t *settings, 
     weeknumber_clock_state_t *state = (weeknumber_clock_state_t *)context;
     if (!state->signal_enabled) return false;
 
-    watch_date_time date_time = watch_rtc_get_date_time();
+    watch_date_time date_time = movement_get_date_time();
 
     return date_time.unit.minute == 0;
 }

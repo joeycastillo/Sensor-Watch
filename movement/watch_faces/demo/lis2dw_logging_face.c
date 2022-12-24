@@ -73,7 +73,7 @@ static void _lis2dw_logging_face_update_display(movement_settings_t *settings, l
             }
         }
     } else {
-        date_time = watch_rtc_get_date_time();
+        date_time = movement_get_date_time();
         watch_clear_colon();
         watch_clear_indicator(WATCH_INDICATOR_PM);
         watch_clear_indicator(WATCH_INDICATOR_24H);
@@ -92,7 +92,7 @@ static void _lis2dw_logging_face_update_display(movement_settings_t *settings, l
 }
 
 static void _lis2dw_logging_face_log_data(lis2dw_logger_state_t *logger_state) {
-    watch_date_time date_time = watch_rtc_get_date_time();
+    watch_date_time date_time = movement_get_date_time();
     // we get this call 15 minutes late; i.e. at 6:15 we're logging events for 6:00.
     // so: if we're at the top of the hour, roll the hour back too (7:00 task logs data for 6:45)
     if (date_time.unit.minute == 0) date_time.unit.hour = (date_time.unit.hour + 23) % 24;
@@ -202,7 +202,7 @@ void lis2dw_logging_face_resign(movement_settings_t *settings, void *context) {
 bool lis2dw_logging_face_wants_background_task(movement_settings_t *settings, void *context) {
     (void) settings;
     lis2dw_logger_state_t *logger_state = (lis2dw_logger_state_t *)context;
-    watch_date_time date_time = watch_rtc_get_date_time();
+    watch_date_time date_time = movement_get_date_time();
 
     // this is kind of an abuse of the API, but, let's use the 1 minute tick to shift all our data over.
     logger_state->interrupts[2] = logger_state->interrupts[1];

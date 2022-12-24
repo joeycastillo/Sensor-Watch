@@ -44,7 +44,7 @@ void set_time_face_activate(movement_settings_t *settings, void *context) {
 bool set_time_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     uint8_t current_page = *((uint8_t *)context);
     const uint8_t days_in_month[12] = {31, 28, 31, 30, 31, 30, 30, 31, 30, 31, 30, 31};
-    watch_date_time date_time = watch_rtc_get_date_time();
+    watch_date_time date_time = movement_get_date_time();
 
     switch (event.event_type) {
         case EVENT_MODE_BUTTON_UP:

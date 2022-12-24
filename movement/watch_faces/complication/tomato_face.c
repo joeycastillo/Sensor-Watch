@@ -46,7 +46,7 @@ static uint8_t get_length(tomato_state_t *state) {
 }
 
 static void tomato_start(tomato_state_t *state, movement_settings_t *settings) {
-    watch_date_time now = watch_rtc_get_date_time();
+    watch_date_time now = movement_get_date_time();
     int8_t length = (int8_t) get_length(state);
 
     state->mode = tomato_run;
@@ -122,7 +122,7 @@ void tomato_face_setup(movement_settings_t *settings, uint8_t watch_face_index, 
 void tomato_face_activate(movement_settings_t *settings, void *context) {
     tomato_state_t *state = (tomato_state_t *)context;
     if (state->mode == tomato_run) {
-        watch_date_time now = watch_rtc_get_date_time();
+        watch_date_time now = movement_get_date_time();
         state->now_ts = watch_utility_date_time_to_unix_time(now, get_tz_offset(settings));
         watch_set_indicator(WATCH_INDICATOR_BELL);
     }

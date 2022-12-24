@@ -66,7 +66,7 @@ static bool world_clock_face_do_display_mode(movement_event_t event, movement_se
             // fall through
         case EVENT_TICK:
         case EVENT_LOW_ENERGY_UPDATE:
-            date_time = watch_rtc_get_date_time();
+            date_time = movement_get_date_time();
             timestamp = watch_utility_date_time_to_unix_time(date_time, movement_timezone_offsets[settings->bit.time_zone] * 60);
             date_time = watch_utility_date_time_from_unix_time(timestamp, movement_timezone_offsets[state->settings.bit.timezone_index] * 60);
             previous_date_time = state->previous_date_time;
