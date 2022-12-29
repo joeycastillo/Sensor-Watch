@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 <#author_name#>
+ * Copyright (c) 2022 Raymundo Cassani
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,22 +25,37 @@
 #include <stdlib.h>
 #include <string.h>
 #include "tachymeter_face.h"
+#include "watch_utility.h"
 
 void tachymeter_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
-    (void) settings;
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(tachymeter_state_t));
         memset(*context_ptr, 0, sizeof(tachymeter_state_t));
-        // Do any one-time tasks in here; the inside of this conditional happens only at boot.
+        tachymeter_state_t *state = (tachymeter_state_t *)*context_ptr;
+        state->distance = 1;
     }
-    // Do any pin or peripheral setup here; this will be called whenever the watch wakes from deep sleep.
 }
 
 void tachymeter_face_activate(movement_settings_t *settings, void *context) {
-    (void) settings;
     tachymeter_state_t *state = (tachymeter_state_t *)context;
+    // TODO improve tick frequency for Speed/Time display
+    movement_request_tick_frequency(2);
+}
 
-    // Handle any tasks related to your watch face coming on screen.
+static void _tachymeter_face_distance_lcd(tachymeter_state_t *state){
+    char buf[11];
+    sprintf(buf, "TC %c%6d", 'd',  state->distance * 100);
+    watch_display_string(buf, 0);
+}
+
+static void _tachymeter_face_totals_lcd(tachymeter_state_t *state, bool show_time){
+    char buf[11];
+    if (!show_time){
+        sprintf(buf, "TC %c%6d", 'H',  state->total_speed);
+    } else {
+        sprintf(buf, "TC %c%6d", 't',  state->total_seconds);
+    }
+    watch_display_string(buf, 0);
 }
 
 bool tachymeter_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
@@ -48,21 +63,58 @@ bool tachymeter_face_loop(movement_event_t event, movement_settings_t *settings,
 
     switch (event.event_type) {
         case EVENT_ACTIVATE:
-            // Show your initial UI here.
+            // Show last distance in UI
+            if (!state->running){
+                _tachymeter_face_distance_lcd(state);
+            }
             break;
         case EVENT_TICK:
-            // If needed, update your display here.
+            if (!state->running && state->total_seconds != 0) {
+                // Display results if finished and not cleared
+                if (event.subsecond % 2 == 0) {
+                    _tachymeter_face_totals_lcd(state, true);
+                } else {
+                    _tachymeter_face_totals_lcd(state, false);
+                }
+            } else if (state->running){
+                // TODO Improve UI when tachymeter is running
+                if (event.subsecond % 2 == 0) {
+                    watch_display_string("1 ", 2);
+                } else {
+                    watch_display_string(" 1", 2);
+                }
+            }
             break;
         case EVENT_MODE_BUTTON_UP:
-            // You shouldn't need to change this case; Mode almost always moves to the next watch face.
             movement_move_to_next_face();
             break;
         case EVENT_LIGHT_BUTTON_UP:
-            // If you have other uses for the Light button, you can opt not to illuminate the LED for this event.
-            movement_illuminate_led();
+            // Clear results
+            if (!state->running){
+                state->total_seconds = 0;
+                state->total_speed = 0;
+                _tachymeter_face_distance_lcd(state);
+            }
             break;
-        case EVENT_ALARM_BUTTON_UP:
-            // Just in case you have need for another button.
+        case EVENT_ALARM_BUTTON_DOWN:
+            if (settings->bit.button_should_sound) {
+                watch_buzzer_play_note(BUZZER_NOTE_C8, 50);
+            }
+            if (!state->running){
+                state->running = true;
+                state->start_time = watch_rtc_get_date_time();
+                state->total_seconds = 0;
+            } else {
+                state->running = false;
+                watch_date_time now = watch_rtc_get_date_time();
+                uint32_t now_timestamp = watch_utility_date_time_to_unix_time(now, 0);
+                uint32_t start_timestamp = watch_utility_date_time_to_unix_time(state->start_time, 0);
+                state->total_seconds = now_timestamp - start_timestamp;
+                state->total_speed = (uint32_t)(3600 * state->distance / state->total_seconds);
+            }
+            break;
+        case EVENT_ALARM_LONG_PRESS:
+            // TODO Set and validate distance
             break;
         case EVENT_TIMEOUT:
             // Your watch face will receive this event after a period of inactivity. If it makes sense to resign,
@@ -85,9 +137,6 @@ bool tachymeter_face_loop(movement_event_t event, movement_settings_t *settings,
 }
 
 void tachymeter_face_resign(movement_settings_t *settings, void *context) {
-    (void) settings;
-    (void) context;
-
     // handle any cleanup before your watch face goes off-screen.
 }
 

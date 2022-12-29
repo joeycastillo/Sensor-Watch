@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 <#author_name#>
+ * Copyright (c) 2022 Raymundo Cassani
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,8 +28,11 @@
 #include "movement.h"
 
 typedef struct {
-    // Anything you need to keep track of, put it here!
-    uint8_t unused;
+    bool running;               // tachymeter status
+    watch_date_time start_time; // start_time
+    uint32_t distance;          // distance
+    uint32_t total_seconds;     // total_seconds = now - start_time
+    uint32_t total_speed;       // 3600 * distance / total_time
 } tachymeter_state_t;
 
 void tachymeter_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
