@@ -243,3 +243,5 @@ endif
 ifdef CLOCK_FACE_24H_ONLY
 CFLAGS += -DCLOCK_FACE_24H_ONLY
 endif
+
+CFLAGS += -g
