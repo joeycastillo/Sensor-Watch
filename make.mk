@@ -214,3 +214,5 @@ endif
 ifeq ($(BOARD), OSO-FEAL-A1-00)
 CFLAGS += -DCRYSTALLESS
 endif
+
+CFLAGS += -g
