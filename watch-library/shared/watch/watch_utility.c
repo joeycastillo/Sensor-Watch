@@ -26,16 +26,60 @@
 #include "watch_utility.h"
 
 const char * watch_utility_get_weekday(watch_date_time date_time) {
-    static const char weekdays[7][3] = {"SA", "SU", "MO", "TU", "WE", "TH", "FR"};
-    date_time.unit.year += 20;
-    if (date_time.unit.month <= 2) {
-        date_time.unit.month += 12;
-        date_time.unit.year--;
-    }
-    return weekdays[(date_time.unit.day + 13 * (date_time.unit.month + 1) / 5 + date_time.unit.year + date_time.unit.year / 4 + 525) % 7];
+    static const char weekdays[7][3] = {"MO", "TU", "WE", "TH", "FR", "SA", "SU"};
+    return weekdays[watch_utility_get_iso8601_weekday_number(date_time.unit.year + WATCH_RTC_REFERENCE_YEAR, date_time.unit.month, date_time.unit.day) - 1];
 }
 
-uint32_t watch_utility_convert_to_unix_time(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second, uint32_t utc_offset) {
+// Per ISO8601 week starts on Monday with index 1
+uint8_t watch_utility_get_iso8601_weekday_number(uint16_t year, uint8_t month, uint8_t day) {
+    year -= WATCH_RTC_REFERENCE_YEAR;
+    year += 20;
+    if (month <= 2) {
+        month += 12;
+        year--;
+    }
+    return ((day + (13 * (month + 1) / 5) + year + (year / 4) + 5) % 7) + 1;
+}
+
+// this function is from the excellent musl c library
+uint8_t watch_utility_get_weeknumber(uint16_t year, uint8_t month, uint8_t day) {
+    uint8_t weekday;
+    uint16_t days;
+
+    weekday = watch_utility_get_iso8601_weekday_number(year, month, day) % 7;
+    days = watch_utility_days_since_new_year(year, month, day);
+
+	int val = (days + 7U - (weekday+6U)%7) / 7;
+	/* If 1 Jan is just 1-3 days past Monday,
+	 * the previous week is also in this year. */
+	if ((weekday + 371U - days - 2) % 7 <= 2)
+		val++;
+	if (!val) {
+		val = 52;
+		/* If 31 December of prev year a Thursday,
+		 * or Friday of a leap year, then the
+		 * prev year has 53 weeks. */
+		int dec31 = (weekday + 7U - days - 1) % 7;
+		if (dec31 == 4 || (dec31 == 5 && is_leap(year%400-1)))
+			val++;
+	} else if (val == 53) {
+		/* If 1 January is not a Thursday, and not
+		 * a Wednesday of a leap year, then this
+		 * year has only 52 weeks. */
+		int jan1 = (weekday + 371U - days) % 7;
+		if (jan1 != 4 && (jan1 != 3 || !is_leap(year)))
+			val = 1;
+    }
+	return val;
+}
+
+uint8_t is_leap(uint16_t y)
+{
+	y += 1900;
+	return !(y%4) && ((y%100) || !(y%400));
+}
+
+uint16_t watch_utility_days_since_new_year(uint16_t year, uint8_t month, uint8_t day) {
     uint16_t DAYS_SO_FAR[] = {
         0,   // Jan
         31,  // Feb
@@ -51,10 +95,13 @@ uint32_t watch_utility_convert_to_unix_time(uint16_t year, uint8_t month, uint8_
         334  // December
     };
 
+    return (is_leap(year) && (month > 2) ? 1 : 0) + DAYS_SO_FAR[month - 1] + day;
+}
+
+uint32_t watch_utility_convert_to_unix_time(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second, uint32_t utc_offset) {
     uint32_t year_adj = year + 4800;
-    uint32_t febs = year_adj - (month <= 2 ? 1 : 0);  /* Februaries since base. */
-    uint32_t leap_days = 1 + (febs / 4) - (febs / 100) + (febs / 400);
-    uint32_t days = 365 * year_adj + leap_days + DAYS_SO_FAR[month - 1] + day - 1;
+    uint32_t leap_days = 1 + (year_adj / 4) - (year_adj / 100) + (year_adj / 400);
+    uint32_t days = 365 * year_adj + leap_days + watch_utility_days_since_new_year(year, month, day) - 1;
     days -= 2472692;  /* Adjust to Unix epoch. */
 
     uint32_t timestamp = days * 86400;
