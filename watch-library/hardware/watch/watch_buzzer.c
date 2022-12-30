@@ -23,12 +23,15 @@
  */
 
 #include "watch_buzzer.h"
+#include "../../../watch-library/hardware/include/saml22j18a.h"
+#include "../../../watch-library/hardware/include/component/tc.h"
+#include "../../../watch-library/hardware/hri/hri_tc_l22.h"
 
 void cb_watch_buzzer_seq(void);
 
 static uint16_t _seq_position;
 static int8_t _tone_ticks, _repeat_counter;
-static int8_t _callback_slot = -1;
+static bool _callback_running = false;
 static int8_t *_sequence;
 static void (*_cb_finished)(void);
 
@@ -40,8 +43,37 @@ static void _tcc_write_RUNSTDBY(bool value) {
     hri_tcc_wait_for_sync(TCC0, TCC_SYNCBUSY_ENABLE);
 }
 
+static inline void _tc3_start() {
+    // start the TC3 timer
+    hri_tc_set_CTRLA_ENABLE_bit(TC3);
+    _callback_running = true;
+}
+
+static inline void _tc3_stop() {
+    // stop the TC3 timer
+    hri_tc_clear_CTRLA_ENABLE_bit(TC3);
+    hri_tc_wait_for_sync(TC3, TC_SYNCBUSY_ENABLE);
+    _callback_running = false;
+}
+
+static void _tc3_initialize() {
+    // setup and initialize TC3 for a 64 Hz interrupt
+    hri_mclk_set_APBCMASK_TC3_bit(MCLK);
+    hri_gclk_write_PCHCTRL_reg(GCLK, TC3_GCLK_ID, GCLK_PCHCTRL_GEN_GCLK3 | GCLK_PCHCTRL_CHEN);
+    _tc3_stop();
+    hri_tc_write_CTRLA_reg(TC3, TC_CTRLA_SWRST);
+    hri_tc_wait_for_sync(TC3, TC_SYNCBUSY_SWRST);
+    hri_tc_write_CTRLA_reg(TC3, TC_CTRLA_PRESCALER_DIV64 |
+                           TC_CTRLA_MODE_COUNT8 | 
+                           TC_CTRLA_RUNSTDBY);
+    hri_tccount8_write_PER_reg(TC3, 7);   // 32 Khz divided by 64 divided by 8 equals 64 Hz
+    hri_tc_set_INTEN_OVF_bit(TC3);
+    NVIC_ClearPendingIRQ(TC3_IRQn);
+    NVIC_EnableIRQ (TC3_IRQn);
+}
+
 void watch_buzzer_play_sequence(int8_t *note_sequence, void (*callback_on_end)(void)) {
-    if (_callback_slot >= 0) watch_rtc_disable_periodic_callback_slot(64, _callback_slot);
+    if (_callback_running) _tc3_stop();
     watch_set_buzzer_off();
     _sequence = note_sequence;
     _cb_finished = callback_on_end;
@@ -50,10 +82,12 @@ void watch_buzzer_play_sequence(int8_t *note_sequence, void (*callback_on_end)(v
     _repeat_counter = -1;
     // prepare buzzer
     watch_enable_buzzer();
+    // setup TC3 timer
+    _tc3_initialize();
     // TCC should run in standby mode
     _tcc_write_RUNSTDBY(true);
-    // register 64 hz callback
-    _callback_slot = watch_rtc_register_periodic_callback_slot(cb_watch_buzzer_seq, 64);
+    // start the timer (for the 64 hz callback)
+    _tc3_start();
 }
 
 void cb_watch_buzzer_seq(void) {
@@ -98,10 +132,16 @@ void cb_watch_buzzer_seq(void) {
 
 void watch_buzzer_abort_sequence(void) {
     // ends/aborts the sequence
-    if (_callback_slot >= 0) watch_rtc_disable_periodic_callback_slot(64, _callback_slot);
+    if (_callback_running) _tc3_stop();
     watch_set_buzzer_off();
     // disable standby mode for TCC
     _tcc_write_RUNSTDBY(false);
+}
+
+void TC3_Handler(void) {
+    // interrupt handler vor TC3 (globally!)
+    cb_watch_buzzer_seq();
+    TC3->COUNT8.INTFLAG.reg |= TC_INTFLAG_OVF;
 }
 
 inline void watch_enable_buzzer(void) {

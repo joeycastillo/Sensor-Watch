@@ -39,6 +39,15 @@
        turns on on each button press or it doesn't.
 */
 
+#if __EMSCRIPTEN__
+#include <emscripten.h>
+#include <emscripten/html5.h>
+#else
+#include "../../../watch-library/hardware/include/saml22j18a.h"
+#include "../../../watch-library/hardware/include/component/tc.h"
+#include "../../../watch-library/hardware/hri/hri_tc_l22.h"
+#endif
+
 // distant future for background task: January 1, 2083
 static const watch_date_time distant_future = {
     .unit = {0, 0, 0, 1, 1, 63}
@@ -46,38 +55,73 @@ static const watch_date_time distant_future = {
 
 static uint32_t _ticks;
 static uint32_t _lap_ticks;
-static uint32_t _last_ticks_stopped;
 static uint8_t _blink_ticks;
 static uint32_t _old_seconds;
 static uint8_t _old_minutes;
 static uint8_t _hours;
-static watch_date_time _start_time;
-static watch_date_time _resume_time;
-static watch_date_time _compare_time;
-static uint8_t *_measure_ticks;
-static uint8_t _tick_offset_start;
-static uint8_t _tick_offset_resume;
 static bool _colon;
 static bool _is_running;
 
-static void _fast_tick_callback() {
-    _ticks++;  // overflow is handled further down in the app loop, to save cycles here
-    if (_measure_ticks != NULL) {
-        // we need to keep track of the tick offset to the next full rtc second (to be able to adjust the timer
-        // when we wake up from low energy mode)
-        watch_date_time current_time = watch_rtc_get_date_time();
-        if (current_time.unit.second != _compare_time.unit.second) {
-            // we are done counting
-            if (_measure_ticks == &_tick_offset_resume) {
-                // we have just woken up from low energy mode, so adjusts the ticks here
-                _ticks -= *_measure_ticks;
-                _old_minutes -= 1;  // initiate a redraw (no need to bother about overflows)
-            }
-            _measure_ticks = NULL;
-        } else
-            *_measure_ticks++;
-    }
+#if __EMSCRIPTEN__
+
+static long _em_interval_id = 0;
+
+void em_cb_handler(void *userData) {
+    // interrupt handler for emscripten 128 Hz callbacks
+    (void) userData;
+    _ticks++;
 }
+
+static void _cb_initialize() { }
+
+static inline void _cb_stop() {
+    emscripten_clear_interval(_em_interval_id);
+    _em_interval_id = 0;
+    _is_running = false;
+}
+
+static inline void _cb_start() {
+    // initiate 128 hz callback
+    _em_interval_id = emscripten_set_interval(em_cb_handler, (double)(1000/128), (void *)NULL);
+}
+
+#else
+
+static inline void _cb_start() {
+    // start the TC2 timer
+    hri_tc_set_CTRLA_ENABLE_bit(TC2);
+    _is_running = true;
+}
+
+static inline void _cb_stop() {
+    // stop the TC2 timer
+    hri_tc_clear_CTRLA_ENABLE_bit(TC2);
+    _is_running = false;
+}
+
+static void _cb_initialize() {
+    // setup and initialize TC2 for a 64 Hz interrupt
+    hri_mclk_set_APBCMASK_TC2_bit(MCLK);
+    hri_gclk_write_PCHCTRL_reg(GCLK, TC2_GCLK_ID, GCLK_PCHCTRL_GEN_GCLK3 | GCLK_PCHCTRL_CHEN);
+    _cb_stop();
+    hri_tc_write_CTRLA_reg(TC2, TC_CTRLA_SWRST);
+    hri_tc_wait_for_sync(TC2, TC_SYNCBUSY_SWRST);
+    hri_tc_write_CTRLA_reg(TC2, TC_CTRLA_PRESCALER_DIV64 | // 32 Khz divided by 64 divided by 4 results in a 128 Hz interrupt
+                           TC_CTRLA_MODE_COUNT8 | 
+                           TC_CTRLA_RUNSTDBY);
+    hri_tccount8_write_PER_reg(TC2, 3);
+    hri_tc_set_INTEN_OVF_bit(TC2);
+    NVIC_ClearPendingIRQ(TC2_IRQn);
+    NVIC_EnableIRQ (TC2_IRQn);
+}
+
+void TC2_Handler(void) {
+    // interrupt handler for TC2 (globally!)
+    _ticks++;
+    TC2->COUNT8.INTFLAG.reg |= TC_INTFLAG_OVF;
+}
+
+#endif
 
 static inline void _button_beep(movement_settings_t *settings) {
     // play a beep as confirmation for a button press (if applicable)
@@ -165,24 +209,13 @@ void stock_stopwatch_face_setup(movement_settings_t *settings, uint8_t watch_fac
         *context_ptr = malloc(sizeof(stock_stopwatch_state_t));
         memset(*context_ptr, 0, sizeof(stock_stopwatch_state_t));
         stock_stopwatch_state_t *state = (stock_stopwatch_state_t *)*context_ptr;
-        _ticks = _last_ticks_stopped = _lap_ticks = _blink_ticks = _old_minutes = _old_seconds = _hours = 0;
+        _ticks = _lap_ticks = _blink_ticks = _old_minutes = _old_seconds = _hours = 0;
     _is_running = _colon = false;
-        _start_time.reg = _resume_time.reg = _compare_time.reg = 0;
-        _measure_ticks = NULL;
         state->light_on_button = true;
-        state->callback_slot = -1;
-    } else if (_is_running) {
-        // we are resuming from low energy mode and are still running, so we need to set up some timing adjustments
-        stock_stopwatch_state_t *state = (stock_stopwatch_state_t *)*context_ptr;
-        if (state->callback_slot >= 0) watch_rtc_disable_periodic_callback_slot(128, state->callback_slot);
-        _ticks = _last_ticks_stopped;
-        watch_date_time _resume_time = watch_rtc_get_date_time();
-        _compare_time = _resume_time;
-        _ticks += (watch_utility_date_time_to_unix_time(_resume_time, 0) - watch_utility_date_time_to_unix_time(_start_time, 0)) * 128 + _tick_offset_start;
-        _tick_offset_resume = 0;
-        _measure_ticks = &_tick_offset_resume;
-        // register 128 hz callback for time measuring
-        state->callback_slot = watch_rtc_register_periodic_callback_slot(_fast_tick_callback, 128);
+    }
+    if (!_is_running) {
+        // prepare the 128 Hz callback source
+        _cb_initialize();
     }
 }
 
@@ -231,22 +264,15 @@ bool stock_stopwatch_face_loop(movement_event_t event, movement_settings_t *sett
             _is_running = !_is_running;
             if (_is_running) {
                 // start or continue stopwatch
-                if (state->callback_slot >= 0) watch_rtc_disable_periodic_callback_slot(128, state->callback_slot);
-                _compare_time = watch_rtc_get_date_time();
-                _start_time = _compare_time;
-                _tick_offset_start = 0;
-                _measure_ticks = &_tick_offset_start;
-                // update the display at 16 hz
                 movement_request_tick_frequency(16);
                 // register 128 hz callback for time measuring
-                state->callback_slot = watch_rtc_register_periodic_callback_slot(_fast_tick_callback, 128);
+                _cb_start();
                 // schedule the keepalive task when running
                 movement_schedule_background_task(distant_future);
             } else {
                 // stop the stopwatch
-                if (state->callback_slot >= 0) watch_rtc_disable_periodic_callback_slot(128, state->callback_slot);
+                _cb_stop();
                 movement_request_tick_frequency(1);
-                _last_ticks_stopped = _ticks;
                 _set_colon();
                 // cancel the keepalive task
                 movement_cancel_background_task();
@@ -273,7 +299,7 @@ bool stock_stopwatch_face_loop(movement_event_t event, movement_settings_t *sett
                     _lap_ticks = 0;
                 } else if (_ticks) {
                     // reset stopwatch
-                    _ticks = _last_ticks_stopped = _lap_ticks = _blink_ticks = _old_minutes = _old_seconds = _hours = 0;
+                    _ticks = _lap_ticks = _blink_ticks = _old_minutes = _old_seconds = _hours = 0;
                     _button_beep(settings);
                 }
             }

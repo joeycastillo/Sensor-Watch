@@ -34,13 +34,18 @@
 
 typedef struct {
     bool light_on_button;   // determines whether the light button actually triggers the led
-    int8_t callback_slot;
 } stock_stopwatch_state_t;
 
 void stock_stopwatch_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
 void stock_stopwatch_face_activate(movement_settings_t *settings, void *context);
 bool stock_stopwatch_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void stock_stopwatch_face_resign(movement_settings_t *settings, void *context);
+
+#if __EMSCRIPTEN__
+void em_cb_handler(void *userData);
+#else
+void TC2_Handler(void);
+#endif
 
 #define stock_stopwatch_face ((const watch_face_t){ \
     stock_stopwatch_face_setup, \
