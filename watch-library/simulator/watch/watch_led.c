@@ -32,7 +32,15 @@ void watch_disable_leds(void) {}
 
 void watch_set_led_color(uint8_t red, uint8_t green) {
     EM_ASM({
-        document.getElementById('light').style.opacity = $1 / 255;
+        // the watch svg contains an feColorMatrix filter with id ledcolor
+        // and a green svg gradient that mimics the led being on
+        // https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feColorMatrix
+        // this changes the color of the gradient to match the red+green combination
+        let filter = document.getElementById("ledcolor");
+        let color_matrix = filter.children[0].values.baseVal;
+        color_matrix[1].value = $0  / 255; // red value
+        color_matrix[6].value = $1 / 255; // green value
+        document.getElementById('light').style.opacity = Math.min(255, $0 + $1) / 255;
     }, red, green);
 }
 

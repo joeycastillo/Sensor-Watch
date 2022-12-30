@@ -59,6 +59,7 @@ bool counter_face_loop(movement_event_t event, movement_settings_t *settings, vo
                 state->counter_idx=0;//reset counter index
             }
             print_counter(state);
+            beep_counter(state);
             break;
         case EVENT_ALARM_LONG_PRESS:
             state->counter_idx=0; // reset counter index
@@ -76,6 +77,27 @@ bool counter_face_loop(movement_event_t event, movement_settings_t *settings, vo
 
     return true;
 }
+
+// beep counter index times
+void beep_counter(counter_state_t *state) {
+	
+	int low_count = state->counter_idx/5;
+	int high_count = state->counter_idx - low_count * 5; 
+	
+	for (int i=0; i<low_count; i++) {
+		watch_buzzer_play_note(BUZZER_NOTE_A6, 50);
+	    watch_buzzer_play_note(BUZZER_NOTE_REST, 100);
+	}
+	
+	//sleep between high and low
+    watch_buzzer_play_note(BUZZER_NOTE_REST, 200);
+	
+	for (int i=0; i<high_count; i++) {
+		watch_buzzer_play_note(BUZZER_NOTE_B6, 50);
+	    watch_buzzer_play_note(BUZZER_NOTE_REST, 100);
+	}
+}
+
 
 // print counter index at the center of display.
 void print_counter(counter_state_t *state) {

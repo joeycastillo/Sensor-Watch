@@ -58,6 +58,7 @@
 #include "frequency_correction_face.h"
 #include "alarm_face.h"
 #include "ratemeter_face.h"
+#include "weeknumber_clock_face.h"
 #include "interval_face.h"
 // New includes go above this line.
 
