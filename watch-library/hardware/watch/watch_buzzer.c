@@ -63,10 +63,10 @@ static void _tc3_initialize() {
     _tc3_stop();
     hri_tc_write_CTRLA_reg(TC3, TC_CTRLA_SWRST);
     hri_tc_wait_for_sync(TC3, TC_SYNCBUSY_SWRST);
-    hri_tc_write_CTRLA_reg(TC3, TC_CTRLA_PRESCALER_DIV256 |
+    hri_tc_write_CTRLA_reg(TC3, TC_CTRLA_PRESCALER_DIV64 |
                            TC_CTRLA_MODE_COUNT8 | 
                            TC_CTRLA_RUNSTDBY);
-    hri_tccount8_write_PER_reg(TC3, 2);   // 32 Khz divided by 256 divided by 2 equals 64 Hz
+    hri_tccount8_write_PER_reg(TC3, 7);   // 32 Khz divided by 64 divided by 8 equals 64 Hz
     hri_tc_set_INTEN_OVF_bit(TC3);
     NVIC_ClearPendingIRQ(TC3_IRQn);
     NVIC_EnableIRQ (TC3_IRQn);

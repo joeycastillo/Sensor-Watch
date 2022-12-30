@@ -179,5 +179,9 @@ void watch_buzzer_play_sequence(int8_t *note_sequence, void (*callback_on_end)(v
   */
 void watch_buzzer_abort_sequence(void);
 
+#ifndef __EMSCRIPTEN__
+void TC3_Handler(void);
+#endif
+
 /// @}
 #endif
