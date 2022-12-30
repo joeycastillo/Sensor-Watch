@@ -69,7 +69,7 @@ uint8_t watch_utility_get_weeknumber(uint16_t year, uint8_t month, uint8_t day) 
 		int jan1 = (weekday + 371U - days) % 7;
 		if (jan1 != 4 && (jan1 != 3 || !is_leap(year)))
 			val = 1;
-    }
+	}
 	return val;
 }
 
