@@ -45,6 +45,7 @@
 #include "hello_there_face.h"
 #include "sunrise_sunset_face.h"
 #include "countdown_face.h"
+#include "sailing_face.h"
 #include "counter_face.h"
 #include "blinky_face.h"
 #include "moon_phase_face.h"
