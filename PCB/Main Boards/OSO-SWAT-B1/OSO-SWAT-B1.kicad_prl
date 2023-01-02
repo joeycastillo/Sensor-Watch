@@ -1,7 +1,7 @@
 {
   "board": {
     "active_layer": 0,
-    "active_layer_preset": "",
+    "active_layer_preset": "All Copper Layers",
     "auto_track_width": false,
     "hidden_nets": [],
     "high_contrast_mode": 0,
@@ -37,6 +37,7 @@
       9,
       10,
       11,
+      12,
       13,
       14,
       15,
@@ -61,7 +62,7 @@
       35,
       36
     ],
-    "visible_layers": "0001020_ffffffff",
+    "visible_layers": "0001000_ffffffff",
     "zone_display_mode": 1
   },
   "meta": {
