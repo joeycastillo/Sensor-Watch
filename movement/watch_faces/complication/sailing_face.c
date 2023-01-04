@@ -33,6 +33,7 @@
 
 #define sl_SELECTIONS 6
 #define DEFAULT_MINUTES { 5,4,1,0,0,0 }
+#define UNUSED(x) (void)(x)
 
 static inline int32_t get_tz_offset(movement_settings_t *settings) {
     return movement_timezone_offsets[settings->bit.time_zone] * 60;
@@ -65,6 +66,9 @@ static void start(sailing_state_t *state, movement_settings_t *settings) {
 }
 
 static void draw(sailing_state_t *state, uint8_t subsecond, movement_settings_t *settings) {
+    UNUSED(settings);
+
+    char tmp[24];
     char buf[16];
 
     uint32_t delta;
@@ -96,7 +100,9 @@ static void draw(sailing_state_t *state, uint8_t subsecond, movement_settings_t 
             sprintf(buf, "SL    %2d%02d", state->minutes[0], 0);
             break;
         case sl_setting:
-            sprintf(buf, "SL  %1d%1d%1d%1d%1d%1d",
+            // this sprintf to a larger tmp is to guarantee that no buffer overflows
+            // occur here (and to squelch the corresponding compiler warning)
+            sprintf(tmp, "SL  %1d%1d%1d%1d%1d%1d",
                 state->minutes[0],
                 state->minutes[1],
                 state->minutes[2],
@@ -104,6 +110,7 @@ static void draw(sailing_state_t *state, uint8_t subsecond, movement_settings_t 
                 state->minutes[4],
                 state->minutes[5]
             );
+            memcpy(buf, tmp, sizeof(buf));
             if (subsecond % 2) {
                 buf[4 + state->selection] = ' ';
             }
