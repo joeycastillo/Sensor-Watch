@@ -132,10 +132,16 @@ static void finetune_update_display(void) {
         sprintf(buf, "DT  %4d%02d", (int)hours, (int)(fmodf(hours, 1.) * 100));
         watch_display_string(buf, 0);
     } else if (finetune_page == 2) {
-        float correction = finetune_get_correction();
-
-        sprintf(buf, " F%s%2d%04d", (total_adjustment < 0) ? " -" : "  ", (int)fabsf(correction), (int)(remainderf(fabsf(correction), 1.)*10000));
-        watch_display_string(buf, 0);
+        if(finetune_get_hours_passed()<6)
+        {
+            sprintf(buf, " F  6HR   ");
+            watch_display_string(buf, 0);
+        } else
+        {
+            float correction = finetune_get_correction();
+            sprintf(buf, " F%s%2d%04d", (total_adjustment < 0) ? " -" : "  ", (int)fabsf(correction), (int)(remainderf(fabsf(correction), 1.)*10000));
+            watch_display_string(buf, 0);
+        }
     }
 }
 
@@ -189,7 +195,7 @@ bool finetune_face_loop(movement_event_t event, movement_settings_t *settings, v
             if (finetune_page == 0) {
                 finetune_adjust_subseconds(250);
                 finetune_update_display();
-            } else if (finetune_page == 2) { // Applying correction
+            } else if (finetune_page == 2 && finetune_get_hours_passed()>=6) { // Applying ppm correction, only if >6 hours passed
                 nanosec_state.freq_correction += (int)round(finetune_get_correction() * 100);
                 finetune_update_correction_time();
             }
@@ -222,7 +228,8 @@ bool finetune_face_loop(movement_event_t event, movement_settings_t *settings, v
         case EVENT_TIMEOUT:
             // Your watch face will receive this event after a period of inactivity. If it makes sense to resign,
             // you may uncomment this line to move back to the first watch face in the list:
-            movement_move_to_face(0);
+            if(total_adjustment == 0) // Timeout only works if no adjustment was made
+                movement_move_to_face(0);
             break;
 
         case EVENT_LOW_ENERGY_UPDATE:
