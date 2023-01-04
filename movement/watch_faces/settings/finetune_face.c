@@ -21,16 +21,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *
- * FineTune face allows to align watch with sub-second precision in 25/250ms accuracy. 
- * Counts time since previous finetune, and allows to calculate & apply ppm correction for nanosec. 
- * 
+ * FineTune face allows to align watch with sub-second precision in 25/250ms accuracy.
+ * Counts time since previous finetune, and allows to calculate & apply ppm correction for nanosec.
+ *
  * Main screen - adjust delay (light/alarm)
  * Long mode press - show hours since previous finetune
- * Long mode press - show calculated ppm correction. You can apply it with long light, or just reset finetune timer with long alarm. 
- * 
+ * Long mode press - show calculated ppm correction. You can apply it with long light, or just reset finetune timer with long alarm.
+ *
  * Finetune will apply crystal aging correction on every finetune save (as aging is calculated since "last finetune" timestamp) - but you should worry
  * about aging only on second/third years of watch calibration (if you are really looking at less than 10 seconds per year of error).
- *  
+ *
  * Warning, do not use at the first second of a month, as you might stay at the same month and it will surprise you.
  * Just wait 1 second...We are not fully replicating RTC timer behavior when RTC is off.
  * Simulating months and years is... too much complexity.
@@ -132,14 +132,13 @@ static void finetune_update_display(void) {
         sprintf(buf, "DT  %4d%02d", (int)hours, (int)(fmodf(hours, 1.) * 100));
         watch_display_string(buf, 0);
     } else if (finetune_page == 2) {
-        if(finetune_get_hours_passed()<6)
+        if (finetune_get_hours_passed() < 6)
         {
             sprintf(buf, " F  6HR   ");
             watch_display_string(buf, 0);
-        } else
-        {
+        } else {
             float correction = finetune_get_correction();
-            sprintf(buf, " F%s%2d%04d", (total_adjustment < 0) ? " -" : "  ", (int)fabsf(correction), (int)(remainderf(fabsf(correction), 1.)*10000));
+            sprintf(buf, " F%s%2d%04d", (total_adjustment < 0) ? " -" : "  ", (int)fabsf(correction), (int)(remainderf(fabsf(correction), 1.) * 10000));
             watch_display_string(buf, 0);
         }
     }
@@ -195,7 +194,8 @@ bool finetune_face_loop(movement_event_t event, movement_settings_t *settings, v
             if (finetune_page == 0) {
                 finetune_adjust_subseconds(250);
                 finetune_update_display();
-            } else if (finetune_page == 2 && finetune_get_hours_passed()>=6) { // Applying ppm correction, only if >6 hours passed
+            } else if (finetune_page == 2 && finetune_get_hours_passed() >= 6) {
+                // Applying ppm correction, only if >6 hours passed
                 nanosec_state.freq_correction += (int)round(finetune_get_correction() * 100);
                 finetune_update_correction_time();
             }
@@ -213,7 +213,8 @@ bool finetune_face_loop(movement_event_t event, movement_settings_t *settings, v
             if (finetune_page == 0) {
                 finetune_adjust_subseconds(750);
                 finetune_update_display();
-            } else if (finetune_page == 2) { // Exit without applying correction to ppm, but update correction time
+            } else if (finetune_page == 2) {
+                // Exit without applying correction to ppm, but update correction time
                 finetune_update_correction_time();
             }
             break;
@@ -228,7 +229,7 @@ bool finetune_face_loop(movement_event_t event, movement_settings_t *settings, v
         case EVENT_TIMEOUT:
             // Your watch face will receive this event after a period of inactivity. If it makes sense to resign,
             // you may uncomment this line to move back to the first watch face in the list:
-            if(total_adjustment == 0) // Timeout only works if no adjustment was made
+            if (total_adjustment == 0) // Timeout only works if no adjustment was made
                 movement_move_to_face(0);
             break;
 
