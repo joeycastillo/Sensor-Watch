@@ -22,23 +22,48 @@
  * SOFTWARE.
  */
 
-// RPN Calculator face.
-// Operations appear in the 'day' section; ALARM changes between operations when operation is flashing.
-// LIGHT executes current operation. If 'NO' is selected, this jumps to 'enter a number' mode, in which
-// ALARM makes the number bigger, and MODE makes the number smaller (i.e. MODE no longer performs its
-// normal function when entering numbers). Hit LIGHT to add current number to the stack.
-// Long press alarm when operation is flashing (selectable) returns to 'NO' operation. If 'NO' operation
-// already selected, jump to stack operations.
-// See 'functions' below for names of all operations.
+/* RPN Calculator alternate face.
+ *
+ * Operations appear in the 'day' section; ALARM changes between operations when operation is flashing.
+ * LIGHT executes current operation.
+ *
+ * This is the alternate face because it has a non-traditional number entry system which
+ * I call 'guess a number'. In number entry mode, the watch tries to guess which number you
+ * want, and you respond with 'smaller' (left - MODE) or larger (right - ALARM). This means
+ * that when you _are_ entering a number, MODE will no longer move between faces!
+ *
+ * Example of entering the number 27
+ *  - select the NO operation (probably unnecessary, as this is the default),
+ *    and execute it by hitting LIGHT.
+ *  - you are now in number entry mode; you know this because nothing is flashing.
+ *  - Watch displays 10; you hit ALARM to say you want a larger number.
+ *  - Watch displays 100; you hit MODE to say you want a smaller number.
+ *  - Continuing: 50 -> MODE -> 30 -> MODE -> 20 -> ALARM -> 27
+ *  - Hit LIGHT to add the number to the stack (and now 'NO' is flashing
+ *    again, indicating you're back in operation selection mode).
+ *
+ * One other thing to watch out for is how quickly it will switch into scientific notation
+ * due to the limitations of the display when you have large numbers or non-integer values.
+ * In this mode, the 'colon' serves at the decimal point, and the numbers in the top right
+ * are the exponent.
+ *
+ * As with the main movement firmware, this has the concept of 'secondary' functions which
+ * you can jump to by a long hold of ALARM on NO. These are functions to do with stack
+ * manipulation (pop, swap, dupe, clear, size (le)). If you're _not_ on NO, a long
+ * hold will take you back to it.
+ *
+ * See 'functions' below for names of all operations.
+ */
 
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "calculator_face.h"
+
+#include "rpn_calculator_alt_face.h"
 
 static void show_fn(calculator_state_t *state, uint8_t subsecond);
 
-void calculator_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
+void rpn_calculator_alt_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
     (void) watch_face_index;
 
@@ -55,7 +80,8 @@ static void show_number(double num) {
     bool negative = num < 0;
     int max_digits = negative ? 5 : 6;
 
-    printf("%f\n", num);
+    // Add back in for debugging...
+    // printf("%f\n", num);
 
     if (isnan(num)) {
         watch_clear_colon();
@@ -132,7 +158,7 @@ static void show_number(double num) {
 #define PUSH(x) (s->stack[++s->stack_size - 1] = x)
 #define POP() (s->stack[s->stack_size-- - 1])
 
-void calculator_face_activate(movement_settings_t *settings, void *context) {
+void rpn_calculator_alt_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
     calculator_state_t *s = (calculator_state_t *)context;
     s->min = s->max = NAN;
@@ -267,6 +293,12 @@ static void fn_swap(calculator_state_t *s) {
     PUSH(b);
 }
 
+static void fn_duplicate(calculator_state_t *s) {
+    double a = POP();
+    PUSH(a);
+    PUSH(a);
+}
+
 static void fn_clear(calculator_state_t *s) {
     s->stack_size = 0;
 }
@@ -283,10 +315,10 @@ struct {
     void (*func)(calculator_state_t *);
 } functions[] = {
     {{'n', 'o'}, 0, 1, fn_number},
-    {{'+', ' '}, 2, 1, fn_add},
+    {{'*', ' '}, 2, 1, fn_add},  // First position * actually looks like a '+'.
     {{'-', ' '}, 2, 1, fn_sub},
-    {{'*', ' '}, 2, 1, fn_mul},
-    {{'/', ' '}, 2, 1, fn_div},
+    {{'H', ' '}, 2, 1, fn_mul},  // For actual *, we throw in the middle vertical segment onto the H.
+    {{'/', ' '}, 2, 1, fn_div},  // There's also some minor hackery on '/'.
     {{'P', 'o'}, 2, 1, fn_pow},
     {{'S', 'r'}, 1, 1, fn_sqrt},
     {{'L', 'n'}, 1, 1, fn_log},
@@ -297,9 +329,10 @@ struct {
     {{'S', 'i'}, 1, 1, fn_sin},
     {{'T', 'a'}, 1, 1, fn_tan},
     // Stack operations. Accessible via secondary_fn_index (i.e. alarm long press).
-    {{'P', 'O'}, 1, 0, fn_pop},
+    {{'P', 'O'}, 1, 0, fn_pop},  // This ends up displaying the same as 'POW'. But at least it's in a different place.
     {{'S', 'W'}, 2, 2, fn_swap},
-    {{'C', 'L'}, 1, 0, fn_clear},  // Lie - takes _everything_ off the stack, but a check of 1 is sufficient.
+    {{'d', 'u'}, 1, 1, fn_duplicate},  // Uppercase 'D' is a bit too 'O' for me.
+    {{'C', 'L'}, 1, 0, fn_clear},  // Operation lie - takes _everything_ off the stack, but a check of 1 is sufficient.
     {{'L', 'E'}, 1, 0, fn_size},
 };
 
@@ -311,10 +344,26 @@ static void show_fn(calculator_state_t *s, uint8_t subsecond) {
     if (subsecond % 2) {
         // blink
         watch_display_string("  ", 0);
-    } else {
-        char *name = functions[s->fn_index].name;
-        char buf[3] = {name[0], name[1], '\0'};
-        watch_display_string(buf, 0);
+        return;
+    }
+
+    char *name = functions[s->fn_index].name;
+    char buf[3] = {name[0], name[1], '\0'};
+    watch_display_string(buf, 0);
+    // The first position has a bunch of segments, and I have minor
+    // disagreements with the character set choices in watch_display_string,
+    // so we tweak a little here.
+    switch (buf[0]) {
+        case 'H':
+            // Use the middle segment lines to make our 'H' a '*'-ish thing.
+            watch_set_pixel(1, 14);
+            break;
+        case '/':
+            // Add a middle bar to division.
+            watch_set_pixel(1, 15);
+            break;
+        default:
+            break;
     }
 }
 
@@ -328,7 +377,7 @@ static void show_stack_top(calculator_state_t *s) {
     }
 }
 
-bool calculator_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
+bool rpn_calculator_alt_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     calculator_state_t *s = (calculator_state_t *)context;
     (void) settings;
 
@@ -401,7 +450,7 @@ bool calculator_face_loop(movement_event_t event, movement_settings_t *settings,
     return true;
 }
 
-void calculator_face_resign(movement_settings_t *settings, void *context) {
+void rpn_calculator_alt_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
 
