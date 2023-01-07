@@ -66,29 +66,6 @@ void finetune_face_activate(movement_settings_t *settings, void *context) {
     finetune_page = 0;
 }
 
-static void finetune_adjust_subseconds(int delta) {
-    watch_rtc_enable(false);
-    delay_ms(delta);
-    if (delta > 500) {
-        watch_date_time date_time = watch_rtc_get_date_time();
-        date_time.unit.second = (date_time.unit.second + 1) % 60;
-        if (date_time.unit.second == 0) { // Overflow
-            date_time.unit.minute = (date_time.unit.minute + 1) % 60;
-            if (date_time.unit.minute == 0) { // Overflow
-                date_time.unit.hour = (date_time.unit.hour + 1) % 24;
-                if (date_time.unit.hour == 0) // Overflow
-                    date_time.unit.day++;
-            }
-        }
-        watch_rtc_set_date_time(date_time);
-
-        total_adjustment += (delta - 1000);
-    } else {
-        total_adjustment += delta;
-    }
-    watch_rtc_enable(true);
-}
-
 static float finetune_get_hours_passed(void) {
     uint32_t current_time = watch_utility_date_time_to_unix_time(watch_rtc_get_date_time(), 0);
     return (current_time - nanosec_state.last_correction_time) / 3600.0f;
@@ -97,17 +74,6 @@ static float finetune_get_hours_passed(void) {
 static float finetune_get_correction(void) {
     return total_adjustment / (finetune_get_hours_passed() * 3600.0f) * 1000.0f;
 }
-
-static void finetune_update_correction_time(void) {
-    // Update aging, as we update correciton time - we must bake accrued aging into static offset
-    nanosec_state.freq_correction += roundf(nanosec_get_aging()*100);
-
-    // Remember when we last corrected time
-    nanosec_state.last_correction_time = watch_utility_date_time_to_unix_time(watch_rtc_get_date_time(), 0);
-    nanosec_save();
-    movement_move_to_face(0);//Go to main face after saving settings
-}
-
 
 static void finetune_update_display(void) {
     char buf[25];
@@ -143,6 +109,43 @@ static void finetune_update_display(void) {
             watch_display_string(buf, 0);
         }
     }
+}
+
+static void finetune_adjust_subseconds(int delta) {
+    // Update display first ot make it appear faster for the user
+    if (delta > 500)
+        total_adjustment += (delta - 1000);
+    else
+        total_adjustment += delta;
+    finetune_update_display();
+    
+    // Then delay clock
+    watch_rtc_enable(false);
+    delay_ms(delta);
+    if (delta > 500) {
+        watch_date_time date_time = watch_rtc_get_date_time();
+        date_time.unit.second = (date_time.unit.second + 1) % 60;
+        if (date_time.unit.second == 0) { // Overflow
+            date_time.unit.minute = (date_time.unit.minute + 1) % 60;
+            if (date_time.unit.minute == 0) { // Overflow
+                date_time.unit.hour = (date_time.unit.hour + 1) % 24;
+                if (date_time.unit.hour == 0) // Overflow
+                    date_time.unit.day++;
+            }
+        }
+        watch_rtc_set_date_time(date_time);
+    }
+    watch_rtc_enable(true);
+}
+
+static void finetune_update_correction_time(void) {
+    // Update aging, as we update correciton time - we must bake accrued aging into static offset
+    nanosec_state.freq_correction += roundf(nanosec_get_aging()*100);
+
+    // Remember when we last corrected time
+    nanosec_state.last_correction_time = watch_utility_date_time_to_unix_time(watch_rtc_get_date_time(), 0);
+    nanosec_save();
+    movement_move_to_face(0);//Go to main face after saving settings
 }
 
 bool finetune_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
@@ -182,19 +185,20 @@ bool finetune_face_loop(movement_event_t event, movement_settings_t *settings, v
                 movement_move_to_next_face();
             } else {
                 finetune_page = (finetune_page + 1) % 3;
+                finetune_update_display();
             }
             break;
 
         case EVENT_MODE_LONG_PRESS:
             // You shouldn't need to change this case; Mode almost always moves to the next watch face.
             finetune_page = (finetune_page + 1) % 3;
+            finetune_update_display();
             break;
 
         case EVENT_LIGHT_LONG_PRESS:
             // We are making it slower by 250ms
             if (finetune_page == 0) {
                 finetune_adjust_subseconds(250);
-                finetune_update_display();
             } else if (finetune_page == 2 && finetune_get_hours_passed()>=6) { // Applying ppm correction, only if >6 hours passed
                 nanosec_state.freq_correction += (int)round(finetune_get_correction() * 100);
                 finetune_update_correction_time();
@@ -205,14 +209,12 @@ bool finetune_face_loop(movement_event_t event, movement_settings_t *settings, v
             // We are making it slower by 25ms
             if (finetune_page == 0) {
                 finetune_adjust_subseconds(25);
-                finetune_update_display();
             }
             break;
 
         case EVENT_ALARM_LONG_PRESS:
             if (finetune_page == 0) {
                 finetune_adjust_subseconds(750);
-                finetune_update_display();
             } else if (finetune_page == 2) { // Exit without applying correction to ppm, but update correction time
                 finetune_update_correction_time();
             }
@@ -221,7 +223,6 @@ bool finetune_face_loop(movement_event_t event, movement_settings_t *settings, v
         case EVENT_ALARM_BUTTON_UP:
             if (finetune_page == 0) {
                 finetune_adjust_subseconds(975);
-                finetune_update_display();
             }
             break;
 

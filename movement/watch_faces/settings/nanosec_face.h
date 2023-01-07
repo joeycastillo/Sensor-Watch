@@ -50,6 +50,7 @@ void nanosec_face_activate(movement_settings_t *settings, void *context);
 bool nanosec_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void nanosec_face_resign(movement_settings_t *settings, void *context);
 bool nanosec_face_wants_background_task(movement_settings_t *settings, void *context);
+void nanosec_ui_save(void);
 void nanosec_save(void);
 float nanosec_get_aging(void);
 

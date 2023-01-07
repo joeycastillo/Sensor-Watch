@@ -156,34 +156,42 @@ static void apply_RTC_correction(int16_t correction) {
     }
 }
 
+//User-related saves
+void nanosec_ui_save(void) {
+    if(nanosec_changed)
+        nanosec_save();
+}
+
+//This is low-level save function, that can be used by other faces
 void nanosec_save(void) {
     if (nanosec_state.correction_profile == 0) {
         freq_correction_residual = 0;
         apply_RTC_correction(nanosec_state.freq_correction * 1.0f * dithering / 100); // Will be divided by dithering inside, final resolution is mere 1ppm
     }
-    if(nanosec_changed)
-    {
-        filesystem_write_file("nanosec.ini", (char*)&nanosec_state, sizeof(nanosec_state));
-        nanosec_changed = false;
-    }
+
+    filesystem_write_file("nanosec.ini", (char*)&nanosec_state, sizeof(nanosec_state));
+    nanosec_changed = false;
 }
 
 void nanosec_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) watch_face_index;
     (void) settings;
-    (void) context_ptr;
 
-    if (filesystem_get_file_size("nanosec.ini") != sizeof(nanosec_state)) {
-        //No previous ini or old version of ini file - create new config file
-        nanosec_state.correction_profile = 3;
-        nanosec_init_profile();
-        nanosec_save();
-    } else {
-        filesystem_read_file("nanosec.ini", (char*)&nanosec_state, sizeof(nanosec_state));
+    if (*context_ptr == NULL) {
+        if (filesystem_get_file_size("nanosec.ini") != sizeof(nanosec_state)) {
+            //No previous ini or old version of ini file - create new config file
+            nanosec_state.correction_profile = 3;
+            nanosec_init_profile();
+            nanosec_ui_save();
+        } else {
+            filesystem_read_file("nanosec.ini", (char*)&nanosec_state, sizeof(nanosec_state));
+        }
+        
+        freq_correction_residual = 0;
+        nanosec_screen = 0;
+        
+        *context_ptr = (void *)1; // No need to re-read from filesystem when exiting low power mode
     }
-
-    freq_correction_residual = 0; // TODO: Re-init from RTC register
-    nanosec_screen = 0;
 }
 
 void nanosec_face_activate(movement_settings_t *settings, void *context) {
@@ -297,7 +305,7 @@ bool nanosec_face_loop(movement_event_t event, movement_settings_t *settings, vo
             break;
         case EVENT_MODE_BUTTON_UP:
             if (nanosec_screen == 0) {// we can exit face only on the 0th page
-                nanosec_save();
+                nanosec_ui_save();
                 movement_move_to_next_face();
             } else {
                 nanosec_next_edit_screen();
@@ -369,7 +377,7 @@ void nanosec_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
 
-    nanosec_save();
+    nanosec_ui_save();
 }
 
 // Background freq correction
