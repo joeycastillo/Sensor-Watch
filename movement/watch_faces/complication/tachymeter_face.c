@@ -38,8 +38,7 @@ void tachymeter_face_setup(movement_settings_t *settings, uint8_t watch_face_ind
 
 void tachymeter_face_activate(movement_settings_t *settings, void *context) {
     tachymeter_state_t *state = (tachymeter_state_t *)context;
-    // TODO improve tick frequency for Speed/Time display
-    movement_request_tick_frequency(2);
+    movement_request_tick_frequency(4);
 }
 
 static void _tachymeter_face_distance_lcd(tachymeter_state_t *state){
@@ -56,6 +55,10 @@ static void _tachymeter_face_totals_lcd(tachymeter_state_t *state, bool show_tim
         sprintf(buf, "TC %c%6d", 't',  state->total_seconds);
     }
     watch_display_string(buf, 0);
+    if (!show_time){
+        watch_set_pixel(0, 9);
+        watch_set_pixel(0, 10);
+    }
 }
 
 bool tachymeter_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
@@ -70,19 +73,35 @@ bool tachymeter_face_loop(movement_event_t event, movement_settings_t *settings,
             break;
         case EVENT_TICK:
             if (!state->running && state->total_seconds != 0) {
-                // Display results if finished and not cleared
-                if (event.subsecond % 2 == 0) {
-                    _tachymeter_face_totals_lcd(state, true);
+            // Display results if finished and not cleared
+                if (event.subsecond < 2) {
+                     _tachymeter_face_totals_lcd(state, true);
                 } else {
-                    _tachymeter_face_totals_lcd(state, false);
+                     _tachymeter_face_totals_lcd(state, false);
                 }
             } else if (state->running){
-                // TODO Improve UI when tachymeter is running
-                if (event.subsecond % 2 == 0) {
-                    watch_display_string("1 ", 2);
-                } else {
-                    watch_display_string(" 1", 2);
+                watch_display_string("  ", 2);
+                switch (state->animation_state) {
+                    case 0:
+                        watch_set_pixel(0, 7);
+                        break;
+                    case 1:
+                        watch_set_pixel(1, 7);
+                        break;
+                    case 2:
+                        watch_set_pixel(2, 7);
+                        break;
+                    case 3:
+                        watch_set_pixel(2, 6);
+                        break;
+                    case 4:
+                        watch_set_pixel(2, 8);
+                        break;
+                    case 5:
+                        watch_set_pixel(0, 8);
+                        break;
                 }
+                state->animation_state = (state->animation_state + 1) % 6;
             }
             break;
         case EVENT_MODE_BUTTON_UP:
