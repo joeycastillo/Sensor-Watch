@@ -98,8 +98,7 @@ static void finetune_update_display(void) {
         sprintf(buf, "DT  %4d%02d", (int)hours, (int)(fmodf(hours, 1.) * 100));
         watch_display_string(buf, 0);
     } else if (finetune_page == 2) {
-        if (finetune_get_hours_passed() < 6)
-        {
+        if (finetune_get_hours_passed() < 6) {
             sprintf(buf, " F  6HR   ");
             watch_display_string(buf, 0);
         } else {
@@ -117,7 +116,7 @@ static void finetune_adjust_subseconds(int delta) {
     else
         total_adjustment += delta;
     finetune_update_display();
-    
+
     // Then delay clock
     watch_rtc_enable(false);
     delay_ms(delta);
@@ -139,12 +138,12 @@ static void finetune_adjust_subseconds(int delta) {
 
 static void finetune_update_correction_time(void) {
     // Update aging, as we update correciton time - we must bake accrued aging into static offset
-    nanosec_state.freq_correction += roundf(nanosec_get_aging()*100);
+    nanosec_state.freq_correction += roundf(nanosec_get_aging() * 100);
 
     // Remember when we last corrected time
     nanosec_state.last_correction_time = watch_utility_date_time_to_unix_time(watch_rtc_get_date_time(), 0);
     nanosec_save();
-    movement_move_to_face(0);//Go to main face after saving settings
+    movement_move_to_face(0); // Go to main face after saving settings
 }
 
 bool finetune_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
@@ -160,13 +159,11 @@ bool finetune_face_loop(movement_event_t event, movement_settings_t *settings, v
 
         case EVENT_TICK:
             // If needed, update your display here, at canonical 0.5sec position.
-            // We flash gree LED once per minute to measure clock error, when we are not on first screen
-            if(finetune_page!=0)
-            {
+            // We flash green LED once per minute to measure clock error, when we are not on first screen
+            if (finetune_page!=0) {
                 watch_date_time date_time;
                 date_time = watch_rtc_get_date_time();
-                if(date_time.unit.second == 0)
-                {
+                if (date_time.unit.second == 0) {
                     watch_set_led_green();
                     #ifndef __EMSCRIPTEN__
                     delay_us(500);
