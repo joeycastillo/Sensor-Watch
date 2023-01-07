@@ -66,8 +66,8 @@ bool set_time_face_loop(movement_event_t event, movement_settings_t *settings, v
                     date_time.unit.second = 0;
                     break;
                 case 3: // year
-                    // only allow 2021-2030. fix this sometime next decade
-                    date_time.unit.year = ((date_time.unit.year % 10) + 1);
+                    // only allow 2021-2050. fix this if we make it that far.
+                    date_time.unit.year = ((date_time.unit.year % 30) + 1);
                     break;
                 case 4: // month
                     date_time.unit.month = (date_time.unit.month % 12) + 1;

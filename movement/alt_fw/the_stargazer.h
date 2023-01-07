@@ -27,11 +27,8 @@
 
 #include "movement_faces.h"
 
-#define MOVEMENT_CUSTOM_BOOT_COMMANDS() { \
-    movement_state.settings.bit.led_green_color = 0x0;\
-    movement_state.settings.bit.led_red_color = 0xF;\
-    watch_store_backup_data(movement_state.settings.reg, 0);\
-}
+#define MOVEMENT_DEFAULT_RED_COLOR 0xF
+#define MOVEMENT_DEFAULT_GREEN_COLOR 0x0
 
 const watch_face_t watch_faces[] = {
     simple_clock_face,

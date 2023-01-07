@@ -72,7 +72,7 @@ static const uint8_t _blink_idx2[ALARM_SETTING_STATES] = {3, 1, 5, 7, 8, 9};
 static const BuzzerNote _buzzer_notes[3] = {BUZZER_NOTE_B6, BUZZER_NOTE_C8, BUZZER_NOTE_A8};
 static const uint8_t _buzzer_segdata[3][2] = {{0, 3}, {1, 3}, {2, 2}};
 
-int8_t _wait_ticks;
+static int8_t _wait_ticks;
 
 static uint8_t _get_weekday_idx(watch_date_time date_time) {
     date_time.unit.year += 20;
@@ -103,11 +103,11 @@ static void _alarm_face_draw(movement_settings_t *settings, alarm_state_t *state
     if (!settings->bit.clock_mode_24h) {
         if (h >= 12) {
             watch_set_indicator(WATCH_INDICATOR_PM);
-            h = h % 12;
-            h += h ? 0 : 12;
+            h %= 12;
         } else {
             watch_clear_indicator(WATCH_INDICATOR_PM);
         }
+        if (h == 0) h = 12;
     }
     sprintf(buf, "%c%c%2d%2d%02d  ",
         _dow_strings[i][0], _dow_strings[i][1],
@@ -159,7 +159,8 @@ static void _alarm_resume_setting(movement_settings_t *settings, alarm_state_t *
 static void _alarm_update_alarm_enabled(movement_settings_t *settings, alarm_state_t *state) {
     // save indication for active alarms to movement settings
     bool active_alarms = false;
-    watch_date_time *now = NULL;
+    watch_date_time now;
+    bool now_init = false;
     uint8_t weekday_idx;
     uint16_t now_minutes_of_day;
     uint16_t alarm_minutes_of_day;
@@ -170,10 +171,11 @@ static void _alarm_update_alarm_enabled(movement_settings_t *settings, alarm_sta
             active_alarms = true;
             break;
             } else {
-                if (now == NULL) {
-                    *now = watch_rtc_get_date_time();
-                    weekday_idx = _get_weekday_idx(*now);
-                    now_minutes_of_day = now->unit.hour * 60 + now->unit.minute;
+                if (!now_init) {
+                    now = watch_rtc_get_date_time();
+                    now_init = true;
+                    weekday_idx = _get_weekday_idx(now);
+                    now_minutes_of_day = now.unit.hour * 60 + now.unit.minute;
                 }
                 alarm_minutes_of_day = state->alarm[i].hour * 60 + state->alarm[i].minute;
                 // no more shortcuts: check days and times for all possible cases...
@@ -251,7 +253,6 @@ void alarm_face_resign(movement_settings_t *settings, void *context) {
     state->is_setting = false;
     _alarm_update_alarm_enabled(settings, state);
     watch_set_led_off();
-    watch_store_backup_data(settings->reg, 0);
     state->alarm_quick_ticks = false;
     _wait_ticks = -1;
     movement_request_tick_frequency(1);
@@ -270,15 +271,7 @@ bool alarm_face_wants_background_task(movement_settings_t *settings, void *conte
             if (state->alarm[i].minute == now.unit.minute) {
                 if (state->alarm[i].hour == now.unit.hour) {
                     state->alarm_playing_idx = i;
-                    if (state->alarm[i].day == ALARM_DAY_EACH_DAY) return true;
-                    if (state->alarm[i].day == ALARM_DAY_ONE_TIME) {
-                        // erase this alarm
-                        state->alarm[i].day = ALARM_DAY_EACH_DAY;
-                        state->alarm[i].minute = state->alarm[i].hour = 0;
-                        state->alarm[i].enabled = false;
-                        _alarm_update_alarm_enabled(settings, state);
-                        return true;
-                    }
+                    if (state->alarm[i].day == ALARM_DAY_EACH_DAY || state->alarm[i].day == ALARM_DAY_ONE_TIME) return true;
                     uint8_t weekday_idx = _get_weekday_idx(now);
                     if (state->alarm[i].day == weekday_idx) return true;
                     if (state->alarm[i].day == ALARM_DAY_WORKDAY && weekday_idx < 5) return true;
@@ -307,7 +300,7 @@ bool alarm_face_loop(movement_event_t event, movement_settings_t *settings, void
                         state->alarm[state->alarm_idx].minute = (state->alarm[state->alarm_idx].minute + 1) % 60;
             } else _abort_quick_ticks(state);
         } else if (!state->is_setting) {
-            if (_wait_ticks >= 0 && _wait_ticks <= INT8_MAX) _wait_ticks++;
+            if (_wait_ticks >= 0) _wait_ticks++;
             if (_wait_ticks == 2) {
                 // extra long press of alarm button
                 _wait_ticks = -1;
@@ -428,15 +421,22 @@ bool alarm_face_loop(movement_event_t event, movement_settings_t *settings, void
             if (watch_is_buzzer_or_led_enabled()) {
                 _alarm_play_short_beep(state->alarm[state->alarm_playing_idx].pitch);
             } else {
-                // enable, play beep and disable buzzer again
-                watch_enable_buzzer();
+                // play beep
                 _alarm_play_short_beep(state->alarm[state->alarm_playing_idx].pitch);
-                watch_disable_buzzer();
             }
         } else {
             // regular alarm beeps
-            movement_play_alarm_beeps((state->alarm[state->alarm_idx].beeps == (ALARM_MAX_BEEP_ROUNDS - 1) ? 20 : state->alarm[state->alarm_playing_idx].beeps), 
+            movement_play_alarm_beeps((state->alarm[state->alarm_playing_idx].beeps == (ALARM_MAX_BEEP_ROUNDS - 1) ? 20 : state->alarm[state->alarm_playing_idx].beeps), 
                                   _buzzer_notes[state->alarm[state->alarm_playing_idx].pitch]);
+        }
+        // one time alarm? -> erase it
+        if (state->alarm[state->alarm_playing_idx].day == ALARM_DAY_ONE_TIME) {
+            state->alarm[state->alarm_playing_idx].day = ALARM_DAY_EACH_DAY;
+            state->alarm[state->alarm_playing_idx].minute = state->alarm[state->alarm_playing_idx].hour = 0;
+            state->alarm[state->alarm_playing_idx].beeps = 5;
+            state->alarm[state->alarm_playing_idx].pitch = 1;
+            state->alarm[state->alarm_playing_idx].enabled = false;
+            _alarm_update_alarm_enabled(settings, state);
         }
         break;
     case EVENT_MODE_BUTTON_UP:
