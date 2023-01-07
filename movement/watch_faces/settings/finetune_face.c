@@ -198,7 +198,6 @@ bool finetune_face_loop(movement_event_t event, movement_settings_t *settings, v
             // We are making it slower by 250ms
             if (finetune_page == 0) {
                 finetune_adjust_subseconds(250);
-                finetune_update_display();
             } else if (finetune_page == 2 && finetune_get_hours_passed() >= 6) {
                 // Applying ppm correction, only if >6 hours passed
                 nanosec_state.freq_correction += (int)round(finetune_get_correction() * 100);
