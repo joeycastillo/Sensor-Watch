@@ -72,6 +72,15 @@ bool tachymeter_face_loop(movement_event_t event, movement_settings_t *settings,
             }
             break;
         case EVENT_TICK:
+            // Editing should flash 'd'
+            if (state->editing) {
+                _tachymeter_face_distance_lcd(state);
+                if (event.subsecond < 2) {
+                    watch_display_string("  ", 2);
+                }
+            } else {
+                _tachymeter_face_distance_lcd(state);
+            }
             if (!state->running && state->total_seconds != 0) {
             // Display results if finished and not cleared
                 if (event.subsecond < 2) {
@@ -108,22 +117,34 @@ bool tachymeter_face_loop(movement_event_t event, movement_settings_t *settings,
             movement_move_to_next_face();
             break;
         case EVENT_LIGHT_BUTTON_UP:
-            // Clear results
             if (!state->running){
-                state->total_seconds = 0;
-                state->total_speed = 0;
-                _tachymeter_face_distance_lcd(state);
+                // Clear results
+                if (!state->editing){
+                    state->total_seconds = 0;
+                    state->total_speed = 0;
+                    _tachymeter_face_distance_lcd(state);
+                } else {
+                    // Edit distance
+                    state->distance = (state->distance + 1);
+                }
             }
             break;
-        case EVENT_ALARM_BUTTON_DOWN:
+        case EVENT_ALARM_BUTTON_UP:
             if (settings->bit.button_should_sound) {
                 watch_buzzer_play_note(BUZZER_NOTE_C8, 50);
             }
             if (!state->running){
-                state->running = true;
-                state->start_time = watch_rtc_get_date_time();
-                state->total_seconds = 0;
+                if (!state->editing) {
+                    // Start running
+                    state->running = true;
+                    state->start_time = watch_rtc_get_date_time();
+                    state->total_seconds = 0;
+                } else {
+                    // Alarm button confirm distance
+                    state->editing = false;
+                }
             } else {
+                // Stop running
                 state->running = false;
                 watch_date_time now = watch_rtc_get_date_time();
                 uint32_t now_timestamp = watch_utility_date_time_to_unix_time(now, 0);
@@ -133,12 +154,15 @@ bool tachymeter_face_loop(movement_event_t event, movement_settings_t *settings,
             }
             break;
         case EVENT_ALARM_LONG_PRESS:
-            // TODO Set and validate distance
+            if (!state->running){
+                state->editing = true;
+            }
+
             break;
         case EVENT_TIMEOUT:
             // Your watch face will receive this event after a period of inactivity. If it makes sense to resign,
             // you may uncomment this line to move back to the first watch face in the list:
-            // movement_move_to_face(0);
+            movement_move_to_face(0);
             break;
         case EVENT_LOW_ENERGY_UPDATE:
             // If you did not resign in EVENT_TIMEOUT, you can use this event to update the display once a minute.

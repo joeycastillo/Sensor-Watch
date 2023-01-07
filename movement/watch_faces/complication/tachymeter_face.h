@@ -29,6 +29,7 @@
 
 typedef struct {
     bool running;               // tachymeter status
+    bool editing;               // editing distance
     uint8_t animation_state;    // running animation state
     watch_date_time start_time; // start_time
     uint32_t distance;          // distance
