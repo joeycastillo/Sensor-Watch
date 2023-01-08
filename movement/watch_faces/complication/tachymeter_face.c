@@ -76,7 +76,7 @@ static void _tachymeter_face_distance_lcd(movement_event_t event, tachymeter_sta
 static void _tachymeter_face_totals_lcd(tachymeter_state_t *state, bool show_time){
     char buf[11];
     if (!show_time){
-        sprintf(buf, "TC %c%6lu", 'H',  state->total_speed);
+        sprintf(buf, "TC %c%6lu", 'h',  state->total_speed);
     } else {
         sprintf(buf, "TC %c%6lu", 't',  state->total_time);
     }
