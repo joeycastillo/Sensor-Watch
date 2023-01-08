@@ -28,6 +28,7 @@
 #include "watch_utility.h"
 
 static uint32_t _distance_from_struct(distance_digits_t dist_digits) {
+    // distance from digitwise distance
     uint32_t retval = (dist_digits.thousands * 100000 +
                        dist_digits.hundreds  *  10000 +
                        dist_digits.tens      *   1000 +
@@ -55,7 +56,7 @@ void tachymeter_face_activate(movement_settings_t *settings, void *context) {
 
 static void _tachymeter_face_distance_lcd(movement_event_t event, tachymeter_state_t *state){
     char buf[11];
-    // distance from digits
+    // Distance from digits
     state->distance = _distance_from_struct(state->dist_digits);
     sprintf(buf, "TC %c%06d", 'd',  state->distance);
     // Blinking display when editing
@@ -81,6 +82,7 @@ static void _tachymeter_face_totals_lcd(tachymeter_state_t *state, bool show_tim
     }
     watch_display_string(buf, 0);
     if (!show_time){
+        // Show '/' besides 'H'
         watch_set_pixel(0, 9);
         watch_set_pixel(0, 10);
     }
@@ -88,16 +90,15 @@ static void _tachymeter_face_totals_lcd(tachymeter_state_t *state, bool show_tim
 
 bool tachymeter_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     tachymeter_state_t *state = (tachymeter_state_t *)context;
-
     switch (event.event_type) {
         case EVENT_ACTIVATE:
-            // Show last distance in UI
+            // Show distance in UI
             if (!state->running){
                 _tachymeter_face_distance_lcd(event, state);
             }
             break;
         case EVENT_TICK:
-            // Editing should flash 'd'
+            // Show editing distance (blinking)
             if (state->editing) {
                 _tachymeter_face_distance_lcd(event, state);
             }
@@ -248,7 +249,6 @@ bool tachymeter_face_loop(movement_event_t event, movement_settings_t *settings,
         default:
             break;
     }
-
     // return true if the watch can enter standby mode. If you are PWM'ing an LED or buzzing the buzzer here,
     // you should return false since the PWM driver does not operate in standby mode.
     return true;
@@ -257,4 +257,3 @@ bool tachymeter_face_loop(movement_event_t event, movement_settings_t *settings,
 void tachymeter_face_resign(movement_settings_t *settings, void *context) {
     // handle any cleanup before your watch face goes off-screen.
 }
-
