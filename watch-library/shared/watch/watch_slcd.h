@@ -84,7 +84,9 @@ void watch_clear_display(void);
   */
 void watch_display_string(char *string, uint8_t position);
 
-bool watch_display_string_morph(char *old_string, char *new_string);
+void watch_display_segment(uint8_t position, uint8_t bit_pos, bool on);
+
+uint64_t watch_convert_char_to_segdata(uint8_t character, uint8_t position);
 
 void watch_display_invert(bool);
 

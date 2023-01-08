@@ -29,7 +29,6 @@
 
 typedef struct {
     uint32_t previous_date_time;
-    uint32_t alarm_button_down_time;
     uint8_t last_battery_check;
     uint8_t watch_face_index;
     bool signal_enabled;

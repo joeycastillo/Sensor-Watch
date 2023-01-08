@@ -25,7 +25,6 @@
 #include "watch_slcd.h"
 #include "watch_private_display.h"
 
-
 static const uint32_t IndicatorSegments[] = {
     SLCD_SEGID(0, 17), // WATCH_INDICATOR_SIGNAL
     SLCD_SEGID(0, 16), // WATCH_INDICATOR_BELL
@@ -36,7 +35,7 @@ static const uint32_t IndicatorSegments[] = {
 
 static bool invert = false;
 
-static uint64_t watch_convert_char_to_segdata(uint8_t character, uint8_t position) {
+uint64_t watch_convert_char_to_segdata(uint8_t character, uint8_t position) {
     // special cases for positions 4 and 6
     if (position == 4 || position == 6) {
         if (character == '7') character = '&'; // "lowercase" 7
@@ -78,7 +77,7 @@ static const uint8_t vert_invert_map[8] = {
     3, 4, 5, 0, 1, 2, 6, 7,
 };
 
-static void watch_display_segment(uint8_t position, uint8_t bit_pos, bool on) {
+void watch_display_segment(uint8_t position, uint8_t bit_pos, bool on) {
     uint64_t segmap = Segment_Map[position] >> (8 * bit_pos);
     uint8_t com = (segmap & 0xFF) >> 6;
 
@@ -118,64 +117,6 @@ void watch_display_character(uint8_t character, uint8_t position) {
     } else {
         watch_clear_pixel(0, 15);
     }
-}
-
-bool watch_display_string_morph(char *old_string_arg, char *new_string_arg) {
-    static char *old_string = NULL;
-    static char *new_string = NULL;
-    static uint8_t old_segdata[Num_Chars];
-    static uint8_t new_segdata[Num_Chars];
-    static size_t position = 0;
-    size_t i;
-
-    if (old_string_arg == NULL && new_string_arg == NULL) {
-        old_string = new_string = NULL;
-        return false;
-    }
-
-    if (old_string != old_string_arg) {
-        position = 0;
-        old_string = old_string_arg;
-        for (i = 0; old_string[i] && i < Num_Chars; ++i) {
-            old_segdata[i] = watch_convert_char_to_segdata(old_string[i], i);
-        }
-        for (; i < Num_Chars; ++i) {
-            old_segdata[i] = watch_convert_char_to_segdata(' ', i);
-        }
-    }
-    if (new_string != new_string_arg) {
-        position = 0;
-        new_string = new_string_arg;
-        for (i = 0; new_string[i] && i < Num_Chars; ++i) {
-            new_segdata[i] = watch_convert_char_to_segdata(new_string[i], i);
-        }
-        for (; i < Num_Chars; ++i) {
-            new_segdata[i] = watch_convert_char_to_segdata(' ', i);
-        }
-    }
-
-    // Make old_segdata approach new_segdata by the first bit we find.
-    for (; position < Num_Chars; ++position) {
-        if (old_segdata[position] == new_segdata[position]) {
-            continue;
-        }
-
-        for (int bit_pos = 0; bit_pos < 8; ++bit_pos) {
-            int bit = 1 << bit_pos;
-
-            if ((old_segdata[position] & bit) != (new_segdata[position] & bit)) {
-                old_segdata[position] ^= bit;
-                watch_display_segment(position, bit_pos, old_segdata[position] & bit);
-                // We only do one segment change. Call again to keep morphing.
-                return true;
-            }
-        }
-    }
-
-    // This cleans up the extra tweaks that wouldn't have been done in the
-    // segment map.
-    watch_display_string(new_string, 0);
-    return false;
 }
 
 void watch_display_string(char *string, uint8_t position) {
