@@ -44,7 +44,7 @@ jobs:
         run: emmake make
         working-directory: 'movement/make'
       - name: Archive simulator build
-        working-directory: 'movement/make/build'
+        working-directory: 'movement/make/build-sim'
         run: |
           cp watch.html index.html
           tar -czf simulator.tar.gz index.html watch.wasm watch.js
@@ -52,4 +52,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: simulator.tar.gz
-          path: movement/make/build/simulator.tar.gz
+          path: movement/make/build-sim/simulator.tar.gz
