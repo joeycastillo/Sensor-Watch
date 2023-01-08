@@ -115,8 +115,7 @@ void cb_watch_buzzer_seq(void) {
             // read note
             BuzzerNote note = _sequence[_seq_position];
             if (note != BUZZER_NOTE_REST) {
-                hri_tcc_write_PERBUF_reg(TCC0, NotePeriods[note]);
-                hri_tcc_write_CCBUF_reg(TCC0, WATCH_BUZZER_TCC_CHANNEL, NotePeriods[note] / 2);
+                watch_set_buzzer_period(NotePeriods[note]);
                 watch_set_buzzer_on();
             } else watch_set_buzzer_off();
             // set duration ticks and move to next tone
@@ -152,6 +151,7 @@ inline void watch_enable_buzzer(void) {
 
 inline void watch_set_buzzer_period(uint32_t period) {
     hri_tcc_write_PERBUF_reg(TCC0, period);
+    hri_tcc_write_CCBUF_reg(TCC0, WATCH_BUZZER_TCC_CHANNEL, period / 2);
 }
 
 void watch_disable_buzzer(void) {
@@ -172,8 +172,7 @@ void watch_buzzer_play_note(BuzzerNote note, uint16_t duration_ms) {
     if (note == BUZZER_NOTE_REST) {
         watch_set_buzzer_off();
     } else {
-        hri_tcc_write_PERBUF_reg(TCC0, NotePeriods[note]);
-        hri_tcc_write_CCBUF_reg(TCC0, WATCH_BUZZER_TCC_CHANNEL, NotePeriods[note] / 2);
+        watch_set_buzzer_period(NotePeriods[note]);
         watch_set_buzzer_on();
     }
     delay_ms(duration_ms);
