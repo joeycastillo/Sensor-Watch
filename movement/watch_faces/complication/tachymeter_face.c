@@ -27,12 +27,24 @@
 #include "tachymeter_face.h"
 #include "watch_utility.h"
 
+static uint32_t _distance_from_struct(distance_digits_t dist_digits) {
+    uint32_t retval = (dist_digits.thousands * 100000 +
+                       dist_digits.hundreds  *  10000 +
+                       dist_digits.tens      *   1000 +
+                       dist_digits.ones      *    100 +
+                       dist_digits.tenths    *     10 +
+                       dist_digits.hundredths);// * 1
+    return retval;
+}
+
 void tachymeter_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(tachymeter_state_t));
         memset(*context_ptr, 0, sizeof(tachymeter_state_t));
         tachymeter_state_t *state = (tachymeter_state_t *)*context_ptr;
-        state->distance = 1;
+        // Default distance
+        state->dist_digits.ones = 1;
+        state->distance = _distance_from_struct(state->dist_digits);
     }
 }
 
@@ -41,9 +53,22 @@ void tachymeter_face_activate(movement_settings_t *settings, void *context) {
     movement_request_tick_frequency(4);
 }
 
-static void _tachymeter_face_distance_lcd(tachymeter_state_t *state){
+static void _tachymeter_face_distance_lcd(movement_event_t event, tachymeter_state_t *state){
     char buf[11];
-    sprintf(buf, "TC %c%6d", 'd',  state->distance * 100);
+    // distance from digits
+    state->distance = _distance_from_struct(state->dist_digits);
+    sprintf(buf, "TC %c%06d", 'd',  state->distance);
+    // Blinking display when editing
+    if (state->editing) {
+        // Blink 'd'
+        if (event.subsecond < 2) {
+            buf[3] = ' ';
+        }
+        // Blink active digit
+        if (event.subsecond % 2) {
+            buf[state->active_digit + 4] = ' ';
+        }
+    }
     watch_display_string(buf, 0);
 }
 
@@ -68,18 +93,13 @@ bool tachymeter_face_loop(movement_event_t event, movement_settings_t *settings,
         case EVENT_ACTIVATE:
             // Show last distance in UI
             if (!state->running){
-                _tachymeter_face_distance_lcd(state);
+                _tachymeter_face_distance_lcd(event, state);
             }
             break;
         case EVENT_TICK:
             // Editing should flash 'd'
             if (state->editing) {
-                _tachymeter_face_distance_lcd(state);
-                if (event.subsecond < 2) {
-                    watch_display_string("  ", 2);
-                }
-            } else {
-                _tachymeter_face_distance_lcd(state);
+                _tachymeter_face_distance_lcd(event, state);
             }
             if (!state->running && state->total_seconds != 0) {
             // Display results if finished and not cleared
@@ -119,21 +139,32 @@ bool tachymeter_face_loop(movement_event_t event, movement_settings_t *settings,
         case EVENT_LIGHT_BUTTON_UP:
             if (state->editing){
                 // Edit distance
-                state->distance = (state->distance + 1);
+                state->active_digit = (state->active_digit + 1) % 6;
             } else {
                 movement_illuminate_led();
             }
             break;
         case EVENT_LIGHT_LONG_PRESS:
             if (!state->running && !state->editing){
-                // Clear results
-                state->total_seconds = 0;
-                state->total_speed = 0;
-                _tachymeter_face_distance_lcd(state);
+                if (state->total_seconds != 0){
+                    // Clear results
+                    state->total_seconds = 0;
+                    state->total_speed = 0;
+                } else {
+                    // Default distance
+                    state->dist_digits.thousands  = 0;
+                    state->dist_digits.hundreds   = 0;
+                    state->dist_digits.tens       = 0;
+                    state->dist_digits.ones       = 1;
+                    state->dist_digits.tenths     = 0;
+                    state->dist_digits.hundredths = 0;
+                    state->distance = _distance_from_struct(state->dist_digits);
+                }
+            _tachymeter_face_distance_lcd(event, state);
             }
             break;
         case EVENT_ALARM_BUTTON_UP:
-            if (settings->bit.button_should_sound) {
+            if (settings->bit.button_should_sound && !state->editing) {
                 watch_buzzer_play_note(BUZZER_NOTE_C8, 50);
             }
             if (!state->running){
@@ -143,8 +174,27 @@ bool tachymeter_face_loop(movement_event_t event, movement_settings_t *settings,
                     state->start_time = watch_rtc_get_date_time();
                     state->total_seconds = 0;
                 } else {
-                    // Alarm button confirm distance
-                    state->editing = false;
+                    // Alarm button to increase active digit
+                    switch (state->active_digit) {
+                        case 0:
+                            state->dist_digits.thousands = (state->dist_digits.thousands + 1) % 10;
+                            break;
+                        case 1:
+                            state->dist_digits.hundreds = (state->dist_digits.hundreds + 1) % 10;
+                            break;
+                        case 2:
+                            state->dist_digits.tens = (state->dist_digits.tens + 1) % 10;
+                            break;
+                        case 3:
+                            state->dist_digits.ones = (state->dist_digits.ones + 1) % 10;
+                            break;
+                        case 4:
+                            state->dist_digits.tenths = (state->dist_digits.tenths + 1) % 10;
+                            break;
+                        case 5:
+                            state->dist_digits.hundredths = (state->dist_digits.hundredths + 1) % 10;
+                            break;
+                    }
                 }
             } else {
                 // Stop running
@@ -158,18 +208,27 @@ bool tachymeter_face_loop(movement_event_t event, movement_settings_t *settings,
             break;
         case EVENT_ALARM_LONG_PRESS:
             if (!state->running){
-                // Enter / exit distance editing mode
-                if (settings->bit.button_should_sound) {
-                    if (!state->editing) {
+                if (!state->editing) {
+                    // Enter editing
+                    state->editing = true;
+                    state->active_digit = 0;
+                    if (settings->bit.button_should_sound) {
                         watch_buzzer_play_note(BUZZER_NOTE_C7, 80);
                         watch_buzzer_play_note(BUZZER_NOTE_C8, 80);
-                        //movement_illuminate_led();
-                    } else {
+                    }
+                } else {
+                    // Exit editing
+                    state->editing = false;
+                    // Validate distance
+                    if(_distance_from_struct(state->dist_digits) == 0){
+                        state->dist_digits.ones = 1;
+                    }
+                    _tachymeter_face_distance_lcd(event, state);
+                    if (settings->bit.button_should_sound) {
                         watch_buzzer_play_note(BUZZER_NOTE_C8, 80);
                         watch_buzzer_play_note(BUZZER_NOTE_C7, 80);
                     }
                 }
-                state->editing = !state->editing;
             }
             break;
         case EVENT_TIMEOUT:
