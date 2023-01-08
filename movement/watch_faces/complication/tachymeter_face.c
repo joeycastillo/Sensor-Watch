@@ -58,7 +58,7 @@ static void _tachymeter_face_distance_lcd(movement_event_t event, tachymeter_sta
     char buf[11];
     // Distance from digits
     state->distance = _distance_from_struct(state->dist_digits);
-    sprintf(buf, "TC %c%06d", 'd',  state->distance);
+    sprintf(buf, "TC %c%06lu", 'd',  state->distance);
     // Blinking display when editing
     if (state->editing) {
         // Blink 'd'
@@ -76,9 +76,9 @@ static void _tachymeter_face_distance_lcd(movement_event_t event, tachymeter_sta
 static void _tachymeter_face_totals_lcd(tachymeter_state_t *state, bool show_time){
     char buf[11];
     if (!show_time){
-        sprintf(buf, "TC %c%6d", 'H',  state->total_speed);
+        sprintf(buf, "TC %c%6lu", 'H',  state->total_speed);
     } else {
-        sprintf(buf, "TC %c%6d", 't',  state->total_time);
+        sprintf(buf, "TC %c%6lu", 't',  state->total_time);
     }
     watch_display_string(buf, 0);
     if (!show_time){
