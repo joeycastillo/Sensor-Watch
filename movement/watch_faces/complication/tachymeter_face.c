@@ -93,9 +93,7 @@ bool tachymeter_face_loop(movement_event_t event, movement_settings_t *settings,
     switch (event.event_type) {
         case EVENT_ACTIVATE:
             // Show distance in UI
-            if (!state->running){
-                _tachymeter_face_distance_lcd(event, state);
-            }
+            _tachymeter_face_distance_lcd(event, state);
             break;
         case EVENT_TICK:
             // Show editing distance (blinking)
