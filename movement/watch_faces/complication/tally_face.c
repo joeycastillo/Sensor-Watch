@@ -44,7 +44,7 @@ void tally_face_activate(movement_settings_t *settings, void *context) {
 bool tally_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     (void) settings;
     tally_state_t *state = (tally_state_t *)context;
-
+    
     switch (event.event_type) {
         case EVENT_MODE_BUTTON_UP:
             movement_move_to_next_face();
@@ -52,10 +52,12 @@ bool tally_face_loop(movement_event_t event, movement_settings_t *settings, void
         case EVENT_LIGHT_BUTTON_DOWN:
             movement_illuminate_led();
 	        break;
-	    case EVENT_ALARM_BUTTON_UP:
-            state->tally_idx++; // increment tally index
-            if (state->tally_idx>999999) { //0-10k
-                state->tally_idx=0;//reset tally index and play a reset tune
+        case EVENT_ALARM_BUTTON_UP:
+            // increment tally index
+            state->tally_idx++;
+            if (state->tally_idx > 999999) { //0-999,999
+                //reset tally index and play a reset tune
+                state->tally_idx = 0;
                 watch_buzzer_play_note(BUZZER_NOTE_G6, 30);
                 watch_buzzer_play_note(BUZZER_NOTE_REST, 30);
             }
@@ -63,12 +65,12 @@ bool tally_face_loop(movement_event_t event, movement_settings_t *settings, void
             watch_buzzer_play_note(BUZZER_NOTE_E6, 30);
             break;
         case EVENT_ALARM_LONG_PRESS:
-            state->tally_idx=0; // reset tally index
+            state->tally_idx = 0; // reset tally index
             //play a reset tune
             watch_buzzer_play_note(BUZZER_NOTE_G6, 30);
             watch_buzzer_play_note(BUZZER_NOTE_REST, 30);
             watch_buzzer_play_note(BUZZER_NOTE_E6, 30);
-	        print_tally(state);
+            print_tally(state);
             break;
         case EVENT_ACTIVATE:
             print_tally(state);
