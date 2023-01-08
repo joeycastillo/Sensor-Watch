@@ -41,11 +41,12 @@ typedef struct {
     bool editing;                  // editing distance
     uint8_t active_digit;          // active digit at editing distance
     uint8_t animation_state;       // running animation state
-    watch_date_time start_time;    // start_time
+    watch_date_time start_seconds; // start_seconds
+    int8_t start_subsecond;        // start_subsecond count (each count = 250 ms)
     distance_digits_t dist_digits; // distance digitwise
     uint32_t distance;             // distance
-    uint32_t total_seconds;        // total_seconds = now - start_time
-    uint32_t total_speed;          // 3600 * distance / total_time
+    uint32_t total_time;           // total_time = now - start_time (in cs)
+    uint32_t total_speed;          // 3600 * 100 * distance / total_time
 } tachymeter_state_t;
 
 void tachymeter_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);

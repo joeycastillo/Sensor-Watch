@@ -50,7 +50,7 @@ void tachymeter_face_setup(movement_settings_t *settings, uint8_t watch_face_ind
 
 void tachymeter_face_activate(movement_settings_t *settings, void *context) {
     tachymeter_state_t *state = (tachymeter_state_t *)context;
-    movement_request_tick_frequency(4);
+    movement_request_tick_frequency(4); // 4Hz
 }
 
 static void _tachymeter_face_distance_lcd(movement_event_t event, tachymeter_state_t *state){
@@ -77,7 +77,7 @@ static void _tachymeter_face_totals_lcd(tachymeter_state_t *state, bool show_tim
     if (!show_time){
         sprintf(buf, "TC %c%6d", 'H',  state->total_speed);
     } else {
-        sprintf(buf, "TC %c%6d", 't',  state->total_seconds);
+        sprintf(buf, "TC %c%6d", 't',  state->total_time);
     }
     watch_display_string(buf, 0);
     if (!show_time){
@@ -101,7 +101,7 @@ bool tachymeter_face_loop(movement_event_t event, movement_settings_t *settings,
             if (state->editing) {
                 _tachymeter_face_distance_lcd(event, state);
             }
-            if (!state->running && state->total_seconds != 0) {
+            if (!state->running && state->total_time != 0) {
             // Display results if finished and not cleared
                 if (event.subsecond < 2) {
                      _tachymeter_face_totals_lcd(state, true);
@@ -138,7 +138,7 @@ bool tachymeter_face_loop(movement_event_t event, movement_settings_t *settings,
             break;
         case EVENT_LIGHT_BUTTON_UP:
             if (state->editing){
-                // Edit distance
+                // Go to next digit
                 state->active_digit = (state->active_digit + 1) % 6;
             } else {
                 movement_illuminate_led();
@@ -146,9 +146,9 @@ bool tachymeter_face_loop(movement_event_t event, movement_settings_t *settings,
             break;
         case EVENT_LIGHT_LONG_PRESS:
             if (!state->running && !state->editing){
-                if (state->total_seconds != 0){
+                if (state->total_time != 0){
                     // Clear results
-                    state->total_seconds = 0;
+                    state->total_time = 0;
                     state->total_speed = 0;
                 } else {
                     // Default distance
@@ -171,8 +171,9 @@ bool tachymeter_face_loop(movement_event_t event, movement_settings_t *settings,
                 if (!state->editing) {
                     // Start running
                     state->running = true;
-                    state->start_time = watch_rtc_get_date_time();
-                    state->total_seconds = 0;
+                    state->start_seconds = watch_rtc_get_date_time();
+                    state->start_subsecond = event.subsecond;
+                    state->total_time = 0;
                 } else {
                     // Alarm button to increase active digit
                     switch (state->active_digit) {
@@ -201,9 +202,11 @@ bool tachymeter_face_loop(movement_event_t event, movement_settings_t *settings,
                 state->running = false;
                 watch_date_time now = watch_rtc_get_date_time();
                 uint32_t now_timestamp = watch_utility_date_time_to_unix_time(now, 0);
-                uint32_t start_timestamp = watch_utility_date_time_to_unix_time(state->start_time, 0);
-                state->total_seconds = now_timestamp - start_timestamp;
-                state->total_speed = (uint32_t)(3600 * state->distance / state->total_seconds);
+                uint32_t start_timestamp = watch_utility_date_time_to_unix_time(state->start_seconds, 0);
+                // Total time in centiseconds
+                state->total_time = ((now_timestamp*100) + (event.subsecond*25)) - ((start_timestamp*100) + (state->start_subsecond*25));
+                // Total speed in distance units per hour
+                state->total_speed = (uint32_t)(3600 * 100 * state->distance / state->total_time);
             }
             break;
         case EVENT_ALARM_LONG_PRESS:
