@@ -28,6 +28,7 @@
     if (!hri_tcc_get_CTRLA_reg(TCC0, TCC_CTRLA_ENABLE)) {
         _watch_enable_tcc();
     }
+    gpio_set_pin_direction(BUZZER, GPIO_DIRECTION_OUT);
 }
 inline void watch_set_buzzer_period(uint32_t period) {
     hri_tcc_write_PERBUF_reg(TCC0, period);
@@ -35,6 +36,7 @@ inline void watch_set_buzzer_period(uint32_t period) {
 
 void watch_disable_buzzer(void) {
     _watch_disable_tcc();
+    watch_set_buzzer_off();
 }
 
 inline void watch_set_buzzer_on(void) {
@@ -43,8 +45,8 @@ inline void watch_set_buzzer_on(void) {
 }
 
 inline void watch_set_buzzer_off(void) {
-    gpio_set_pin_direction(BUZZER, GPIO_DIRECTION_OFF);
     gpio_set_pin_function(BUZZER, GPIO_PIN_FUNCTION_OFF);
+    gpio_set_pin_level(BUZZER, true);
 }
 
 void watch_buzzer_play_note(BuzzerNote note, uint16_t duration_ms) {
