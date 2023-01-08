@@ -163,10 +163,10 @@ bool tachymeter_face_loop(movement_event_t event, movement_settings_t *settings,
             }
             break;
         case EVENT_ALARM_BUTTON_UP:
-            if (settings->bit.button_should_sound && !state->editing) {
-                watch_buzzer_play_note(BUZZER_NOTE_C8, 50);
-            }
-            if (!state->running){
+            if (!state->running && state->total_time == 0){
+                if (settings->bit.button_should_sound && !state->editing) {
+                    watch_buzzer_play_note(BUZZER_NOTE_C8, 50);
+                }
                 if (!state->editing) {
                     // Start running
                     state->running = true;
@@ -196,7 +196,10 @@ bool tachymeter_face_loop(movement_event_t event, movement_settings_t *settings,
                             break;
                     }
                 }
-            } else {
+            } else if (state->running) {
+                if (settings->bit.button_should_sound && !state->editing) {
+                    watch_buzzer_play_note(BUZZER_NOTE_C8, 50);
+                }
                 // Stop running
                 state->running = false;
                 watch_date_time now = watch_rtc_get_date_time();
@@ -209,7 +212,7 @@ bool tachymeter_face_loop(movement_event_t event, movement_settings_t *settings,
             }
             break;
         case EVENT_ALARM_LONG_PRESS:
-            if (!state->running){
+            if (!state->running && state->total_time == 0){
                 if (!state->editing) {
                     // Enter editing
                     state->editing = true;
