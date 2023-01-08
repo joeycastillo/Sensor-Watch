@@ -151,6 +151,7 @@ SRCS += \
   $(TOP)/watch-library/shared/driver/thermistor_driver.c \
   $(TOP)/watch-library/shared/driver/lis2dw.c \
   $(TOP)/watch-library/shared/driver/spiflash.c \
+  $(TOP)/watch-library/shared/driver/si1133.c \
   $(TOP)/watch-library/shared/watch/watch_private_buzzer.c \
   $(TOP)/watch-library/shared/watch/watch_private_display.c \
   $(TOP)/watch-library/shared/watch/watch_utility.c \
@@ -213,3 +214,5 @@ endif
 ifeq ($(BOARD), OSO-FEAL-A1-00)
 CFLAGS += -DCRYSTALLESS
 endif
+
+CFLAGS += -g
