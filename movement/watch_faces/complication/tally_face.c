@@ -43,7 +43,6 @@ void tally_face_activate(movement_settings_t *settings, void *context) {
 
 bool tally_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     (void) settings;
-
     tally_state_t *state = (tally_state_t *)context;
 
     switch (event.event_type) {
@@ -69,7 +68,7 @@ bool tally_face_loop(movement_event_t event, movement_settings_t *settings, void
             watch_buzzer_play_note(BUZZER_NOTE_G6, 30);
             watch_buzzer_play_note(BUZZER_NOTE_REST, 30);
             watch_buzzer_play_note(BUZZER_NOTE_E6, 30);
-	    print_tally(state);
+	        print_tally(state);
             break;
         case EVENT_ACTIVATE:
             print_tally(state);
