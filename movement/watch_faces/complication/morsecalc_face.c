@@ -22,6 +22,66 @@
  * SOFTWARE.
  */
 
+/*
+A Morse-code-based RPN calculator (ported from the old pluto project)
+
+   # Controls
+   - "light" is dash
+   - "alarm" is dot
+   - "mode" is "finish character"
+   - long-press "mode" to quit
+   
+   # Morse code token entry
+   As you enter .s and -s, the morse code char you've entered will appear
+   in the top center digit.
+   At the top right is the # of morse code ./- you have input 
+   The char resets at the 6th ./-
+   Once you have the character you want, push "mode" to enter it. 
+   The character will be appended to your current input on the main display.
+   Once you have the token you want, push "mode" with a blank morse-code char
+   to input the token into the RPN calculator.
+   
+   Special characters:
+    - Backspace is "("/(-.--.). 
+    - Clear token without sending is "Start transmission"/(-.-.-).
+    
+   # Writing a command token
+   The RPN calculator first tries to interpret the token as a command. 
+   Commands are defined in calc_dict[] in `movement/lib/morsecalc/calc_fns.h`.
+   If the command doesn't appear in the dictionary, the calculator next tries to
+   interpret the token as a number.
+   
+   # Writing a number token
+   Numbers are written as strings, where 
+   "p" is interpreted as "point" and
+   "m" is interpreted as "minus"
+   e.g. enter "4p2em3" to get "4.2e-3"
+        enter "0p0042" to get "0.0042"
+        
+   # Number display
+   After a command runs, the top of the stack is displayed in this format:
+   
+   - Main 4 digits = leading 4 digits
+   - Last 2 digits = exponent
+   - Top middle = [Stack location, Sign of number]
+   - Top right = [Stack exponent, Sign of exponent]
+   
+   Blank sign digit means positive.
+   So for example, the watch face might look like this:
+     [   0 -5]
+     [4200 03]
+   ... representing "+4.200e-3" is in stack location 0 (the top) and it's one of 
+   five items in the stack.
+   
+   To show the N-th stack item (0 through 9):
+    - Put in the Morse code for N without pushing the mode button.
+    - Push and hold either light or alarm.
+    
+   The same works for showing the memory register, 'm'
+   
+   To see the operations the calculator supports, see `calc_fns.h` 
+*/
+
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
@@ -124,20 +184,25 @@ void morsecalc_reset_token(morsecalc_state_t *mcs) {
     return;
 }
 
-// Print stack contents. 
+// Print stack or memory register contents. 
 void morsecalc_print_stack(morsecalc_state_t * mcs) {
     watch_display_string("          ", 0); // Clear display
 
-    // If the morse code buffer has a numeral in it, print that stack item 
-    // Otherwise print top of stack
     char c = mc_dec(mcs->mc->b); 
-    uint8_t idx = 0;
-    if(c >= '0' && c <= '9') idx = c - '0';
+    if('m' == c) { // Display memory 
+        morsecalc_print_float(mcs->cs->mem);
+        watch_display_character(c, 0);
+    } 
+    else {
+        // If the morse code buffer has a numeral in it, print that stack item 
+        // Otherwise print top of stack
+        uint8_t idx = 0;
+        if(c >= '0' && c <= '9') idx = c - '0';
+        if(idx >= mcs->cs->s) watch_display_string(" empty", 4); // Stack empty
+        else morsecalc_print_float(mcs->cs->stack[mcs->cs->s-1-idx]); // Print stack item
 
-    if(idx >= mcs->cs->s) watch_display_string(" empty", 4); // Stack empty
-    else morsecalc_print_float(mcs->cs->stack[mcs->cs->s-1-idx]); // Print stack item
-
-    watch_display_character('0'+idx, 0); // Print which stack item this is top center
+        watch_display_character('0'+idx, 0); // Print which stack item this is top center
+    }
     watch_display_character('0'+(mcs->cs->s), 3); // Print the # of stack items top right 
     return;
 }
@@ -237,6 +302,7 @@ bool morsecalc_face_loop(movement_event_t event, movement_settings_t *settings, 
         break;
 
     case EVENT_LIGHT_LONG_PRESS:
+        movement_illuminate_led();
         morsecalc_print_stack(mcs);
         break;
     case EVENT_ALARM_LONG_PRESS:

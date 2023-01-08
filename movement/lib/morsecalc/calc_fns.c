@@ -1,8 +1,10 @@
+#include <string.h>
 #include <math.h>
 
 #include "calc_fns.h" 
 
 #define STACK_CHECK_0_IN_1_OUT if(cs->s >= N_STACK) return -2
+#define STACK_CHECK_1_IN_0_OUT if(cs->s < 1) return -2
 #define STACK_CHECK_1_IN_1_OUT if(cs->s < 1) return -2
 #define STACK_CHECK_2_IN_1_OUT if(cs->s < 2) return -2
 #define STACK_CHECK_2_IN_2_OUT if(cs->s < 2) return -2
@@ -10,10 +12,15 @@
 static const double to_rad = M_PI/180;
 static const double to_deg = 180/M_PI;
 
-// Stack and register control
+// Stack and memory control
 int calc_delete(calc_state_t *cs) {
     if(cs->s < 1) return -2; // Check stack
     cs->s--; 
+    return 0;
+}
+int calc_clear_stack(calc_state_t *cs) {
+    memset(cs->stack, (0.0/0.0), N_STACK*sizeof(cs->stack[0]));
+    cs->s = 0; 
     return 0;
 }
 int calc_flip(calc_state_t *cs) {
@@ -21,6 +28,27 @@ int calc_flip(calc_state_t *cs) {
     double buff = cs->stack[cs->s-2];
     cs->stack[cs->s-2] = cs->stack[cs->s-1];
     cs->stack[cs->s-1] = buff;
+    return 0;
+}
+int calc_mem_clear(calc_state_t *cs) {
+    cs->mem = 0.0;
+    return 0;
+}
+int calc_mem_recall(calc_state_t *cs) { 
+    STACK_CHECK_0_IN_1_OUT;
+    cs->stack[cs->s++] = cs->mem;
+    return 0;
+}
+int calc_mem_add(calc_state_t *cs) {
+    STACK_CHECK_1_IN_0_OUT;
+    cs->mem += cs->stack[cs->s-1];
+    cs->s--;
+    return 0;
+}
+int calc_mem_subtract(calc_state_t *cs) {
+    STACK_CHECK_1_IN_0_OUT;
+    cs->mem -= cs->stack[cs->s-1];
+    cs->s--;
     return 0;
 }
 

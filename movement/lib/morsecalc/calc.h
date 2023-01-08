@@ -3,12 +3,11 @@
 
 #include <stdint.h>
 
-#define N_STACK 16
-#define N_REG 3
+#define N_STACK 10 
 
 typedef struct {
     double stack[N_STACK];
-    double reg[N_REG];
+    double mem;
     uint8_t s; // # of items in stack 
 } calc_state_t;
  

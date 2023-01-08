@@ -2,7 +2,12 @@
 
 // Stack and register control
 int calc_delete(calc_state_t *cs);
+int calc_clear_stack(calc_state_t *cs);
 int calc_flip(calc_state_t *cs);
+int calc_mem_clear(calc_state_t *cs);
+int calc_mem_recall(calc_state_t *cs);
+int calc_mem_add(calc_state_t *cs);
+int calc_mem_subtract(calc_state_t *cs);
 
 // Basic operations
 int calc_add(calc_state_t *cs);
@@ -48,11 +53,16 @@ typedef struct {
 static const calc_dict_entry_t calc_dict[] = {
     // Stack and register control
     {"x", &calc_delete},
-    {"xx", &calc_init},
+    {"xxx", &calc_clear_stack},
+    {"xxx", &calc_init},
     {"f", &calc_flip},
+    {"mc", &calc_mem_clear},
+    {"mr", &calc_mem_recall},
+    {"ma", &calc_mem_add},
+    {"ms", &calc_mem_subtract},
 
     // Basic operations
-    {"p", &calc_add}, 
+    {"a", &calc_add}, 
     {"s", &calc_subtract},
     {"n", &calc_negate},
     {"m", &calc_multiply},

@@ -1,5 +1,4 @@
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 
 #include "calc.h"
@@ -12,8 +11,8 @@
  */
 int calc_init(calc_state_t *cs) {    
     memset(cs->stack, CALC_NAN, N_STACK*sizeof(cs->stack[0]));
-    memset(cs->reg, CALC_NAN, N_REG*sizeof(cs->stack[0]));
     cs->s = 0; 
+    cs->mem = 0.0;
     return 0;
 }
 
