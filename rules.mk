@@ -18,7 +18,6 @@ $(BUILD)/$(BIN).html: $(OBJS)
 	@echo HTML $@
 	@$(CC) $(LDFLAGS) $(OBJS) $(LIBS) -o $@ \
 		-s ASYNCIFY=1 \
-		-s EXPORTED_FUNCTIONS=_main \
 		--shell-file=$(TOP)/watch-library/simulator/shell.html
 
 $(BUILD)/$(BIN).elf: $(OBJS)

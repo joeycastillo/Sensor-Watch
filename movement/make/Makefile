@@ -22,6 +22,7 @@ INCLUDES += \
   -I../lib/sunriset/ \
   -I../lib/vsop87/ \
   -I../lib/astrolib/ \
+  -I../lib/morsecalc/ \
 
 # If you add any other source files you wish to compile, add them after ../app.c
 # Note that you will need to add a backslash at the end of any line you wish to continue, i.e.
@@ -36,6 +37,10 @@ SRCS += \
   ../lib/sunriset/sunriset.c \
   ../lib/vsop87/vsop87a_milli.c \
   ../lib/astrolib/astrolib.c \
+  ../lib/morsecalc/calc.c \
+  ../lib/morsecalc/calc_fns.c \
+  ../lib/morsecalc/small_strtof.c \
+  ../lib/morsecalc/mc.c \
   ../../littlefs/lfs.c \
   ../../littlefs/lfs_util.c \
   ../movement.c \
@@ -75,6 +80,8 @@ SRCS += \
   ../watch_faces/demo/frequency_correction_face.c \
   ../watch_faces/complication/alarm_face.c \
   ../watch_faces/complication/ratemeter_face.c \
+  ../watch_faces/complication/morsecalc_face.c \
+  
 # New watch faces go above this line.
 
 # Leave this line at the bottom of the file; it has all the targets for making your project.
