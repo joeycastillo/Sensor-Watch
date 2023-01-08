@@ -155,9 +155,19 @@ bool tachymeter_face_loop(movement_event_t event, movement_settings_t *settings,
             break;
         case EVENT_ALARM_LONG_PRESS:
             if (!state->running){
-                state->editing = true;
+                // Enter / exit distance editing mode
+                if (settings->bit.button_should_sound) {
+                    if (!state->editing) {
+                        watch_buzzer_play_note(BUZZER_NOTE_C7, 80);
+                        watch_buzzer_play_note(BUZZER_NOTE_C8, 80);
+                        //movement_illuminate_led();
+                    } else {
+                        watch_buzzer_play_note(BUZZER_NOTE_C8, 80);
+                        watch_buzzer_play_note(BUZZER_NOTE_C7, 80);
+                    }
+                }
+                state->editing = !state->editing;
             }
-
             break;
         case EVENT_TIMEOUT:
             // Your watch face will receive this event after a period of inactivity. If it makes sense to resign,
