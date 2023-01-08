@@ -117,16 +117,19 @@ bool tachymeter_face_loop(movement_event_t event, movement_settings_t *settings,
             movement_move_to_next_face();
             break;
         case EVENT_LIGHT_BUTTON_UP:
-            if (!state->running){
+            if (state->editing){
+                // Edit distance
+                state->distance = (state->distance + 1);
+            } else {
+                movement_illuminate_led();
+            }
+            break;
+        case EVENT_LIGHT_LONG_PRESS:
+            if (!state->running && !state->editing){
                 // Clear results
-                if (!state->editing){
-                    state->total_seconds = 0;
-                    state->total_speed = 0;
-                    _tachymeter_face_distance_lcd(state);
-                } else {
-                    // Edit distance
-                    state->distance = (state->distance + 1);
-                }
+                state->total_seconds = 0;
+                state->total_speed = 0;
+                _tachymeter_face_distance_lcd(state);
             }
             break;
         case EVENT_ALARM_BUTTON_UP:
