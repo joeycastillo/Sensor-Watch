@@ -71,8 +71,8 @@ e.g. enter `4p2em3` to get `4.2e-3`
 
 Entering a number pushes it to the top of the stack if there's room.
         
- ## Number display
- After a command runs, the top of the stack is displayed in this format:
+## Number display
+After a command runs, the top of the stack is displayed in this format:
    
   - Main 4 digits = leading 4 digits
   - Last 2 digits = exponent
@@ -86,11 +86,14 @@ So for example, the watch face might look like this:
     [4200 03]
 
 ... representing `+4.200e-3` is in stack location 0 (the top) and it's one of five items in the stack.
-   
+
+## Looking at the stack
+
+To show the top of the stack, push and hold `light`/`alarm` or submit a blank token by pushing `mode` a bunch of times.
 To show the N-th stack item (0 through 9):
 
  - Put in the Morse code for N without pushing the mode button.
- - Push and hold either light or alarm.
+ - Push and hold either `light` or `alarm`.
     
 To show the memory register, use `m` instead of a number. 
    
@@ -244,8 +247,10 @@ void morsecalc_input(morsecalc_state_t * mcs, char c) {
                 break;
                 
             case ' ': // Submit token to calculator
-                status = calc_input(mcs->cs, mcs->token);
-                morsecalc_reset_token(mcs); 
+                if(strlen(mcs->token) > 0) {
+                    status = calc_input(mcs->cs, mcs->token);
+                    morsecalc_reset_token(mcs); 
+                } 
                 morsecalc_print_stack(mcs);   
                 break;
                 

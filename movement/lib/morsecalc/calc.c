@@ -43,7 +43,7 @@ int calc_input_float(calc_state_t *cs, char *token) {
     
     char *endptr;
     double d = small_strtof(token, &endptr);
-    if(token == endptr) return -1; // Couldn't find a double in the string
+    if(!endptr || (uint8_t)(endptr-token)<strlen(token)) return -1; // Bad format
     if(cs->s >= N_STACK) return -2; // Stack full
     cs->stack[cs->s++] = d;
     return 0;
