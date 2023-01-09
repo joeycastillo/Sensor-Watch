@@ -23,63 +23,78 @@
  */
 
 /*
-A Morse-code-based RPN calculator (ported from the old pluto project)
+## Morse-code-based RPN calculator 
 
-   # Controls
-   - "light" is dash
-   - "alarm" is dot
-   - "mode" is "finish character"
-   - long-press "mode" to quit
+The calculator is operated by first composing a **token** in Morse code, then submitting it to the calculator. A token specifies either a calculator operation or a float value.
+
+These two parts of the codebase are totally independent:
+
+ 1. The Morse-code reader (`mc.h`, `mc.c`) 
+ 2. The RPN calculator (`calc.h`, `calc.c`, `calc_fn.h`, `calc_fn.c`, `small_strtod.c`)
+
+The user interface (`morsecalc_face.h`, `morsecalc_face.c`) lets you talk to the RPN calculator through Morse code.
+
+## Controls
+
+ - `light` is dash
+ - `alarm` is dot
+ - `mode` is "finish character"
+ - long-press `mode` to quit
    
-   # Morse code token entry
-   As you enter .s and -s, the morse code char you've entered will appear
-   in the top center digit.
-   At the top right is the # of morse code ./- you have input 
-   The char resets at the 6th ./-
-   Once you have the character you want, push "mode" to enter it. 
-   The character will be appended to your current input on the main display.
-   Once you have the token you want, push "mode" with a blank morse-code char
-   to input the token into the RPN calculator.
+## Morse code token entry
+As you enter `.`s and `-`s, the morse code char you've entered will appear in the top center digit.
+At the top right is the # of morse code `.`/`-` you've input so far. The character resets at the 6th `.`/`-`.
+Once you have the character you want to enter, push `mode` to enter it. 
+The character will be appended to the current token, whose 6 trailing chars are shown on the main display.
+
+Once you've typed in the token you want, enter a blank Morse code character and then push `mode`.
+This submits it to the calculator.
    
-   Special characters:
-    - Backspace is "("/(-.--.). 
-    - Clear token without sending is "Start transmission"/(-.-.-).
+Special characters:
+
+ - Backspace is `(` (`-.--.`). 
+ - Clear token input without submitting to calculator is `Start transmission` (`-.-.-`).
     
-   # Writing a command token
-   The RPN calculator first tries to interpret the token as a command. 
-   Commands are defined in calc_dict[] in `movement/lib/morsecalc/calc_fns.h`.
-   If the command doesn't appear in the dictionary, the calculator next tries to
-   interpret the token as a number.
-   
-   # Writing a number token
-   Numbers are written as strings, where 
-   "p" is interpreted as "point" and
-   "m" is interpreted as "minus"
-   e.g. enter "4p2em3" to get "4.2e-3"
-        enter "0p0042" to get "0.0042"
+## Writing a command token
+The calculator first tries to interpret the token as a command/stack operation. 
+Commands are defined in `calc_dict[]` in `movement/lib/morsecalc/calc_fns.h`.
+If the command doesn't appear in the dictionary, the calculator next tries to interpret the token as a number.
+ 
+## Writing a number token
+Numbers are written as strings, where:
+
+ - "p" is interpreted as "point ." and
+ - "m" is interpreted as "minus -"
+ 
+e.g. enter `4p2em3` to get `4.2e-3`
+       enter `0p0042` to get `0.0042`
+
+Entering a number pushes it to the top of the stack if there's room.
         
-   # Number display
-   After a command runs, the top of the stack is displayed in this format:
+ ## Number display
+ After a command runs, the top of the stack is displayed in this format:
    
-   - Main 4 digits = leading 4 digits
-   - Last 2 digits = exponent
-   - Top middle = [Stack location, Sign of number]
-   - Top right = [Stack exponent, Sign of exponent]
+  - Main 4 digits = leading 4 digits
+  - Last 2 digits = exponent
+  - Top middle = [Stack location, Sign of number]
+  - Top right = [Stack exponent, Sign of exponent]
+  
+Blank sign digit means positive.
+So for example, the watch face might look like this:
+
+    [   0 -5]
+    [4200 03]
+
+... representing `+4.200e-3` is in stack location 0 (the top) and it's one of five items in the stack.
    
-   Blank sign digit means positive.
-   So for example, the watch face might look like this:
-     [   0 -5]
-     [4200 03]
-   ... representing "+4.200e-3" is in stack location 0 (the top) and it's one of 
-   five items in the stack.
-   
-   To show the N-th stack item (0 through 9):
-    - Put in the Morse code for N without pushing the mode button.
-    - Push and hold either light or alarm.
+To show the N-th stack item (0 through 9):
+
+ - Put in the Morse code for N without pushing the mode button.
+ - Push and hold either light or alarm.
     
-   The same works for showing the memory register, 'm'
+To show the memory register, use `m` instead of a number. 
    
-   To see the operations the calculator supports, see `calc_fns.h` 
+To see all the calculator operations and their token aliases, see the `calc_dict[]` struct in `calc_fns.h` 
 */
 
 #include <stdlib.h>
@@ -107,7 +122,7 @@ void morsecalc_print_float(double d) {
         return;
     }
     else if(d == (-1.0)/(0.0)) {
-        watch_display_character('-', 1);
+        watch_display_character('X', 1);
         watch_display_string("   inf", 4);
         return;
     }
@@ -130,9 +145,14 @@ void morsecalc_print_float(double d) {
     }
 
     // Print signs
-    if(is_negative) watch_display_character('-', 1);
+    if(is_negative) {
+		// Xi; see https://joeycastillo.github.io/Sensor-Watch-Documentation/segmap
+		watch_set_pixel(0,11);
+		watch_set_pixel(2,12);
+		watch_set_pixel(2,11); 
+	}
     else watch_display_character(' ', 1); 
-    if(om_is_negative < 0) watch_display_character('-', 2); 
+    if(om_is_negative) watch_set_pixel(1,9); 
     else watch_display_character(' ', 2); 
 
     // Print first 4 significant figures
@@ -301,12 +321,15 @@ bool morsecalc_face_loop(movement_event_t event, movement_settings_t *settings, 
         movement_move_to_next_face();
         break;
 
+	// show stack
     case EVENT_LIGHT_LONG_PRESS:
-        movement_illuminate_led();
+        movement_illuminate_led(); // Bug; see Sensor-Watch/issues/166
         morsecalc_print_stack(mcs);
+		mc_reset(mcs->mc);
         break;
     case EVENT_ALARM_LONG_PRESS:
         morsecalc_print_stack(mcs);
+		mc_reset(mcs->mc);
         break;
     
     // input
