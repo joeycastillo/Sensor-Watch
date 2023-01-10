@@ -88,7 +88,7 @@ bool tally_face_loop(movement_event_t event, movement_settings_t *settings, void
 // print tally index at the center of display.
 void print_tally(tally_state_t *state) {
     char buf[14];
-    sprintf(buf, "TA  %06d", state->tally_idx); // center of LCD display
+    sprintf(buf, "TA  %06d", (int)(state->tally_idx)); // center of LCD display
     watch_display_string(buf, 0);
 }
 
