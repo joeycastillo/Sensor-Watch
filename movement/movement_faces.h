@@ -61,6 +61,7 @@
 #include "ratemeter_face.h"
 #include "rpn_calculator_alt_face.h"
 #include "weeknumber_clock_face.h"
+#include "stock_stopwatch_face.h"
 // New includes go above this line.
 
 #endif // MOVEMENT_FACES_H_
