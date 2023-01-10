@@ -148,6 +148,14 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>watch_rtc_disable_tic
 void&#160;</td><td class="memItemRight" valign="bottom"><b>watch_rtc_disable_all_periodic_callbacks</b> (void)</td></tr>
 <tr class="memdesc:ga0150da34307ba61e44f1a00aa90a7f0f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Disables all periodic callbacks, including the once-per-second tick callback. <br /></td></tr>
 <tr class="separator:ga0150da34307ba61e44f1a00aa90a7f0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab379cf9c5231e18a5525a4138359d386"><td class="memItemLeft" align="right" valign="top"><a id="gab379cf9c5231e18a5525a4138359d386" name="gab379cf9c5231e18a5525a4138359d386"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>watch_rtc_enable</b> (bool en)</td></tr>
+<tr class="memdesc:gab379cf9c5231e18a5525a4138359d386"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enable/disable RTC while in-flight. This is quite dangerous operation, so we repeat writing register twice. Used when temporarily pausing RTC when adjusting subsecond, which are not accessible otherwise. <br /></td></tr>
+<tr class="separator:gab379cf9c5231e18a5525a4138359d386"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaf90cba54229b673627303ebd29c664db"><td class="memItemLeft" align="right" valign="top"><a id="gaf90cba54229b673627303ebd29c664db" name="gaf90cba54229b673627303ebd29c664db"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>watch_rtc_freqcorr_write</b> (int16_t value, int16_t sign)</td></tr>
+<tr class="memdesc:gaf90cba54229b673627303ebd29c664db"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adjusts frequency correction in single register write. Not waiting for syncronisation to save power - if you won't write new correction value in the same ~millisecond - will not cause issue. <br /></td></tr>
+<tr class="separator:gaf90cba54229b673627303ebd29c664db"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p >This section covers functions related to the SAM L22's real-time clock peripheral, including date, time and alarm functions. </p>
