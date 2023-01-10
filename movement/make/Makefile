@@ -83,6 +83,7 @@ SRCS += \
   ../watch_faces/settings/finetune_face.c \
   ../watch_faces/complication/databank_face.c \
   ../watch_faces/complication/tempchart_face.c \
+  ../watch_faces/complication/tally_face.c \
 # New watch faces go above this line.
 
 # Leave this line at the bottom of the file; it has all the targets for making your project.
