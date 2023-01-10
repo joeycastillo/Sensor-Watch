@@ -140,12 +140,8 @@ bool weeknumber_clock_face_loop(movement_event_t event, movement_settings_t *set
                 // if we are in the foreground, we can just beep.
                 movement_play_signal();
             } else {
-                // if we were in the background, we need to enable the buzzer peripheral first,
-                watch_enable_buzzer();
                 // beep quickly (this call blocks for 275 ms),
                 movement_play_signal();
-                // and then turn the buzzer peripheral off again.
-                watch_disable_buzzer();
             }
             break;
         default:

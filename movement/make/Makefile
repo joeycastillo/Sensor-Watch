@@ -61,6 +61,7 @@ SRCS += \
   ../watch_faces/complication/totp_face_lfs.c \
   ../watch_faces/complication/sunrise_sunset_face.c \
   ../watch_faces/complication/countdown_face.c \
+  ../watch_faces/complication/sailing_face.c \
   ../watch_faces/complication/counter_face.c \
   ../watch_faces/complication/blinky_face.c \
   ../watch_faces/complication/moon_phase_face.c \
@@ -74,6 +75,7 @@ SRCS += \
   ../watch_faces/demo/frequency_correction_face.c \
   ../watch_faces/complication/alarm_face.c \
   ../watch_faces/complication/ratemeter_face.c \
+  ../watch_faces/complication/rpn_calculator_alt_face.c \
   ../watch_faces/complication/stock_stopwatch_face.c \
 # New watch faces go above this line.
 

@@ -2,6 +2,7 @@
  * MIT License
  *
  * Copyright (c) 2022 Wesley Ellis
+ * Copyright (c) 2022 Niclas Hoyer
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,49 +25,44 @@
 
 //-----------------------------------------------------------------------------
 
-#ifndef COUNTDOWN_FACE_H_
-#define COUNTDOWN_FACE_H_
+#ifndef SAILING_FACE_H_
+#define SAILING_FACE_H_
 
 #include "movement.h"
 
 /*
-A countdown/timer face
-
-Max countdown is 23 hours, 59 minutes and 59 seconds.
-
-Note: we have to prevent the watch from going to deep sleep using
-movement_schedule_background_task() while the timer is running.
+A sailing sailing/timer face
 */
 
 
 typedef enum {
-    cd_waiting,
-    cd_running,
-    cd_setting
-} countdown_mode_t;
+    sl_waiting,
+    sl_running,
+    sl_setting
+} sailing_mode_t;
 
 typedef struct {
+    uint8_t watch_face_index;
     uint32_t target_ts;
     uint32_t now_ts;
-    uint8_t hours;
-    uint8_t minutes;
-    uint8_t seconds;
+    uint8_t index;
+    uint8_t minutes[6];
     uint8_t selection;
-    countdown_mode_t mode;
-} countdown_state_t;
+    sailing_mode_t mode;
+} sailing_state_t;
 
 
-void countdown_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
-void countdown_face_activate(movement_settings_t *settings, void *context);
-bool countdown_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
-void countdown_face_resign(movement_settings_t *settings, void *context);
+void sailing_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
+void sailing_face_activate(movement_settings_t *settings, void *context);
+bool sailing_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void sailing_face_resign(movement_settings_t *settings, void *context);
 
-#define countdown_face ((const watch_face_t){ \
-    countdown_face_setup, \
-    countdown_face_activate, \
-    countdown_face_loop, \
-    countdown_face_resign, \
+#define sailing_face ((const watch_face_t){ \
+    sailing_face_setup, \
+    sailing_face_activate, \
+    sailing_face_loop, \
+    sailing_face_resign, \
     NULL, \
 })
 
-#endif // COUNTDOWN_FACE_H_
+#endif // sailing_FACE_H_
