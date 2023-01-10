@@ -45,6 +45,7 @@
 #include "hello_there_face.h"
 #include "sunrise_sunset_face.h"
 #include "countdown_face.h"
+#include "sailing_face.h"
 #include "counter_face.h"
 #include "blinky_face.h"
 #include "moon_phase_face.h"
@@ -58,6 +59,7 @@
 #include "frequency_correction_face.h"
 #include "alarm_face.h"
 #include "ratemeter_face.h"
+#include "rpn_calculator_alt_face.h"
 #include "weeknumber_clock_face.h"
 #include "interval_face.h"
 // New includes go above this line.
