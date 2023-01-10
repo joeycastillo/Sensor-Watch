@@ -39,6 +39,8 @@ static uint32_t _distance_from_struct(distance_digits_t dist_digits) {
 }
 
 void tachymeter_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
+    (void)settings;
+    (void)watch_face_index;
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(tachymeter_state_t));
         memset(*context_ptr, 0, sizeof(tachymeter_state_t));
@@ -50,7 +52,8 @@ void tachymeter_face_setup(movement_settings_t *settings, uint8_t watch_face_ind
 }
 
 void tachymeter_face_activate(movement_settings_t *settings, void *context) {
-    tachymeter_state_t *state = (tachymeter_state_t *)context;
+    (void)settings;
+    (void)context;
     movement_request_tick_frequency(4); // 4Hz
 }
 
@@ -74,7 +77,7 @@ static void _tachymeter_face_distance_lcd(movement_event_t event, tachymeter_sta
 }
 
 static void _tachymeter_face_totals_lcd(tachymeter_state_t *state, bool show_time){
-    char buf[11];
+    char buf[15];
     if (!show_time){
         sprintf(buf, "TC %c%6lu", 'h',  state->total_speed);
     } else {
@@ -89,6 +92,7 @@ static void _tachymeter_face_totals_lcd(tachymeter_state_t *state, bool show_tim
 }
 
 bool tachymeter_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
+    (void)settings;
     tachymeter_state_t *state = (tachymeter_state_t *)context;
     switch (event.event_type) {
         case EVENT_ACTIVATE:
@@ -258,5 +262,7 @@ bool tachymeter_face_loop(movement_event_t event, movement_settings_t *settings,
 }
 
 void tachymeter_face_resign(movement_settings_t *settings, void *context) {
+    (void)settings;
+    (void)context;
     // handle any cleanup before your watch face goes off-screen.
 }
