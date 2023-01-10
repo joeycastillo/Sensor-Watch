@@ -75,6 +75,8 @@ SRCS += \
   ../watch_faces/demo/frequency_correction_face.c \
   ../watch_faces/complication/alarm_face.c \
   ../watch_faces/complication/ratemeter_face.c \
+  ../watch_faces/complication/rpn_calculator_alt_face.c \
+  ../watch_faces/complication/stock_stopwatch_face.c \
   ../watch_faces/complication/tachymeter_face.c \
 # New watch faces go above this line.
 
