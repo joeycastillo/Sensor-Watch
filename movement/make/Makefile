@@ -46,6 +46,7 @@ SRCS += \
   ../watch_faces/clock/weeknumber_clock_face.c \
   ../watch_faces/settings/preferences_face.c \
   ../watch_faces/settings/set_time_face.c \
+  ../watch_faces/settings/set_time_hackwatch_face.c \
   ../watch_faces/sensor/thermistor_readout_face.c \
   ../watch_faces/sensor/thermistor_logging_face.c \
   ../watch_faces/sensor/thermistor_testing_face.c \
@@ -78,6 +79,10 @@ SRCS += \
   ../watch_faces/complication/rpn_calculator_alt_face.c \
   ../watch_faces/complication/stock_stopwatch_face.c \
   ../watch_faces/complication/tachymeter_face.c \
+  ../watch_faces/settings/nanosec_face.c \
+  ../watch_faces/settings/finetune_face.c \
+  ../watch_faces/complication/databank_face.c \
+  ../watch_faces/complication/tempchart_face.c \
 # New watch faces go above this line.
 
 # Leave this line at the bottom of the file; it has all the targets for making your project.
