@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) <#year#> <#author_name#>
+ * Copyright (c) 2022 <#author_name#>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,35 +22,41 @@
  * SOFTWARE.
  */
 
-#ifndef <#WATCH_FACE_NAME#>_FACE_H_
-#define <#WATCH_FACE_NAME#>_FACE_H_
+#ifndef CALCULATOR_FACE_H_
+#define CALCULATOR_FACE_H_
 
 #include "movement.h"
 
-/*
- * A DESCRIPTION OF YOUR WATCH FACE
- *
- * and a description of how use it
- *
- */
+#define CALC_MAX_STACK_SIZE 20
+
+enum calculator_mode {
+    CALC_OPERATION = 0,
+    CALC_NUMBER,
+};
 
 typedef struct {
-    // Anything you need to keep track of, put it here!
-    uint8_t unused;
-} <#watch_face_name#>_state_t;
+    double stack[CALC_MAX_STACK_SIZE];
+    uint8_t stack_size;  // this is the current stack top + 1 (so that '0' means nothing on the stack)
+    uint8_t fn_index;
 
-void <#watch_face_name#>_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
-void <#watch_face_name#>_face_activate(movement_settings_t *settings, void *context);
-bool <#watch_face_name#>_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
-void <#watch_face_name#>_face_resign(movement_settings_t *settings, void *context);
+    double min;
+    double max;
 
-#define <#watch_face_name#>_face ((const watch_face_t){ \
-    <#watch_face_name#>_face_setup, \
-    <#watch_face_name#>_face_activate, \
-    <#watch_face_name#>_face_loop, \
-    <#watch_face_name#>_face_resign, \
+    enum calculator_mode mode;
+} calculator_state_t;
+
+void rpn_calculator_alt_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
+void rpn_calculator_alt_face_activate(movement_settings_t *settings, void *context);
+bool rpn_calculator_alt_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void rpn_calculator_alt_face_resign(movement_settings_t *settings, void *context);
+
+#define rpn_calculator_alt_face ((const watch_face_t){ \
+    rpn_calculator_alt_face_setup, \
+    rpn_calculator_alt_face_activate, \
+    rpn_calculator_alt_face_loop, \
+    rpn_calculator_alt_face_resign, \
     NULL, \
 })
 
-#endif // <#WATCH_FACE_NAME#>_FACE_H_
+#endif // CALCULATOR_FACE_H_
 

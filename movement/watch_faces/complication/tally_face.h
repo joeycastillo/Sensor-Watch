@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) <#year#> <#author_name#>
+ * Copyright (c) 2022 Andrew Mike
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,35 +22,33 @@
  * SOFTWARE.
  */
 
-#ifndef <#WATCH_FACE_NAME#>_FACE_H_
-#define <#WATCH_FACE_NAME#>_FACE_H_
+#ifndef TALLY_FACE_H_
+#define TALLY_FACE_H_
 
 #include "movement.h"
 
-/*
- * A DESCRIPTION OF YOUR WATCH FACE
- *
- * and a description of how use it
- *
- */
+// Tally face is designed to act as a tally counter.
+// Based on the counter_face watch face by Shogo Okamoto.
+// To advance the counter, press the Alarm button. To reset, long press the Alarm button.
 
 typedef struct {
-    // Anything you need to keep track of, put it here!
-    uint8_t unused;
-} <#watch_face_name#>_state_t;
+    uint32_t tally_idx;
+} tally_state_t;
 
-void <#watch_face_name#>_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
-void <#watch_face_name#>_face_activate(movement_settings_t *settings, void *context);
-bool <#watch_face_name#>_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
-void <#watch_face_name#>_face_resign(movement_settings_t *settings, void *context);
 
-#define <#watch_face_name#>_face ((const watch_face_t){ \
-    <#watch_face_name#>_face_setup, \
-    <#watch_face_name#>_face_activate, \
-    <#watch_face_name#>_face_loop, \
-    <#watch_face_name#>_face_resign, \
+void tally_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
+void tally_face_activate(movement_settings_t *settings, void *context);
+bool tally_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void tally_face_resign(movement_settings_t *settings, void *context);
+
+void print_tally(tally_state_t *state);
+
+#define tally_face ((const watch_face_t){ \
+    tally_face_setup, \
+    tally_face_activate, \
+    tally_face_loop, \
+    tally_face_resign, \
     NULL, \
 })
 
-#endif // <#WATCH_FACE_NAME#>_FACE_H_
-
+#endif // TALLY_FACE_H_

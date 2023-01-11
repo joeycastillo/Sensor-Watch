@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) <#year#> <#author_name#>
+ * Copyright (c) 2022 Mikhail Svarichevsky https://3.14.by/
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,35 +22,28 @@
  * SOFTWARE.
  */
 
-#ifndef <#WATCH_FACE_NAME#>_FACE_H_
-#define <#WATCH_FACE_NAME#>_FACE_H_
+#ifndef FINETUNE_FACE_H_
+#define FINETUNE_FACE_H_
 
 #include "movement.h"
-
-/*
- * A DESCRIPTION OF YOUR WATCH FACE
- *
- * and a description of how use it
- *
- */
 
 typedef struct {
     // Anything you need to keep track of, put it here!
     uint8_t unused;
-} <#watch_face_name#>_state_t;
+} finetune_state_t;
 
-void <#watch_face_name#>_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
-void <#watch_face_name#>_face_activate(movement_settings_t *settings, void *context);
-bool <#watch_face_name#>_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
-void <#watch_face_name#>_face_resign(movement_settings_t *settings, void *context);
+void finetune_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
+void finetune_face_activate(movement_settings_t *settings, void *context);
+bool finetune_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void finetune_face_resign(movement_settings_t *settings, void *context);
 
-#define <#watch_face_name#>_face ((const watch_face_t){ \
-    <#watch_face_name#>_face_setup, \
-    <#watch_face_name#>_face_activate, \
-    <#watch_face_name#>_face_loop, \
-    <#watch_face_name#>_face_resign, \
+#define finetune_face ((const watch_face_t){ \
+    finetune_face_setup, \
+    finetune_face_activate, \
+    finetune_face_loop, \
+    finetune_face_resign, \
     NULL, \
 })
 
-#endif // <#WATCH_FACE_NAME#>_FACE_H_
+#endif // FINETUNE_FACE_H_
 

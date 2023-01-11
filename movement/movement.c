@@ -457,9 +457,7 @@ bool app_loop(void) {
         // (which would effectively disable the normal 'long press to face 0' behaviour).
         if (event.event_type == EVENT_MODE_LONG_PRESS 
             && !movement_state.watch_face_changed) {
-            if (movement_state.current_watch_face != 0) {
-                movement_move_to_face(0);
-            } else if (MOVEMENT_SECONDARY_FACE_INDEX) {
+            if (MOVEMENT_SECONDARY_FACE_INDEX && movement_state.current_watch_face == 0) {
                 movement_move_to_face(MOVEMENT_SECONDARY_FACE_INDEX);
             }
         }

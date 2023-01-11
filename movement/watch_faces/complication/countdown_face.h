@@ -32,8 +32,10 @@
 /*
 A countdown/timer face
 
-Max countdown is 99 minutes and 59 seconds since we have to prevent the watch
-from going to deep sleep using movement_schedule_background_task
+Max countdown is 23 hours, 59 minutes and 59 seconds.
+
+Note: we have to prevent the watch from going to deep sleep using
+movement_schedule_background_task() while the timer is running.
 */
 
 
@@ -46,6 +48,7 @@ typedef enum {
 typedef struct {
     uint32_t target_ts;
     uint32_t now_ts;
+    uint8_t hours;
     uint8_t minutes;
     uint8_t seconds;
     uint8_t selection;
