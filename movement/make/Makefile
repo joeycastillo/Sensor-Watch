@@ -46,6 +46,7 @@ SRCS += \
   ../watch_faces/clock/weeknumber_clock_face.c \
   ../watch_faces/settings/preferences_face.c \
   ../watch_faces/settings/set_time_face.c \
+  ../watch_faces/settings/set_time_hackwatch_face.c \
   ../watch_faces/sensor/thermistor_readout_face.c \
   ../watch_faces/sensor/thermistor_logging_face.c \
   ../watch_faces/sensor/thermistor_testing_face.c \
@@ -61,6 +62,7 @@ SRCS += \
   ../watch_faces/complication/totp_face_lfs.c \
   ../watch_faces/complication/sunrise_sunset_face.c \
   ../watch_faces/complication/countdown_face.c \
+  ../watch_faces/complication/sailing_face.c \
   ../watch_faces/complication/counter_face.c \
   ../watch_faces/complication/blinky_face.c \
   ../watch_faces/complication/moon_phase_face.c \
@@ -74,6 +76,16 @@ SRCS += \
   ../watch_faces/demo/frequency_correction_face.c \
   ../watch_faces/complication/alarm_face.c \
   ../watch_faces/complication/ratemeter_face.c \
+  ../watch_faces/complication/interval_face.c \
+  ../watch_faces/complication/rpn_calculator_alt_face.c \
+  ../watch_faces/complication/stock_stopwatch_face.c \
+  ../watch_faces/complication/tachymeter_face.c \
+  ../watch_faces/settings/nanosec_face.c \
+  ../watch_faces/settings/finetune_face.c \
+  ../watch_faces/complication/databank_face.c \
+  ../watch_faces/complication/tempchart_face.c \
+  ../watch_faces/complication/tally_face.c \
+  ../watch_faces/complication/tarot_face.c \
   ../watch_faces/complication/rpn_calculator_face.c \
 # New watch faces go above this line.
 

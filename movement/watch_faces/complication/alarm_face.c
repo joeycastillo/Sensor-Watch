@@ -417,15 +417,7 @@ bool alarm_face_loop(movement_event_t event, movement_settings_t *settings, void
     case EVENT_BACKGROUND_TASK:
         // play alarm
         if (state->alarm[state->alarm_playing_idx].beeps == 0) {
-            // short beep
-            if (watch_is_buzzer_or_led_enabled()) {
-                _alarm_play_short_beep(state->alarm[state->alarm_playing_idx].pitch);
-            } else {
-                // enable, play beep and disable buzzer again
-                watch_enable_buzzer();
-                _alarm_play_short_beep(state->alarm[state->alarm_playing_idx].pitch);
-                watch_disable_buzzer();
-            }
+            _alarm_play_short_beep(state->alarm[state->alarm_playing_idx].pitch);
         } else {
             // regular alarm beeps
             movement_play_alarm_beeps((state->alarm[state->alarm_playing_idx].beeps == (ALARM_MAX_BEEP_ROUNDS - 1) ? 20 : state->alarm[state->alarm_playing_idx].beeps), 

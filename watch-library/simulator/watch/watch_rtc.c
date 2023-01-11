@@ -197,3 +197,13 @@ void watch_rtc_disable_alarm_callback(void) {
         alarm_interval_id = -1;
     }
 }
+
+void watch_rtc_enable(bool en)
+{
+    //Not simulated
+}
+
+void watch_rtc_freqcorr_write(int16_t value, int16_t sign)
+{
+    //Not simulated
+}

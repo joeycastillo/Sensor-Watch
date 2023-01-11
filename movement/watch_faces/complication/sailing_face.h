@@ -1,7 +1,8 @@
 /*
  * MIT License
  *
- * Copyright (c) <#year#> <#author_name#>
+ * Copyright (c) 2022 Wesley Ellis
+ * Copyright (c) 2022 Niclas Hoyer
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,35 +23,46 @@
  * SOFTWARE.
  */
 
-#ifndef <#WATCH_FACE_NAME#>_FACE_H_
-#define <#WATCH_FACE_NAME#>_FACE_H_
+//-----------------------------------------------------------------------------
+
+#ifndef SAILING_FACE_H_
+#define SAILING_FACE_H_
 
 #include "movement.h"
 
 /*
- * A DESCRIPTION OF YOUR WATCH FACE
- *
- * and a description of how use it
- *
- */
+A sailing sailing/timer face
+*/
+
+
+typedef enum {
+    sl_waiting,
+    sl_running,
+    sl_setting
+} sailing_mode_t;
 
 typedef struct {
-    // Anything you need to keep track of, put it here!
-    uint8_t unused;
-} <#watch_face_name#>_state_t;
+    uint8_t watch_face_index;
+    uint32_t target_ts;
+    uint32_t now_ts;
+    uint8_t index;
+    uint8_t minutes[6];
+    uint8_t selection;
+    sailing_mode_t mode;
+} sailing_state_t;
 
-void <#watch_face_name#>_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
-void <#watch_face_name#>_face_activate(movement_settings_t *settings, void *context);
-bool <#watch_face_name#>_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
-void <#watch_face_name#>_face_resign(movement_settings_t *settings, void *context);
 
-#define <#watch_face_name#>_face ((const watch_face_t){ \
-    <#watch_face_name#>_face_setup, \
-    <#watch_face_name#>_face_activate, \
-    <#watch_face_name#>_face_loop, \
-    <#watch_face_name#>_face_resign, \
+void sailing_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
+void sailing_face_activate(movement_settings_t *settings, void *context);
+bool sailing_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void sailing_face_resign(movement_settings_t *settings, void *context);
+
+#define sailing_face ((const watch_face_t){ \
+    sailing_face_setup, \
+    sailing_face_activate, \
+    sailing_face_loop, \
+    sailing_face_resign, \
     NULL, \
 })
 
-#endif // <#WATCH_FACE_NAME#>_FACE_H_
-
+#endif // sailing_FACE_H_
