@@ -228,6 +228,16 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>watch_set_buzzer_off<
 <tr class="memitem:ga1b6ece8107c1f2bedf80d5584d204b80"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__buzzer.html#ga1b6ece8107c1f2bedf80d5584d204b80">watch_buzzer_play_note</a> (<a class="el" href="group__buzzer.html#ga1bb9e9b72fb691b87708ed14f79491d6">BuzzerNote</a> note, uint16_t duration_ms)</td></tr>
 <tr class="memdesc:ga1b6ece8107c1f2bedf80d5584d204b80"><td class="mdescLeft">&#160;</td><td class="mdescRight">Plays the given note for a set duration.  <a href="group__buzzer.html#ga1b6ece8107c1f2bedf80d5584d204b80">More...</a><br /></td></tr>
 <tr class="separator:ga1b6ece8107c1f2bedf80d5584d204b80"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga73713e47359708ef8eae50e8a505bf4b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__buzzer.html#ga73713e47359708ef8eae50e8a505bf4b">watch_buzzer_play_sequence</a> (int8_t *note_sequence, void(*callback_on_end)(void))</td></tr>
+<tr class="memdesc:ga73713e47359708ef8eae50e8a505bf4b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Plays the given sequence of notes in a non-blocking way.  <a href="group__buzzer.html#ga73713e47359708ef8eae50e8a505bf4b">More...</a><br /></td></tr>
+<tr class="separator:ga73713e47359708ef8eae50e8a505bf4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga73e7868fa41359376c9c4f9fd33aed7a"><td class="memItemLeft" align="right" valign="top"><a id="ga73e7868fa41359376c9c4f9fd33aed7a" name="ga73e7868fa41359376c9c4f9fd33aed7a"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>watch_buzzer_abort_sequence</b> (void)</td></tr>
+<tr class="memdesc:ga73e7868fa41359376c9c4f9fd33aed7a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Aborts a playing sequence. <br /></td></tr>
+<tr class="separator:ga73e7868fa41359376c9c4f9fd33aed7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gae69893861c9ce728a475a17e26296582"><td class="memItemLeft" align="right" valign="top"><a id="gae69893861c9ce728a475a17e26296582" name="gae69893861c9ce728a475a17e26296582"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>TC3_Handler</b> (void)</td></tr>
+<tr class="separator:gae69893861c9ce728a475a17e26296582"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
@@ -469,6 +479,44 @@ const uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>NotePeriods
   </dd>
 </dl>
 <dl class="section note"><dt>Note</dt><dd>Note that this will block your UI for the duration of the note's play time, and it will after this call, the buzzer period will be set to the period of this note. </dd></dl>
+
+</div>
+</div>
+<a id="ga73713e47359708ef8eae50e8a505bf4b" name="ga73713e47359708ef8eae50e8a505bf4b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga73713e47359708ef8eae50e8a505bf4b">&#9670;&#160;</a></span>watch_buzzer_play_sequence()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void watch_buzzer_play_sequence </td>
+          <td>(</td>
+          <td class="paramtype">int8_t *&#160;</td>
+          <td class="paramname"><em>note_sequence</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void(*)(void)&#160;</td>
+          <td class="paramname"><em>callback_on_end</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Plays the given sequence of notes in a non-blocking way. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">note_sequence</td><td>A pointer to the sequence of buzzer note &amp; duration tuples, ending with a zero. A simple RLE logic is implemented: a negative number instead of a buzzer note means that the sequence is rewound by the given number of notes. The byte following a negative number determines the number of loops. I.e. if you want to repeat the last three notes of the sequence one time, you should provide the tuple -3, 1. The repeated notes must not contain any other repeat markers, or you will end up with an eternal loop. </td></tr>
+    <tr><td class="paramname">callback_on_end</td><td>A pointer to a callback function to be invoked when the sequence has finished playing. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section note"><dt>Note</dt><dd>This function plays the sequence asynchronously, so the UI will not be blocked. Hint: It is not possible to play the lowest note BUZZER_NOTE_A1 (55.00 Hz). The note is represented by a zero byte, which is used here as the end-of-sequence marker. But hey, a frequency that low cannot be played properly by the watch's buzzer, anyway. </dd></dl>
 
 </div>
 </div>
