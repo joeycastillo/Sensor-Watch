@@ -62,7 +62,7 @@ static char *major_arcana[NUM_TAROT_CARDS] = {
     "n&OON ", // Moon
     "  Sun ",
     "Jdgmnt",
-    " World",
+    "W orld",
 };
 
 static void tarot_display(tarot_state_t *state) {
@@ -73,6 +73,12 @@ static void tarot_display(tarot_state_t *state) {
         watch_display_string(buf, 3);
         sprintf(buf, "%s", major_arcana[state->drawn_cards[state->current_card]]);
         watch_display_string(buf, 4);
+        if (state->drawn_cards[state->current_card] == NUM_TAROT_CARDS - 1) {
+            // special tweak for "World"
+            watch_set_pixel(1, 20);
+            watch_set_pixel(2, 21);
+            watch_set_pixel(1, 17);
+        }
     }
 }
 
