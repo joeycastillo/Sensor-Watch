@@ -43,23 +43,23 @@
 static char *major_arcana[NUM_TAROT_CARDS] = {
     " FOOL ",
     "Mgcian",
-    "HiPrst",
-    "Empres",
-    "Empror",
+    "HPrsts",
+    "En&prs", // Empress
+    "En&por", // Emperor
     "Hiroph",
     "Lovers",
     "Chriot",
     "Strgth",
-    "Hermit",
+    "Hrn&it", // Hermit
     " Frtun",
     "Justce",
-    "HngMan",
+    "Hangn&", // Hangman
     " Death",
     " tmprn",
     " Devil",
     " Tower",
     "  Star",
-    " MOON ",
+    "n&OON ", // Moon
     "  Sun ",
     "Jdgmnt",
     " World",
@@ -165,7 +165,9 @@ bool tarot_face_loop(movement_event_t event, movement_settings_t *settings, void
 
     switch (event.event_type) {
         case EVENT_ACTIVATE:
-            watch_display_string(" DRAW ", 4);
+            watch_display_string(" draWW", 4);
+            watch_clear_pixel(2, 3);
+            watch_clear_pixel(1, 4);
             break;
         case EVENT_TICK:
             display_animation(state);
