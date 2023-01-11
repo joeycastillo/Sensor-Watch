@@ -57,6 +57,7 @@ void _watch_rtc_init(void) {
 }
 
 void watch_rtc_set_date_time(watch_date_time date_time) {
+    _sync_rtc(); // Double sync as without it at high Hz faces setting time is unrealiable (specifically, set_time_hackwatch)
     RTC->MODE2.CLOCK.reg = date_time.reg;
     _sync_rtc();
 }
@@ -137,7 +138,7 @@ void RTC_Handler(void) {
                     tick_callbacks[i]();
                 }
                 RTC->MODE2.INTFLAG.reg = 1 << i;
-                break;
+//                break; Uncertain if this fix is requried. We were discussing in discord. Might slightly increase power consumption. 
             }
         }
     } else if ((interrupt_status & interrupt_enabled) & RTC_MODE2_INTFLAG_TAMPER) {
@@ -160,3 +161,27 @@ void RTC_Handler(void) {
         RTC->MODE2.INTFLAG.reg = RTC_MODE2_INTFLAG_ALARM0;
     }
 }
+
+void watch_rtc_enable(bool en)
+{
+    // Writing it twice - as it's quite dangerous operation.
+    // If write fails - we might hang with RTC off, which means no recovery possible
+    while (RTC->MODE2.SYNCBUSY.reg);
+    RTC->MODE2.CTRLA.bit.ENABLE = en ? 1 : 0;
+    while (RTC->MODE2.SYNCBUSY.reg);
+    RTC->MODE2.CTRLA.bit.ENABLE = en ? 1 : 0;
+    while (RTC->MODE2.SYNCBUSY.reg);
+}
+
+void watch_rtc_freqcorr_write(int16_t value, int16_t sign)
+{
+    RTC_FREQCORR_Type data;
+
+    data.bit.VALUE = value;
+    data.bit.SIGN = sign;
+
+    RTC->MODE2.FREQCORR.reg = data.reg; // Setting correction in single write operation
+
+    // We do not sycnronize. We are not in a hurry
+}
+

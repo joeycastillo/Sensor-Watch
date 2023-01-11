@@ -29,6 +29,7 @@
 #include "world_clock_face.h"
 #include "preferences_face.h"
 #include "set_time_face.h"
+#include "set_time_hackwatch_face.h"
 #include "pulsometer_face.h"
 #include "thermistor_readout_face.h"
 #include "thermistor_logging_face.h"
@@ -59,7 +60,15 @@
 #include "frequency_correction_face.h"
 #include "alarm_face.h"
 #include "ratemeter_face.h"
+#include "rpn_calculator_alt_face.h"
 #include "weeknumber_clock_face.h"
+#include "stock_stopwatch_face.h"
+#include "tachymeter_face.h"
+#include "nanosec_face.h"
+#include "finetune_face.h"
+#include "databank_face.h"
+#include "tempchart_face.h"
+#include "tally_face.h"
 // New includes go above this line.
 
 #endif // MOVEMENT_FACES_H_

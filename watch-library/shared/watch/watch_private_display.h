@@ -142,5 +142,7 @@ static const uint64_t Segment_Map[] = {
 static const uint8_t Num_Chars = 10;
 
 void watch_display_character(uint8_t character, uint8_t position);
+void watch_display_character_lp_seconds(uint8_t character, uint8_t position);
+
 
 #endif
