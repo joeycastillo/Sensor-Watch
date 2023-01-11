@@ -219,7 +219,6 @@ bool tarot_face_loop(movement_event_t event, movement_settings_t *settings, void
             movement_move_to_next_face();
             break;
         case EVENT_LIGHT_BUTTON_UP:
-            // cycle through the drawn cards
             if (state->drawn_cards[0] == 0xff) {
                 // deck is inited; cycle through # cards to draw
                 state->num_cards_to_draw++;
@@ -227,6 +226,7 @@ bool tarot_face_loop(movement_event_t event, movement_settings_t *settings, void
                     state->num_cards_to_draw = 3;
                 }
             } else {
+                // cycle through the drawn cards
                 state->current_card = (state->current_card + 1) % state->num_cards_to_draw;
             }
             tarot_display(state);
