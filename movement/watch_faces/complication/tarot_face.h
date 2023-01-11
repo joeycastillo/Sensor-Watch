@@ -27,6 +27,21 @@
 
 #include "movement.h"
 
+/*
+ * Tarot card watch face
+ *
+ * Draw from a deck of the 22 major arcana tarot cards
+ *
+ * When "Draw" is shown:
+ * - Light button: cycle # of cards to draw
+ * - Alarm button: shuffle deck and draw cards
+ *
+ * After cards are drawn/showing:
+ * - Light button: view the next drawn card
+ * - Alarm button: shuffle and re-draw new cards
+ * - Light button (long press): go back to Draw screen. For choosing different # of cards to draw.
+ */
+
 #define MAX_CARDS_TO_DRAW 10
 
 typedef struct {
