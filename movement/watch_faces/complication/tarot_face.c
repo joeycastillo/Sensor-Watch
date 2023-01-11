@@ -63,7 +63,7 @@ static char *major_arcana[] = {
     "n&OON ", // Moon
     "  Sun ",
     "Jdgmnt",
-    "W orld",
+    " World",
 };
 #define NUM_TAROT_CARDS (sizeof(major_arcana) / sizeof(*major_arcana))
 
@@ -97,12 +97,6 @@ static void tarot_display(tarot_state_t *state) {
     card &= ~FLIPPED_MASK; // remove the flipped bit
     sprintf(buf, "%s", major_arcana[card]);
     watch_display_string(buf, 4);
-    if (state->drawn_cards[state->current_card] == WORLD_CARD_INDEX) {
-        // special tweak for "World"
-        watch_set_pixel(1, 20);
-        watch_set_pixel(2, 21);
-        watch_set_pixel(1, 17);
-    }
     if (flipped) {
         watch_set_indicator(WATCH_INDICATOR_SIGNAL);
     } else {
