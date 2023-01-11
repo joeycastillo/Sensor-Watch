@@ -27,10 +27,13 @@
 
 #include "movement.h"
 
+#define MAX_CARDS_TO_DRAW 10
+
 typedef struct {
-    uint8_t drawn_cards[3];
+    uint8_t drawn_cards[MAX_CARDS_TO_DRAW];
     uint8_t current_card;
     uint8_t animation_frame;
+    uint8_t num_cards_to_draw;
     bool is_picking;
 } tarot_state_t;
 

@@ -32,15 +32,16 @@
 #include <string.h>
 #include "tarot_face.h"
 
-#define NUM_TAROT_CARDS 22
 #define TAROT_ANIMATION_TICK_FREQUENCY 8
+#define FLIPPED_BIT_POS 7
+#define FLIPPED_MASK ((uint8_t)(1 << FLIPPED_BIT_POS))
 
 
 // --------------
 // Custom methods
 // --------------
 
-static char *major_arcana[NUM_TAROT_CARDS] = {
+static char *major_arcana[] = {
     " FOOL ",
     "Mgcian",
     "HPrsts",
@@ -64,47 +65,85 @@ static char *major_arcana[NUM_TAROT_CARDS] = {
     "Jdgmnt",
     "W orld",
 };
+#define NUM_TAROT_CARDS (sizeof(major_arcana) / sizeof(*major_arcana))
+
+#define WORLD_CARD_INDEX (NUM_TAROT_CARDS - 1)
+
+static void init_deck(tarot_state_t *state) {
+    memset(state->drawn_cards, 0xff, sizeof(state->drawn_cards));
+    state->current_card = 0;
+}
 
 static void tarot_display(tarot_state_t *state) {
-    char buf[8];
+    char buf[9];
+    uint8_t card;
+    bool flipped;
 
-    if (state->drawn_cards[0] != 0xff) {
-        sprintf(buf, "%d", state->current_card + 1);
-        watch_display_string(buf, 3);
-        sprintf(buf, "%s", major_arcana[state->drawn_cards[state->current_card]]);
-        watch_display_string(buf, 4);
-        if (state->drawn_cards[state->current_card] == NUM_TAROT_CARDS - 1) {
-            // special tweak for "World"
-            watch_set_pixel(1, 20);
-            watch_set_pixel(2, 21);
-            watch_set_pixel(1, 17);
-        }
+    if (state->drawn_cards[0] == 0xff) {
+        /* deck is initialized; show current draw mode */
+        watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
+        sprintf(buf, "%2d draWW", state->num_cards_to_draw);
+        watch_display_string(buf, 2);
+        watch_clear_pixel(2, 3);
+        watch_clear_pixel(1, 4);
+        return;
+    }
+
+    sprintf(buf, "%2d", state->current_card + 1);
+    watch_display_string(buf, 2);
+
+    card = state->drawn_cards[state->current_card];
+    flipped = (card & FLIPPED_MASK) ? true : false; // check flipped bit
+    card &= ~FLIPPED_MASK; // remove the flipped bit
+    sprintf(buf, "%s", major_arcana[card]);
+    watch_display_string(buf, 4);
+    if (state->drawn_cards[state->current_card] == WORLD_CARD_INDEX) {
+        // special tweak for "World"
+        watch_set_pixel(1, 20);
+        watch_set_pixel(2, 21);
+        watch_set_pixel(1, 17);
+    }
+    if (flipped) {
+        watch_set_indicator(WATCH_INDICATOR_SIGNAL);
+    } else {
+        watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
     }
 }
 
-static uint8_t draw_one_card(void) {
+static uint8_t get_rand_num(uint8_t num_values) {
     // Emulator: use rand. Hardware: use arc4random.
 #if __EMSCRIPTEN__
-    return rand() % NUM_TAROT_CARDS;
+    return rand() % num_values;
 #else
-    return arc4random_uniform(NUM_TAROT_CARDS);
+    return arc4random_uniform(num_values);
 #endif
 }
 
+static uint8_t draw_one_card(void) {
+    return get_rand_num(NUM_TAROT_CARDS);
+}
+
+static bool already_drawn(tarot_state_t *state, uint8_t drawn_card) {
+    for (int i = 0; state->drawn_cards[i] != 0xff && i < state->num_cards_to_draw; i++) {
+        if ((state->drawn_cards[i] & ~FLIPPED_MASK) == drawn_card) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 static void pick_cards(tarot_state_t *state) {
-    // this is all a bit verbose but I prefer simplicity over clever tricks
-    state->drawn_cards[0] = draw_one_card();
+    uint8_t card;
 
-    state->drawn_cards[1] = draw_one_card();
-    while (state->drawn_cards[1] == state->drawn_cards[0])
-        state->drawn_cards[1] = draw_one_card();
-
-    state->drawn_cards[2] = draw_one_card();
-    while (state->drawn_cards[2] == state->drawn_cards[1] ||
-            state->drawn_cards[2] == state->drawn_cards[0])
-        state->drawn_cards[2] = draw_one_card();
-
-    state->current_card = 0;
+    for (int i = 0; i < state->num_cards_to_draw; i++) {
+        card = draw_one_card();
+        while (already_drawn(state, card)) {
+            card = draw_one_card();
+        }
+        card |= get_rand_num(2) << FLIPPED_BIT_POS; // randomly flip the card
+        state->drawn_cards[i] = card;
+    }
 }
 
 static void display_animation(tarot_state_t *state) {
@@ -157,8 +196,8 @@ void tarot_face_activate(movement_settings_t *settings, void *context) {
     tarot_state_t *state = (tarot_state_t *)context;
 
     watch_display_string("TA", 0);
-    state->current_card = 0;
-    state->drawn_cards[0] = 0xff;
+    init_deck(state);
+    state->num_cards_to_draw = 3;
 }
 
 bool tarot_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
@@ -171,9 +210,7 @@ bool tarot_face_loop(movement_event_t event, movement_settings_t *settings, void
 
     switch (event.event_type) {
         case EVENT_ACTIVATE:
-            watch_display_string(" draWW", 4);
-            watch_clear_pixel(2, 3);
-            watch_clear_pixel(1, 4);
+            tarot_display(state);
             break;
         case EVENT_TICK:
             display_animation(state);
@@ -182,15 +219,27 @@ bool tarot_face_loop(movement_event_t event, movement_settings_t *settings, void
             movement_move_to_next_face();
             break;
         case EVENT_LIGHT_BUTTON_UP:
-            // Change how many sides the die has
-            if (state->drawn_cards[0] != 0xff) {
-                state->current_card = (state->current_card + 1) % 3;
-                tarot_display(state);
+            // cycle through the drawn cards
+            if (state->drawn_cards[0] == 0xff) {
+                // deck is inited; cycle through # cards to draw
+                state->num_cards_to_draw++;
+                if (state->num_cards_to_draw > 10) {
+                    state->num_cards_to_draw = 3;
+                }
+            } else {
+                state->current_card = (state->current_card + 1) % state->num_cards_to_draw;
             }
+            tarot_display(state);
+            break;
+        case EVENT_LIGHT_LONG_PRESS:
+            init_deck(state);
+            tarot_display(state);
             break;
         case EVENT_ALARM_BUTTON_UP:
             // Draw cards
             watch_display_string("      ", 4);
+            watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
+            init_deck(state);
             pick_cards(state);
             state->is_picking = true;
             // card picking animation begins on next tick and new cards will be displayed on completion
