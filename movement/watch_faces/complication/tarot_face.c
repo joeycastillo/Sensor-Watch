@@ -75,7 +75,7 @@ static void init_deck(tarot_state_t *state) {
 }
 
 static void tarot_display(tarot_state_t *state) {
-    char buf[9];
+    char buf[10];
     uint8_t card;
     bool flipped;
 
