@@ -30,7 +30,12 @@
 /*
  * Tarot card watch face
  *
- * Draw from a deck of the 22 major arcana tarot cards
+ * Draw from a deck of the 22 major arcana tarot cards.
+ *
+ * In tarot reading, a card orientation can be upright or inverted, and the
+ * interpertation of the card can change depending on this state. This face
+ * lights the alarm indicator to show when a card is inverted. Just ignore it
+ * if you prefer not to deal with card inversions.
  *
  * When "Draw" is shown:
  * - Light button: cycle # of cards to draw
@@ -39,7 +44,8 @@
  * After cards are drawn/showing:
  * - Light button: view the next drawn card
  * - Alarm button: shuffle and re-draw new cards
- * - Light button (long press): go back to Draw screen. For choosing different # of cards to draw.
+ * - Light button (long press): go back to Draw screen,
+ *   for choosing different # of cards to draw.
  */
 
 #define MAX_CARDS_TO_DRAW 10
