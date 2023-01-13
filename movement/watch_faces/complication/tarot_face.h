@@ -48,6 +48,9 @@
  * after drawing, "St" is shown for the 1st card in the spread and "En" is
  * shown for the last card.
  *
+ * At any point, the mode button can be held to return to your first configured
+ * watch face.
+ *
  * When "Major" or "All" is shown:
  * - Light button: cycle # of cards to draw
  * - Light button (long press): toggle between major arcana and all cards

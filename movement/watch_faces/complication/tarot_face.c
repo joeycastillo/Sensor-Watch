@@ -287,6 +287,10 @@ bool tarot_face_loop(movement_event_t event, movement_settings_t *settings, void
         case EVENT_LOW_ENERGY_UPDATE:
             watch_display_string("SLEEP ", 4);
             break;
+        case EVENT_MODE_LONG_PRESS:
+            // since we ignore timeouts, provide a convenient way to jump back to the start
+            movement_move_to_face(0);
+            break;
         default:
             break;
     }
