@@ -86,6 +86,7 @@ static void init_deck(tarot_state_t *state) {
 
 static void tarot_display(tarot_state_t *state) {
     char buf[12];
+    char *start_end_string;
     uint8_t card;
     bool flipped;
 
@@ -103,39 +104,32 @@ static void tarot_display(tarot_state_t *state) {
 
     // show a special status if we're looking at the first or last card in the spread
     if (state->current_card == 0) {
-        sprintf(buf, "St");
+        start_end_string = "St";
     } else if (state->current_card == state->num_cards_to_draw - 1) {
-        sprintf(buf, "En");
+        start_end_string = "En";
     } else {
-        sprintf(buf, "  ");
+        start_end_string = "  ";
     }
-    watch_display_string(buf, 0);
 
-    // now display the actual card
+    // figure out the card we're showing
     card = state->drawn_cards[state->current_card];
     flipped = (card & FLIPPED_MASK) ? true : false; // check flipped bit
     card &= ~FLIPPED_MASK; // remove the flipped bit
     if (card < NUM_MAJOR_ARCANA) {
         // major arcana
-        // make sure we're not showing a rank
-        watch_display_string("  ", 2);
 
-        // card name
-        sprintf(buf, "%s", major_arcana[card]);
-        watch_display_string(buf, 4);
+        // show start/end, no rank, card name
+        sprintf(buf, "%s  %s", start_end_string, major_arcana[card]);
     } else {
         // minor arcana
         uint8_t suit = (card - NUM_MAJOR_ARCANA) / NUM_CARDS_PER_SUIT;
-        uint8_t num = ((card - NUM_MAJOR_ARCANA) % NUM_CARDS_PER_SUIT) + 1;
+        uint8_t rank = ((card - NUM_MAJOR_ARCANA) % NUM_CARDS_PER_SUIT) + 1;
 
-        // show rank
-        sprintf(buf, "%2d", num);
-        watch_display_string(buf, 2);
-
-        // suit
-        sprintf(buf, "%s", suits[suit]);
-        watch_display_string(buf, 4);
+        // show start/end, rank + suit
+        sprintf(buf, "%s%2d%s", start_end_string, rank, suits[suit]);
     }
+
+    watch_display_string(buf, 0);
 
     if (flipped) {
         watch_set_indicator(WATCH_INDICATOR_SIGNAL);
