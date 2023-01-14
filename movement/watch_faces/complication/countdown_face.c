@@ -34,20 +34,14 @@
 /*
     Slight extension of the original countdown face by Wesley Ellis.
 
-    - The countdown can be paused using the alarm button, similar to
-      the stopwatch face.
+    - Press the light button to enter setting mode and adjust the
+      countdown timer.
 
-    - The state of the countdown is indicated in the top right: 
-      "P" = pause, "S" = setting, " " = running
+    - Start and pause the countdown using the alarm button, similar to the
+      stopwatch face.
 
-    - The last entered countdown can be restored by long pressing the
-      light button in setting or waiting (pause) mode.
-
-    - The countdown can be reset to zero by long pressing the
-      alarm button in setting or waiting (pause) mode.
-
-    - Once the countdown reaches 0, it automatically switches back
-      to the last entered value and pauses.
+    - When paused or terminated, press the light button to restore the
+      last entered countdown.
 */
 
 #define CD_SELECTIONS 3
@@ -70,12 +64,6 @@ static inline void load_countdown(countdown_state_t *state) {
     state->hours = state->set_hours;
     state->minutes = state->set_minutes;
     state->seconds = state->set_seconds;
-}
-
-static inline void reset_countdown(countdown_state_t *state) {
-    state->hours = 0;
-    state->minutes = 0;
-    state->seconds = 0;
 }
 
 static void start(countdown_state_t *state, movement_settings_t *settings) {
@@ -105,11 +93,12 @@ static void draw(countdown_state_t *state, uint8_t subsecond) {
             state->minutes = result.rem;
             sprintf(buf, "CD  %2d%02d%02d", state->hours, state->minutes, state->seconds);
             break;
-        case cd_waiting:
-            sprintf(buf, "CD P%2d%02d%02d", state->hours, state->minutes, state->seconds);
+        case cd_reset:
+        case cd_paused:
+            sprintf(buf, "CD  %2d%02d%02d", state->hours, state->minutes, state->seconds);
             break;
         case cd_setting:
-            sprintf(buf, "CD S%2d%02d%02d", state->hours, state->minutes, state->seconds);
+            sprintf(buf, "CD  %2d%02d%02d", state->hours, state->minutes, state->seconds);
             if (subsecond % 2) {
                 switch(state->selection) {
                     case 0:
@@ -131,15 +120,23 @@ static void draw(countdown_state_t *state, uint8_t subsecond) {
 }
 
 static void pause(countdown_state_t *state) {
-    state->mode = cd_waiting;
+    state->mode = cd_paused;
     movement_cancel_background_task();
     watch_clear_indicator(WATCH_INDICATOR_BELL);
 }
 
+static void reset(countdown_state_t *state) {
+    state->mode = cd_reset;
+    movement_cancel_background_task();
+    watch_clear_indicator(WATCH_INDICATOR_BELL);
+    load_countdown(state);
+}
+
 static void ring(countdown_state_t *state) {
     movement_play_alarm();
-    load_countdown(state);
-    pause(state);
+    movement_cancel_background_task();
+    watch_clear_indicator(WATCH_INDICATOR_BELL);
+    state->mode = cd_paused;
 }
 
 static void settings_increment(countdown_state_t *state) {
@@ -169,6 +166,7 @@ void countdown_face_setup(movement_settings_t *settings, uint8_t watch_face_inde
         countdown_state_t *state = (countdown_state_t *)*context_ptr;
         memset(*context_ptr, 0, sizeof(countdown_state_t));
         state->minutes = DEFAULT_MINUTES;
+        state->mode = cd_reset;
         store_countdown(state);
     }
 }
@@ -207,7 +205,10 @@ bool countdown_face_loop(movement_event_t event, movement_settings_t *settings, 
                 case cd_running:
                     movement_illuminate_led();
                     break;
-                case cd_waiting:
+                case cd_paused:
+                    reset(state);
+                    break;
+                case cd_reset:
                     state->mode = cd_setting;
                     movement_request_tick_frequency(4);
                     break;
@@ -215,7 +216,7 @@ bool countdown_face_loop(movement_event_t event, movement_settings_t *settings, 
                     state->selection++;
                     if(state->selection >= CD_SELECTIONS) {
                         state->selection = 0;
-                        state->mode = cd_waiting;
+                        state->mode = cd_reset;
                         store_countdown(state);
                         movement_request_tick_frequency(1);
                     }
@@ -228,7 +229,8 @@ bool countdown_face_loop(movement_event_t event, movement_settings_t *settings, 
                 case cd_running:
                     pause(state);
                     break;
-                case cd_waiting:
+                case cd_reset:
+                case cd_paused:
                     if (!(state->hours == 0 && state->minutes == 0 && state->seconds == 0)) {
                         // Only start the timer if we have a valid time.
                         start(state, settings);
@@ -242,20 +244,6 @@ bool countdown_face_loop(movement_event_t event, movement_settings_t *settings, 
             break;
         case EVENT_BACKGROUND_TASK:
             ring(state);
-            break;
-        case EVENT_LIGHT_LONG_PRESS:
-            if (state->mode == cd_setting || state->mode == cd_waiting) {
-                load_countdown(state);
-                draw(state, event.subsecond);
-                break;
-            }
-            break;
-        case EVENT_ALARM_LONG_PRESS:
-            if (state->mode == cd_setting || state->mode == cd_waiting) {
-                reset_countdown(state);
-                draw(state, event.subsecond);
-                break;
-            }
             break;
         case EVENT_TIMEOUT:
             movement_move_to_face(0);
@@ -273,7 +261,7 @@ void countdown_face_resign(movement_settings_t *settings, void *context) {
     countdown_state_t *state = (countdown_state_t *)context;
     if (state->mode == cd_setting) {
         state->selection = 0;
-        state->mode = cd_waiting;
+        state->mode = cd_reset;
         store_countdown(state);
     }
 }
