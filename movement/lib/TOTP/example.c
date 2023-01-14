@@ -1,17 +1,13 @@
-#include <msp430.h>				
-#include <totp.h>
-#include <stdint.h>
+#include "TOTP.h"
+#include <stdio.h>
 
 /**
- * blink.c
+ * example.c
  */
 void main(void)
 {
-	WDTCTL = WDTPW | WDTHOLD;		// stop watchdog timer
-	P1DIR |= 0x01;					// configure P1.0 as output
-
 	uint8_t hmacKey[] = {0x4d, 0x79, 0x4c, 0x65, 0x67, 0x6f, 0x44, 0x6f, 0x6f, 0x72};               // Secret key
-	TOTP(hmacKey, 10, 7200);                                                                        // Secret key, Key length, Timestep (7200s - 2hours)
+	TOTP(hmacKey, 10, 7200, SHA1);                                                                        // Secret key, Key length, Timestep (7200s - 2hours)
 
 	setTimezone(9);                                                                                 // Set timezone
 	uint32_t newCode = getCodeFromTimestamp(1557414000);                                            // Timestamp Now
@@ -27,13 +23,5 @@ void main(void)
 	//  uint32_t newCode = getCodeFromTimeStruct(datetime);
 	///////////////////////////////////////////////////
 
-	volatile unsigned int i;		// volatile to prevent optimization
-
-	while(1)
-	{
-	    if (newCode == 0){          // 0 = INPUT HERE
-	        P1OUT ^= 0x01;          // toggle P1.0
-	    }
-		for(i=10000; i>0; i--);     // delay
-	}
+	printf("Code : %06u\n",newCode);
 }
