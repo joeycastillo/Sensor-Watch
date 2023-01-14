@@ -65,9 +65,19 @@ static char *major_arcana[] = {
     "Jdgmnt",
     " World",
 };
-#define NUM_TAROT_CARDS (sizeof(major_arcana) / sizeof(*major_arcana))
+#define NUM_MAJOR_ARCANA (sizeof(major_arcana) / sizeof(*major_arcana))
 
-#define WORLD_CARD_INDEX (NUM_TAROT_CARDS - 1)
+static char *suits[] = {
+    " wands",
+    "  cups",
+    "swords",
+    " coins",
+};
+
+#define NUM_MINOR_ARCANA 56
+#define NUM_CARDS_PER_SUIT 14
+
+#define NUM_TAROT_CARDS (NUM_MAJOR_ARCANA + NUM_MINOR_ARCANA)
 
 static void init_deck(tarot_state_t *state) {
     memset(state->drawn_cards, 0xff, sizeof(state->drawn_cards));
@@ -75,28 +85,52 @@ static void init_deck(tarot_state_t *state) {
 }
 
 static void tarot_display(tarot_state_t *state) {
-    char buf[10];
+    char buf[12];
+    char *start_end_string;
     uint8_t card;
     bool flipped;
 
+    // deck is initialized; show current draw mode and return
     if (state->drawn_cards[0] == 0xff) {
-        /* deck is initialized; show current draw mode */
         watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
-        sprintf(buf, "%2d draWW", state->num_cards_to_draw);
-        watch_display_string(buf, 2);
-        watch_clear_pixel(2, 3);
-        watch_clear_pixel(1, 4);
+        if (state->major_arcana_only) {
+            sprintf(buf, "TA%2dn&ajor", state->num_cards_to_draw);
+        } else {
+            sprintf(buf, "TA%2d   All", state->num_cards_to_draw);
+        }
+        watch_display_string(buf, 0);
         return;
     }
 
-    sprintf(buf, "%2d", state->current_card + 1);
-    watch_display_string(buf, 2);
+    // show a special status if we're looking at the first or last card in the spread
+    if (state->current_card == 0) {
+        start_end_string = "St";
+    } else if (state->current_card == state->num_cards_to_draw - 1) {
+        start_end_string = "En";
+    } else {
+        start_end_string = "  ";
+    }
 
+    // figure out the card we're showing
     card = state->drawn_cards[state->current_card];
     flipped = (card & FLIPPED_MASK) ? true : false; // check flipped bit
     card &= ~FLIPPED_MASK; // remove the flipped bit
-    sprintf(buf, "%s", major_arcana[card]);
-    watch_display_string(buf, 4);
+    if (card < NUM_MAJOR_ARCANA) {
+        // major arcana
+
+        // show start/end, no rank, card name
+        sprintf(buf, "%s  %s", start_end_string, major_arcana[card]);
+    } else {
+        // minor arcana
+        uint8_t suit = (card - NUM_MAJOR_ARCANA) / NUM_CARDS_PER_SUIT;
+        uint8_t rank = ((card - NUM_MAJOR_ARCANA) % NUM_CARDS_PER_SUIT) + 1;
+
+        // show start/end, rank + suit
+        sprintf(buf, "%s%2d%s", start_end_string, rank, suits[suit]);
+    }
+
+    watch_display_string(buf, 0);
+
     if (flipped) {
         watch_set_indicator(WATCH_INDICATOR_SIGNAL);
     } else {
@@ -113,8 +147,12 @@ static uint8_t get_rand_num(uint8_t num_values) {
 #endif
 }
 
-static uint8_t draw_one_card(void) {
-    return get_rand_num(NUM_TAROT_CARDS);
+static uint8_t draw_one_card(tarot_state_t *state) {
+    if (state->major_arcana_only) {
+        return get_rand_num(NUM_MAJOR_ARCANA);
+    } else {
+        return get_rand_num(NUM_TAROT_CARDS);
+    }
 }
 
 static bool already_drawn(tarot_state_t *state, uint8_t drawn_card) {
@@ -131,9 +169,9 @@ static void pick_cards(tarot_state_t *state) {
     uint8_t card;
 
     for (int i = 0; i < state->num_cards_to_draw; i++) {
-        card = draw_one_card();
+        card = draw_one_card(state);
         while (already_drawn(state, card)) {
-            card = draw_one_card();
+            card = draw_one_card(state);
         }
         card |= get_rand_num(2) << FLIPPED_BIT_POS; // randomly flip the card
         state->drawn_cards[i] = card;
@@ -192,6 +230,7 @@ void tarot_face_activate(movement_settings_t *settings, void *context) {
     watch_display_string("TA", 0);
     init_deck(state);
     state->num_cards_to_draw = 3;
+    state->major_arcana_only = true;
 }
 
 bool tarot_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
@@ -226,7 +265,13 @@ bool tarot_face_loop(movement_event_t event, movement_settings_t *settings, void
             tarot_display(state);
             break;
         case EVENT_LIGHT_LONG_PRESS:
-            init_deck(state);
+            if (state->drawn_cards[0] == 0xff) {
+                // at main screen; cycle major arcana mode
+                state->major_arcana_only = !state->major_arcana_only;
+            } else {
+                // at card view screen; go back to draw screen
+                init_deck(state);
+            }
             tarot_display(state);
             break;
         case EVENT_ALARM_BUTTON_UP:
@@ -241,6 +286,10 @@ bool tarot_face_loop(movement_event_t event, movement_settings_t *settings, void
             break;
         case EVENT_LOW_ENERGY_UPDATE:
             watch_display_string("SLEEP ", 4);
+            break;
+        case EVENT_MODE_LONG_PRESS:
+            // since we ignore timeouts, provide a convenient way to jump back to the start
+            movement_move_to_face(0);
             break;
         default:
             break;

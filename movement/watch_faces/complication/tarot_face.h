@@ -30,22 +30,36 @@
 /*
  * Tarot card watch face
  *
- * Draw from a deck of the 22 major arcana tarot cards.
+ * Draw from a deck of tarot cards. Can choose between major arcana only or
+ * entire deck.
  *
  * In tarot reading, a card orientation can be upright or inverted, and the
  * interpertation of the card can change depending on this state. This face
  * lights the alarm indicator to show when a card is inverted. Just ignore it
  * if you prefer not to deal with card inversions.
  *
- * When "Draw" is shown:
+ * This face uses the terms "Wands", "Cups", "Swords" and "Coins" for the four
+ * suits, and numbers to represent the 14 ranked cards, with the cards 11-14
+ * representing the Page, the Knight, the Queen, and King respectively.
+ *
+ * Default draw is a 3-card major arcana spread.
+ *
+ * To make it easier to keep track of where you are in the list of drawn cards,
+ * after drawing, "St" is shown for the 1st card in the spread and "En" is
+ * shown for the last card.
+ *
+ * At any point, the mode button can be held to return to your first configured
+ * watch face.
+ *
+ * When "Major" or "All" is shown:
  * - Light button: cycle # of cards to draw
+ * - Light button (long press): toggle between major arcana and all cards
  * - Alarm button: shuffle deck and draw cards
  *
  * After cards are drawn/showing:
  * - Light button: view the next drawn card
  * - Alarm button: shuffle and re-draw new cards
- * - Light button (long press): go back to Draw screen,
- *   for choosing different # of cards to draw.
+ * - Light button (long press): go back to Draw screen, for choosing different draw parameters.
  */
 
 #define MAX_CARDS_TO_DRAW 10
@@ -55,6 +69,7 @@ typedef struct {
     uint8_t current_card;
     uint8_t animation_frame;
     uint8_t num_cards_to_draw;
+    bool major_arcana_only;
     bool is_picking;
 } tarot_state_t;
 
