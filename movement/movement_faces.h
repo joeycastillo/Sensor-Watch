@@ -71,6 +71,7 @@
 #include "tally_face.h"
 #include "tarot_face.h"
 #include "interval_face.h"
+#include "rpn_calculator_face.h"
 // New includes go above this line.
 
 #endif // MOVEMENT_FACES_H_
