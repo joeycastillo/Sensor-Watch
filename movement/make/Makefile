@@ -86,6 +86,7 @@ SRCS += \
   ../watch_faces/complication/tempchart_face.c \
   ../watch_faces/complication/tally_face.c \
   ../watch_faces/complication/tarot_face.c \
+  ../watch_faces/complication/torch_face.c \
 # New watch faces go above this line.
 
 # Leave this line at the bottom of the file; it has all the targets for making your project.
