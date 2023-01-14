@@ -79,7 +79,7 @@ static void next_op(rpn_calculator_state_t *state) {
 // FIXME: this converts the number to string and back, there might
 // be better ways to do this
 static float inc_digit(float num, uint8_t position) {
-    char buf[7];
+    char buf[8];
     if (position > 5) {
         return 0.0;
     }
@@ -203,7 +203,7 @@ static void run_op(rpn_calculator_state_t *state) {
     state->mode = rpn_calculator_err;
 }
 
-static void draw(rpn_calculator_state_t *state, uint8_t subsecond, movement_settings_t *settings) {
+static void draw(rpn_calculator_state_t *state, uint8_t subsecond) {
     char buf[16];
     switch (state->mode) {
         case rpn_calculator_err:
@@ -234,6 +234,7 @@ static void draw(rpn_calculator_state_t *state, uint8_t subsecond, movement_sett
 
 void rpn_calculator_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
+    (void) watch_face_index;
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(rpn_calculator_state_t));
         memset(*context_ptr, 0, sizeof(rpn_calculator_state_t));
@@ -246,29 +247,30 @@ void rpn_calculator_face_setup(movement_settings_t *settings, uint8_t watch_face
 
 void rpn_calculator_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
-    rpn_calculator_state_t *state = (rpn_calculator_state_t *)context;
-    (void) state;
+    (void) context;
 
     // Handle any tasks related to your watch face coming on screen.
 }
 
 bool rpn_calculator_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
+    (void) settings;
+
     rpn_calculator_state_t *state = (rpn_calculator_state_t *)context;
 
     switch (event.event_type) {
         case EVENT_ACTIVATE:
-            draw(state, event.subsecond, settings);
+            draw(state, event.subsecond);
             break;
         case EVENT_TICK:
             if (state->mode == rpn_calculator_number) {
-                draw(state, event.subsecond, settings);
+                draw(state, event.subsecond);
             }
             break;
         case EVENT_MODE_BUTTON_UP:
             switch (state->mode) {
                 case rpn_calculator_number:
                     state->mode = rpn_calculator_waiting;
-                    draw(state, event.subsecond, settings);
+                    draw(state, event.subsecond);
                     movement_request_tick_frequency(1);
                     break;
                 default:
@@ -282,15 +284,15 @@ bool rpn_calculator_face_loop(movement_event_t event, movement_settings_t *setti
             switch (state->mode) {
                 case rpn_calculator_waiting:
                     state->mode = rpn_calculator_op;
-                    draw(state, event.subsecond, settings);
+                    draw(state, event.subsecond);
                     break;
                 case rpn_calculator_number:
                     state->selection = (state->selection + 1) % 6;
-                    draw(state, event.subsecond, settings);
+                    draw(state, event.subsecond);
                     break;
                 case rpn_calculator_op:
                     next_op(state);
-                    draw(state, event.subsecond, settings);
+                    draw(state, event.subsecond);
                     break;
                 default:
                     movement_illuminate_led();
@@ -303,21 +305,21 @@ bool rpn_calculator_face_loop(movement_event_t event, movement_settings_t *setti
                     state->mode = rpn_calculator_number;
                     state->selection = 2;
                     stack_push(state, 0);
-                    draw(state, event.subsecond, settings);
+                    draw(state, event.subsecond);
                     movement_request_tick_frequency(4);
                     break;
                 case rpn_calculator_number:
                     state->stack[state->top] = inc_digit(state->stack[state->top], state->selection);
                     printf_stack(state);
-                    draw(state, event.subsecond, settings);
+                    draw(state, event.subsecond);
                     break;
                 case rpn_calculator_err:
                     state->mode = rpn_calculator_waiting;
-                    draw(state, event.subsecond, settings);
+                    draw(state, event.subsecond);
                     break;
                 case rpn_calculator_op:
                     run_op(state);
-                    draw(state, event.subsecond, settings);
+                    draw(state, event.subsecond);
                     break;
                 default:
                     break;
