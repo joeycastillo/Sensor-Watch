@@ -53,13 +53,10 @@ bool <#watch_face_name#>_face_loop(movement_event_t event, movement_settings_t *
         case EVENT_TICK:
             // If needed, update your display here.
             break;
-        case EVENT_MODE_BUTTON_UP:
-            // You shouldn't need to change this case; Mode almost always moves to the next watch face.
-            movement_move_to_next_face();
-            break;
         case EVENT_LIGHT_BUTTON_UP:
-            // If you have other uses for the Light button, you can opt not to illuminate the LED for this event.
-            movement_illuminate_led();
+            // You can use the Light button for your own purposes. Note that by default, Movement will also
+            // illuminatethe LED in response to EVENT_LIGHT_BUTTON_DOWN; to suppress that behavior, add an
+            // empty case for EVENT_LIGHT_BUTTON_DOWN.
             break;
         case EVENT_ALARM_BUTTON_UP:
             // Just in case you have need for another button.
@@ -76,7 +73,12 @@ bool <#watch_face_name#>_face_loop(movement_event_t event, movement_settings_t *
             // watch_start_tick_animation(500);
             break;
         default:
-            break;
+            // Movement's default loop handler will step in for any cases you don't handle above:
+            // * EVENT_LIGHT_BUTTON_DOWN lights the LED
+            // * EVENT_ALARM_BUTTON_UP moves to the next watch face in the list
+            // * EVENT_MODE_LONG_PRESS returns to the first watch face in the list
+            // You can override any of these behaviors by adding a case for these events to this switch statement.
+            return movement_default_loop_handler(event, settings);
     }
 
     // return true if the watch can enter standby mode. If you are PWM'ing an LED or buzzing the buzzer here,

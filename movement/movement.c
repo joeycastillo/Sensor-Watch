@@ -218,6 +218,26 @@ void movement_illuminate_led(void) {
     }
 }
 
+bool movement_default_loop_handler(movement_event_t event, movement_settings_t *settings) {
+    (void)settings;
+
+    switch (event.event_type) {
+        case EVENT_MODE_BUTTON_UP:
+            movement_move_to_next_face();
+            break;
+        case EVENT_LIGHT_BUTTON_DOWN:
+            movement_illuminate_led();
+            break;
+        case EVENT_MODE_LONG_PRESS:
+            movement_move_to_face(0);
+            break;
+        default:
+            break;
+    }
+
+    return true;
+}
+
 void movement_move_to_face(uint8_t watch_face_index) {
     movement_state.watch_face_changed = true;
     movement_state.next_watch_face = watch_face_index;
