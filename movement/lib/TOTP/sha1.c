@@ -379,7 +379,7 @@ void HMAC_SHA1(const uint8_t* key, size_t key_length, const uint8_t *in, size_t 
 uint32_t TOTP_HMAC_SHA1(const uint8_t* key, size_t key_length, const uint8_t *in, size_t n){
     // STEP 1, get the HMAC-SHA1 hash from counter and key
     uint8_t hash[SHA1_DIGEST_LENGTH];
-    HMAC_SHA1(key, key_length, in, 8, hash);
+    HMAC_SHA1(key, key_length, in, n, hash);
 
     // STEP 2, apply dynamic truncation to obtain a 4-bytes string
     uint32_t truncated_hash = 0;

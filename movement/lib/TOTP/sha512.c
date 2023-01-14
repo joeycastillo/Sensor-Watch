@@ -403,7 +403,7 @@ uint32_t TOTP_HMAC_SHA512(const uint8_t* key, size_t key_length, const uint8_t *
 
     // STEP 1, get the HMAC-SHA512 hash from counter and key
     uint8_t hash[digest_length];
-    HMAC_SHA512(key, key_length, in, 8, hash, is384);
+    HMAC_SHA512(key, key_length, in, n, hash, is384);
 
     // STEP 2, apply dynamic truncation to obtain a 4-bytes string
     uint32_t truncated_hash = 0;
