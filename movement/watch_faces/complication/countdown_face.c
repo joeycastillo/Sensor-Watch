@@ -47,6 +47,17 @@
 #define CD_SELECTIONS 3
 #define DEFAULT_MINUTES 3
 
+static bool quick_ticks_running;
+
+static void abort_quick_ticks(countdown_state_t *state) {
+    if (quick_ticks_running) {
+        quick_ticks_running = false;
+        if (state->mode == cd_setting)
+            movement_request_tick_frequency(4);
+        else
+            movement_request_tick_frequency(1);
+    }
+}
 
 static inline int32_t get_tz_offset(movement_settings_t *settings) {
     return movement_timezone_offsets[settings->bit.time_zone] * 60;
@@ -178,8 +189,10 @@ void countdown_face_activate(movement_settings_t *settings, void *context) {
         watch_set_indicator(WATCH_INDICATOR_BELL);
     }
     watch_set_colon();
-}
 
+    movement_request_tick_frequency(1);
+    quick_ticks_running = false;
+}
 
 bool countdown_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     (void) settings;
@@ -190,12 +203,20 @@ bool countdown_face_loop(movement_event_t event, movement_settings_t *settings, 
             draw(state, event.subsecond);
             break;
         case EVENT_TICK:
+            if (quick_ticks_running) {
+                if (watch_get_pin_level(BTN_ALARM))
+                    settings_increment(state);
+                else
+                    abort_quick_ticks(state);
+            }
+
             if (state->mode == cd_running) {
                 state->now_ts++;
             }
             draw(state, event.subsecond);
             break;
         case EVENT_MODE_BUTTON_UP:
+            abort_quick_ticks(state);
             movement_move_to_next_face();
             break;
         case EVENT_LIGHT_BUTTON_UP:
@@ -240,10 +261,20 @@ bool countdown_face_loop(movement_event_t event, movement_settings_t *settings, 
             }
             draw(state, event.subsecond);
             break;
+        case EVENT_ALARM_LONG_PRESS:
+            if (state->mode == cd_setting) {
+                quick_ticks_running = true;
+                movement_request_tick_frequency(8);
+            }
+            break;
+        case EVENT_ALARM_LONG_UP:
+            abort_quick_ticks(state);
+            break;
         case EVENT_BACKGROUND_TASK:
             ring(state);
             break;
         case EVENT_TIMEOUT:
+            abort_quick_ticks(state);
             movement_move_to_face(0);
             break;
         case EVENT_LOW_ENERGY_UPDATE:
