@@ -134,9 +134,7 @@ static void reset(countdown_state_t *state) {
 
 static void ring(countdown_state_t *state) {
     movement_play_alarm();
-    movement_cancel_background_task();
-    watch_clear_indicator(WATCH_INDICATOR_BELL);
-    state->mode = cd_paused;
+    reset(state);
 }
 
 static void settings_increment(countdown_state_t *state) {
