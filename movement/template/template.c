@@ -75,8 +75,8 @@ bool <#watch_face_name#>_face_loop(movement_event_t event, movement_settings_t *
         default:
             // Movement's default loop handler will step in for any cases you don't handle above:
             // * EVENT_LIGHT_BUTTON_DOWN lights the LED
-            // * EVENT_ALARM_BUTTON_UP moves to the next watch face in the list
-            // * EVENT_MODE_LONG_PRESS returns to the first watch face in the list
+            // * EVENT_MODE_BUTTON_UP moves to the next watch face in the list
+            // * EVENT_MODE_LONG_PRESS returns to the first watch face (or skips to the secondary watch face, if configured)
             // You can override any of these behaviors by adding a case for these events to this switch statement.
             return movement_default_loop_handler(event, settings);
     }
