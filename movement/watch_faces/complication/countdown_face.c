@@ -116,7 +116,7 @@ static void draw(countdown_state_t *state, uint8_t subsecond) {
             break;
         case cd_setting:
             sprintf(buf, "CD  %2d%02d%02d", state->hours, state->minutes, state->seconds);
-            if (subsecond % 2) {
+            if (!quick_ticks_running && subsecond % 2) {
                 switch(state->selection) {
                     case 0:
                         buf[4] = buf[5] = ' ';
@@ -246,6 +246,7 @@ bool countdown_face_loop(movement_event_t event, movement_settings_t *settings, 
                         state->mode = cd_reset;
                         store_countdown(state);
                         movement_request_tick_frequency(1);
+                        button_beep(settings);
                     }
                     break;
             }
