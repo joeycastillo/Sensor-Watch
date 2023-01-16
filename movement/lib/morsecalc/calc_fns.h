@@ -1,3 +1,27 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2023 Christian Chapman
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 #include "calc.h"
 
 // Stack and register control
@@ -47,52 +71,53 @@ int calc_atan2d(calc_state_t *cs);
 // Dictionary definition
 typedef int (*calc_fn_t)(calc_state_t *cs);
 typedef struct {
-    char *name; // Token to use to run this function
+    char *names[3]; // Token to use to run this function
     calc_fn_t fn; // Pointer to function 
 } calc_dict_entry_t;
+
 static const calc_dict_entry_t calc_dict[] = {
     // Stack and register control
-    {"x", &calc_delete},
-    {"xxx", &calc_clear_stack},
-    {"xxx", &calc_init},
-    {"f", &calc_flip},
-    {"mc", &calc_mem_clear},
-    {"mr", &calc_mem_recall},
-    {"ma", &calc_mem_add},
-    {"ms", &calc_mem_subtract},
+    {{"x"}, &calc_delete},
+    {{"xx"}, &calc_clear_stack},
+    {{"xxx"}, &calc_init},
+    {{"f"}, &calc_flip},
+    {{"mc"}, &calc_mem_clear},
+    {{"mr"}, &calc_mem_recall},
+    {{"ma"}, &calc_mem_add},
+    {{"ms"}, &calc_mem_subtract},
 
     // Basic operations
-    {"a", &calc_add}, 
-    {"s", &calc_subtract},
-    {"n", &calc_negate},
-    {"m", &calc_multiply},
-    {"d", &calc_divide},
-    {"i", &calc_invert},
+    {{"a"}, &calc_add}, 
+    {{"s"}, &calc_subtract},
+    {{"n"}, &calc_negate},
+    {{"m"}, &calc_multiply},
+    {{"d"}, &calc_divide},
+    {{"i"}, &calc_invert},
     
     // Constants
-    {"e", &calc_e}, 
-    {"pi", &calc_pi},  
+    {{"e"}, &calc_e}, 
+    {{"pi"}, &calc_pi},  
     
     // Exponential/logarithmic
-    {"exp", &calc_exp},
-    {"pow", &calc_pow}, 
-    {"ln", &calc_ln}, 
-    {"log", &calc_log},
-    {"sqrt", &calc_sqrt},
+    {{"exp"}, &calc_exp},
+    {{"pow"}, &calc_pow}, 
+    {{"ln"}, &calc_ln}, 
+    {{"log"}, &calc_log},
+    {{"sqrt"}, &calc_sqrt},
     
     // Trigonometric 
-    {"sin", &calc_sin},
-    {"cos", &calc_cos},
-    {"tan", &calc_tan},
-    {"ason", &calc_asin},
-    {"acos", &calc_acos},
-    {"atan", &calc_atan}, 
-    {"atan2", &calc_atan2},
-    {"sind", &calc_sind},
-    {"cosd", &calc_cosd},
-    {"tand", &calc_tand},
-    {"asind", &calc_asind},
-    {"acosd", &calc_acosd},
-    {"atand", &calc_atand}, 
-    {"atan2d", &calc_atan2d}, 
+    {{"sin", "sn"}, &calc_sin},
+    {{"cos"}, &calc_cos},
+    {{"tan"}, &calc_tan},
+    {{"asin"}, &calc_asin},
+    {{"acos"}, &calc_acos},
+    {{"atan"}, &calc_atan}, 
+    {{"atan2"}, &calc_atan2},
+    {{"sind"}, &calc_sind},
+    {{"cosd"}, &calc_cosd},
+    {{"tand"}, &calc_tand},
+    {{"asind"}, &calc_asind},
+    {{"acosd"}, &calc_acosd},
+    {{"atand"}, &calc_atand}, 
+    {{"atan2d"}, &calc_atan2d}, 
 }; 

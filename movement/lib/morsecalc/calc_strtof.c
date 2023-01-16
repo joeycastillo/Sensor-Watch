@@ -38,7 +38,7 @@
 
 #include "calc.h"
 
-double small_strtof(const char *str, char **endptr) {
+double calc_strtof(const char *str, char **endptr) {
   double number;
   int exponent;
   int negative;
@@ -65,7 +65,7 @@ double small_strtof(const char *str, char **endptr) {
   num_decimals = 0;
 
   // Process string of digits
-  while (isdigit(*p)) {
+  while (isdigit((int) *p)) {
     number = number * 10. + (*p - '0');
     p++;
     num_digits++;
@@ -75,7 +75,7 @@ double small_strtof(const char *str, char **endptr) {
   if (*p == '.') {
     p++;
 
-    while (isdigit(*p)) {
+    while (isdigit((int) *p)) {
       number = number * 10. + (*p - '0');
       p++;
       num_digits++;
@@ -105,7 +105,7 @@ double small_strtof(const char *str, char **endptr) {
 
     // Process string of digits
     n = 0;
-    while (isdigit(*p)) {
+    while (isdigit((int) *p)) {
       n = n * 10 + (*p - '0');
       p++;
     }

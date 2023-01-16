@@ -55,21 +55,26 @@ Special characters:
  - Backspace is `(` (`-.--.`). 
  - Clear token input without submitting to calculator is `Start transmission` (`-.-.-`).
     
-## Writing a command token
-The calculator first tries to interpret the token as a command/stack operation. 
+## Writing commands
+First the calculator will try to interpret the token as a command/stack operation. 
 Commands are defined in `calc_dict[]` in `movement/lib/morsecalc/calc_fns.h`.
-If the command doesn't appear in the dictionary, the calculator next tries to interpret the token as a number.
+If the command doesn't appear in the dictionary, the calculator tries to interpret the token as a number.
  
-## Writing a number token
-Numbers are written as strings, where:
-
- - "p" is interpreted as "point ." and
- - "m" is interpreted as "minus -"
- 
-e.g. enter `4p2em3` to get `4.2e-3`
-       enter `0p0042` to get `0.0042`
-
+## Writing numbers
+Numbers are written like floating point strings. 
 Entering a number pushes it to the top of the stack if there's room.
+This can get long, so for convenience numerals can also be written in binary with .- = 01.
+
+    0   1    2    3    4    5    6    7    8    9
+    .   -    -.   --   -..  -.-  --.  ---  -... -..-
+    e   t    n    m    d    k    g    o    b    x
+
+ - Exponent signs must be entered as "p".
+ - Decimal place "." can be entered as "h" (code ....)
+ - Sign "-" can be entered as "Ch digraph" (code ----)
+ 
+For example: "4.2e-3" can be entered directly, or as "4h2pC3"
+  similarly, "0.0042" can also be entered as "eheedn"
         
 ## Number display
 After a command runs, the top of the stack is displayed in this format:

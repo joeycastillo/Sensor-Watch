@@ -39,7 +39,7 @@ SRCS += \
   ../lib/astrolib/astrolib.c \
   ../lib/morsecalc/calc.c \
   ../lib/morsecalc/calc_fns.c \
-  ../lib/morsecalc/small_strtof.c \
+  ../lib/morsecalc/calc_strtof.c \
   ../lib/morsecalc/mc.c \
   ../../littlefs/lfs.c \
   ../../littlefs/lfs_util.c \

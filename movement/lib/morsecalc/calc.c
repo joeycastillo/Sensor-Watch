@@ -1,3 +1,27 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2023 Christian Chapman
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -22,27 +46,49 @@ int calc_init(calc_state_t *cs) {
  */
 int calc_input_function(calc_state_t *cs, char *token) {
     for(uint8_t idx=0; idx<sizeof(calc_dict)/sizeof(calc_dict[0]); idx++) {
-        if(0 == strcmp(calc_dict[idx].name, token)) { // Found a match
-            return (*calc_dict[idx].fn)(cs); // Run calculator function
+        for(uint8_t idxn=0; idxn<sizeof(calc_dict[idx].names)/sizeof(calc_dict[idx].names[0]); idxn++) {
+            if(0 == strcmp(calc_dict[idx].names[idxn], token)) { // Found a match
+                return (*calc_dict[idx].fn)(cs); // Run calculator function
+            }
         }
     }
     return -1; // Unrecognized function name
 }
 
 /* calc_input_float
- * Try to read the token as a float.
- * "p" is "." and "m" is "-".
- * e.g. token == "4p2em3" ---> "4.2e-3"
- * or token == "0p0042" ---> "0.0042"
+ * Read the token as a float.
+ * For convenience, numerals can be written in binary:
+ * 0     1    2    3    4    5    6    7    8    9
+ * .     -    -.   --   -..  -.-  --.  ---  -... -..-
+ * e     t    n    m    d    k    g    o    b    x
+ * 
+ * Exponent signs must be entered as "p".
+ * Decimal place "." can be entered as "h" (code ....)
+ * Sign "-" can be entered as "Ch digraph" (code ----)
+ * 
+ * e.g. "4.2e-3" can be entered directly or as "4h2pC3"
+ * similarly, "0.0042" can be "eheedn"
  */ 
+#define REPCHAR(X,Y) for(idx=0; idx<strlen(token); idx++) \
+    if(X==token[idx]) token[idx] = Y
 int calc_input_float(calc_state_t *cs, char *token) {
-    for(uint8_t idx=0; idx<strlen(token); idx++) 
-        if('p'==token[idx]) token[idx] = '.'; // replace p --> .
-    for(uint8_t idx=0; idx<strlen(token); idx++) 
-        if('m'==token[idx]) token[idx] = '-'; // replace m --> -
+    uint8_t idx;
+    REPCHAR('e', '0');
+    REPCHAR('t', '1');
+    REPCHAR('n', '2');
+    REPCHAR('m', '3');
+    REPCHAR('d', '4');
+    REPCHAR('k', '5');
+    REPCHAR('g', '6');
+    REPCHAR('o', '7');
+    REPCHAR('b', '8');
+    REPCHAR('x', '9');
+    REPCHAR('h', '.');
+    REPCHAR('C', '-');
+    REPCHAR('p', 'E');
     
     char *endptr;
-    double d = small_strtof(token, &endptr);
+    double d = calc_strtof(token, &endptr);
     if(!endptr || (uint8_t)(endptr-token)<strlen(token)) return -1; // Bad format
     if(cs->s >= N_STACK) return -2; // Stack full
     cs->stack[cs->s++] = d;
