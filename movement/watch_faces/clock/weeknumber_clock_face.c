@@ -136,13 +136,7 @@ bool weeknumber_clock_face_loop(movement_event_t event, movement_settings_t *set
         case EVENT_BACKGROUND_TASK:
             // uncomment this line to snap back to the clock face when the hour signal sounds:
             // movement_move_to_face(state->watch_face_index);
-            if (watch_is_buzzer_or_led_enabled()) {
-                // if we are in the foreground, we can just beep.
-                movement_play_signal();
-            } else {
-                // beep quickly (this call blocks for 275 ms),
-                movement_play_signal();
-            }
+            movement_play_signal();
             break;
         default:
             break;

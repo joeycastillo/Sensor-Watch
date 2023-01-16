@@ -40,6 +40,7 @@ struct totp_record {
     size_t secret_size;
     char label[2];
     uint32_t period;
+    hmac_alg algorithm;
 };
 
 static struct totp_record totp_records[MAX_TOTP_RECORDS];
@@ -50,6 +51,7 @@ static void init_totp_record(struct totp_record *totp_record) {
     totp_record->label[0] = 'A';
     totp_record->label[1] = 'A';
     totp_record->period = 30;
+    totp_record->algorithm = SHA1;
 }
 
 static bool totp_face_lfs_read_param(struct totp_record *totp_record, char *param, char *value) {
@@ -84,7 +86,22 @@ static bool totp_face_lfs_read_param(struct totp_record *totp_record, char *para
             return false;
         }
     } else if (!strcmp(param, "algorithm")) {
-        if (!strcmp(param, "SHA1")) {
+        if (!strcmp(value, "SHA1")) {
+            totp_record->algorithm = SHA1;
+        }
+        else if (!strcmp(value, "SHA224")) {
+            totp_record->algorithm = SHA224;
+        }
+        else if (!strcmp(value, "SHA256")) {
+            totp_record->algorithm = SHA256;
+        }
+        else if (!strcmp(value, "SHA384")) {
+            totp_record->algorithm = SHA384;
+        }
+        else if (!strcmp(value, "SHA512")) {
+            totp_record->algorithm = SHA512;
+        }
+        else {
             printf("TOTP ignored due to algorithm %s\n", value);
             return false;
         }
@@ -169,7 +186,7 @@ static void totp_face_set_record(totp_lfs_state_t *totp_state, int i) {
     }
 
     totp_state->current_index = i;
-    TOTP(totp_records[i].secret, totp_records[i].secret_size, totp_records[i].period);
+    TOTP(totp_records[i].secret, totp_records[i].secret_size, totp_records[i].period, totp_records[i].algorithm);
     totp_state->current_code = getCodeFromTimestamp(totp_state->timestamp);
     totp_state->steps = totp_state->timestamp / totp_records[i].period;
 }

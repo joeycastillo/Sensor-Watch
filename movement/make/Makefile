@@ -17,7 +17,7 @@ INCLUDES += \
   -I../watch_faces/sensor/ \
   -I../watch_faces/demo/ \
   -I../../littlefs/ \
-  -I../lib/TOTP-MCU/ \
+  -I../lib/TOTP/ \
   -I../lib/base32/ \
   -I../lib/sunriset/ \
   -I../lib/vsop87/ \
@@ -30,8 +30,10 @@ INCLUDES += \
 #   ../drivers/lis2dh.c \
 #   ../watch_faces/fitness/step_count_face.c
 SRCS += \
-  ../lib/TOTP-MCU/sha1.c \
-  ../lib/TOTP-MCU/TOTP.c \
+  ../lib/TOTP/sha1.c \
+  ../lib/TOTP/sha256.c \
+  ../lib/TOTP/sha512.c \
+  ../lib/TOTP/TOTP.c \
   ../lib/base32/base32.c \
   ../lib/sunriset/sunriset.c \
   ../lib/vsop87/vsop87a_milli.c \
@@ -76,6 +78,7 @@ SRCS += \
   ../watch_faces/demo/frequency_correction_face.c \
   ../watch_faces/complication/alarm_face.c \
   ../watch_faces/complication/ratemeter_face.c \
+  ../watch_faces/complication/interval_face.c \
   ../watch_faces/complication/rpn_calculator_alt_face.c \
   ../watch_faces/complication/stock_stopwatch_face.c \
   ../watch_faces/complication/tachymeter_face.c \
@@ -84,6 +87,8 @@ SRCS += \
   ../watch_faces/complication/databank_face.c \
   ../watch_faces/complication/tempchart_face.c \
   ../watch_faces/complication/tally_face.c \
+  ../watch_faces/complication/tarot_face.c \
+  ../watch_faces/complication/rpn_calculator_face.c \
 # New watch faces go above this line.
 
 # Leave this line at the bottom of the file; it has all the targets for making your project.
