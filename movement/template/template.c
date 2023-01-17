@@ -55,7 +55,7 @@ bool <#watch_face_name#>_face_loop(movement_event_t event, movement_settings_t *
             break;
         case EVENT_LIGHT_BUTTON_UP:
             // You can use the Light button for your own purposes. Note that by default, Movement will also
-            // illuminatethe LED in response to EVENT_LIGHT_BUTTON_DOWN; to suppress that behavior, add an
+            // illuminate the LED in response to EVENT_LIGHT_BUTTON_DOWN; to suppress that behavior, add an
             // empty case for EVENT_LIGHT_BUTTON_DOWN.
             break;
         case EVENT_ALARM_BUTTON_UP:
