@@ -81,8 +81,12 @@ bool <#watch_face_name#>_face_loop(movement_event_t event, movement_settings_t *
             return movement_default_loop_handler(event, settings);
     }
 
-    // return true if the watch can enter standby mode. If you are PWM'ing an LED or buzzing the buzzer here,
-    // you should return false since the PWM driver does not operate in standby mode.
+    // return true if the watch can enter standby mode. Generally speaking, you should always return true.
+    // Exceptions:
+    //  * If you are displaying a color using the low-level watch_set_led_color function, you should return false.
+    //  * If you are sounding the buzzer using the low-level watch_set_buzzer_on function, you should return false.
+    // Note that if you are driving the LED or buzzer using Movement functions like movement_illuminate_led or
+    // movement_play_alarm, you can still return true. This guidance only applies to the low-level watch_ functions.
     return true;
 }
 
