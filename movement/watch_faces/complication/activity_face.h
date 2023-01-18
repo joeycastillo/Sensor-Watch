@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 <#author_name#>
+ * Copyright (c) 2023 Gabor L Ugray
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,11 +33,6 @@
  * and a description of how use it
  *
  */
-
-typedef struct {
-    // Anything you need to keep track of, put it here!
-    uint8_t unused;
-} activity_state_t;
 
 void activity_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
 void activity_face_activate(movement_settings_t *settings, void *context);
