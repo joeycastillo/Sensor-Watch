@@ -133,7 +133,7 @@ static void _alarm_face_draw(movement_settings_t *settings, alarm_state_t *state
             else {
                 if (state->alarm[state->alarm_idx].beeps == 0)
                     watch_display_character('o', _blink_idx[alarm_setting_idx_beeps]);
-            else
+                else
                     watch_display_character(state->alarm[state->alarm_idx].beeps + 48, _blink_idx[alarm_setting_idx_beeps]);
             }
         }
@@ -182,7 +182,7 @@ static void _alarm_update_alarm_enabled(movement_settings_t *settings, alarm_sta
                 if ((state->alarm[i].day == weekday_idx && alarm_minutes_of_day >= now_minutes_of_day)
                     || ((weekday_idx + 1) % 7 == state->alarm[i].day && alarm_minutes_of_day <= now_minutes_of_day) 
                     || (state->alarm[i].day == ALARM_DAY_WORKDAY && (weekday_idx < 4
-                        || (weekday_idx == 5 && alarm_minutes_of_day >= now_minutes_of_day)
+                        || (weekday_idx == 4 && alarm_minutes_of_day >= now_minutes_of_day)
                         || (weekday_idx == 6 && alarm_minutes_of_day <= now_minutes_of_day)))
                     || (state->alarm[i].day == ALARM_DAY_WEEKEND && (weekday_idx == 5
                         || (weekday_idx == 6 && alarm_minutes_of_day >= now_minutes_of_day)
@@ -448,7 +448,7 @@ bool alarm_face_loop(movement_event_t event, movement_settings_t *settings, void
         movement_move_to_face(0);
         break;
     default:
-      break;
+        break;
     }
 
     return true;
