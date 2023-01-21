@@ -71,6 +71,7 @@
 #include "tally_face.h"
 #include "tarot_face.h"
 #include "interval_face.h"
+#include "morsecalc_face.h"
 #include "rpn_calculator_face.h"
 #include "activity_face.h"
 #include "chirpy_demo_face.h"
