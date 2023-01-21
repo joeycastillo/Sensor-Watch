@@ -40,6 +40,7 @@ typedef struct {
 	mc_state_t *mc; 
 	char token[MORSECALC_TOKEN_LEN];
 	uint8_t idxt;
+	uint8_t led_is_on;
 } morsecalc_state_t;
 
 void morsecalc_print_float(double d);

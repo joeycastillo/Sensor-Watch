@@ -40,6 +40,8 @@ The user interface (`morsecalc_face.h`, `morsecalc_face.c`) lets you talk to the
  - `alarm` is dot
  - `mode` is "finish character"
  - long-press `mode` to quit
+ - long-press `alarm` to show stack
+ - long-press `light` to toggle the light
    
 ## Morse code token entry
 As you enter `.`s and `-`s, the morse code char you've entered will appear in the top center digit.
@@ -75,6 +77,8 @@ This can get long, so for convenience numerals can also be written in binary wit
  
 For example: "4.2e-3" can be entered directly, or as "4h2pC3"
   similarly, "0.0042" can also be entered as "eheedn"
+
+Once you submit a number to the watch face, it pushes it to the top of the stack if there's room.
         
 ## Number display
 After a command runs, the top of the stack is displayed in this format:
@@ -98,7 +102,7 @@ To show the top of the stack, push and hold `light`/`alarm` or submit a blank to
 To show the N-th stack item (0 through 9):
 
  - Put in the Morse code for N without pushing the mode button.
- - Push and hold either `light` or `alarm`.
+ - Push and hold `alarm`.
     
 To show the memory register, use `m` instead of a number. 
    
@@ -307,6 +311,8 @@ void morsecalc_face_setup(movement_settings_t *settings, uint8_t watch_face_inde
         
         mcs->mc = (mc_state_t *) malloc(sizeof(mc_state_t));
         mc_reset(mcs->mc);
+
+        mcs->led_is_on = 0;
     }
     return;
 }
@@ -320,28 +326,8 @@ void morsecalc_face_activate(movement_settings_t *settings, void *context) {
 }
 
 bool morsecalc_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
-    (void) settings;
     morsecalc_state_t *mcs = (morsecalc_state_t *) context;
     switch(event.event_type) {
-    // quit
-    case EVENT_TIMEOUT:
-        movement_move_to_next_face();
-        break;
-    case EVENT_MODE_LONG_PRESS:
-        movement_move_to_next_face();
-        break;
-
-	// show stack
-    case EVENT_LIGHT_LONG_PRESS:
-        movement_illuminate_led(); // Bug; see Sensor-Watch/issues/166
-        morsecalc_print_stack(mcs);
-		mc_reset(mcs->mc);
-        break;
-    case EVENT_ALARM_LONG_PRESS:
-        morsecalc_print_stack(mcs);
-		mc_reset(mcs->mc);
-        break;
-    
     // input
     case EVENT_ALARM_BUTTON_UP:
     // dot
@@ -355,14 +341,51 @@ bool morsecalc_face_loop(movement_event_t event, movement_settings_t *settings, 
     // submit character
         morsecalc_input(mcs, 'x'); 
         break;
-    }
+
+    // show stack
+    case EVENT_ALARM_LONG_PRESS:
+        morsecalc_print_stack(mcs);
+		mc_reset(mcs->mc);
+        break;
+
+    // toggle light
+    case EVENT_LIGHT_LONG_PRESS:
+        mcs->led_is_on = !mcs->led_is_on;
+        if(mcs->led_is_on) {
+			watch_set_led_color(settings->bit.led_red_color ? (0xF | settings->bit.led_red_color << 4) : 0,
+								settings->bit.led_green_color ? (0xF | settings->bit.led_green_color << 4) : 0);
+            movement_request_tick_frequency(4);
+        }
+        else {
+            watch_set_led_off();
+            movement_request_tick_frequency(1);
+        }
+        break;
+
+    // quit
+    case EVENT_TIMEOUT:
+        movement_move_to_next_face();
+        break;
+    case EVENT_MODE_LONG_PRESS:
+        movement_move_to_next_face();
+        break;
+
+    case EVENT_TICK:
+        if(mcs->led_is_on) { 
+			watch_set_led_color(settings->bit.led_red_color ? (0xF | settings->bit.led_red_color << 4) : 0,
+				settings->bit.led_green_color ? (0xF | settings->bit.led_green_color << 4) : 0);
+		}
+        break;
+	}
     
     return true;
 }
 
 void morsecalc_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
-    (void) context;
+    morsecalc_state_t *mcs = (morsecalc_state_t *) context;
+    mcs->led_is_on = 0;
+	watch_set_led_off();
     return;
 }
 
