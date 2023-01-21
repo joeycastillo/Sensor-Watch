@@ -49,7 +49,7 @@ double calc_strtof(const char *str, char **endptr) {
   int num_decimals;
 
   // Skip leading whitespace
-  while (isspace(*p)) p++;
+  while (isspace((int) *p)) p++;
 
   // Handle optional sign
   negative = 0;
