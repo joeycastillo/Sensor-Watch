@@ -35,7 +35,6 @@ const watch_face_t watch_faces[] = {
     stopwatch_face,
     preferences_face,
     set_time_face,
-    morsecalc_face,
 };
 
 #define MOVEMENT_NUM_FACES (sizeof(watch_faces) / sizeof(watch_face_t))
