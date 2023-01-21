@@ -27,27 +27,6 @@
 
 #include "movement.h"
 
-
-// Update when adding/removing modes. This value is used for cycling through modes.
-#define CDM_COUNT 2
-
-// Chirpy Demo Modes
-typedef enum {
-    CDM_SCALE = 0,
-    CDM_INFO_21_TPS,
-} chirpy_demo_mode_t;
-
-typedef void (*chirpy_tick_t)(void *context);
-
-typedef struct {
-    chirpy_demo_mode_t mode;
-    uint8_t tick_count;
-    uint8_t tick_compare;
-    uint16_t seq_pos;
-    chirpy_tick_t tick_fun;
-} chirpy_demo_state_t;
-
-
 void chirpy_demo_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
 void chirpy_demo_face_activate(movement_settings_t *settings, void *context);
 bool chirpy_demo_face_loop(movement_event_t event, movement_settings_t *settings, void *context);

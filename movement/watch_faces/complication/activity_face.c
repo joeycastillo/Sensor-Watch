@@ -28,31 +28,35 @@
  * OK FULL behavior
  * OK Clear blinking confirmation
  * OK Actually clear
- * -- Actually chirp
+ * OK Actually chirp
+ * OK Display countdown while chirping
+ * OK Quit chirp by mode press
  * -- Low energy mode > movement_le_inactivity_deadlines
  * -- Write in-comment documentation
+ * -- Reset length limit to 5 min :)
  *
  */
 
 #include <stdlib.h>
 #include <string.h>
 #include "activity_face.h"
+#include "chirpy_tx.h"
 #include "watch.h"
 #include "watch_utility.h"
 
 // ===========================================================================
-// This part is semi-configurable: you can edit values here to customize you activity face
+// This part is configurable: you can edit values here to customize you activity face
 // In particular, with num_enabled_activities and enabled_activities you can choose a subset of the
 //   activities that you want to see in your watch.
 // You can also add new items to activity_names, but don't redefine or remove existing ones.
 
 // If a logged activity is shorter than this, then it won't be added to log when it ends.
 // This way scarce log slots are not taken up by aborted events that weren't real activities.
-const uint16_t activity_min_length_sec = 300;
+static const uint16_t activity_min_length_sec = 10; // 300
 
 // Supported activities. ID of activity is index in this buffer
 // W e should never change order or redefine items, only add new items when needed.
-const char activity_names[][7] = {
+static const char activity_names[][7] = {
     " bIKE ",
     "uuaLK ",
     "  rUn ",
@@ -67,12 +71,12 @@ const char activity_names[][7] = {
 };
 
 // Number of currently enabled activities (size of enabled_activities).
-const uint8_t num_enabled_activities = 3;
+static const uint8_t num_enabled_activities = 3;
 
 // Currently enabled activities. This makes picking on first subface easier: why show activities you personally never do.
-const uint8_t enabled_activities[] = {0, 1, 2};
+static const uint8_t enabled_activities[] = {0, 1, 2};
 
-// End semi-configurable section
+// End configurable section
 // ===========================================================================
 
 // One logged activity
@@ -95,10 +99,14 @@ typedef struct __attribute__((__packed__)) {
 #define ACTIVITY_LOG_SZ 99
 
 // Number of activities in buffer.
-uint8_t activity_log_count = 0;
+static uint8_t activity_log_count = 0;
 
 // Buffer with all logged activities.
-activity_item_t activity_log_buffer[ACTIVITY_LOG_SZ];
+static activity_item_t activity_log_buffer[ACTIVITY_LOG_SZ];
+
+#define CHIRPY_PREFIX_LEN 2
+// First two bytes chirped out, to identify transmission as from the activity face
+static const uint8_t activity_chirpy_prefix[CHIRPY_PREFIX_LEN] = {0x05, 0x27};
 
 // The face's different UI modes (views).
 typedef enum {
@@ -106,6 +114,7 @@ typedef enum {
     ACTM_LOGGING,
     ACTM_PAUSED,
     ACTM_DONE,
+    ACTM_LOGSIZE,
     ACTM_CHIRP,
     ACTM_CHIRPING,
     ACTM_CLEAR,
@@ -122,9 +131,9 @@ typedef struct {
     uint8_t type_ix;
 
     // Used for different things depending on mode
-    // In ACTM_DONE: countdown for animation, before returning to start screen
+    // In ACTM_DONE: countdown for animation, before returning to start face
     // In ACTM_LOGGING and ACTM_PAUSED: loops forever; value drives blinking colon and hour/minutes display at top
-    // In ACTM_CHIRP and ACTM_CLEAR: loops; drives alternation between activity count and text
+    // In ACTM_LOGSIZE, ACTM_CHIRP ACTM_CLEAR: enabled timeout retur to choose screen
     uint8_t counter;
 
     // Start of currently logged activity, if any
@@ -136,12 +145,21 @@ typedef struct {
     // Start of current pause, if we're in ACTM_PAUSED
     watch_date_time pause_start_time;
 
+    // Helps us handle 1/64 ticks during transmission; including countdown timer
+    chirpy_tick_state_t chirpy_tick_state;
+
+    // Used by chirpy encoder during transmission
+    chirpy_encoder_state_t chirpy_encoder_state;
+
 } activity_state_t;
 
 #define ACTIVITY_BUF_SZ 14
 
 // Temp buffer used for sprintf'ing content for the display.
 char activity_buf[ACTIVITY_BUF_SZ];
+
+// Needed by _activity_get_next_byte to keep track of where we are in transmission
+uint16_t *activity_seq_pos;
 
 static void _activity_clear_buffers() {
     // Clear activity buffer; 0xcd is good for diagnostics
@@ -150,8 +168,11 @@ static void _activity_clear_buffers() {
     memset(activity_buf, 0, ACTIVITY_BUF_SZ);
 }
 
+static uint8_t _activity_get_next_byte(uint8_t *next_byte);
+
 void activity_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void **context_ptr) {
     (void)settings;
+    (void)watch_face_index;
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(activity_state_t));
         memset(*context_ptr, 0, sizeof(activity_state_t));
@@ -167,6 +188,39 @@ void activity_face_activate(movement_settings_t *settings, void *context) {
 
     state->mode = 0;
     movement_request_tick_frequency(2);
+
+    // // Generate and dump two logged activities
+    // activity_log_count = 2;
+    // activity_item_t *itm = &activity_log_buffer[0];
+    // itm->start_time.unit.year = 3;
+    // itm->start_time.unit.month = 1;
+    // itm->start_time.unit.day = 1;
+    // itm->start_time.unit.hour = 10;
+    // itm->start_time.unit.minute = 15;
+    // itm->start_time.unit.second = 20;
+    // itm->total_sec = 1620;
+    // itm->pause_sec = 0;
+    // itm->activity_type = 2;
+    // itm = &activity_log_buffer[1];
+    // itm->start_time.unit.year = 3;
+    // itm->start_time.unit.month = 1;
+    // itm->start_time.unit.day = 21;
+    // itm->start_time.unit.hour = 16;
+    // itm->start_time.unit.minute = 21;
+    // itm->start_time.unit.second = 26;
+    // itm->total_sec = 2520;
+    // itm->pause_sec = 245;
+    // itm->activity_type = 0;
+    // uint16_t pos = 0;
+    // activity_seq_pos = &pos;
+    // while (true) {
+    //     uint8_t byte;
+    //     if (_activity_get_next_byte(&byte) == 0)
+    //         break;
+    //     printf("0x%02x, ", byte);
+    // }
+    // printf("\nItems: %d\n", pos);
+
 }
 
 static void _activity_display_choice(activity_state_t *state) {
@@ -177,7 +231,8 @@ static void _activity_display_choice(activity_state_t *state) {
     }
     // Otherwise, we show currently activity
     else {
-        const char *name = activity_names[state->type_ix];
+        uint8_t activity_ix = enabled_activities[state->type_ix];
+        const char *name = activity_names[activity_ix];
         watch_display_string((char *)name, 4);
     }
 }
@@ -196,19 +251,9 @@ static void _activity_display_duration(activity_state_t *state, uint32_t seconds
     uint32_t seconds = seconds_counted - state->pause_sec;
     watch_duration_t duration = watch_utility_seconds_to_duration(seconds);
 
-    // Under a minute: only seconds
-    if (seconds < 60) {
-        sprintf(activity_buf, "%02d", duration.seconds);
-        watch_display_string(activity_buf, 8);
-    }
-    // Under 10 minutes: M:SS
-    else if (seconds < 600) {
-        sprintf(activity_buf, "%d%02d", duration.minutes, duration.seconds);
-        watch_display_string(activity_buf, 7);
-    }
     // Under an hour: MM:SS
-    else if (seconds < 3600) {
-        sprintf(activity_buf, "%02d%02d", duration.hours, duration.minutes, duration.seconds);
+    if (seconds < 3600) {
+        sprintf(activity_buf, "%02d%02d", duration.minutes, duration.seconds);
         watch_display_string(activity_buf, 6);
     }
     // Over an hour: H:MM:SS
@@ -265,6 +310,120 @@ static void _activity_update_logging_screen(movement_settings_t *settings, activ
     _activity_display_small_time(settings, state, now);
 }
 
+static void _activity_quit_chirping() {
+    watch_clear_indicator(WATCH_INDICATOR_BELL);
+    watch_set_buzzer_off();
+    movement_request_tick_frequency(2);
+}
+
+static void _activity_chirp_tick_transmit(void *context) {
+    activity_state_t *state = (activity_state_t *)context;
+
+    uint8_t tone = chirpy_get_next_tone(&state->chirpy_encoder_state);
+    // Transmission over?
+    if (tone == 255) {
+        _activity_quit_chirping();
+        state->mode = ACTM_CHIRP;
+        state->counter = 0;
+        watch_display_string("AC  CHIRP ", 0);
+        return;
+    }
+    uint16_t period = chirpy_get_tone_period(tone);
+    watch_set_buzzer_period(period);
+    watch_set_buzzer_on();
+}
+
+static void _activity_chirp_tick_countdown(void *context) {
+    activity_state_t *state = (activity_state_t *)context;
+
+    // Countdown over: start actual broadcast
+    if (state->chirpy_tick_state.seq_pos == 8 * 3) {
+        state->chirpy_tick_state.tick_compare = 3;
+        state->chirpy_tick_state.tick_count = 2; // tick_compare - 1, so it starts immediately
+        state->chirpy_tick_state.seq_pos = 0;
+        state->chirpy_tick_state.tick_fun = _activity_chirp_tick_transmit;
+        return;
+    }
+    // Sound or turn off buzzer
+    if ((state->chirpy_tick_state.seq_pos % 8) == 0) {
+        watch_set_buzzer_period(NotePeriods[BUZZER_NOTE_A5]);
+        watch_set_buzzer_on();
+        if (state->chirpy_tick_state.seq_pos == 0) {
+            watch_display_string(" ---  ", 4);
+        }
+        else if (state->chirpy_tick_state.seq_pos == 8) {
+            watch_display_string(" --", 5);
+        }
+        else if (state->chirpy_tick_state.seq_pos == 16) {
+            watch_display_string("  -", 5);
+        }
+    } else if ((state->chirpy_tick_state.seq_pos % 8) == 1) {
+        watch_set_buzzer_off();
+    }
+    ++state->chirpy_tick_state.seq_pos;
+}
+
+static uint8_t _activity_get_next_byte(uint8_t *next_byte) {
+    uint16_t num_bytes = 2 + activity_log_count * sizeof(activity_item_t);
+    uint16_t pos = *activity_seq_pos;
+
+    // Init counter
+    if (pos == 0) {
+        sprintf(activity_buf, "%3d", activity_log_count);
+        watch_display_string(activity_buf, 5);
+    }
+
+    if (pos == num_bytes) {
+        return 0;
+    }
+    // Two-byte prefix
+    if (pos < 2) {
+        (*next_byte) = activity_chirpy_prefix[pos];
+    }
+    // Data
+    else {
+        pos -= 2;
+        uint16_t ix = pos / sizeof(activity_item_t);
+        const activity_item_t *itm = &activity_log_buffer[ix];
+        uint16_t ofs = pos % sizeof(activity_item_t);
+        
+        // Update counter when starting new item
+        if (ofs == 0) {
+            sprintf(activity_buf, "%3d", activity_log_count - ix);
+            watch_display_string(activity_buf, 5);
+        }
+
+        // Do this the hard way, byte by byte, to avoid high/low endedness issues
+        // Higher order bytes first, is our serialization format
+        uint8_t val;
+        // watch_date_time start_time;
+        // uint16_t total_sec;
+        // uint16_t pause_sec;
+        // uint8_t activity_type;
+        if (ofs == 0)
+            val = (itm->start_time.reg & 0xff000000) >> 24;
+        else if (ofs == 1)
+            val = (itm->start_time.reg & 0x00ff0000) >> 16;
+        else if (ofs == 2)
+            val = (itm->start_time.reg & 0x0000ff00) >> 8;
+        else if (ofs == 3)
+            val = (itm->start_time.reg & 0x000000ff);
+        else if (ofs == 4)
+            val = (itm->total_sec & 0xff00) >> 8;
+        else if (ofs == 5)
+            val = (itm->total_sec & 0x00ff);
+        else if (ofs == 6)
+            val = (itm->pause_sec & 0xff00) >> 8;
+        else if (ofs == 7)
+            val = (itm->pause_sec & 0x00ff);
+        else
+            val = itm->activity_type;
+        (*next_byte) = val;
+    }
+    ++(*activity_seq_pos);
+    return 1;
+}
+
 static void _activity_handle_tick(movement_settings_t *settings, activity_state_t *state) {
     // Display stopwatch-like duration while logging
     if (state->mode == ACTM_LOGGING) {
@@ -289,21 +448,22 @@ static void _activity_handle_tick(movement_settings_t *settings, activity_state_
             watch_set_pixel(activity_anim_pixels[cd][0], activity_anim_pixels[cd][1]);
         }
     }
-    // Chirp screen and clear screen: alternative between text and size of log
-    else if (state->mode == ACTM_CHIRP || state->mode == ACTM_CLEAR) {
+    // Log size, chirp clear : return to choose after some time
+    else if (state->mode == ACTM_LOGSIZE || state->mode == ACTM_CHIRP || state->mode == ACTM_CLEAR) {
         ++state->counter;
-        char *text = "CHIRP ";
-        if (state->mode == ACTM_CLEAR) text = "CLEAR ";
-        sprintf(activity_buf, "   %2d ", activity_log_count);
-        if ((state->counter % 8) < 4)
-            watch_display_string(text, 4);
-        else
-            watch_display_string(activity_buf, 4);
-        // If clear screen and been hanging around for 15 seconds: return to choose
-        // We are afraid of clear, it's very destructive
-        if (state->mode == ACTM_CLEAR && state->counter > 30) {
+        uint16_t timeout = 30;
+        if (state->mode == ACTM_CLEAR) timeout = 15;
+        if (state->counter > timeout) {
             state->mode = ACTM_CHOOSE;
             _activity_display_choice(state);
+        }
+    }
+    // Chirping
+    else if (state->mode == ACTM_CHIRPING) {
+        ++state->chirpy_tick_state.tick_count;
+        if (state->chirpy_tick_state.tick_count == state->chirpy_tick_state.tick_compare) {
+            state->chirpy_tick_state.tick_count = 0;
+            state->chirpy_tick_state.tick_fun(state);
         }
     }
     // Clear confirm: blink CLEAR
@@ -391,6 +551,21 @@ static void _activity_alarm_long(activity_state_t *state) {
         watch_clear_display();
         watch_display_string("AC   dONE ", 0);
     }
+    // If chirp: kick off chirping
+    else if (state->mode == ACTM_CHIRP) {
+        state->mode = ACTM_CHIRPING;
+        // Set up our tick handling for countdown beeps
+        activity_seq_pos = &state->chirpy_tick_state.seq_pos;
+        state->chirpy_tick_state.tick_compare = 8;
+        state->chirpy_tick_state.tick_count = 7; // tick_compare - 1, so it starts immediately
+        state->chirpy_tick_state.seq_pos = 0;
+        state->chirpy_tick_state.tick_fun = _activity_chirp_tick_countdown;
+        // Set up chirpy encoder
+        chirpy_init_encoder(&state->chirpy_encoder_state, _activity_get_next_byte);
+        // Show bell; switch to 64/sec ticks
+        watch_set_indicator(WATCH_INDICATOR_BELL);
+        movement_request_tick_frequency(64);
+    }
     // If clear: confirm (unless empty)
     else if (state->mode == ACTM_CLEAR) {
         if (activity_log_count == 0)
@@ -409,8 +584,13 @@ static void _activity_alarm_long(activity_state_t *state) {
 }
 
 static void _activity_alarm_short(movement_settings_t *settings, activity_state_t *state) {
+    // In the choose face, short ALARM cycles through activities
+    if (state->mode == ACTM_CHOOSE) {
+        state->type_ix = (state->type_ix + 1) % num_enabled_activities;
+        _activity_display_choice(state);
+    }
     // If logging: pause
-    if (state->mode == ACTM_LOGGING) {
+    else if (state->mode == ACTM_LOGGING) {
         state->pause_start_time = watch_rtc_get_date_time();
         watch_display_string(" PAUSE", 4);
         watch_clear_indicator(WATCH_INDICATOR_LAP);
@@ -423,8 +603,25 @@ static void _activity_alarm_short(movement_settings_t *settings, activity_state_
         watch_display_string("      ", 4);
         _activity_update_logging_screen(settings, state);
     }
-    // If choose face: move to chirp
-    else if (state->mode == ACTM_CHOOSE) {
+    // If chirping: stoppit
+    else if (state->mode == ACTM_CHIRPING) {
+        _activity_quit_chirping();
+        state->mode = ACTM_CHIRP;
+        state->counter = 0;
+        watch_display_string("AC  CHIRP ", 0);
+    }
+}
+
+static void _activity_light_short(activity_state_t *state) {
+    // If choose face: move to log size
+    if (state->mode == ACTM_CHOOSE) {
+        state->mode = ACTM_LOGSIZE;
+        state->counter = 0;
+        sprintf(activity_buf, "AC  LOg%3d", activity_log_count);
+        watch_display_string(activity_buf, 0);
+    }
+    // If log size face: move to chirp
+    else if (state->mode == ACTM_LOGSIZE) {
         state->mode = ACTM_CHIRP;
         state->counter = 0;
         watch_display_string("AC  CHIRP ", 0);
@@ -433,13 +630,18 @@ static void _activity_alarm_short(movement_settings_t *settings, activity_state_
     else if (state->mode == ACTM_CHIRP) {
         state->mode = ACTM_CLEAR;
         state->counter = 0;
-        watch_display_string("AC  CEAR ", 0);
+        watch_display_string("AC  CLEAR ", 0);
     }
     // If clear face: return to choose face
     else if (state->mode == ACTM_CLEAR || state->mode == ACTM_CLEAR_CONFIRM) {
         state->mode = ACTM_CHOOSE;
         _activity_display_choice(state);
     }
+    // While logging or paused, light is light
+    else if (state->mode == ACTM_LOGGING || state->mode == ACTM_PAUSED) {
+        movement_illuminate_led();
+    }
+    // Otherwise, we don't do light.
 }
 
 bool activity_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
@@ -458,16 +660,7 @@ bool activity_face_loop(movement_event_t event, movement_settings_t *settings, v
             }
             break;
         case EVENT_LIGHT_BUTTON_UP:
-            // In the choose face, LIGHT cycles through activities
-            if (state->mode == ACTM_CHOOSE) {
-                state->type_ix = (state->type_ix + 1) % num_enabled_activities;
-                _activity_display_choice(state);
-            }
-            // While logging or paused, light is light
-            else if (state->mode == ACTM_LOGGING || state->mode == ACTM_PAUSED) {
-                movement_illuminate_led();
-            }
-            // Otherwise, we don't do light.
+            _activity_light_short(state);
             break;
         case EVENT_ALARM_BUTTON_UP:
             _activity_alarm_short(settings, state);
@@ -476,7 +669,7 @@ bool activity_face_loop(movement_event_t event, movement_settings_t *settings, v
             _activity_alarm_long(state);
             break;
         case EVENT_TIMEOUT:
-            if (state->mode != ACTM_LOGGING && state->mode != ACTM_PAUSED) {
+            if (state->mode != ACTM_LOGGING && state->mode != ACTM_PAUSED && state->mode != ACTM_CHIRPING) {
                 movement_move_to_face(0);
             }
             break;
@@ -490,9 +683,11 @@ bool activity_face_loop(movement_event_t event, movement_settings_t *settings, v
             break;
     }
 
-    // return true if the watch can enter standby mode. If you are PWM'ing an LED or buzzing the buzzer here,
-    // you should return false since the PWM driver does not operate in standby mode.
-    return true;
+    // Return true if the watch can enter standby mode. False needed when chirping.
+    if (state->mode == ACTM_CHIRPING)
+        return false;
+    else
+        return true;
 }
 
 void activity_face_resign(movement_settings_t *settings, void *context) {
