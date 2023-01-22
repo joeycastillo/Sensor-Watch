@@ -293,7 +293,7 @@ static void _activity_update_logging_screen(movement_settings_t *settings, activ
     }
     // Briefly, show time without seconds
     else {
-        sprintf(activity_buf, "%02d%02d  ", hour, now.unit.minute);
+        sprintf(activity_buf, "%2d%02d  ", hour, now.unit.minute);
         watch_display_string(activity_buf, 4);
     }
 
