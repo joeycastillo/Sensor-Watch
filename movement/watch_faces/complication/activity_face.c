@@ -34,6 +34,7 @@
  * -- Low energy mode > movement_le_inactivity_deadlines
  * -- Write in-comment documentation
  * -- Reset length limit to 5 min :)
+ * -- Stop a 8 hours
  *
  */
 
@@ -52,29 +53,32 @@
 
 // If a logged activity is shorter than this, then it won't be added to log when it ends.
 // This way scarce log slots are not taken up by aborted events that weren't real activities.
-static const uint16_t activity_min_length_sec = 10; // 300
+static const uint16_t activity_min_length_sec = 10;  // 300
 
 // Supported activities. ID of activity is index in this buffer
 // W e should never change order or redefine items, only add new items when needed.
-static const char activity_names[][7] = {
+static const char activity_names[][14] = {
     " bIKE ",
     "uuaLK ",
     "  rUn ",
-    "  rOuu",
     "DAnCE ",
+    " yOgA ",
+    "CrOSS ",
     "Suuinn",
     "ELLIP ",
+    "  gYnn",
+    "  rOuu",
     "SOCCEr",
     " FOOTb",
-    "  SKI ",
     " bALL ",
+    "  SKI ",
 };
 
 // Number of currently enabled activities (size of enabled_activities).
-static const uint8_t num_enabled_activities = 3;
+static const uint8_t num_enabled_activities = 14;
 
 // Currently enabled activities. This makes picking on first subface easier: why show activities you personally never do.
-static const uint8_t enabled_activities[] = {0, 1, 2};
+static const uint8_t enabled_activities[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13};
 
 // End configurable section
 // ===========================================================================
@@ -106,7 +110,7 @@ static activity_item_t activity_log_buffer[ACTIVITY_LOG_SZ];
 
 #define CHIRPY_PREFIX_LEN 2
 // First two bytes chirped out, to identify transmission as from the activity face
-static const uint8_t activity_chirpy_prefix[CHIRPY_PREFIX_LEN] = {0x05, 0x27};
+static const uint8_t activity_chirpy_prefix[CHIRPY_PREFIX_LEN] = {0x27, 0x00};
 
 // The face's different UI modes (views).
 typedef enum {
@@ -132,9 +136,9 @@ typedef struct {
 
     // Used for different things depending on mode
     // In ACTM_DONE: countdown for animation, before returning to start face
-    // In ACTM_LOGGING and ACTM_PAUSED: loops forever; value drives blinking colon and hour/minutes display at top
-    // In ACTM_LOGSIZE, ACTM_CHIRP ACTM_CLEAR: enabled timeout retur to choose screen
-    uint8_t counter;
+    // In ACTM_LOGGING and ACTM_PAUSED: drives blinking colon and alternating time display
+    // In ACTM_LOGSIZE, ACTM_CHIRP ACTM_CLEAR: enables timeout return to choose screen
+    uint16_t counter;
 
     // Start of currently logged activity, if any
     watch_date_time start_time;
@@ -193,23 +197,23 @@ void activity_face_activate(movement_settings_t *settings, void *context) {
     // activity_log_count = 2;
     // activity_item_t *itm = &activity_log_buffer[0];
     // itm->start_time.unit.year = 3;
-    // itm->start_time.unit.month = 1;
-    // itm->start_time.unit.day = 1;
+    // itm->start_time.unit.month = 5;
+    // itm->start_time.unit.day = 13;
     // itm->start_time.unit.hour = 10;
     // itm->start_time.unit.minute = 15;
     // itm->start_time.unit.second = 20;
     // itm->total_sec = 1620;
-    // itm->pause_sec = 0;
+    // itm->pause_sec = 8;
     // itm->activity_type = 2;
     // itm = &activity_log_buffer[1];
-    // itm->start_time.unit.year = 3;
-    // itm->start_time.unit.month = 1;
+    // itm->start_time.unit.year = 1;
+    // itm->start_time.unit.month = 9;
     // itm->start_time.unit.day = 21;
     // itm->start_time.unit.hour = 16;
     // itm->start_time.unit.minute = 21;
     // itm->start_time.unit.second = 26;
     // itm->total_sec = 2520;
-    // itm->pause_sec = 245;
+    // itm->pause_sec = 256;
     // itm->activity_type = 0;
     // uint16_t pos = 0;
     // activity_seq_pos = &pos;
@@ -217,10 +221,9 @@ void activity_face_activate(movement_settings_t *settings, void *context) {
     //     uint8_t byte;
     //     if (_activity_get_next_byte(&byte) == 0)
     //         break;
-    //     printf("0x%02x, ", byte);
+    //     printf("%02x", byte);
     // }
     // printf("\nItems: %d\n", pos);
-
 }
 
 static void _activity_display_choice(activity_state_t *state) {
@@ -247,44 +250,15 @@ const uint8_t activity_anim_pixels[][2] = {
     // {2, 4}, // MID
 };
 
-static void _activity_display_duration(activity_state_t *state, uint32_t seconds_counted) {
+static void _activity_update_logging_screen(movement_settings_t *settings, activity_state_t *state) {
+    watch_date_time now = watch_rtc_get_date_time();
+    uint32_t now_timestamp = watch_utility_date_time_to_unix_time(now, 0);
+    uint32_t start_timestamp = watch_utility_date_time_to_unix_time(state->start_time, 0);
+    uint32_t seconds_counted = now_timestamp - start_timestamp;
     uint32_t seconds = seconds_counted - state->pause_sec;
     watch_duration_t duration = watch_utility_seconds_to_duration(seconds);
 
-    // Under an hour: MM:SS
-    if (seconds < 3600) {
-        sprintf(activity_buf, "%02d%02d", duration.minutes, duration.seconds);
-        watch_display_string(activity_buf, 6);
-    }
-    // Over an hour: H:MM:SS
-    // (We never go to two-digit hours; stop at 8)
-    else {
-        sprintf(activity_buf, "%d%02d%02d", duration.hours, duration.minutes, duration.seconds);
-        watch_display_string(activity_buf, 5);
-    }
-
-    // If we're over an hour: blink colon; LAP on
-    if (duration.hours > 0) {
-        watch_set_indicator(WATCH_INDICATOR_LAP);
-        if ((state->counter % 2) == 0) {
-            watch_set_colon();
-        } else {
-            watch_clear_colon();
-        }
-    }
-    // Under an hour: blink LAP; colon off
-    else {
-        watch_clear_colon();
-        if ((state->counter % 2) == 0) {
-            watch_clear_indicator(WATCH_INDICATOR_LAP);
-        } else {
-            watch_set_indicator(WATCH_INDICATOR_LAP);
-        }
-    }
-}
-
-static void _activity_display_small_time(movement_settings_t *settings, activity_state_t *state, watch_date_time time) {
-    uint8_t hour = time.unit.hour;
+    uint8_t hour = now.unit.hour;
     if (!settings->bit.clock_mode_24h) {
         if (hour < 12)
             watch_clear_indicator(WATCH_INDICATOR_PM);
@@ -292,22 +266,47 @@ static void _activity_display_small_time(movement_settings_t *settings, activity
             watch_set_indicator(WATCH_INDICATOR_PM);
         hour %= 12;
     }
-    if ((state->counter % 16) < 6) {
-        sprintf(activity_buf, "%02d", hour);
-        watch_display_string(activity_buf, 0);
-    } else {
-        sprintf(activity_buf, "%02d", time.unit.minute);
-        watch_display_string(activity_buf, 0);
-    }
-}
 
-static void _activity_update_logging_screen(movement_settings_t *settings, activity_state_t *state) {
-    watch_date_time now = watch_rtc_get_date_time();
-    uint32_t now_timestamp = watch_utility_date_time_to_unix_time(now, 0);
-    uint32_t start_timestamp = watch_utility_date_time_to_unix_time(state->start_time, 0);
-    uint32_t seconds_counted = now_timestamp - start_timestamp;
-    _activity_display_duration(state, seconds_counted);
-    _activity_display_small_time(settings, state, now);
+    // Show elapsed time, or PAUSE
+    if ((state->counter % 10) < 8) {
+        if (state->mode == ACTM_PAUSED) {
+            watch_display_string(" PAUSE", 4);
+        } else {
+            // Under 10 minutes: M:SS
+            if (seconds < 600) {
+                sprintf(activity_buf, "   %01d%02d", duration.minutes, duration.seconds);
+                watch_display_string(activity_buf, 4);
+            }
+            // Under an hour: MM:SS
+            else if (seconds < 3600) {
+                sprintf(activity_buf, "  %02d%02d", duration.minutes, duration.seconds);
+                watch_display_string(activity_buf, 4);
+            }
+            // Over an hour: H:MM:SS
+            // (We never go to two-digit hours; stop at 8)
+            else {
+                sprintf(activity_buf, " %d%02d%02d", duration.hours, duration.minutes, duration.seconds);
+                watch_display_string(activity_buf, 4);
+                watch_set_colon();
+            }
+        }
+    }
+    // Briefly, show time without seconds
+    else {
+        sprintf(activity_buf, "%02d%02d  ", hour, now.unit.minute);
+        watch_display_string(activity_buf, 4);
+    }
+
+    // Blink LAP if not paused
+    if (state->mode != ACTM_PAUSED) {
+        if ((state->counter % 2) == 0) {
+            watch_clear_indicator(WATCH_INDICATOR_LAP);
+        } else {
+            watch_set_indicator(WATCH_INDICATOR_LAP);
+        }
+    } else {
+        watch_clear_indicator(WATCH_INDICATOR_LAP);
+    }
 }
 
 static void _activity_quit_chirping() {
@@ -339,7 +338,7 @@ static void _activity_chirp_tick_countdown(void *context) {
     // Countdown over: start actual broadcast
     if (state->chirpy_tick_state.seq_pos == 8 * 3) {
         state->chirpy_tick_state.tick_compare = 3;
-        state->chirpy_tick_state.tick_count = 2; // tick_compare - 1, so it starts immediately
+        state->chirpy_tick_state.tick_count = 2;  // tick_compare - 1, so it starts immediately
         state->chirpy_tick_state.seq_pos = 0;
         state->chirpy_tick_state.tick_fun = _activity_chirp_tick_transmit;
         return;
@@ -350,11 +349,9 @@ static void _activity_chirp_tick_countdown(void *context) {
         watch_set_buzzer_on();
         if (state->chirpy_tick_state.seq_pos == 0) {
             watch_display_string(" ---  ", 4);
-        }
-        else if (state->chirpy_tick_state.seq_pos == 8) {
+        } else if (state->chirpy_tick_state.seq_pos == 8) {
             watch_display_string(" --", 5);
-        }
-        else if (state->chirpy_tick_state.seq_pos == 16) {
+        } else if (state->chirpy_tick_state.seq_pos == 16) {
             watch_display_string("  -", 5);
         }
     } else if ((state->chirpy_tick_state.seq_pos % 8) == 1) {
@@ -386,7 +383,7 @@ static uint8_t _activity_get_next_byte(uint8_t *next_byte) {
         uint16_t ix = pos / sizeof(activity_item_t);
         const activity_item_t *itm = &activity_log_buffer[ix];
         uint16_t ofs = pos % sizeof(activity_item_t);
-        
+
         // Update counter when starting new item
         if (ofs == 0) {
             sprintf(activity_buf, "%3d", activity_log_count - ix);
@@ -425,16 +422,10 @@ static uint8_t _activity_get_next_byte(uint8_t *next_byte) {
 }
 
 static void _activity_handle_tick(movement_settings_t *settings, activity_state_t *state) {
-    // Display stopwatch-like duration while logging
-    if (state->mode == ACTM_LOGGING) {
+    // Display stopwatch-like duration while logging, alternate with time
+    if (state->mode == ACTM_LOGGING || state->mode == ACTM_PAUSED) {
         ++state->counter;
         _activity_update_logging_screen(settings, state);
-    }
-    // While paused, just keep updating small time
-    else if (state->mode == ACTM_PAUSED) {
-        ++state->counter;
-        watch_date_time now = watch_rtc_get_date_time();
-        _activity_display_small_time(settings, state, now);
     }
     // Display countown animation, and exit face when down
     else if (state->mode == ACTM_DONE) {
@@ -481,13 +472,13 @@ static void _activity_handle_tick(movement_settings_t *settings, activity_state_
     // Clear done: fill up zeroes, then return to choose screen
     else if (state->mode == ACTM_CLEAR_DONE) {
         ++state->counter;
-        if (state->counter == 14) {
+        if (state->counter == 7) {
             state->mode = ACTM_CHOOSE;
             _activity_display_choice(state);
             return;
         }
         sprintf(activity_buf, "      ");
-        uint8_t nZeros = state->counter / 2 + 1;
+        uint8_t nZeros = state->counter + 1;
         if (nZeros > 6) nZeros = 6;
         for (uint8_t i = 0; i < nZeros; ++i) {
             activity_buf[i] = '0';
@@ -538,7 +529,6 @@ static void _activity_alarm_long(activity_state_t *state) {
         state->pause_sec = 0;
         state->counter = -1;
         state->mode = ACTM_LOGGING;
-        watch_clear_display();
     }
     // If logging or paused: end logging
     else if (state->mode == ACTM_LOGGING || state->mode == ACTM_PAUSED) {
@@ -547,7 +537,7 @@ static void _activity_alarm_long(activity_state_t *state) {
         _activity_save_new(state);
         // Go to DONE animation
         state->mode = ACTM_DONE;
-        state->counter = 6 * 3;
+        state->counter = 6 * 1;
         watch_clear_display();
         watch_display_string("AC   dONE ", 0);
     }
@@ -557,7 +547,7 @@ static void _activity_alarm_long(activity_state_t *state) {
         // Set up our tick handling for countdown beeps
         activity_seq_pos = &state->chirpy_tick_state.seq_pos;
         state->chirpy_tick_state.tick_compare = 8;
-        state->chirpy_tick_state.tick_count = 7; // tick_compare - 1, so it starts immediately
+        state->chirpy_tick_state.tick_count = 7;  // tick_compare - 1, so it starts immediately
         state->chirpy_tick_state.seq_pos = 0;
         state->chirpy_tick_state.tick_fun = _activity_chirp_tick_countdown;
         // Set up chirpy encoder
@@ -592,15 +582,15 @@ static void _activity_alarm_short(movement_settings_t *settings, activity_state_
     // If logging: pause
     else if (state->mode == ACTM_LOGGING) {
         state->pause_start_time = watch_rtc_get_date_time();
-        watch_display_string(" PAUSE", 4);
-        watch_clear_indicator(WATCH_INDICATOR_LAP);
         state->mode = ACTM_PAUSED;
+        state->counter = 0;
+        _activity_update_logging_screen(settings, state);
     }
     // If paused: Update paused seconds count and return to logging
     else if (state->mode == ACTM_PAUSED) {
         _activity_add_current_pause_sec(state);
         state->mode = ACTM_LOGGING;
-        watch_display_string("      ", 4);
+        state->counter = 0;
         _activity_update_logging_screen(settings, state);
     }
     // If chirping: stoppit
