@@ -532,8 +532,10 @@ static void _activity_alarm_long(activity_state_t *state) {
     }
     // If logging or paused: end logging
     else if (state->mode == ACTM_LOGGING || state->mode == ACTM_PAUSED) {
-        // If we're stopping from paused mode, add latest paused seconds
-        _activity_add_current_pause_sec(state);
+        // If we're stopping from paused mode, add final paused seconds
+        if (state->mode == ACTM_PAUSED)
+            _activity_add_current_pause_sec(state);
+        // Save this activity
         _activity_save_new(state);
         // Go to DONE animation
         state->mode = ACTM_DONE;
@@ -543,7 +545,6 @@ static void _activity_alarm_long(activity_state_t *state) {
     }
     // If chirp: kick off chirping
     else if (state->mode == ACTM_CHIRP) {
-        state->mode = ACTM_CHIRPING;
         // Set up our tick handling for countdown beeps
         activity_seq_pos = &state->chirpy_tick_state.seq_pos;
         state->chirpy_tick_state.tick_compare = 8;
@@ -555,6 +556,7 @@ static void _activity_alarm_long(activity_state_t *state) {
         // Show bell; switch to 64/sec ticks
         watch_set_indicator(WATCH_INDICATOR_BELL);
         movement_request_tick_frequency(64);
+        state->mode = ACTM_CHIRPING;
     }
     // If clear: confirm (unless empty)
     else if (state->mode == ACTM_CLEAR) {
