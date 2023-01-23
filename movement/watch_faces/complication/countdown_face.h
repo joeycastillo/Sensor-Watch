@@ -40,9 +40,10 @@ movement_schedule_background_task() while the timer is running.
 
 
 typedef enum {
-    cd_waiting,
+    cd_paused,
     cd_running,
-    cd_setting
+    cd_setting,
+    cd_reset
 } countdown_mode_t;
 
 typedef struct {
@@ -51,6 +52,9 @@ typedef struct {
     uint8_t hours;
     uint8_t minutes;
     uint8_t seconds;
+    uint8_t set_hours;
+    uint8_t set_minutes;
+    uint8_t set_seconds;
     uint8_t selection;
     countdown_mode_t mode;
 } countdown_state_t;
