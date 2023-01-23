@@ -308,7 +308,7 @@ static void _activity_update_logging_screen(movement_settings_t *settings, activ
             else
                 watch_set_indicator(WATCH_INDICATOR_PM);
             hour %= 12;
-            if (now.unit.hour == 0) now.unit.hour = 12;
+            if (hour == 0) hour = 12;
         }
         sprintf(activity_buf, "%2d%02d  ", hour, now.unit.minute);
         watch_set_colon();
