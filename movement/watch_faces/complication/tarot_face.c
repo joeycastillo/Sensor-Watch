@@ -41,7 +41,7 @@
 // Custom methods
 // --------------
 
-static char *major_arcana[] = {
+static char major_arcana[][7] = {
     " FOOL ",
     "Mgcian",
     "HPrsts",
@@ -67,7 +67,7 @@ static char *major_arcana[] = {
 };
 #define NUM_MAJOR_ARCANA (sizeof(major_arcana) / sizeof(*major_arcana))
 
-static char *suits[] = {
+static char suits[][7] = {
     " wands",
     "  cups",
     "swords",
