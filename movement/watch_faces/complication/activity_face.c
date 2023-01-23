@@ -36,7 +36,8 @@
  * OK Update demo face with correct prefix
  * OK Run on 1-second tick
  * OK Fast blink for CLEAR confirm
- * -- Low energy mode > movement_le_inactivity_deadlines
+ * OK Low energy mode > movement_le_inactivity_deadlines
+ * -- Clear confirm: faster animation
  * -- Write in-comment documentation
  * OK Stop at 8 hours
  */

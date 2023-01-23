@@ -27,6 +27,32 @@
 
 #include "movement.h"
 
+/*
+ * CHIRPY DEMO FACE
+ * 
+ * This face demonstrates the chirpy-tx library. It is intended to help you
+ * include chirpy-tx in your own watch faces that need to transmit data out
+ * of the watch.
+ * 
+ * The face's first screen lets you select from a few built-in transmissions:
+ * 
+ * SCALE cycles through frequencies in fixed increments. This is intended to
+ * collect and analyze audio samples from different watches. With this info
+ * it may be possible to improve chirpy-tx's parameters like the frequencies
+ * it uses to make the method more robust.
+ * 
+ * SHORT is a small transmission that contains data taked from the activity_face.
+ * 
+ * LONG is a longer transmission that contains the first two strophes of a
+ * famous sea shanty.
+ * 
+ * Select the transmission you want with ALARM, the press LONG ALARM to chirp.
+ * 
+ * To record and decode a chirpy transmission on your computer, you can use the web app here:
+ * https://jealousmarkup.xyz/off/chirpy/rx/
+ * 
+ */
+
 void chirpy_demo_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
 void chirpy_demo_face_activate(movement_settings_t *settings, void *context);
 bool chirpy_demo_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
