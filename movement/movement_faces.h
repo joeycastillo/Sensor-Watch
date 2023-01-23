@@ -75,6 +75,7 @@
 #include "rpn_calculator_face.h"
 #include "activity_face.h"
 #include "chirpy_demo_face.h"
+#include "ships_bell_face.h"
 // New includes go above this line.
 
 #endif // MOVEMENT_FACES_H_
