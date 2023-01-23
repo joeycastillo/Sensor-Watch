@@ -24,6 +24,8 @@
 
 /* ** TODO
  * ===================
+ * -- Reset length limit to 5 min :)
+ * -- Additional power-saving optimizations
  * OK Save logged activity; restore real length limit
  * OK FULL behavior
  * OK Clear blinking confirmation
@@ -31,11 +33,12 @@
  * OK Actually chirp
  * OK Display countdown while chirping
  * OK Quit chirp by mode press
+ * OK Update demo face with correct prefix
+ * OK Run on 1-second tick
+ * OK Fast blink for CLEAR confirm
  * -- Low energy mode > movement_le_inactivity_deadlines
  * -- Write in-comment documentation
- * -- Reset length limit to 5 min :)
- * -- Stop a 8 hours
- *
+ * OK Stop at 8 hours
  */
 
 #include <stdlib.h>
@@ -99,6 +102,8 @@ typedef struct __attribute__((__packed__)) {
 
 } activity_item_t;
 
+#define MAX_ACTIVITY_SECONDS 28800 // 8 hours = 28800 sec
+
 // Size of (fixed) buffer to log activites. Takes up x9 bytes in SRAM if face is installed.
 #define ACTIVITY_LOG_SZ 99
 
@@ -137,23 +142,26 @@ typedef struct {
     // Used for different things depending on mode
     // In ACTM_DONE: countdown for animation, before returning to start face
     // In ACTM_LOGGING and ACTM_PAUSED: drives blinking colon and alternating time display
-    // In ACTM_LOGSIZE, ACTM_CHIRP ACTM_CLEAR: enables timeout return to choose screen
+    // In ACTM_LOGSIZE, ACTM_CLEAR: enables timeout return to choose screen
     uint16_t counter;
 
     // Start of currently logged activity, if any
     watch_date_time start_time;
 
-    // Total paused seconds in current log
-    uint16_t pause_sec;
+    // Total seconds elapsed since logging started
+    uint16_t curr_total_sec;
 
-    // Start of current pause, if we're in ACTM_PAUSED
-    watch_date_time pause_start_time;
+    // Total paused seconds in current log
+    uint16_t curr_pause_sec;
 
     // Helps us handle 1/64 ticks during transmission; including countdown timer
     chirpy_tick_state_t chirpy_tick_state;
 
     // Used by chirpy encoder during transmission
     chirpy_encoder_state_t chirpy_encoder_state;
+
+    // Non-zero if watch is in low-energy state.
+    uint8_t le_state;
 
 } activity_state_t;
 
@@ -172,6 +180,8 @@ static void _activity_clear_buffers() {
     memset(activity_buf, 0, ACTIVITY_BUF_SZ);
 }
 
+static void _activity_display_choice(activity_state_t *state);
+static void _activity_update_logging_screen(movement_settings_t *settings, activity_state_t *state);
 static uint8_t _activity_get_next_byte(uint8_t *next_byte);
 
 void activity_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void **context_ptr) {
@@ -188,42 +198,32 @@ void activity_face_setup(movement_settings_t *settings, uint8_t watch_face_index
 
 void activity_face_activate(movement_settings_t *settings, void *context) {
     (void)settings;
-    activity_state_t *state = (activity_state_t *)context;
+    (void)context;
 
-    state->mode = 0;
-    movement_request_tick_frequency(2);
+    // Not using this function. Calling _activity_activate from the event handler.
+    // That is what we get both when the face is shown upon navigation by MODE,
+    // and when waking from low energy state.
+}
 
-    // // Generate and dump two logged activities
-    // activity_log_count = 2;
-    // activity_item_t *itm = &activity_log_buffer[0];
-    // itm->start_time.unit.year = 3;
-    // itm->start_time.unit.month = 5;
-    // itm->start_time.unit.day = 13;
-    // itm->start_time.unit.hour = 10;
-    // itm->start_time.unit.minute = 15;
-    // itm->start_time.unit.second = 20;
-    // itm->total_sec = 1620;
-    // itm->pause_sec = 8;
-    // itm->activity_type = 2;
-    // itm = &activity_log_buffer[1];
-    // itm->start_time.unit.year = 1;
-    // itm->start_time.unit.month = 9;
-    // itm->start_time.unit.day = 21;
-    // itm->start_time.unit.hour = 16;
-    // itm->start_time.unit.minute = 21;
-    // itm->start_time.unit.second = 26;
-    // itm->total_sec = 2520;
-    // itm->pause_sec = 256;
-    // itm->activity_type = 0;
-    // uint16_t pos = 0;
-    // activity_seq_pos = &pos;
-    // while (true) {
-    //     uint8_t byte;
-    //     if (_activity_get_next_byte(&byte) == 0)
-    //         break;
-    //     printf("%02x", byte);
-    // }
-    // printf("\nItems: %d\n", pos);
+static void _activity_activate(movement_settings_t *settings, activity_state_t *state) {
+    // If waking from low-energy state and currently logging: update seconds values
+    // Those are not up-to-date because ticks have not been coming
+    if (state->le_state != 0 && state->mode == ACTM_LOGGING) {
+        state->le_state = 0;
+        watch_date_time now = watch_rtc_get_date_time();
+        uint32_t now_timestamp = watch_utility_date_time_to_unix_time(now, 0);
+        uint32_t start_timestamp = watch_utility_date_time_to_unix_time(state->start_time, 0);
+        uint32_t total_seconds = now_timestamp - start_timestamp;
+        state->curr_total_sec = total_seconds;
+        _activity_update_logging_screen(settings, state);
+    }
+    // Regular activation: start from defaults
+    else {
+        state->le_state = 0;
+        state->mode = 0;
+        state->type_ix = 0;
+        _activity_display_choice(state);
+    }
 }
 
 static void _activity_display_choice(activity_state_t *state) {
@@ -251,36 +251,43 @@ const uint8_t activity_anim_pixels[][2] = {
 };
 
 static void _activity_update_logging_screen(movement_settings_t *settings, activity_state_t *state) {
-    watch_date_time now = watch_rtc_get_date_time();
-    uint32_t now_timestamp = watch_utility_date_time_to_unix_time(now, 0);
-    uint32_t start_timestamp = watch_utility_date_time_to_unix_time(state->start_time, 0);
-    uint32_t seconds_counted = now_timestamp - start_timestamp;
-    uint32_t seconds = seconds_counted - state->pause_sec;
-    watch_duration_t duration = watch_utility_seconds_to_duration(seconds);
+    watch_duration_t duration;
 
-    uint8_t hour = now.unit.hour;
-    if (!settings->bit.clock_mode_24h) {
-        if (hour < 12)
-            watch_clear_indicator(WATCH_INDICATOR_PM);
-        else
-            watch_set_indicator(WATCH_INDICATOR_PM);
-        hour %= 12;
+    watch_set_indicator(WATCH_INDICATOR_LAP);
+    watch_display_string("AC  ", 0);
+
+    // If we're in LE state: per-minute update is special
+    if (state->le_state != 0) {
+        watch_date_time now = watch_rtc_get_date_time();
+        uint32_t now_timestamp = watch_utility_date_time_to_unix_time(now, 0);
+        uint32_t start_timestamp = watch_utility_date_time_to_unix_time(state->start_time, 0);
+        uint32_t total_seconds = now_timestamp - start_timestamp;
+        duration = watch_utility_seconds_to_duration(total_seconds);
+        sprintf(activity_buf, " %d%02d  ", duration.hours, duration.minutes);
+        watch_display_string(activity_buf, 4);
+        watch_set_colon();
+        return;
     }
 
     // Show elapsed time, or PAUSE
-    if ((state->counter % 10) < 8) {
+    if ((state->counter % 5) < 3) {
+        watch_clear_indicator(WATCH_INDICATOR_PM);
         if (state->mode == ACTM_PAUSED) {
             watch_display_string(" PAUSE", 4);
+            watch_clear_colon();
         } else {
+            duration = watch_utility_seconds_to_duration(state->curr_total_sec);
             // Under 10 minutes: M:SS
-            if (seconds < 600) {
+            if (state->curr_total_sec < 600) {
                 sprintf(activity_buf, "   %01d%02d", duration.minutes, duration.seconds);
                 watch_display_string(activity_buf, 4);
+                watch_clear_colon();
             }
             // Under an hour: MM:SS
-            else if (seconds < 3600) {
+            else if (state->curr_total_sec < 3600) {
                 sprintf(activity_buf, "  %02d%02d", duration.minutes, duration.seconds);
                 watch_display_string(activity_buf, 4);
+                watch_clear_colon();
             }
             // Over an hour: H:MM:SS
             // (We never go to two-digit hours; stop at 8)
@@ -293,26 +300,26 @@ static void _activity_update_logging_screen(movement_settings_t *settings, activ
     }
     // Briefly, show time without seconds
     else {
-        sprintf(activity_buf, "%2d%02d  ", hour, now.unit.minute);
-        watch_display_string(activity_buf, 4);
-    }
-
-    // Blink LAP if not paused
-    if (state->mode != ACTM_PAUSED) {
-        if ((state->counter % 2) == 0) {
-            watch_clear_indicator(WATCH_INDICATOR_LAP);
-        } else {
-            watch_set_indicator(WATCH_INDICATOR_LAP);
+        watch_date_time now = watch_rtc_get_date_time();
+        uint8_t hour = now.unit.hour;
+        if (!settings->bit.clock_mode_24h) {
+            if (hour < 12)
+                watch_clear_indicator(WATCH_INDICATOR_PM);
+            else
+                watch_set_indicator(WATCH_INDICATOR_PM);
+            hour %= 12;
+            if (now.unit.hour == 0) now.unit.hour = 12;
         }
-    } else {
-        watch_clear_indicator(WATCH_INDICATOR_LAP);
+        sprintf(activity_buf, "%2d%02d  ", hour, now.unit.minute);
+        watch_set_colon();
+        watch_display_string(activity_buf, 4);
     }
 }
 
 static void _activity_quit_chirping() {
     watch_clear_indicator(WATCH_INDICATOR_BELL);
     watch_set_buzzer_off();
-    movement_request_tick_frequency(2);
+    movement_request_tick_frequency(1);
 }
 
 static void _activity_chirp_tick_transmit(void *context) {
@@ -421,16 +428,51 @@ static uint8_t _activity_get_next_byte(uint8_t *next_byte) {
     return 1;
 }
 
+static void _activity_finish_logging(activity_state_t *state) {
+    // Save this activity
+    // If shorter than minimum for log: don't save
+    // Sanity check about buffer length. This should never happen, but also we never want to overrun by error
+    if (state->curr_total_sec >= activity_min_length_sec && activity_log_count + 1 < ACTIVITY_LOG_SZ) {
+        activity_item_t *itm = &activity_log_buffer[activity_log_count];
+        itm->start_time = state->start_time;
+        itm->total_sec = state->curr_total_sec;
+        itm->pause_sec = state->curr_pause_sec;
+        itm->activity_type = state->type_ix;
+        ++activity_log_count;
+    }
+
+    // Go to DONE animation
+    // TODO: Not in LE mode
+    state->mode = ACTM_DONE;
+    watch_clear_indicator(WATCH_INDICATOR_LAP);
+    movement_request_tick_frequency(2);
+    state->counter = 6 * 1;
+    watch_clear_display();
+    watch_display_string("AC   dONE ", 0);
+}
+
 static void _activity_handle_tick(movement_settings_t *settings, activity_state_t *state) {
-    // Display stopwatch-like duration while logging, alternate with time
+    // Display stopwatch-like duration while logging, alternating with time
     if (state->mode == ACTM_LOGGING || state->mode == ACTM_PAUSED) {
         ++state->counter;
-        _activity_update_logging_screen(settings, state);
+        ++state->curr_total_sec;
+        if (state->mode == ACTM_PAUSED)
+            ++state->curr_pause_sec;
+        // If we've reached max activity length: finish logging
+        if (state->curr_total_sec == MAX_ACTIVITY_SECONDS) {
+            _activity_finish_logging(state);
+        }
+        // Still logging: refresh display
+        else {
+            _activity_update_logging_screen(settings, state);
+        }
     }
     // Display countown animation, and exit face when down
     else if (state->mode == ACTM_DONE) {
-        if (state->counter == 0)
+        if (state->counter == 0) {
             movement_move_to_face(0);
+            movement_request_tick_frequency(1);
+        }
         else {
             uint8_t cd = state->counter % 6;
             watch_clear_pixel(activity_anim_pixels[cd][0], activity_anim_pixels[cd][1]);
@@ -439,11 +481,11 @@ static void _activity_handle_tick(movement_settings_t *settings, activity_state_
             watch_set_pixel(activity_anim_pixels[cd][0], activity_anim_pixels[cd][1]);
         }
     }
-    // Log size, chirp clear : return to choose after some time
-    else if (state->mode == ACTM_LOGSIZE || state->mode == ACTM_CHIRP || state->mode == ACTM_CLEAR) {
+    // Log size, clear: return to choose after some time
+    else if (state->mode == ACTM_LOGSIZE || state->mode == ACTM_CLEAR) {
         ++state->counter;
-        uint16_t timeout = 30;
-        if (state->mode == ACTM_CLEAR) timeout = 15;
+        uint16_t timeout = 20;
+        if (state->mode == ACTM_CLEAR) timeout = 10;
         if (state->counter > timeout) {
             state->mode = ACTM_CHOOSE;
             _activity_display_choice(state);
@@ -464,9 +506,10 @@ static void _activity_handle_tick(movement_settings_t *settings, activity_state_
             watch_display_string("CLEAR ", 4);
         else
             watch_display_string("      ", 4);
-        if (state->counter > 30) {
+        if (state->counter > 12) {
             state->mode = ACTM_CHOOSE;
             _activity_display_choice(state);
+            movement_request_tick_frequency(1);
         }
     }
     // Clear done: fill up zeroes, then return to choose screen
@@ -487,38 +530,7 @@ static void _activity_handle_tick(movement_settings_t *settings, activity_state_
     }
 }
 
-static void _activity_add_current_pause_sec(activity_state_t *state) {
-    watch_date_time now = watch_rtc_get_date_time();
-    uint32_t now_timestamp = watch_utility_date_time_to_unix_time(now, 0);
-    uint32_t pause_start_timestamp = watch_utility_date_time_to_unix_time(state->pause_start_time, 0);
-    uint32_t seconds_paused = now_timestamp - pause_start_timestamp;
-    state->pause_sec += seconds_paused;
-}
-
-static void _activity_save_new(activity_state_t *state) {
-    // Length of activity
-    watch_date_time now = watch_rtc_get_date_time();
-    uint32_t now_timestamp = watch_utility_date_time_to_unix_time(now, 0);
-    uint32_t start_timestamp = watch_utility_date_time_to_unix_time(state->start_time, 0);
-    uint32_t seconds_counted = now_timestamp - start_timestamp;
-
-    // If shorter than minimum for log: don't save
-    if (seconds_counted < activity_min_length_sec)
-        return;
-
-    // Sanity check about buffer length. This should never happen, but also we never want to overrun
-    if (activity_log_count + 1 >= ACTIVITY_LOG_SZ)
-        return;
-
-    activity_item_t *itm = &activity_log_buffer[activity_log_count];
-    itm->start_time = state->start_time;
-    itm->total_sec = seconds_counted;
-    itm->pause_sec = state->pause_sec;
-    itm->activity_type = state->type_ix;
-    ++activity_log_count;
-}
-
-static void _activity_alarm_long(activity_state_t *state) {
+static void _activity_alarm_long(movement_settings_t *settings, activity_state_t *state) {
     // On choose face: start logging activity
     if (state->mode == ACTM_CHOOSE) {
         // If buffer is full: Ignore this long press
@@ -526,22 +538,16 @@ static void _activity_alarm_long(activity_state_t *state) {
             return;
         // OK, we go ahead and start logging
         state->start_time = watch_rtc_get_date_time();
-        state->pause_sec = 0;
+        state->curr_total_sec = 0;
+        state->curr_pause_sec = 0;
         state->counter = -1;
         state->mode = ACTM_LOGGING;
+        watch_set_indicator(WATCH_INDICATOR_LAP);
+        _activity_update_logging_screen(settings, state);
     }
     // If logging or paused: end logging
     else if (state->mode == ACTM_LOGGING || state->mode == ACTM_PAUSED) {
-        // If we're stopping from paused mode, add final paused seconds
-        if (state->mode == ACTM_PAUSED)
-            _activity_add_current_pause_sec(state);
-        // Save this activity
-        _activity_save_new(state);
-        // Go to DONE animation
-        state->mode = ACTM_DONE;
-        state->counter = 6 * 1;
-        watch_clear_display();
-        watch_display_string("AC   dONE ", 0);
+        _activity_finish_logging(state);
     }
     // If chirp: kick off chirping
     else if (state->mode == ACTM_CHIRP) {
@@ -564,6 +570,7 @@ static void _activity_alarm_long(activity_state_t *state) {
             return;
         state->mode = ACTM_CLEAR_CONFIRM;
         state->counter = -1;
+        movement_request_tick_frequency(4);
     }
     // If clear confirm: do clear.
     else if (state->mode == ACTM_CLEAR_CONFIRM) {
@@ -572,6 +579,7 @@ static void _activity_alarm_long(activity_state_t *state) {
         state->mode = ACTM_CLEAR_DONE;
         state->counter = -1;
         watch_display_string("0     ", 4);
+        movement_request_tick_frequency(1);
     }
 }
 
@@ -583,14 +591,12 @@ static void _activity_alarm_short(movement_settings_t *settings, activity_state_
     }
     // If logging: pause
     else if (state->mode == ACTM_LOGGING) {
-        state->pause_start_time = watch_rtc_get_date_time();
         state->mode = ACTM_PAUSED;
         state->counter = 0;
         _activity_update_logging_screen(settings, state);
     }
     // If paused: Update paused seconds count and return to logging
     else if (state->mode == ACTM_PAUSED) {
-        _activity_add_current_pause_sec(state);
         state->mode = ACTM_LOGGING;
         state->counter = 0;
         _activity_update_logging_screen(settings, state);
@@ -609,7 +615,7 @@ static void _activity_light_short(activity_state_t *state) {
     if (state->mode == ACTM_CHOOSE) {
         state->mode = ACTM_LOGSIZE;
         state->counter = 0;
-        sprintf(activity_buf, "AC  LOg%3d", activity_log_count);
+        sprintf(activity_buf, "AC  L#g%3d", activity_log_count);
         watch_display_string(activity_buf, 0);
     }
     // If log size face: move to chirp
@@ -628,6 +634,7 @@ static void _activity_light_short(activity_state_t *state) {
     else if (state->mode == ACTM_CLEAR || state->mode == ACTM_CLEAR_CONFIRM) {
         state->mode = ACTM_CHOOSE;
         _activity_display_choice(state);
+        movement_request_tick_frequency(1);
     }
     // While logging or paused, light is light
     else if (state->mode == ACTM_LOGGING || state->mode == ACTM_PAUSED) {
@@ -641,13 +648,14 @@ bool activity_face_loop(movement_event_t event, movement_settings_t *settings, v
 
     switch (event.event_type) {
         case EVENT_ACTIVATE:
-            _activity_display_choice(state);
+            _activity_activate(settings, state);
             break;
         case EVENT_TICK:
             _activity_handle_tick(settings, state);
             break;
         case EVENT_MODE_BUTTON_UP:
             if (state->mode != ACTM_LOGGING && state->mode != ACTM_PAUSED && state->mode != ACTM_CHIRPING) {
+                movement_request_tick_frequency(1);
                 movement_move_to_next_face();
             }
             break;
@@ -658,18 +666,30 @@ bool activity_face_loop(movement_event_t event, movement_settings_t *settings, v
             _activity_alarm_short(settings, state);
             break;
         case EVENT_ALARM_LONG_PRESS:
-            _activity_alarm_long(state);
+            _activity_alarm_long(settings, state);
             break;
         case EVENT_TIMEOUT:
-            if (state->mode != ACTM_LOGGING && state->mode != ACTM_PAUSED && state->mode != ACTM_CHIRPING) {
+            if (state->mode != ACTM_LOGGING && state->mode != ACTM_PAUSED &&
+                state->mode != ACTM_CHIRP && state->mode != ACTM_CHIRPING) {
+                movement_request_tick_frequency(1);
                 movement_move_to_face(0);
             }
             break;
         case EVENT_LOW_ENERGY_UPDATE:
-            // If you did not resign in EVENT_TIMEOUT, you can use this event to update the display once a minute.
-            // Avoid displaying fast-updating values like seconds, since the display won't update again for 60 seconds.
-            // You should also consider starting the tick animation, to show the wearer that this is sleep mode:
-            watch_start_tick_animation(500);
+            state->le_state = 1;
+            // If we're in paused logging mode: let's lose this activity. Pause is not meant for over an hour.
+            if (state->mode == ACTM_PAUSED) {
+                // When waking, face will revert to default screen
+                state->mode = ACTM_CHOOSE;
+                watch_display_string("AC  SLEEP ", 0);
+                watch_clear_colon();
+                watch_clear_indicator(WATCH_INDICATOR_LAP);
+                watch_clear_indicator(WATCH_INDICATOR_PM);
+            }
+            else {
+                _activity_update_logging_screen(settings, state);
+                watch_start_tick_animation(500);
+            }
             break;
         default:
             break;
@@ -686,5 +706,8 @@ void activity_face_resign(movement_settings_t *settings, void *context) {
     (void)settings;
     (void)context;
 
-    // handle any cleanup before your watch face goes off-screen.
+    // Face should only ever temporarily request a higher frequency, so by the time we're resigning,
+    // this should not be needed. But we don't want an error to create a situation that drains the battery.
+    // Rather do this defensively here.
+    movement_request_tick_frequency(1);
 }
