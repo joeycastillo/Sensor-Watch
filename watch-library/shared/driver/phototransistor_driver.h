@@ -22,29 +22,18 @@
  * SOFTWARE.
  */
 
-#ifndef MOVEMENT_CONFIG_H_
-#define MOVEMENT_CONFIG_H_
+#include <stdint.h>
 
-#include "movement_faces.h"
+#ifndef PHOTOTRANSISTOR_DRIVER_H_
+#define PHOTOTRANSISTOR_DRIVER_H_
 
-const watch_face_t watch_faces[] = {
-    phototransistor_readout_face,
-    simple_clock_face,
-    world_clock_face,
-    sunrise_sunset_face,
-    moon_phase_face,
-    stopwatch_face,
-    preferences_face,
-    set_time_face,
-};
+#define PHOTOTRANSISTOR_SENSE_PIN (A4)
+#define PHOTOTRANSISTOR_ENABLE_PIN (A0)
+#define PHOTOTRANSISTOR_ENABLE_VALUE (true)
+#define PHOTOTRANSISTOR_SERIES_RESISTANCE (1000.0)
 
-#define MOVEMENT_NUM_FACES (sizeof(watch_faces) / sizeof(watch_face_t))
+void phototransistor_driver_enable(void);
+void phototransistor_driver_disable(void);
+uint16_t phototransistor_driver_get_light_level(void);
 
-/* Determines what face to go to from the first face if you've already set 
- * a mode long press to go to the first face in preferences, and
- * excludes these faces from the normal rotation.
- * Usually it makes sense to set this to the preferences face.
- */
-#define MOVEMENT_SECONDARY_FACE_INDEX 0 // or (MOVEMENT_NUM_FACES - 2)
-
-#endif // MOVEMENT_CONFIG_H_
+#endif // PHOTOTRANSISTOR_DRIVER_H_

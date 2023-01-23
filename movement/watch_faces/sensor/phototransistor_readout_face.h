@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Joey Castillo
+ * Copyright (c) 2023 Joey Castillo
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,29 +22,35 @@
  * SOFTWARE.
  */
 
-#ifndef MOVEMENT_CONFIG_H_
-#define MOVEMENT_CONFIG_H_
+#ifndef PHOTOTRANSISTOR_READOUT_FACE_H_
+#define PHOTOTRANSISTOR_READOUT_FACE_H_
 
-#include "movement_faces.h"
+#include "movement.h"
 
-const watch_face_t watch_faces[] = {
-    phototransistor_readout_face,
-    simple_clock_face,
-    world_clock_face,
-    sunrise_sunset_face,
-    moon_phase_face,
-    stopwatch_face,
-    preferences_face,
-    set_time_face,
-};
-
-#define MOVEMENT_NUM_FACES (sizeof(watch_faces) / sizeof(watch_face_t))
-
-/* Determines what face to go to from the first face if you've already set 
- * a mode long press to go to the first face in preferences, and
- * excludes these faces from the normal rotation.
- * Usually it makes sense to set this to the preferences face.
+/*
+ * A DESCRIPTION OF YOUR WATCH FACE
+ *
+ * and a description of how use it
+ *
  */
-#define MOVEMENT_SECONDARY_FACE_INDEX 0 // or (MOVEMENT_NUM_FACES - 2)
 
-#endif // MOVEMENT_CONFIG_H_
+typedef struct {
+    // Anything you need to keep track of, put it here!
+    uint8_t unused;
+} phototransistor_readout_state_t;
+
+void phototransistor_readout_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
+void phototransistor_readout_face_activate(movement_settings_t *settings, void *context);
+bool phototransistor_readout_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void phototransistor_readout_face_resign(movement_settings_t *settings, void *context);
+
+#define phototransistor_readout_face ((const watch_face_t){ \
+    phototransistor_readout_face_setup, \
+    phototransistor_readout_face_activate, \
+    phototransistor_readout_face_loop, \
+    phototransistor_readout_face_resign, \
+    NULL, \
+})
+
+#endif // PHOTOTRANSISTOR_READOUT_FACE_H_
+
