@@ -24,22 +24,11 @@
 
 /* ** TODO
  * ===================
- * -- Reset length limit to 5 min :)
  * -- Additional power-saving optimizations
- * OK Save logged activity; restore real length limit
- * OK FULL behavior
- * OK Clear blinking confirmation
- * OK Actually clear
- * OK Actually chirp
- * OK Display countdown while chirping
- * OK Quit chirp by mode press
- * OK Update demo face with correct prefix
- * OK Run on 1-second tick
- * OK Fast blink for CLEAR confirm
- * OK Low energy mode > movement_le_inactivity_deadlines
- * -- Clear confirm: faster animation
- * -- Write in-comment documentation
- * OK Stop at 8 hours
+ * -- Test which comes first: ALARM event or ACTIVATE when waking up from LE; handle accordingly
+ * OK Reset length limit to 1 min :)
+ * OK Chirp screen: go back to Choose after 2 minutes. Otherwise can get stuck here and prevent LE too.
+ * OK Make "clear done" animation faster
  */
 
 #include <stdlib.h>
@@ -57,7 +46,7 @@
 
 // If a logged activity is shorter than this, then it won't be added to log when it ends.
 // This way scarce log slots are not taken up by aborted events that weren't real activities.
-static const uint16_t activity_min_length_sec = 10;  // 300
+static const uint16_t activity_min_length_sec = 60;
 
 // Supported activities. ID of activity is index in this buffer
 // W e should never change order or redefine items, only add new items when needed.
@@ -482,11 +471,15 @@ static void _activity_handle_tick(movement_settings_t *settings, activity_state_
             watch_set_pixel(activity_anim_pixels[cd][0], activity_anim_pixels[cd][1]);
         }
     }
-    // Log size, clear: return to choose after some time
-    else if (state->mode == ACTM_LOGSIZE || state->mode == ACTM_CLEAR) {
+    // Log size, chirp, clear: return to choose after some time
+    else if (state->mode == ACTM_LOGSIZE || state->mode == ACTM_CHIRP || state->mode == ACTM_CLEAR) {
         ++state->counter;
+        // Leave Log Size after 20 seconds
+        // Leave Clear after only 10: this is danger zone, we don't like hanging around here
+        // Leave Chirp after 2 minutes: most likely need to the time to fiddle with mic & Chirpy RX on the computer
         uint16_t timeout = 20;
         if (state->mode == ACTM_CLEAR) timeout = 10;
+        else if (state->mode == ACTM_CHIRP) timeout = 120;
         if (state->counter > timeout) {
             state->mode = ACTM_CHOOSE;
             _activity_display_choice(state);
@@ -516,11 +509,14 @@ static void _activity_handle_tick(movement_settings_t *settings, activity_state_
     // Clear done: fill up zeroes, then return to choose screen
     else if (state->mode == ACTM_CLEAR_DONE) {
         ++state->counter;
+        // Animation done
         if (state->counter == 7) {
             state->mode = ACTM_CHOOSE;
             _activity_display_choice(state);
+            movement_request_tick_frequency(1);
             return;
         }
+        // Display current state of animation
         sprintf(activity_buf, "      ");
         uint8_t nZeros = state->counter + 1;
         if (nZeros > 6) nZeros = 6;
@@ -580,7 +576,7 @@ static void _activity_alarm_long(movement_settings_t *settings, activity_state_t
         state->mode = ACTM_CLEAR_DONE;
         state->counter = -1;
         watch_display_string("0     ", 4);
-        movement_request_tick_frequency(1);
+        movement_request_tick_frequency(2);
     }
 }
 
