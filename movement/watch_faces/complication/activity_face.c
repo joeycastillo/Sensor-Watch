@@ -61,7 +61,7 @@ static const uint16_t activity_min_length_sec = 10;  // 300
 
 // Supported activities. ID of activity is index in this buffer
 // W e should never change order or redefine items, only add new items when needed.
-static const char activity_names[][14] = {
+static const char activity_names[][7] = {
     " bIKE ",
     "uuaLK ",
     "  rUn ",
@@ -78,11 +78,11 @@ static const char activity_names[][14] = {
     "  SKI ",
 };
 
-// Number of currently enabled activities (size of enabled_activities).
-static const uint8_t num_enabled_activities = 14;
-
 // Currently enabled activities. This makes picking on first subface easier: why show activities you personally never do.
 static const uint8_t enabled_activities[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13};
+
+// Number of currently enabled activities (size of enabled_activities).
+static const uint8_t num_enabled_activities = sizeof(enabled_activities) / sizeof(uint8_t);
 
 // End configurable section
 // ===========================================================================
