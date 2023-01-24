@@ -63,6 +63,8 @@ static void ships_bell_draw(ships_bell_state_t *state) {
 
 void ships_bell_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void **context_ptr) {
     (void) settings;
+    (void) watch_face_index;
+
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(ships_bell_state_t));
         memset(*context_ptr, 0, sizeof(ships_bell_state_t));
@@ -81,6 +83,8 @@ void ships_bell_face_activate(movement_settings_t *settings, void *context) {
 }
 
 bool ships_bell_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
+    (void) settings;
+
     ships_bell_state_t *state = (ships_bell_state_t *) context;
 
     switch (event.event_type) {
