@@ -25,10 +25,6 @@
 /* ** TODO
  * ===================
  * -- Additional power-saving optimizations
- * -- Test which comes first: ALARM event or ACTIVATE when waking up from LE; handle accordingly
- * OK Reset length limit to 1 min :)
- * OK Chirp screen: go back to Choose after 2 minutes. Otherwise can get stuck here and prevent LE too.
- * OK Make "clear done" animation faster
  */
 
 #include <stdlib.h>
@@ -150,7 +146,9 @@ typedef struct {
     // Used by chirpy encoder during transmission
     chirpy_encoder_state_t chirpy_encoder_state;
 
-    // Non-zero if watch is in low-energy state.
+    // 0: Running normally
+    // 1: In LE mode
+    // 2: Just woke up from LE mode. Will go to 0 after ignoring ALARM_BUTTON_UP.
     uint8_t le_state;
 
 } activity_state_t;
@@ -195,11 +193,12 @@ void activity_face_activate(movement_settings_t *settings, void *context) {
     // and when waking from low energy state.
 }
 
+// Called from the ACTIVATE event handler in the loop
 static void _activity_activate(movement_settings_t *settings, activity_state_t *state) {
     // If waking from low-energy state and currently logging: update seconds values
     // Those are not up-to-date because ticks have not been coming
     if (state->le_state != 0 && state->mode == ACTM_LOGGING) {
-        state->le_state = 0;
+        state->le_state = 2;
         watch_date_time now = watch_rtc_get_date_time();
         uint32_t now_timestamp = watch_utility_date_time_to_unix_time(now, 0);
         uint32_t start_timestamp = watch_utility_date_time_to_unix_time(state->start_time, 0);
@@ -243,11 +242,10 @@ const uint8_t activity_anim_pixels[][2] = {
 static void _activity_update_logging_screen(movement_settings_t *settings, activity_state_t *state) {
     watch_duration_t duration;
 
-    watch_set_indicator(WATCH_INDICATOR_LAP);
     watch_display_string("AC  ", 0);
 
     // If we're in LE state: per-minute update is special
-    if (state->le_state != 0) {
+    if (state->le_state == 1) {
         watch_date_time now = watch_rtc_get_date_time();
         uint32_t now_timestamp = watch_utility_date_time_to_unix_time(now, 0);
         uint32_t start_timestamp = watch_utility_date_time_to_unix_time(state->start_time, 0);
@@ -256,12 +254,17 @@ static void _activity_update_logging_screen(movement_settings_t *settings, activ
         sprintf(activity_buf, " %d%02d  ", duration.hours, duration.minutes);
         watch_display_string(activity_buf, 4);
         watch_set_colon();
+        watch_set_indicator(WATCH_INDICATOR_LAP);
+        watch_clear_indicator(WATCH_INDICATOR_PM);
+        watch_clear_indicator(WATCH_INDICATOR_24H);
         return;
     }
 
     // Show elapsed time, or PAUSE
     if ((state->counter % 5) < 3) {
+        watch_set_indicator(WATCH_INDICATOR_LAP);
         watch_clear_indicator(WATCH_INDICATOR_PM);
+        watch_clear_indicator(WATCH_INDICATOR_24H);
         if (state->mode == ACTM_PAUSED) {
             watch_display_string(" PAUSE", 4);
             watch_clear_colon();
@@ -290,15 +293,21 @@ static void _activity_update_logging_screen(movement_settings_t *settings, activ
     }
     // Briefly, show time without seconds
     else {
+        watch_clear_indicator(WATCH_INDICATOR_LAP);
         watch_date_time now = watch_rtc_get_date_time();
         uint8_t hour = now.unit.hour;
         if (!settings->bit.clock_mode_24h) {
+            watch_clear_indicator(WATCH_INDICATOR_24H);
             if (hour < 12)
                 watch_clear_indicator(WATCH_INDICATOR_PM);
             else
                 watch_set_indicator(WATCH_INDICATOR_PM);
             hour %= 12;
             if (hour == 0) hour = 12;
+        }
+        else {
+            watch_set_indicator(WATCH_INDICATOR_24H);
+            watch_clear_indicator(WATCH_INDICATOR_PM);
         }
         sprintf(activity_buf, "%2d%02d  ", hour, now.unit.minute);
         watch_set_colon();
@@ -660,7 +669,12 @@ bool activity_face_loop(movement_event_t event, movement_settings_t *settings, v
             _activity_light_short(state);
             break;
         case EVENT_ALARM_BUTTON_UP:
-            _activity_alarm_short(settings, state);
+            // We also receive ALARM press that woke us up from LE state
+            // Don't want to act on that as if it were a real button press for us
+            if (state->le_state != 2)
+                _activity_alarm_short(settings, state);
+            else
+                state->le_state = 0;
             break;
         case EVENT_ALARM_LONG_PRESS:
             _activity_alarm_long(settings, state);
