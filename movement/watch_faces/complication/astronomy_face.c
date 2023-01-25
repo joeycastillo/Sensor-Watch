@@ -219,14 +219,6 @@ bool astronomy_face_loop(movement_event_t event, movement_settings_t *settings, 
         case EVENT_TICK:
             _astronomy_face_update(event, settings, state);
             break;
-        case EVENT_MODE_BUTTON_UP:
-            // You shouldn't need to change this case; Mode almost always moves to the next watch face.
-            movement_move_to_next_face();
-            break;
-        case EVENT_LIGHT_BUTTON_UP:
-            // If you have other uses for the Light button, you can opt not to illuminate the LED for this event.
-            movement_illuminate_led();
-            break;
         case EVENT_ALARM_BUTTON_UP:
             switch (state->mode) {
                 case ASTRONOMY_MODE_SELECTING_BODY:
@@ -267,6 +259,7 @@ bool astronomy_face_loop(movement_event_t event, movement_settings_t *settings, 
             // TODO?
             break;
         default:
+            movement_default_loop_handler(event, settings);
             break;
     }
 

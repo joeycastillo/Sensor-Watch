@@ -56,11 +56,15 @@ void preferences_face_activate(movement_settings_t *settings, void *context) {
 bool preferences_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     uint8_t current_page = *((uint8_t *)context);
     switch (event.event_type) {
+        case EVENT_TICK:
+        case EVENT_ACTIVATE:
+            // Do nothing; handled below.
+            break;
         case EVENT_MODE_BUTTON_UP:
             watch_set_led_off();
             movement_move_to_next_face();
             return false;
-        case EVENT_LIGHT_BUTTON_UP:
+        case EVENT_LIGHT_BUTTON_DOWN:
             current_page = (current_page + 1) % PREFERENCES_FACE_NUM_PREFEFENCES;
             *((uint8_t *)context) = current_page;
             break;
@@ -93,7 +97,7 @@ bool preferences_face_loop(movement_event_t event, movement_settings_t *settings
             movement_move_to_face(0);
             break;
         default:
-            break;
+            return movement_default_loop_handler(event, settings);
     }
 
     watch_display_string((char *)preferences_face_titles[current_page], 0);

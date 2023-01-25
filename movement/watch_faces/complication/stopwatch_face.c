@@ -107,9 +107,6 @@ bool stopwatch_face_loop(movement_event_t event, movement_settings_t *settings, 
                 _stopwatch_face_update_display(stopwatch_state, true);
             }
             break;
-        case EVENT_MODE_BUTTON_UP:
-            movement_move_to_next_face();
-            break;
         case EVENT_LIGHT_BUTTON_DOWN:
             movement_illuminate_led();
             if (!stopwatch_state->running) {
@@ -161,7 +158,7 @@ bool stopwatch_face_loop(movement_event_t event, movement_settings_t *settings, 
             }
             break;
         default:
-            break;
+            return movement_default_loop_handler(event, settings);
     }
 
     return true;
