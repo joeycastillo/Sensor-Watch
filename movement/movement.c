@@ -142,6 +142,7 @@ static inline void _movement_enable_fast_tick_if_needed(void) {
     if (!movement_state.fast_tick_enabled) {
         movement_state.fast_ticks = 0;
         watch_rtc_register_periodic_callback(cb_fast_tick, 128);
+        movement_state.fast_tick_enabled = true;
     }
 }
 
@@ -615,7 +616,10 @@ void cb_fast_tick(void) {
             event.event_type = EVENT_ALARM_LONG_PRESS;
     // this is just a fail-safe; fast tick should be disabled as soon as the button is up, the LED times out, and/or the alarm finishes.
     // but if for whatever reason it isn't, this forces the fast tick off after 20 seconds.
-    if (movement_state.fast_ticks >= 128 * 20) watch_rtc_disable_periodic_callback(128);
+    if (movement_state.fast_ticks >= 128 * 20) {
+        watch_rtc_disable_periodic_callback(128);
+        movement_state.fast_tick_enabled = false;
+    }
 }
 
 void cb_tick(void) {
