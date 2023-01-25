@@ -159,9 +159,6 @@ bool accelerometer_data_acquisition_face_loop(movement_event_t event, movement_s
                     break;
             }
             break;
-        case EVENT_MODE_BUTTON_UP:
-            movement_move_to_next_face();
-            break;
         case EVENT_LIGHT_BUTTON_UP:
             switch (state->mode) {
                 case ACCELEROMETER_DATA_ACQUISITION_MODE_IDLE:
@@ -218,6 +215,7 @@ bool accelerometer_data_acquisition_face_loop(movement_event_t event, movement_s
             }
             break;
         default:
+            movement_default_loop_handler(event, settings);
             break;
     }
 

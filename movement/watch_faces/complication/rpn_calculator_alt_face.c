@@ -441,7 +441,9 @@ bool rpn_calculator_alt_face_loop(movement_event_t event, movement_settings_t *s
             movement_move_to_face(0);
             break;
         case EVENT_LOW_ENERGY_UPDATE:
+            break;
         default:
+            movement_default_loop_handler(event, settings);
             break;
     }
 

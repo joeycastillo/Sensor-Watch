@@ -123,9 +123,6 @@ bool day_one_face_loop(movement_event_t event, movement_settings_t *settings, vo
                 }
             }
             break;
-        case EVENT_MODE_BUTTON_UP:
-            movement_move_to_next_face();
-            break;
         case EVENT_LIGHT_BUTTON_DOWN:
             // only illuminate if we're in display mode
             if (state->current_page == 0) movement_illuminate_led();
@@ -176,7 +173,9 @@ bool day_one_face_loop(movement_event_t event, movement_settings_t *settings, vo
             if (state->current_page != 0) {
                 movement_move_to_face(0);
             }
+            break;
         default:
+            movement_default_loop_handler(event, settings);
             break;
     }
 
