@@ -242,12 +242,6 @@ bool totp_face_lfs_loop(movement_event_t event, movement_settings_t *settings, v
         case EVENT_ACTIVATE:
             totp_face_display(totp_state);
             break;
-        case EVENT_MODE_BUTTON_UP:
-            movement_move_to_next_face();
-            break;
-        case EVENT_LIGHT_BUTTON_DOWN:
-            movement_illuminate_led();
-            break;
         case EVENT_TIMEOUT:
             movement_move_to_face(0);
             break;
@@ -257,7 +251,9 @@ bool totp_face_lfs_loop(movement_event_t event, movement_settings_t *settings, v
             break;
         case EVENT_ALARM_BUTTON_DOWN:
         case EVENT_ALARM_LONG_PRESS:
+            break;
         default:
+            movement_default_loop_handler(event, settings);
             break;
     }
 

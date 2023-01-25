@@ -160,9 +160,6 @@ bool countdown_face_loop(movement_event_t event, movement_settings_t *settings, 
             }
             draw(state, event.subsecond);
             break;
-        case EVENT_MODE_BUTTON_UP:
-            movement_move_to_next_face();
-            break;
         case EVENT_LIGHT_BUTTON_UP:
             switch(state->mode) {
                 case cd_running:
@@ -216,8 +213,10 @@ bool countdown_face_loop(movement_event_t event, movement_settings_t *settings, 
             movement_move_to_face(0);
             break;
         case EVENT_LOW_ENERGY_UPDATE:
+            break;
         default:
-          break;
+            movement_default_loop_handler(event, settings);
+            break;
     }
 
     return true;

@@ -248,9 +248,6 @@ bool tarot_face_loop(movement_event_t event, movement_settings_t *settings, void
         case EVENT_TICK:
             display_animation(state);
             break;
-        case EVENT_MODE_BUTTON_UP:
-            movement_move_to_next_face();
-            break;
         case EVENT_LIGHT_BUTTON_UP:
             if (state->drawn_cards[0] == 0xff) {
                 // deck is inited; cycle through # cards to draw
@@ -287,11 +284,8 @@ bool tarot_face_loop(movement_event_t event, movement_settings_t *settings, void
         case EVENT_LOW_ENERGY_UPDATE:
             watch_display_string("SLEEP ", 4);
             break;
-        case EVENT_MODE_LONG_PRESS:
-            // since we ignore timeouts, provide a convenient way to jump back to the start
-            movement_move_to_face(0);
-            break;
         default:
+            movement_default_loop_handler(event, settings);
             break;
     }
 

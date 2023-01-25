@@ -47,12 +47,6 @@ bool counter_face_loop(movement_event_t event, movement_settings_t *settings, vo
     counter_state_t *state = (counter_state_t *)context;
 
     switch (event.event_type) {
-        case EVENT_MODE_BUTTON_UP:
-            movement_move_to_next_face();
-            break;
-        case EVENT_LIGHT_BUTTON_DOWN:
-            movement_illuminate_led();
-            break;
         case EVENT_ALARM_BUTTON_UP:
             state->counter_idx++; // increment counter index
             if (state->counter_idx>99) { //0-99
@@ -72,6 +66,7 @@ bool counter_face_loop(movement_event_t event, movement_settings_t *settings, vo
             // ignore timeout
             break;
         default:
+            movement_default_loop_handler(event, settings);
             break;
     }
 
