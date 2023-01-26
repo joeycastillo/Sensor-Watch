@@ -57,12 +57,6 @@ bool thermistor_readout_face_loop(movement_event_t event, movement_settings_t *s
     (void) context;
     watch_date_time date_time = watch_rtc_get_date_time();
     switch (event.event_type) {
-        case EVENT_MODE_BUTTON_UP:
-            movement_move_to_next_face();
-            break;
-        case EVENT_LIGHT_BUTTON_DOWN:
-            movement_illuminate_led();
-            break;
         case EVENT_ALARM_BUTTON_DOWN:
             settings->bit.use_imperial_units = !settings->bit.use_imperial_units;
             _thermistor_readout_face_update_display(settings->bit.use_imperial_units);
@@ -86,6 +80,7 @@ bool thermistor_readout_face_loop(movement_event_t event, movement_settings_t *s
             watch_display_string("TE  SLEEP ", 0);
             break;
         default:
+            movement_default_loop_handler(event, settings);
             break;
     }
 

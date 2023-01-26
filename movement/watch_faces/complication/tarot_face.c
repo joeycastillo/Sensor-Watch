@@ -41,7 +41,7 @@
 // Custom methods
 // --------------
 
-static char *major_arcana[] = {
+static char major_arcana[][7] = {
     " FOOL ",
     "Mgcian",
     "HPrsts",
@@ -67,7 +67,7 @@ static char *major_arcana[] = {
 };
 #define NUM_MAJOR_ARCANA (sizeof(major_arcana) / sizeof(*major_arcana))
 
-static char *suits[] = {
+static char suits[][7] = {
     " wands",
     "  cups",
     "swords",
@@ -179,30 +179,28 @@ static void pick_cards(tarot_state_t *state) {
 }
 
 static void display_animation(tarot_state_t *state) {
-    if (state->is_picking) {
-        if (state->animation_frame == 0) {
-            watch_display_string("   ", 7);
-            watch_set_pixel(1, 4);
-            watch_set_pixel(1, 6);
-            state->animation_frame = 1;
-        } else if (state->animation_frame == 1) {
-            watch_clear_pixel(1, 4);
-            watch_clear_pixel(1, 6);
-            watch_set_pixel(2, 4);
-            watch_set_pixel(0, 6);
-            state->animation_frame = 2;
-        } else if (state->animation_frame == 2) {
-            watch_clear_pixel(2, 4);
-            watch_clear_pixel(0, 6);
-            watch_set_pixel(2, 5);
-            watch_set_pixel(0, 5);
-            state->animation_frame = 3;
-        } else if (state->animation_frame == 3) {
-            state->animation_frame = 0;
-            state->is_picking = false;
-            movement_request_tick_frequency(1);
-            tarot_display(state);
-        }
+    if (state->animation_frame == 0) {
+        watch_display_string("   ", 7);
+        watch_set_pixel(1, 4);
+        watch_set_pixel(1, 6);
+        state->animation_frame = 1;
+    } else if (state->animation_frame == 1) {
+        watch_clear_pixel(1, 4);
+        watch_clear_pixel(1, 6);
+        watch_set_pixel(2, 4);
+        watch_set_pixel(0, 6);
+        state->animation_frame = 2;
+    } else if (state->animation_frame == 2) {
+        watch_clear_pixel(2, 4);
+        watch_clear_pixel(0, 6);
+        watch_set_pixel(2, 5);
+        watch_set_pixel(0, 5);
+        state->animation_frame = 3;
+    } else if (state->animation_frame == 3) {
+        state->animation_frame = 0;
+        state->is_picking = false;
+        movement_request_tick_frequency(1);
+        tarot_display(state);
     }
 }
 
@@ -246,10 +244,9 @@ bool tarot_face_loop(movement_event_t event, movement_settings_t *settings, void
             tarot_display(state);
             break;
         case EVENT_TICK:
-            display_animation(state);
-            break;
-        case EVENT_MODE_BUTTON_UP:
-            movement_move_to_next_face();
+            if (state->is_picking) {
+                display_animation(state);
+            }
             break;
         case EVENT_LIGHT_BUTTON_UP:
             if (state->drawn_cards[0] == 0xff) {
@@ -287,11 +284,8 @@ bool tarot_face_loop(movement_event_t event, movement_settings_t *settings, void
         case EVENT_LOW_ENERGY_UPDATE:
             watch_display_string("SLEEP ", 4);
             break;
-        case EVENT_MODE_LONG_PRESS:
-            // since we ignore timeouts, provide a convenient way to jump back to the start
-            movement_move_to_face(0);
-            break;
         default:
+            movement_default_loop_handler(event, settings);
             break;
     }
 

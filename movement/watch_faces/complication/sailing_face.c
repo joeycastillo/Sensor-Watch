@@ -33,7 +33,6 @@
 
 #define sl_SELECTIONS 6
 #define DEFAULT_MINUTES { 5,4,1,0,0,0 }
-#define UNUSED(x) (void)(x)
 
 static inline int32_t get_tz_offset(movement_settings_t *settings) {
     return movement_timezone_offsets[settings->bit.time_zone] * 60;
@@ -66,7 +65,7 @@ static void start(sailing_state_t *state, movement_settings_t *settings) {
 }
 
 static void draw(sailing_state_t *state, uint8_t subsecond, movement_settings_t *settings) {
-    UNUSED(settings);
+    (void) settings;
 
     char tmp[24];
     char buf[16];
@@ -197,9 +196,6 @@ bool sailing_face_loop(movement_event_t event, movement_settings_t *settings, vo
             }
             draw(state, event.subsecond, settings);
             break;
-        case EVENT_MODE_BUTTON_UP:
-            movement_move_to_next_face();
-            break;
         case EVENT_LIGHT_LONG_PRESS:
             if (state->mode == sl_running) {
                 reset(state);
@@ -258,8 +254,10 @@ bool sailing_face_loop(movement_event_t event, movement_settings_t *settings, vo
             }
             break;
         case EVENT_LOW_ENERGY_UPDATE:
+            break;
         default:
-          break;
+            movement_default_loop_handler(event, settings);
+            break;
     }
 
     return true;

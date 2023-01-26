@@ -201,6 +201,7 @@ bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *s
             movement_move_to_face(0);
             break;
         default:
+            movement_default_loop_handler(event, settings);
             break;
     }
 

@@ -365,6 +365,7 @@ bool nanosec_face_loop(movement_event_t event, movement_settings_t *settings, vo
             apply_RTC_correction(correction);
             break;
         default:
+            movement_default_loop_handler(event, settings);
             break;
     }
 

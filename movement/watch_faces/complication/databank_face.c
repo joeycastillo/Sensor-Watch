@@ -110,12 +110,6 @@ bool databank_face_loop(movement_event_t event, movement_settings_t *settings, v
             databank_state.current_word = 0;
             display();
             break;
-        case EVENT_MODE_BUTTON_UP:
-            // when the user presses 'mode', we tell movement to move to the next watch face.
-            // movement will call our resign function, clear the screen, and transfer control
-            // to the next watch face in the list.
-            movement_move_to_next_face();
-            break;
         case EVENT_ALARM_LONG_PRESS:
             databank_state.databank_page = (databank_state.databank_page + 1) % databank_num_pages;
             databank_state.current_word = 0;
@@ -141,7 +135,9 @@ bool databank_face_loop(movement_event_t event, movement_settings_t *settings, v
             // and it will do it long before the watch enters low energy mode. This ensures we
             // won't be on screen, and thus opts us out of getting the EVENT_LOW_ENERGY_UPDATE above.
             movement_move_to_face(0);
+            break;
         default:
+            movement_default_loop_handler(event, settings);
             break;
     }
 

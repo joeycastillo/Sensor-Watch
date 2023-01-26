@@ -111,7 +111,7 @@ void morsecalc_display_token(morsecalc_state_t *mcs) {
     if('\0' == c) c = ' '; // Needed for watch_display_character
     watch_display_character(c, 0); // Display current morse code char in mode position
     
-    unsigned int v = mcs->mc;
+    unsigned int v = mcs->mc+1;
     char bidx = 0; while (v >>= 1) bidx++; 
     watch_display_character('0'+bidx, 3); // Display buffer position in top right
 

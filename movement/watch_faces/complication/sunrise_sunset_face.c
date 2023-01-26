@@ -339,9 +339,6 @@ bool sunrise_sunset_face_loop(movement_event_t event, movement_settings_t *setti
                 _sunrise_sunset_face_update_settings_display(event, state);
             }
             break;
-        case EVENT_MODE_BUTTON_UP:
-            movement_move_to_next_face();
-            break;
         case EVENT_LIGHT_BUTTON_DOWN:
             if (state->page) {
                 state->active_digit++;
@@ -359,8 +356,6 @@ bool sunrise_sunset_face_loop(movement_event_t event, movement_settings_t *setti
                 movement_request_tick_frequency(1);
                 _sunrise_sunset_face_update(settings, state);
             }
-            break;
-        case EVENT_LIGHT_BUTTON_UP:
             break;
         case EVENT_ALARM_BUTTON_UP:
             if (state->page) {
@@ -393,7 +388,7 @@ bool sunrise_sunset_face_loop(movement_event_t event, movement_settings_t *setti
             }
             break;
         default:
-            break;
+            return movement_default_loop_handler(event, settings);
     }
 
     return true;

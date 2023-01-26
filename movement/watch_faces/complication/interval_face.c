@@ -664,14 +664,12 @@ bool interval_face_loop(movement_event_t event, movement_settings_t *settings, v
             watch_buzzer_play_sequence((int8_t *)_sound_seq_finish, NULL);
         }
         break;
-    case EVENT_MODE_BUTTON_UP:
-        movement_move_to_next_face();
-        break;
     case EVENT_TIMEOUT:
         if (state->face_state != interval_state_running) movement_move_to_face(0);
         break;
     default:
-      break;
+        movement_default_loop_handler(event, settings);
+        break;
     }
     return true;
 }

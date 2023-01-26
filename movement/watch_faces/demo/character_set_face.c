@@ -45,12 +45,6 @@ bool character_set_face_loop(movement_event_t event, movement_settings_t *settin
     char *c = (char *)context;
     char buf[11];
     switch (event.event_type) {
-        case EVENT_MODE_BUTTON_UP:
-            movement_move_to_next_face();
-            break;
-        case EVENT_LIGHT_BUTTON_DOWN:
-            movement_illuminate_led();
-            break;
         case EVENT_ALARM_BUTTON_UP:
             *c = (*c) + 1;
             if (*c & 0x80) *c = ' ';
@@ -63,6 +57,7 @@ bool character_set_face_loop(movement_event_t event, movement_settings_t *settin
             movement_move_to_face(0);
             break;
         default:
+            movement_default_loop_handler(event, settings);
             break;
     }
 
