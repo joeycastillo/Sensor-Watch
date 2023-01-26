@@ -89,12 +89,6 @@ bool tempchart_face_loop(movement_event_t event, movement_settings_t *settings, 
         case EVENT_TICK:
             // on activate and tick, if we are animating,
             break;
-        case EVENT_MODE_BUTTON_UP:
-            // when the user presses 'mode', we tell movement to move to the next watch face.
-            // movement will call our resign function, clear the screen, and transfer control
-            // to the next watch face in the list.
-            movement_move_to_next_face();
-            break;
         case EVENT_LOW_ENERGY_UPDATE:
             // This low energy mode update occurs once a minute, if the watch face is in the
             // foreground when Movement enters low energy mode. We have the option of supporting
@@ -133,6 +127,7 @@ bool tempchart_face_loop(movement_event_t event, movement_settings_t *settings, 
             break;
 
         default:
+            movement_default_loop_handler(event, settings);
             break;
     }
 

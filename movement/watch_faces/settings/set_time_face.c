@@ -128,7 +128,7 @@ bool set_time_face_loop(movement_event_t event, movement_settings_t *settings, v
             movement_move_to_face(0);
             break;
         default:
-            break;
+            return movement_default_loop_handler(event, settings);
     }
 
     char buf[11];

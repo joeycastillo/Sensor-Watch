@@ -251,9 +251,6 @@ bool stock_stopwatch_face_loop(movement_event_t event, movement_settings_t *sett
         case EVENT_TICK:
             _draw();
             break;
-        case EVENT_MODE_BUTTON_UP:
-            movement_move_to_next_face();
-            break;
         case EVENT_LIGHT_LONG_PRESS:
             // kind od hidden feature: long press toggles light on or off
             state->light_on_button = !state->light_on_button;
@@ -313,6 +310,7 @@ bool stock_stopwatch_face_loop(movement_event_t event, movement_settings_t *sett
             _draw();
             break;
         default:
+            movement_default_loop_handler(event, settings);
             break;
     }
     return true;

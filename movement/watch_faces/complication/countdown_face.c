@@ -289,8 +289,10 @@ bool countdown_face_loop(movement_event_t event, movement_settings_t *settings, 
             movement_move_to_face(0);
             break;
         case EVENT_LOW_ENERGY_UPDATE:
+            break;
         default:
-          break;
+            movement_default_loop_handler(event, settings);
+            break;
     }
 
     return true;

@@ -64,9 +64,6 @@ void thermistor_testing_face_activate(movement_settings_t *settings, void *conte
 bool thermistor_testing_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     (void) context;
     switch (event.event_type) {
-        case EVENT_MODE_BUTTON_UP:
-            movement_move_to_next_face();
-            break;
         case EVENT_ALARM_BUTTON_DOWN:
             settings->bit.use_imperial_units = !settings->bit.use_imperial_units;
             _thermistor_testing_face_update_display(settings->bit.use_imperial_units);
@@ -76,6 +73,7 @@ bool thermistor_testing_face_loop(movement_event_t event, movement_settings_t *s
             _thermistor_testing_face_update_display(settings->bit.use_imperial_units);
             break;
         default:
+            movement_default_loop_handler(event, settings);
             break;
     }
 
