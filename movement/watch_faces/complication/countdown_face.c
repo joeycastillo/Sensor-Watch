@@ -225,7 +225,7 @@ bool countdown_face_loop(movement_event_t event, movement_settings_t *settings, 
             abort_quick_ticks(state);
             movement_move_to_next_face();
             break;
-        case EVENT_LIGHT_BUTTON_UP:
+        case EVENT_LIGHT_BUTTON_DOWN:
             switch(state->mode) {
                 case cd_running:
                     movement_illuminate_led();

@@ -115,7 +115,7 @@ bool set_time_face_loop(movement_event_t event, movement_settings_t *settings, v
             _abort_quick_ticks();
             movement_move_to_next_face();
             return false;
-        case EVENT_LIGHT_BUTTON_UP:
+        case EVENT_LIGHT_BUTTON_DOWN:
             current_page = (current_page + 1) % SET_TIME_FACE_NUM_SETTINGS;
             *((uint8_t *)context) = current_page;
             break;

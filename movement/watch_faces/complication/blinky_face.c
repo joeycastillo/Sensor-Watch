@@ -57,7 +57,7 @@ bool blinky_face_loop(movement_event_t event, movement_settings_t *settings, voi
         case EVENT_ACTIVATE:
             _blinky_face_update_lcd(state);
             break;
-        case EVENT_LIGHT_BUTTON_UP:
+        case EVENT_LIGHT_BUTTON_DOWN:
             if (!state->active) {
                 state->color = (state->color + 1) % 3;
                 _blinky_face_update_lcd(state);

@@ -148,6 +148,9 @@ bool mars_time_face_loop(movement_event_t event, movement_settings_t *settings, 
             // TODO: low energy update
             // watch_start_tick_animation(500);
             break;
+        case EVENT_LIGHT_BUTTON_DOWN:
+            // don't light up every time light is hit
+            break;
         default:
             movement_default_loop_handler(event, settings);
             break;

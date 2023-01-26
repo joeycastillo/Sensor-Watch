@@ -402,7 +402,7 @@ bool rpn_calculator_alt_face_loop(movement_event_t event, movement_settings_t *s
                 return false;
             }
             break;
-        case EVENT_LIGHT_BUTTON_UP:
+        case EVENT_LIGHT_BUTTON_DOWN:
             proposed_stack_size = s->stack_size - functions[s->fn_index].input;
 
             if (s->mode == CALC_NUMBER) {

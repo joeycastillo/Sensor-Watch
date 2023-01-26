@@ -214,6 +214,9 @@ bool accelerometer_data_acquisition_face_loop(movement_event_t event, movement_s
                 update_settings(state);
             }
             break;
+        case EVENT_LIGHT_BUTTON_DOWN:
+            // don't light up every time light is hit
+            break;
         default:
             movement_default_loop_handler(event, settings);
             break;

@@ -255,6 +255,9 @@ bool sailing_face_loop(movement_event_t event, movement_settings_t *settings, vo
             break;
         case EVENT_LOW_ENERGY_UPDATE:
             break;
+        case EVENT_LIGHT_BUTTON_DOWN:
+            // don't light up every time light is hit
+            break;
         default:
             movement_default_loop_handler(event, settings);
             break;
