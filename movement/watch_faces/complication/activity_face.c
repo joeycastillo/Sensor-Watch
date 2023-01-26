@@ -703,6 +703,7 @@ bool activity_face_loop(movement_event_t event, movement_settings_t *settings, v
             }
             break;
         default:
+            movement_default_loop_handler(event, settings);
             break;
     }
 
