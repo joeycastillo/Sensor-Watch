@@ -22,38 +22,14 @@
  * SOFTWARE.
  */
 
-#ifndef MORSECALC_FACE_H_
-#define MORSECALC_FACE_H_
+#include "morsecalc_face.h"
 
-#define MORSECALC_TOKEN_LEN 32
-#define MORSECODE_LEN 5
+// Display float on screen
+void morsecalc_display_float(double d);
 
-#include "movement.h"
-#include "calc.h"
-#include "morsecode.h"
+// Print current input token
+void morsecalc_display_token(morsecalc_state_t *mcs);
 
-void morsecalc_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
-void morsecalc_face_activate(movement_settings_t *settings, void *context);
-bool morsecalc_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
-void morsecalc_face_resign(movement_settings_t *settings, void *context);
+// Print stack or memory register contents. 
+void morsecalc_display_stack(morsecalc_state_t *mcs);
 
-typedef struct {
-	calc_state_t *cs;
-	unsigned int mc; // Morse code character
-	char token[MORSECALC_TOKEN_LEN];
-	uint8_t idxt;
-	uint8_t led_is_on;
-} morsecalc_state_t;
-
-void morsecalc_reset_token(morsecalc_state_t *mcs);
-void morsecalc_input(morsecalc_state_t *mcs);
-
-#define morsecalc_face ((const watch_face_t){ \
-    morsecalc_face_setup, \
-    morsecalc_face_activate, \
-    morsecalc_face_loop, \
-    morsecalc_face_resign, \
-    NULL, \
-})
-
-#endif // MORSECALC_FACE_H_

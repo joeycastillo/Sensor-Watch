@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-#include <string.h>
+#include <string.h>	
 #include <math.h>
 
 #include "calc_fns.h" 
@@ -224,6 +224,18 @@ int calc_atand(calc_state_t *cs) {
 int calc_atan2d(calc_state_t *cs) {
     STACK_CHECK_2_IN_1_OUT;
     cs->stack[cs->s-2] = atan2(cs->stack[cs->s-2], cs->stack[cs->s-1])*to_deg;
+    cs->s--;
+    return 0;
+}
+int calc_torad(calc_state_t *cs) {
+    STACK_CHECK_1_IN_1_OUT;
+    cs->stack[cs->s-1] = cs->stack[cs->s-1]*to_rad;
+    cs->s--;
+    return 0;
+}
+int calc_todeg(calc_state_t *cs) {
+    STACK_CHECK_1_IN_1_OUT;
+    cs->stack[cs->s-1] = cs->stack[cs->s-1]*to_deg;
     cs->s--;
     return 0;
 }

@@ -21,31 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
-
-/* mc Morse code reading methods
-*/
-#include "stdint.h"
-
-#define BUFFLEN 5
-typedef struct {
-    char b[BUFFLEN];
-    uint8_t bidx;
-} mc_state_t;
-
-// MC_DEC_KEY represents a binary tree of International Morse Code. 
-// where '.' = 0 and '-' = 1. Levels of the tree are concatenated.
-//
-// Capitals denote special characters:
-// C = Ch digraph
-// V = VERIFY (ITU-R "UNDERSTOOD")
-// R = REPEAT
-// W = WAIT
-// S = START TRANSMISSION
-// E = END OF WORK
-static const char MC_DEC_KEY[] = " etianmsurwdkgohvf\0l\0pjbxcyzq\0C\x35\x34V\x33\0R\0\x32W\0+\0\0\0\0\x31\x36=/\0\0S(\0\x37\0\0\0\x38\0\x39\x30\0\0\0\0\0E\0\0\0\0\0\0?_\0\0\0\0\"\0\0.\0\0\0\0@\0\0\0'\0\0-\0\0\0\0\0\0\0\0;!\0)\0\0\0\0\0,\0\0\0\0:\0\0\0\0\0\0\0";
-    
-void mc_reset(mc_state_t * mcb);
-void mc_input(mc_state_t * mc, char c);
-char mc_dec(char b[BUFFLEN]);
-
+ 
+#include "morsecode.h"
+ 
+void morsecode_input(unsigned int *mc, unsigned int len, char in) {
+    if(*mc >= (unsigned int) ((1<<len)-1)) *mc = 0;
+    else if((in == 0) | (in == 1)) *mc = (*mc)*2+in+1;
+    return;
+}

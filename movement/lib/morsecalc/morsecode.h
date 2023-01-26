@@ -22,45 +22,25 @@
  * SOFTWARE.
  */
 
-
-#include <string.h>
-#include "mc.h"
-
-/* mc_reset Initialize or reset an MC buffer
- * Input: mc = location of buffer to reset
+/*
+ * MC International Morse Code binary tree
+ * Levels of the tree are concatenated.
+ * '.' = 0 and '-' = 1. 
+ *
+ * Capitals denote special characters:
+ * C = Ch digraph
+ * V = VERIFY (ITU-R "UNDERSTOOD")
+ * R = REPEAT
+ * W = WAIT
+ * S = START TRANSMISSION
+ * E = END OF WORK
  */
-void mc_reset(mc_state_t * mc) {
-    memset(mc->b, '\0', BUFFLEN*sizeof(mc->b[0]));
-    mc->bidx = 0;
-    return;
-   return;
-}
+static const char MORSECODE_TREE[] = " etianmsurwdkgohvf\0l\0pjbxcyzq\0C\x35\x34V\x33\0R\0\x32W\0+\0\0\0\0\x31\x36=/\0\0S(\0\x37\0\0\0\x38\0\x39\x30\0\0\0\0\0E\0\0\0\0\0\0?_\0\0\0\0\"\0\0.\0\0\0\0@\0\0\0'\0\0-\0\0\0\0\0\0\0\0;!\0)\0\0\0\0\0,\0\0\0\0:\0\0\0\0\0\0\0";
 
 /* mc_input Read an input into a morse code buffer 
- * Input: mc = buffer to read into
- *        c = character to read into buffer ('.' or '-', ignored otherwise).
+ * Input: mc = index of MORSECODE_TREE[]
+ *        len = max morse code char length
+ *        in = character to read into buffer (0='.', 1='-', ignored otherwise).
  * If the buffer is full, reset it instead of entering the new character.
  */
-void mc_input(mc_state_t * mc, char c) {
-    if(mc->bidx >= BUFFLEN) mc_reset(mc);
-    else if( ('.' == c) || ('-' == c) ) {
-        mc->b[mc->bidx] = c;
-        mc->bidx++;
-    }
-    return;
-}
-
-/* mc_dec Decode a Morse code character (descend MC_DEC_KEY[])
- * Input: b = BUFFLEN-length char array with '.'s and '-'s
- * Output: c = Character b represents, or '\0' if not a Morse code. 
- */
-char mc_dec(char b[BUFFLEN]) {
-    uint8_t pos = 1; // Binary tree position ('.'=0; '-'=1)
-    for(uint8_t idx=0; idx<BUFFLEN; idx++) {
-        if('.' == b[idx]) pos = 2*pos; // Descend in . direction
-        else if('-' == b[idx]) pos = 2*pos+1; // Descend in - direction
-        else break; // End of morse code segment; finished descending
-    }
-    return MC_DEC_KEY[pos-1];
-}
-
+void morsecode_input(unsigned int * mc, unsigned int len, char in);
