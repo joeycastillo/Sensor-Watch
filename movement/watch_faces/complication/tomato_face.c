@@ -142,7 +142,7 @@ bool tomato_face_loop(movement_event_t event, movement_settings_t *settings, voi
             }
             tomato_draw(state);
             break;
-        case EVENT_LIGHT_BUTTON_UP:
+        case EVENT_LIGHT_BUTTON_DOWN:
             movement_illuminate_led();
             if (state->mode == tomato_ready) {
                 if (state->kind == tomato_break) {

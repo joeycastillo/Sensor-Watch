@@ -250,6 +250,9 @@ bool tachymeter_face_loop(movement_event_t event, movement_settings_t *settings,
             // You should also consider starting the tick animation, to show the wearer that this is sleep mode:
             // watch_start_tick_animation(500);
             break;
+        case EVENT_LIGHT_BUTTON_DOWN:
+            // don't light up every time light is hit
+            break;
         default:
             movement_default_loop_handler(event, settings);
             break;

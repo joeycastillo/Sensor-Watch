@@ -141,7 +141,7 @@ bool probability_face_loop(movement_event_t event, movement_settings_t *settings
         case EVENT_TICK:
             display_dice_roll_animation(state);
             break;
-        case EVENT_LIGHT_BUTTON_UP:
+        case EVENT_LIGHT_BUTTON_DOWN:
             // Change how many sides the die has
             for (int i = 0; i < NUM_DICE_TYPES; i++) {
                 if (DICE_TYPES[i] == state->dice_sides) {
