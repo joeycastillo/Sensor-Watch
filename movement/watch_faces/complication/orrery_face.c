@@ -174,14 +174,6 @@ bool orrery_face_loop(movement_event_t event, movement_settings_t *settings, voi
         case EVENT_TICK:
             _orrery_face_update(event, settings, state);
             break;
-        case EVENT_MODE_BUTTON_UP:
-            movement_move_to_next_face();
-            break;
-        case EVENT_LIGHT_BUTTON_DOWN:
-            movement_illuminate_led();
-            break;
-        case EVENT_LIGHT_BUTTON_UP:
-            break;
         case EVENT_ALARM_BUTTON_UP:
             switch (state->mode) {
                 case ORRERY_MODE_SELECTING_BODY:
@@ -219,6 +211,7 @@ bool orrery_face_loop(movement_event_t event, movement_settings_t *settings, voi
             movement_move_to_face(0);
             break;
         default:
+            movement_default_loop_handler(event, settings);
             break;
     }
 

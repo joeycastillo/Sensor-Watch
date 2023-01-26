@@ -57,9 +57,6 @@ bool blinky_face_loop(movement_event_t event, movement_settings_t *settings, voi
         case EVENT_ACTIVATE:
             _blinky_face_update_lcd(state);
             break;
-        case EVENT_MODE_BUTTON_UP:
-            movement_move_to_next_face();
-            break;
         case EVENT_LIGHT_BUTTON_UP:
             if (!state->active) {
                 state->color = (state->color + 1) % 3;
@@ -93,7 +90,9 @@ bool blinky_face_loop(movement_event_t event, movement_settings_t *settings, voi
             break;
         case EVENT_TIMEOUT:
             if (!state->active) movement_move_to_face(0);
+            break;
         default:
+            movement_default_loop_handler(event, settings);
             break;
     }
 

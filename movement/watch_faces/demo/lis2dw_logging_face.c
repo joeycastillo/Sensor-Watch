@@ -146,12 +146,6 @@ bool lis2dw_logging_face_loop(movement_event_t event, movement_settings_t *setti
     lis2dw_interrupt_source interrupt_source = 0;
 
     switch (event.event_type) {
-        case EVENT_MODE_BUTTON_UP:
-            movement_move_to_next_face();
-            break;
-        case EVENT_LIGHT_LONG_PRESS:
-            movement_illuminate_led();
-            break;
         case EVENT_LIGHT_BUTTON_DOWN:
             logger_state->axis_index = (logger_state->axis_index + 1) % 4;
             logger_state->log_ticks = 255;
@@ -187,6 +181,7 @@ bool lis2dw_logging_face_loop(movement_event_t event, movement_settings_t *setti
             _lis2dw_logging_face_log_data(logger_state);
             break;
         default:
+            movement_default_loop_handler(event, settings);
             break;
     }
 
