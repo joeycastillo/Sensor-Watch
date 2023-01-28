@@ -27,6 +27,8 @@
 #include "counter_face.h"
 #include "watch.h"
 
+bool beep_on = true;
+
 void counter_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
     (void) watch_face_index;
@@ -38,6 +40,9 @@ void counter_face_setup(movement_settings_t *settings, uint8_t watch_face_index,
 
 void counter_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
+    if (beep_on) {
+        watch_set_indicator(WATCH_INDICATOR_SIGNAL);
+    }
     (void) context;
 }
 
@@ -48,12 +53,24 @@ bool counter_face_loop(movement_event_t event, movement_settings_t *settings, vo
 
     switch (event.event_type) {
         case EVENT_ALARM_BUTTON_UP:
+            watch_buzzer_abort_sequence(); //abort running buzzer sequence when counting fast
             state->counter_idx++; // increment counter index
             if (state->counter_idx>99) { //0-99
                 state->counter_idx=0;//reset counter index
             }
             print_counter(state);
-            beep_counter(state);
+            if (beep_on) {
+                beep_counter(state);
+            }
+            break;
+        case EVENT_LIGHT_LONG_PRESS:
+            watch_buzzer_abort_sequence();
+            beep_on = !beep_on;
+            if (beep_on) {
+                watch_set_indicator(WATCH_INDICATOR_SIGNAL);
+            } else {
+                watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
+            }
             break;
         case EVENT_ALARM_LONG_PRESS:
             state->counter_idx=0; // reset counter index
@@ -75,22 +92,47 @@ bool counter_face_loop(movement_event_t event, movement_settings_t *settings, vo
 
 // beep counter index times
 void beep_counter(counter_state_t *state) {
-	
-	int low_count = state->counter_idx/5;
-	int high_count = state->counter_idx - low_count * 5; 
-	
-	for (int i=0; i<low_count; i++) {
-		watch_buzzer_play_note(BUZZER_NOTE_A6, 50);
-	    watch_buzzer_play_note(BUZZER_NOTE_REST, 100);
-	}
-	
-	//sleep between high and low
-    watch_buzzer_play_note(BUZZER_NOTE_REST, 200);
-	
-	for (int i=0; i<high_count; i++) {
-		watch_buzzer_play_note(BUZZER_NOTE_B6, 50);
-	    watch_buzzer_play_note(BUZZER_NOTE_REST, 100);
-	}
+    int low_count = state->counter_idx/5;
+    int high_count = state->counter_idx - low_count * 5;
+    static int8_t sound_seq[15];
+    memset(sound_seq, 0, 15);
+    int i = 0;
+    if (low_count > 0) {
+        sound_seq[i] = BUZZER_NOTE_A6;
+        i++;
+        sound_seq[i] = 3;
+        i++;
+        sound_seq[i] = BUZZER_NOTE_REST;
+        i++;
+        sound_seq[i] = 6;
+        i++;
+        if (low_count > 1) {
+            sound_seq[i] = -2;
+            i++;
+            sound_seq[i] = low_count-1;
+            i++;
+        }
+        sound_seq[i] = BUZZER_NOTE_REST;
+        i++;
+        sound_seq[i] = 6;
+        i++;
+    }
+    if (high_count > 0) {
+        sound_seq[i] = BUZZER_NOTE_B6;
+        i++;
+        sound_seq[i] = 3;
+        i++;
+        sound_seq[i] = BUZZER_NOTE_REST;
+        i++;
+        sound_seq[i] = 6;
+        i++;
+    }
+    if (high_count > 1) {
+        sound_seq[i] = -2;
+        i++;
+        sound_seq[i] = high_count-1;
+    }
+    watch_buzzer_play_sequence((int8_t *)sound_seq, NULL);
 }
 
 
