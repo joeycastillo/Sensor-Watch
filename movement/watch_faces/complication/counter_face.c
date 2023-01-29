@@ -2,7 +2,6 @@
  * MIT License
  *
  * Copyright (c) 2022 Shogo Okamoto
- * Copyright (c) 2022 Jan H. Voigt
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -54,7 +53,7 @@ bool counter_face_loop(movement_event_t event, movement_settings_t *settings, vo
 
     switch (event.event_type) {
         case EVENT_ALARM_BUTTON_UP:
-            watch_buzzer_abort_sequence; //abort running buzzer sequence when counting fast
+            watch_buzzer_abort_sequence(); //abort running buzzer sequence when counting fast
             state->counter_idx++; // increment counter index
             if (state->counter_idx>99) { //0-99
                 state->counter_idx=0;//reset counter index
@@ -65,7 +64,7 @@ bool counter_face_loop(movement_event_t event, movement_settings_t *settings, vo
             }
             break;
         case EVENT_LIGHT_LONG_PRESS:
-            watch_buzzer_abort_sequence; 
+            watch_buzzer_abort_sequence(); 
             beep_on = !beep_on;
             if (beep_on){
             watch_set_indicator(WATCH_INDICATOR_SIGNAL);
@@ -96,7 +95,8 @@ bool counter_face_loop(movement_event_t event, movement_settings_t *settings, vo
 void beep_counter(counter_state_t *state) {
 	int low_count = state->counter_idx/5;
 	int high_count = state->counter_idx - low_count * 5; 
-	int8_t sound_seq[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	static int8_t sound_seq[15];
+    memset(sound_seq, 0, 15);
     int i=0;
     if (low_count > 0) { 
         sound_seq[i] = BUZZER_NOTE_A6;
