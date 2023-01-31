@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Joey Castillo
+ * Copyright (c) 2023 Jeremy O'Brien
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,32 +22,49 @@
  * SOFTWARE.
  */
 
-#ifndef MOVEMENT_CONFIG_H_
-#define MOVEMENT_CONFIG_H_
+#ifndef MOVEMENT_CUSTOM_SIGNAL_TUNES_H_
+#define MOVEMENT_CUSTOM_SIGNAL_TUNES_H_
 
-#include "movement_faces.h"
-
-const watch_face_t watch_faces[] = {
-    simple_clock_face,
-    world_clock_face,
-    sunrise_sunset_face,
-    moon_phase_face,
-    stopwatch_face,
-    preferences_face,
-    set_time_face,
+#ifdef SIGNAL_TUNE_DEFAULT
+int8_t signal_tune[] = {
+    BUZZER_NOTE_C8, 5,
+    BUZZER_NOTE_REST, 7,
+    BUZZER_NOTE_C8, 5,
+    0
 };
+#endif // SIGNAL_TUNE_DEFAULT
 
-#define MOVEMENT_NUM_FACES (sizeof(watch_faces) / sizeof(watch_face_t))
+#ifdef SIGNAL_TUNE_ZELDA_SECRET
+int8_t signal_tune[] = {
+    BUZZER_NOTE_G5, 10,
+    BUZZER_NOTE_F5SHARP_G5FLAT, 10,
+    BUZZER_NOTE_D5SHARP_E5FLAT, 10,
+    BUZZER_NOTE_A4, 10,
+    BUZZER_NOTE_G4SHARP_A4FLAT, 10,
+    BUZZER_NOTE_E5, 10,
+    BUZZER_NOTE_G5SHARP_A5FLAT, 10,
+    BUZZER_NOTE_C6, 10,
+    0
+};
+#endif // SIGNAL_TUNE_ZELDA_SECRET
 
-/* Determines what face to go to from the first face if you've already set 
- * a mode long press to go to the first face in preferences, and
- * excludes these faces from the normal rotation.
- * Usually it makes sense to set this to the preferences face.
- */
-#define MOVEMENT_SECONDARY_FACE_INDEX 0 // or (MOVEMENT_NUM_FACES - 2)
+#ifdef SIGNAL_TUNE_MARIO_THEME
+int8_t signal_tune[] = {
+    BUZZER_NOTE_E6, 8,
+    BUZZER_NOTE_REST, 1,
+    BUZZER_NOTE_E6, 8,
+    BUZZER_NOTE_REST, 10,
+    BUZZER_NOTE_E6, 6,
+    BUZZER_NOTE_REST, 10,
+    BUZZER_NOTE_C6, 8,
+    BUZZER_NOTE_REST, 1,
+    BUZZER_NOTE_E6, 6,
+    BUZZER_NOTE_REST, 10,
+    BUZZER_NOTE_G6, 8,
+    BUZZER_NOTE_REST, 30,
+    BUZZER_NOTE_G5, 8,
+    0
+};
+#endif // SIGNAL_TUNE_MARIO_THEME
 
-/* Custom hourly chime tune. Check movement_custom_signal_tunes.h for options */
-#define SIGNAL_TUNE_DEFAULT
-#include "movement_custom_signal_tunes.h"
-
-#endif // MOVEMENT_CONFIG_H_
+#endif // MOVEMENT_CUSTOM_SIGNAL_TUNES_H_
