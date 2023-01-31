@@ -292,9 +292,13 @@ void movement_request_wake() {
 }
 
 void movement_play_signal(void) {
+#ifdef SIGNAL_TUNE_DEFAULT
     watch_buzzer_play_note(BUZZER_NOTE_C8, 75);
     watch_buzzer_play_note(BUZZER_NOTE_REST, 100);
     watch_buzzer_play_note(BUZZER_NOTE_C8, 100);
+#else
+    watch_buzzer_play_sequence(signal_tune, NULL);
+#endif
 }
 
 void movement_play_alarm(void) {
