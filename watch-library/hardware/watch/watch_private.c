@@ -30,6 +30,11 @@ void _watch_init(void) {
     // disable the LED pin (it may have been enabled by the bootloader)
     watch_disable_digital_output(GPIO(GPIO_PORTA, 20));
 
+    // disable debugger hot-plugging
+    gpio_set_pin_function(SWCLK, GPIO_PIN_FUNCTION_OFF);
+    gpio_set_pin_direction(SWCLK, GPIO_DIRECTION_OFF);
+    gpio_set_pin_pull_mode(SWCLK, GPIO_PULL_OFF);
+
     // RAM should be back-biased in STANDBY
     PM->STDBYCFG.bit.BBIASHS = 1;
 
