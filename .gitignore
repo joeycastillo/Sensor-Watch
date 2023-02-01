@@ -18,3 +18,4 @@
 .vs
 .vscode
 docs/
+*-backups/
