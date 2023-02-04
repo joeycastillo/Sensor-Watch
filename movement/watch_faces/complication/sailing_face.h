@@ -1,6 +1,7 @@
 /*
  * MIT License
  *
+ * Copyright (c) 2023 Jan H. Voigt
  * Copyright (c) 2022 Wesley Ellis
  * Copyright (c) 2022 Niclas Hoyer
  *
@@ -38,13 +39,15 @@ A sailing sailing/timer face
 typedef enum {
     sl_waiting,
     sl_running,
-    sl_setting
+    sl_setting,
+    sl_counting
 } sailing_mode_t;
 
 typedef struct {
     uint8_t watch_face_index;
     uint32_t target_ts;
     uint32_t now_ts;
+    uint32_t nextbeep_ts;
     uint8_t index;
     uint8_t minutes[6];
     uint8_t selection;
