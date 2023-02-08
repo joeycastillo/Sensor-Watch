@@ -38,11 +38,9 @@
  *  lowest score for that course, and saved if it is better.
 */
 ///////////////////////////////////////////////////////////////////////////////////////////////
-
-uint8_t ticks = 0;
-int8_t best[courses];
-
 // Enter course data
+/* Initialize lowest scores with a high number */
+int8_t best[courses];
 
 static const uint8_t pars[][18] = {
    { 3, 3, 4, 3, 3, 3, 5, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 },    // Grafarholt
@@ -87,6 +85,11 @@ static const char labels[][2] = {
 
 // End of course data
 ///////////////////////////////////////////////////////////////////////////////////////////////
+
+/* Beep function */
+static inline void beep(movement_settings_t *settings) {
+    if (settings->bit.button_should_sound) watch_buzzer_play_note(BUZZER_NOTE_C7, 50);
+}
 
 /* Prep for a new round */
 static inline void reset(discgolf_state_t *state) {
@@ -142,47 +145,6 @@ static inline void store_best(discgolf_state_t *state) {
     }
 }
 
-/* Handle drawing the screen */
-static void draw(discgolf_state_t *state) {
-    char buf[16];
-    char prefix;
-    int8_t diff;
-
-    switch (state->mode) {
-        /* Setting mode, display course label and high score */
-        case dg_setting:
-            if ( best[state->course] < 0 ) { 
-                prefix = '-';
-            } else { prefix = ' '; }
-            sprintf(buf, "%c%c   %c%2d  ", labels[state->course][0], labels[state->course][1], prefix, abs(best[state->course]));
-            break;
-        /* Idle, show relative or input score */
-        case dg_idle:
-            if (state->hole == state->playing) {
-                diff = calculate_score(state);
-                if ( diff < 0 ) {
-                    prefix = '-';
-                } else { prefix = ' '; }
-                sprintf(buf, "%c%c%2d %c%2d  ", labels[state->course][0], labels[state->course][1], state->hole, prefix, abs(diff));
-            } else {
-                sprintf(buf, "%c%c%2d  %2d  ", labels[state->course][0], labels[state->course][1], state->hole, state->scores[state->hole - 1]);
-            }
-            break;
-        /* Scoring, show set score, blink if 0 */
-        case dg_scoring:
-            if ( (ticks % 2) == 1 ) {
-                sprintf(buf, "%c%c%2d  %2d  ", labels[state->course][0], labels[state->course][1], state->hole, state->scores[state->hole - 1]);
-            } 
-            else {
-                sprintf(buf, "%c%c%2d      ", labels[state->course][0], labels[state->course][1], state->hole);
-            }
-            break;
-    }
-    /* Draw screen */
-    watch_display_string(buf, 0);
-
-}
-
 void discgolf_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
     (void) watch_face_index;
@@ -212,6 +174,7 @@ void discgolf_face_activate(movement_settings_t *settings, void *context) {
     if (count_played(state) == holes[state->course] ) {
         watch_set_indicator(WATCH_INDICATOR_LAP);
     }
+    movement_request_tick_frequency(4);
 }
 
 bool discgolf_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
@@ -220,15 +183,6 @@ bool discgolf_face_loop(movement_event_t event, movement_settings_t *settings, v
     discgolf_state_t *state = (discgolf_state_t *)context;
 
     switch (event.event_type) {
-        /* Increment tick, used for blinking */
-        case EVENT_TICK:
-            if ( state->mode == dg_scoring ) ticks++;
-            draw(state);
-            break;
-        /* Just draw */
-        case EVENT_ACTIVATE:
-            draw(state);
-            break;
         case EVENT_TIMEOUT:
             /* Snap to first screen if we're not playing*/
             if ( count_played(state) == holes[state->course] || state->mode == dg_setting) {
@@ -244,12 +198,6 @@ bool discgolf_face_loop(movement_event_t event, movement_settings_t *settings, v
         case EVENT_MODE_BUTTON_UP:
             if ( state->mode != dg_scoring ) {
 				movement_move_to_next_face();
-            }
-            break;
-        /* Move to clock on mode long press */
-        case EVENT_MODE_LONG_PRESS:
-            if ( state->mode != dg_scoring ) {
-				movement_move_face(0);
             }
             break;
         case EVENT_LIGHT_BUTTON_UP:
@@ -274,8 +222,7 @@ bool discgolf_face_loop(movement_event_t event, movement_settings_t *settings, v
                         if (state->playing < holes[state->course]) state->playing++;
                         else state->playing = 1;
                     }
-                    /* Reset ticks and return to idle mode */
-                    ticks = 0;
+                    /* Return to idle */
                     state->mode = dg_idle;
                     break;
                 case dg_setting:
@@ -284,7 +231,7 @@ bool discgolf_face_loop(movement_event_t event, movement_settings_t *settings, v
                     state->mode = dg_idle;
                     break;
             }
-            draw(state);
+            beep(settings);
             break;
         case EVENT_ALARM_BUTTON_UP:
             switch (state->mode) {
@@ -303,7 +250,6 @@ bool discgolf_face_loop(movement_event_t event, movement_settings_t *settings, v
                     } else { state->hole = 1; }
                     break;
             }
-            draw(state);
             break;
         case EVENT_LIGHT_LONG_PRESS:
             /* Enter setting mode, reset state */
@@ -311,19 +257,57 @@ bool discgolf_face_loop(movement_event_t event, movement_settings_t *settings, v
                 state->mode = dg_setting;
                 store_best(state);
                 reset(state);
+                beep(settings);
             }
-            draw(state);
             break;
         case EVENT_ALARM_LONG_PRESS:
             /* Snap back to currently playing hole if we've established one*/
             if ( (state->mode == dg_idle) && (state->hole != state->playing) && (state->playing <= holes[state->course]) ) {
                 state->hole = state->playing;
+                beep(settings);
             }
-            draw(state);
             break;
         default:
             break;
     }
+
+    char buf[21];
+    char prefix;
+    int8_t diff;
+
+    switch (state->mode) {
+        /* Setting mode, display course label and high score */
+        case dg_setting:
+            if ( best[state->course] < 0 ) { 
+                prefix = '-';
+            } else { prefix = ' '; }
+            sprintf(buf, "%c%c   %c%2d  ", labels[state->course][0], labels[state->course][1], prefix, abs(best[state->course]));
+            break;
+        /* Idle, show relative or input score */
+        case dg_idle:
+            if (state->hole == state->playing) {
+                diff = calculate_score(state);
+                if ( diff < 0 ) {
+                    prefix = '-';
+                } else { prefix = ' '; }
+                sprintf(buf, "%c%c%2d %c%2d  ", labels[state->course][0], labels[state->course][1], state->hole, prefix, abs(diff));
+            } else {
+                sprintf(buf, "%c%c%2d  %2d  ", labels[state->course][0], labels[state->course][1], state->hole, state->scores[state->hole - 1]);
+            }
+            break;
+        /* Scoring, show set score */
+        case dg_scoring:
+            sprintf(buf, "%c%c%2d  %2d  ", labels[state->course][0], labels[state->course][1], state->hole, state->scores[state->hole - 1]);
+            break;
+    }
+
+    /* Blink during scoring */
+    if (event.subsecond % 2 && state->mode == dg_scoring) {
+        buf[6] = buf[7] = ' ';
+    }
+
+    /* Draw screen */
+    watch_display_string(buf, 0);
 
     return true;
 }
