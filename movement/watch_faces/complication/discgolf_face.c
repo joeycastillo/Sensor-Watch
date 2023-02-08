@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
-#include "discgolf_face.h"
-#include "watch.h"                                              // Remember to change number of courses in this file
+#include "discgolf_face.h"                                      // Remember to change number of courses in this file
+#include "watch.h"
 #include "watch_utility.h"
 
 /* 
