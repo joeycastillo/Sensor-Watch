@@ -1,0 +1,24 @@
+##################################################################
+# Syntax Coloring Map For ClosedCube OPT3001 Digital Ambient Light Sensor Library
+##################################################################
+
+##################################################################
+# Datatypes (KEYWORD1)
+##################################################################
+
+ClosedCube_OPT3001	KEYWORD1
+
+##################################################################
+# Methods and Functions (KEYWORD2)
+##################################################################
+
+begin KEYWORD2
+readManufacturerID KEYWORD2
+readDeviceID KEYWORD2
+
+readResult KEYWORD2
+readHighLimit KEYWORD2
+readLowLimit KEYWORD2
+
+readConfig KEYWORD2
+writeConfig KEYWORD2
