@@ -56,8 +56,7 @@ typedef enum {
     invaders_state_in_wave_break,
     invaders_state_pre_next_wave,
     invaders_state_next_wave,
-    invaders_state_game_over,
-    invaders_state_setting
+    invaders_state_game_over
 } invaders_current_state_t;
 
 static int8_t _invaders[6];             // array of current invaders values (-1 = empty, 10 = ufo)
@@ -195,6 +194,7 @@ static bool _move_invaders() {
 
 void invaders_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
+    (void) watch_face_index;
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(invaders_state_t));
         memset(*context_ptr, 0, sizeof(invaders_state_t));
