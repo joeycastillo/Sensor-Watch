@@ -26,6 +26,11 @@
 #define _WATCH_UTILITY_H_INCLUDED
 ////< @file watch_utility.h
 
+/*
+ * Define use_iso_8601_weeknumber as 1 to let weeknumbers start on Monday, 0 to start on Sunday.
+ */
+#define use_iso_8601_weeknumber 0
+
 #include "watch.h"
 
 /** @addtogroup utility Utility Functions
