@@ -223,7 +223,6 @@ bool filesystem_append_file(char *filename, char *text, int32_t length) {
 }
 
 void filesystem_process_command(char *line) {
-    printf("$ %s", line);
     char *command = strtok(line, " \n");
     
     if (strcmp(command, "ls") == 0) {

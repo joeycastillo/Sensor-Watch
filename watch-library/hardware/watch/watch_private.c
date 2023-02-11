@@ -245,43 +245,40 @@ void _watch_enable_usb(void) {
 
 // this function ends up getting called by printf to log stuff to the USB console.
 int _write(int file, char *ptr, int len) {
+    int written = 0;
     (void)file;
-    if (hri_usbdevice_get_CTRLA_ENABLE_bit(USB)) {
-        tud_cdc_n_write(0, (void const*)ptr, len);
-        tud_cdc_n_write_flush(0);
-        return len;
+
+    // It's important that this call blocks, as returning 0 bytes
+    // written causes newlib to fail the flush and throw
+    // away any data in the buffer.
+    // Note that it's fine not to write all the bytes, it's just
+    // that we have to write _something_.
+    while (tud_cdc_connected() && written == 0) {
+        written = tud_cdc_write((void const*)ptr, len);
+        if (written) {
+            tud_cdc_write_flush();
+        }
     }
 
-    return 0;
+    return written;
 }
-
-static char buf[256] = {0};
 
 int _read(int file, char *ptr, int len) {
     (void)file;
-    int actual_length = strlen(buf);
-    if (actual_length) {
-        memcpy(ptr, buf, min(len, actual_length));
-        return actual_length;
+
+    if (tud_cdc_connected() && tud_cdc_available()) {
+        return tud_cdc_read(ptr, len);
+    } else {
+        return 0;
     }
-    return 0;
 }
 
 void USB_Handler(void) {
     tud_int_handler(0);
 }
 
-static void cdc_task(void) {
-    if (tud_cdc_n_available(0)) {
-        tud_cdc_n_read(0, buf, sizeof(buf));
-    } else {
-        memset(buf, 0, 256);
-    }
-}
-
 void TC0_Handler(void) {
     tud_task();
-    cdc_task();
     TC0->COUNT8.INTFLAG.reg |= TC_INTFLAG_OVF;
 }
 

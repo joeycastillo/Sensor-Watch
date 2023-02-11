@@ -67,6 +67,8 @@
 #define MOVEMENT_DEFAULT_GREEN_COLOR 0xF
 #endif
 
+#define SERIAL_BUFFER_SIZE 512
+
 #if __EMSCRIPTEN__
 #include <emscripten.h>
 #endif
@@ -424,6 +426,10 @@ static void _sleep_mode_app_loop(void) {
 }
 
 bool app_loop(void) {
+    static char serial_buffer[SERIAL_BUFFER_SIZE] = {0};
+    static int serial_buffer_index = 0;
+    static int prompt_shown = false;
+
     if (movement_state.watch_face_changed) {
         if (movement_state.settings.bit.button_should_sound) {
             // low note for nonzero case, high note for return to watch_face 0
@@ -520,7 +526,6 @@ bool app_loop(void) {
 
     // if we are plugged into USB, handle the file browser tasks
     if (watch_is_usb_enabled()) {
-        char line[256] = {0};
 #if __EMSCRIPTEN__
         // This is a terrible hack; ideally this should be handled deeper in the watch library.
         // Alas, emscripten treats read() as something that should pop up an input box, so I
@@ -533,15 +538,57 @@ bool app_loop(void) {
             stringToUTF8(tx, s, len);
             return s;
         });
-        memcpy(line, received_data, min(255, strlen(received_data)));
+        serial_buffer_index = strlen(received_data);
+        memcpy(serial_buffer, received_data, min(254, serial_buffer_index));
+        serial_buffer[serial_buffer_index] = '\0';
         free(received_data);
         EM_ASM({
             tx = "";
         });
+        if (serial_buffer[0] != '\0') {
+            printf("$ %s", serial_buffer);
+            filesystem_process_command(serial_buffer);
+            serial_buffer[0] = '\0';
+        }
 #else
-        read(0, line, 256);
+        char *read_loc = &serial_buffer[serial_buffer_index];
+        serial_buffer_index += read(0, read_loc, SERIAL_BUFFER_SIZE - 1 - serial_buffer_index);
+        if (read_loc != &serial_buffer[serial_buffer_index]) {
+            serial_buffer[serial_buffer_index] = '\0';
+
+            if (!prompt_shown) {
+                printf("$ ");
+                fflush(0);
+                prompt_shown = true;
+            }
+
+            char *eol;
+            while ((eol = strchr(serial_buffer, '\r')) != NULL) {
+                *eol = '\0';
+                puts(read_loc);
+                read_loc = serial_buffer;
+                if (serial_buffer[0] != '\0') {
+                    filesystem_process_command(serial_buffer);
+                }
+
+                printf("$ ");
+                fflush(0);
+                serial_buffer_index -= (eol + 1 - serial_buffer);
+                memmove(serial_buffer, eol + 1, serial_buffer_index + 1);
+            }
+
+            while (*read_loc && *read_loc != '\r') {
+                putchar(*read_loc);
+                ++read_loc;
+            }
+            fflush(0);
+        }
+
+        if (serial_buffer_index + 1 >= SERIAL_BUFFER_SIZE) {
+            puts("Serial buffer size exceeded; discarding command.");
+            serial_buffer_index = 0;
+        }
 #endif
-        if (strlen(line)) filesystem_process_command(line);
     }
 
     event.subsecond = 0;
