@@ -59,6 +59,12 @@ typedef enum {
     invaders_state_game_over
 } invaders_current_state_t;
 
+typedef struct {
+    bool ufo_next : 1;                  // indicates whether next invader is a ufo
+    bool inv_checking : 1;              // flag to indicate whether we are currently moving invaders (to prevent race conditions)
+    bool suspend_buttons : 1;           // used while playing the game over sequence to prevent involuntary immediate restarts
+} invaders_signals_t;
+
 static int8_t _invaders[6];             // array of current invaders values (-1 = empty, 10 = ufo)
 static uint8_t _wave_invaders[INVADERS_FACE_WAVE_INVADERS]; // all invaders for the current wave. (Predefined to save cpu cycles when playing.)
 static invaders_current_state_t _current_state;
@@ -73,8 +79,7 @@ static uint8_t _waves;                  // counts the waves (_wave_tick_freq dec
 static uint8_t _shots_in_wave;          // number of shots in current wave. If 30 is reached, the game is over
 static uint8_t _invaders_shot;          // number of sucessfully shot invaders in current wave
 static uint8_t _invaders_shot_sum;      // current sum of invader digits shot (needed to determine if a ufo is coming)
-static bool _ufo_next;                  // indicates whether next invader is a ufo
-static bool _inv_checking;              // flag to indicate whether we are currently moving invaders (to prevent race conditions)
+static invaders_signals_t _signals;     // holds severals flags
 static uint16_t _score;                 // score of the current game
 
 /// @brief return a random number. 0 <= return_value < num_values
@@ -84,6 +89,11 @@ static inline uint8_t _get_rand_num(uint8_t num_values) {
 #else
     return arc4random_uniform(num_values);
 #endif
+}
+
+/// @brief callback function to re-enable light and alarm buttons after playing a sound sequence
+static inline void _resume_buttons() {
+    _signals.suspend_buttons = false;
 }
 
 /// @brief play a sound sequence if the game is in beepy mode
@@ -129,7 +139,8 @@ static void _game_over(invaders_state_t *state) {
     _display_score("GO", _score);
     _current_state = invaders_state_game_over;
     movement_request_tick_frequency(1);
-    _play_sequence(state, (int8_t *)_sound_seq_game_over);
+    _signals.suspend_buttons = true;
+    if (state->sound_on) watch_buzzer_play_sequence((int8_t *)_sound_seq_game_over, _resume_buttons);
     // save current score to highscore, if applicable
     if (_score > state->highscore) state->highscore = _score;
 }
@@ -148,7 +159,7 @@ static void _init_wave() {
     for (i = 1; i < 6; i++) _invaders[i] = -1;
     _invaders[0] = _wave_invaders[_invader_idx];
     _wave_position = _aim = _bonus_countdown = 0;
-    _ufo_next = _inv_checking = false;
+    _signals.ufo_next = _signals.inv_checking = _signals.suspend_buttons = false;
     _current_state = invaders_state_playing;
     // determine wave speed
     _wave_tick_freq = 6 - ((_waves % INVADERS_FACE_WAVES_PER_STAGE) + 1) / 2;
@@ -166,7 +177,7 @@ static void _init_wave() {
  */
 static bool _move_invaders() {
     if (_wave_position == 5) return true;
-    _inv_checking = true;
+    _signals.inv_checking = true;
     if (_invaders[_wave_position] >= 0) _wave_position++;
     int8_t i;
     // move invaders
@@ -174,9 +185,9 @@ static bool _move_invaders() {
     if (_invader_idx < INVADERS_FACE_WAVE_INVADERS - 1) {
         // add invader
         _invader_idx++;
-        if (_ufo_next) {
+        if (_signals.ufo_next) {
             _invaders[0] = 10;
-            _ufo_next = false;
+            _signals.ufo_next = false;
         } else {
             _invaders[0] = _wave_invaders[_invader_idx];
         }
@@ -188,7 +199,7 @@ static bool _move_invaders() {
     for (i = 0; i <= _wave_position; i++) {
         _display_invader(_invaders[i], 9 - i);
     }
-    _inv_checking = false;
+    _signals.inv_checking = false;
     return false;
 }
 
@@ -213,6 +224,7 @@ void invaders_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
     _current_state = invaders_state_activated;
+    _signals.suspend_buttons = false;
 }
 
 bool invaders_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
@@ -284,109 +296,113 @@ bool invaders_face_loop(movement_event_t event, movement_settings_t *settings, v
             }
             break;
         case EVENT_LIGHT_BUTTON_DOWN:
-            if (_current_state == invaders_state_playing) {
-                // cycle the aim
-                _aim = (_aim + 1) % 11;
-                _display_invader(_aim, 0);
-            } else if (_current_state == invaders_state_activated || _current_state == invaders_state_game_over) {
-                // just illuminate the LED
-                movement_illuminate_led();
+            if (!_signals.suspend_buttons) {
+                if (_current_state == invaders_state_playing) {
+                    // cycle the aim
+                    _aim = (_aim + 1) % 11;
+                    _display_invader(_aim, 0);
+                } else if (_current_state == invaders_state_activated || _current_state == invaders_state_game_over) {
+                    // just illuminate the LED
+                    movement_illuminate_led();
+                }
             }
             break;
         case EVENT_LIGHT_LONG_PRESS:
-            if (_current_state == invaders_state_activated || _current_state == invaders_state_game_over) {
+            if ((_current_state == invaders_state_activated || _current_state == invaders_state_game_over) && !_signals.suspend_buttons) {
                 // switch between beepy and silent mode
                 state->sound_on = !state->sound_on;
                 watch_buzzer_play_note(BUZZER_NOTE_A7, state->sound_on ? 65 : 25);
             }
             break;
         case EVENT_ALARM_BUTTON_DOWN:
-            switch (_current_state) {
-                case invaders_state_game_over:
-                case invaders_state_activated:
-                    // initialize the game
-                    _waves = 0;
-                    _score = 0;
-                    movement_request_tick_frequency(1);
-                    _ticks = 0;
-                    _current_state = invaders_state_pre_game;
-                    _play_sequence(state, (int8_t *)_sound_seq_game_start);
-                    break;
-                case invaders_state_playing: {
-                    // "shoot"
-                    _shots_in_wave++;
-                    if (_shots_in_wave == 30) {
-                        // max number of shots reached: game over
-                        _game_over(state);
-                    } else {
-                        // wait if we are currently deleting an invader
-                        while (_inv_checking);
-                        // proceed
-                        _inv_checking = true;
-                        bool skip = false;
-                        for (int8_t i = _wave_position; i >= 0 && !skip; i--) {
-                            // if (_invaders[i] == -1) break;
-                            if (_invaders[i] == _aim) {
-                                // invader is shot
-                                skip = true;
-                                _invaders_shot++;
-                                _play_sequence(state, _aim == 10 ? (int8_t *)_sound_seq_ufo_hit : (int8_t *)_sound_seq_shot_hit);
-                                if (_invaders_shot == INVADERS_FACE_WAVE_INVADERS) {
-                                    // last invader shot: wave sucessfully completed
-                                    watch_display_character(' ', 9 - _wave_position);
-                                    _ticks = 0;
-                                    _current_state = invaders_state_pre_next_wave;
-                                    _inv_checking = false;
-                                } else {
-                                    // check for ufo appearance
-                                    if (_aim && _aim < 10) {
-                                        _invaders_shot_sum = (_invaders_shot_sum + _aim) % 10;
-                                        if (_invaders_shot_sum == 0) _ufo_next = true;
-                                    }
-                                    // remove invader
-                                    if (_wave_position == 0 || i == 5) {
-                                        _invaders[i] = -1;
+            if (!_signals.suspend_buttons) {
+                switch (_current_state) {
+                    case invaders_state_game_over:
+                    case invaders_state_activated:
+                        // initialize the game
+                        _waves = 0;
+                        _score = 0;
+                        movement_request_tick_frequency(1);
+                        _ticks = 0;
+                        _current_state = invaders_state_pre_game;
+                        _play_sequence(state, (int8_t *)_sound_seq_game_start);
+                        break;
+                    case invaders_state_playing: {
+                        // "shoot"
+                        _shots_in_wave++;
+                        if (_shots_in_wave == 30) {
+                            // max number of shots reached: game over
+                            _game_over(state);
+                        } else {
+                            // wait if we are currently deleting an invader
+                            while (_signals.inv_checking);
+                            // proceed
+                            _signals.inv_checking = true;
+                            bool skip = false;
+                            for (int8_t i = _wave_position; i >= 0 && !skip; i--) {
+                                // if (_invaders[i] == -1) break;
+                                if (_invaders[i] == _aim) {
+                                    // invader is shot
+                                    skip = true;
+                                    _invaders_shot++;
+                                    _play_sequence(state, _aim == 10 ? (int8_t *)_sound_seq_ufo_hit : (int8_t *)_sound_seq_shot_hit);
+                                    if (_invaders_shot == INVADERS_FACE_WAVE_INVADERS) {
+                                        // last invader shot: wave sucessfully completed
+                                        watch_display_character(' ', 9 - _wave_position);
+                                        _ticks = 0;
+                                        _current_state = invaders_state_pre_next_wave;
+                                        _signals.inv_checking = false;
                                     } else {
-                                        for (uint8_t j = i; j < _wave_position; j++) {
-                                            _invaders[j] = _invaders[j + 1];
-                                            _display_invader(_invaders[j], 9 - j);
+                                        // check for ufo appearance
+                                        if (_aim && _aim < 10) {
+                                            _invaders_shot_sum = (_invaders_shot_sum + _aim) % 10;
+                                            if (_invaders_shot_sum == 0) _signals.ufo_next = true;
                                         }
-                                    }
-                                    watch_display_character(' ', 9 - _wave_position);
-                                    if (_wave_position) _wave_position--;
-                                    // update score
-                                    if (_aim == 10) {
-                                        // ufo shot. The original game uses a ridiculously complicated scoring system here...
-                                        uint8_t bonus_points = 0;
-                                        uint8_t j;
-                                        for (j = 0; j < sizeof(_bonus_points_helper) && !bonus_points; j++) {
-                                            if (_shots_in_wave == _bonus_points_helper[j]) {
-                                                bonus_points = 30;
-                                            } else if (_shots_in_wave - 1 == _bonus_points_helper[j]) {
-                                                bonus_points = 20;
+                                        // remove invader
+                                        if (_wave_position == 0 || i == 5) {
+                                            _invaders[i] = -1;
+                                        } else {
+                                            for (uint8_t j = i; j < _wave_position; j++) {
+                                                _invaders[j] = _invaders[j + 1];
+                                                _display_invader(_invaders[j], 9 - j);
                                             }
                                         }
-                                        if (!bonus_points) bonus_points = 10;
-                                        bonus_points += (6 - i);
-                                        if ((_waves >= INVADERS_FACE_WAVES_PER_STAGE) && i) bonus_points += (6 - i);
-                                        _score += bonus_points;
-                                        // represent bonus points by bars
-                                        for (j = 0; j < (bonus_points / 10); j++) watch_set_pixel(_bonus_points_segdata[j][0], _bonus_points_segdata[j][1]);
-                                        _bonus_countdown = 9;
-                                    } else {
-                                        // regular invader
-                                        _score += (6 - _wave_position) * (_waves >= INVADERS_FACE_WAVES_PER_STAGE ? 2 : 1);
+                                        watch_display_character(' ', 9 - _wave_position);
+                                        if (_wave_position) _wave_position--;
+                                        // update score
+                                        if (_aim == 10) {
+                                            // ufo shot. The original game uses a ridiculously complicated scoring system here...
+                                            uint8_t bonus_points = 0;
+                                            uint8_t j;
+                                            for (j = 0; j < sizeof(_bonus_points_helper) && !bonus_points; j++) {
+                                                if (_shots_in_wave == _bonus_points_helper[j]) {
+                                                    bonus_points = 30;
+                                                } else if (_shots_in_wave - 1 == _bonus_points_helper[j]) {
+                                                    bonus_points = 20;
+                                                }
+                                            }
+                                            if (!bonus_points) bonus_points = 10;
+                                            bonus_points += (6 - i);
+                                            if ((_waves >= INVADERS_FACE_WAVES_PER_STAGE) && i) bonus_points += (6 - i);
+                                            _score += bonus_points;
+                                            // represent bonus points by bars
+                                            for (j = 0; j < (bonus_points / 10); j++) watch_set_pixel(_bonus_points_segdata[j][0], _bonus_points_segdata[j][1]);
+                                            _bonus_countdown = 9;
+                                        } else {
+                                            // regular invader
+                                            _score += (6 - _wave_position) * (_waves >= INVADERS_FACE_WAVES_PER_STAGE ? 2 : 1);
+                                        }
                                     }
                                 }
                             }
+                            if (!skip) _play_sequence(state, (int8_t *)_sound_seq_shot_miss);
+                            _signals.inv_checking = false;
                         }
-                        if (!skip) _play_sequence(state, (int8_t *)_sound_seq_shot_miss);
-                        _inv_checking = false;
-                    }
-                    break;
-                }    
-                default:
-                    break;
+                        break;
+                    }    
+                    default:
+                        break;
+                }
             }
             break;
         case EVENT_TIMEOUT:
