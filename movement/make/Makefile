@@ -96,6 +96,7 @@ SRCS += \
   ../watch_faces/complication/morsecalc_face.c \
   ../watch_faces/complication/rpn_calculator_face.c \
   ../watch_faces/complication/ships_bell_face.c \
+  ../watch_faces/complication/habit_face.c \
   ../watch_faces/complication/invaders_face.c \
 # New watch faces go above this line.
 

@@ -1,9 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jan H. Voigt
- * Copyright (c) 2022 Wesley Ellis
- * Copyright (c) 2022 Niclas Hoyer
+ * Copyright (c) 2023 tslil clingman
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,48 +22,32 @@
  * SOFTWARE.
  */
 
-//-----------------------------------------------------------------------------
-
-#ifndef SAILING_FACE_H_
-#define SAILING_FACE_H_
+#ifndef HABIT_FACE_H_
+#define HABIT_FACE_H_
 
 #include "movement.h"
 
 /*
-A sailing sailing/timer face
-*/
+ * Habit tracking face
+ *
+ * Allows the user to record a single succesful instance of a particular habit
+ * occuring per day, and displays history for eight days prior as well as a
+ * total counter.
+ *
+ */
 
+void habit_face_setup(movement_settings_t *settings, uint8_t watch_face_index,
+                      void **context_ptr);
+void habit_face_activate(movement_settings_t *settings, void *context);
+bool habit_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void habit_face_resign(movement_settings_t *settings, void *context);
 
-typedef enum {
-    sl_waiting,
-    sl_running,
-    sl_setting,
-    sl_counting
-} sailing_mode_t;
-
-typedef struct {
-    uint8_t watch_face_index;
-    uint32_t target_ts;
-    uint32_t now_ts;
-    uint32_t nextbeep_ts;
-    uint8_t index;
-    uint8_t minutes[6];
-    uint8_t selection;
-    sailing_mode_t mode;
-} sailing_state_t;
-
-
-void sailing_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
-void sailing_face_activate(movement_settings_t *settings, void *context);
-bool sailing_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
-void sailing_face_resign(movement_settings_t *settings, void *context);
-
-#define sailing_face ((const watch_face_t){ \
-    sailing_face_setup, \
-    sailing_face_activate, \
-    sailing_face_loop, \
-    sailing_face_resign, \
+#define habit_face ((const watch_face_t){ \
+    habit_face_setup, \
+    habit_face_activate, \
+    habit_face_loop, \
+    habit_face_resign, \
     NULL, \
 })
 
-#endif // sailing_FACE_H_
+#endif // HABIT_FACE_H_

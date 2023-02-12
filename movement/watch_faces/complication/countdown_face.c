@@ -225,7 +225,7 @@ bool countdown_face_loop(movement_event_t event, movement_settings_t *settings, 
             abort_quick_ticks(state);
             movement_move_to_next_face();
             break;
-        case EVENT_LIGHT_BUTTON_DOWN:
+        case EVENT_LIGHT_BUTTON_UP:
             switch(state->mode) {
                 case cd_running:
                     movement_illuminate_led();
@@ -278,6 +278,21 @@ bool countdown_face_loop(movement_event_t event, movement_settings_t *settings, 
                 movement_request_tick_frequency(8);
             }
             break;
+        case EVENT_LIGHT_LONG_PRESS:
+            if (state->mode == cd_setting) {
+                switch (state->selection) {
+                    case 0:
+                        state->hours = 0;
+                        // intentional fallthrough
+                    case 1:
+                        state->minutes = 0;
+                        // intentional fallthrough
+                    case 2:
+                        state->seconds = 0;
+                        break;
+                }
+            }
+            break;
         case EVENT_ALARM_LONG_UP:
             abort_quick_ticks(state);
             break;
@@ -289,6 +304,8 @@ bool countdown_face_loop(movement_event_t event, movement_settings_t *settings, 
             movement_move_to_face(0);
             break;
         case EVENT_LOW_ENERGY_UPDATE:
+        // intentionally squelch the light default event; we only show the light when cd is running
+        case EVENT_LIGHT_BUTTON_DOWN:
             break;
         default:
             movement_default_loop_handler(event, settings);

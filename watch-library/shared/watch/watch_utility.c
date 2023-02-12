@@ -46,7 +46,11 @@ uint8_t watch_utility_get_weeknumber(uint16_t year, uint8_t month, uint8_t day) 
     uint8_t weekday;
     uint16_t days;
 
-    weekday = watch_utility_get_iso8601_weekday_number(year, month, day) % 7;
+    if (use_iso_8601_weeknumber == 1) {
+        weekday = ((watch_utility_get_iso8601_weekday_number(year, month, day) + 5) % 7) + 1;
+    } else {
+        weekday = watch_utility_get_iso8601_weekday_number(year, month, day) % 7;
+    }
     days = watch_utility_days_since_new_year(year, month, day);
 
 	int val = (days + 7U - (weekday+6U)%7) / 7;
