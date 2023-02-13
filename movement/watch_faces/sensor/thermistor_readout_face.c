@@ -50,6 +50,7 @@ void thermistor_readout_face_setup(movement_settings_t *settings, uint8_t watch_
 void thermistor_readout_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
+    settings->bit.use_imperial_units = true;
     watch_display_string("TE", 0);
 }
 

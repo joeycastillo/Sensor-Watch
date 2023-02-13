@@ -27,7 +27,7 @@
 #include "ratemeter_face.h"
 #include "watch.h"
 
-#define RATEMETER_FACE_FREQUENCY_FACTOR (4ul) // refresh rate will be 2 to this power Hz (0 for 1 Hz, 2 for 4 Hz, etc.)
+#define RATEMETER_FACE_FREQUENCY_FACTOR (6ul) // refresh rate will be 2 to this power Hz (0 for 1 Hz, 2 for 4 Hz, etc.)
 #define RATEMETER_FACE_FREQUENCY (1 << RATEMETER_FACE_FREQUENCY_FACTOR)
 
 void ratemeter_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
@@ -52,6 +52,13 @@ bool ratemeter_face_loop(movement_event_t event, movement_settings_t *settings, 
         case EVENT_ALARM_BUTTON_DOWN:
             if (ratemeter_state->ticks != 0) {
                 ratemeter_state->rate = (int16_t)(60.0 / ((float)ratemeter_state->ticks / (float)RATEMETER_FACE_FREQUENCY));
+                // ratemeter_state->rate = (int16_t)((1 / (float)ratemeter_state->ticks) * (float)(RATEMETER_FACE_FREQUENCY * 60);
+
+                printf("freq: %d \n", RATEMETER_FACE_FREQUENCY); // 64
+                printf("ticks: %d \n", ratemeter_state->ticks);  // 13
+                printf("rate: %d \n", ratemeter_state->rate);
+                // char str[1024];
+                // sprintf(str, "%d\n", ratemeter_state->rate);
             }
             ratemeter_state->ticks = 0;
             movement_request_tick_frequency(RATEMETER_FACE_FREQUENCY);
