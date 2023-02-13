@@ -24,6 +24,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "ratemeter_face.h"
 #include "watch.h"
 
@@ -51,11 +52,12 @@ bool ratemeter_face_loop(movement_event_t event, movement_settings_t *settings, 
             break;
         case EVENT_ALARM_BUTTON_DOWN:
             if (ratemeter_state->ticks != 0) {
-                ratemeter_state->rate = (int16_t)(60.0 / ((float)ratemeter_state->ticks / (float)RATEMETER_FACE_FREQUENCY));
-                // ratemeter_state->rate = (int16_t)((1 / (float)ratemeter_state->ticks) * (float)(RATEMETER_FACE_FREQUENCY * 60);
+                // ratemeter_state->rate = (int16_t)(60.0 / ((float)ratemeter_state->ticks / (float)RATEMETER_FACE_FREQUENCY));
+                // 60s/m * (Xticks/s / Yticks/beat)
+                ratemeter_state->rate = roundf((int16_t)(60.0 * ((float)RATEMETER_FACE_FREQUENCY / (float)ratemeter_state->ticks)));
 
-                printf("freq: %d \n", RATEMETER_FACE_FREQUENCY); // 64
-                printf("ticks: %d \n", ratemeter_state->ticks);  // 13
+                // printf("freq: %d \n", RATEMETER_FACE_FREQUENCY); // 64
+                printf("ticks since last beat: %d \n", ratemeter_state->ticks); // 1
                 printf("rate: %d \n", ratemeter_state->rate);
                 // char str[1024];
                 // sprintf(str, "%d\n", ratemeter_state->rate);
