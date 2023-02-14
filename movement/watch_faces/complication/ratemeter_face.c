@@ -28,7 +28,7 @@
 #include "ratemeter_face.h"
 #include "watch.h"
 
-#define RATEMETER_FACE_FREQUENCY_FACTOR (5ul) // refresh rate will be 2 to this power Hz (0 for 1 Hz, 2 for 4 Hz, etc.)
+#define RATEMETER_FACE_FREQUENCY_FACTOR (6ul) // refresh rate will be 2 to this power Hz (0 for 1 Hz, 2 for 4 Hz, etc.)
 #define RATEMETER_FACE_FREQUENCY (1 << RATEMETER_FACE_FREQUENCY_FACTOR)
 
 void ratemeter_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
@@ -68,6 +68,7 @@ bool ratemeter_face_loop(movement_event_t event, movement_settings_t *settings, 
                 int16_t current_rate = roundf((int16_t)(60.0 * ((float)RATEMETER_FACE_FREQUENCY / (float)ratemeter_state->ticks)));
                 printf("---------\n");
                 printf("ratemeter_state->ticks: %d\n", ratemeter_state->ticks);
+                printf("expected: %d\n", RATEMETER_FACE_FREQUENCY);
 
                 ratemeter_state->last_3_rates[current_index] = current_rate;
                 ratemeter_state->last_rate_index = current_index;
@@ -87,13 +88,13 @@ bool ratemeter_face_loop(movement_event_t event, movement_settings_t *settings, 
                 printf("---------\n");
             }
             ratemeter_state->ticks = 0;
-            movement_request_tick_frequency(RATEMETER_FACE_FREQUENCY);
             break;
         case EVENT_ALARM_BUTTON_UP:
             break;
         case EVENT_ALARM_LONG_PRESS:
             break;
         case EVENT_TICK:
+
             if (ratemeter_state->rate == 0) {
                 watch_display_string("ra          ", 0);
             } else {
@@ -107,6 +108,7 @@ bool ratemeter_face_loop(movement_event_t event, movement_settings_t *settings, 
                 }
             }
             ratemeter_state->ticks++;
+            movement_request_tick_frequency(RATEMETER_FACE_FREQUENCY);
             break;
         case EVENT_TIMEOUT:
             movement_move_to_face(0);
