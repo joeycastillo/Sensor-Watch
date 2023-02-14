@@ -30,6 +30,8 @@
 typedef struct {
     int16_t rate;
     int16_t ticks;
+    int16_t last_3_rates[3];
+    uint8_t last_rate_index;
 } ratemeter_state_t;
 
 void ratemeter_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);

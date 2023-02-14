@@ -28,7 +28,7 @@
 #include "ratemeter_face.h"
 #include "watch.h"
 
-#define RATEMETER_FACE_FREQUENCY_FACTOR (6ul) // refresh rate will be 2 to this power Hz (0 for 1 Hz, 2 for 4 Hz, etc.)
+#define RATEMETER_FACE_FREQUENCY_FACTOR (5ul) // refresh rate will be 2 to this power Hz (0 for 1 Hz, 2 for 4 Hz, etc.)
 #define RATEMETER_FACE_FREQUENCY (1 << RATEMETER_FACE_FREQUENCY_FACTOR)
 
 void ratemeter_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
@@ -40,27 +40,44 @@ void ratemeter_face_setup(movement_settings_t *settings, uint8_t watch_face_inde
 void ratemeter_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
     memset(context, 0, sizeof(ratemeter_state_t));
+    ratemeter_state_t *ratemeter_state = (ratemeter_state_t *)context;
+    ratemeter_state->last_3_rates[0] = 0;
+    ratemeter_state->last_3_rates[1] = 0;
+    ratemeter_state->last_3_rates[2] = 0;
+    ratemeter_state->last_rate_index = 2;
 }
 
 bool ratemeter_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     (void) settings;
     ratemeter_state_t *ratemeter_state = (ratemeter_state_t *)context;
     char buf[14];
+    int16_t current_index = (ratemeter_state->last_rate_index + 1) % 3;
+
     switch (event.event_type) {
         case EVENT_ACTIVATE:
             watch_display_string("ra          ", 0);
             break;
         case EVENT_ALARM_BUTTON_DOWN:
             if (ratemeter_state->ticks != 0) {
-                // ratemeter_state->rate = (int16_t)(60.0 / ((float)ratemeter_state->ticks / (float)RATEMETER_FACE_FREQUENCY));
-                // 60s/m * (Xticks/s / Yticks/beat)
-                ratemeter_state->rate = roundf((int16_t)(60.0 * ((float)RATEMETER_FACE_FREQUENCY / (float)ratemeter_state->ticks)));
+                int16_t current_rate = roundf((int16_t)(60.0 * ((float)RATEMETER_FACE_FREQUENCY / (float)ratemeter_state->ticks)));
+                printf("---------\n");
+                printf("ratemeter_state->ticks: %d\n", ratemeter_state->ticks);
 
-                // printf("freq: %d \n", RATEMETER_FACE_FREQUENCY); // 64
-                printf("ticks since last beat: %d \n", ratemeter_state->ticks); // 1
-                printf("rate: %d \n", ratemeter_state->rate);
-                // char str[1024];
-                // sprintf(str, "%d\n", ratemeter_state->rate);
+                ratemeter_state->last_3_rates[current_index] = current_rate;
+                ratemeter_state->last_rate_index = current_index;
+
+                ratemeter_state->rate = (int16_t)((float)ratemeter_state->last_3_rates[0] + (float)ratemeter_state->last_3_rates[1] + (float)ratemeter_state->last_3_rates[2]) / 3.0;
+
+                printf("Last 3 rates:\n");
+                printf(0 == current_index ? "-> " : "   ");
+                printf("0: %d\n", ratemeter_state->last_3_rates[0]);
+
+                printf(1 == current_index ? "-> " : "   ");
+                printf("1: %d\n", ratemeter_state->last_3_rates[1]);
+
+                printf(2 == current_index ? "-> " : "   ");
+                printf("2: %d\n", ratemeter_state->last_3_rates[2]);
+                printf("---------\n");
             }
             ratemeter_state->ticks = 0;
             movement_request_tick_frequency(RATEMETER_FACE_FREQUENCY);
