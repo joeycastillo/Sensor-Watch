@@ -41,6 +41,8 @@ void ratemeter_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
     memset(context, 0, sizeof(ratemeter_state_t));
     ratemeter_state_t *ratemeter_state = (ratemeter_state_t *)context;
+
+    // Initialize everything for easy debugging. I was getting weird values otherwise.
     ratemeter_state->last_3_rates[0] = 0;
     ratemeter_state->last_3_rates[1] = 0;
     ratemeter_state->last_3_rates[2] = 0;
@@ -51,6 +53,10 @@ bool ratemeter_face_loop(movement_event_t event, movement_settings_t *settings, 
     (void) settings;
     ratemeter_state_t *ratemeter_state = (ratemeter_state_t *)context;
     char buf[14];
+
+    // We treat our array as a circular buffer that stores the most recent
+    // rates, for smoothing. So, we need to increment the index and wrap it
+    // around.
     int16_t current_index = (ratemeter_state->last_rate_index + 1) % 3;
 
     switch (event.event_type) {
@@ -66,6 +72,7 @@ bool ratemeter_face_loop(movement_event_t event, movement_settings_t *settings, 
                 ratemeter_state->last_3_rates[current_index] = current_rate;
                 ratemeter_state->last_rate_index = current_index;
 
+                // Take a simple average of our last 3 rates.
                 ratemeter_state->rate = (int16_t)((float)ratemeter_state->last_3_rates[0] + (float)ratemeter_state->last_3_rates[1] + (float)ratemeter_state->last_3_rates[2]) / 3.0;
 
                 printf("Last 3 rates:\n");
