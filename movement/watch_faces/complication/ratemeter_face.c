@@ -55,8 +55,8 @@ bool ratemeter_face_loop(movement_event_t event, movement_settings_t *settings, 
     char buf[14];
 
     // We treat our array as a circular buffer that stores the most recent
-    // rates, for smoothing. So, we need to increment the index and wrap it
-    // around.
+    // rates. So, we need to increment the index so we overwrite the oldest
+    // value with the current value.
     int16_t current_index = (ratemeter_state->last_rate_index + 1) % 3;
 
     switch (event.event_type) {
