@@ -29,8 +29,8 @@
 
 /*
  * The Time Left Face helps you to visualize how far you have proceeded in a certain
- * timespan. Much like the Day One Face, you can set your beginning date. In addition
- * to that, you also set your target, or destination date. You can then use the face
+ * time span. Much like the Day One Face, you can set your beginning date. In addition
+ * to that, you also set your target or destination date. You can then use the face
  * to display your progress in different ways.
  * 
  * Usage:
@@ -58,7 +58,7 @@
  * start and end date. The brave among us can use it as a kind of memento mori 
  * visualization. Set your date of birth  and look up the average life expectancy of 
  * your age cohort based on publicly available mortality tables. Then, set the 
- * statistically  * expected day of death as the target date and you will be able to 
+ * statistically expected day of death as the target date and you will be able to 
  * see how much of your time has passed and how much is still to come.
  * 
  */
