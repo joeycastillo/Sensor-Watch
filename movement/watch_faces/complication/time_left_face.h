@@ -36,7 +36,7 @@
  * Usage:
  * 
  * - Long pressing of the light button starts the settings mode:
- *   - First you set the beginning date (indicated by a 'b' in the upper right corner).
+ *   - First, you set the beginning date (indicated by a 'b' in the upper right corner).
  *   - Start by setting the year (indicated by the letter 'YR'). Use the alarm button
  *     to cycle the value. Short pressing the light button brings you to the next
  *     settings page.
@@ -46,19 +46,21 @@
  *   - After cycling through all settings pages, the face resumes to display mode.
  * 
  * - In display mode, use the alarm button (short press) to cycle through these four
- *   kinds of display:
+ *   types of display:
  *   a. number of days left ('DL') until the destination date is reached.
- *   b. remaining days epressed as percentage of total timespan.
+ *   b. remaining days expressed as percentage of total time span. The value is shown
+ *      with two decimals, using the colon as decimal point.
  *   c. number of days passed ('DA') since the beginning date.
- *   d. number of days passed expressed as percentage of total timespan.
+ *   d. number of days passed expressed as percentage of total time span. (Two decimal
+ *      points.)
  *
  * What is this for?
  *
  * You can use this watch face to be reminded of any kind of progess between a set
- * start and end date. The brave among us can use it as a kind of memento mori 
- * visualization. Set your date of birth  and look up the average life expectancy of 
- * your age cohort based on publicly available mortality tables. Then, set the 
- * statistically expected day of death as the target date and you will be able to 
+ * start and end date. The brave among us can use it as a kind of memento mori
+ * visualization. Set your date of birth and look up the average life expectancy of
+ * your age cohort based on publicly available mortality tables. Then, set the
+ * statistically expected day of death as the target date and you will be able to
  * see how much of your time has passed and how much is still to come.
  * 
  */
