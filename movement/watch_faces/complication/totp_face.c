@@ -40,6 +40,22 @@ static const hmac_alg algorithms[] = {
 // END OF KEY DATA.
 ////////////////////////////////////////////////////////////////////////////////
 
+static void _update_display(totp_state_t *totp_state) {
+    char buf[14];
+    div_t result;
+    uint8_t valid_for;
+
+    result = div(totp_state->timestamp, timesteps[totp_state->current_index]);
+    if (result.quot != totp_state->steps) {
+        totp_state->current_code = getCodeFromTimestamp(totp_state->timestamp);
+        totp_state->steps = result.quot;
+    }
+    valid_for = timesteps[totp_state->current_index] - result.rem;
+    sprintf(buf, "%c%c%2d%06lu", labels[totp_state->current_index][0], labels[totp_state->current_index][1], valid_for, totp_state->current_code);
+
+    watch_display_string(buf, 0);
+}
+
 void totp_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
     (void) watch_face_index;
@@ -57,34 +73,21 @@ void totp_face_activate(movement_settings_t *settings, void *context) {
 
 bool totp_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     (void) settings;
-
     totp_state_t *totp_state = (totp_state_t *)context;
-    char buf[14];
-    uint8_t valid_for;
-    div_t result;
-    uint8_t index = totp_state->current_index;
 
     switch (event.event_type) {
         case EVENT_TICK:
             totp_state->timestamp++;
             // fall through
         case EVENT_ACTIVATE:
-            result = div(totp_state->timestamp, timesteps[index]);
-            if (result.quot != totp_state->steps) {
-                totp_state->current_code = getCodeFromTimestamp(totp_state->timestamp);
-                totp_state->steps = result.quot;
-            }
-            valid_for = timesteps[index] - result.rem;
-            sprintf(buf, "%c%c%2d%06lu", labels[index][0], labels[index][1], valid_for, totp_state->current_code);
-
-            watch_display_string(buf, 0);
+            _update_display(totp_state);
             break;
         case EVENT_TIMEOUT:
             movement_move_to_face(0);
             break;
         case EVENT_ALARM_BUTTON_UP:
-            if (index + 1 < num_keys) {
-                totp_state->current_key_offset += key_sizes[index];
+            if (totp_state->current_index + 1 < num_keys) {
+                totp_state->current_key_offset += key_sizes[totp_state->current_index];
                 totp_state->current_index++;
             } else {
                 // wrap around to first key
@@ -92,6 +95,7 @@ bool totp_face_loop(movement_event_t event, movement_settings_t *settings, void 
                 totp_state->current_index = 0;
             }
             TOTP(keys + totp_state->current_key_offset, key_sizes[totp_state->current_index], timesteps[totp_state->current_index], algorithms[totp_state->current_index]);
+            _update_display(totp_state);
             break;
         case EVENT_ALARM_BUTTON_DOWN:
         case EVENT_ALARM_LONG_PRESS:
