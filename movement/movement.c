@@ -142,6 +142,7 @@ static inline void _movement_enable_fast_tick_if_needed(void) {
     if (!movement_state.fast_tick_enabled) {
         movement_state.fast_ticks = 0;
         watch_rtc_register_periodic_callback(cb_fast_tick, 128);
+        movement_state.fast_tick_enabled = true;
     }
 }
 
@@ -218,6 +219,30 @@ void movement_illuminate_led(void) {
     }
 }
 
+bool movement_default_loop_handler(movement_event_t event, movement_settings_t *settings) {
+    (void)settings;
+
+    switch (event.event_type) {
+        case EVENT_MODE_BUTTON_UP:
+            movement_move_to_next_face();
+            break;
+        case EVENT_LIGHT_BUTTON_DOWN:
+            movement_illuminate_led();
+            break;
+        case EVENT_MODE_LONG_PRESS:
+            if (MOVEMENT_SECONDARY_FACE_INDEX && movement_state.current_watch_face == 0) {
+                movement_move_to_face(MOVEMENT_SECONDARY_FACE_INDEX);
+            } else {
+                movement_move_to_face(0);
+            }
+            break;
+        default:
+            break;
+    }
+
+    return true;
+}
+
 void movement_move_to_face(uint8_t watch_face_index) {
     movement_state.watch_face_changed = true;
     movement_state.next_watch_face = watch_face_index;
@@ -292,6 +317,12 @@ uint8_t movement_claim_backup_register(void) {
 }
 
 void app_init(void) {
+#ifdef WATCH_IS_BLUE_BOARD
+    watch_rtc_freqcorr_write(11, 0);
+#else
+    watch_rtc_freqcorr_write(22, 0);
+#endif
+
     memset(&movement_state, 0, sizeof(movement_state));
 
     movement_state.settings.bit.led_red_color = MOVEMENT_DEFAULT_RED_COLOR;
@@ -448,21 +479,6 @@ bool app_loop(void) {
     if (event.event_type) {
         event.subsecond = movement_state.subsecond;
         can_sleep = watch_faces[movement_state.current_watch_face].loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
-
-        // Long-pressing MODE brings one back to the first face, provided that the watch face hasn't decided to send them elsewhere
-        // (and we're not currently on the first face). If we're currently on the first face, a long press
-        // of MODE sends us to the secondary faces (if defined).
-        // Note that it's the face's responsibility to provide some way to get to the next face, so if EVENT_MODE_BUTTON_* is
-        // used for face functionality EVENT_MODE_LONG_PRESS should probably be handled and next_face() triggered in the face
-        // (which would effectively disable the normal 'long press to face 0' behaviour).
-        if (event.event_type == EVENT_MODE_LONG_PRESS 
-            && !movement_state.watch_face_changed) {
-            if (movement_state.current_watch_face != 0) {
-                movement_move_to_face(0);
-            } else if (MOVEMENT_SECONDARY_FACE_INDEX) {
-                movement_move_to_face(MOVEMENT_SECONDARY_FACE_INDEX);
-            }
-        }
         event.event_type = EVENT_NONE;
     }
 
@@ -607,7 +623,10 @@ void cb_fast_tick(void) {
             event.event_type = EVENT_ALARM_LONG_PRESS;
     // this is just a fail-safe; fast tick should be disabled as soon as the button is up, the LED times out, and/or the alarm finishes.
     // but if for whatever reason it isn't, this forces the fast tick off after 20 seconds.
-    if (movement_state.fast_ticks >= 128 * 20) watch_rtc_disable_periodic_callback(128);
+    if (movement_state.fast_ticks >= 128 * 20) {
+        watch_rtc_disable_periodic_callback(128);
+        movement_state.fast_tick_enabled = false;
+    }
 }
 
 void cb_tick(void) {

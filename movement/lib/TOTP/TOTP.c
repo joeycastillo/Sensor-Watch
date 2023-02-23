@@ -1,16 +1,21 @@
 #include "TOTP.h"
 #include "sha1.h"
+#include "sha256.h"
+#include "sha512.h"
+#include <stdio.h>
 
 uint8_t* _hmacKey;
 uint8_t _keyLength;
 uint8_t _timeZoneOffset;
 uint32_t _timeStep;
+hmac_alg _algorithm;
 
-// Init the library with the private key, its length and the timeStep duration
-void TOTP(uint8_t* hmacKey, uint8_t keyLength, uint32_t timeStep) {
+// Init the library with the private key, its length, the timeStep duration and the algorithm that should be used
+void TOTP(uint8_t* hmacKey, uint8_t keyLength, uint32_t timeStep, hmac_alg algorithm) {
     _hmacKey = hmacKey;
     _keyLength = keyLength;
     _timeStep = timeStep;
+    _algorithm = algorithm;
 }
 
 void setTimezone(uint8_t timezone){
@@ -47,23 +52,18 @@ uint32_t getCodeFromSteps(uint32_t steps) {
     _byteArray[6] = (uint8_t)((steps >> 8) & 0XFF);
     _byteArray[7] = (uint8_t)((steps & 0XFF));
 
-    // STEP 1, get the HMAC-SHA1 hash from counter and key
-    initHmac(_hmacKey, _keyLength);
-    writeArray(_byteArray, 8);
-    uint8_t* _hash = resultHmac();
-
-    // STEP 2, apply dynamic truncation to obtain a 4-bytes string
-    uint32_t _truncatedHash = 0;
-    uint8_t _offset = _hash[20 - 1] & 0xF;
-    uint8_t j;
-    for (j = 0; j < 4; ++j) {
-        _truncatedHash <<= 8;
-        _truncatedHash  |= _hash[_offset + j];
+    switch(_algorithm){
+        case SHA1:
+            return(TOTP_HMAC_SHA1(_hmacKey, _keyLength, _byteArray, 8));
+        case SHA224:
+            return(TOTP_HMAC_SHA256(_hmacKey, _keyLength, _byteArray, 8, 1));
+        case SHA256:
+            return(TOTP_HMAC_SHA256(_hmacKey, _keyLength, _byteArray, 8, 0));
+        case SHA384:
+            return(TOTP_HMAC_SHA512(_hmacKey, _keyLength, _byteArray, 8, 1));
+        case SHA512:
+            return(TOTP_HMAC_SHA512(_hmacKey, _keyLength, _byteArray, 8, 0));
+        default:
+            return(0);
     }
-
-    // STEP 3, compute the OTP value
-    _truncatedHash &= 0x7FFFFFFF;    //Disabled
-    _truncatedHash %= 1000000;
-
-    return _truncatedHash;
 }

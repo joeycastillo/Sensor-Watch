@@ -113,18 +113,12 @@ static bool world_clock_face_do_display_mode(movement_event_t event, movement_se
             }
             watch_display_string(buf, pos);
             break;
-        case EVENT_MODE_BUTTON_UP:
-            movement_move_to_next_face();
-            return false;
-        case EVENT_LIGHT_BUTTON_DOWN:
-            movement_illuminate_led();
-            break;
         case EVENT_ALARM_LONG_PRESS:
             movement_request_tick_frequency(4);
             state->current_screen = 1;
             break;
         default:
-            break;
+            return movement_default_loop_handler(event, settings);
     }
 
     return true;

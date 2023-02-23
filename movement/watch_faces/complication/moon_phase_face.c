@@ -155,12 +155,6 @@ bool moon_phase_face_loop(movement_event_t event, movement_settings_t *settings,
             watch_display_string("  ", 8);
             if (!watch_tick_animation_is_running()) watch_start_tick_animation(1000);
             break;
-        case EVENT_MODE_BUTTON_UP:
-            movement_move_to_next_face();
-            break;
-        case EVENT_LIGHT_BUTTON_DOWN:
-            movement_illuminate_led();
-            break;
         case EVENT_ALARM_BUTTON_UP:
             // Pressing the alarm adds an offset of one day to the displayed value,
             // so you can see moon phases in the future.
@@ -171,7 +165,7 @@ bool moon_phase_face_loop(movement_event_t event, movement_settings_t *settings,
             // QUESTION: Should timeout reset offset to 0?
             break;
         default:
-            break;
+            return movement_default_loop_handler(event, settings);
     }
 
     return true;
