@@ -44,7 +44,7 @@ void breathing_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
     // we do however need to set some things in our context. Here we cast it to the correct type...
     breathing_state_t *state = (breathing_state_t *)context;
-    // ...and set the initial state of our watch face. We start out displaying the word 'Hello',
+    // ...and set the initial state of our watch face.
     state->current_stage = 0;
     state->sound_on = true;
 }
