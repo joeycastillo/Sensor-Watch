@@ -146,7 +146,7 @@ const char *zone_names[] = {
     "AKST",	// 29 :  -9:00:00 (Alaska Standard Time)
     "PST",	// 30 :  -8:00:00 (Pacific Standard Time)
     "MST",	// 31 :  -7:00:00 (Mountain Standard Time)
-    "CET",	// 32 :  -6:00:00 (Central Standard Time)
+    "CST",	// 32 :  -6:00:00 (Central Standard Time)
     "EST",	// 33 :  -5:00:00 (Eastern Standard Time)
     "VET",	// 34 :  -4:30:00 (Venezuelan Standard Time)
     "AST",	// 35 :  -4:00:00 (Atlantic Standard Time)
@@ -202,11 +202,11 @@ void world_clock2_face_setup(movement_settings_t *settings, uint8_t watch_face_i
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(world_clock2_state_t));
         memset(*context_ptr, 0, sizeof(world_clock2_state_t));
-    }
 
-    /* Start in settings mode */
-    world_clock2_state_t *state = (world_clock2_state_t *) * context_ptr;
-    state->current_mode = WORLD_CLOCK2_MODE_SETTINGS;
+        /* Start in settings mode */
+        world_clock2_state_t *state = (world_clock2_state_t *) * context_ptr;
+        state->current_mode = WORLD_CLOCK2_MODE_SETTINGS;
+    }
 }
 
 void world_clock2_face_activate(movement_settings_t *settings, void *context)
