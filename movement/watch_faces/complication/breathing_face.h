@@ -29,7 +29,6 @@
 
 typedef struct {
     uint8_t current_stage;
-    bool animating;
     bool sound_on;
 } breathing_state_t;
 
