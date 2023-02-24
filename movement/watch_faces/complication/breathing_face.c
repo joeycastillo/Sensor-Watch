@@ -47,36 +47,28 @@ void breathing_face_activate(movement_settings_t *settings, void *context) {
     // ...and set the initial state of our watch face. We start out displaying the word 'Hello',
     state->current_stage = 0;
     state->sound_on = true;
-
-    // and animate by default.
-    state->animating = true;
 }
 
 const int NOTE_LENGTH = 80;
 
 void beep_in (void) {
-        const BuzzerNote rains[] = {
+        const BuzzerNote notes[] = {
             BUZZER_NOTE_C4,
-            //BUZZER_NOTE_REST,
             BUZZER_NOTE_D4,
-            //BUZZER_NOTE_REST,
             BUZZER_NOTE_E4,
         };
         const uint16_t durations[] = {
             NOTE_LENGTH,
-            //NOTE_LENGTH,
             NOTE_LENGTH,
-            //NOTE_LENGTH,
             NOTE_LENGTH
         };
-        //application_state.play = false;
-        for(size_t i = 0, count = sizeof(rains) / sizeof(rains[0]); i < count; i++) {
-            watch_buzzer_play_note(rains[i], durations[i]);
+        for(size_t i = 0, count = sizeof(notes) / sizeof(notes[0]); i < count; i++) {
+            watch_buzzer_play_note(notes[i], durations[i]);
         }
 }
 
 void beep_in_hold (void) {
-        const BuzzerNote rains[] = {
+        const BuzzerNote notes[] = {
             BUZZER_NOTE_E4,
             BUZZER_NOTE_REST,
             BUZZER_NOTE_E4,
@@ -86,35 +78,29 @@ void beep_in_hold (void) {
             NOTE_LENGTH * 2,
             NOTE_LENGTH,
         };
-        //application_state.play = false;
-        for(size_t i = 0, count = sizeof(rains) / sizeof(rains[0]); i < count; i++) {
-            watch_buzzer_play_note(rains[i], durations[i]);
+        for(size_t i = 0, count = sizeof(notes) / sizeof(notes[0]); i < count; i++) {
+            watch_buzzer_play_note(notes[i], durations[i]);
         }
 }
 
 void beep_out (void) {
-        const BuzzerNote rains[] = {
+        const BuzzerNote notes[] = {
             BUZZER_NOTE_E4,
-            //BUZZER_NOTE_REST,
             BUZZER_NOTE_D4,
-            //BUZZER_NOTE_REST,
             BUZZER_NOTE_C4,
         };
         const uint16_t durations[] = {
             NOTE_LENGTH,
-            //NOTE_LENGTH,
             NOTE_LENGTH,
-            //NOTE_LENGTH,
             NOTE_LENGTH,
         };
-        //application_state.play = false;
-        for(size_t i = 0, count = sizeof(rains) / sizeof(rains[0]); i < count; i++) {
-            watch_buzzer_play_note(rains[i], durations[i]);
+        for(size_t i = 0, count = sizeof(notes) / sizeof(notes[0]); i < count; i++) {
+            watch_buzzer_play_note(notes[i], durations[i]);
         }
 }
 
 void beep_out_hold (void) {
-        const BuzzerNote rains[] = {
+        const BuzzerNote notes[] = {
             BUZZER_NOTE_C4,
             BUZZER_NOTE_REST * 2,
             BUZZER_NOTE_C4,
@@ -124,9 +110,8 @@ void beep_out_hold (void) {
             NOTE_LENGTH,
             NOTE_LENGTH,
         };
-        //application_state.play = false;
-        for(size_t i = 0, count = sizeof(rains) / sizeof(rains[0]); i < count; i++) {
-            watch_buzzer_play_note(rains[i], durations[i]);
+        for(size_t i = 0, count = sizeof(notes) / sizeof(notes[0]); i < count; i++) {
+            watch_buzzer_play_note(notes[i], durations[i]);
         }
 }
 
@@ -137,15 +122,6 @@ bool breathing_face_loop(movement_event_t event, movement_settings_t *settings, 
     switch (event.event_type) {
         case EVENT_ACTIVATE:
         case EVENT_TICK:
-            // on activate and tick, if we are animating,
-
-
-
-            if (state->animating) {
-                // we display the current word,
-                //sprintf(buf, "Ka  100316");
-                //watch_buzzer_play_note(BUZZER_NOTE_C5, 100);
-                //watch_clear_display();
 
             if (state->sound_on == true) {
                 watch_set_indicator(WATCH_INDICATOR_BELL); 
@@ -153,43 +129,42 @@ bool breathing_face_loop(movement_event_t event, movement_settings_t *settings, 
                 watch_clear_indicator(WATCH_INDICATOR_BELL); 
             }
 
-                if (state->current_stage == 0) { 
-                    watch_display_string("Breath", 4); 
-                    if (state->sound_on == true) {
-                        beep_in(); 
-                    }
-                }
-                else if (state->current_stage == 1) watch_display_string("In   3", 4);
-                else if (state->current_stage == 2) watch_display_string("In   2", 4);
-                else if (state->current_stage == 3) watch_display_string("In   1", 4);
-                else if (state->current_stage == 4) { watch_display_string("Hold 4", 4); beep_in_hold(); }
-                else if (state->current_stage == 5) watch_display_string("Hold 3", 4);                
-                else if (state->current_stage == 6) watch_display_string("Hold 2", 4);                
-                else if (state->current_stage == 7) watch_display_string("Hold 1", 4);                
-                else if (state->current_stage == 8) { watch_display_string("Ou t 4", 4); beep_out(); }
-                else if (state->current_stage == 9) watch_display_string("Ou t 3", 4);
-                else if (state->current_stage == 10) watch_display_string("Ou t 2", 4);
-                else if (state->current_stage == 11) watch_display_string("Ou t 1", 4);                
-                else if (state->current_stage == 12) { watch_display_string("Hold 4", 4); beep_out_hold(); }
-                else if (state->current_stage == 13) watch_display_string("Hold 3", 4);                
-                else if (state->current_stage == 14) watch_display_string("Hold 2", 4);                
-                else if (state->current_stage == 15) watch_display_string("Hold 1", 4);                
-                // and increment it so that it will update on the next tick.
-                state->current_stage = (state->current_stage + 1) % 16;
+            switch (state->current_stage)
+            {
+            case 0: { watch_display_string("Breath", 4); if (state->sound_on) beep_in(); } break;
+            case 1: watch_display_string("In   3", 4); break;
+            case 2: watch_display_string("In   2", 4); break;
+            case 3: watch_display_string("In   1", 4); break;
+            
+            case 4: { watch_display_string("Hold 4", 4); if (state->sound_on) beep_in_hold(); } break;
+            case 5: watch_display_string("Hold 3", 4); break;
+            case 6: watch_display_string("Hold 2", 4); break;               
+            case 7:  watch_display_string("Hold 1", 4); break;
+
+            case 8: { watch_display_string("Ou t 4", 4); if (state->sound_on) beep_out(); } break;
+            case 9: watch_display_string("Ou t 3", 4); break;
+            case 10: watch_display_string("Ou t 2", 4); break;
+            case 11: watch_display_string("Ou t 1", 4); break;         
+            
+            case 12: { watch_display_string("Hold 4", 4); if (state->sound_on) beep_out_hold(); } break;
+            case 13: watch_display_string("Hold 3", 4); break;
+            case 14: watch_display_string("Hold 2", 4); break;     
+            case 15: watch_display_string("Hold 1", 4); break;     
+            default:
+                break;
             }
+
+            // and increment it so that it will update on the next tick.
+            state->current_stage = (state->current_stage + 1) % 16;
+
             break;
         case EVENT_ALARM_BUTTON_UP:
-            // when the user presses 'alarm', we toggle the state of the animation. If animating,
-            // we stop; if stopped, we resume.
-            //state->animating = !state->animating;  
-            state->sound_on = !state->sound_on;
-            
+            state->sound_on = !state->sound_on;            
              if (state->sound_on == true) {
                 watch_set_indicator(WATCH_INDICATOR_BELL); 
             } else {
                 watch_clear_indicator(WATCH_INDICATOR_BELL); 
             }
-
             break;
         case EVENT_LOW_ENERGY_UPDATE:
             // This low energy mode update occurs once a minute, if the watch face is in the
