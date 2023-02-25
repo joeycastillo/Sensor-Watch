@@ -27,6 +27,16 @@
 #include "breathing_face.h"
 #include "watch.h"
 
+typedef struct {
+    uint8_t current_stage;
+    bool sound_on;
+} breathing_state_t;
+
+static void beep_in (void);
+static void beep_in_hold (void);
+static void beep_out (void);
+static void beep_out_hold (void);
+
 void breathing_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     // These next two lines just silence the compiler warnings associated with unused parameters.
     // We have no use for the settings or the watch_face_index, so we make that explicit here.

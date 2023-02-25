@@ -27,16 +27,6 @@
 
 #include "movement.h"
 
-typedef struct {
-    uint8_t current_stage;
-    bool sound_on;
-} breathing_state_t;
-
-void beep_in (void);
-void beep_in_hold (void);
-void beep_out (void);
-void beep_out_hold (void);
-void play_sound (BuzzerNote notes[], uint16_t durations[]);
 void breathing_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
 void breathing_face_activate(movement_settings_t *settings, void *context);
 bool breathing_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
