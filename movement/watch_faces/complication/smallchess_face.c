@@ -212,7 +212,11 @@ static void _smallchess_select_main_menu_subitem(smallchess_face_state_t *state)
             state->state = SMALLCHESS_SELECT_PIECE;
             break;
         case SMALLCHESS_MENU_UNDO:
-            /* todo */
+            /* undo twice to undo the CPU's move and our move */
+            SCL_gameUndoMove((SCL_Game *)state->game);
+            SCL_gameUndoMove((SCL_Game *)state->game);
+            /* and re-calculate the moveable pieces for this new state */
+            _smallchess_calc_moveable_pieces(state);
             break;
         case SMALLCHESS_MENU_NEW_WHITE:
             SCL_gameInit((SCL_Game *)state->game, 0);
@@ -337,7 +341,8 @@ static void _smallchess_handle_select_dest_button_event(smallchess_face_state_t 
             state->state = SMALLCHESS_SELECT_PIECE;
             break;
         case EVENT_ALARM_LONG_PRESS:
-            SCL_boardMakeMove(((SCL_Game *)state->game)->board, state->moveable_pieces[state->moveable_pieces_idx], state->moveable_dests[state->moveable_dests_idx], 'q');
+            SCL_gameMakeMove((SCL_Game *)state->game, state->moveable_pieces[state->moveable_pieces_idx], state->moveable_dests[state->moveable_dests_idx], 'q');
+
             /* if the player didn't win or draw here, calculate a move */
             if (((SCL_Game *)state->game)->state == SCL_GAME_STATE_PLAYING) {
                 _smallchess_make_ai_move(state);
