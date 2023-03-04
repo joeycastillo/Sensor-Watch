@@ -96,10 +96,9 @@ static void _smallchess_make_ai_move(smallchess_face_state_t *state) {
     SCL_gameMakeMove(state->game, state->ai_from_square, state->ai_to_square, ai_prom);
     watch_stop_blink();
 
+    /* cache the move as a string for SHOW_CPU_MOVE state */
     SCL_squareToString(state->ai_from_square, ai_from_str);
     SCL_squareToString(state->ai_to_square, ai_to_str);
-
-    /* cache the move as a string for later printing */
     snprintf(state->last_move_str, sizeof(state->last_move_str), " %s-%s", ai_from_str, ai_to_str);
 
     /* now cache the list of legal pieces we can move */
@@ -207,6 +206,10 @@ static void _smallchess_face_update_lcd(smallchess_face_state_t *state) {
 }
 
 static void _smallchess_select_main_menu_subitem(smallchess_face_state_t *state) {
+    char from_str[3] = {0};
+    char to_str[3] = {0};
+    char prom;
+
     switch (state->state) {
         case SMALLCHESS_MENU_RESUME:
             state->state = SMALLCHESS_SELECT_PIECE;
@@ -230,6 +233,11 @@ static void _smallchess_select_main_menu_subitem(smallchess_face_state_t *state)
             state->state = SMALLCHESS_SHOW_CPU_MOVE;
             break;
         case SMALLCHESS_MENU_SHOW_LAST_MOVE:
+            /* fetch the move */
+            SCL_recordGetMove(((SCL_Game *)state->game)->record, ((SCL_Game *)state->game)->ply - 1, &state->ai_from_square, &state->ai_to_square, &prom);
+            SCL_squareToString(state->ai_from_square, from_str);
+            SCL_squareToString(state->ai_to_square, to_str);
+            snprintf(state->last_move_str, sizeof(state->last_move_str), " %s-%s", from_str, to_str);
             state->state = SMALLCHESS_SHOW_LAST_MOVE;
             break;
         default:
