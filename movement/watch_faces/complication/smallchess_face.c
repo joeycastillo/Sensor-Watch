@@ -32,6 +32,8 @@
 
 #define PIECE_LIST_END_MARKER 0xff
 
+int8_t cpu_done_beep[] = {BUZZER_NOTE_C5, 5, BUZZER_NOTE_C6, 5, BUZZER_NOTE_C7, 5, 0};
+
 static void smallchess_init_board(smallchess_face_state_t *state) {
     SCL_gameInit((SCL_Game *)state->game, 0);
     memset(state->moveable_pieces, 0xff, sizeof(state->moveable_pieces));
@@ -95,6 +97,8 @@ static void _smallchess_make_ai_move(smallchess_face_state_t *state) {
 
     SCL_gameMakeMove(state->game, state->ai_from_square, state->ai_to_square, ai_prom);
     watch_stop_blink();
+
+    watch_buzzer_play_sequence(cpu_done_beep, NULL);
 
     /* cache the move as a string for SHOW_CPU_MOVE state */
     SCL_squareToString(state->ai_from_square, ai_from_str);
