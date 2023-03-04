@@ -114,7 +114,7 @@ static char _smallchess_make_lowercase(char c) {
 
 static void _smallchess_get_endgame_string(smallchess_face_state_t *state, char *buf, uint8_t len) {
     uint8_t endgame_state = ((SCL_Game *)state->game)->state;
-    uint8_t ply = ((SCL_Game *)state->game)->board[SCL_BOARD_PLY_BYTE];
+    uint8_t ply = ((SCL_Game *)state->game)->ply;
 
     switch (endgame_state) {
         case SCL_GAME_STATE_WHITE_WIN:
@@ -143,7 +143,7 @@ static void _smallchess_face_update_lcd(smallchess_face_state_t *state) {
     char end_coord[3] = {0};
     char buf[12] = {0};
 
-    uint8_t ply = ((SCL_Game *)state->game)->board[SCL_BOARD_PLY_BYTE];
+    uint8_t ply = ((SCL_Game *)state->game)->ply;
 
     switch (state->state) {
         case SMALLCHESS_MENU_RESUME:
@@ -167,7 +167,7 @@ static void _smallchess_face_update_lcd(smallchess_face_state_t *state) {
                     sizeof(buf),
                     "%c %2d%s",
                     _smallchess_make_lowercase(((SCL_Game *)state->game)->board[state->ai_to_square]),
-                    ((SCL_Game *)state->game)->board[SCL_BOARD_PLY_BYTE],
+                    ((SCL_Game *)state->game)->ply,
                     state->last_move_str);
 
             break;
@@ -182,7 +182,7 @@ static void _smallchess_face_update_lcd(smallchess_face_state_t *state) {
                     sizeof(buf),
                     "%c %2d %s-  ",
                     _smallchess_make_lowercase(((SCL_Game *)state->game)->board[start_square]),
-                    ((SCL_Game *)state->game)->board[SCL_BOARD_PLY_BYTE] + 1,
+                    ((SCL_Game *)state->game)->ply + 1,
                     start_coord);
             break;
         case SMALLCHESS_SELECT_DEST:
@@ -194,7 +194,7 @@ static void _smallchess_face_update_lcd(smallchess_face_state_t *state) {
                     sizeof(buf),
                     "%c %2d %s-%s",
                     _smallchess_make_lowercase(((SCL_Game *)state->game)->board[start_square]),
-                    ((SCL_Game *)state->game)->board[SCL_BOARD_PLY_BYTE] + 1,
+                    ((SCL_Game *)state->game)->ply + 1,
                     start_coord,
                     end_coord);
             break;
@@ -289,7 +289,7 @@ static void _smallchess_handle_select_piece_button_event(smallchess_face_state_t
             }
             break;
         case EVENT_LIGHT_LONG_PRESS:
-            if (((SCL_Game *)state->game)->board[SCL_BOARD_PLY_BYTE] == 0) {
+            if (((SCL_Game *)state->game)->ply == 0) {
                 state->state = SMALLCHESS_MENU_NEW_WHITE;
             } else {
                 state->state = SMALLCHESS_MENU_RESUME;
@@ -405,7 +405,7 @@ static void _smallchess_handle_playing_button_event(smallchess_face_state_t *sta
 }
 
 static void _smallchess_handle_main_menu_button_event(smallchess_face_state_t *state, movement_event_t event) {
-    uint8_t ply = ((SCL_Game *)state->game)->board[SCL_BOARD_PLY_BYTE];
+    uint8_t ply = ((SCL_Game *)state->game)->ply;
 
     switch (event.event_type) {
         case EVENT_ALARM_BUTTON_UP:
@@ -465,7 +465,7 @@ bool smallchess_face_loop(movement_event_t event, movement_settings_t *settings,
 
     switch (event.event_type) {
         case EVENT_ACTIVATE:
-            if (((SCL_Game *)state->game)->board[SCL_BOARD_PLY_BYTE] == 0) {
+            if (((SCL_Game *)state->game)->ply == 0) {
                 state->state = SMALLCHESS_MENU_NEW_WHITE;
             } else {
                 state->state = SMALLCHESS_MENU_RESUME;
