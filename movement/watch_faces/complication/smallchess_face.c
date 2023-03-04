@@ -145,7 +145,7 @@ static void _smallchess_face_update_lcd(smallchess_face_state_t *state) {
     uint8_t end_square;
     char start_coord[3] = {0};
     char end_coord[3] = {0};
-    char buf[12] = {0};
+    char buf[14] = {0};
 
     uint16_t ply = ((SCL_Game *)state->game)->ply;
 
