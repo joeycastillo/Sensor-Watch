@@ -90,7 +90,7 @@ static void _smallchess_make_ai_move(smallchess_face_state_t *state) {
 #ifndef __EMSCRIPTEN__
     hri_oscctrl_write_OSC16MCTRL_FSEL_bf(OSCCTRL, OSCCTRL_OSC16MCTRL_FSEL_16_Val);
 #endif
-    SCL_getAIMove(state->game, 2, 1, 0, SCL_boardEvaluateStatic, NULL, 0, rep_from, rep_to, &state->ai_from_square, &state->ai_to_square, &ai_prom);
+    SCL_getAIMove(state->game, 3, 0, 0, SCL_boardEvaluateStatic, NULL, 0, rep_from, rep_to, &state->ai_from_square, &state->ai_to_square, &ai_prom);
 #ifndef __EMSCRIPTEN__
     hri_oscctrl_write_OSC16MCTRL_FSEL_bf(OSCCTRL, OSCCTRL_OSC16MCTRL_FSEL_4_Val);
 #endif
