@@ -34,6 +34,8 @@ const watch_face_t watch_faces[] = {
     thermistor_logging_face,
     sunrise_sunset_face,
     moon_phase_face,
+    astronomy_face,
+    voltage_face,
     alarm_face,
     preferences_face,
     set_time_face,
