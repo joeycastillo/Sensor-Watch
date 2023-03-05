@@ -37,10 +37,12 @@
         * Mode enters the value into the log and exits the edit mode
 */
 
+#define PRICE_PER_LITRE     (50)    //Rs
+
 /*Private Functions*/
 static void _milk_log_face_update_display(movement_settings_t *settings, milk_log_state_t *logger_state) {
     (void) settings;
-    char buf[11];
+    char buf[12];
     uint16_t outstanding_amt = ceilf(logger_state->consumption*logger_state->price_per_litre);
 
     switch(logger_state->curr_view) {
@@ -74,21 +76,16 @@ void milk_log_face_setup(movement_settings_t *settings, uint8_t watch_face_index
 }
 
 void milk_log_face_activate(movement_settings_t *settings, void *context) {
+    // Handle any tasks related to your watch face coming on screen.
     (void) settings;
     milk_log_state_t *logger_state = (milk_log_state_t *)context;
     logger_state->ts_ticks = 0;
     logger_state->curr_view = SUMMARY_VIEW;
-    // Handle any tasks related to your watch face coming on screen.
-    logger_state->price_per_litre = 45;
-    logger_state->consumption = 1.5f;
-    logger_state->new_log_entry = 0.0f;
-    char buf[11] = "doodh";
-    watch_display_string(buf, 5);
+    logger_state->price_per_litre = PRICE_PER_LITRE;
 }
 
 bool milk_log_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     milk_log_state_t *logger_state = (milk_log_state_t *)context;
-
 
     switch (event.event_type) {
         case EVENT_ACTIVATE:
@@ -131,7 +128,13 @@ bool milk_log_face_loop(movement_event_t event, movement_settings_t *settings, v
             }
             break;
         case EVENT_ALARM_LONG_PRESS:
-            logger_state->curr_view = LOG_ENTRY_VIEW;
+            if(logger_state->curr_view == LOG_ENTRY_VIEW) {
+                logger_state->consumption = 0;
+                logger_state->curr_view = SUMMARY_VIEW;
+            }
+            else {
+                logger_state->curr_view = LOG_ENTRY_VIEW;
+            }
             _milk_log_face_update_display(settings, logger_state);
             break;
         case EVENT_ALARM_BUTTON_UP:
