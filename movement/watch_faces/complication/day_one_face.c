@@ -37,7 +37,11 @@ static void _day_one_face_update(day_one_state_t state) {
     watch_date_time date_time = watch_rtc_get_date_time();
     uint32_t julian_date = _day_one_face_juliandaynum(date_time.unit.year + WATCH_RTC_REFERENCE_YEAR, date_time.unit.month, date_time.unit.day);
     uint32_t julian_birthdate = _day_one_face_juliandaynum(state.birth_year, state.birth_month, state.birth_day);
-    sprintf(buf, "DA  %6lu", julian_date - julian_birthdate);
+    if (julian_date < julian_birthdate) {
+    	sprintf(buf, "DA  %6lu", julian_birthdate - julian_date);
+    } else {
+    	sprintf(buf, "DA  %6lu", julian_date - julian_birthdate);
+    }
     watch_display_string(buf, 0);
 }
 
@@ -123,9 +127,6 @@ bool day_one_face_loop(movement_event_t event, movement_settings_t *settings, vo
                 }
             }
             break;
-        case EVENT_MODE_BUTTON_UP:
-            movement_move_to_next_face();
-            break;
         case EVENT_LIGHT_BUTTON_DOWN:
             // only illuminate if we're in display mode
             if (state->current_page == 0) movement_illuminate_led();
@@ -176,7 +177,9 @@ bool day_one_face_loop(movement_event_t event, movement_settings_t *settings, vo
             if (state->current_page != 0) {
                 movement_move_to_face(0);
             }
+            break;
         default:
+            movement_default_loop_handler(event, settings);
             break;
     }
 
