@@ -75,6 +75,7 @@
 #include "rpn_calculator_face.h"
 #include "ships_bell_face.h"
 #include "habit_face.h"
+#include "timer_face.h"
 // New includes go above this line.
 
 #endif // MOVEMENT_FACES_H_
