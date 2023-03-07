@@ -34,16 +34,28 @@ THE SOFTWARE.
 #include "watch_utility.h"
 
 uint16_t opt3001_readManufacturerID(uint8_t devaddr) {
-    return watch_i2c_read16(devaddr, OPT3001_MANUFACTURER_ID);
+	uint8_t buf[2];
+	buf[0] = (uint8_t) OPT3001_MANUFACTURER_ID; 
+	watch_i2c_send(devaddr, buf, 1);
+	watch_i2c_receive(devaddr, buf, 2);
+    return ((uint16_t) buf[0] << 8) | ((uint16_t) buf[1]);
 }
 
 uint16_t opt3001_readDeviceID(uint8_t devaddr) {
-    return watch_i2c_read16(devaddr, OPT3001_DEVICE_ID);
+	uint8_t buf[2];
+   	buf[0] = (uint8_t) OPT3001_DEVICE_ID; 
+	watch_i2c_send(devaddr, buf, 1);
+	watch_i2c_receive(devaddr, buf, 2);
+    return ((uint16_t) buf[0] << 8) | ((uint16_t) buf[1]);
 }
 
 opt3001_Config_t opt3001_readConfig(uint8_t devaddr) {
 	opt3001_Config_t config;
-    config.rawData = watch_i2c_read16(devaddr, OPT3001_CONFIG);
+	uint8_t buf[2];
+	buf[0] = (uint8_t) OPT3001_CONFIG; 
+	watch_i2c_send(devaddr, buf, 1);
+	watch_i2c_receive(devaddr, buf, 2);
+    config.rawData = ((uint16_t) buf[0] << 8) | ((uint16_t) buf[1]);
 	return config;
 }
 
@@ -68,7 +80,11 @@ opt3001_t opt3001_readLowLimit(uint8_t devaddr) {
 opt3001_t opt3001_readRegister(uint8_t devaddr, opt3001_Command_t command) {
     opt3001_t result;
     opt3001_ER_t er;
-    er.rawData = watch_i2c_read16(devaddr, command);
+    uint8_t buf[2]; 
+	buf[0] = (uint8_t) command; 
+	watch_i2c_send(devaddr, buf, 1);
+	watch_i2c_receive(devaddr, buf, 2);
+    er.rawData = ((uint16_t) buf[0] << 8) | ((uint16_t) buf[1]);
     result.raw = er;
     result.lux = 0.01*pow(2, er.Exponent)*er.Result;
     return result;

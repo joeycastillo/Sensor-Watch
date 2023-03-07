@@ -55,7 +55,7 @@ bool lightmeter_face_loop(movement_event_t event, movement_settings_t *settings,
     
     opt3001_Config_t c;
     char strbuff[8];
-    uint16_t res;
+    float res;
     switch (event.event_type) {
         case EVENT_TICK:
             c = opt3001_readConfig(lightmeter_addr);
@@ -63,9 +63,9 @@ bool lightmeter_face_loop(movement_event_t event, movement_settings_t *settings,
                 opt3001_t result = opt3001_readResult(lightmeter_addr);
                 watch_clear_all_indicators();
                 watch_display_string("          ", 0); // Clear display
-                //res = max(min(log2(result.lux/2.5), 99), -99);
-                res = round(max(min(result.lux, 100000), 0));
-                sprintf(strbuff, "%6i", res);
+                res = max(min(LIGHTMETER_CALIBRATION + log2(result.lux/2.5), 99), -99);
+                //res = round(max(min(result.lux, 100000), 0));
+                sprintf(strbuff, "%4.1f", res);
                 watch_display_string(strbuff,4);
             } else if(!indstate) {
                 watch_set_indicator(WATCH_INDICATOR_SIGNAL); 

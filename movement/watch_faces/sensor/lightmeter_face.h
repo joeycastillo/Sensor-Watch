@@ -49,6 +49,7 @@ bool lightmeter_face_loop(movement_event_t event, movement_settings_t *settings,
 void lightmeter_face_resign(movement_settings_t *settings, void *context);
 
 static const uint8_t lightmeter_addr = 0x44;
+static const float LIGHTMETER_CALIBRATION = 3.2;
 
 #define lightmeter_face ((const watch_face_t){ \
     lightmeter_face_setup, \
