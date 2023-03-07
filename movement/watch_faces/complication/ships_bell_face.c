@@ -92,12 +92,6 @@ bool ships_bell_face_loop(movement_event_t event, movement_settings_t *settings,
         case EVENT_TICK:
             ships_bell_draw(state);
             break;
-        case EVENT_MODE_BUTTON_UP:
-            movement_move_to_next_face();
-            break;
-        case EVENT_LIGHT_BUTTON_UP:
-            movement_illuminate_led();
-            break;
         case EVENT_ALARM_BUTTON_UP:
             state->bell_enabled = !state->bell_enabled;
             if (state->bell_enabled) watch_set_indicator(WATCH_INDICATOR_BELL);
@@ -122,6 +116,7 @@ bool ships_bell_face_loop(movement_event_t event, movement_settings_t *settings,
             }
             break;
         default:
+            movement_default_loop_handler(event, settings);
             break;
     }
 

@@ -479,6 +479,7 @@ bool app_loop(void) {
     if (event.event_type) {
         event.subsecond = movement_state.subsecond;
         can_sleep = watch_faces[movement_state.current_watch_face].loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
+        event.event_type = EVENT_NONE;
     }
 
     // if we have timed out of our timeout countdown, give the app a hint that they can resign.

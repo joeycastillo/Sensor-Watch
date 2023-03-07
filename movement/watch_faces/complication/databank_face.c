@@ -136,6 +136,9 @@ bool databank_face_loop(movement_event_t event, movement_settings_t *settings, v
             // won't be on screen, and thus opts us out of getting the EVENT_LOW_ENERGY_UPDATE above.
             movement_move_to_face(0);
             break;
+        case EVENT_LIGHT_BUTTON_DOWN:
+            // don't light up every time light is hit
+            break;
         default:
             movement_default_loop_handler(event, settings);
             break;
