@@ -73,20 +73,15 @@ typedef struct {
 	opt3001_ER_t raw;
 } opt3001_t;
 
-void opt3001_begin(uint8_t address);
+uint16_t opt3001_readManufacturerID(uint8_t devaddr);
+uint16_t opt3001_readDeviceID(uint8_t devaddr);
 
-uint16_t opt3001_readManufacturerID();
-uint16_t opt3001_readDeviceID();
+opt3001_t opt3001_readResult(uint8_t devaddr);
+opt3001_t opt3001_readHighLimit(uint8_t devaddr);
+opt3001_t opt3001_readLowLimit(uint8_t devaddr);
 
-opt3001_t opt3001_readResult();
-opt3001_t opt3001_readHighLimit();
-opt3001_t opt3001_readLowLimit();
-
-opt3001_Config_t opt3001_readConfig();
-void opt3001_writeConfig(opt3001_Config_t config);
-
-uint8_t opt3001_address;
-
-opt3001_t opt3001_readRegister(opt3001_Command_t command);
+opt3001_Config_t opt3001_readConfig(uint8_t devaddr);
+void opt3001_writeConfig(uint8_t devaddr, opt3001_Config_t config);
+opt3001_t opt3001_readRegister(uint8_t devaddr, opt3001_Command_t command);
 
 #endif // OPT3001_

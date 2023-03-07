@@ -1,0 +1,24 @@
+﻿BY ACCESSING OR USING THESE SYMBOLS & FOOTPRINTS ("MODELS"), YOU ARE ACKNOWLEDGING THAT YOU HAVE READ, FULLY UNDERSTAND AND AGREE TO THESE TERMS AND CONDITIONS (the "Agreement"), WHICH CONSTITUTE A BINDING AGREEMENT BETWEEN YOU AND SNAPEDA, INC., ENTERED INTO ON THE DATE OF SUCH OCCURRENCE (the "Effective Date"). IF YOU ARE ACCESSING OR USING THESE FILES ON BEHALF OF AN ENTITY, YOU REPRESENT THAT YOU HAVE THE RIGHT, AUTHORITY, AND CAPACITY TO BIND SUCH ENTITY TO THIS AGREEMENT AND HEREBY DO SO. IF YOU DO NOT AGREE WITH ANY OF THE TERMS OR CONDITIONS OF THIS AGREEMENT, YOU MUST NOT USE ANY PART OF THESE MODELS.
+
+1. Design License
+
+You and your sub-licensees are hereby licensed to design, manufacture, use and distribute, circuit board designs and circuit boards formed by combining Models provided by SnapEDA with other circuit elements of your choosing. You may then convey such combinations under licensing terms of your choice. 
+
+Individual Models remain the intellectual property of SnapEDA, Inc. You shall not (and shall not permit or encourage any third party to) to do any of the following :
+
+(a) sell, assign, lease, lend, rent, issue, sublicense, make available, or otherwise distribute to any third party, or publicly perform, display or communicate, the Models (for example, by uploading Models to another website or software application); 
+(b) remove, alter, or conceal, any copyright, trademark, or other proprietary rights notice or legend displayed or contained in the individual Models.
+
+For further clarity, once integrated into a schematic design or PCB layout, Models may be modified freely for the purpose of designing a circuit board. 
+
+
+2. Limitation of Liability
+
+IN NO EVENT WILL SNAPEDA OR OUR SUBSIDIARIES, AGENTS, SUCCESSORS, THIRD PARTY PROVIDERS, AND/OR ANY OF THE FOREGOING ENTITIES' RESPECTIVE DIRECTORS, OFFICERS, EMPLOYEES, AGENTS, REPRESENTATIVES, CUSTOMERS, SUPPLIERS, OR LICENSORS BE RESPONSIBLE OR LIABLE UNDER, OR OTHERWISE IN CONNECTION WITH THIS AGREEMENT, FOR:
+
+(a) ANY CONSEQUENTIAL, INDIRECT, SPECIAL, INCIDENTAL, OR PUNITIVE DAMAGES;
+(b) ANY LOSS OF PROFITS, LOSS OF BUSINESS, LOSS OF REVENUE, OR LOSS OF ANTICIPATED SAVINGS;
+(c) ANY LOSS OF, OR DAMAGE TO, DATA, REPUTATION, OR GOODWILL; AND/OR
+(d) THE COST OF PROCURING ANY SUBSTITUTE GOODS OR SERVICES.
+
+THE COMBINED AGGREGATE LIABILITY OF SNAPEDA AND ALL SNAPEDA CONTENT AFFILIATES UNDER, OR OTHERWISE IN CONNECTION WITH, THIS AGREEMENT SHALL NOT EXCEED THE TOTAL AMOUNT OF FEES RECEIVED BY SNAPEDA FROM YOU IN THE PREVIOUS TWELVE (12) MONTHS. THE FOREGOING EXCLUSIONS AND LIMITATIONS SHALL APPLY: (a) EVEN IF SNAPEDA OR ANY SNAPEDA CONTENT AFFILIATE HAS BEEN ADVISED, OR SHOULD HAVE BEEN AWARE, OF THE POSSIBILITY OF LOSSES, DAMAGES, OR COSTS; (b) EVEN IF ANY REMEDY IN THIS AGREEMENT FAILS OF ITS ESSENTIAL PURPOSE; AND (c) REGARDLESS OF THE THEORY OR BASIS OF LIABILITY (INCLUDING WITHOUT LIMITATION BREACH OF CONTRACT, TORT, NEGLIGENCE, AND STRICT LIABILITY).

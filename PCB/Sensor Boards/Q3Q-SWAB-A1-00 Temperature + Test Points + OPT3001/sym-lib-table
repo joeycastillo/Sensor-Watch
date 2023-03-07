@@ -1,0 +1,4 @@
+(sym_lib_table
+  (lib (name Q3Q-SWAB-A1-00_Temperature_+_Test_Points_+_OPT3001-eagle-import)(type Legacy)(uri ${KIPRJMOD}/Q3Q-SWAB-A1-00_Temperature_+_Test_Points_+_OPT3001-eagle-import.lib)(options "")(descr ""))
+  (lib (name OPT3001DNPT)(type Legacy)(uri ${KIPRJMOD}/OPT3001DNPT/OPT3001DNPT.lib)(options "")(descr ""))
+)
