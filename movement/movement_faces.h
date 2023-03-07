@@ -76,6 +76,7 @@
 #include "ships_bell_face.h"
 #include "habit_face.h"
 #include "milk_log_face.h"
+#include "panchang_face.h"
 // New includes go above this line.
 
 #endif // MOVEMENT_FACES_H_
