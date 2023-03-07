@@ -26,6 +26,19 @@
 #include <string.h>
 #include "panchang_face.h"
 #include "plib.h"
+#include "watch_utility.h"
+
+
+//Offsets in minutes from 6AM
+static uint16_t rahu_kalam_offsets [7] = {
+    (60+30),   //Monday 	07:30 AM to 09:00 AM
+    (9*60),    //Tuesday 	03:00 PM to 04:30 PM
+    (6*60),    //Wednesday 12:00 PM to 01:30 PM
+    (7*60+30), //Thursday 	01:30 PM to 03:00 PM
+    (4*60+30), //Friday 	10:30 AM to 12:00 PM
+    (3*60),    //Saturday 	09:00 AM to 10:30 AM
+    (10*60+30) //Sunday    04:30 PM to 06:00 PM
+};
 
 void panchang_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
@@ -64,7 +77,7 @@ static void show_panchang(watch_date_time date_time, uint16_t tz_offset)
     char buf[12] = {0};
     dd = date_time.unit.day;
     mm = date_time.unit.month;
-    yy = 2020 + date_time.unit.year;
+    yy = WATCH_RTC_REFERENCE_YEAR + date_time.unit.year;
     zhr = tz_offset/60.0;
 
     // Calculate Panchanga
@@ -84,6 +97,22 @@ static void show_panchang(watch_date_time date_time, uint16_t tz_offset)
     printf("Panchang of %d-%d-%d-%f: %s\n",dd,mm,yy,hr, buf);
     watch_display_string(buf, 0);
     // watch_display_string("CR 5Pushya", 0);
+}
+
+static void show_rahu_kalam(watch_date_time date_time)
+{
+    uint8_t weekday = watch_utility_get_iso8601_weekday_number(date_time.unit.year+WATCH_RTC_REFERENCE_YEAR, date_time.unit.month, date_time.unit.day) - 1;
+    //All representations are in minutes
+    uint16_t sunrise = 6*60;
+    uint16_t rahu_kalam_start = rahu_kalam_offsets[weekday] + sunrise;
+    uint16_t rahu_kalam_end = rahu_kalam_start + 90;
+    char buf[12] = {0};
+
+    printf("Rahu kalam for %d is %d to %d\n", weekday, rahu_kalam_start, rahu_kalam_end);
+
+    sprintf(buf, "rt%2d%2d%2d%2d", rahu_kalam_end/60, rahu_kalam_start/60, rahu_kalam_start%60, rahu_kalam_end%60);
+    watch_display_string(buf, 0);
+
 }
 
 bool panchang_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
@@ -107,6 +136,8 @@ bool panchang_face_loop(movement_event_t event, movement_settings_t *settings, v
             break;
         case EVENT_ALARM_BUTTON_UP:
             // Just in case you have need for another button.
+            date_time = watch_rtc_get_date_time();
+            show_rahu_kalam(date_time);
             break;
         case EVENT_TIMEOUT:
             // Your watch face will receive this event after a period of inactivity. If it makes sense to resign,
