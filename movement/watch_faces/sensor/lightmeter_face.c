@@ -29,57 +29,117 @@
 #include "watch_utility.h"
 #include "watch_slcd.h"
 
+uint16_t lightmeter_mod(uint16_t m, uint16_t n) { return (m%n + n)%n; }  
+
 void lightmeter_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
     (void) watch_face_index;
-    //lightmeter_state_t *state = (lightmeter_state_t *)*context_ptr;
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(lightmeter_state_t));
-        memset(*context_ptr, 0, sizeof(lightmeter_state_t));
-        //state = (lightmeter_state_t *)*context_ptr;
+        lightmeter_state_t *state = (lightmeter_state_t*) *context_ptr;
+        state->waiting_for_conversion = 0;
+        state->ev = 0.0;
+        state->iso = LIGHTMETER_ISO_100;
+        state->ap = LIGHTMETER_AP_4P0;
     }
 }
 
 void lightmeter_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
-    (void) context;
+    lightmeter_state_t *state = (lightmeter_state_t*) context;
+    state->waiting_for_conversion = 0;
+    lightmeter_show_ev(state); // Print most current reading
     watch_enable_i2c();
+    return;
 }
 
-bool indstate = false; 
+void lightmeter_show_ev(lightmeter_state_t *state) {
+    watch_clear_all_indicators();
+
+    // Print EV
+    char strbuff[6];
+    watch_display_string("EV        ", 0); 
+    int evt = round(2*state->ev);
+    sprintf(strbuff, "%2i", (uint16_t) abs(evt/2)); // Print whole part of EV 
+    watch_display_string(strbuff, 2); 
+    if(evt%2) watch_set_indicator(WATCH_INDICATOR_LAP); // Indicate half stop
+    if(state->ev<0) watch_set_pixel(1,9);  // Indicate negative EV
+
+    //sprintf(strbuff, "%4.1f", state->ev); 
+    //watch_display_string(strbuff, 4); 
+
+    // Find and print best shutter speed
+    uint16_t bestsh = 0;
+    float besterr = 1.0/0.0;
+    float errbuf = 1.0/0.0;
+    float comp_ev = state->ev + lightmeter_aps[state->ap].ev + lightmeter_isos[state->iso].ev; 
+    for(uint16_t ind = 2; ind < LIGHTMETER_N_SHS; ind++) {
+        errbuf = comp_ev + lightmeter_shs[ind].ev;
+        if( fabs(errbuf) < fabs(besterr)) {
+            besterr = errbuf;
+            bestsh = ind;
+        }
+    }
+    if(besterr >= 1) watch_display_string(lightmeter_shs[LIGHTMETER_SH_HIGH].str, 4); 
+    if(besterr <= -1) watch_display_string(lightmeter_shs[LIGHTMETER_SH_LOW].str, 4); 
+    else watch_display_string(lightmeter_shs[bestsh].str, 4); 
+
+    // Print aperture
+    watch_display_string(lightmeter_aps[state->ap].str, 7); 
+    return;
+}
 
 bool lightmeter_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     (void) settings;
-    (void) context;
-    //lightmeter_state_t *state = lightmeter_state_t *context;
+    lightmeter_state_t *state = (lightmeter_state_t*) context;
     
     opt3001_Config_t c;
-    char strbuff[8];
-    float res;
     switch (event.event_type) {
         case EVENT_TICK:
-            c = opt3001_readConfig(lightmeter_addr);
-            if(c.ConversionReady) {
-                opt3001_t result = opt3001_readResult(lightmeter_addr);
-                watch_clear_all_indicators();
-                watch_display_string("          ", 0); // Clear display
-                res = max(min(LIGHTMETER_CALIBRATION + log2(result.lux/2.5), 99), -99);
-                //res = round(max(min(result.lux, 100000), 0));
-                sprintf(strbuff, "%4.1f", res);
-                watch_display_string(strbuff,4);
-            } else if(!indstate) {
-                watch_set_indicator(WATCH_INDICATOR_SIGNAL); 
-                indstate = !indstate;
-            } else {
-                watch_clear_indicator(WATCH_INDICATOR_SIGNAL); 
-                indstate = !indstate;
+            if(state->waiting_for_conversion) { // Check if measurement is ready...
+                c = opt3001_readConfig(lightmeter_addr);
+                if(c.ConversionReady) {
+                    state->waiting_for_conversion = 0;
+                    opt3001_t result = opt3001_readResult(lightmeter_addr);
+                    state->ev = max(min(LIGHTMETER_CALIBRATION + log2(result.lux), 99), -9);
+                    lightmeter_show_ev(state); 
+                } else {
+                    watch_set_indicator(WATCH_INDICATOR_SIGNAL); 
+                    watch_display_string(lightmeter_isos[state->iso].str, 4); // Show current ISO
+                }
             }
             break;
-        case EVENT_ALARM_BUTTON_DOWN:
+
+        case EVENT_ALARM_BUTTON_UP: // Increment aperture 
+            state->ap = lightmeter_mod(state->ap+1, LIGHTMETER_N_APS);
+            lightmeter_show_ev(state); // Print most current reading
+            break;
+
+        case EVENT_LIGHT_BUTTON_UP: // Decrement aperture 
+            if(state->ap == 0) state->ap = LIGHTMETER_N_APS-1; 
+            else state->ap = lightmeter_mod(state->ap-1, LIGHTMETER_N_APS);
+            lightmeter_show_ev(state); // Print most current reading
+            break;
+
+        case EVENT_LIGHT_LONG_PRESS: // Cycle ISO
+            state->iso = lightmeter_mod(state->iso+1, LIGHTMETER_N_ISOS);
+            watch_display_string(lightmeter_isos[state->iso].str, 4); 
+            break;
+
+        case EVENT_ALARM_LONG_PRESS: // Take measurement
             opt3001_writeConfig(lightmeter_addr, lightmeter_takeNewReading);
             watch_set_indicator(WATCH_INDICATOR_SIGNAL);
-            indstate = 1;
+            state->waiting_for_conversion = 1;
+            watch_display_string(lightmeter_isos[state->iso].str, 4); 
             break;
+
+        case EVENT_LIGHT_BUTTON_DOWN: // Eat light on button down 
+            break;
+
+        case EVENT_LIGHT_LONG_UP: // Trigger light
+            movement_illuminate_led();
+            break;
+
         default:
             movement_default_loop_handler(event, settings);
             break;
@@ -90,7 +150,6 @@ bool lightmeter_face_loop(movement_event_t event, movement_settings_t *settings,
 void lightmeter_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
-    //lightmeter_state_t *state = (lightmeter_state_t *)context;
     opt3001_writeConfig(lightmeter_addr, lightmeter_off);
     watch_disable_i2c();
     return;
