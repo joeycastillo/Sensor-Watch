@@ -49,8 +49,8 @@
 #include "movement.h"
 #include "opt3001.h"
 
-#define LIGHTMETER_CALIBRATION 2.0
-
+#define LIGHTMETER_CALIBRATION 2.58
+//#define LIGHTMETER_LUX_MODE 
 typedef struct { 
     char * str;
     float ev;
@@ -147,6 +147,9 @@ typedef struct {
     lightmeter_ap_t ap;
     bool waiting_for_conversion;
     float ev;
+#ifdef LIGHTMETER_LUX_MODE
+    int mode; 
+#endif
 } lightmeter_state_t;
 
 static const opt3001_Config_t lightmeter_takeNewReading = { 

@@ -39,6 +39,9 @@ void lightmeter_face_setup(movement_settings_t *settings, uint8_t watch_face_ind
         lightmeter_state_t *state = (lightmeter_state_t*) *context_ptr;
         state->waiting_for_conversion = 0;
         state->ev = 0.0;
+#ifdef LIGHTMETER_LUX_MODE 
+        state->mode = 0;
+#endif 
         state->iso = LIGHTMETER_ISO_100;
         state->ap = LIGHTMETER_AP_4P0;
     }
@@ -57,7 +60,7 @@ void lightmeter_show_ev(lightmeter_state_t *state) {
     watch_clear_all_indicators();
 
     // Print EV
-    char strbuff[6];
+    char strbuff[7];
     watch_display_string("EV        ", 0); 
     int evt = round(2*state->ev);
     sprintf(strbuff, "%2i", (uint16_t) abs(evt/2)); // Print whole part of EV 
@@ -65,8 +68,13 @@ void lightmeter_show_ev(lightmeter_state_t *state) {
     if(evt%2) watch_set_indicator(WATCH_INDICATOR_LAP); // Indicate half stop
     if(state->ev<0) watch_set_pixel(1,9);  // Indicate negative EV
 
-    //sprintf(strbuff, "%4.1f", state->ev); 
-    //watch_display_string(strbuff, 4); 
+#ifdef LIGHTMETER_LUX_MODE
+    if(state->mode == 1) {
+        sprintf(strbuff, "%6.3f", state->ev); 
+        watch_display_string(strbuff, 4); 
+        return;
+    }
+#endif 
 
     // Find and print best shutter speed
     uint16_t bestsh = 0;
@@ -132,6 +140,12 @@ bool lightmeter_face_loop(movement_event_t event, movement_settings_t *settings,
             state->waiting_for_conversion = 1;
             watch_display_string(lightmeter_isos[state->iso].str, 4); 
             break;
+
+#ifdef LIGHTMETER_LUX_MODE
+        case EVENT_MODE_LONG_PRESS: // Toggle mode
+            state->mode = !state->mode;
+            break;
+#endif
 
         case EVENT_LIGHT_BUTTON_DOWN: // Eat light on button down 
             break;
