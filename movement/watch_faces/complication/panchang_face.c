@@ -103,7 +103,7 @@ static void show_rahu_kalam(watch_date_time date_time)
 {
     uint8_t weekday = watch_utility_get_iso8601_weekday_number(date_time.unit.year+WATCH_RTC_REFERENCE_YEAR, date_time.unit.month, date_time.unit.day) - 1;
     //All representations are in minutes
-    uint16_t sunrise = 6*60;
+    uint16_t sunrise = 6*60; //TODO: Get actual sunrise time for the day
     uint16_t rahu_kalam_start = rahu_kalam_offsets[weekday] + sunrise;
     uint16_t rahu_kalam_end = rahu_kalam_start + 90;
     char buf[12] = {0};
