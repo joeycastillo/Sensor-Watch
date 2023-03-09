@@ -147,6 +147,7 @@ typedef struct {
     lightmeter_ap_t ap;
     bool waiting_for_conversion;
     float ev;
+    float lux;
 #ifdef LIGHTMETER_LUX_MODE
     int mode; 
 #endif

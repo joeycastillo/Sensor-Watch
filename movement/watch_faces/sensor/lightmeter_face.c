@@ -70,7 +70,7 @@ void lightmeter_show_ev(lightmeter_state_t *state) {
 
 #ifdef LIGHTMETER_LUX_MODE
     if(state->mode == 1) {
-        sprintf(strbuff, "%6.3f", state->ev); 
+        sprintf(strbuff, "%6.0f", min(state->lux, 999999.0)); 
         watch_display_string(strbuff, 4); 
         return;
     }
@@ -89,7 +89,7 @@ void lightmeter_show_ev(lightmeter_state_t *state) {
         }
     }
     if(besterr >= 1) watch_display_string(lightmeter_shs[LIGHTMETER_SH_HIGH].str, 4); 
-    if(besterr <= -1) watch_display_string(lightmeter_shs[LIGHTMETER_SH_LOW].str, 4); 
+    else if(besterr <= -1) watch_display_string(lightmeter_shs[LIGHTMETER_SH_LOW].str, 4); 
     else watch_display_string(lightmeter_shs[bestsh].str, 4); 
 
     // Print aperture
@@ -109,6 +109,7 @@ bool lightmeter_face_loop(movement_event_t event, movement_settings_t *settings,
                 if(c.ConversionReady) {
                     state->waiting_for_conversion = 0;
                     opt3001_t result = opt3001_readResult(lightmeter_addr);
+                    state->lux = result.lux;
                     state->ev = max(min(LIGHTMETER_CALIBRATION + log2(result.lux), 99), -9);
                     lightmeter_show_ev(state); 
                 } else {
@@ -142,8 +143,9 @@ bool lightmeter_face_loop(movement_event_t event, movement_settings_t *settings,
             break;
 
 #ifdef LIGHTMETER_LUX_MODE
-        case EVENT_MODE_LONG_PRESS: // Toggle mode
+        case EVENT_MODE_BUTTON_UP: // Toggle mode
             state->mode = !state->mode;
+            lightmeter_show_ev(state); 
             break;
 #endif
 
