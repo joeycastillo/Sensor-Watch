@@ -147,6 +147,10 @@ bool lightmeter_face_loop(movement_event_t event, movement_settings_t *settings,
             state->mode = !state->mode;
             lightmeter_show_ev(state); 
             break;
+
+        case EVENT_MODE_LONG_PRESS: // Toggle mode
+            movement_move_to_next_face();
+            break;
 #endif
 
         case EVENT_LIGHT_BUTTON_DOWN: // Eat light on button down 
