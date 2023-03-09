@@ -39,9 +39,8 @@ void lightmeter_face_setup(movement_settings_t *settings, uint8_t watch_face_ind
         lightmeter_state_t *state = (lightmeter_state_t*) *context_ptr;
         state->waiting_for_conversion = 0;
         state->ev = 0.0;
-#ifdef LIGHTMETER_LUX_MODE 
+        state->lux = 0.0;
         state->mode = 0;
-#endif 
         state->iso = LIGHTMETER_ISO_100;
         state->ap = LIGHTMETER_AP_4P0;
     }

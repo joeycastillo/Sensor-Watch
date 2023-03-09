@@ -148,9 +148,7 @@ typedef struct {
     bool waiting_for_conversion;
     float ev;
     float lux;
-#ifdef LIGHTMETER_LUX_MODE
     int mode; 
-#endif
 } lightmeter_state_t;
 
 static const opt3001_Config_t lightmeter_takeNewReading = { 
