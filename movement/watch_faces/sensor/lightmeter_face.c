@@ -87,8 +87,8 @@ void lightmeter_show_ev(lightmeter_state_t *state) {
             bestsh = ind;
         }
     }
-    if(besterr >= 1) watch_display_string(lightmeter_shs[LIGHTMETER_SH_HIGH].str, 4); 
-    else if(besterr <= -1) watch_display_string(lightmeter_shs[LIGHTMETER_SH_LOW].str, 4); 
+    if(besterr >= 0.5) watch_display_string(lightmeter_shs[LIGHTMETER_SH_HIGH].str, 4); 
+    else if(besterr <= -0.5) watch_display_string(lightmeter_shs[LIGHTMETER_SH_LOW].str, 4); 
     else watch_display_string(lightmeter_shs[bestsh].str, 4); 
 
     // Print aperture
