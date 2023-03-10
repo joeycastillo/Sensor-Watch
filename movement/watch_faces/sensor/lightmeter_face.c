@@ -135,6 +135,7 @@ bool lightmeter_face_loop(movement_event_t event, movement_settings_t *settings,
 
         case EVENT_LIGHT_LONG_PRESS: // Cycle ISO
             state->iso = lightmeter_mod(state->iso+1, LIGHTMETER_N_ISOS);
+            watch_display_string("    ", 0); 
             watch_display_string(lightmeter_isos[state->iso].str, 4); 
             break;
 
@@ -142,6 +143,7 @@ bool lightmeter_face_loop(movement_event_t event, movement_settings_t *settings,
             opt3001_writeConfig(lightmeter_addr, lightmeter_takeNewReading);
             watch_set_indicator(WATCH_INDICATOR_SIGNAL);
             state->waiting_for_conversion = 1;
+            watch_display_string("    ", 0); 
             watch_display_string(lightmeter_isos[state->iso].str, 4); 
             break;
 
