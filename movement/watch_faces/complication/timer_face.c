@@ -101,20 +101,24 @@ static void _draw(timer_state_t *state, uint8_t subsecond) {
                 sprintf(buf, "  LOOP%c", state->timers[state->current_timer].unit.repeat ? 'y' : 'n');
                 watch_clear_colon();
             } else {
-                sprintf(buf, " %02u%02u%02u", state->timers[state->current_timer].unit.hours, state->timers[state->current_timer].unit.minutes, state->timers[state->current_timer].unit.seconds);
+                sprintf(buf, " %02u%02u%02u", state->timers[state->current_timer].unit.hours,
+                        state->timers[state->current_timer].unit.minutes,
+                        state->timers[state->current_timer].unit.seconds);
                 watch_set_colon();
-            }
-            buf[0] = 49 + state->current_timer;
-            if (subsecond % 2) {
-                // blink the current settings value
-                if (state->settings_state == 0) buf[0] = ' ';
-                else if (state->settings_state == 1 || state->settings_state == 5) buf[6] = ' ';
-                else buf[(state->settings_state - 1) * 2 - 1] = buf[(state->settings_state - 1) * 2] = ' ';
             }
             break;
         case waiting:
-            sprintf(buf, " %02u%02u%02u", state->timers[state->current_timer].unit.hours, state->timers[state->current_timer].unit.minutes, state->timers[state->current_timer].unit.seconds);
+            sprintf(buf, " %02u%02u%02u", state->timers[state->current_timer].unit.hours,
+                    state->timers[state->current_timer].unit.minutes,
+                    state->timers[state->current_timer].unit.seconds);
             break;
+    }
+    buf[0] = 49 + state->current_timer;
+    if (state->mode == setting && subsecond % 2) {
+        // blink the current settings value
+        if (state->settings_state == 0) buf[0] = ' ';
+        else if (state->settings_state == 1 || state->settings_state == 5) buf[6] = ' ';
+        else buf[(state->settings_state - 1) * 2 - 1] = buf[(state->settings_state - 1) * 2] = ' ';
     }
     watch_display_string(buf, 3);
     // set lap indicator when we have a looping timer

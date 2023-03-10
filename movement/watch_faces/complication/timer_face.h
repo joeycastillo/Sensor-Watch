@@ -39,6 +39,7 @@
  *
  * How to use in NORMAL mode:
  *   - Short-pressing the alarm button cycles through all pre-set timer lengths.
+ *     Find the current timer slot number in the upper right-hand corner.
  *   - Long-pressing the alarm button starts the timer.
  *   - Long-pressing the light button initiates settings mode.
  * 
