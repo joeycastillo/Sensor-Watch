@@ -38,7 +38,6 @@ void lightmeter_face_setup(movement_settings_t *settings, uint8_t watch_face_ind
         *context_ptr = malloc(sizeof(lightmeter_state_t));
         lightmeter_state_t *state = (lightmeter_state_t*) *context_ptr;
         state->waiting_for_conversion = 0;
-        state->ev = 0.0;
         state->lux = 0.0;
         state->mode = 0;
         state->iso = LIGHTMETER_ISO_100;
@@ -56,16 +55,22 @@ void lightmeter_face_activate(movement_settings_t *settings, void *context) {
 }
 
 void lightmeter_show_ev(lightmeter_state_t *state) {
-    watch_clear_all_indicators();
+
+    float ev = max(min(
+                 log2(state->lux) + 
+                 lightmeter_isos[state->iso].ev + 
+                 LIGHTMETER_CALIBRATION,
+            99), -9);
+    int evt = round(2*ev); // Truncated EV
 
     // Print EV
     char strbuff[7];
+    watch_clear_all_indicators();
     watch_display_string("EV        ", 0); 
-    int evt = round(2*state->ev);
     sprintf(strbuff, "%2i", (uint16_t) abs(evt/2)); // Print whole part of EV 
     watch_display_string(strbuff, 2); 
     if(evt%2) watch_set_indicator(WATCH_INDICATOR_LAP); // Indicate half stop
-    if(state->ev<0) watch_set_pixel(1,9);  // Indicate negative EV
+    if(ev<0) watch_set_pixel(1,9);  // Indicate negative EV
 
 #ifdef LIGHTMETER_LUX_MODE
     if(state->mode == 1) {
@@ -79,7 +84,7 @@ void lightmeter_show_ev(lightmeter_state_t *state) {
     uint16_t bestsh = 0;
     float besterr = 1.0/0.0;
     float errbuf = 1.0/0.0;
-    float comp_ev = state->ev + lightmeter_aps[state->ap].ev + lightmeter_isos[state->iso].ev; 
+    float comp_ev = ev + lightmeter_aps[state->ap].ev; 
     for(uint16_t ind = 2; ind < LIGHTMETER_N_SHS; ind++) {
         errbuf = comp_ev + lightmeter_shs[ind].ev;
         if( fabs(errbuf) < fabs(besterr)) {
@@ -109,7 +114,6 @@ bool lightmeter_face_loop(movement_event_t event, movement_settings_t *settings,
                     state->waiting_for_conversion = 0;
                     opt3001_t result = opt3001_readResult(lightmeter_addr);
                     state->lux = result.lux;
-                    state->ev = max(min(LIGHTMETER_CALIBRATION + log2(result.lux), 99), -9);
                     lightmeter_show_ev(state); 
                 } else {
                     watch_set_indicator(WATCH_INDICATOR_SIGNAL); 

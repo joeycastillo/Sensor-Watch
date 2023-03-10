@@ -146,7 +146,6 @@ typedef struct {
     lightmeter_iso_t iso;
     lightmeter_ap_t ap;
     bool waiting_for_conversion;
-    float ev;
     float lux;
     int mode; 
 } lightmeter_state_t;
