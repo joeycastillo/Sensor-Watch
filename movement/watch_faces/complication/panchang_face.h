@@ -34,9 +34,14 @@
  *
  */
 
+typedef enum {
+    DAY_PANCHANG,
+    RAHU_KALAM,
+}panchang_views_t;
+
 typedef struct {
     // Anything you need to keep track of, put it here!
-    uint8_t unused;
+    panchang_views_t curr_view;
 } panchang_state_t;
 
 void panchang_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);

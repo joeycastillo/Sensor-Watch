@@ -53,8 +53,8 @@ void panchang_face_setup(movement_settings_t *settings, uint8_t watch_face_index
 void panchang_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
     panchang_state_t *state = (panchang_state_t *)context;
-
     // Handle any tasks related to your watch face coming on screen.
+    state->curr_view = DAY_PANCHANG;
 }
 
 static void show_panchang(watch_date_time date_time, uint16_t tz_offset)
@@ -115,6 +115,20 @@ static void show_rahu_kalam(watch_date_time date_time)
 
 }
 
+static void _update_display(movement_settings_t *settings, void *context)
+{
+    panchang_state_t *state = (panchang_state_t *)context;
+    watch_date_time date_time = watch_rtc_get_date_time();
+    switch(state->curr_view) {
+        case RAHU_KALAM:
+            show_rahu_kalam(date_time);
+        break;
+        case DAY_PANCHANG :
+            show_panchang(date_time, movement_timezone_offsets[settings->bit.time_zone]);
+        break;
+    }
+}
+
 bool panchang_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     panchang_state_t *state = (panchang_state_t *)context;
     watch_date_time date_time;
@@ -122,9 +136,8 @@ bool panchang_face_loop(movement_event_t event, movement_settings_t *settings, v
     switch (event.event_type) {
         case EVENT_ACTIVATE:
             // Show your initial UI here.
-            printf("Panchang Activate\n");
-            date_time = watch_rtc_get_date_time();
-            show_panchang(date_time, movement_timezone_offsets[settings->bit.time_zone]);
+            state->curr_view = DAY_PANCHANG;
+            _update_display(settings, context);
             break;
         case EVENT_TICK:
             // If needed, update your display here.
@@ -137,12 +150,20 @@ bool panchang_face_loop(movement_event_t event, movement_settings_t *settings, v
         case EVENT_ALARM_BUTTON_UP:
             // Just in case you have need for another button.
             date_time = watch_rtc_get_date_time();
-            show_rahu_kalam(date_time);
+            switch(state->curr_view) {
+                case DAY_PANCHANG:
+                    state->curr_view = RAHU_KALAM;
+                break;
+                case RAHU_KALAM:
+                    state->curr_view = DAY_PANCHANG;
+                break;
+            }
+            _update_display(settings, context);
             break;
         case EVENT_TIMEOUT:
             // Your watch face will receive this event after a period of inactivity. If it makes sense to resign,
             // you may uncomment this line to move back to the first watch face in the list:
-            // movement_move_to_face(0);
+            movement_move_to_face(0);
             break;
         case EVENT_LOW_ENERGY_UPDATE:
             // If you did not resign in EVENT_TIMEOUT, you can use this event to update the display once a minute.
