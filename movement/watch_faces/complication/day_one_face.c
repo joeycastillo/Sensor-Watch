@@ -33,11 +33,15 @@ static uint32_t _day_one_face_juliandaynum(uint16_t year, uint16_t month, uint16
 }
 
 static void _day_one_face_update(day_one_state_t state) {
-    char buf[14];
+    char buf[15];
     watch_date_time date_time = watch_rtc_get_date_time();
     uint32_t julian_date = _day_one_face_juliandaynum(date_time.unit.year + WATCH_RTC_REFERENCE_YEAR, date_time.unit.month, date_time.unit.day);
     uint32_t julian_birthdate = _day_one_face_juliandaynum(state.birth_year, state.birth_month, state.birth_day);
-    sprintf(buf, "DA  %6lu", julian_date - julian_birthdate);
+    if (julian_date < julian_birthdate) {
+    	sprintf(buf, "DA  %6lu", julian_birthdate - julian_date);
+    } else {
+    	sprintf(buf, "DA  %6lu", julian_date - julian_birthdate);
+    }
     watch_display_string(buf, 0);
 }
 
