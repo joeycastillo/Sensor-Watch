@@ -73,6 +73,8 @@
 #include "interval_face.h"
 #include "morsecalc_face.h"
 #include "rpn_calculator_face.h"
+#include "activity_face.h"
+#include "chirpy_demo_face.h"
 #include "ships_bell_face.h"
 #include "discgolf_face.h"
 #include "habit_face.h"
