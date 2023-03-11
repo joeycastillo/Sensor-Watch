@@ -39,6 +39,12 @@ typedef struct {
     // Anything you need to keep track of, put it here!
     uint32_t phase_start;
     uint32_t phase_end;
+    bool night;
+    double utc_offset;
+    double freq;
+    bool greek;
+    bool day_ruler;
+    bool no_location;
     sunrise_sunset_state_t sunstate;
 } planetary_state_t;
 
