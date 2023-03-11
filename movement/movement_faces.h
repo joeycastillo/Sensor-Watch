@@ -81,6 +81,7 @@
 #include "repetition_minute_face.h"
 #include "timer_face.h"
 #include "invaders_face.h"
+#include "world_clock2_face.h"
 // New includes go above this line.
 
 #endif // MOVEMENT_FACES_H_
