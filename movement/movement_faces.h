@@ -77,6 +77,7 @@
 #include "discgolf_face.h"
 #include "habit_face.h"
 #include "repetition_minute_face.h"
+#include "timer_face.h"
 // New includes go above this line.
 
 #endif // MOVEMENT_FACES_H_
