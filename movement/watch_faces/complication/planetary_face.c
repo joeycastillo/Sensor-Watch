@@ -53,10 +53,11 @@ static sunrise_sunset_lat_lon_settings_t _sunrise_sunset_face_struct_from_latlon
     return retval;
 }
 
-static void _planetary_face_sun_calculations(movement_settings_t *settings, planetary_state_t *state) {
+static void _planetary_face_solar_phase(movement_settings_t *settings, planetary_state_t *state) {
 
-    double yesterday_rise, yesterday_set, today_rise, today_set, tomorrow_rise, tomorrow_set;
-    uint32_t epoch;
+    uint8_t phase;
+    double sunrise, sunset;
+    uint32_t now_epoch, sunrise_epoch, sunset_epoch, midnight_epoch;
     movement_location_t movement_location = (movement_location_t) watch_get_backup_data(1);
 
     if (movement_location.reg == 0) {
@@ -67,63 +68,65 @@ static void _planetary_face_sun_calculations(movement_settings_t *settings, plan
     watch_date_time date_time = watch_rtc_get_date_time(); // the current local date / time
     watch_date_time utc_now = watch_utility_date_time_convert_zone(date_time, movement_timezone_offsets[settings->bit.time_zone] * 60, 0); // the current date / time in UTC
     watch_date_time scratch_time; // scratchpad, contains different values at different times
-    watch_date_time day0;
-    scratch_time.reg = utc_now.reg;
-    day0.reg = utc_now.reg;
+    watch_date_time midnight;
+    scratch_time.reg = midnight.reg = utc_now.reg;
+    midnight.unit.hour = midnight.unit.minute = midnight.unit.second = 0;
 
+    // get location coordinate
     int16_t lat_centi = (int16_t)movement_location.bit.latitude;
     int16_t lon_centi = (int16_t)movement_location.bit.longitude;
-
     double lat = (double)lat_centi / 100.0;
     double lon = (double)lon_centi / 100.0;
 
-    // sunriset returns the rise/set times as signed decimal hours in UTC.
-    // this can mean hours below 0 or above 31, which won't fit into a watch_date_time struct.
-    // to deal with this, we set aside the offset in hours, and add it back before converting it to a watch_date_time.
+    // save UTC offset
     double hours_from_utc = ((double)movement_timezone_offsets[settings->bit.time_zone]) / 60.0;
 
-    // calculate next sunrise and set
-    epoch = watch_utility_date_time_to_unix_time(day0, 0);
-    sun_rise_set(scratch_time.unit.year + WATCH_RTC_REFERENCE_YEAR, scratch_time.unit.month, scratch_time.unit.day, lon, lat, &today_rise, &today_set);
+    // get epoch of time
+    now_epoch = watch_utility_date_time_to_unix_time(utc_now, 0);
+    midnight_epoch = watch_utility_date_time_to_unix_time(midnight, 0);
 
-    today_rise = epoch + ( today_rise + hours_from_utc ) * 3600;
-    today_set = epoch + ( today_set + hours_from_utc ) * 3600;
-
-    // calculate last sunrise and set
-    epoch -= 86400;
-    scratch_time = watch_utility_date_time_from_unix_time(epoch, 0);
-    sun_rise_set(scratch_time.unit.year + WATCH_RTC_REFERENCE_YEAR, scratch_time.unit.month, scratch_time.unit.day, lon, lat, &yesterday_rise, &yesterday_set);
+    // calculate sunrise and set of current day
+    sun_rise_set(scratch_time.unit.year + WATCH_RTC_REFERENCE_YEAR, scratch_time.unit.month, scratch_time.unit.day, lon, lat, &sunrise, &sunset);
     
-    yesterday_rise = epoch + ( yesterday_rise + hours_from_utc ) * 3600;
-    yesterday_set = epoch + ( yesterday_set + hours_from_utc ) * 3600;
+    sunrise_epoch = midnight_epoch + sunrise * 3600;
+    sunset_epoch = midnight_epoch + sunset * 3600;
+    // by default we assume it is daytime between sunrise and sunset
+    phase = 1;
+    state->phase_start = sunrise_epoch;
+    state->phase_end = sunset_epoch;
 
-    // calculate next sunrise and set after tomorrow
-    epoch = watch_utility_date_time_to_unix_time(day0, 0) + 86400;
-    scratch_time = watch_utility_date_time_from_unix_time(epoch, 0);
-    sun_rise_set(scratch_time.unit.year + WATCH_RTC_REFERENCE_YEAR, scratch_time.unit.month, scratch_time.unit.day, lon, lat, &tomorrow_rise, &tomorrow_set);
-    
-    tomorrow_rise = epoch + ( tomorrow_rise + hours_from_utc ) * 3600;
-    tomorrow_set = epoch + ( tomorrow_set + hours_from_utc ) * 3600;
+    // night time calculations
+    if ( now_epoch < sunrise_epoch && now_epoch < sunset_epoch ) phase = 0; // morning before dawn
+    if ( now_epoch > sunrise_epoch && now_epoch >= sunset_epoch ) phase = 2; // evening after dusk
 
-    if ( today_set < today_rise ) {
-        yesterday_set = today_set;
-        today_set = tomorrow_set;
+    printf("Phase: %d\n", phase);
+
+    // we are before sunrise
+    if ( phase == 0) {
+        // go back to yesterday and calculate sunset
+        midnight_epoch -= 86400;
+        scratch_time = watch_utility_date_time_from_unix_time(midnight_epoch, 0);
+        sun_rise_set(scratch_time.unit.year + WATCH_RTC_REFERENCE_YEAR, scratch_time.unit.month, scratch_time.unit.day, lon, lat, &sunrise, &sunset);
+        sunset_epoch = midnight_epoch + sunset * 3600;
+        // we are still in yesterday's night hours
+        state->phase_start = sunset_epoch;
+        state->phase_end = sunrise_epoch;
     }
 
-    state->yesterday_set = yesterday_set;
-    state->today_rise = today_rise;
-    state->today_set = today_set;
-    state->tomorrow_rise = tomorrow_rise;
+    // we are after sunset
+    if ( phase == 2) {
+        // skip to tomorrow and calculate sunrise
+        midnight_epoch += 86400;
+        scratch_time = watch_utility_date_time_from_unix_time(midnight_epoch, 0);
+        sun_rise_set(scratch_time.unit.year + WATCH_RTC_REFERENCE_YEAR, scratch_time.unit.month, scratch_time.unit.day, lon, lat, &sunrise, &sunset);
+        sunrise_epoch = midnight_epoch + sunrise * 3600;
+        // we are still in yesterday's night hours
+        state->phase_start = sunset_epoch;
+        state->phase_end = sunrise_epoch;
+    }
 
-    state->yesterday_night_second_length = today_rise - yesterday_set;
-    state->today_day_second_length = today_set - today_rise;
-    state->today_night_second_length = tomorrow_rise - today_set;
+    printf("Now: %d\n", now_epoch);
 
-    printf("Yesterday: [%f, %f]\nToday: [%f, %f]\nTomorrow: [%f, %f]\n", 
-        yesterday_rise, yesterday_set, today_rise, today_set, tomorrow_rise, tomorrow_set);
-
-    printf("Yesterday Night: [%u]\nToday Day: [%u]\nToday Night: [%u]\n", 
-        state->yesterday_night_second_length, state->today_day_second_length, state->today_night_second_length);
 }
 
 void planetary_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
@@ -157,9 +160,14 @@ void planetary_face_activate(movement_settings_t *settings, void *context) {
 
     planetary_state_t *state = (planetary_state_t *)context;
     movement_location_t movement_location = (movement_location_t) watch_get_backup_data(1);
+
+    // get location
     state->sunstate.working_latitude = _sunrise_sunset_face_struct_from_latlon(movement_location.bit.latitude);
     state->sunstate.working_longitude = _sunrise_sunset_face_struct_from_latlon(movement_location.bit.longitude);
-    _planetary_face_sun_calculations(settings, state);
+    
+    // calculate phase
+    _planetary_face_solar_phase(settings, state);
+    printf("Phase Start: %d\nPhase End: %d\n", state->phase_start, state->phase_end);
 }
 
 bool planetary_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {

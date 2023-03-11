@@ -37,13 +37,8 @@
 
 typedef struct {
     // Anything you need to keep track of, put it here!
-    uint8_t yesterday_set;
-    uint8_t today_rise;
-    uint8_t today_set;
-    uint8_t tomorrow_rise;
-    uint8_t yesterday_night_second_length;
-    uint8_t today_day_second_length;
-    uint8_t today_night_second_length;
+    uint32_t phase_start;
+    uint32_t phase_end;
     sunrise_sunset_state_t sunstate;
 } planetary_state_t;
 
