@@ -64,6 +64,7 @@ LDFLAGS += -Wl,--gc-sections
 LDFLAGS += -Wl,--script=$(TOP)/watch-library/hardware/linker/saml22j18.ld
 
 LIBS += -lm
+LIBS += $(TOP)/corrosion/target/thumbv6m-none-eabi/release/libcorrosion.a
 
 INCLUDES += \
   -I$(TOP)/tinyusb/src \
@@ -213,3 +214,4 @@ endif
 ifeq ($(BOARD), OSO-FEAL-A1-00)
 CFLAGS += -DCRYSTALLESS
 endif
+

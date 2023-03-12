@@ -1,0 +1,16 @@
+[package]
+name = "corrosion"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["staticlib"] # Creates static lib
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"
+
+
+[dependencies]
