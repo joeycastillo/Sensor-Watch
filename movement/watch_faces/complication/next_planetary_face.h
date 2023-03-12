@@ -22,11 +22,12 @@
  * SOFTWARE.
  */
 
-#ifndef NEXT_PLANTETARY_FACE_H_
-#define NEXT_PLANTETARY_FACE_H_
+#ifndef NEXT_planetary_FACE_H_
+#define NEXT_planetary_FACE_H_
 
 #include "movement.h"
 #include "planetary_face.h"
+#include "sunrise_sunset_face.h"
 
 /*
  * A DESCRIPTION OF YOUR WATCH FACE
@@ -37,26 +38,32 @@
 
 typedef struct {
     // Anything you need to keep track of, put it here!
+    uint32_t planetary_hours[24];
     uint32_t phase_start;
     uint32_t phase_end;
     uint32_t phase_next;
+    bool next;
     double utc_offset;
     bool no_location;
-    uint8_t hour;
-} next_plantetary_state_t;
+    int8_t hour;
+    bool greek;
+    bool start_at_night;
+    bool skip_to_current;
+    sunrise_sunset_state_t sunstate;
+} next_planetary_state_t;
 
-void next_plantetary_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
-void next_plantetary_face_activate(movement_settings_t *settings, void *context);
-bool next_plantetary_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
-void next_plantetary_face_resign(movement_settings_t *settings, void *context);
+void next_planetary_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
+void next_planetary_face_activate(movement_settings_t *settings, void *context);
+bool next_planetary_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void next_planetary_face_resign(movement_settings_t *settings, void *context);
 
-#define next_plantetary_face ((const watch_face_t){ \
-    next_plantetary_face_setup, \
-    next_plantetary_face_activate, \
-    next_plantetary_face_loop, \
-    next_plantetary_face_resign, \
+#define next_planetary_face ((const watch_face_t){ \
+    next_planetary_face_setup, \
+    next_planetary_face_activate, \
+    next_planetary_face_loop, \
+    next_planetary_face_resign, \
     NULL, \
 })
 
-#endif // NEXT_PLANTETARY_FACE_H_
+#endif // NEXT_planetary_FACE_H_
 
