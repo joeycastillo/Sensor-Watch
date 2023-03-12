@@ -24,7 +24,7 @@
 
 /*
  * BACKGROUND
- 
+
  * Both the 24 hour day and the order of our weekdays have quite esoteric roots.
  * The ancient Egyptians divided the day up into 12 hours of sunlight and 12 hours
  * of night time. Obviously the length of these hours varied throughout the year.
@@ -225,8 +225,8 @@ static void _planetary_time(movement_settings_t *settings, planetary_state_t *st
     state->freq = 1 / second_duration;
 
     // which planetary hour are we in?
-    current_hour = ( watch_utility_date_time_to_unix_time(utc_now, 0) - state->phase_start ) / hour_duration - 1;
-    planetary_hour = current_hour + ( state->night ? 13 : 0 );
+    current_hour = ( watch_utility_date_time_to_unix_time(utc_now, 0) - state->phase_start ) / hour_duration;
+    planetary_hour = current_hour + ( state->night ? 12 : 0 );
     current_hour += night_hour_count; //adjust for 24hr display
     current_minute = modf(current_hour, &current_hour) * 60;
     current_second = modf(current_minute, &current_minute) * 60;
@@ -235,12 +235,13 @@ static void _planetary_time(movement_settings_t *settings, planetary_state_t *st
     // hence we take the datetime object of when the last solar phase started as the current day
     // and then fill in the hours and minutes
     scratch_time = watch_utility_date_time_from_unix_time(state->phase_start, 0);
-    scratch_time.unit.hour = floor(current_hour + state->utc_offset);
+    scratch_time.unit.hour = floor(current_hour);
     scratch_time.unit.minute = floor(current_minute);
     scratch_time.unit.second = floor(current_second);
 
     // what weekday is it (0 - 6)
-    weekday = watch_utility_get_iso8601_weekday_number(scratch_time.unit.year, scratch_time.unit.month, scratch_time.unit.day);
+    weekday = watch_utility_get_iso8601_weekday_number(scratch_time.unit.year, scratch_time.unit.month, scratch_time.unit.day) - 1;
+    printf("Weekday: %d\n", weekday);
 
     // planetary ruler of the hour or the day
     if ( state->day_ruler ) planet = plindex[weekday];
