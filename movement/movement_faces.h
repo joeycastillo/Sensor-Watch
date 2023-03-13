@@ -83,6 +83,7 @@
 #include "invaders_face.h"
 #include "world_clock2_face.h"
 #include "time_left_face.h"
+#include "places_face.h"
 // New includes go above this line.
 
 #endif // MOVEMENT_FACES_H_
