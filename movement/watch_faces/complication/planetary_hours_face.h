@@ -46,7 +46,7 @@ typedef struct {
     double utc_offset;
     bool no_location;
     int8_t hour;
-    bool greek;
+    int8_t ruler;
     bool start_at_night;
     bool skip_to_current;
     sunrise_sunset_state_t sunstate;

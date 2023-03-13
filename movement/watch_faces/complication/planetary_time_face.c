@@ -54,13 +54,13 @@
  * The planetary ruler of the current hour and day is displayed at the top in Latin or 
  * Greek shorthand notation:
  * 
- * Saturn (SA) / Chronos (CH)
- * Jupiter (JU) / Zeus (ZE)
- * Mars (MA) / Ares (AR)
- * Sol (SO) / Helios (HE)
- * Venus (VE) / Aphrodite (AF)
- * Mercury (ME) / Hermes (HR)
- * Luna (LU) / Selene (SE)
+ * Saturn (SA) / Chronos (CH) / ♄
+ * Jupiter (JU) / Zeus (ZE) / ♃
+ * Mars (MA) / Ares (AR) / ♂
+ * Sol (SO) / Helios (HE) / ☉
+ * Venus (VE) / Aphrodite (AF) / ♀
+ * Mercury (ME) / Hermes (HR) / ☿
+ * Luna (LU) / Selene (SE) / ☾
  * 
  * The ALARM button toggles between displaying the ruler of the hour or the day
  * 
@@ -71,10 +71,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "sunrise_sunset_face.h"
+#include "sunriset.h"
 #include "watch.h"
 #include "watch_utility.h"
-#include "sunriset.h"
 #include "planetary_time_face.h"
 
 #if __EMSCRIPTEN__
@@ -89,26 +88,67 @@ static const char planetes[7][3] = {"Ch", "Ze", "Ar", "He", "Af", "Hr", "Se"}; /
 // Ruler of each weekday for easy lookup
 static const uint8_t plindex[7] = {3, 6, 2, 5, 1, 4, 0}; // day ruler index
 
-// from sunrise_sunset.c
-static sunrise_sunset_lat_lon_settings_t _sunrise_sunset_face_struct_from_latlon(int16_t val) {
-    sunrise_sunset_lat_lon_settings_t retval;
+static void _planetary_icon(uint8_t planet) {
 
-    retval.sign = val < 0;
-    val = abs(val);
-    retval.hundredths = val % 10;
-    val /= 10;
-    retval.tenths = val % 10;
-    val /= 10;
-    retval.ones = val % 10;
-    val /= 10;
-    retval.tens = val % 10;
-    val /= 10;
-    retval.hundreds = val % 10;
+    watch_clear_pixel(0, 13);
+    watch_clear_pixel(0, 14);
+    watch_clear_pixel(1, 13);
+    watch_clear_pixel(1, 14);
+    watch_clear_pixel(1, 15);
+    watch_clear_pixel(2, 13);
+    watch_clear_pixel(2, 14);
+    watch_clear_pixel(2, 15);
 
-    return retval;
+    switch (planet) {
+        case 0: // Saturn
+            watch_set_pixel(0, 14);
+            watch_set_pixel(2, 14);
+            watch_set_pixel(1, 15);
+            watch_set_pixel(2, 13);
+            break;
+        case 1: // Jupiter
+            watch_set_pixel(0, 14);
+            watch_set_pixel(1, 15);
+            watch_set_pixel(1, 14);
+            break;
+        case 2: // Mars
+            watch_set_pixel(2, 14);
+            watch_set_pixel(2, 15);
+            watch_set_pixel(1, 15);
+            watch_set_pixel(2, 13);
+            watch_set_pixel(1, 13);\
+            break;
+        case 3: // Sol
+            watch_set_pixel(0, 14);
+            watch_set_pixel(2, 14);
+            watch_set_pixel(1, 13);
+            watch_set_pixel(2, 13);
+            watch_set_pixel(0, 13);
+            watch_set_pixel(2, 15);
+            break;
+        case 4: // Venus
+            watch_set_pixel(0, 14);
+            watch_set_pixel(0, 13);
+            watch_set_pixel(1, 13);
+            watch_set_pixel(1, 15);
+            watch_set_pixel(1, 14);
+            break;
+        case 5: // Mercury
+            watch_set_pixel(0, 14);
+            watch_set_pixel(1, 13);
+            watch_set_pixel(1, 14);
+            watch_set_pixel(1, 15);
+            watch_set_pixel(2, 15);
+            break;
+        case 6: // Luna
+            watch_set_pixel(2, 14);
+            watch_set_pixel(2, 15);
+            watch_set_pixel(2, 13);
+            break;
+    }
 }
 
-static void _planetary_solar_phase(movement_settings_t *settings, planetary_state_t *state) {
+static void _planetary_solar_phase(movement_settings_t *settings, planetary_time_state_t *state) {
 /* A solar phase can be a day phase between sunrise and sunset or an alternating night phase.
  * This function calculates the start and end of the current phase based on a given geographic location.
  */
@@ -190,9 +230,13 @@ static void _planetary_solar_phase(movement_settings_t *settings, planetary_stat
         state->phase_end = sunrise_epoch;
     }
 
+    // calculate the duration of a planetary second during this solar phase 
+    // and convert to Hertz so we can call a faster tick rate
+    state->freq = (1 / ((double)( state->phase_end - state->phase_start ) / 43200));
+
 }
 
-static void _planetary_time(movement_settings_t *settings, planetary_state_t *state) {
+static void _planetary_time(movement_settings_t *settings, planetary_time_state_t *state) {
 /* A planetary hour is one of exactly twelve hours of a solar phase. Its length varies.
  * This function calculates the current planetary hour and divides it up into relative minutes and seconds.
  * It also calculates the current planetary ruler of the hour and of the day.
@@ -201,7 +245,7 @@ static void _planetary_time(movement_settings_t *settings, planetary_state_t *st
     char ruler[3];
     uint8_t night_hour_count = 0;
     uint8_t weekday, planet, planetary_hour;
-    double hour_duration, second_duration, current_hour, current_minute, current_second;
+    double hour_duration, current_hour, current_minute, current_second;
     watch_date_time scratch_time;
 
     // check if we have a location. If not, display error
@@ -230,10 +274,6 @@ static void _planetary_time(movement_settings_t *settings, planetary_state_t *st
 
     // calculate the duration of a planetary hour during this solar phase
     hour_duration = ( state->phase_end - state->phase_start ) / 12.0;
-    second_duration = hour_duration / 43200;
-    
-    // in Hertz
-    state->freq = 1 / second_duration;
 
     // which planetary hour are we in?
     current_hour = ( watch_utility_date_time_to_unix_time(utc_now, 0) - state->phase_start ) / hour_duration;
@@ -258,9 +298,10 @@ static void _planetary_time(movement_settings_t *settings, planetary_state_t *st
     if ( state->day_ruler ) planet = plindex[weekday];
     else planet = ( plindex[weekday] + planetary_hour ) % 7;
 
-    // latin or greek ruler names
-    if ( state->greek ) strncpy(ruler, planetes[planet], 3);
-    else strncpy(ruler, planets[planet], 3);
+    // latin or greek ruler names or astrological symbol
+    if ( state->ruler == 0 ) strncpy(ruler, planets[planet], 3);
+    if ( state->ruler == 1 ) strncpy(ruler, planetes[planet], 3);
+    if ( state->ruler == 2 ) strncpy(ruler, "  ", 3);
 
     // display planetary time with ruler of the hour or ruler of the day
     if ( state->day_ruler ) sprintf(buf, "%s d%2d%02d%2d", ruler, scratch_time.unit.hour, scratch_time.unit.minute, scratch_time.unit.second);
@@ -269,13 +310,15 @@ static void _planetary_time(movement_settings_t *settings, planetary_state_t *st
     watch_set_colon();
     watch_display_string(buf, 0);
 
+    if ( state->ruler == 2 ) _planetary_icon(planet);
+
 }
 
 void planetary_time_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
     if (*context_ptr == NULL) {
-        *context_ptr = malloc(sizeof(planetary_state_t));
-        memset(*context_ptr, 0, sizeof(planetary_state_t));
+        *context_ptr = malloc(sizeof(planetary_time_state_t));
+        memset(*context_ptr, 0, sizeof(planetary_time_state_t));
         // Do any one-time tasks in here; the inside of this conditional happens only at boot.
     }
     // Do any pin or peripheral setup here; this will be called whenever the watch wakes from deep sleep.
@@ -286,12 +329,8 @@ void planetary_time_face_activate(movement_settings_t *settings, void *context) 
     if (watch_tick_animation_is_running()) watch_stop_tick_animation();
 
 #if __EMSCRIPTEN__
-    int16_t browser_lat = EM_ASM_INT({
-        return lat;
-    });
-    int16_t browser_lon = EM_ASM_INT({
-        return lon;
-    });
+    int16_t browser_lat = EM_ASM_INT({ return lat; });
+    int16_t browser_lon = EM_ASM_INT({ return lon; });
     if ((watch_get_backup_data(1) == 0) && (browser_lat || browser_lon)) {
         movement_location_t browser_loc;
         browser_loc.bit.latitude = browser_lat;
@@ -300,19 +339,14 @@ void planetary_time_face_activate(movement_settings_t *settings, void *context) 
     }
 #endif
 
-    planetary_state_t *state = (planetary_state_t *)context;
-    movement_location_t movement_location = (movement_location_t) watch_get_backup_data(1);
-
-    // get location
-    state->sunstate.working_latitude = _sunrise_sunset_face_struct_from_latlon(movement_location.bit.latitude);
-    state->sunstate.working_longitude = _sunrise_sunset_face_struct_from_latlon(movement_location.bit.longitude);
+    planetary_time_state_t *state = (planetary_time_state_t *)context;
     
     // calculate phase
     _planetary_solar_phase(settings, state);
 }
 
 bool planetary_time_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
-    planetary_state_t *state = (planetary_state_t *)context;
+    planetary_time_state_t *state = (planetary_time_state_t *)context;
 
     switch (event.event_type) {
         case EVENT_ACTIVATE:
@@ -330,7 +364,7 @@ bool planetary_time_face_loop(movement_event_t event, movement_settings_t *setti
             // You can use the Light button for your own purposes. Note that by default, Movement will also
             // illuminate the LED in response to EVENT_LIGHT_BUTTON_DOWN; to suppress that behavior, add an
             // empty case for EVENT_LIGHT_BUTTON_DOWN.
-            state->greek = !state->greek;
+            state->ruler++;
             break;
         case EVENT_ALARM_BUTTON_UP:
             // Just in case you have need for another button.

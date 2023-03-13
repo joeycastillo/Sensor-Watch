@@ -42,11 +42,11 @@ typedef struct {
     bool night;
     double utc_offset;
     double freq;
-    bool greek;
+    uint8_t ruler;
     bool day_ruler;
     bool no_location;
     sunrise_sunset_state_t sunstate;
-} planetary_state_t;
+} planetary_time_state_t;
 
 void planetary_time_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
 void planetary_time_face_activate(movement_settings_t *settings, void *context);
