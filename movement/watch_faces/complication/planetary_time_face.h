@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef PLANETARY_FACE_H_
-#define PLANETARY_FACE_H_
+#ifndef planetary_time_face_H_
+#define planetary_time_face_H_
 
 #include "movement.h"
 #include "sunrise_sunset_face.h"
@@ -48,18 +48,18 @@ typedef struct {
     sunrise_sunset_state_t sunstate;
 } planetary_state_t;
 
-void planetary_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
-void planetary_face_activate(movement_settings_t *settings, void *context);
-bool planetary_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
-void planetary_face_resign(movement_settings_t *settings, void *context);
+void planetary_time_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
+void planetary_time_face_activate(movement_settings_t *settings, void *context);
+bool planetary_time_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void planetary_time_face_resign(movement_settings_t *settings, void *context);
 
-#define planetary_face ((const watch_face_t){ \
-    planetary_face_setup, \
-    planetary_face_activate, \
-    planetary_face_loop, \
-    planetary_face_resign, \
+#define planetary_time_face ((const watch_face_t){ \
+    planetary_time_face_setup, \
+    planetary_time_face_activate, \
+    planetary_time_face_loop, \
+    planetary_time_face_resign, \
     NULL, \
 })
 
-#endif // PLANETARY_FACE_H_
+#endif // planetary_time_face_H_
 

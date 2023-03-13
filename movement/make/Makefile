@@ -97,8 +97,8 @@ SRCS += \
   ../watch_faces/complication/rpn_calculator_face.c \
   ../watch_faces/complication/ships_bell_face.c \
   ../watch_faces/complication/habit_face.c \
-  ../watch_faces/complication/planetary_face.c \
-  ../watch_faces/complication/next_planetary_face.c \
+  ../watch_faces/complication/planetary_time_face.c \
+  ../watch_faces/complication/planetary_hours_face.c \
 # New watch faces go above this line.
 
 # Leave this line at the bottom of the file; it has all the targets for making your project.

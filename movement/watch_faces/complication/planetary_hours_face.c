@@ -35,24 +35,22 @@
  * over to the first hour of the next day, effectively ruling over the entire day 
  * and lending the whole day their name. The seven day week was born.
  * 
- * PLANETARY TIME COMPLICATION
+ * PLANETARY HOUR CHART COMPLICATION
  * 
- * The hour digits of this complication watch-face display the current planetary hour 
- * according to the given location and day of the year (First hour from 12am to 1am,
- * the second hour from 1am to 2am, and so forth).
+ * This complication watch face displays the start time of the current planetary hour 
+ * according to the given location and day of the year. The number of the current
+ * planetary hour (1 - 24) is indicated at the top right.
  * 
- * Like with normal clocks the minutes and seconds help dividing the hour into smaller
- * units. On this watch-face, all units naturally vary in length because the planetary
- * hours are not fixed by duration but by the moments of sunrise and sunset which 
- * obviously vary throughout the year, especially in higher latitudes.
+ * Short pressing the ALARM button flips through the start times of the following 
+ * planetary hours, long pressing it flips backwards in time. A long press of the 
+ * LIGHT button immediately switches back to the start time of the current hour.
+ * The Bell indicator always marks the current planetary hour in the list.
+ * The LAP indicator shows up when the hours of the next phase are part of the 
+ * upcoming day instead of the current one. This happens when the watch face is 
+ * launched after sunset.
  * 
- * On this watch-face the hours indicated as 12am to 12pm (00:00 - 12:00) are used for
- * the planetary daytime hours between sunrise and sunset and hours indicated as 12pm 
- * to 12am (12:00 - 00:00) are used for the planetary night hours after sunset and before 
- * sunrise.
- * 
- * The planetary ruler of the current hour and day is displayed at the top in Latin or 
- * Greek shorthand notation:
+ * The planetary ruler of the current hour and day is displayed at the top in 
+ * Latin or Greek shorthand notation:
  * 
  * Saturn (SA) / Chronos (CH)
  * Jupiter (JU) / Zeus (ZE)
@@ -62,20 +60,18 @@
  * Mercury (ME) / Hermes (HR)
  * Luna (LU) / Selene (SE)
  * 
- * The ALARM button toggles between displaying the ruler of the hour or the day
- * 
- * The LIGHT button toggles between Latin and Greek ruler shorthand notation
+ * A short press of the LIGHT button toggles between Latin and Greek ruler shorthand
+ * notation.
  * 
  */
 
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "sunrise_sunset_face.h"
 #include "watch.h"
 #include "watch_utility.h"
 #include "sunriset.h"
-#include "planetary_face.h"
+#include "planetary_hours_face.h"
 
 #if __EMSCRIPTEN__
 #include <emscripten.h>
@@ -108,13 +104,18 @@ static sunrise_sunset_lat_lon_settings_t _sunrise_sunset_face_struct_from_latlon
     return retval;
 }
 
-static void _planetary_solar_phase(movement_settings_t *settings, planetary_state_t *state) {
+static void _planetary_solar_phases(movement_settings_t *settings, planetary_hours_state_t *state) {
 /* A solar phase can be a day phase between sunrise and sunset or an alternating night phase.
  * This function calculates the start and end of the current phase based on a given geographic location.
+ * It also calculates the start of the next following phase.
  */
-    uint8_t phase;
+    uint8_t phase, h;
     double sunrise, sunset;
-    uint32_t now_epoch, sunrise_epoch, sunset_epoch, midnight_epoch;
+    double hour_duration, next_hour_duration;
+    uint32_t now_epoch;
+    uint32_t sunrise_epoch_today, sunset_epoch_today, midnight_epoch_today;
+    uint32_t sunset_epoch_yesterday, midnight_epoch_yesterday;
+    uint32_t sunrise_epoch_tomorrow, sunset_epoch_tomorrow, midnight_epoch_tomorrow;
     movement_location_t movement_location = (movement_location_t) watch_get_backup_data(1);
 
     // check if we have a location. If not, display error
@@ -143,65 +144,83 @@ static void _planetary_solar_phase(movement_settings_t *settings, planetary_stat
     // save UTC offset
     state->utc_offset = ((double)movement_timezone_offsets[settings->bit.time_zone]) / 60.0;
 
-    // get UNIX epoch time
-    now_epoch = watch_utility_date_time_to_unix_time(utc_now, 0);
-    midnight_epoch = watch_utility_date_time_to_unix_time(midnight, 0);
-
     // calculate sunrise and sunset of current day in decimal hours after midnight
     sun_rise_set(scratch_time.unit.year + WATCH_RTC_REFERENCE_YEAR, scratch_time.unit.month, scratch_time.unit.day, lon, lat, &sunrise, &sunset);
     
     // calculate sunrise and sunset UNIX timestamps
-    sunrise_epoch = midnight_epoch + sunrise * 3600;
-    sunset_epoch = midnight_epoch + sunset * 3600;
+    midnight_epoch_today = watch_utility_date_time_to_unix_time(midnight, 0);
+    sunrise_epoch_today = midnight_epoch_today + sunrise * 3600;
+    sunset_epoch_today = midnight_epoch_today + sunset * 3600;
+
+    // go back to yesterday and calculate sunset
+    midnight_epoch_yesterday = midnight_epoch_today - 86400;
+    scratch_time = watch_utility_date_time_from_unix_time(midnight_epoch_yesterday, 0);
+    sun_rise_set(scratch_time.unit.year + WATCH_RTC_REFERENCE_YEAR, scratch_time.unit.month, scratch_time.unit.day, lon, lat, &sunrise, &sunset);
+    sunset_epoch_yesterday = midnight_epoch_yesterday + sunset * 3600;
+
+    // go to tomorrow and calculate sunrise and sunset
+    midnight_epoch_tomorrow = midnight_epoch_today + 86400;
+    scratch_time = watch_utility_date_time_from_unix_time(midnight_epoch_tomorrow, 0);
+    sun_rise_set(scratch_time.unit.year + WATCH_RTC_REFERENCE_YEAR, scratch_time.unit.month, scratch_time.unit.day, lon, lat, &sunrise, &sunset);
+    sunrise_epoch_tomorrow = midnight_epoch_tomorrow + sunrise * 3600;
+    sunset_epoch_tomorrow = midnight_epoch_tomorrow + sunset * 3600;
+
+    // get UNIX epoch time
+    now_epoch = watch_utility_date_time_to_unix_time(utc_now, 0);
 
     // by default we assume it is daytime (phase 1) between sunrise and sunset
     phase = 1;
-    state->night = false;
-    state->phase_start = sunrise_epoch;
-    state->phase_end = sunset_epoch;
+    state->phase_start = sunrise_epoch_today;
+    state->phase_end = sunset_epoch_today;
+    state->phase_next = sunrise_epoch_tomorrow;
+    state->start_at_night = false;
 
     // night time calculations
-    if ( now_epoch < sunrise_epoch && now_epoch < sunset_epoch ) phase = 0; // morning before dawn
-    if ( now_epoch > sunrise_epoch && now_epoch >= sunset_epoch ) phase = 2; // evening after dusk
+    if ( now_epoch < sunrise_epoch_today && now_epoch < sunset_epoch_today ) phase = 0; // morning before dawn
+    if ( now_epoch > sunrise_epoch_today && now_epoch >= sunset_epoch_today ) phase = 2; // evening after dusk
 
     // phase 0: we are before sunrise
     if ( phase == 0) {
-        // go back to yesterday and calculate sunset
-        midnight_epoch -= 86400;
-        scratch_time = watch_utility_date_time_from_unix_time(midnight_epoch, 0);
-        sun_rise_set(scratch_time.unit.year + WATCH_RTC_REFERENCE_YEAR, scratch_time.unit.month, scratch_time.unit.day, lon, lat, &sunrise, &sunset);
-        sunset_epoch = midnight_epoch + sunset * 3600;
-        // we are still in yesterday's night hours
-        state->night = true;
-        state->phase_start = sunset_epoch;
-        state->phase_end = sunrise_epoch;
+        state->phase_start = sunset_epoch_yesterday;
+        state->phase_end = sunrise_epoch_today;
+        state->phase_next = sunset_epoch_today;
+        state->start_at_night = true;
     }
 
     // phase 2: we are after sunset
     if ( phase == 2) {
-        // skip to tomorrow and calculate sunrise
-        midnight_epoch += 86400;
-        scratch_time = watch_utility_date_time_from_unix_time(midnight_epoch, 0);
-        sun_rise_set(scratch_time.unit.year + WATCH_RTC_REFERENCE_YEAR, scratch_time.unit.month, scratch_time.unit.day, lon, lat, &sunrise, &sunset);
-        sunrise_epoch = midnight_epoch + sunrise * 3600;
-        // we are still in yesterday's night hours
-        state->night = true;
-        state->phase_start = sunset_epoch;
-        state->phase_end = sunrise_epoch;
+        state->phase_start = sunset_epoch_today;
+        state->phase_end = sunrise_epoch_tomorrow;
+        state->phase_next = sunset_epoch_tomorrow;
+        state->start_at_night = true;
     }
+
+    // calculate the duration of a planetary hour during this and the next solar phase
+    hour_duration = ( state->phase_end - state->phase_start ) / 12.0;
+    next_hour_duration = ( state->phase_next - state->phase_end ) / 12.0;
+
+    // populate list of 24 planetary hour start points in UNIX timestamp format
+    // starting from the beginning of the current phase
+    for ( h = 0; h < 24; h++ ) {
+        if ( h < 12 ) state->planetary_hours[h] = state->phase_start + h * hour_duration; // current phase
+        else state->planetary_hours[h] = state->phase_end + ( h - 12 ) * next_hour_duration; // next phase
+    }
+
+    // initialize
+    state->hour = 0;
+    state->skip_to_current = true;
 
 }
 
-static void _planetary_time(movement_settings_t *settings, planetary_state_t *state) {
+static void _planetary_hours(movement_settings_t *settings, planetary_hours_state_t *state) {
 /* A planetary hour is one of exactly twelve hours of a solar phase. Its length varies.
  * This function calculates the current planetary hour and divides it up into relative minutes and seconds.
  * It also calculates the current planetary ruler of the hour and of the day.
  */
     char buf[14];
     char ruler[3];
-    uint8_t night_hour_count = 0;
     uint8_t weekday, planet, planetary_hour;
-    double hour_duration, second_duration, current_hour, current_minute, current_second;
+    uint32_t current_hour_epoch;
     watch_date_time scratch_time;
 
     // check if we have a location. If not, display error
@@ -213,75 +232,106 @@ static void _planetary_time(movement_settings_t *settings, planetary_state_t *st
     // get current time
     watch_date_time date_time = watch_rtc_get_date_time(); // the current local date / time
     watch_date_time utc_now = watch_utility_date_time_convert_zone(date_time, movement_timezone_offsets[settings->bit.time_zone] * 60, 0); // the current date / time in UTC
+    current_hour_epoch = watch_utility_date_time_to_unix_time(utc_now, 0);
     
+    // set the current planetary hour as default screen
+    if ( state->skip_to_current ) {
+        state->hour = ( current_hour_epoch - state->phase_start ) / (( state->phase_end - state->phase_start ) / 12.0);
+        state->skip_to_current = false;
+    }
+    
+
     // when current phase ends calculate the next phase
     if ( watch_utility_date_time_to_unix_time(utc_now, 0) >= state->phase_end ) {
-        _planetary_solar_phase(settings, state);
+        _planetary_solar_phases(settings, state);
         return;
     }
 
     if (settings->bit.clock_mode_24h) watch_set_indicator(WATCH_INDICATOR_24H);
 
-    // PM for night hours, otherwise the night hours are counted from 13
-    if ( state->night ) {
-        if (settings->bit.clock_mode_24h) night_hour_count = 12;
-        else watch_set_indicator(WATCH_INDICATOR_PM);
+    // roll over hour iterator
+    if ( state->hour < 0 ) state->hour = 23;
+    if ( state->hour > 23 ) state->hour = 0;
+
+    // clear indicators
+    watch_clear_indicator(WATCH_INDICATOR_BELL);
+    watch_clear_indicator(WATCH_INDICATOR_LAP);
+
+    // display bell indicator when displaying the current planetary hour
+    if ( state->hour < 24 )
+        if ( current_hour_epoch >= state->planetary_hours[state->hour] && current_hour_epoch < state->planetary_hours[state->hour + 1]) {
+            watch_set_indicator(WATCH_INDICATOR_BELL);
+        }
+
+    // display LAP indicator when the hours of the next phase belong to the next day
+    if ( state->start_at_night == true && state->hour > 11 )
+        watch_set_indicator(WATCH_INDICATOR_LAP);
+
+    // determine weekday from start of current phase
+    scratch_time = watch_utility_date_time_from_unix_time(state->phase_start, 0);
+    scratch_time = watch_utility_date_time_convert_zone(scratch_time, 0, state->utc_offset * 3600);
+    weekday = watch_utility_get_iso8601_weekday_number(scratch_time.unit.year, scratch_time.unit.month, scratch_time.unit.day) - 1;
+    
+    // which planetary hour are we in?
+    planetary_hour = state->hour % 12;
+
+    // accomodate night hour count
+    if ( state->hour < 12 ) {
+        if ( state->start_at_night ) {
+            planetary_hour += 12;
+        }
+    } else {
+        if ( state->start_at_night ) {
+            weekday = ( weekday + 1 ) % 7;
+        } else {
+            planetary_hour += 12;
+        }
     }
 
-    // calculate the duration of a planetary hour during this solar phase
-    hour_duration = ( state->phase_end - state->phase_start ) / 12.0;
-    second_duration = hour_duration / 43200;
+    // make datetime object for selected planetary hour
+    scratch_time = watch_utility_date_time_from_unix_time(state->planetary_hours[state->hour], 0);
+    scratch_time = watch_utility_date_time_convert_zone(scratch_time, 0, state->utc_offset * 3600);
     
-    // in Hertz
-    state->freq = 1 / second_duration;
+    // round minutes
+    if (scratch_time.unit.second < 30 && scratch_time.unit.minute > 0 ) scratch_time.unit.minute--;
+    else if ( scratch_time.unit.minute < 59 ) scratch_time.unit.minute++;
 
-    // which planetary hour are we in?
-    current_hour = ( watch_utility_date_time_to_unix_time(utc_now, 0) - state->phase_start ) / hour_duration;
-    planetary_hour = floor(current_hour) + ( state->night ? 12 : 0 );
-    current_hour += night_hour_count; //adjust for 24hr display
-    current_minute = modf(current_hour, &current_hour) * 60;
-    current_second = modf(current_minute, &current_minute) * 60;
-
-    // the day changes after sunrise, so if we are at night it is yesterday's planetary day
-    // hence we take the datetime object of when the last solar phase started as the current day
-    // and then fill in the hours and minutes
-    scratch_time = watch_utility_date_time_from_unix_time(state->phase_start, 0);
-    scratch_time.unit.hour = floor(current_hour);
-    scratch_time.unit.minute = floor(current_minute);
-    scratch_time.unit.second = floor(current_second);
-
-    // what weekday is it (0 - 6)
-    weekday = watch_utility_get_iso8601_weekday_number(scratch_time.unit.year, scratch_time.unit.month, scratch_time.unit.day) - 1;
-    //printf("Weekday: %d\n", weekday);
-
-    // planetary ruler of the hour or the day
-    if ( state->day_ruler ) planet = plindex[weekday];
-    else planet = ( plindex[weekday] + planetary_hour ) % 7;
+    // if we are in 12 hour mode, do some cleanup
+    if (!settings->bit.clock_mode_24h) {
+        if (scratch_time.unit.hour < 12) {
+            watch_clear_indicator(WATCH_INDICATOR_PM);
+        } else {
+            watch_set_indicator(WATCH_INDICATOR_PM);
+        }
+        scratch_time.unit.hour %= 12;
+        if (scratch_time.unit.hour == 0) scratch_time.unit.hour = 12;
+    }
+    
+    // planetary ruler of the hour
+    planet = ( plindex[weekday] + planetary_hour ) % 7;
 
     // latin or greek ruler names
     if ( state->greek ) strncpy(ruler, planetes[planet], 3);
     else strncpy(ruler, planets[planet], 3);
 
     // display planetary time with ruler of the hour or ruler of the day
-    if ( state->day_ruler ) sprintf(buf, "%s d%2d%02d%2d", ruler, scratch_time.unit.hour, scratch_time.unit.minute, scratch_time.unit.second);
-    else sprintf(buf, "%s h%2d%02d%2d", ruler, scratch_time.unit.hour, scratch_time.unit.minute, scratch_time.unit.second);
+    sprintf(buf, "%s%2d%2d%02d  ", ruler, (planetary_hour % 24) + 1, scratch_time.unit.hour, scratch_time.unit.minute);
     
     watch_set_colon();
     watch_display_string(buf, 0);
-
 }
 
-void planetary_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
+void planetary_hours_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
     if (*context_ptr == NULL) {
-        *context_ptr = malloc(sizeof(planetary_state_t));
-        memset(*context_ptr, 0, sizeof(planetary_state_t));
+        *context_ptr = malloc(sizeof(planetary_hours_state_t));
+        memset(*context_ptr, 0, sizeof(planetary_hours_state_t));
         // Do any one-time tasks in here; the inside of this conditional happens only at boot.
     }
     // Do any pin or peripheral setup here; this will be called whenever the watch wakes from deep sleep.
 }
 
-void planetary_face_activate(movement_settings_t *settings, void *context) {
+void planetary_hours_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
     if (watch_tick_animation_is_running()) watch_stop_tick_animation();
 
@@ -300,7 +350,7 @@ void planetary_face_activate(movement_settings_t *settings, void *context) {
     }
 #endif
 
-    planetary_state_t *state = (planetary_state_t *)context;
+    planetary_hours_state_t *state = (planetary_hours_state_t *)context;
     movement_location_t movement_location = (movement_location_t) watch_get_backup_data(1);
 
     // get location
@@ -308,23 +358,24 @@ void planetary_face_activate(movement_settings_t *settings, void *context) {
     state->sunstate.working_longitude = _sunrise_sunset_face_struct_from_latlon(movement_location.bit.longitude);
     
     // calculate phase
-    _planetary_solar_phase(settings, state);
+    _planetary_solar_phases(settings, state);
+
+    // Handle any tasks related to your watch face coming on screen.
 }
 
-bool planetary_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
-    planetary_state_t *state = (planetary_state_t *)context;
+bool planetary_hours_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
+    planetary_hours_state_t *state = (planetary_hours_state_t *)context;
 
     switch (event.event_type) {
         case EVENT_ACTIVATE:
+            // Show your initial UI here.
             watch_clear_indicator(WATCH_INDICATOR_PM);
             watch_clear_indicator(WATCH_INDICATOR_24H);
-            _planetary_time(settings, state);
-            // if seconds are faster during the phase, request faster ticks
-            movement_request_tick_frequency( state->freq );
+            _planetary_hours(settings, state);
             break;
         case EVENT_TICK:
             // If needed, update your display here.
-            _planetary_time(settings, state);
+            _planetary_hours(settings, state);
             break;
         case EVENT_LIGHT_BUTTON_UP:
             // You can use the Light button for your own purposes. Note that by default, Movement will also
@@ -332,9 +383,17 @@ bool planetary_face_loop(movement_event_t event, movement_settings_t *settings, 
             // empty case for EVENT_LIGHT_BUTTON_DOWN.
             state->greek = !state->greek;
             break;
+        case EVENT_LIGHT_LONG_PRESS:
+            // Just in case you have need for another button.
+            state->skip_to_current = true;
+            break;
         case EVENT_ALARM_BUTTON_UP:
             // Just in case you have need for another button.
-            state->day_ruler = !state->day_ruler;
+            state->hour++;
+            break;
+        case EVENT_ALARM_LONG_PRESS:
+            // Just in case you have need for another button.
+            state->hour--;
             break;
         case EVENT_TIMEOUT:
             // Your watch face will receive this event after a period of inactivity. If it makes sense to resign,
@@ -365,10 +424,10 @@ bool planetary_face_loop(movement_event_t event, movement_settings_t *settings, 
     return true;
 }
 
-void planetary_face_resign(movement_settings_t *settings, void *context) {
+void planetary_hours_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
-    movement_request_tick_frequency( 1 );
+
     // handle any cleanup before your watch face goes off-screen.
 }
 

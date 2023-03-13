@@ -22,11 +22,11 @@
  * SOFTWARE.
  */
 
-#ifndef NEXT_planetary_FACE_H_
-#define NEXT_planetary_FACE_H_
+#ifndef planetary_hours_face_H_
+#define planetary_hours_face_H_
 
 #include "movement.h"
-#include "planetary_face.h"
+#include "planetary_time_face.h"
 #include "sunrise_sunset_face.h"
 
 /*
@@ -50,20 +50,20 @@ typedef struct {
     bool start_at_night;
     bool skip_to_current;
     sunrise_sunset_state_t sunstate;
-} next_planetary_state_t;
+} planetary_hours_state_t;
 
-void next_planetary_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
-void next_planetary_face_activate(movement_settings_t *settings, void *context);
-bool next_planetary_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
-void next_planetary_face_resign(movement_settings_t *settings, void *context);
+void planetary_hours_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
+void planetary_hours_face_activate(movement_settings_t *settings, void *context);
+bool planetary_hours_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void planetary_hours_face_resign(movement_settings_t *settings, void *context);
 
-#define next_planetary_face ((const watch_face_t){ \
-    next_planetary_face_setup, \
-    next_planetary_face_activate, \
-    next_planetary_face_loop, \
-    next_planetary_face_resign, \
+#define planetary_hours_face ((const watch_face_t){ \
+    planetary_hours_face_setup, \
+    planetary_hours_face_activate, \
+    planetary_hours_face_loop, \
+    planetary_hours_face_resign, \
     NULL, \
 })
 
-#endif // NEXT_planetary_FACE_H_
+#endif // planetary_hours_face_H_
 
