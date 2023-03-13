@@ -51,7 +51,8 @@ typedef struct {
     uint8_t tenths: 4;      // 0-9 (must wrap at 10)
     uint8_t hundredths: 4;  // 0-9 (must wrap at 10)
     uint8_t page;
-    uint8_t active_digit;
+    bool olc;
+    int8_t active_digit;
     bool location_changed;
     places_location_state_t working_latitude;
     places_location_state_t working_longitude;

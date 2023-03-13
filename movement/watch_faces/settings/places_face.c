@@ -30,6 +30,8 @@
 #include <emscripten.h>
 #endif
 
+#define LAST_PAGE 1
+
 static int16_t _places_face_latlon_from_struct(places_location_state_t val) {
     int16_t retval = (val.sign ? -1 : 1) *
                         (
@@ -72,15 +74,15 @@ static void _places_face_update_location_register(places_state_t *state) {
     }
 }
 
-static void _places_face_update_settings_display(movement_event_t event, places_state_t *state) {
+static void _places_face_update_latlon_settings_display(movement_event_t event, places_state_t *state) {
     char buf[12];
 
     switch (state->page) {
-        case 1:
-            sprintf(buf, "LA  %c %04d", state->working_latitude.sign ? '-' : '+', abs(_sunrise_sunset_face_latlon_from_struct(state->working_latitude)));
+        case 0:
+            sprintf(buf, "LA  %c %04d", state->working_latitude.sign ? '-' : '+', abs(_places_face_latlon_from_struct(state->working_latitude)));
             break;
-        case 2:
-            sprintf(buf, "LO  %c%05d", state->working_longitude.sign ? '-' : '+', abs(_sunrise_sunset_face_latlon_from_struct(state->working_longitude)));
+        case 1:
+            sprintf(buf, "LO  %c%05d", state->working_longitude.sign ? '-' : '+', abs(_places_face_latlon_from_struct(state->working_longitude)));
             break;
     }
     if (event.subsecond % 2) {
@@ -89,10 +91,10 @@ static void _places_face_update_settings_display(movement_event_t event, places_
     watch_display_string(buf, 0);
 }
 
-static void _places_face_advance_digit(places_state_t *state) {
+static void _places_face_advance_latlon_digit(places_state_t *state) {
     state->location_changed = true;
     switch (state->page) {
-        case 1: // latitude
+        case 0: // latitude
             switch (state->active_digit) {
                 case 0:
                     state->working_latitude.sign++;
@@ -124,7 +126,7 @@ static void _places_face_advance_digit(places_state_t *state) {
                     break;
             }
             break;
-        case 2: // longitude
+        case 1: // longitude
             switch (state->active_digit) {
                 case 0:
                     state->working_longitude.sign++;
@@ -199,22 +201,48 @@ void places_face_activate(movement_settings_t *settings, void *context) {
 
 bool places_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     places_state_t *state = (places_state_t *)context;
-
     switch (event.event_type) {
         case EVENT_ACTIVATE:
             // Show your initial UI here.
+            state->page = 0;
+            state->active_digit = 0;
+            movement_request_tick_frequency(4);
+            _places_face_update_latlon_settings_display(event, context);
             break;
         case EVENT_TICK:
             // If needed, update your display here.
-            _places_face_update_settings_display(event, state);
+            // if entering low energy mode, start tick animation
+            if (event.event_type == EVENT_LOW_ENERGY_UPDATE && !watch_tick_animation_is_running()) watch_start_tick_animation(1000);
+            // check if we need to update the display
+            _places_face_update_latlon_settings_display(event, state);
+            break;
+        case EVENT_LIGHT_BUTTON_DOWN:
             break;
         case EVENT_LIGHT_BUTTON_UP:
-            // You can use the Light button for your own purposes. Note that by default, Movement will also
-            // illuminate the LED in response to EVENT_LIGHT_BUTTON_DOWN; to suppress that behavior, add an
-            // empty case for EVENT_LIGHT_BUTTON_DOWN.
+            state->active_digit++;
+            if (state->page == 0 && state->active_digit == 1) state->active_digit++; // max latitude is +- 90, no hundreds place
+            if (state->active_digit > 5) {
+                state->active_digit = 0;
+                state->page = (state->page + 1) % 2;
+                _places_face_update_location_register(state);
+            }
+            _places_face_update_latlon_settings_display(event, context);
+            break;
+        case EVENT_LIGHT_LONG_PRESS:
+            state->active_digit--;
+            if (state->page == 0 && state->active_digit == 1) state->active_digit--; // max latitude is +- 90, no hundreds place
+            if (state->active_digit < 0) {
+                state->active_digit = 5;
+                state->page = (state->page + 1) % 2;
+                _places_face_update_location_register(state);
+            }
+            _places_face_update_latlon_settings_display(event, context);
             break;
         case EVENT_ALARM_BUTTON_UP:
-            // Just in case you have need for another button.
+            _places_face_advance_latlon_digit(state);
+            _places_face_update_latlon_settings_display(event, state);
+            break;
+        case EVENT_ALARM_LONG_PRESS:
             break;
         case EVENT_TIMEOUT:
             // Your watch face will receive this event after a period of inactivity. If it makes sense to resign,
@@ -247,7 +275,10 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
 
 void places_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
-    (void) context;
+    places_state_t *state = (places_state_t *)context;
+    state->page = 0;
+    state->active_digit = 0;
+    _places_face_update_location_register(state);
 
     // handle any cleanup before your watch face goes off-screen.
 }
