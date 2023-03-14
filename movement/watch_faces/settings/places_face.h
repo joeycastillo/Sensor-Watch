@@ -52,6 +52,7 @@ typedef struct {
     uint8_t hundredths: 4;  // 0-9 (must wrap at 10)
     uint8_t page;
     bool olc;
+    char pluscode[7];
     int8_t active_digit;
     bool location_changed;
     places_location_state_t working_latitude;
