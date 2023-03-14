@@ -53,6 +53,7 @@ typedef struct {
     char pluscode[7];
     int8_t active_digit;
     bool location_changed;
+    bool edit;
     places_ll_location_state_t working_latitude;
     places_ll_location_state_t working_longitude;
 } places_state_t;

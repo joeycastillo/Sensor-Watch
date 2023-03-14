@@ -117,14 +117,13 @@ static void _places_face_update_latlon_settings_display(movement_event_t event, 
             sprintf(buf, "LO2d %c    ", lln[8] );
             break;
     }
-    if (event.subsecond % 2) {
+    if (state->edit && event.subsecond % 2) {
         buf[state->active_digit + 4] = ' ';
     }
     watch_display_string(buf, 0);
 }
 
 static void _places_face_advance_latlon_digit(places_state_t *state) {
-    state->location_changed = true;
     switch (state->page) {
         case 0: // latitude degrees
             switch (state->active_digit) {
@@ -261,7 +260,7 @@ static void _places_face_advance_latlon_digit(places_state_t *state) {
             break;
     }
     printf("lat %d\n", abs(_places_face_latlon_from_struct(state->working_latitude)));
-    printf("lat %d\n", abs(_places_face_latlon_from_struct(state->working_latitude)));
+    printf("lon %d\n", abs(_places_face_latlon_from_struct(state->working_longitude)));
 }
 
 // Open Location Code Settings Face
@@ -334,48 +333,44 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
             // if entering low energy mode, start tick animation
             if (event.event_type == EVENT_LOW_ENERGY_UPDATE && !watch_tick_animation_is_running()) watch_start_tick_animation(1000);
             // check if we need to update the display
-            if ( state->olc ) _places_face_update_olc_settings_display(event, state);
             else _places_face_update_latlon_settings_display(event, state);
             break;
         case EVENT_LIGHT_BUTTON_DOWN:
             break;
         case EVENT_LIGHT_BUTTON_UP:
-            state->active_digit++;
-            if ( state->olc ) {}
-            else {
-                switch ( state->page ) {
-                    case 0:
-                        if (state->active_digit == 1) state->active_digit++; // max latitude is +- 90, no hundreds place
-                    case 3:
-                        if (state->active_digit > 3) {
-                            state->active_digit = 1;
-                            state->page++;
-                        }
-                        break;
-                    case 1:
-                    case 4:
-                        if (state->active_digit > 5) {
-                            state->active_digit = 1;
-                            state->page++;
-                            _places_face_update_location_register(state);
-                        }
-                        break;
-                    case 2:
-                    case 5:
-                        if (state->active_digit > 1) {
-                            state->active_digit = 0;
-                            state->page = state->page == 2 ? 3 : 0;
-                            _places_face_update_location_register(state);
-                        }
-                        break;
-                }
-                _places_face_update_latlon_settings_display(event, context);
+            if ( !state->edit )
+                movement_illuminate_led();
+            else
+                state->active_digit++;
+            switch ( state->page ) {
+                case 0:
+                    if (state->active_digit == 1) state->active_digit++; // max latitude is +- 90, no hundreds place
+                case 3:
+                    if (state->active_digit > 3) {
+                        state->active_digit = 1;
+                        state->page++;
+                    }
+                    break;
+                case 1:
+                case 4:
+                    if (state->active_digit > 5) {
+                        state->active_digit = 1;
+                        state->page++;
+                    }
+                    break;
+                case 2:
+                case 5:
+                    if (state->active_digit > 1) {
+                        state->active_digit = 0;
+                        state->page = state->page == 2 ? 3 : 0;
+                    }
+                    break;
             }
+            _places_face_update_latlon_settings_display(event, context);
             break;
         case EVENT_LIGHT_LONG_PRESS:
-            state->active_digit--;
-            if ( state->olc ) {}
-            else {
+            if ( state->edit ) {
+                state->active_digit--;
                 switch ( state->page ) {
                     case 0:
                         if (state->active_digit == 1) {
@@ -392,7 +387,6 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
                         if (state->active_digit < 1) {
                             state->active_digit = 3;
                             state->page--;
-                            _places_face_update_location_register(state);
                         }
                         break;
                     case 2:
@@ -400,7 +394,6 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
                         if (state->active_digit < 1) {
                             state->active_digit = 5;
                             state->page--;
-                            _places_face_update_location_register(state);
                         }
                         break;
                 }
@@ -408,15 +401,26 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
             }
             break;
         case EVENT_ALARM_BUTTON_UP:
-            if ( state->olc ) {}
-            else {
+            if ( state->edit )
                 _places_face_advance_latlon_digit(state);
-                _places_face_update_latlon_settings_display(event, state);
+            else {
+                state->page = (state->page + 1) % 6;
             }
+            _places_face_update_latlon_settings_display(event, state);
             break;
         case EVENT_ALARM_LONG_PRESS:
-            state->olc = !state->olc;
-            state->active_digit = 0;
+            if ( state->edit )
+                _places_face_update_location_register(state);
+            state->edit = !state->edit;
+            switch ( state->page ) {
+                case 0:
+                case 3:
+                    state->active_digit = 0;
+                    break;
+                default:
+                    state->active_digit = 1;
+                    break;
+            }
             break;
         case EVENT_TIMEOUT:
             // Your watch face will receive this event after a period of inactivity. If it makes sense to resign,
