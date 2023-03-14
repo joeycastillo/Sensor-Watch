@@ -40,10 +40,10 @@ static const lightmeter_ev_t lightmeter_isos[] = {
     {" i  50", -1},
     {" i 100", 0},
     {" i 160", 0.68},
-	{" i 200", 1},
-	{" i 400", 2},
-	{" i 800", 3},
-	{" i1600", 4}};
+    {" i 200", 1},
+    {" i 400", 2},
+    {" i 800", 3},
+    {" i1600", 4}};
 typedef enum { 
     LIGHTMETER_ISO_25, LIGHTMETER_ISO_50, LIGHTMETER_ISO_100, LIGHTMETER_ISO_160, LIGHTMETER_ISO_200, LIGHTMETER_ISO_400, LIGHTMETER_ISO_800, LIGHTMETER_ISO_1600, 
     LIGHTMETER_N_ISOS
@@ -54,10 +54,10 @@ static const lightmeter_ev_t lightmeter_aps[] = {
     {"1.8", -0.5},
     {"2.0", -1},
     {"2.4", -1.5},
-	{"2.8", -2},
-	{"3.3", -2.5},
-	{"4.0", -3},
-	{"4.8", -3.5},
+    {"2.8", -2},
+    {"3.3", -2.5},
+    {"4.0", -3},
+    {"4.8", -3.5},
     {"5.6", -4},
     {"6.7", -4.5},
     {"8.0", -5},
@@ -84,14 +84,14 @@ static const lightmeter_ev_t lightmeter_shs[] = {
     {"6- ",  2.5},
     {"4- ",  2.0},
     {"3- ",  1.5},
-	{"2- ",  1.0},
-	{"1h-",  0.5},
-	{"1  ",  0.0},
-	{"1h ", -0.5},
-	{"2  ", -1.0},
-	{"3  ", -1.5},
-	{"4  ", -2.0},
-	{"6  ", -2.5},
+    {"2- ",  1.0},
+    {"1h-",  0.5},
+    {"1  ",  0.0},
+    {"1h ", -0.5},
+    {"2  ", -1.0},
+    {"3  ", -1.5},
+    {"4  ", -2.0},
+    {"6  ", -2.5},
     {"8  ", -3.0},
     {"12 ", -3.5},
     {"15 ", -4.0},
@@ -132,12 +132,12 @@ typedef struct {
 static const opt3001_Config_t lightmeter_takeNewReading = { 
     .RangeNumber = 0B1100,
     .ConversionTime = 0B1,
-	.Latch = 0B1,
-	.ModeOfConversionOperation = 0B01
+    .Latch = 0B1,
+    .ModeOfConversionOperation = 0B01
 };
 
 static const opt3001_Config_t lightmeter_off = { 
-	.ModeOfConversionOperation = 0B00
+    .ModeOfConversionOperation = 0B00
 };
 
 uint16_t lightmeter_mod(uint16_t m, uint16_t n); 
