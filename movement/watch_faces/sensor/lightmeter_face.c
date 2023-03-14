@@ -49,8 +49,7 @@
  *    Some special chars are needed here: "-" = seconds, "h" = extra half second, "K" = thousands.
  *    "HI" or "LO" if there's no shutter in the dictionary within 0.5 stops of correct exposure.
  *
- *  - If you `#define LIGHTMETER_LUX_MODE`, mode long-press changes the main digits to show 
- *    raw sensor lux measurements.
+ *  - Mode long-press changes the main digits to show raw sensor lux measurements.
  *
  */
 
@@ -105,13 +104,12 @@ void lightmeter_show_ev(lightmeter_state_t *state) {
     if(evt%2) watch_set_indicator(WATCH_INDICATOR_LAP); // Indicate half stop
     if(ev<0) watch_set_pixel(1,9);  // Indicate negative EV
 
-#ifdef LIGHTMETER_LUX_MODE
+    // Handle lux mode
     if(state->mode == 1) {
         sprintf(strbuff, "%6.0f", min(state->lux, 999999.0)); 
         watch_display_string(strbuff, 4); 
         return;
     }
-#endif 
 
     // Find and print best shutter speed
     uint16_t bestsh = 0;
@@ -183,16 +181,14 @@ bool lightmeter_face_loop(movement_event_t event, movement_settings_t *settings,
             watch_set_indicator(WATCH_INDICATOR_SIGNAL);
             break;
 
-#ifdef LIGHTMETER_LUX_MODE
         case EVENT_MODE_LONG_PRESS: // Toggle mode
             state->mode = !state->mode;
             lightmeter_show_ev(state); 
             break;
-#endif
 
         case EVENT_TIMEOUT:
-            movement_move_to_next_face();
-        break;
+            movement_move_to_face(0);
+            break;
 
         default:
             movement_default_loop_handler(event, settings);
