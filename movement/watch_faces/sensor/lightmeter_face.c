@@ -99,6 +99,7 @@ void lightmeter_show_ev(lightmeter_state_t *state) {
     char strbuff[7];
     watch_clear_all_indicators();
     watch_display_string("EV        ", 0); 
+
     sprintf(strbuff, "%2i", (uint16_t) abs(evt/2)); // Print whole part of EV 
     watch_display_string(strbuff, 2); 
     if(evt%2) watch_set_indicator(WATCH_INDICATOR_LAP); // Indicate half stop
@@ -147,36 +148,39 @@ bool lightmeter_face_loop(movement_event_t event, movement_settings_t *settings,
                     opt3001_t result = opt3001_readResult(lightmeter_addr);
                     state->lux = result.lux;
                     lightmeter_show_ev(state); 
-                } else {
-                    watch_set_indicator(WATCH_INDICATOR_SIGNAL); 
-                    watch_display_string(lightmeter_isos[state->iso].str, 4); // Show current ISO
-                }
+                } 
             }
             break;
 
         case EVENT_ALARM_BUTTON_UP: // Increment aperture 
             state->ap = lightmeter_mod(state->ap+1, LIGHTMETER_N_APS);
-            lightmeter_show_ev(state); // Print most current reading
+
+            lightmeter_show_ev(state); 
             break;
 
         case EVENT_LIGHT_BUTTON_UP: // Decrement aperture 
             if(state->ap == 0) state->ap = LIGHTMETER_N_APS-1; 
             else state->ap = lightmeter_mod(state->ap-1, LIGHTMETER_N_APS);
-            lightmeter_show_ev(state); // Print most current reading
+
+            lightmeter_show_ev(state); 
             break;
 
         case EVENT_LIGHT_LONG_PRESS: // Cycle ISO
             state->iso = lightmeter_mod(state->iso+1, LIGHTMETER_N_ISOS);
-            watch_display_string("    ", 0); 
+
+            watch_clear_all_indicators();
+            watch_display_string("EV  ", 0); 
             watch_display_string(lightmeter_isos[state->iso].str, 4); 
             break;
 
         case EVENT_ALARM_LONG_PRESS: // Take measurement
             opt3001_writeConfig(lightmeter_addr, lightmeter_takeNewReading);
-            watch_set_indicator(WATCH_INDICATOR_SIGNAL);
             state->waiting_for_conversion = 1;
-            watch_display_string("    ", 0); 
+
+            watch_clear_all_indicators();
+            watch_display_string("EV  ", 0); 
             watch_display_string(lightmeter_isos[state->iso].str, 4); 
+            watch_set_indicator(WATCH_INDICATOR_SIGNAL);
             break;
 
 #ifdef LIGHTMETER_LUX_MODE
