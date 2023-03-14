@@ -22,27 +22,6 @@
  * SOFTWARE.
  */
 
-/* Aperture-priority Light Meter Face
- *
- * Meant to be used with the OPT3001 "Q3Q-SWAB-A1-00 Temperature + Test Points + OPT3001" flexboard.
- *
- *  - Trigger a measurement by long-pressing Alarm.
- *    Sensor integration is happening when the Signal indicator is on.
- *
- *  - ISO setting can be cycled by long-pressing Light.
- *    During integration the current ISO setting will be displayed. 
- *
- *  - EV measurement in the top right: the LAP indicator means "half stop". 
- *    So "LAP -1" means EV = -1.5. Likewise "LAP 13" means EV = +13.5  
- *
- *  - Aperture in the bottom right: the last 3 digits are the f-stop. 
- *    Adjust this number in half-stop increments using Alarm = +1/2 and Light = -1/2. 
- *
- *  - Computed best shutter speed in the bottom left: the first 3 digits are the shutter speed. 
- *    Some special chars are needed here: "-" = seconds, "h" = extra half second, "K" = thousands.
- *
- */
-
 #ifndef LIGHTMETER_FACE_H_
 #define LIGHTMETER_FACE_H_
 
