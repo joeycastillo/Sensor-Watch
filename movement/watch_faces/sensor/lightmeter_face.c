@@ -24,9 +24,14 @@
 
 /* Aperture-priority Light Meter Face
  *
- * Meant to be used with the "Q3Q-SWAB-A1-00 Temperature + Test Points + OPT3001" flexboard.
- * (n.b. this board could use a slight revision: the thermistor components should be moved west a mm or 
- * 2, or moved to the back of the board)
+ * Tested with the "Q3Q-SWAB-A1-00 Temperature + Test Points + OPT3001" flexboard.
+ * This flexboard could use a revision: 
+ *
+ *  - The thermistor components should be moved west a mm or flipped to the backside
+ *    to avoid stressing the flexboard against the processor so much.
+ *  - The 'no connect' pad falls off easily.
+ *
+ * Controls:
  *
  *  - Trigger a measurement by long-pressing Alarm.
  *    Sensor integration is happening when the Signal indicator is on.
@@ -45,7 +50,7 @@
  *    "HI" or "LO" if there's no shutter in the dictionary within 0.5 stops of correct exposure.
  *
  *  - If you `#define LIGHTMETER_LUX_MODE`, mode long-press changes the main digits to show 
- *    raw lux measurements without adjustment instead of aperture/shutter/ev
+ *    raw sensor lux measurements.
  *
  */
 
