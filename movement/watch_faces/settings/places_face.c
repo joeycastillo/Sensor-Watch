@@ -164,6 +164,21 @@ static int32_t _ll_decimal_struct_to_dms_int( places_ll_location_state_t val ) {
 
 }
 
+static void _ll_decimal_int_to_olc(char *buf, int32_t lat, int32_t lon) {
+    double latitude = (double)lat / 100000;
+    double longitude = (double)lon / 100000;
+    int a = (latitude + 90) * 1e6;
+    int b = (longitude + 180) * 1e6;
+    const char alpha[] = "23456789CFGHJMPQRVWX";
+    buf[10] = '\0';
+    for (int8_t i = 9; i > -1; i--) {
+        buf[i] = alpha[b / 125 % 20];
+        int d = b;
+        b = a;
+        a = d / 20;
+    }
+}
+
 static void _places_face_update_location_register(places_state_t *state) {
     if (state->location_changed) {
         movement_location_t movement_location;
@@ -181,6 +196,7 @@ static void _places_face_update_location_register(places_state_t *state) {
 static void _places_face_update_latlon_display(movement_event_t event, places_state_t *state) {
     char buf[12];
     char lln[9];
+    static char olc[11] = {0};
     watch_clear_display();
 
     if ( state->page < 2 )
@@ -188,7 +204,8 @@ static void _places_face_update_latlon_display(movement_event_t event, places_st
     else
         sprintf(lln, "%08d", abs( _ll_decimal_struct_to_int(state->working_longitude)));
     
-    _ll_decimal_struct_to_dms_int(state->working_latitude);
+    _ll_decimal_int_to_olc(olc, _ll_decimal_struct_to_int(state->working_latitude), _ll_decimal_struct_to_int(state->working_longitude) );
+    printf("OLC: %s\n", olc);
 
     switch (state->page) {
         case 0: // Latitude
@@ -218,8 +235,6 @@ static void _places_face_update_dms_display(movement_event_t event, places_state
         sprintf(lln, "%07d", abs( _ll_dms_struct_to_int(state->working_dms_latitude)));
     else
         sprintf(lln, "%07d", abs( _ll_dms_struct_to_int(state->working_dms_longitude)));
-
-    printf("LL: %d\n", _ll_dms_struct_to_decimal_int(state->working_dms_latitude));
     
     switch (state->page) {
         case 0: // Latitude
