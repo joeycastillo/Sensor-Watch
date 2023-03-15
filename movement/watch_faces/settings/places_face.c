@@ -38,16 +38,51 @@ static const char plus_digits[21][2] = {"2", "3", "4", "5", "6", "7", "8", "9", 
 static int32_t _places_face_latlon_from_struct(places_ll_location_state_t val) {
     int32_t retval = (val.sign ? -1 : 1) *
                         (
-                            val.hundreds * 100000000 +
-                            val.tens     * 10000000 +
-                            val.ones     * 1000000 +
-                            val.d1       * 100000 +
-                            val.d2       * 10000+
-                            val.d3       * 1000+
-                            val.d4       * 100 +
-                            val.d5       * 10 +
-                            val.d6       * 1
+                            val.hundreds * 10000000 +
+                            val.tens     * 1000000 +
+                            val.ones     * 100000 +
+                            val.d1       * 10000 +
+                            val.d2       * 1000+
+                            val.d3       * 100+
+                            val.d4       * 10 +
+                            val.d5       * 1
                         );
+    return retval;
+}
+
+static int32_t _places_face_dmsll_from_dms(places_dms_location_state_t val) {
+    int32_t retval = (val.sign ? -1 : 1) *
+                        (
+                            val.hundreds  * 1000000 +
+                            val.tens      * 100000 +
+                            val.ones      * 10000 +
+                            val.mins_tens * 1000 +
+                            val.mins_ones * 100 +
+                            val.secs_tens * 10 +
+                            val.secs_ones * 1
+                        );
+    return retval;
+}
+
+static places_dms_location_state_t _places_face_dms_from_dmsll(int32_t val) {
+    places_dms_location_state_t retval;
+
+    retval.sign = val < 0;
+    val = abs(val);
+    retval.secs_ones = val % 10;
+    val /= 10;
+    retval.secs_tens = val % 10;
+    val /= 10;
+    retval.mins_ones = val % 10;
+    val /= 10;
+    retval.mins_tens = val % 10;
+    val /= 10;
+    retval.ones = val % 10;
+    val /= 10;
+    retval.tens = val % 10;
+    val /= 10;
+    retval.hundreds = val % 10;
+
     return retval;
 }
 
@@ -56,8 +91,6 @@ static places_ll_location_state_t _places_face_struct_from_latlon(int32_t val) {
 
     retval.sign = val < 0;
     val = abs(val);
-    retval.d6 = val % 10;
-    val /= 10;
     retval.d5 = val % 10;
     val /= 10;
     retval.d4 = val % 10;
@@ -77,6 +110,23 @@ static places_ll_location_state_t _places_face_struct_from_latlon(int32_t val) {
     return retval;
 }
 
+static int32_t _places_face_decimal_latlon_from_dms( places_dms_location_state_t val ) {
+    double retval = (val.sign ? -1 : 1) *
+                        (
+                            (double)val.hundreds  * 100 +
+                            (double)val.tens      * 10 +
+                            (double)val.ones      + 
+                            ((double)( val.mins_tens * 10 + val.mins_ones ) / 60) +
+                            ((double)( val.secs_tens * 10 + val.secs_ones ) / 3600)
+                        );
+    return (int32_t) round(retval * 100000);
+}
+
+static int32_t _places_face_dms_from_decimal_latlon( places_ll_location_state_t val ) {
+    
+    //return retval;
+}
+
 static void _places_face_update_location_register(places_state_t *state) {
     if (state->location_changed) {
         movement_location_t movement_location;
@@ -91,36 +141,77 @@ static void _places_face_update_location_register(places_state_t *state) {
 
 // Lat Lon Settings Face
 
-static void _places_face_update_latlon_settings_display(movement_event_t event, places_state_t *state) {
+static void _places_face_update_latlon_display(movement_event_t event, places_state_t *state) {
     char buf[12];
-    char lln[10];
+    char lln[9];
     watch_clear_display();
-    if ( state->page < 3 ) sprintf(lln, "%09d", abs( _places_face_latlon_from_struct(state->working_latitude)));
-    if ( state->page >= 3 ) sprintf(lln, "%09d", abs( _places_face_latlon_from_struct(state->working_longitude)));
+
+    if ( state->page < 2 )
+        sprintf(lln, "%08d", abs( _places_face_latlon_from_struct(state->working_latitude)));
+    else
+        sprintf(lln, "%08d", abs( _places_face_latlon_from_struct(state->working_longitude)));
+    
+    _places_face_dms_from_decimal_latlon(state->working_latitude);
+
     switch (state->page) {
         case 0: // Latitude
-            sprintf(buf, "LA o%c %c%c, ", state->working_latitude.sign ? '-' : '+', lln[1], lln[2] );
+            sprintf(buf, "LA o%c %c%c  ", state->working_latitude.sign ? '-' : '+', lln[1], lln[2] );
             break;
         case 1:
-            sprintf(buf, "LA1d,%c%c%c%c%c", lln[3], lln[4],lln[5], lln[6],lln[7]);
+            sprintf(buf, "LA d,%c%c%c%c%c", lln[3], lln[4],lln[5], lln[6],lln[7]);
             break;
-        case 2:
-            sprintf(buf, "LA2d %c    ", lln[8] );
+        case 2: // Longitude
+            sprintf(buf, "LO o%c%c%c%c  ", state->working_longitude.sign ? '-' : '+', lln[0], lln[1], lln[2] );
             break;
-        case 3: // Longitude
-            sprintf(buf, "LO o%c%c%c%c, ", state->working_longitude.sign ? '-' : '+', lln[0], lln[1], lln[2] );
-            break;
-        case 4:
-            sprintf(buf, "LO1d,%c%c%c%c%c", lln[3], lln[4],lln[5], lln[6],lln[7]);
-            break;
-        case 5:
-            sprintf(buf, "LO2d %c    ", lln[8] );
+        case 3:
+            sprintf(buf, "LO d,%c%c%c%c%c", lln[3], lln[4],lln[5], lln[6],lln[7]);
             break;
     }
     if (state->edit && event.subsecond % 2) {
         buf[state->active_digit + 4] = ' ';
     }
     watch_display_string(buf, 0);
+}
+
+static void _places_face_update_dms_display(movement_event_t event, places_state_t *state) {
+    char buf[12];
+    char lln[8];
+    watch_clear_display();
+    if ( state->page < 2 ) 
+        sprintf(lln, "%07d", abs( _places_face_dmsll_from_dms(state->working_dms_latitude)));
+    else
+        sprintf(lln, "%07d", abs( _places_face_dmsll_from_dms(state->working_dms_longitude)));
+
+    printf("LL: %d\n", _places_face_decimal_latlon_from_dms(state->working_dms_latitude));
+    
+    switch (state->page) {
+        case 0: // Latitude
+            sprintf(buf, "LA o%c %c%c  ", state->working_dms_latitude.sign ? 'S' : 'N', lln[1], lln[2] );
+            break;
+        case 1:
+            sprintf(buf, "LA,   %c%c%c%c", lln[3], lln[4], lln[5], lln[6]);
+            break;
+        case 2: // Longitude
+            sprintf(buf, "LO o%c%c%c%c  ", state->working_dms_longitude.sign ? 'W' : 'E', lln[0], lln[1], lln[2] );
+            break;
+        case 3:
+            sprintf(buf, "LO,   %c%c%c%c", lln[3], lln[4], lln[5], lln[6]);
+            break;
+    }
+    if (state->edit && event.subsecond % 2) {
+        buf[state->active_digit + 4] = ' ';
+    }
+    watch_display_string(buf, 0);
+    watch_set_pixel(2, 7);
+    watch_set_pixel(2, 8);
+}
+
+static void _places_face_update_display(movement_event_t event, places_state_t *state) {
+    if ( state->dms ) {
+        _places_face_update_dms_display(event, state);
+        return;
+    }
+    _places_face_update_latlon_display(event, state);
 }
 
 static void _places_face_advance_latlon_digit(places_state_t *state) {
@@ -135,7 +226,7 @@ static void _places_face_advance_latlon_digit(places_state_t *state) {
                     break;
                 case 2:
                     state->working_latitude.tens = (state->working_latitude.tens + 1) % 10;
-                    if (abs(_places_face_latlon_from_struct(state->working_latitude)) > 90000000) {
+                    if (abs(_places_face_latlon_from_struct(state->working_latitude)) > 9000000) {
                         // prevent latitude from going over ±90.
                         // TODO: perform these checks when advancing the digit?
                         state->working_latitude.ones = 0;
@@ -144,12 +235,12 @@ static void _places_face_advance_latlon_digit(places_state_t *state) {
                         state->working_latitude.d3 = 0;
                         state->working_latitude.d4 = 0;
                         state->working_latitude.d5 = 0;
-                        state->working_latitude.d6 = 0;
                     }
                     break;
                 case 3:
                     state->working_latitude.ones = (state->working_latitude.ones + 1) % 10;
-                    if (abs(_places_face_latlon_from_struct(state->working_latitude)) > 90000000) state->working_latitude.ones = 0;
+                    if (abs(_places_face_latlon_from_struct(state->working_latitude)) > 9000000) 
+                        state->working_latitude.ones = 0;
                     break;
             }
             break;
@@ -160,107 +251,227 @@ static void _places_face_advance_latlon_digit(places_state_t *state) {
                     break;
                 case 1:
                     state->working_latitude.d1 = (state->working_latitude.d1 + 1) % 10;
-                    if (abs(_places_face_latlon_from_struct(state->working_latitude)) > 90000000) state->working_latitude.d1 = 0;
+                    if (abs(_places_face_latlon_from_struct(state->working_latitude)) > 9000000) 
+                        state->working_latitude.d1 = 0;
                     break;
                 case 2:
                     state->working_latitude.d2 = (state->working_latitude.d2 + 1) % 10;
-                    if (abs(_places_face_latlon_from_struct(state->working_latitude)) > 90000000) state->working_latitude.d2 = 0;
+                    if (abs(_places_face_latlon_from_struct(state->working_latitude)) > 9000000) 
+                        state->working_latitude.d2 = 0;
                     break;
                 case 3:
                     state->working_latitude.d3 = (state->working_latitude.d3 + 1) % 10;
-                    if (abs(_places_face_latlon_from_struct(state->working_latitude)) > 90000000) state->working_latitude.d3 = 0;
+                    if (abs(_places_face_latlon_from_struct(state->working_latitude)) > 9000000) 
+                        state->working_latitude.d3 = 0;
                     break;
                 case 4:
                     state->working_latitude.d4 = (state->working_latitude.d4 + 1) % 10;
-                    if (abs(_places_face_latlon_from_struct(state->working_latitude)) > 90000000) state->working_latitude.d4 = 0;
+                    if (abs(_places_face_latlon_from_struct(state->working_latitude)) > 9000000) 
+                        state->working_latitude.d4 = 0;
                     break;
                 case 5:
                     state->working_latitude.d5 = (state->working_latitude.d5 + 1) % 10;
-                    if (abs(_places_face_latlon_from_struct(state->working_latitude)) > 90000000) state->working_latitude.d5 = 0;
+                    if (abs(_places_face_latlon_from_struct(state->working_latitude)) > 9000000) 
+                        state->working_latitude.d5 = 0;
                     break;
             }
             break;
-        case 2: // latitude last three decimal digits
-            switch (state->active_digit) {
-                case 0:
-                    // we skip this digit
-                    break;
-                case 1:
-                    state->working_latitude.d6 = (state->working_latitude.d6 + 1) % 10;
-                    if (abs(_places_face_latlon_from_struct(state->working_latitude)) > 90000000) state->working_latitude.d6 = 0;
-                    break;
-            }
-            break;
-        case 3: // longitude degrees
+        case 2: // longitude degrees
             switch (state->active_digit) {
                 case 0:
                     state->working_longitude.sign++;
                     break;
                 case 1:
                     state->working_longitude.hundreds = (state->working_longitude.hundreds + 1) % 10;
-                    if (abs(_places_face_latlon_from_struct(state->working_longitude)) > 180000000) {
-                        // prevent longitude from going over ±180.
+                    if (abs(_places_face_latlon_from_struct(state->working_longitude)) > 18000000) {
+                        // prevent longitude from going over ±90.
                         // TODO: perform these checks when advancing the digit?
+                        state->working_longitude.tens = 0;
                         state->working_longitude.ones = 0;
                         state->working_longitude.d1 = 0;
                         state->working_longitude.d2 = 0;
                         state->working_longitude.d3 = 0;
                         state->working_longitude.d4 = 0;
                         state->working_longitude.d5 = 0;
-                        state->working_longitude.d6 = 0;
                     }
                     break;
                 case 2:
                     state->working_longitude.tens = (state->working_longitude.tens + 1) % 10;
-                    if (abs(_places_face_latlon_from_struct(state->working_longitude)) > 180000000) state->working_longitude.tens = 0;
+                    if (abs(_places_face_latlon_from_struct(state->working_longitude)) > 18000000) {
+                        state->working_longitude.tens = 0;
+
+                    }
                     break;
                 case 3:
                     state->working_longitude.ones = (state->working_longitude.ones + 1) % 10;
-                    if (abs(_places_face_latlon_from_struct(state->working_longitude)) > 180000000) state->working_longitude.ones = 0;
+                    if (abs(_places_face_latlon_from_struct(state->working_longitude)) > 18000000) 
+                        state->working_longitude.ones = 0;
                     break;
             }
             break;
-        case 4: // longitude first five decimal digits
+        case 3: // longitude first five decimal digits
             switch (state->active_digit) {
                 case 0:
                     // we skip this digit
                     break;
                 case 1:
                     state->working_longitude.d1 = (state->working_longitude.d1 + 1) % 10;
-                    if (abs(_places_face_latlon_from_struct(state->working_longitude)) > 180000000) state->working_longitude.d1 = 0;
+                    if (abs(_places_face_latlon_from_struct(state->working_longitude)) > 18000000) 
+                        state->working_longitude.d1 = 0;
                     break;
                 case 2:
                     state->working_longitude.d2 = (state->working_longitude.d2 + 1) % 10;
-                    if (abs(_places_face_latlon_from_struct(state->working_longitude)) > 180000000) state->working_longitude.d2 = 0;
+                    if (abs(_places_face_latlon_from_struct(state->working_longitude)) > 18000000) 
+                        state->working_longitude.d2 = 0;
                     break;
                 case 3:
                     state->working_longitude.d3 = (state->working_longitude.d3 + 1) % 10;
-                    if (abs(_places_face_latlon_from_struct(state->working_longitude)) > 180000000) state->working_longitude.d3 = 0;
+                    if (abs(_places_face_latlon_from_struct(state->working_longitude)) > 18000000) 
+                        state->working_longitude.d3 = 0;
                     break;
                 case 4:
                     state->working_longitude.d4 = (state->working_longitude.d4 + 1) % 10;
-                    if (abs(_places_face_latlon_from_struct(state->working_longitude)) > 180000000) state->working_longitude.d4 = 0;
+                    if (abs(_places_face_latlon_from_struct(state->working_longitude)) > 18000000) 
+                        state->working_longitude.d4 = 0;
                     break;
                 case 5:
                     state->working_longitude.d5 = (state->working_longitude.d5 + 1) % 10;
-                    if (abs(_places_face_latlon_from_struct(state->working_longitude)) > 180000000) state->working_longitude.d5 = 0;
+                    if (abs(_places_face_latlon_from_struct(state->working_longitude)) > 18000000) 
+                        state->working_longitude.d5 = 0;
                     break;
             }
             break;
-        case 5: // longitude last three decimal digits
+    }
+}
+
+static void _places_face_advance_dms_digit(places_state_t *state) {
+    switch (state->page) {
+        case 0: // latitude degrees
+            switch (state->active_digit) {
+                case 0:
+                    state->working_dms_latitude.sign++;
+                    break;
+                case 1:
+                    // we skip this digit
+                    break;
+                case 2:
+                    state->working_dms_latitude.tens = (state->working_dms_latitude.tens + 1) % 10;
+                    if (abs(_places_face_dmsll_from_dms(state->working_dms_latitude)) > 900000) {
+                        // prevent latitude from going over ±90.
+                        // TODO: perform these checks when advancing the digit?
+                        state->working_dms_latitude.ones = 0;
+                        state->working_dms_latitude.mins_tens = 0;
+                        state->working_dms_latitude.mins_ones = 0;
+                        state->working_dms_latitude.secs_tens = 0;
+                        state->working_dms_latitude.secs_ones = 0;
+                    }
+                    break;
+                case 3:
+                    state->working_dms_latitude.ones = (state->working_dms_latitude.ones + 1) % 10;
+                    if (abs(_places_face_dmsll_from_dms(state->working_dms_latitude)) > 900000) 
+                        state->working_dms_latitude.ones = 0;
+                    break;
+            }
+            break;
+        case 1: // latitude first five decimal digits
             switch (state->active_digit) {
                 case 0:
                     // we skip this digit
                     break;
                 case 1:
-                    state->working_longitude.d6 = (state->working_longitude.d6 + 1) % 10;
-                    if (abs(_places_face_latlon_from_struct(state->working_longitude)) > 180000000) state->working_longitude.d6 = 0;
+                    // we skip this digit
+                case 2:
+                    state->working_dms_latitude.mins_tens = (state->working_dms_latitude.mins_tens + 1) % 10;
+                    if (abs(_places_face_dmsll_from_dms(state->working_dms_latitude)) > 900000) 
+                        state->working_dms_latitude.mins_tens = 0;
+                    break;
+                case 3:
+                    state->working_dms_latitude.mins_ones = (state->working_dms_latitude.mins_ones + 1) % 10;
+                    if (abs(_places_face_dmsll_from_dms(state->working_dms_latitude)) > 900000) 
+                        state->working_dms_latitude.mins_ones = 0;
+                    break;
+                case 4:
+                    state->working_dms_latitude.secs_tens = (state->working_dms_latitude.secs_tens + 1) % 10;
+                    if (abs(_places_face_dmsll_from_dms(state->working_dms_latitude)) > 900000) 
+                        state->working_dms_latitude.secs_tens = 0;
+                    break;
+                case 5:
+                    state->working_dms_latitude.secs_ones = (state->working_dms_latitude.secs_ones + 1) % 10;
+                    if (abs(_places_face_dmsll_from_dms(state->working_dms_latitude)) > 900000) 
+                        state->working_dms_latitude.secs_ones = 0;
+                    break;
+            }
+            break;
+        case 2: // longitude degrees
+            switch (state->active_digit) {
+                case 0:
+                    state->working_dms_longitude.sign++;
+                    break;
+                case 1:
+                    state->working_dms_longitude.hundreds = (state->working_dms_longitude.hundreds + 1) % 10;
+                    if (abs(_places_face_dmsll_from_dms(state->working_dms_longitude)) > 1800000) {
+                        // prevent longitude from going over ±90.
+                        // TODO: perform these checks when advancing the digit?
+                        state->working_dms_longitude.tens = 0;
+                        state->working_dms_longitude.ones = 0;
+                        state->working_dms_longitude.mins_tens = 0;
+                        state->working_dms_longitude.mins_ones = 0;
+                        state->working_dms_longitude.secs_tens = 0;
+                        state->working_dms_longitude.secs_ones = 0;
+                    } 
+                    break;
+                case 2:
+                    state->working_dms_longitude.tens = (state->working_dms_longitude.tens + 1) % 10;
+                    if (abs(_places_face_dmsll_from_dms(state->working_dms_longitude)) > 1800000)
+                        state->working_dms_longitude.tens = 0;
+                    break;
+                case 3:
+                    state->working_dms_longitude.ones = (state->working_dms_longitude.ones + 1) % 10;
+                    if (abs(_places_face_dmsll_from_dms(state->working_dms_longitude)) > 1800000) 
+                        state->working_dms_longitude.ones = 0;
+                    break;
+            }
+            break;
+        case 3: // longitude first five decimal digits
+            switch (state->active_digit) {
+                case 0:
+                    // we skip this digit
+                    break;
+                case 1:
+                    // we skip this digit
+                case 2:
+                    state->working_dms_longitude.mins_tens = (state->working_dms_longitude.mins_tens + 1) % 6;
+                    if (abs(_places_face_dmsll_from_dms(state->working_dms_longitude)) > 1800000) 
+                        state->working_dms_longitude.mins_tens = 0;
+                    break;
+                case 3:
+                    state->working_dms_longitude.mins_ones = (state->working_dms_longitude.mins_ones + 1) % 10;
+                    if (abs(_places_face_dmsll_from_dms(state->working_dms_longitude)) > 1800000) 
+                        state->working_dms_longitude.mins_ones = 0;
+                    break;
+                case 4:
+                    state->working_dms_longitude.secs_tens = (state->working_dms_longitude.secs_tens + 1) % 6;
+                    if (abs(_places_face_dmsll_from_dms(state->working_dms_longitude)) > 1800000) 
+                        state->working_dms_longitude.secs_tens = 0;
+                    break;
+                case 5:
+                    state->working_dms_longitude.secs_ones = (state->working_dms_longitude.secs_ones + 1) % 10;
+                    if (abs(_places_face_dmsll_from_dms(state->working_dms_longitude)) > 1800000) 
+                        state->working_dms_longitude.secs_ones = 0;
                     break;
             }
             break;
     }
-    printf("lat %d\n", abs(_places_face_latlon_from_struct(state->working_latitude)));
-    printf("lon %d\n", abs(_places_face_latlon_from_struct(state->working_longitude)));
+    printf("lat %d\n", abs(_places_face_dmsll_from_dms(state->working_dms_latitude)));
+    printf("lon %d\n", abs(_places_face_dmsll_from_dms(state->working_dms_longitude)));
+}
+
+static void _places_face_advance_digit(places_state_t *state) {
+    if ( state->dms ) {
+        _places_face_advance_dms_digit(state);
+        return;
+    }
+    _places_face_advance_latlon_digit(state);
 }
 
 // Open Location Code Settings Face
@@ -319,21 +530,21 @@ void places_face_activate(movement_settings_t *settings, void *context) {
 
 bool places_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     places_state_t *state = (places_state_t *)context;
+    //state->dms = true;
     switch (event.event_type) {
         case EVENT_ACTIVATE:
             // Show your initial UI here.
-            state->olc = false;
             state->page = 0;
             state->active_digit = 0;
             movement_request_tick_frequency(4);
-            _places_face_update_latlon_settings_display(event, context);
+            _places_face_update_display(event, context);
             break;
         case EVENT_TICK:
             // If needed, update your display here.
             // if entering low energy mode, start tick animation
             if (event.event_type == EVENT_LOW_ENERGY_UPDATE && !watch_tick_animation_is_running()) watch_start_tick_animation(1000);
             // check if we need to update the display
-            else _places_face_update_latlon_settings_display(event, state);
+            else _places_face_update_display(event, state);
             break;
         case EVENT_LIGHT_BUTTON_DOWN:
             break;
@@ -345,28 +556,21 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
             switch ( state->page ) {
                 case 0:
                     if (state->active_digit == 1) state->active_digit++; // max latitude is +- 90, no hundreds place
-                case 3:
+                case 2:
                     if (state->active_digit > 3) {
-                        state->active_digit = 1;
+                        state->active_digit = (state->dms ? 2 : 1);
                         state->page++;
                     }
                     break;
                 case 1:
-                case 4:
+                case 3:
                     if (state->active_digit > 5) {
-                        state->active_digit = 1;
-                        state->page++;
-                    }
-                    break;
-                case 2:
-                case 5:
-                    if (state->active_digit > 1) {
                         state->active_digit = 0;
-                        state->page = state->page == 2 ? 3 : 0;
+                        state->page = ( state->page + 1 )% 4;
                     }
                     break;
             }
-            _places_face_update_latlon_settings_display(event, context);
+            _places_face_update_display(event, context);
             break;
         case EVENT_LIGHT_LONG_PRESS:
             if ( state->edit ) {
@@ -376,37 +580,30 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
                         if (state->active_digit == 1) {
                             state->active_digit--; // max latitude is +- 90, no hundreds place
                         }
-                    case 3:
-                        if (state->active_digit < 0) {
-                            state->active_digit = 1;
-                            state->page = state->page == 0 ? 5 : 2;
+                    case 2:
+                        if (state->active_digit < 0 ) {
+                            state->active_digit = 5;
+                            state->page = state->page == 0 ? 3 : 1;
                         }
                         break;
                     case 1:
-                    case 4:
-                        if (state->active_digit < 1) {
+                    case 3:
+                        if (state->active_digit < (state->dms ? 2 : 1)) {
                             state->active_digit = 3;
                             state->page--;
                         }
                         break;
-                    case 2:
-                    case 5:
-                        if (state->active_digit < 1) {
-                            state->active_digit = 5;
-                            state->page--;
-                        }
-                        break;
                 }
-                _places_face_update_latlon_settings_display(event, context);
+                _places_face_update_display(event, context);
             }
             break;
         case EVENT_ALARM_BUTTON_UP:
             if ( state->edit )
-                _places_face_advance_latlon_digit(state);
+                _places_face_advance_digit(state);
             else {
-                state->page = (state->page + 1) % 6;
+                state->page = (state->page + 1) % 4;
             }
-            _places_face_update_latlon_settings_display(event, state);
+            _places_face_update_display(event, state);
             break;
         case EVENT_ALARM_LONG_PRESS:
             if ( state->edit )
@@ -414,11 +611,11 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
             state->edit = !state->edit;
             switch ( state->page ) {
                 case 0:
-                case 3:
+                case 2:
                     state->active_digit = 0;
                     break;
                 default:
-                    state->active_digit = 1;
+                    state->active_digit = ( state->dms ? 2 : 1);
                     break;
             }
             break;
