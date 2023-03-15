@@ -44,7 +44,7 @@ typedef struct {
     uint8_t d3: 4;          // 0-9 (must wrap at 10)
     uint8_t d4: 4;          // 0-9 (must wrap at 10)
     uint8_t d5: 4;          // 0-9 (must wrap at 10)
-} places_ll_location_state_t;
+} places_ll_decimal_t;
 
 typedef struct {
     uint8_t sign: 1;        // 0-1
@@ -55,7 +55,12 @@ typedef struct {
     uint8_t mins_ones: 4;   // 0-9 (must wrap at 10)
     uint8_t secs_tens: 4;   // 0-5 (must wrap at 60)
     uint8_t secs_ones: 4;   // 0-9 (must wrap at 10)
-} places_dms_location_state_t;
+} places_ll_dms_t;
+
+typedef struct {
+    places_ll_decimal_t latitude;
+    places_ll_decimal_t longitude;
+} places_ll_coordinate_t;
 
 typedef struct {
     uint8_t page;
@@ -65,10 +70,10 @@ typedef struct {
     bool location_changed;
     bool edit;
     bool dms;
-    places_ll_location_state_t working_latitude;
-    places_ll_location_state_t working_longitude;
-    places_dms_location_state_t working_dms_latitude;
-    places_dms_location_state_t working_dms_longitude;
+    places_ll_decimal_t working_latitude;
+    places_ll_decimal_t working_longitude;
+    places_ll_dms_t working_dms_latitude;
+    places_ll_dms_t working_dms_longitude;
 } places_state_t;
 
 void places_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);

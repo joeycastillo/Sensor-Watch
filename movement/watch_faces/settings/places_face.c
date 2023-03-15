@@ -35,7 +35,7 @@ static const char plus_digits[21][2] = {"2", "3", "4", "5", "6", "7", "8", "9", 
 
 // conversion functions
 
-static int32_t _ll_decimal_struct_to_int(places_ll_location_state_t val) {
+static int32_t _ll_decimal_struct_to_int(places_ll_decimal_t val) {
     // converts decimal LatLon struct to integer
     int32_t retval = (val.sign ? -1 : 1) *
                         (
@@ -51,7 +51,7 @@ static int32_t _ll_decimal_struct_to_int(places_ll_location_state_t val) {
     return retval;
 }
 
-static int32_t _ll_dms_struct_to_int(places_dms_location_state_t val) {
+static int32_t _ll_dms_struct_to_int(places_ll_dms_t val) {
     // converts DMS LatLon struct to integer
     int32_t retval = (val.sign ? -1 : 1) *
                         (
@@ -66,9 +66,9 @@ static int32_t _ll_dms_struct_to_int(places_dms_location_state_t val) {
     return retval;
 }
 
-static places_ll_location_state_t _ll_decimal_int_to_struct(int32_t val) {
+static places_ll_decimal_t _ll_decimal_int_to_struct(int32_t val) {
     // converts decimal LatLon integer to struct
-    places_ll_location_state_t retval;
+    places_ll_decimal_t retval;
 
     retval.sign = val < 0;
     val = abs(val);
@@ -91,9 +91,9 @@ static places_ll_location_state_t _ll_decimal_int_to_struct(int32_t val) {
     return retval;
 }
 
-static places_dms_location_state_t _ll_dms_int_to_struct(int32_t val) {
+static places_ll_dms_t _ll_dms_int_to_struct(int32_t val) {
     // converts DMS LatLon integer to struct
-    places_dms_location_state_t retval;
+    places_ll_dms_t retval;
 
     retval.sign = val < 0;
     val = abs(val);
@@ -114,7 +114,7 @@ static places_dms_location_state_t _ll_dms_int_to_struct(int32_t val) {
     return retval;
 }
 
-static int32_t _ll_dms_struct_to_decimal_int( places_dms_location_state_t val ) {
+static int32_t _ll_dms_struct_to_decimal_int( places_ll_dms_t val ) {
     // converts DMS LatLon struct to decimal integer
     double retval = (val.sign ? -1 : 1) *
                         (
@@ -127,9 +127,9 @@ static int32_t _ll_dms_struct_to_decimal_int( places_dms_location_state_t val ) 
     return (int32_t) round(retval * 100000);
 }
 
-static int32_t _ll_decimal_struct_to_dms_int( places_ll_location_state_t val ) {
+static int32_t _ll_decimal_struct_to_dms_int( places_ll_decimal_t val ) {
     // converts decimal LatLon struct to DMS integer
-    places_dms_location_state_t dms;
+    places_ll_dms_t dms;
     double coord = (double)abs(_ll_decimal_struct_to_int(val)) / 100000;
     
     int sec = (int)round(coord * 3600);
@@ -179,6 +179,33 @@ static void _ll_decimal_int_to_olc(char *buf, int32_t lat, int32_t lon) {
     }
 }
 
+static places_ll_coordinate_t _ll_olc_to_decimal_coordinate(char *buf) {
+    const char alpha[] = "23456789CFGHJMPQRVWX";
+    double lat = 0, lon = 0;
+    double deg = 20;
+    places_ll_coordinate_t retval;
+    for (int8_t i = 0; i < 10; i++) {
+        const char *ptr = strchr(alpha, buf[i]);
+        uint8_t value = ptr - alpha;
+        switch ( i % 2 ) {
+            case 0:
+                lat += value * deg;
+                //printf("i: %d val: %f deg: %f\n", i, lat, deg);
+                break;
+            case 1:
+                lon += value * deg;
+                //printf("i: %d val: %f deg: %f\n", i, lon, deg);
+                deg /= 20;
+                break;
+        }       
+    }
+    printf("olc: %s lat: %d lon: %d\n", buf, (int32_t)((lat - 90) * 100000), (int32_t)((lon - 180) * 100000));
+
+    retval.latitude = _ll_decimal_int_to_struct((int32_t)((lat - 90) * 100000));
+    retval.longitude = _ll_decimal_int_to_struct((int32_t)((lon - 180) * 100000));
+    return retval;
+}
+
 static void _places_face_update_location_register(places_state_t *state) {
     if (state->location_changed) {
         movement_location_t movement_location;
@@ -205,7 +232,10 @@ static void _places_face_update_latlon_display(movement_event_t event, places_st
         sprintf(lln, "%08d", abs( _ll_decimal_struct_to_int(state->working_longitude)));
     
     _ll_decimal_int_to_olc(olc, _ll_decimal_struct_to_int(state->working_latitude), _ll_decimal_struct_to_int(state->working_longitude) );
-    printf("OLC: %s\n", olc);
+    
+    places_ll_coordinate_t laxlox = _ll_olc_to_decimal_coordinate(olc);
+
+    printf("OLC: %s | lat: %d | lon: %d\n", olc, _ll_decimal_struct_to_int(laxlox.latitude), _ll_decimal_struct_to_int(laxlox.longitude));
 
     switch (state->page) {
         case 0: // Latitude
