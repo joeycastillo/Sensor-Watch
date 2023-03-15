@@ -58,6 +58,19 @@ typedef struct {
 } places_ll_dms_t;
 
 typedef struct {
+    uint8_t lat1: 5;
+    uint8_t lon1: 5;   
+    uint8_t lat2: 5;   
+    uint8_t lon2: 5;   
+    uint8_t lat3: 5;   
+    uint8_t lon3: 5;   
+    uint8_t lat4: 5;   
+    uint8_t lon4: 5;   
+    uint8_t lat5: 5;   
+    uint8_t lon5: 5;   
+} places_olc_t;
+
+typedef struct {
     places_ll_decimal_t latitude;
     places_ll_decimal_t longitude;
 } places_ll_coordinate_t;
@@ -74,6 +87,7 @@ typedef struct {
     places_ll_decimal_t working_longitude;
     places_ll_dms_t working_dms_latitude;
     places_ll_dms_t working_dms_longitude;
+    places_olc_t working_pluscode;
 } places_state_t;
 
 void places_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
