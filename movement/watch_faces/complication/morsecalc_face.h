@@ -30,7 +30,7 @@
 
 #include "movement.h"
 #include "calc.h"
-#include "morsecode.h"
+#include "morsecode.c"
 
 void morsecalc_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
 void morsecalc_face_activate(movement_settings_t *settings, void *context);
