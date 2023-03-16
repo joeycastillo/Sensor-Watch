@@ -106,6 +106,10 @@ static void _places_face_advance_olc_digit(places_state_t *state);
 // Editor Manager
 static void _places_face_advance_digit(places_state_t *state);
 
+static void _load_place_from_memory(places_state_t *state);
+
+static void _save_place_to_memory(places_state_t *state);
+
 // DATA MANAGEMENT FUNCTIONS
 static void _places_face_update_location_register(places_state_t *state);
 
@@ -251,43 +255,7 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
                     break;
             }
             if ( !state->edit ) { // leaving edit mode saves data in state
-                switch ( state->mode ) {
-                    case PLACE:
-                        state->places[state->place].name = state->working_name;
-                        break;
-                    case DECIMAL:
-                        state->places[state->place].latitude = state->working_latitude;
-                        state->places[state->place].longitude = state->working_longitude;
-                        break;
-                    case DMS:
-                        state->places[state->place].latitude  = _ll_decimal_int_to_struct(_ll_dms_struct_to_decimal_int(state->working_dms_latitude));
-                        state->places[state->place].longitude = _ll_decimal_int_to_struct(_ll_dms_struct_to_decimal_int(state->working_dms_longitude));
-                        break;
-                    case OLC:
-                        state->places[state->place].latitude  = _ll_olc_to_decimal_coordinate(state->working_pluscode).latitude;
-                        state->places[state->place].longitude = _ll_olc_to_decimal_coordinate(state->working_pluscode).longitude;
-                    case DATA:
-                        break;
-                }
-            } else {
-                switch ( state->mode ) {
-                    case PLACE:
-                        state->working_name = state->places[state->place].name;
-                        break;
-                    case DECIMAL:
-                        state->working_latitude = state->places[state->place].latitude;
-                        state->working_longitude = state->places[state->place].longitude;
-                        break;
-                    case DMS:
-                        state->working_dms_latitude = _ll_dms_int_to_struct(_ll_decimal_struct_to_dms_int(state->places[state->place].latitude));
-                        state->working_dms_longitude = _ll_dms_int_to_struct(_ll_decimal_struct_to_dms_int(state->places[state->place].longitude));
-                        break;
-                    case OLC:
-                        state->working_pluscode = _ll_decimal_int_to_olc(_ll_decimal_struct_to_dms_int(state->places[state->place].latitude), _ll_decimal_struct_to_dms_int(state->places[state->place].longitude));
-                        break;
-                    case DATA:
-                        break;
-                }  
+                _save_place_to_memory(state);
             }
             break;
         case EVENT_ALARM_BUTTON_UP:
@@ -297,9 +265,7 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
             else {
                 if ( state->mode == PLACE ) {
                     state->place = (state->place + 1) % 5;
-                    state->working_name = state->places[state->place].name;
-                    state->working_latitude = state->places[state->place].latitude;
-                    state->working_longitude = state->places[state->place].longitude;
+                    _load_place_from_memory(state);
                 } else {
                     state->page = (state->page + 1) % (state->mode == OLC ? 2 : 4);
                 }
@@ -1084,6 +1050,38 @@ static void _places_face_advance_digit(places_state_t *state) {
 }
 
 // DATA MANAGEMENT FUNCTIONS
+
+// load place from state array and populate working structs
+static void _load_place_from_memory(places_state_t *state) {
+    state->working_name = state->places[state->place].name;
+    state->working_latitude = state->places[state->place].latitude;
+    state->working_longitude = state->places[state->place].longitude;
+    state->working_dms_latitude = _ll_dms_int_to_struct(_ll_decimal_struct_to_dms_int(state->working_latitude));
+    state->working_dms_longitude = _ll_dms_int_to_struct(_ll_decimal_struct_to_dms_int(state->working_longitude));
+    state->working_pluscode = _ll_decimal_int_to_olc(_ll_decimal_struct_to_dms_int(state->working_latitude), _ll_decimal_struct_to_dms_int(state->working_longitude));
+}
+
+static void _save_place_to_memory(places_state_t *state) {
+    switch ( state->mode ) {
+        case PLACE:
+            state->places[state->place].name = state->working_name;
+            break;
+        case DECIMAL:
+            state->places[state->place].latitude = state->working_latitude;
+            state->places[state->place].longitude = state->working_longitude;
+            break;
+        case DMS:
+            state->places[state->place].latitude  = _ll_decimal_int_to_struct(_ll_dms_struct_to_decimal_int(state->working_dms_latitude));
+            state->places[state->place].longitude = _ll_decimal_int_to_struct(_ll_dms_struct_to_decimal_int(state->working_dms_longitude));
+            break;
+        case OLC:
+            state->places[state->place].latitude  = _ll_olc_to_decimal_coordinate(state->working_pluscode).latitude;
+            state->places[state->place].longitude = _ll_olc_to_decimal_coordinate(state->working_pluscode).longitude;
+        case DATA:
+            break;
+    }
+    _load_place_from_memory(state);
+}
 
 static void _places_face_update_location_register(places_state_t *state) {
     if (state->location_changed) {

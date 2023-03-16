@@ -13,10 +13,9 @@ fork of [Sensor Watch](https://github.com/joeycastillo/Sensor-Watch/)
 
 ## To do
 
-* place name editor
-* change button logic
-    * mgmt edit mode:
-        * ALARM: file > reg
-        * LIGHT: r > w
-        * LONG ALARM: OK & exit
-        * LONG LIGHT: exit
+* fix OLC bug
+* mgmt edit mode:
+    * ALARM: file > reg
+    * LIGHT: r > w
+    * LONG ALARM: OK & exit
+    * LONG LIGHT: exit
