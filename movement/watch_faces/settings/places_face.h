@@ -35,7 +35,7 @@
  */
 
 static const char olc_alphabet[] = "23456789CFGHJMPQRUWX";
-static const char name_alphabet[] = " _0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+static const char name_alphabet[] = "_0123456789 AbCdEFGHIJKLMNOPQRSTUVWXYZ";
 
 typedef struct {
     uint8_t sign: 1;        // 0-1
@@ -90,11 +90,12 @@ typedef struct {
 typedef struct {
     uint8_t mode : 3; // 0: name / 1: ll / 2: dms / 3: olc / 4: mgmt
     uint8_t page : 2; // 0-3
-    int8_t active_digit: 3; // 0-5
+    int8_t active_digit: 4; // -1-5
     bool location_changed;
     bool edit;
     bool dms;
     bool olc;
+    places_name_t working_name;
     places_ll_decimal_t working_latitude;
     places_ll_decimal_t working_longitude;
     places_ll_dms_t working_dms_latitude;

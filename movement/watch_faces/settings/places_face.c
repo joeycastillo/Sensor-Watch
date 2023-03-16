@@ -40,6 +40,12 @@
 
 // STATIC HELPER FUNCTIONS ////////////////////////////////////////////////////
 
+// convert Place Name char array to struct
+static places_name_t _name_string_to_struct(char *buf);
+
+// convert and write Place Name struct to char array
+static void _name_struct_to_string(char *buf, places_name_t name);
+
 // converts decimal LatLon struct to integer
 static int32_t _ll_decimal_struct_to_int(places_ll_decimal_t val);
 
@@ -70,6 +76,9 @@ static void _ll_decimal_int_to_olc(char *buf, int32_t lat, int32_t lon);
 // convert Open Location Code char array to LatLon Coordinate struct
 static places_ll_coordinate_t _ll_olc_to_decimal_coordinate(char *buf);
 
+// Display Place Name
+static void _places_face_update_name_display(movement_event_t event, places_state_t *state);
+
 // Display Decimal Latitude & Longitude
 static void _places_face_update_latlon_display(movement_event_t event, places_state_t *state);
 
@@ -81,6 +90,9 @@ static void _places_face_update_olc_display(movement_event_t event, places_state
 
 // manage display formats
 static void _places_face_update_display(movement_event_t event, places_state_t *state);
+
+// Place Name Editor
+static void _places_face_advance_name_digit(places_state_t *state);
 
 // Decimal LatLon Editor
 static void _places_face_advance_latlon_digit(places_state_t *state);
@@ -138,7 +150,7 @@ void places_face_activate(movement_settings_t *settings, void *context) {
 
 bool places_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     places_state_t *state = (places_state_t *)context;
-    state->mode = DECIMAL;
+    state->mode = PLACE;
     switch (event.event_type) {
         case EVENT_ACTIVATE:
             // Show your initial UI here.
@@ -163,6 +175,10 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
                 state->active_digit++;
             switch ( state->mode ) {
                 case PLACE: // Place Name
+                    printf("digit: %d\n", state->active_digit);
+                    if (state->active_digit > 5) {
+                        state->active_digit = 1;
+                    }
                     break;
                 case DECIMAL: // Decimal LatLon
                     switch ( state->page ) {
@@ -231,7 +247,7 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
                 case 0:
                 case 2:
                     state->active_digit = 0;
-                    if ( state->mode == OLC )
+                    if ( state->mode == OLC || state->mode == PLACE )
                         state->active_digit = 1;  
                     break;
                 default:
@@ -243,7 +259,7 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
             if ( state->edit )
                 _places_face_advance_digit(state);
             else {
-                state->page = (state->page + 1) % (state->mode == OLC ? 2 : 4);
+                state->page = (state->page + 1) % (state->mode == OLC || state->mode == PLACE ? 2 : 4);
             }
             _places_face_update_display(event, state);
             break;
@@ -292,6 +308,31 @@ void places_face_resign(movement_settings_t *settings, void *context) {
 // PRIVATE STATIC FUNCTIONS ///////////////////////////////////////////////////
 
 // CONVERSION FUNCTIONS
+
+// Place Descriptor (ABCDE)
+
+static places_name_t _name_string_to_struct(char *buf) {
+    places_name_t retval;
+    uint8_t values[5];
+    for (int8_t i = 0; i < 5; i++) {
+        const char *ptr = strchr(name_alphabet, buf[i]);
+        values[i] = ptr - name_alphabet;
+    }
+    retval.d1 = values[0];
+    retval.d2 = values[1];
+    retval.d3 = values[2];
+    retval.d4 = values[3];
+    retval.d5 = values[4];
+    return retval;
+}
+
+static void _name_struct_to_string(char *buf, places_name_t name) {
+    buf[0] = name_alphabet[name.d1];
+    buf[1] = name_alphabet[name.d2];
+    buf[2] = name_alphabet[name.d3];
+    buf[3] = name_alphabet[name.d4];
+    buf[4] = name_alphabet[name.d5];
+}
 
 // Decimal Latitude & Longitude Format (DD.DDDDD)
 
@@ -509,6 +550,24 @@ static places_ll_coordinate_t _ll_olc_to_decimal_coordinate(char *buf) {
 
 // WATCH DISPLAY FUNCTIONS
 
+// Display Place Name
+static void _places_face_update_name_display(movement_event_t event, places_state_t *state) {
+    char buf[12];
+    char name[6] = {0};
+    watch_clear_display();
+    _name_struct_to_string(name, state->working_name);
+    
+    char help[3];
+    sprintf(help, "PL");
+
+    sprintf(buf, "%c%c 1 %c%c%c%c%c", help[0], help[1], name[0], name[1], name[2], name[3], name[4]);
+    
+    if (state->edit && event.subsecond % 2) {
+        buf[state->active_digit + 4] = ' ';
+    }
+    watch_display_string(buf, 0);
+}
+
 // Display Decimal Latitude & Longitude
 static void _places_face_update_latlon_display(movement_event_t event, places_state_t *state) {
     char buf[12];
@@ -603,6 +662,8 @@ static void _places_face_update_olc_display(movement_event_t event, places_state
 static void _places_face_update_display(movement_event_t event, places_state_t *state) {
     switch ( state->mode ) {
         case PLACE:
+            _places_face_update_name_display(event, state);
+            break;
         case DECIMAL:
             _places_face_update_latlon_display(event, state);
             break;
@@ -614,11 +675,34 @@ static void _places_face_update_display(movement_event_t event, places_state_t *
             break;
         case DATA:
             break;
-    }
-    
+    }  
 }
 
 // DATA EDITOR FUNCTIONS
+
+// Place Name Editor
+static void _places_face_advance_name_digit(places_state_t *state) {
+    switch (state->active_digit) {
+        case 0:
+            // we skip this digit
+            break;
+        case 1:
+            state->working_name.d1 = (state->working_name.d1 + 1) % 38;
+            break;
+        case 2:
+            state->working_name.d2 = (state->working_name.d2 + 1) % 38;
+            break;
+        case 3:
+            state->working_name.d3 = (state->working_name.d3 + 1) % 38;
+            break;
+        case 4:
+            state->working_name.d4 = (state->working_name.d4 + 1) % 38;
+            break;
+        case 5:
+            state->working_name.d5 = (state->working_name.d5 + 1) % 38;
+            break;
+    }
+}
 
 // Decimal LatLon Editor
 static void _places_face_advance_latlon_digit(places_state_t *state) {
@@ -926,6 +1010,7 @@ static void _places_face_advance_olc_digit(places_state_t *state) {
 static void _places_face_advance_digit(places_state_t *state) {
     switch ( state->mode ) {
         case PLACE:
+            _places_face_advance_name_digit(state);
         case DECIMAL:
             _places_face_advance_latlon_digit(state);
             break;
