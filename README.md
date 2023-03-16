@@ -10,3 +10,16 @@ fork of [Sensor Watch](https://github.com/joeycastillo/Sensor-Watch/)
 * Support for Latitude & Longitude in Degrees, Minutes, Seconds (~50m accuracy)
 * ~~5 Locations with custom 6 letter names~~
 * Open Location Code support for 10 digits (~10m accuracy)
+
+## To do
+
+* place name editor
+* change button logic
+    * ALARM: flip thru places
+    * LIGHT: name/ll/dms/olc/rw
+    * LONG LIGHT: edit mode
+    * mgmt edit mode:
+        * ALARM: file > reg
+        * LIGHT: r > w
+        * LONG ALARM: OK & exit
+        * LONG LIGHT: exit

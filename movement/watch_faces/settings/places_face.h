@@ -34,6 +34,9 @@
  *
  */
 
+static const char olc_alphabet[] = "23456789CFGHJMPQRUWX";
+static const char name_alphabet[] = " _0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
 typedef struct {
     uint8_t sign: 1;        // 0-1
     uint8_t hundreds: 1;    // 0-1, ignored for latitude
@@ -51,9 +54,9 @@ typedef struct {
     uint8_t hundreds: 1;    // 0-1, ignored for latitude
     uint8_t tens: 4;        // 0-9 (must wrap at 10)
     uint8_t ones: 4;        // 0-9 (must wrap at 10)
-    uint8_t mins_tens: 4;   // 0-5 (must wrap at 60)
+    uint8_t mins_tens: 3;   // 0-5 (must wrap at 60)
     uint8_t mins_ones: 4;   // 0-9 (must wrap at 10)
-    uint8_t secs_tens: 4;   // 0-5 (must wrap at 60)
+    uint8_t secs_tens: 3;   // 0-5 (must wrap at 60)
     uint8_t secs_ones: 4;   // 0-9 (must wrap at 10)
 } places_ll_dms_t;
 
@@ -71,24 +74,36 @@ typedef struct {
 } places_olc_t;
 
 typedef struct {
+    uint8_t d1;
+    uint8_t d2;
+    uint8_t d3;
+    uint8_t d4;
+    uint8_t d5;
+} places_name_t;
+
+typedef struct {
     places_ll_decimal_t latitude;
     places_ll_decimal_t longitude;
+    places_name_t name;
 } places_ll_coordinate_t;
 
 typedef struct {
-    uint8_t page;
-    bool olc;
-    char pluscode[7];
-    int8_t active_digit;
+    uint8_t mode : 3; // 0: name / 1: ll / 2: dms / 3: olc / 4: mgmt
+    uint8_t page : 2; // 0-3
+    int8_t active_digit: 3; // 0-5
     bool location_changed;
     bool edit;
     bool dms;
+    bool olc;
     places_ll_decimal_t working_latitude;
     places_ll_decimal_t working_longitude;
     places_ll_dms_t working_dms_latitude;
     places_ll_dms_t working_dms_longitude;
     places_olc_t working_pluscode;
+    places_ll_coordinate_t place[5];
 } places_state_t;
+
+// PUBLIC WATCH FACE FUNCTIONS ////////////////////////////////////////////////
 
 void places_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
 void places_face_activate(movement_settings_t *settings, void *context);
