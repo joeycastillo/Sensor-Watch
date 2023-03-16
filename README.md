@@ -15,9 +15,6 @@ fork of [Sensor Watch](https://github.com/joeycastillo/Sensor-Watch/)
 
 * place name editor
 * change button logic
-    * ALARM: flip thru places
-    * LIGHT: name/ll/dms/olc/rw
-    * LONG LIGHT: edit mode
     * mgmt edit mode:
         * ALARM: file > reg
         * LIGHT: r > w

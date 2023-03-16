@@ -89,6 +89,7 @@ typedef struct {
 
 typedef struct {
     uint8_t mode : 3; // 0: name / 1: ll / 2: dms / 3: olc / 4: mgmt
+    uint8_t place: 3;
     uint8_t page : 2; // 0-3
     int8_t active_digit: 4; // -1-5
     bool location_changed;
@@ -101,7 +102,7 @@ typedef struct {
     places_ll_dms_t working_dms_latitude;
     places_ll_dms_t working_dms_longitude;
     places_olc_t working_pluscode;
-    places_ll_coordinate_t place[5];
+    places_ll_coordinate_t places[5];
 } places_state_t;
 
 // PUBLIC WATCH FACE FUNCTIONS ////////////////////////////////////////////////

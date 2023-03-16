@@ -71,10 +71,10 @@ static int32_t _ll_dms_struct_to_decimal_int( places_ll_dms_t val );
 static int32_t _ll_decimal_struct_to_dms_int( places_ll_decimal_t val );
 
 // convert LatLon integer to Open Location Code string and write to char array
-static void _ll_decimal_int_to_olc(char *buf, int32_t lat, int32_t lon);
+static places_olc_t _ll_decimal_int_to_olc(int32_t lat, int32_t lon);
 
-// convert Open Location Code char array to LatLon Coordinate struct
-static places_ll_coordinate_t _ll_olc_to_decimal_coordinate(char *buf);
+// convert Open Location Code struct to LatLon Coordinate struct
+static places_ll_coordinate_t _ll_olc_to_decimal_coordinate(places_olc_t pluscode);
 
 // Display Place Name
 static void _places_face_update_name_display(movement_event_t event, places_state_t *state);
@@ -150,7 +150,6 @@ void places_face_activate(movement_settings_t *settings, void *context) {
 
 bool places_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     places_state_t *state = (places_state_t *)context;
-    state->mode = PLACE;
     switch (event.event_type) {
         case EVENT_ACTIVATE:
             // Show your initial UI here.
@@ -169,13 +168,14 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
         case EVENT_LIGHT_BUTTON_DOWN:
             break;
         case EVENT_LIGHT_BUTTON_UP:
-            if ( !state->edit )
-                movement_illuminate_led();
-            else
+            if ( !state->edit ) {
+                // movement_illuminate_led();
+                state->page = 0;
+                state->mode = (state->mode + 1) % 4;
+            } else
                 state->active_digit++;
             switch ( state->mode ) {
                 case PLACE: // Place Name
-                    printf("digit: %d\n", state->active_digit);
                     if (state->active_digit > 5) {
                         state->active_digit = 1;
                     }
@@ -203,19 +203,15 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
                     switch ( state->page ) {
                         case 0:
                             if (state->active_digit == 1) state->active_digit++; // max latitude is +- 90, no hundreds place              
-                        case 2:
-                            if (state->active_digit > 3) {
-                                state->active_digit = 2;
-                                state->page++;
-                            }
-                            break;
                         case 1:
+                        case 2:
                         case 3:
-                            if (state->active_digit > 5) {
+                            if (state->active_digit > 3) {
                                 state->active_digit = 0;
                                 state->page = ( state->page + 1 ) % 4;
                             }
                             break;
+                            
                     }
                     break;
                 case OLC: // Open Location Code
@@ -251,15 +247,62 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
                         state->active_digit = 1;  
                     break;
                 default:
-                    state->active_digit = ( state->mode == DMS ? 2 : 1);
+                    state->active_digit = ( state->mode == DMS ? 0 : 1);
                     break;
+            }
+            if ( !state->edit ) { // leaving edit mode saves data in state
+                switch ( state->mode ) {
+                    case PLACE:
+                        state->places[state->place].name = state->working_name;
+                        break;
+                    case DECIMAL:
+                        state->places[state->place].latitude = state->working_latitude;
+                        state->places[state->place].longitude = state->working_longitude;
+                        break;
+                    case DMS:
+                        state->places[state->place].latitude  = _ll_decimal_int_to_struct(_ll_dms_struct_to_decimal_int(state->working_dms_latitude));
+                        state->places[state->place].longitude = _ll_decimal_int_to_struct(_ll_dms_struct_to_decimal_int(state->working_dms_longitude));
+                        break;
+                    case OLC:
+                        state->places[state->place].latitude  = _ll_olc_to_decimal_coordinate(state->working_pluscode).latitude;
+                        state->places[state->place].longitude = _ll_olc_to_decimal_coordinate(state->working_pluscode).longitude;
+                    case DATA:
+                        break;
+                }
+            } else {
+                switch ( state->mode ) {
+                    case PLACE:
+                        state->working_name = state->places[state->place].name;
+                        break;
+                    case DECIMAL:
+                        state->working_latitude = state->places[state->place].latitude;
+                        state->working_longitude = state->places[state->place].longitude;
+                        break;
+                    case DMS:
+                        state->working_dms_latitude = _ll_dms_int_to_struct(_ll_decimal_struct_to_dms_int(state->places[state->place].latitude));
+                        state->working_dms_longitude = _ll_dms_int_to_struct(_ll_decimal_struct_to_dms_int(state->places[state->place].longitude));
+                        break;
+                    case OLC:
+                        state->working_pluscode = _ll_decimal_int_to_olc(_ll_decimal_struct_to_dms_int(state->places[state->place].latitude), _ll_decimal_struct_to_dms_int(state->places[state->place].longitude));
+                        break;
+                    case DATA:
+                        break;
+                }  
             }
             break;
         case EVENT_ALARM_BUTTON_UP:
-            if ( state->edit )
+            if ( state->edit ) {
                 _places_face_advance_digit(state);
+            }
             else {
-                state->page = (state->page + 1) % (state->mode == OLC || state->mode == PLACE ? 2 : 4);
+                if ( state->mode == PLACE ) {
+                    state->place = (state->place + 1) % 5;
+                    state->working_name = state->places[state->place].name;
+                    state->working_latitude = state->places[state->place].latitude;
+                    state->working_longitude = state->places[state->place].longitude;
+                } else {
+                    state->page = (state->page + 1) % (state->mode == OLC ? 2 : 4);
+                }
             }
             _places_face_update_display(event, state);
             break;
@@ -503,15 +546,16 @@ static int32_t _ll_decimal_struct_to_dms_int( places_ll_decimal_t val ) {
         dms.secs_ones = sec % 10;
         dms.secs_tens = ( sec / 10 ) % 10;
     }
-    
+    printf("conv: %d\n", _ll_dms_struct_to_int(dms));
     return _ll_dms_struct_to_int(dms);
 
 }
 
 // Conversion between Decimal Latitude & Longitude and Open Location Code
 
-static void _ll_decimal_int_to_olc(char *buf, int32_t lat, int32_t lon) {
-    // convert LatLon integer to Open Location Code string and write to char array
+// convert LatLon integer to Open Location Code struct
+static places_olc_t _ll_decimal_int_to_olc(int32_t lat, int32_t lon) {
+    char buf[11] = {0};
     double latitude = (double)lat / 100000;
     double longitude = (double)lon / 100000;
     int a = (latitude + 90) * 1e6;
@@ -523,12 +567,15 @@ static void _ll_decimal_int_to_olc(char *buf, int32_t lat, int32_t lon) {
         b = a;
         a = d / 20;
     }
+    return _olc_string_to_struct(buf);
 }
 
-static places_ll_coordinate_t _ll_olc_to_decimal_coordinate(char *buf) {
+static places_ll_coordinate_t _ll_olc_to_decimal_coordinate(places_olc_t pluscode) {
     // convert Open Location Code char array to LatLon Coordinate struct
     double lat = 0, lon = 0;
     double deg = 20;
+    char buf[11] = {0};
+    _olc_struct_to_string(buf, pluscode);
     places_ll_coordinate_t retval;
     for (int8_t i = 0; i < 10; i++) {
         const char *ptr = strchr(olc_alphabet, buf[i]);
@@ -560,7 +607,7 @@ static void _places_face_update_name_display(movement_event_t event, places_stat
     char help[3];
     sprintf(help, "PL");
 
-    sprintf(buf, "%c%c 1 %c%c%c%c%c", help[0], help[1], name[0], name[1], name[2], name[3], name[4]);
+    sprintf(buf, "%c%c %d %c%c%c%c%c", help[0], help[1], state->place + 1, name[0], name[1], name[2], name[3], name[4]);
     
     if (state->edit && event.subsecond % 2) {
         buf[state->active_digit + 4] = ' ';
@@ -581,16 +628,16 @@ static void _places_face_update_latlon_display(movement_event_t event, places_st
 
     switch (state->page) {
         case 0: // Latitude
-            sprintf(buf, "LA o%c %c%c  ", state->working_latitude.sign ? '-' : '+', lln[1], lln[2] );
+            sprintf(buf, "LA %d%c %c%c  ", state->place + 1, state->working_latitude.sign ? '-' : '+', lln[1], lln[2] );
             break;
         case 1:
-            sprintf(buf, "LA d,%c%c%c%c%c", lln[3], lln[4],lln[5], lln[6],lln[7]);
+            sprintf(buf, "LA %d,%c%c%c%c%c", state->place + 1, lln[3], lln[4],lln[5], lln[6],lln[7]);
             break;
         case 2: // Longitude
-            sprintf(buf, "LO o%c%c%c%c  ", state->working_longitude.sign ? '-' : '+', lln[0], lln[1], lln[2] );
+            sprintf(buf, "LO %d%c%c%c%c  ", state->place + 1, state->working_longitude.sign ? '-' : '+', lln[0], lln[1], lln[2] );
             break;
         case 3:
-            sprintf(buf, "LO d,%c%c%c%c%c", lln[3], lln[4],lln[5], lln[6],lln[7]);
+            sprintf(buf, "LO %d,%c%c%c%c%c", state->place + 1, lln[3], lln[4],lln[5], lln[6],lln[7]);
             break;
     }
     if (state->edit && event.subsecond % 2) {
@@ -611,24 +658,30 @@ static void _places_face_update_dms_display(movement_event_t event, places_state
     
     switch (state->page) {
         case 0: // Latitude
-            sprintf(buf, "LA o%c %c%c  ", state->working_dms_latitude.sign ? 'S' : 'N', lln[1], lln[2] );
+            sprintf(buf, "LA %d%c %c%c d", state->place + 1, state->working_dms_latitude.sign ? 'S' : 'N', lln[1], lln[2] );
             break;
         case 1:
-            sprintf(buf, "LA,   %c%c%c%c", lln[3], lln[4], lln[5], lln[6]);
+            watch_set_colon();
+            sprintf(buf, "LA %d%c%c%c%cMS", state->place + 1, lln[3], lln[4], lln[5], lln[6]);
             break;
         case 2: // Longitude
-            sprintf(buf, "LO o%c%c%c%c  ", state->working_dms_longitude.sign ? 'W' : 'E', lln[0], lln[1], lln[2] );
+            sprintf(buf, "LO %d%c%c%c%c d", state->place + 1, state->working_dms_longitude.sign ? 'W' : 'E', lln[0], lln[1], lln[2] );
             break;
         case 3:
-            sprintf(buf, "LO,   %c%c%c%c", lln[3], lln[4], lln[5], lln[6]);
+            watch_set_colon();
+            sprintf(buf, "LO %d%c%c%c%cMS", state->place + 1, lln[3], lln[4], lln[5], lln[6]);
             break;
     }
     if (state->edit && event.subsecond % 2) {
         buf[state->active_digit + 4] = ' ';
     }
     watch_display_string(buf, 0);
-    watch_set_pixel(2, 7);
-    watch_set_pixel(2, 8);
+    if ( state->page % 2 == 0) {
+        watch_set_pixel(1, 2);
+        watch_set_pixel(2, 2);
+        watch_set_pixel(1, 3);
+        watch_set_pixel(2, 3);
+    }
 }
 
 // Display Open Location Code
@@ -646,16 +699,21 @@ static void _places_face_update_olc_display(movement_event_t event, places_state
 
     switch (state->page) {
         case 0: // OLC Digits 1-5
-            sprintf(buf, "%c%c 1 %c%c%c%c%c", help[0], help[1], olc[0], olc[1], olc[2], olc[3], olc[4]);
+            sprintf(buf, "%c%c %d %c%c%c%c%c", help[0], help[1], state->place + 1, olc[0], olc[1], olc[2], olc[3], olc[4]);
             break;
         case 1: // OLC Digits 2-10
-            sprintf(buf, "%c%c 2 %c%c%c%c%c", help[0], help[1], olc[5], olc[6], olc[7], olc[8], olc[9]);
+            sprintf(buf, "%c%c %d %c%c%c%c%c", help[0], help[1], state->place + 1, olc[5], olc[6], olc[7], olc[8], olc[9]);
             break;
     }
     if (state->edit && event.subsecond % 2) {
         buf[state->active_digit + 4] = ' ';
     }
     watch_display_string(buf, 0);
+    if ( state->page % 2 == 0) {
+        watch_set_pixel(0, 18);
+    } else {
+        watch_set_pixel(0, 19);
+    }
 }
 
 // manage display formats
