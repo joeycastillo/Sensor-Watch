@@ -40,9 +40,6 @@
 
 // STATIC HELPER FUNCTIONS ////////////////////////////////////////////////////
 
-// convert Place Name char array to struct
-static places_name_t _name_string_to_struct(char *buf);
-
 // convert and write Place Name struct to char array
 static void _name_struct_to_string(char *buf, places_name_t name);
 
@@ -58,9 +55,6 @@ static int32_t _ll_dms_struct_to_int(places_ll_dms_t val);
 // convert DMS LatLon integer to struct
 static places_ll_dms_t _ll_dms_int_to_struct(int32_t val);
 
-// convert Open Location Code char array to struct
-static places_olc_t _olc_string_to_struct(char *buf);
-
 // convert and write Open Location Code struct to char array
 static void _olc_struct_to_string(char *buf, places_olc_t pluscode);
 
@@ -75,6 +69,8 @@ static places_olc_t _ll_decimal_int_to_olc(int32_t lat, int32_t lon);
 
 // convert Open Location Code struct to LatLon Coordinate struct
 static places_ll_coordinate_t _ll_olc_to_decimal_coordinate(places_olc_t pluscode);
+
+static void _ll_decimal_int_to_geohash(int32_t latitude, int32_t longitude);
 
 // Display Place Name
 static void _places_face_update_name_display(movement_event_t event, places_state_t *state);
@@ -320,21 +316,6 @@ void places_face_resign(movement_settings_t *settings, void *context) {
 
 // Place Descriptor (ABCDE)
 
-static places_name_t _name_string_to_struct(char *buf) {
-    places_name_t retval;
-    uint8_t values[5];
-    for (int8_t i = 0; i < 5; i++) {
-        const char *ptr = strchr(name_alphabet, buf[i]);
-        values[i] = ptr - name_alphabet;
-    }
-    retval.d1 = values[0];
-    retval.d2 = values[1];
-    retval.d3 = values[2];
-    retval.d4 = values[3];
-    retval.d5 = values[4];
-    return retval;
-}
-
 static void _name_struct_to_string(char *buf, places_name_t name) {
     buf[0] = name_alphabet[name.d1];
     buf[1] = name_alphabet[name.d2];
@@ -345,8 +326,8 @@ static void _name_struct_to_string(char *buf, places_name_t name) {
 
 // Decimal Latitude & Longitude Format (DD.DDDDD)
 
+// converts decimal LatLon struct to integer
 static int32_t _ll_decimal_struct_to_int(places_ll_decimal_t val) {
-    // converts decimal LatLon struct to integer
     int32_t retval = (val.sign ? -1 : 1) *
                         (
                             val.hundreds * 10000000 +
@@ -426,29 +407,6 @@ static places_ll_dms_t _ll_dms_int_to_struct(int32_t val) {
     return retval;
 }
 
-// Open Location Code / PlusCode (12345678+9C)
-
-static places_olc_t _olc_string_to_struct(char *buf) {
-    // convert Open Location Code char array to struct
-    places_olc_t retval;
-    uint8_t values[10];
-    for (int8_t i = 0; i < 10; i++) {
-        const char *ptr = strchr(olc_alphabet, buf[i]);
-        values[i] = ptr - olc_alphabet;
-    }
-    retval.lat1 = values[0];
-    retval.lon1 = values[1];
-    retval.lat2 = values[2];
-    retval.lon2 = values[3];
-    retval.lat3 = values[4];
-    retval.lon3 = values[5];
-    retval.lat4 = values[6];
-    retval.lon4 = values[7];
-    retval.lat5 = values[8];
-    retval.lon5 = values[9];
-    return retval;
-}
-
 static void _olc_struct_to_string(char *buf, places_olc_t pluscode) {
     // convert and write Open Location Code struct to char array
     buf[0] = olc_alphabet[pluscode.lat1];
@@ -512,7 +470,6 @@ static int32_t _ll_decimal_struct_to_dms_int( places_ll_decimal_t val ) {
         dms.secs_ones = sec % 10;
         dms.secs_tens = ( sec / 10 ) % 10;
     }
-    printf("conv: %d\n", _ll_dms_struct_to_int(dms));
     return _ll_dms_struct_to_int(dms);
 
 }
@@ -521,31 +478,49 @@ static int32_t _ll_decimal_struct_to_dms_int( places_ll_decimal_t val ) {
 
 // convert LatLon integer to Open Location Code struct
 static places_olc_t _ll_decimal_int_to_olc(int32_t lat, int32_t lon) {
-    char buf[11] = {0};
+    uint8_t values[10];
+    places_olc_t retval;
     double latitude = (double)lat / 100000;
     double longitude = (double)lon / 100000;
     int a = (latitude + 90) * 1e6;
     int b = (longitude + 180) * 1e6;
-    buf[10] = '\0';
     for (int8_t i = 9; i > -1; i--) {
-        buf[i] = olc_alphabet[b / 125 % 20];
+        values[i] = b / 125 % 20;
         int d = b;
         b = a;
         a = d / 20;
     }
-    return _olc_string_to_struct(buf);
+    retval.lat1 = values[0];
+    retval.lon1 = values[1];
+    retval.lat2 = values[2];
+    retval.lon2 = values[3];
+    retval.lat3 = values[4];
+    retval.lon3 = values[5];
+    retval.lat4 = values[6];
+    retval.lon4 = values[7];
+    retval.lat5 = values[8];
+    retval.lon5 = values[9];
+    return retval;
 }
 
 static places_ll_coordinate_t _ll_olc_to_decimal_coordinate(places_olc_t pluscode) {
     // convert Open Location Code char array to LatLon Coordinate struct
     double lat = 0, lon = 0;
     double deg = 20;
-    char buf[11] = {0};
-    _olc_struct_to_string(buf, pluscode);
+    uint8_t buf[10];
     places_ll_coordinate_t retval;
+    buf[0] = pluscode.lat1;
+    buf[1] = pluscode.lon1;
+    buf[2] = pluscode.lat2;
+    buf[3] = pluscode.lon2;
+    buf[4] = pluscode.lat3;
+    buf[5] = pluscode.lon3;
+    buf[6] = pluscode.lat4;
+    buf[7] = pluscode.lon4;
+    buf[8] = pluscode.lat5;
+    buf[9] = pluscode.lon5;
     for (int8_t i = 0; i < 10; i++) {
-        const char *ptr = strchr(olc_alphabet, buf[i]);
-        uint8_t value = ptr - olc_alphabet;
+        uint8_t value = buf[i];
         switch ( i % 2 ) {
             case 0:
                 lat += value * deg;
@@ -559,6 +534,58 @@ static places_ll_coordinate_t _ll_olc_to_decimal_coordinate(places_olc_t pluscod
     retval.latitude = _ll_decimal_int_to_struct((int32_t)((lat - 90) * 100000));
     retval.longitude = _ll_decimal_int_to_struct((int32_t)((lon - 180) * 100000));
     return retval;
+}
+
+// convert LatLon integer to Geohash struct
+static void _ll_decimal_int_to_geohash(int32_t latitude, int32_t longitude) {
+    /*  C implementation created by Derek Smith
+     *  https://github.com/simplegeo/libgeohash/
+     *  Copyright (c) 2010, SimpleGeo
+     */
+    char hash[10] = {0};
+    double lat = (double)latitude / 100000;
+    double lng = (double)longitude / 100000;
+    if(lat <= 90.0 && lat >= -90.0 && lng <= 180.0 && lng >= -180.0) {
+                        
+        places_geohash_interval lat_interval = {90, -90};
+        places_geohash_interval lng_interval = {180, -180};
+
+        places_geohash_interval *interval;
+        double coord, mid;
+        int is_even = 1;
+        unsigned int hashChar = 0;
+        int i;
+        for(i = 1; i <= 45; i++) {
+            if(is_even) {
+                interval = &lng_interval;
+                coord = lng;                   
+            } else { 
+                interval = &lat_interval;
+                coord = lat;   
+            }
+            
+            mid = (interval->low + interval->high) / 2.0;
+            hashChar = hashChar << 1;
+            
+            if(coord > mid) {
+                
+                interval->low = mid;
+                hashChar |= 0x01;
+                
+            } else
+                interval->high = mid;
+            
+            if(!(i % 5)) {
+                hash[(i - 1) / 5] = geohash_alphabet[hashChar];
+                hashChar = 0;
+            }
+            
+            is_even = !is_even;
+        }
+        
+    }
+    
+    printf("%s\n", hash);
 }
 
 // WATCH DISPLAY FUNCTIONS
@@ -1058,7 +1085,7 @@ static void _load_place_from_memory(places_state_t *state) {
     state->working_longitude = state->places[state->place].longitude;
     state->working_dms_latitude = _ll_dms_int_to_struct(_ll_decimal_struct_to_dms_int(state->working_latitude));
     state->working_dms_longitude = _ll_dms_int_to_struct(_ll_decimal_struct_to_dms_int(state->working_longitude));
-    state->working_pluscode = _ll_decimal_int_to_olc(_ll_decimal_struct_to_dms_int(state->working_latitude), _ll_decimal_struct_to_dms_int(state->working_longitude));
+    state->working_pluscode = _ll_decimal_int_to_olc(_ll_decimal_struct_to_int(state->working_latitude), _ll_decimal_struct_to_int(state->working_longitude));
 }
 
 static void _save_place_to_memory(places_state_t *state) {

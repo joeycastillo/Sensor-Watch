@@ -34,8 +34,9 @@
  *
  */
 
-static const char olc_alphabet[] = "23456789CFGHJMPQRUWX";
-static const char name_alphabet[] = "_0123456789 AbCdEFGHIJKLMNOPQRSTUVWXYZ";
+static const char olc_alphabet[20] = "23456789CFGHJMPQRUWX";
+static const char name_alphabet[38] = "_0123456789 AbCdEFGHIJKLMNOPQRSTUVWXYZ";
+static const char geohash_alphabet[32] =  "0123456789bcdefghjkmnpqrstuvwxyz";
 
 typedef struct {
     uint8_t sign: 1;        // 0-1
@@ -74,6 +75,19 @@ typedef struct {
 } places_olc_t;
 
 typedef struct {
+    uint8_t d1: 6;
+    uint8_t d2: 6;   
+    uint8_t d3: 6;   
+    uint8_t d4: 6;   
+    uint8_t d5: 6;   
+    uint8_t d6: 6;   
+    uint8_t d7: 6;   
+    uint8_t d8: 6;   
+    uint8_t d9: 6;
+    uint8_t d10: 6;  
+} places_geohash_t;
+
+typedef struct {
     uint8_t d1;
     uint8_t d2;
     uint8_t d3;
@@ -86,6 +100,11 @@ typedef struct {
     places_ll_decimal_t longitude;
     places_name_t name;
 } places_ll_coordinate_t;
+
+typedef struct {
+    double high;
+    double low;
+} places_geohash_interval;
 
 typedef struct {
     uint8_t mode : 3; // 0: name / 1: ll / 2: dms / 3: olc / 4: mgmt
