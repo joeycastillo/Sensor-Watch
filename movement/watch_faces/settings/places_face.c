@@ -65,12 +65,13 @@ static int32_t _ll_dms_struct_to_decimal_int( places_ll_dms_t val );
 static int32_t _ll_decimal_struct_to_dms_int( places_ll_decimal_t val );
 
 // convert LatLon integer to Open Location Code string and write to char array
-static places_olc_t _ll_decimal_int_to_olc(int32_t lat, int32_t lon);
+static places_olc_t _ll_decimal_ints_to_olc(int32_t lat, int32_t lon);
 
 // convert Open Location Code struct to LatLon Coordinate struct
 static places_ll_coordinate_t _ll_olc_to_decimal_coordinate(places_olc_t pluscode);
 
-static void _ll_decimal_int_to_geohash(int32_t latitude, int32_t longitude);
+static places_geohash_t _ll_decimal_ints_to_geohash(int32_t latitude, int32_t longitude);
+static places_ll_coordinate_t _ll_geohash_to_decimal_coordinate(places_geohash_t geohash);
 
 // Display Place Name
 static void _places_face_update_name_display(movement_event_t event, places_state_t *state);
@@ -477,7 +478,7 @@ static int32_t _ll_decimal_struct_to_dms_int( places_ll_decimal_t val ) {
 // Conversion between Decimal Latitude & Longitude and Open Location Code
 
 // convert LatLon integer to Open Location Code struct
-static places_olc_t _ll_decimal_int_to_olc(int32_t lat, int32_t lon) {
+static places_olc_t _ll_decimal_ints_to_olc(int32_t lat, int32_t lon) {
     uint8_t values[10];
     places_olc_t retval;
     double latitude = (double)lat / 100000;
@@ -533,59 +534,130 @@ static places_ll_coordinate_t _ll_olc_to_decimal_coordinate(places_olc_t pluscod
     }
     retval.latitude = _ll_decimal_int_to_struct((int32_t)((lat - 90) * 100000));
     retval.longitude = _ll_decimal_int_to_struct((int32_t)((lon - 180) * 100000));
+    _ll_geohash_to_decimal_coordinate(_ll_decimal_ints_to_geohash(_ll_decimal_struct_to_int(retval.latitude), _ll_decimal_struct_to_int(retval.longitude)));
     return retval;
 }
 
 // convert LatLon integer to Geohash struct
-static void _ll_decimal_int_to_geohash(int32_t latitude, int32_t longitude) {
+static places_geohash_t _ll_decimal_ints_to_geohash(int32_t latitude, int32_t longitude) {
+    uint8_t hash[10] = {0};
+    double lat = (double)latitude / 100000;
+    double lng = (double)longitude / 100000;
+
     /*  C implementation created by Derek Smith
      *  https://github.com/simplegeo/libgeohash/
      *  Copyright (c) 2010, SimpleGeo
      */
-    char hash[10] = {0};
-    double lat = (double)latitude / 100000;
-    double lng = (double)longitude / 100000;
-    if(lat <= 90.0 && lat >= -90.0 && lng <= 180.0 && lng >= -180.0) {
                         
-        places_geohash_interval lat_interval = {90, -90};
-        places_geohash_interval lng_interval = {180, -180};
+    places_geohash_interval lat_interval = {90, -90};
+    places_geohash_interval lng_interval = {180, -180};
 
-        places_geohash_interval *interval;
-        double coord, mid;
-        int is_even = 1;
-        unsigned int hashChar = 0;
-        int i;
-        for(i = 1; i <= 45; i++) {
-            if(is_even) {
-                interval = &lng_interval;
-                coord = lng;                   
-            } else { 
-                interval = &lat_interval;
-                coord = lat;   
-            }
-            
-            mid = (interval->low + interval->high) / 2.0;
-            hashChar = hashChar << 1;
-            
-            if(coord > mid) {
-                
-                interval->low = mid;
-                hashChar |= 0x01;
-                
-            } else
-                interval->high = mid;
-            
-            if(!(i % 5)) {
-                hash[(i - 1) / 5] = geohash_alphabet[hashChar];
-                hashChar = 0;
-            }
-            
-            is_even = !is_even;
+    places_geohash_interval *interval;
+    double coord, mid;
+    int is_even = 1;
+    unsigned int hashChar = 0;
+    int i;
+    for(i = 1; i <= 50; i++) {
+        if(is_even) {
+            interval = &lng_interval;
+            coord = lng;                   
+        } else { 
+            interval = &lat_interval;
+            coord = lat;   
         }
         
+        mid = (interval->low + interval->high) / 2.0;
+        hashChar = hashChar << 1;
+        
+        if(coord > mid) {
+            
+            interval->low = mid;
+            hashChar |= 0x01;
+            
+        } else
+            interval->high = mid;
+        
+        if(!(i % 5)) {
+            hash[(i - 1) / 5] = hashChar;
+            hashChar = 0;
+        }
+        
+        is_even = !is_even;
     }
+            
+    places_geohash_t geohash;
+    geohash.d1 = hash[0];
+    geohash.d2 = hash[1];
+    geohash.d3 = hash[2];
+    geohash.d4 = hash[3];
+    geohash.d5 = hash[4];
+    geohash.d6 = hash[5];
+    geohash.d7 = hash[6];
+    geohash.d8 = hash[7];
+    geohash.d9 = hash[8];
+    geohash.d10 = hash[9];
+    return geohash;
+}
+
+// convert Geohash struct to LatLon Coordinate
+static places_ll_coordinate_t _ll_geohash_to_decimal_coordinate(places_geohash_t geohash) {
     
-    printf("%s\n", hash);
+    uint8_t hash[10];
+    hash[0] = geohash.d1;
+    hash[1] = geohash.d2;
+    hash[2] = geohash.d3;
+    hash[3] = geohash.d4;
+    hash[4] = geohash.d5;
+    hash[5] = geohash.d6;
+    hash[6] = geohash.d7;
+    hash[7] = geohash.d8;
+    hash[8] = geohash.d9;
+    hash[9] = geohash.d10;
+    
+    /*  C implementation created by Derek Smith
+     *  https://github.com/simplegeo/libgeohash/
+     *  Copyright (c) 2010, SimpleGeo
+     */
+
+    unsigned int char_mapIndex;
+    places_geohash_interval lat_interval = {90, -90};
+    places_geohash_interval lng_interval = {180, -180};
+    places_geohash_interval *interval;
+
+    int is_even = 1;
+    double delta;
+    int i, j;
+    for(i = 0; i < 10; i++) {
+    
+        char_mapIndex = hash[i];
+        
+        if(char_mapIndex < 0)
+            break;
+    
+        // Interpret the last 5 bits of the integer
+        for(j = 0; j < 5; j++) {
+        
+            interval = is_even ? &lng_interval : &lat_interval;
+        
+            delta = (interval->high - interval->low) / 2.0;
+        
+            if((char_mapIndex << j) & 0x0010)
+                interval->low += delta;
+            else
+                interval->high -= delta;
+        
+            is_even = !is_even;
+        }
+    }
+    places_ll_coordinate_t retval;
+    retval.latitude = _ll_decimal_int_to_struct(
+        (int32_t)(lat_interval.high - ((lat_interval.high - lat_interval.low) / 2.0)) * 100000
+    );
+    retval.longitude = _ll_decimal_int_to_struct(
+        (int32_t)(lng_interval.high - ((lng_interval.high - lng_interval.low) / 2.0)) * 100000
+    );
+
+    return retval;
 }
 
 // WATCH DISPLAY FUNCTIONS
@@ -1085,7 +1157,7 @@ static void _load_place_from_memory(places_state_t *state) {
     state->working_longitude = state->places[state->place].longitude;
     state->working_dms_latitude = _ll_dms_int_to_struct(_ll_decimal_struct_to_dms_int(state->working_latitude));
     state->working_dms_longitude = _ll_dms_int_to_struct(_ll_decimal_struct_to_dms_int(state->working_longitude));
-    state->working_pluscode = _ll_decimal_int_to_olc(_ll_decimal_struct_to_int(state->working_latitude), _ll_decimal_struct_to_int(state->working_longitude));
+    state->working_pluscode = _ll_decimal_ints_to_olc(_ll_decimal_struct_to_int(state->working_latitude), _ll_decimal_struct_to_int(state->working_longitude));
 }
 
 static void _save_place_to_memory(places_state_t *state) {
