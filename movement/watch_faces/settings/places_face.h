@@ -121,6 +121,7 @@ typedef struct {
     places_ll_dms_t working_dms_latitude;
     places_ll_dms_t working_dms_longitude;
     places_olc_t working_pluscode;
+    places_geohash_t working_geohash;
     places_ll_coordinate_t places[5];
 } places_state_t;
 

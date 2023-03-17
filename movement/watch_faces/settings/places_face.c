@@ -36,7 +36,8 @@
 #define DECIMAL 1
 #define DMS 2
 #define OLC 3
-#define DATA 4
+#define GEO 4
+#define DATA 5
 
 // STATIC HELPER FUNCTIONS ////////////////////////////////////////////////////
 
@@ -422,6 +423,19 @@ static void _olc_struct_to_string(char *buf, places_olc_t pluscode) {
     buf[9] = olc_alphabet[pluscode.lon5];
 }
 
+static void _geohash_struct_to_string(char *buf, places_geohash_t hash) {
+    buf[0] = geohash_alphabet[hash.d1];
+    buf[1] = geohash_alphabet[hash.d2];
+    buf[2] = geohash_alphabet[hash.d3];
+    buf[3] = geohash_alphabet[hash.d4];
+    buf[4] = geohash_alphabet[hash.d5];
+    buf[5] = geohash_alphabet[hash.d6];
+    buf[6] = geohash_alphabet[hash.d7];
+    buf[7] = geohash_alphabet[hash.d8];
+    buf[8] = geohash_alphabet[hash.d9];
+    buf[9] = geohash_alphabet[hash.d10];
+}
+
 // Conversion between Decimal and DMS Latitude & Longitude
 
 static int32_t _ll_dms_struct_to_decimal_int( places_ll_dms_t val ) {
@@ -781,6 +795,38 @@ static void _places_face_update_olc_display(movement_event_t event, places_state
     }
 }
 
+// Display Geohash
+static void _places_face_update_geohash_display(movement_event_t event, places_state_t *state) {
+    char buf[12];
+    char hash[11] = {0};
+    watch_clear_display();
+    _geohash_struct_to_string(hash, state->working_geohash);
+    
+    char help[3];
+    if ( state->edit )
+        sprintf(help, "%c%c", hash[state->active_digit + ( state->page == 0 ? -1 : 4)], ' ');
+    else
+        sprintf(help, "GH");
+
+    switch (state->page) {
+        case 0: // Geohash Digits 1-5
+            sprintf(buf, "%c%c %d %c%c%c%c%c", help[0], help[1], state->place + 1, hash[0], hash[1], hash[2], hash[3], hash[4]);
+            break;
+        case 1: // Geohash Digits 2-10
+            sprintf(buf, "%c%c %d %c%c%c%c%c", help[0], help[1], state->place + 1, hash[5], hash[6], hash[7], hash[8], hash[9]);
+            break;
+    }
+    if (state->edit && event.subsecond % 2) {
+        buf[state->active_digit + 4] = ' ';
+    }
+    watch_display_string(buf, 0);
+    if ( state->page % 2 == 0) {
+        watch_set_pixel(0, 18);
+    } else {
+        watch_set_pixel(0, 19);
+    }
+}
+
 // manage display formats
 static void _places_face_update_display(movement_event_t event, places_state_t *state) {
     switch ( state->mode ) {
@@ -795,6 +841,9 @@ static void _places_face_update_display(movement_event_t event, places_state_t *
             break;
         case OLC:
             _places_face_update_olc_display(event, state);
+            break;
+        case GEO:
+            _places_face_update_geohash_display(event, state);
             break;
         case DATA:
             break;
@@ -1129,6 +1178,56 @@ static void _places_face_advance_olc_digit(places_state_t *state) {
     }
 }
 
+// Geohash Editor
+static void _places_face_advance_geohash_digit(places_state_t *state) {
+    switch (state->page) {
+        case 0: // digits 1 - 5
+            switch (state->active_digit) {
+                case 0:
+                    // we skip this digit
+                    break;
+                case 1:
+                    state->working_geohash.d1 = (state->working_geohash.d1 + 1) % 32;
+                    break;
+                case 2:
+                    state->working_geohash.d2 = (state->working_geohash.d2 + 1) % 32;
+                    break;
+                case 3:
+                    state->working_geohash.d3 = (state->working_geohash.d3 + 1) % 32;
+                    break;
+                case 4:
+                    state->working_geohash.d4 = (state->working_geohash.d4 + 1) % 32;
+                    break;
+                case 5:
+                    state->working_geohash.d5 = (state->working_geohash.d5 + 1) % 32;
+                    break;
+            }
+            break;
+        case 1: // digits 6 - 10
+            switch (state->active_digit) {
+                case 0:
+                    // we skip this digit
+                    break;
+                case 1:
+                    state->working_geohash.d6 = (state->working_geohash.d6 + 1) % 32;
+                    break;
+                case 2:
+                    state->working_geohash.d7 = (state->working_geohash.d7 + 1) % 32;
+                    break;
+                case 3:
+                    state->working_geohash.d8 = (state->working_geohash.d8 + 1) % 32;
+                    break;
+                case 4:
+                    state->working_geohash.d9 = (state->working_geohash.d9 + 1) % 32;
+                    break;
+                case 5:
+                    state->working_geohash.d10 = (state->working_geohash.d10 + 1) % 32;
+                    break;
+            }
+            break;
+    }
+}
+
 // Editor Manager
 static void _places_face_advance_digit(places_state_t *state) {
     switch ( state->mode ) {
@@ -1142,6 +1241,9 @@ static void _places_face_advance_digit(places_state_t *state) {
             break;
         case OLC:
             _places_face_advance_olc_digit(state);
+            break;
+        case GEO:
+            _places_face_advance_geohash_digit(state);
             break;
         case DATA:
             break;
