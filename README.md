@@ -13,7 +13,7 @@ fork of [Sensor Watch](https://github.com/joeycastillo/Sensor-Watch/)
 
 ## To do
 
-* fix OLC bug
+* finish geohash implementation
 * memory optimization
 * documentation
 * mgmt edit mode:
