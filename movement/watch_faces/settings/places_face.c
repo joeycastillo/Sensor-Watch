@@ -146,8 +146,9 @@ void places_face_activate(movement_settings_t *settings, void *context) {
 #endif
 
     movement_location_t movement_location = (movement_location_t) watch_get_backup_data(1);
-    state->working_latitude = _ll_decimal_int_to_struct(movement_location.bit.latitude * 10000);
-    state->working_longitude = _ll_decimal_int_to_struct(movement_location.bit.longitude * 10000);
+    printf("lat %d lon %d\n", movement_location.bit.latitude, movement_location.bit.longitude);
+    state->working_latitude = _ll_decimal_int_to_struct(movement_location.bit.latitude * 1000);
+    state->working_longitude = _ll_decimal_int_to_struct(movement_location.bit.longitude * 1000);
 }
 
 bool places_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
@@ -173,7 +174,7 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
             if ( !state->edit ) {
                 // movement_illuminate_led();
                 state->page = 0;
-                state->mode = (state->mode + 1) % 4;
+                state->mode = (state->mode + 1) % 5;
             } else
                 state->active_digit++;
             switch ( state->mode ) {
@@ -217,6 +218,7 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
                     }
                     break;
                 case OLC: // Open Location Code
+                case GEO:
                     switch ( state->page ) {
                         case 0:
                         case 2:
@@ -244,9 +246,16 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
             switch ( state->page ) {
                 case 0:
                 case 2:
-                    state->active_digit = 0;
-                    if ( state->mode == OLC || state->mode == PLACE )
-                        state->active_digit = 1;  
+                    switch ( state->mode ) {
+                        case PLACE:
+                        case OLC:
+                        case GEO:
+                            state->active_digit = 1;
+                            break;
+                        default:
+                            state->active_digit = 0;
+                            break;
+                    }
                     break;
                 default:
                     state->active_digit = ( state->mode == DMS ? 0 : 1);
@@ -265,7 +274,7 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
                     state->place = (state->place + 1) % 5;
                     _load_place_from_memory(state);
                 } else {
-                    state->page = (state->page + 1) % (state->mode == OLC ? 2 : 4);
+                    state->page = (state->page + 1) % (state->mode == OLC || state->mode == GEO ? 2 : 4);
                 }
             }
             _places_face_update_display(event, state);
@@ -1260,6 +1269,7 @@ static void _load_place_from_memory(places_state_t *state) {
     state->working_dms_latitude = _ll_dms_int_to_struct(_ll_decimal_struct_to_dms_int(state->working_latitude));
     state->working_dms_longitude = _ll_dms_int_to_struct(_ll_decimal_struct_to_dms_int(state->working_longitude));
     state->working_pluscode = _ll_decimal_ints_to_olc(_ll_decimal_struct_to_int(state->working_latitude), _ll_decimal_struct_to_int(state->working_longitude));
+    state->working_geohash = _ll_decimal_ints_to_geohash(_ll_decimal_struct_to_int(state->working_latitude), _ll_decimal_struct_to_int(state->working_longitude));
 }
 
 static void _save_place_to_memory(places_state_t *state) {
@@ -1278,6 +1288,11 @@ static void _save_place_to_memory(places_state_t *state) {
         case OLC:
             state->places[state->place].latitude  = _ll_olc_to_decimal_coordinate(state->working_pluscode).latitude;
             state->places[state->place].longitude = _ll_olc_to_decimal_coordinate(state->working_pluscode).longitude;
+            break;
+        case GEO:
+            state->places[state->place].latitude  = _ll_geohash_to_decimal_coordinate(state->working_geohash).latitude;
+            state->places[state->place].longitude = _ll_geohash_to_decimal_coordinate(state->working_geohash).longitude;
+            break;
         case DATA:
             break;
     }
