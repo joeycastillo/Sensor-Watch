@@ -260,30 +260,36 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
             _places_face_update_display(event, context);
             break;
         case EVENT_LIGHT_LONG_PRESS:
-            state->edit = !state->edit;
-            switch ( state->page ) {
-                case 0:
-                case 2:
-                    switch ( state->mode ) {
-                        case PLACE:
-                        case OLC:
-                        case GEO:
-                            //state->active_digit = 1;
-                            break;
-                        default:
-                            //state->active_digit = 0;
-                            break;
-                    }
-                    break;
-                default:
-                    state->active_digit = ( state->mode == DMS ? 0 : 1);
-                    break;
+            if ( state->mode == DATA ) {
+                state->file = false;
+                state->registry = false;
+                state->mode = PLACE;
+            } else {
+                state->edit = !state->edit;
+                switch ( state->page ) {
+                    case 0:
+                    case 2:
+                        switch ( state->mode ) {
+                            case PLACE:
+                            case OLC:
+                            case GEO:
+                                //state->active_digit = 1;
+                                break;
+                            default:
+                                //state->active_digit = 0;
+                                break;
+                        }
+                        break;
+                    default:
+                        state->active_digit = ( state->mode == DMS ? 0 : 1);
+                        break;
+                }
+                if ( !state->edit ) { // leaving edit mode saves data in state
+                    _save_place_to_memory(state);
+                    state->active_digit = 0;
+                }
+                break;
             }
-            if ( !state->edit ) { // leaving edit mode saves data in state
-                _save_place_to_memory(state);
-                state->active_digit = 0;
-            }
-            break;
         case EVENT_ALARM_BUTTON_UP:
             if ( state->edit && state->mode != DATA ) {
                 _places_face_advance_digit(state);
@@ -303,7 +309,7 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
                         }
                         break;
                     case DATA:
-                        state->active_digit = ( state->active_digit + 1 ) % 3;
+                        state->active_digit = ( state->active_digit + 1 ) % 2;
                         switch ( state->active_digit ) {
                             case 0:
                                 watch_display_string(" file ", 4);
@@ -314,11 +320,6 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
                                 watch_display_string(" regst", 4);
                                 state->file = false;
                                 state->registry = true;
-                                break;
-                            case 2:
-                                watch_display_string("CANCEL", 4);
-                                state->file = false;
-                                state->registry = false;
                                 break;
                         }   
                         break;
@@ -335,6 +336,9 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
                 state->mode = DATA;
                 watch_display_string("R  ", 0);
                 watch_display_string(" file ", 4);
+                state->write = false;
+                state->file = true;
+                state->registry = false;
             } else {
                 if ( !state->file && !state->registry )
                     state->mode = PLACE;
