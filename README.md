@@ -16,7 +16,6 @@ fork of [Sensor Watch](https://github.com/joeycastillo/Sensor-Watch/)
 * memory optimization
 * documentation
 * mgmt edit mode:
-    * ALARM: file > reg
-    * LIGHT: r > w
-    * LONG ALARM: OK & exit
-    * LONG LIGHT: exit
+    * reading reg
+    * r/w file
+    * OK & exit
