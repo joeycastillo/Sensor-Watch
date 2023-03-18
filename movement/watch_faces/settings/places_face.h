@@ -123,6 +123,9 @@ typedef struct {
     places_olc_t working_pluscode;
     places_geohash_t working_geohash;
     places_ll_coordinate_t places[5];
+    bool file;
+    bool registry;
+    bool write;
 } places_state_t;
 
 // PUBLIC WATCH FACE FUNCTIONS ////////////////////////////////////////////////

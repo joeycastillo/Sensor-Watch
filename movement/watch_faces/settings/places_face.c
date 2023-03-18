@@ -178,13 +178,14 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
         case EVENT_LIGHT_BUTTON_DOWN:
             break;
         case EVENT_LIGHT_BUTTON_UP:
-            if ( !state->edit ) {
+            if ( !state->edit && state->mode != DATA ) {
                 // movement_illuminate_led();
                 state->page = 0;
                 state->active_digit = 0;
                 state->mode = (state->mode + 1) % 5;
             } else
-                state->active_digit++;
+                if ( state->mode != DATA)
+                    state->active_digit++;
             switch ( state->mode ) {
                 case PLACE: // Place Name
                     if (state->active_digit > 5) {
@@ -245,6 +246,15 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
                     }
                     break;
                 case DATA: // Data Management
+                    state->page = ( state->page + 1 ) % 2;
+                    if ( state->page == 0) {
+                        watch_display_string("R  ", 0);
+                        state->write = false;
+                    }
+                    if ( state->page == 1) {
+                        watch_display_string("W  ", 0);
+                        state->write = true;
+                    }
                     break;
             }
             _places_face_update_display(event, context);
@@ -275,7 +285,7 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
             }
             break;
         case EVENT_ALARM_BUTTON_UP:
-            if ( state->edit ) {
+            if ( state->edit && state->mode != DATA ) {
                 _places_face_advance_digit(state);
             }
             else {
@@ -292,6 +302,26 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
                             state->active_digit = state->page > 0 ? 1 : 0;
                         }
                         break;
+                    case DATA:
+                        state->active_digit = ( state->active_digit + 1 ) % 3;
+                        switch ( state->active_digit ) {
+                            case 0:
+                                watch_display_string(" file ", 4);
+                                state->file = true;
+                                state->registry = false;
+                                break;
+                            case 1:
+                                watch_display_string(" regst", 4);
+                                state->file = false;
+                                state->registry = true;
+                                break;
+                            case 2:
+                                watch_display_string("CANCEL", 4);
+                                state->file = false;
+                                state->registry = false;
+                                break;
+                        }   
+                        break;
                     default:
                         state->page = (state->page + 1) % 4;
                 }
@@ -299,6 +329,18 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
             _places_face_update_display(event, state);
             break;
         case EVENT_ALARM_LONG_PRESS:
+            state->page = 0;
+            state->active_digit = 0;
+            if ( state->mode != DATA) {
+                state->mode = DATA;
+                watch_display_string("R  ", 0);
+                watch_display_string(" file ", 4);
+            } else {
+                if ( !state->file && !state->registry )
+                    state->mode = PLACE;
+                else
+                    printf("write %d registry %d\n", state->write, state->registry);
+            }
             // should become selector
             break;
         case EVENT_TIMEOUT:
