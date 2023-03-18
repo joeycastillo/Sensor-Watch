@@ -342,8 +342,11 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
             } else {
                 if ( !state->file && !state->registry )
                     state->mode = PLACE;
-                else
+                else {
                     printf("write %d registry %d\n", state->write, state->registry);
+                    if ( state->registry && state->write )
+                        _places_face_update_location_register(state);
+                }
             }
             // should become selector
             break;
@@ -414,6 +417,25 @@ static int32_t _ll_decimal_struct_to_int(places_ll_decimal_t val) {
                             val.d3       * 100+
                             val.d4       * 10 +
                             val.d5       * 1
+                        );
+    return retval;
+}
+
+// converts decimal LatLon struct to integer
+static int16_t _ll_decimal_struct_to_int16(places_ll_decimal_t val) {
+    if ( val.d5 >=5 && val.d4 < 9 ) val.d4++;
+    else if ( val.d4 < 9 ) val.d4--;
+    if ( val.d3 >=5 && val.d3 < 9) val.d3++;
+    else if ( val.d3 < 9 ) val.d3--;
+    if ( val.d3 > 8 && val.d2 < 9) val.d2++;
+    else if ( val.d2 < 9 ) val.d2--;
+    int16_t retval = (val.sign ? -1 : 1) *
+                        (
+                            val.hundreds * 10000 +
+                            val.tens     * 1000 +
+                            val.ones     * 100 +
+                            val.d1       * 10 +
+                            val.d2       * 1
                         );
     return retval;
 }
@@ -1357,13 +1379,10 @@ static void _save_place_to_memory(places_state_t *state) {
 }
 
 static void _places_face_update_location_register(places_state_t *state) {
-    if (state->location_changed) {
-        movement_location_t movement_location;
-        int16_t lat = _ll_decimal_struct_to_int(state->working_latitude);
-        int16_t lon = _ll_decimal_struct_to_int(state->working_longitude);
-        movement_location.bit.latitude = lat;
-        movement_location.bit.longitude = lon;
-        watch_store_backup_data(movement_location.reg, 1);
-        state->location_changed = false;
-    }
+    movement_location_t movement_location;
+    int16_t lat = _ll_decimal_struct_to_int16(state->working_latitude);
+    int16_t lon = _ll_decimal_struct_to_int16(state->working_longitude);
+    movement_location.bit.latitude = lat;
+    movement_location.bit.longitude = lon;
+    watch_store_backup_data(movement_location.reg, 1);
 }
