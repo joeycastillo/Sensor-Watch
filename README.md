@@ -13,7 +13,7 @@ fork of [Sensor Watch](https://github.com/joeycastillo/Sensor-Watch/)
 
 ## To do
 
-* finish geohash implementation
+* fix V for geohash alphabet
 * memory optimization
 * documentation
 * mgmt edit mode:

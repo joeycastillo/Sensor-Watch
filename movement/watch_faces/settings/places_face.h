@@ -36,7 +36,7 @@
 
 static const char olc_alphabet[20] = "23456789CFGHJMPQRUWX";
 static const char name_alphabet[38] = "_0123456789 AbCdEFGHIJKLMNOPQRSTUVWXYZ";
-static const char geohash_alphabet[32] =  "0123456789bcdefghjkmnpqrstuvwxyz";
+static const char geohash_alphabet[32] =  "0123456789bCdEfGhjkmnpqrstuVwxyz";
 
 typedef struct {
     uint8_t sign: 1;        // 0-1

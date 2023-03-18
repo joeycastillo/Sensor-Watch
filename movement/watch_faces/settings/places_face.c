@@ -57,7 +57,7 @@ static int32_t _ll_dms_struct_to_int(places_ll_dms_t val);
 static places_ll_dms_t _ll_dms_int_to_struct(int32_t val);
 
 // convert and write Open Location Code struct to char array
-static void _olc_struct_to_string(char *buf, places_olc_t pluscode);
+static void _olc_struct_to_array(uint8_t *buf, places_olc_t pluscode);
 
 // convert DMS LatLon struct to decimal integer
 static int32_t _ll_dms_struct_to_decimal_int( places_ll_dms_t val );
@@ -84,7 +84,7 @@ static void _places_face_update_latlon_display(movement_event_t event, places_st
 static void _places_face_update_dms_display(movement_event_t event, places_state_t *state);
 
 // Display Open Location Code
-static void _places_face_update_olc_display(movement_event_t event, places_state_t *state);
+static void _places_face_update_code_display(movement_event_t event, places_state_t *state);
 
 // manage display formats
 static void _places_face_update_display(movement_event_t event, places_state_t *state);
@@ -127,7 +127,6 @@ void places_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
     places_state_t *state = (places_state_t *)context;
     if (watch_tick_animation_is_running()) watch_stop_tick_animation();
-
     // Handle any tasks related to your watch face coming on screen.
 
 #if __EMSCRIPTEN__
@@ -146,9 +145,16 @@ void places_face_activate(movement_settings_t *settings, void *context) {
 #endif
 
     movement_location_t movement_location = (movement_location_t) watch_get_backup_data(1);
-    printf("lat %d lon %d\n", movement_location.bit.latitude, movement_location.bit.longitude);
-    state->working_latitude = _ll_decimal_int_to_struct(movement_location.bit.latitude * 1000);
-    state->working_longitude = _ll_decimal_int_to_struct(movement_location.bit.longitude * 1000);
+    state->places[0].latitude = _ll_decimal_int_to_struct(movement_location.bit.latitude * 1000);
+    state->places[0].longitude = _ll_decimal_int_to_struct(movement_location.bit.longitude * 1000);
+    for ( uint8_t i = 0; i < 5; i++) {
+        state->places[i].name.d1 = 23;
+        state->places[i].name.d2 = 26;
+        state->places[i].name.d3 = 14;
+        state->places[i].name.d4 = 11;
+        state->places[i].name.d5 = i + 2;
+    }
+    _load_place_from_memory(state);
 }
 
 bool places_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
@@ -158,6 +164,7 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
             // Show your initial UI here.
             state->page = 0;
             state->active_digit = 0;
+            state->place = 0;
             movement_request_tick_frequency(4);
             _places_face_update_display(event, context);
             break;
@@ -174,6 +181,7 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
             if ( !state->edit ) {
                 // movement_illuminate_led();
                 state->page = 0;
+                state->active_digit = 0;
                 state->mode = (state->mode + 1) % 5;
             } else
                 state->active_digit++;
@@ -250,10 +258,10 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
                         case PLACE:
                         case OLC:
                         case GEO:
-                            state->active_digit = 1;
+                            //state->active_digit = 1;
                             break;
                         default:
-                            state->active_digit = 0;
+                            //state->active_digit = 0;
                             break;
                     }
                     break;
@@ -263,6 +271,7 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
             }
             if ( !state->edit ) { // leaving edit mode saves data in state
                 _save_place_to_memory(state);
+                state->active_digit = 0;
             }
             break;
         case EVENT_ALARM_BUTTON_UP:
@@ -270,11 +279,21 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
                 _places_face_advance_digit(state);
             }
             else {
-                if ( state->mode == PLACE ) {
-                    state->place = (state->place + 1) % 5;
-                    _load_place_from_memory(state);
-                } else {
-                    state->page = (state->page + 1) % (state->mode == OLC || state->mode == GEO ? 2 : 4);
+                switch ( state->mode ) {
+                    case PLACE:
+                        state->place = (state->place + 1) % 5;
+                        _load_place_from_memory(state);
+                        break;
+                    case OLC:
+                    case GEO:
+                        state->active_digit++;
+                        if ( state->active_digit > 5 ) {
+                            state->page = (state->page + 1) % 2;
+                            state->active_digit = state->page > 0 ? 1 : 0;
+                        }
+                        break;
+                    default:
+                        state->page = (state->page + 1) % 4;
                 }
             }
             _places_face_update_display(event, state);
@@ -418,31 +437,31 @@ static places_ll_dms_t _ll_dms_int_to_struct(int32_t val) {
     return retval;
 }
 
-static void _olc_struct_to_string(char *buf, places_olc_t pluscode) {
+static void _olc_struct_to_array(uint8_t *buf, places_olc_t pluscode) {
     // convert and write Open Location Code struct to char array
-    buf[0] = olc_alphabet[pluscode.lat1];
-    buf[1] = olc_alphabet[pluscode.lon1];
-    buf[2] = olc_alphabet[pluscode.lat2];
-    buf[3] = olc_alphabet[pluscode.lon2];
-    buf[4] = olc_alphabet[pluscode.lat3];
-    buf[5] = olc_alphabet[pluscode.lon3];
-    buf[6] = olc_alphabet[pluscode.lat4];
-    buf[7] = olc_alphabet[pluscode.lon4];
-    buf[8] = olc_alphabet[pluscode.lat5];
-    buf[9] = olc_alphabet[pluscode.lon5];
+    buf[0] = pluscode.lat1;
+    buf[1] = pluscode.lon1;
+    buf[2] = pluscode.lat2;
+    buf[3] = pluscode.lon2;
+    buf[4] = pluscode.lat3;
+    buf[5] = pluscode.lon3;
+    buf[6] = pluscode.lat4;
+    buf[7] = pluscode.lon4;
+    buf[8] = pluscode.lat5;
+    buf[9] = pluscode.lon5;
 }
 
-static void _geohash_struct_to_string(char *buf, places_geohash_t hash) {
-    buf[0] = geohash_alphabet[hash.d1];
-    buf[1] = geohash_alphabet[hash.d2];
-    buf[2] = geohash_alphabet[hash.d3];
-    buf[3] = geohash_alphabet[hash.d4];
-    buf[4] = geohash_alphabet[hash.d5];
-    buf[5] = geohash_alphabet[hash.d6];
-    buf[6] = geohash_alphabet[hash.d7];
-    buf[7] = geohash_alphabet[hash.d8];
-    buf[8] = geohash_alphabet[hash.d9];
-    buf[9] = geohash_alphabet[hash.d10];
+static void _geohash_struct_to_array(uint8_t *buf, places_geohash_t hash) {
+    buf[0] = hash.d1;
+    buf[1] = hash.d2;
+    buf[2] = hash.d3;
+    buf[3] = hash.d4;
+    buf[4] = hash.d5;
+    buf[5] = hash.d6;
+    buf[6] = hash.d7;
+    buf[7] = hash.d8;
+    buf[8] = hash.d9;
+    buf[9] = hash.d10;
 }
 
 // Conversion between Decimal and DMS Latitude & Longitude
@@ -557,7 +576,6 @@ static places_ll_coordinate_t _ll_olc_to_decimal_coordinate(places_olc_t pluscod
     }
     retval.latitude = _ll_decimal_int_to_struct((int32_t)((lat - 90) * 100000));
     retval.longitude = _ll_decimal_int_to_struct((int32_t)((lon - 180) * 100000));
-    _ll_geohash_to_decimal_coordinate(_ll_decimal_ints_to_geohash(_ll_decimal_struct_to_int(retval.latitude), _ll_decimal_struct_to_int(retval.longitude)));
     return retval;
 }
 
@@ -626,16 +644,7 @@ static places_geohash_t _ll_decimal_ints_to_geohash(int32_t latitude, int32_t lo
 static places_ll_coordinate_t _ll_geohash_to_decimal_coordinate(places_geohash_t geohash) {
     
     uint8_t hash[10];
-    hash[0] = geohash.d1;
-    hash[1] = geohash.d2;
-    hash[2] = geohash.d3;
-    hash[3] = geohash.d4;
-    hash[4] = geohash.d5;
-    hash[5] = geohash.d6;
-    hash[6] = geohash.d7;
-    hash[7] = geohash.d8;
-    hash[8] = geohash.d9;
-    hash[9] = geohash.d10;
+    _geohash_struct_to_array(hash, geohash);
     
     /*  C implementation created by Derek Smith
      *  https://github.com/simplegeo/libgeohash/
@@ -674,10 +683,10 @@ static places_ll_coordinate_t _ll_geohash_to_decimal_coordinate(places_geohash_t
     }
     places_ll_coordinate_t retval;
     retval.latitude = _ll_decimal_int_to_struct(
-        (int32_t)(lat_interval.high - ((lat_interval.high - lat_interval.low) / 2.0)) * 100000
+        (int32_t)((lat_interval.high - ((lat_interval.high - lat_interval.low) / 2.0)) * 100000)
     );
     retval.longitude = _ll_decimal_int_to_struct(
-        (int32_t)(lng_interval.high - ((lng_interval.high - lng_interval.low) / 2.0)) * 100000
+        (int32_t)((lng_interval.high - ((lng_interval.high - lng_interval.low) / 2.0)) * 100000)
     );
 
     return retval;
@@ -772,67 +781,71 @@ static void _places_face_update_dms_display(movement_event_t event, places_state
     }
 }
 
-// Display Open Location Code
-static void _places_face_update_olc_display(movement_event_t event, places_state_t *state) {
+// Display Open Location Code or Geohash
+static void _places_face_update_code_display(movement_event_t event, places_state_t *state) {
+    bool fix = false;
     char buf[12];
-    char olc[11] = {0};
-    watch_clear_display();
-    _olc_struct_to_string(olc, state->working_pluscode);
-    
+    uint8_t code_array[10];
+    char code_string[11] = {0};
     char help[3];
-    if ( state->edit )
-        sprintf(help, "%c%c", olc[state->active_digit + ( state->page == 0 ? -1 : 4)], ' ');
-    else
-        sprintf(help, "OL");
+
+    watch_clear_display();
+
+    uint8_t index = state->active_digit + ( state->page == 0 ? -1 : 4);
+    switch ( state->mode ) {
+        case OLC:
+            _olc_struct_to_array(code_array, state->working_pluscode);
+            for ( uint8_t i = 0; i < 10; i++)
+                code_string[i] = olc_alphabet[code_array[i]];
+            if ( code_array[index] > 7 )
+                watch_set_indicator(WATCH_INDICATOR_LAP);
+            break;
+        case GEO:
+            _geohash_struct_to_array(code_array, state->working_geohash);
+            for ( uint8_t i = 0; i < 10; i++)
+                code_string[i] = geohash_alphabet[code_array[i]];
+            if ( code_array[index] > 9 )
+                watch_set_indicator(WATCH_INDICATOR_LAP);
+            break;
+    }
+    if ( state->active_digit > 0 ) {
+        char letter_digit = code_string[index];
+            if ( code_array[index] == 27 ) {
+                letter_digit = ' ';
+                fix = true;
+            }
+            sprintf(help, "%c ", letter_digit);
+    } else {
+        sprintf(help, (state->mode == OLC ? "OL" : "GH"));
+    }
 
     switch (state->page) {
         case 0: // OLC Digits 1-5
-            sprintf(buf, "%c%c %d %c%c%c%c%c", help[0], help[1], state->place + 1, olc[0], olc[1], olc[2], olc[3], olc[4]);
+            sprintf(buf, "%c%c %d %c%c%c%c%c", help[0], help[1], state->place + 1, code_string[0], code_string[1], code_string[2], code_string[3], code_string[4]);
             break;
         case 1: // OLC Digits 2-10
-            sprintf(buf, "%c%c %d %c%c%c%c%c", help[0], help[1], state->place + 1, olc[5], olc[6], olc[7], olc[8], olc[9]);
+            sprintf(buf, "%c%c %d %c%c%c%c%c", help[0], help[1], state->place + 1, code_string[5], code_string[6], code_string[7], code_string[8], code_string[9]);
             break;
     }
     if (state->edit && event.subsecond % 2) {
         buf[state->active_digit + 4] = ' ';
     }
+
+    if (!state->edit && state->active_digit > 0 && event.subsecond == 1) {
+        buf[state->active_digit + 4] = '-';
+    }
+
     watch_display_string(buf, 0);
     if ( state->page % 2 == 0) {
         watch_set_pixel(0, 18);
     } else {
         watch_set_pixel(0, 19);
     }
-}
 
-// Display Geohash
-static void _places_face_update_geohash_display(movement_event_t event, places_state_t *state) {
-    char buf[12];
-    char hash[11] = {0};
-    watch_clear_display();
-    _geohash_struct_to_string(hash, state->working_geohash);
-    
-    char help[3];
-    if ( state->edit )
-        sprintf(help, "%c%c", hash[state->active_digit + ( state->page == 0 ? -1 : 4)], ' ');
-    else
-        sprintf(help, "GH");
-
-    switch (state->page) {
-        case 0: // Geohash Digits 1-5
-            sprintf(buf, "%c%c %d %c%c%c%c%c", help[0], help[1], state->place + 1, hash[0], hash[1], hash[2], hash[3], hash[4]);
-            break;
-        case 1: // Geohash Digits 2-10
-            sprintf(buf, "%c%c %d %c%c%c%c%c", help[0], help[1], state->place + 1, hash[5], hash[6], hash[7], hash[8], hash[9]);
-            break;
-    }
-    if (state->edit && event.subsecond % 2) {
-        buf[state->active_digit + 4] = ' ';
-    }
-    watch_display_string(buf, 0);
-    if ( state->page % 2 == 0) {
-        watch_set_pixel(0, 18);
-    } else {
-        watch_set_pixel(0, 19);
+    if ( fix ) {
+        watch_set_pixel(0, 14);
+        watch_set_pixel(1, 14);
+        watch_set_pixel(1, 13);
     }
 }
 
@@ -849,10 +862,8 @@ static void _places_face_update_display(movement_event_t event, places_state_t *
             _places_face_update_dms_display(event, state);
             break;
         case OLC:
-            _places_face_update_olc_display(event, state);
-            break;
         case GEO:
-            _places_face_update_geohash_display(event, state);
+            _places_face_update_code_display(event, state);
             break;
         case DATA:
             break;
