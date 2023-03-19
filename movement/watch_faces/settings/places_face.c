@@ -109,7 +109,10 @@ static void _load_place_from_memory(places_state_t *state);
 static void _save_place_to_memory(places_state_t *state);
 
 // DATA MANAGEMENT FUNCTIONS
-static void _places_face_update_location_register(places_state_t *state);
+
+static void _load_place_from_register(places_state_t *state);
+
+static void _save_place_to_register(places_state_t *state);
 
 // MOVEMENT WATCH FACE FUNCTIONS //////////////////////////////////////////////
 
@@ -144,17 +147,6 @@ void places_face_activate(movement_settings_t *settings, void *context) {
     }
 #endif
 
-    movement_location_t movement_location = (movement_location_t) watch_get_backup_data(1);
-    state->places[0].latitude = _ll_decimal_int_to_struct(movement_location.bit.latitude * 1000);
-    state->places[0].longitude = _ll_decimal_int_to_struct(movement_location.bit.longitude * 1000);
-    for ( uint8_t i = 0; i < 5; i++) {
-        state->places[i].name.d1 = 23;
-        state->places[i].name.d2 = 26;
-        state->places[i].name.d3 = 14;
-        state->places[i].name.d4 = 11;
-        state->places[i].name.d5 = i + 2;
-    }
-    _load_place_from_memory(state);
 }
 
 bool places_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
@@ -343,9 +335,10 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
                 if ( !state->file && !state->registry )
                     state->mode = PLACE;
                 else {
-                    printf("write %d registry %d\n", state->write, state->registry);
                     if ( state->registry && state->write )
-                        _places_face_update_location_register(state);
+                        _save_place_to_register(state);
+                    if ( state->registry && !state->write )
+                        _load_place_from_register(state);    
                 }
             }
             // should become selector
@@ -384,7 +377,6 @@ void places_face_resign(movement_settings_t *settings, void *context) {
     places_state_t *state = (places_state_t *)context;
     state->page = 0;
     state->active_digit = 0;
-    _places_face_update_location_register(state);
 
     // handle any cleanup before your watch face goes off-screen.
 }
@@ -1378,11 +1370,23 @@ static void _save_place_to_memory(places_state_t *state) {
     _load_place_from_memory(state);
 }
 
-static void _places_face_update_location_register(places_state_t *state) {
+static void _load_place_from_register(places_state_t *state) {
+    watch_set_indicator(WATCH_INDICATOR_SIGNAL);
+    movement_location_t movement_location = (movement_location_t) watch_get_backup_data(1);
+    state->places[state->place].latitude = _ll_decimal_int_to_struct(movement_location.bit.latitude * 1000);
+    state->places[state->place].longitude = _ll_decimal_int_to_struct(movement_location.bit.longitude * 1000);
+    delay_ms(200);
+    watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
+}
+
+static void _save_place_to_register(places_state_t *state) {
+    watch_set_indicator(WATCH_INDICATOR_SIGNAL);
     movement_location_t movement_location;
     int16_t lat = _ll_decimal_struct_to_int16(state->working_latitude);
     int16_t lon = _ll_decimal_struct_to_int16(state->working_longitude);
     movement_location.bit.latitude = lat;
     movement_location.bit.longitude = lon;
     watch_store_backup_data(movement_location.reg, 1);
+    delay_ms(200);
+    watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
 }
