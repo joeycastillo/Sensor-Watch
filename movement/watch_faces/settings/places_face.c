@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include "filesystem.h"
 #include "places_face.h"
 
 #if __EMSCRIPTEN__
@@ -113,6 +114,10 @@ static void _save_place_to_memory(places_state_t *state);
 static void _load_place_from_register(places_state_t *state);
 
 static void _save_place_to_register(places_state_t *state);
+
+static void _load_place_from_file(places_state_t *state);
+
+static void _save_place_to_file(places_state_t *state);
 
 // MOVEMENT WATCH FACE FUNCTIONS //////////////////////////////////////////////
 
@@ -338,7 +343,11 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
                     if ( state->registry && state->write )
                         _save_place_to_register(state);
                     if ( state->registry && !state->write )
-                        _load_place_from_register(state);    
+                        _load_place_from_register(state);   
+                    if ( state->file && state->write )
+                        _save_place_to_file(state);
+                    if ( state->file && !state->write )
+                        _load_place_from_file(state);
                 }
             }
             // should become selector
@@ -1377,6 +1386,9 @@ static void _load_place_from_register(places_state_t *state) {
     state->places[state->place].longitude = _ll_decimal_int_to_struct(movement_location.bit.longitude * 1000);
     delay_ms(200);
     watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
+    watch_display_string("  OK  ", 4);
+    delay_ms(1000);
+    state->mode = PLACE;
 }
 
 static void _save_place_to_register(places_state_t *state) {
@@ -1389,4 +1401,55 @@ static void _save_place_to_register(places_state_t *state) {
     watch_store_backup_data(movement_location.reg, 1);
     delay_ms(200);
     watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
+    watch_display_string("  OK  ", 4);
+    delay_ms(1000);
+    state->mode = PLACE;
+}
+
+static void _load_place_from_file(places_state_t *state) {
+    places_ll_coordinate_t place;
+    if (filesystem_file_exists("place.loc"))
+        if (filesystem_read_file("place.loc", (char*)&place, sizeof(place))) {
+            watch_set_indicator(WATCH_INDICATOR_SIGNAL);
+            state->places[state->place].latitude = place.latitude;
+            state->places[state->place].longitude = place.longitude;
+            delay_ms(200);
+            watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
+            watch_display_string("  OK  ", 4);
+            delay_ms(1000);
+        } else {
+            watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
+            watch_set_indicator(WATCH_INDICATOR_BELL);
+            watch_display_string(" Error", 4);
+            delay_ms(2000);
+            watch_clear_indicator(WATCH_INDICATOR_BELL);
+    } else {
+        watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
+        watch_set_indicator(WATCH_INDICATOR_BELL);
+        watch_display_string("no   file ", 0);
+        delay_ms(2000);
+        watch_clear_indicator(WATCH_INDICATOR_BELL);
+    }
+    state->mode = PLACE;
+}
+
+static void _save_place_to_file(places_state_t *state) {
+    watch_set_indicator(WATCH_INDICATOR_SIGNAL);
+    places_ll_coordinate_t place;
+    place.latitude = state->places[state->place].latitude;
+    place.longitude = state->places[state->place].longitude;
+    if (filesystem_write_file("place.loc", (char*)&place, sizeof(place))) {
+        delay_ms(200);
+        watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
+        watch_display_string("  OK  ", 4);
+        delay_ms(1000);
+    } else {
+        watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
+        watch_set_indicator(WATCH_INDICATOR_BELL);
+        watch_display_string(" Error", 4);
+        delay_ms(2000);
+        watch_clear_indicator(WATCH_INDICATOR_BELL);
+        
+    }
+    state->mode = PLACE;
 }
