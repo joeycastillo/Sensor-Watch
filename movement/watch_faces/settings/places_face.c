@@ -152,6 +152,46 @@ void places_face_activate(movement_settings_t *settings, void *context) {
     }
 #endif
 
+    state->modes[PLACE].max_page = 0;
+    state->modes[PLACE].page[0].min_digit = 1;
+    state->modes[PLACE].page[0].max_digit = 5;
+
+    state->modes[DECIMAL].max_page = 3;
+    state->modes[DECIMAL].page[0].min_digit = 0;
+    state->modes[DECIMAL].page[0].max_digit = 3;
+    state->modes[DECIMAL].page[1].min_digit = 1;
+    state->modes[DECIMAL].page[1].max_digit = 5;
+    state->modes[DECIMAL].page[2].min_digit = 0;
+    state->modes[DECIMAL].page[2].max_digit = 3;
+    state->modes[DECIMAL].page[3].min_digit = 1;
+    state->modes[DECIMAL].page[3].max_digit = 5;
+
+    state->modes[DMS].max_page = 3;
+    state->modes[DMS].page[0].min_digit = 0;
+    state->modes[DMS].page[0].max_digit = 3;
+    state->modes[DMS].page[1].min_digit = 0;
+    state->modes[DMS].page[1].max_digit = 3;
+    state->modes[DMS].page[2].min_digit = 0;
+    state->modes[DMS].page[2].max_digit = 3;
+    state->modes[DMS].page[3].min_digit = 0;
+    state->modes[DMS].page[3].max_digit = 3;
+
+    state->modes[OLC].max_page = 1;
+    state->modes[OLC].page[0].min_digit = 1;
+    state->modes[OLC].page[0].max_digit = 5;
+    state->modes[OLC].page[1].min_digit = 1;
+    state->modes[OLC].page[1].max_digit = 5;
+
+    state->modes[GEO].max_page = 1;
+    state->modes[GEO].page[0].min_digit = 1;
+    state->modes[GEO].page[0].max_digit = 5;
+    state->modes[GEO].page[1].min_digit = 1;
+    state->modes[GEO].page[1].max_digit = 5;
+
+    state->modes[DATA].max_page = 1;
+    state->modes[DATA].page[0].min_digit = 0;
+    state->modes[DATA].page[0].max_digit = 1;
+
 }
 
 bool places_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
@@ -170,173 +210,53 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
             // if entering low energy mode, start tick animation
             if (event.event_type == EVENT_LOW_ENERGY_UPDATE && !watch_tick_animation_is_running()) watch_start_tick_animation(1000);
             // check if we need to update the display
-            else _places_face_update_display(event, state);
+            if ( state->edit || state->remain ) {
+                if ( state->mode != DATA )
+                    _places_face_update_display(event, state);
+            }
             break;
         case EVENT_LIGHT_BUTTON_DOWN:
             break;
         case EVENT_LIGHT_BUTTON_UP:
-            if ( !state->edit && state->mode != DATA ) {
-                // movement_illuminate_led();
-                state->page = 0;
-                state->active_digit = 0;
-                state->mode = (state->mode + 1) % 5;
-            } else
-                if ( state->mode != DATA)
+            if ( state->edit || state->remain )
+                state->active_digit++;
+            else {
+                state->place++;
+                _load_place_from_memory(state);
+            }
+
+            if ( state->mode == DECIMAL || state->mode == DMS ) 
+                if ( state->page == 0 && state->active_digit == 1 )
                     state->active_digit++;
-            switch ( state->mode ) {
-                case PLACE: // Place Name
-                    if (state->active_digit > 5) {
-                        state->active_digit = 1;
-                    }
-                    break;
-                case DECIMAL: // Decimal LatLon
-                    switch ( state->page ) {
-                        case 0:
-                            if (state->active_digit == 1) state->active_digit++; // max latitude is +- 90, no hundreds place              
-                        case 2:
-                            if (state->active_digit > 3) {
-                                state->active_digit = 1;
-                                state->page++;
-                            }
-                            break;
-                        case 1:
-                        case 3:
-                            if (state->active_digit > 5) {
-                                state->active_digit = 0;
-                                state->page = ( state->page + 1 ) % 4;
-                            }
-                            break;
-                    }
-                    break;
-                case DMS: // DMS LatLon
-                    switch ( state->page ) {
-                        case 0:
-                            if (state->active_digit == 1) state->active_digit++; // max latitude is +- 90, no hundreds place              
-                        case 1:
-                        case 2:
-                        case 3:
-                            if (state->active_digit > 3) {
-                                state->active_digit = 0;
-                                state->page = ( state->page + 1 ) % 4;
-                            }
-                            break;
-                            
-                    }
-                    break;
-                case OLC: // Open Location Code
-                case GEO:
-                    switch ( state->page ) {
-                        case 0:
-                        case 2:
-                            if (state->active_digit > 5) {
-                                state->active_digit = 1;
-                                state->page++;
-                            }
-                            break;
-                        case 1:
-                        case 3:
-                            if (state->active_digit > 5) {
-                                state->active_digit = 1;
-                                state->page = ( state->page + 1 ) % 4;
-                            }
-                            break;
-                    }
-                    break;
-                case DATA: // Data Management
-                    state->page = ( state->page + 1 ) % 2;
-                    if ( state->page == 0) {
+            
+            if ( state->active_digit > state->modes[state->mode].page[state->page].max_digit ) {
+                if ( state->page == state->modes[state->mode].max_page ) {
+                    state->page = 0;
+                    state->active_digit = state->modes[state->mode].page[state->page].min_digit;
+                } else {
+                    state->page++;
+                    state->active_digit = state->modes[state->mode].page[state->page].min_digit;
+                }
+            }
+
+            if ( state->mode == DATA ) {
+                state->page = 0;
+                switch ( state->active_digit ) {
+                    case 0:
                         watch_display_string("R  ", 0);
                         state->write = false;
-                    }
-                    if ( state->page == 1) {
+                        break;
+                    case 1:
                         watch_display_string("W  ", 0);
                         state->write = true;
-                    }
-                    break;
-            }
-            _places_face_update_display(event, context);
-            break;
-        case EVENT_LIGHT_LONG_PRESS:
-            if ( state->mode == DATA ) {
-                state->file = false;
-                state->registry = false;
-                state->mode = PLACE;
-            } else {
-                state->edit = !state->edit;
-                switch ( state->page ) {
-                    case 0:
-                    case 2:
-                        switch ( state->mode ) {
-                            case PLACE:
-                            case OLC:
-                            case GEO:
-                                //state->active_digit = 1;
-                                break;
-                            default:
-                                //state->active_digit = 0;
-                                break;
-                        }
-                        break;
-                    default:
-                        state->active_digit = ( state->mode == DMS ? 0 : 1);
                         break;
                 }
-                if ( !state->edit ) { // leaving edit mode saves data in state
-                    _save_place_to_memory(state);
-                    state->active_digit = 0;
-                }
-                break;
             }
-        case EVENT_ALARM_BUTTON_UP:
-            if ( state->edit && state->mode != DATA ) {
-                _places_face_advance_digit(state);
-            }
-            else {
-                switch ( state->mode ) {
-                    case PLACE:
-                        state->place = (state->place + 1) % 5;
-                        _load_place_from_memory(state);
-                        break;
-                    case OLC:
-                    case GEO:
-                        state->active_digit++;
-                        if ( state->active_digit > 5 ) {
-                            state->page = (state->page + 1) % 2;
-                            state->active_digit = state->page > 0 ? 1 : 0;
-                        }
-                        break;
-                    case DATA:
-                        state->active_digit = ( state->active_digit + 1 ) % 2;
-                        switch ( state->active_digit ) {
-                            case 0:
-                                watch_display_string(" file ", 4);
-                                state->file = true;
-                                state->registry = false;
-                                break;
-                            case 1:
-                                watch_display_string(" regst", 4);
-                                state->file = false;
-                                state->registry = true;
-                                break;
-                        }   
-                        break;
-                    default:
-                        state->page = (state->page + 1) % 4;
-                }
-            }
+            state->place %= 5;
             _places_face_update_display(event, state);
             break;
-        case EVENT_ALARM_LONG_PRESS:
-            state->page = 0;
-            state->active_digit = 0;
-            if ( state->mode != DATA) {
-                state->mode = DATA;
-                watch_display_string("R  ", 0);
-                watch_display_string(" file ", 4);
-                state->write = false;
-                state->file = true;
-                state->registry = false;
-            } else {
+        case EVENT_LIGHT_LONG_PRESS:
+           if ( state->mode == DATA ) {
                 if ( !state->file && !state->registry )
                     state->mode = PLACE;
                 else {
@@ -348,9 +268,68 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
                         _save_place_to_file(state);
                     if ( state->file && !state->write )
                         _load_place_from_file(state);
+                    state->remain = false;
+                }
+            } else {
+                state->edit = !state->edit;
+                state->active_digit = state->modes[state->mode].page[state->page].min_digit;
+            }
+            if ( !state->edit ) { // leaving edit mode saves data in state
+                _save_place_to_memory(state);
+                state->active_digit = 0;
+            }
+            _places_face_update_display(event, state);
+            break;
+        case EVENT_ALARM_BUTTON_UP:
+             if ( state->edit )
+                _places_face_advance_digit(state);
+            else
+                state->page++;
+            if ( state->page > state->modes[state->mode].max_page ) {
+                state->page = 0;
+                if ( !state->remain )
+                    state->mode = (state->mode + 1) % 5;
+            }
+            
+            if ( state->mode == DATA ) {
+                switch ( state->page ) {
+                    case 0:
+                        watch_display_string(" file ", 4);
+                        state->file = true;
+                        state->registry = false;
+                        break;
+                    case 1:
+                        watch_display_string(" regst", 4);
+                        state->file = false;
+                        state->registry = true;
+                        break;
+                }
+                break;
+            }
+            _places_face_update_display(event, state);
+            break;
+        case EVENT_ALARM_LONG_PRESS:
+            if ( state->mode != DATA )
+                state->remain = !state->remain;
+            if ( state->remain ) {
+                switch ( state->mode ) {
+                    case PLACE:
+                        state->mode = DATA;
+                        watch_display_string("R  ", 0);
+                        watch_display_string(" file ", 4);
+                        state->write = false;
+                        state->file = true;
+                        state->registry = false;
+                        break;
+                    case DATA:
+                        state->file = false;
+                        state->registry = false;
+                        state->remain = false;
+                        state->mode = PLACE;
+                        break;
                 }
             }
-            // should become selector
+            _places_face_update_display(event, state);
             break;
         case EVENT_TIMEOUT:
             // Your watch face will receive this event after a period of inactivity. If it makes sense to resign,
@@ -867,14 +846,14 @@ static void _places_face_update_code_display(movement_event_t event, places_stat
             for ( uint8_t i = 0; i < 10; i++)
                 code_string[i] = olc_alphabet[code_array[i]];
             if ( code_array[index] > 7 )
-                watch_set_indicator(WATCH_INDICATOR_LAP);
+                //watch_set_indicator(WATCH_INDICATOR_LAP);
             break;
         case GEO:
             _geohash_struct_to_array(code_array, state->working_geohash);
             for ( uint8_t i = 0; i < 10; i++)
                 code_string[i] = geohash_alphabet[code_array[i]];
             if ( code_array[index] > 9 )
-                watch_set_indicator(WATCH_INDICATOR_LAP);
+                //watch_set_indicator(WATCH_INDICATOR_LAP);
             break;
     }
     if ( state->active_digit > 0 ) {
@@ -900,7 +879,7 @@ static void _places_face_update_code_display(movement_event_t event, places_stat
         buf[state->active_digit + 4] = ' ';
     }
 
-    if (!state->edit && state->active_digit > 0 && event.subsecond == 1) {
+    if (state->remain && state->active_digit > 0 && event.subsecond == 1) {
         buf[state->active_digit + 4] = '-';
     }
 
@@ -937,6 +916,10 @@ static void _places_face_update_display(movement_event_t event, places_state_t *
         case DATA:
             break;
     }  
+    if ( state->remain)
+        watch_set_indicator(WATCH_INDICATOR_LAP);
+    else
+        watch_clear_indicator(WATCH_INDICATOR_LAP);
 }
 
 // DATA EDITOR FUNCTIONS

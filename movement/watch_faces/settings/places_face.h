@@ -107,14 +107,22 @@ typedef struct {
 } places_geohash_interval;
 
 typedef struct {
-    uint8_t mode : 3; // 0: name / 1: ll / 2: dms / 3: olc / 4: mgmt
+    uint8_t min_digit : 1;
+    uint8_t max_digit : 3;
+} places_schema_page_t;
+
+typedef struct {
+    uint8_t max_page : 3;
+    places_schema_page_t page[4];
+} places_schema_mode_t;
+
+typedef struct {
+    uint8_t mode : 4; // 0: name / 1: ll / 2: dms / 3: olc
     uint8_t place: 3;
-    uint8_t page : 2; // 0-3
+    uint8_t page : 3; // 0-3
     int8_t active_digit: 4; // -1-5
-    bool location_changed;
     bool edit;
-    bool dms;
-    bool olc;
+    bool remain;
     places_name_t working_name;
     places_ll_decimal_t working_latitude;
     places_ll_decimal_t working_longitude;
@@ -126,6 +134,7 @@ typedef struct {
     bool file;
     bool registry;
     bool write;
+    places_schema_mode_t modes[6];
 } places_state_t;
 
 // PUBLIC WATCH FACE FUNCTIONS ////////////////////////////////////////////////
