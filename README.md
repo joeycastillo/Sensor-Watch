@@ -15,7 +15,11 @@ fork of [Sensor Watch](https://github.com/joeycastillo/Sensor-Watch/)
 
 * memory optimization
 * documentation
-* mgmt edit mode:
-    * reading reg
-    * r/w file
-    * OK & exit
+* simplified button logic:
+    * ALARM: switch PLACE/DD/DMS/OLC/GH
+    * LIGHT: switch places (edit: digits)
+    * LONG LIGHT: switch to edit mode
+    * LONG ALARM:
+        * PLACE: switch to DATA
+        * DD/DMS: switch to just toggle between DD/DMS
+        * OL/GH: switch to help mode
