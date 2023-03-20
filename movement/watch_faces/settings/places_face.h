@@ -110,12 +110,13 @@
  * Please also note that the different notations of this watch face also have varying magnitudes 
  * of precision:
  * 
- * | Format             | Notation    | Precision at Equator | Precision at 67° N/S |
- * | ------------------ | ----------- | -------------------- | -------------------- |
- * | Decimal LatLon     | 29.97916    |              1.111 m |              0.435 m |
- * | DMS LatLon         | 29°58'45"   |             30.833 m |            12.083  m |
- * | Open Location Code | 7GXHX4HM+MM |             13.875 m |             13.875 m |
- * | Geohash            | stq4s3x1qu  |              1.189 m |              0.596 m |
+ * | Format             | Notation               | Precision at Equator | Precision at 67° N/S |
+ * | ------------------ | ---------------------- | -------------------- | -------------------- |
+ * | 2d. Decimal LatLon | 29.98, 31.13           |           1111.320 m |            435.125 m |
+ * | 5d. Decimal LatLon | 29.97916, 31.13417     |              1.111 m |              0.435 m |
+ * | DMS LatLon         | N 29°58′45″, E 31°8′3″ |             30.833 m |             12.083 m |
+ * | Open Location Code | 7GXHX4HM+MM            |             13.875 m |             13.875 m |
+ * | Geohash            | stq4s3x1qu             |              1.189 m |              0.596 m |
  * 
  * Since all notations are internally converted into degrees with 5 decimal points, expect some
  * rounding errors when editing or loading the coordinates in other notation formats.
