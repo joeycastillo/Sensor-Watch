@@ -253,15 +253,16 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
              if ( state->edit )
                 _places_face_advance_digit(state);
             else {
-                if ( !state->digit_info)
-                    state->page++;
+                state->page++;
             }
 
             // wraps around pages and goes to the next display mode
             if ( state->page > state->modes[state->mode].max_page ) {
                 state->page = 0;
-                state->place = (state->place + 1) % 5;
-                _data_load_place_from_memory(state);
+                if ( !state->digit_info ) {
+                    state->place = (state->place + 1) % 5;
+                    _data_load_place_from_memory(state);
+                }
             }
 
             // toggles between file and location register in Data mode
@@ -295,8 +296,17 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
                         state->registry = false;
                         state->mode = PLACE;
                         break;
-                    case OLC:
-                    case GEO:
+                    case PLACE:
+                        state->mode = DATA;
+                        watch_display_string("R  ", 0);
+                        watch_display_string(" file ", 4);
+                        state->write = false;
+                        state->file = true;
+                        state->registry = false;
+                        state->page = 0;
+                        state->active_digit = 0;
+                        break;
+                    default:
                         // toggle Digit Info auxiliary
                         state->digit_info = !state->digit_info;
 
@@ -309,15 +319,7 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
                             if ( !state->edit )
                                 state->active_digit = 1;
                         break;
-                    default:
-                        state->mode = DATA;
-                        watch_display_string("R  ", 0);
-                        watch_display_string(" file ", 4);
-                        state->write = false;
-                        state->file = true;
-                        state->registry = false;
-                        state->page = 0;
-                        state->active_digit = 0;
+                    
                 }
             } else {
                 // discard changes
@@ -868,12 +870,6 @@ static void _places_face_update_code_display(movement_event_t event, places_stat
             watch_set_indicator(WATCH_INDICATOR_24H);
     }
 
-    // show LAP when Digit Info auxiliary mode is enabled
-    if ( state->digit_info)
-        watch_set_indicator(WATCH_INDICATOR_LAP);
-    else
-        watch_clear_indicator(WATCH_INDICATOR_LAP);
-
     // in Edit mode and Digit Info auxiliary modes
     // display currently selected letter also as alphanumeric digit in digit position 0
     if ( state->active_digit > 0 ) {
@@ -942,6 +938,12 @@ static void _places_face_update_display(movement_event_t event, places_state_t *
         case DATA:
             break;
     }
+
+    // show LAP when Digit Info auxiliary mode is enabled
+    if ( state->digit_info)
+        watch_set_indicator(WATCH_INDICATOR_LAP);
+    else
+        watch_clear_indicator(WATCH_INDICATOR_LAP);
 }
 
 // DATA EDITOR FUNCTIONS

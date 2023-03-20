@@ -65,8 +65,8 @@
  * 
  * The actual read/write operation is triggered by LONG PRESS of the LIGHT button.
  * 
- * Digit Info Auxiliary Mode
- * =========================
+ * Digit Info Auxiliary Mode (LAP)
+ * ===============================
  * 
  * The Open Location Code and Geohash notations employ ten digits of alphanumeric characters.
  * Due to the limited nature of the seven segment display, some of the characters appear
@@ -80,6 +80,11 @@
  * active when the selected digit represents a number and the 'PM' indicator for a letter.
  * 
  * This mode is also automatically activated when editing an OLC or Geohash code.
+ * 
+ * When Digit Info (LAP) is activated on the decimal or DMS Latitude & Longitude modes 
+ * the automatic switching to the next place when pressing ALARM is prevented.
+ * Instead the display remains at the current place and ALARM cycles the available screens
+ * for easier recollection of the available coordinate information.
  * 
  * Notes on Coordinate Precision
  * =============================
