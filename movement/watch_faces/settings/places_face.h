@@ -40,101 +40,110 @@ static const char geohash_alphabet[32] =  "0123456789bCdEfGhjkmnpqrstuVwxyz";
 
 typedef struct {
     uint8_t sign: 1;        // 0-1
-    uint8_t hundreds: 1;    // 0-1, ignored for latitude
-    uint8_t tens: 4;        // 0-9 (must wrap at 10)
-    uint8_t ones: 4;        // 0-9 (must wrap at 10)
-    uint8_t d1: 4;          // 0-9 (must wrap at 10)
-    uint8_t d2: 4;          // 0-9 (must wrap at 10)
-    uint8_t d3: 4;          // 0-9 (must wrap at 10)
-    uint8_t d4: 4;          // 0-9 (must wrap at 10)
-    uint8_t d5: 4;          // 0-9 (must wrap at 10)
-} places_ll_decimal_t;
+    uint8_t hundreds: 1;    // 0-1
+    uint8_t tens: 4;        // 0-9
+    uint8_t ones: 4;        // 0-9
+    uint8_t d01: 4;         // 0-9
+    uint8_t d02: 4;         // 0-9
+    uint8_t d03: 4;         // 0-9
+    uint8_t d04: 4;         // 0-9
+    uint8_t d05: 4;         // 0-9
+} places_format_decimal_latlon_t;
 
 typedef struct {
     uint8_t sign: 1;        // 0-1
-    uint8_t hundreds: 1;    // 0-1, ignored for latitude
-    uint8_t tens: 4;        // 0-9 (must wrap at 10)
-    uint8_t ones: 4;        // 0-9 (must wrap at 10)
-    uint8_t mins_tens: 3;   // 0-5 (must wrap at 60)
-    uint8_t mins_ones: 4;   // 0-9 (must wrap at 10)
-    uint8_t secs_tens: 3;   // 0-5 (must wrap at 60)
-    uint8_t secs_ones: 4;   // 0-9 (must wrap at 10)
-} places_ll_dms_t;
+    uint8_t hundreds: 1;    // 0-1
+    uint8_t tens: 4;        // 0-9
+    uint8_t ones: 4;        // 0-9
+    uint8_t mins_tens: 3;   // 0-5
+    uint8_t mins_ones: 4;   // 0-9
+    uint8_t secs_tens: 3;   // 0-5
+    uint8_t secs_ones: 4;   // 0-9
+} places_format_dms_latlon_t;
 
 typedef struct {
-    uint8_t lat1: 5;
-    uint8_t lon1: 5;   
-    uint8_t lat2: 5;   
-    uint8_t lon2: 5;   
-    uint8_t lat3: 5;   
-    uint8_t lon3: 5;   
-    uint8_t lat4: 5;   
-    uint8_t lon4: 5;   
-    uint8_t lat5: 5;   
-    uint8_t lon5: 5;   
-} places_olc_t;
+    uint8_t lat1: 5;        // 2-X
+    uint8_t lon1: 5;        // 2-X
+    uint8_t lat2: 5;        // 2-X
+    uint8_t lon2: 5;        // 2-X
+    uint8_t lat3: 5;        // 2-X
+    uint8_t lon3: 5;        // 2-X
+    uint8_t lat4: 5;        // 2-X
+    uint8_t lon4: 5;        // 2-X
+    uint8_t lat5: 5;        // 2-X
+    uint8_t lon5: 5;        // 2-X
+} places_format_olc_t;
 
 typedef struct {
-    uint8_t d1: 6;
-    uint8_t d2: 6;   
-    uint8_t d3: 6;   
-    uint8_t d4: 6;   
-    uint8_t d5: 6;   
-    uint8_t d6: 6;   
-    uint8_t d7: 6;   
-    uint8_t d8: 6;   
-    uint8_t d9: 6;
-    uint8_t d10: 6;  
-} places_geohash_t;
-
-typedef struct {
-    uint8_t d1;
-    uint8_t d2;
-    uint8_t d3;
-    uint8_t d4;
-    uint8_t d5;
-} places_name_t;
-
-typedef struct {
-    places_ll_decimal_t latitude;
-    places_ll_decimal_t longitude;
-    places_name_t name;
-} places_ll_coordinate_t;
+    uint8_t d01: 6;          // 0-z
+    uint8_t d02: 6;          // 0-z 
+    uint8_t d03: 6;          // 0-z
+    uint8_t d04: 6;          // 0-z
+    uint8_t d05: 6;          // 0-z
+    uint8_t d06: 6;          // 0-z
+    uint8_t d07: 6;          // 0-z
+    uint8_t d08: 6;          // 0-z
+    uint8_t d09: 6;          // 0-z
+    uint8_t d10: 6;          // 0-z
+} places_format_geohash_t;
 
 typedef struct {
     double high;
     double low;
-} places_geohash_interval;
+} places_format_geohash_interval;
+
+typedef struct {
+    uint8_t d01;
+    uint8_t d02;
+    uint8_t d03;
+    uint8_t d04;
+    uint8_t d05;
+} places_name_t;
+
+typedef struct {
+    places_format_decimal_latlon_t latitude;
+    places_format_decimal_latlon_t longitude;
+    places_name_t name;
+} places_coordinate_t;
 
 typedef struct {
     uint8_t min_digit : 1;
     uint8_t max_digit : 3;
-} places_schema_page_t;
+} places_mode_schema_page_t;
 
 typedef struct {
     uint8_t max_page : 3;
-    places_schema_page_t page[4];
-} places_schema_mode_t;
+    places_mode_schema_page_t page[4];
+} places_mode_schema_mode_t;
+
+enum places_modes_e {
+    PLACE = 0,
+    DECIMAL,
+    DMS,
+    OLC,
+    GEO,
+    DATA
+};
 
 typedef struct {
-    uint8_t mode : 4; // 0: name / 1: ll / 2: dms / 3: olc
+    enum places_modes_e mode;
     uint8_t place: 3;
-    uint8_t page : 3; // 0-3
-    int8_t active_digit: 4; // -1-5
+    uint8_t page : 3;
+    int8_t active_digit: 4;
     bool edit;
-    bool remain;
+    bool digit_info;
     places_name_t working_name;
-    places_ll_decimal_t working_latitude;
-    places_ll_decimal_t working_longitude;
-    places_ll_dms_t working_dms_latitude;
-    places_ll_dms_t working_dms_longitude;
-    places_olc_t working_pluscode;
-    places_geohash_t working_geohash;
-    places_ll_coordinate_t places[5];
+    places_format_decimal_latlon_t working_latitude;
+    places_format_decimal_latlon_t working_longitude;
+    places_format_dms_latlon_t working_dms_latitude;
+    places_format_dms_latlon_t working_dms_longitude;
+    places_format_olc_t working_pluscode;
+    places_format_geohash_t working_geohash;
+    places_coordinate_t places[5];
     bool file;
     bool registry;
     bool write;
-    places_schema_mode_t modes[6];
+    places_mode_schema_mode_t modes[6];
 } places_state_t;
 
 // PUBLIC WATCH FACE FUNCTIONS ////////////////////////////////////////////////
