@@ -602,47 +602,50 @@ static places_coordinate_t _convert_olc_to_decimal_coordinate(places_format_olc_
 static places_format_geohash_t _convert_decimal_ints_to_geohash(int32_t latitude, int32_t longitude) {
     uint8_t hash[10] = {0};
     double lat = (double)latitude / 100000;
-    double lng = (double)longitude / 100000;
+    double lon = (double)longitude / 100000;
 
-    // C implementation created by Derek Smith
-    // https://github.com/simplegeo/libgeohash/
-    // Copyright (c) 2010, SimpleGeo
+    // C implementation created by Lyo Kato
+    // https://github.com/lyokato/libgeohash/
+    // Copyright (c) 2011 lyo.kato@gmail.com
+
+    #define SET_BIT(bits, mid, range, value, offset) \
+    mid = ((range)->max + (range)->min) / 2.0; \
+    if ((value) >= mid) { \
+        (range)->min = mid; \
+        (bits) |= (0x1 << (offset)); \
+    } else { \
+        (range)->max = mid; \
+        (bits) |= (0x0 << (offset)); \
+    }
                         
-    places_format_geohash_interval lat_interval = {90, -90};
-    places_format_geohash_interval lng_interval = {180, -180};
+    uint8_t bits = 0;
+    double mid;
+    places_format_geohash_interval lat_range = {  90,  -90 };
+    places_format_geohash_interval lon_range = { 180, -180 };
 
-    // conversion
-    places_format_geohash_interval *interval;
-    double coord, mid;
-    int is_even = 1;
-    unsigned int hashChar = 0;
-    int i;
-    for(i = 1; i <= 50; i++) {
-        if(is_even) {
-            interval = &lng_interval;
-            coord = lng;                   
-        } else { 
-            interval = &lat_interval;
-            coord = lat;   
-        }
-        
-        mid = (interval->low + interval->high) / 2.0;
-        hashChar = hashChar << 1;
-        
-        if(coord > mid) {
-            
-            interval->low = mid;
-            hashChar |= 0x01;
-            
-        } else
-            interval->high = mid;
-        
-        if(!(i % 5)) {
-            hash[(i - 1) / 5] = hashChar;
-            hashChar = 0;
-        }
-        
-        is_even = !is_even;
+    double val1, val2, val_tmp;
+    places_format_geohash_interval *range1, *range2, *range_tmp;
+
+    val1 = lon; range1 = &lon_range;
+    val2 = lat; range2 = &lat_range;
+
+    for (uint8_t i=0; i < 10; i++) {
+
+        bits = 0;
+        SET_BIT(bits, mid, range1, val1, 4);
+        SET_BIT(bits, mid, range2, val2, 3);
+        SET_BIT(bits, mid, range1, val1, 2);
+        SET_BIT(bits, mid, range2, val2, 1);
+        SET_BIT(bits, mid, range1, val1, 0);
+
+        hash[i] = bits;
+
+        val_tmp   = val1;
+        val1      = val2;
+        val2      = val_tmp;
+        range_tmp = range1;
+        range1    = range2;
+        range2    = range_tmp;
     }
     
     // fill struct
@@ -675,48 +678,47 @@ static places_coordinate_t _convert_geohash_to_decimal_coordinate(places_format_
     hash[8] = geohash.d09;
     hash[9] = geohash.d10;
     
-    // C implementation created by Derek Smith
-    // https://github.com/simplegeo/libgeohash/
-    // Copyright (c) 2010, SimpleGeo
+    // C implementation created by Lyo Kato
+    // https://github.com/lyokato/libgeohash/
+    // Copyright (c) 2011 lyo.kato@gmail.com
 
-    unsigned int char_mapIndex;
-    places_format_geohash_interval lat_interval = {90, -90};
-    places_format_geohash_interval lng_interval = {180, -180};
-    places_format_geohash_interval *interval;
+    #define REFINE_RANGE(range, bits, offset) \
+    if (((bits) & (offset)) == (offset)) \
+        (range)->min = ((range)->max + (range)->min) / 2.0; \
+    else \
+        (range)->max = ((range)->max + (range)->min) / 2.0;
 
-    int is_even = 1;
-    double delta;
-    int i, j;
-    for(i = 0; i < 10; i++) {
-    
-        char_mapIndex = hash[i];
-        
-        if(char_mapIndex < 0)
-            break;
-    
-        // Interpret the last 5 bits of the integer
-        for(j = 0; j < 5; j++) {
-        
-            interval = is_even ? &lng_interval : &lat_interval;
-        
-            delta = (interval->high - interval->low) / 2.0;
-        
-            if((char_mapIndex << j) & 0x0010)
-                interval->low += delta;
-            else
-                interval->high -= delta;
-        
-            is_even = !is_even;
-        }
+    int8_t bits;
+    places_format_geohash_interval *range1, *range2, *range_tmp;
+
+    places_format_geohash_interval lat_range = {  90,  -90 };
+    places_format_geohash_interval lon_range = { 180, -180 };
+
+    range1 = &lon_range;
+    range2 = &lat_range;
+
+    for (uint8_t i=0; i < 10; i++) {
+
+        bits = hash[i];
+
+        REFINE_RANGE(range1, bits, 0x10);
+        REFINE_RANGE(range2, bits, 0x08);
+        REFINE_RANGE(range1, bits, 0x04);
+        REFINE_RANGE(range2, bits, 0x02);
+        REFINE_RANGE(range1, bits, 0x01);
+
+        range_tmp = range1;
+        range1    = range2;
+        range2    = range_tmp;
     }
 
     // fill struct
     places_coordinate_t retval;
     retval.latitude = _convert_decimal_int_to_struct(
-        (int32_t)((lat_interval.high - ((lat_interval.high - lat_interval.low) / 2.0)) * 100000)
+        (int32_t)round((lat_range.max - ((lat_range.max - lat_range.min) / 2.0)) * 100000)
     );
     retval.longitude = _convert_decimal_int_to_struct(
-        (int32_t)((lng_interval.high - ((lng_interval.high - lng_interval.low) / 2.0)) * 100000)
+        (int32_t)round((lon_range.max - ((lon_range.max - lon_range.min) / 2.0)) * 100000)
     );
 
     return retval;

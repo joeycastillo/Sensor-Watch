@@ -33,7 +33,8 @@
  *
  * Based on and expanded from the Sunrise/Sunset face. Initially just intended to outsource 
  * the location setting functionality to its own face it has become an advanced managing
- * application for location data.
+ * application for location data that also serves as a converter between different coordinate
+ * notation formats.
  * 
  * Using the ALARM button the user can flip through 5 available place slots.
  * 
@@ -49,69 +50,72 @@
  *
  * A LONG PRESS of the LIGHT button toggles editing mode for each of the selected notations.
  * 
- * A LONG PRESS of the ALARM button toggles DATA import/export mode when Place Name or one of the
- * Latitude/Longitude notations are selected. It toggles Digit Info auxiliary modes when 
- * Open Location Code or Geohash are selected.
+ * A LONG PRESS of the ALARM button toggles one of three auxiliary modes (LAP indicator):
  * 
- * Data Import and Export
- * ======================
+ * 1) DATA import/export when in Place Name mode.
+ * 2) DIGIT INFO when Open Location Code or Geohash are selected.
+ * 3) REMAIN when any of the Latitude and Longitude modes are selected.
  * 
- * In this mode ALARM toggles between File and Registry and LIGHT toggles between 'R'ead and 'W'rite.
+ * Auxiliary Mode: Data Import and Export
+ * ======================================
  * 
- * Coordinates can be read into the selected place slot either from the traditional internal
- * register or from a file on the LFS file system ("place.loc").
+ * In this mode ALARM toggles between File and Registry and LIGHT toggles between 'R' for
+ * read and 'W' for write.
  * 
- * When 'W'rite is active the current place coordinate can be saved in the selected destination.
+ * Coordinates can be read or stored from/to the selected place slot either from the traditional 
+ * internal location register or a file on the LFS file system ("place.loc").
  * 
- * The actual read/write operation is triggered by LONG PRESS of the LIGHT button.
+ * The actual read/write operation is triggered by a LONG PRESS of the LIGHT button.
+ * LONG PRESS of ALARM leaves this mode without any changes and returns to the Place Name.
  * 
- * Digit Info Auxiliary Mode (LAP)
- * ===============================
+ * Auxiliary Mode: Digit Info
+ * ==========================
  * 
- * The Open Location Code and Geohash notations employ ten digits of alphanumeric characters.
- * Due to the limited nature of the seven segment display, some of the characters appear
- * ambiguous. For example it is unclear whether a digit represents a 5 or an S, a 6 or a G.
+ * To work around the limitation of how ambiguously alphanumeric characters are displayed on 
+ * the main seven segment digits of the watch face ( S or 5, G or 6?) Digit Info mode can be 
+ * activated when in OLC or Geohash mode (shows LAP when toggled).
  * 
- * To work around this limitation Digit Info can be activated when in OLC or Geohash mode.
- * 
- * The LAP indicator is active when in this mode. Now the LIGHT button can be used to flip 
- * through the alphaumeric letters and the selected one is also shown in the much easier
- * to read alphanumeric 8 segment weekday digit above. In addition the '24H' indicator is
- * active when the selected digit represents a number and the 'PM' indicator for a letter.
+ * Now the LIGHT button can be used to flip through the alphaumeric letters. The selected one
+ * is now also shown in the much easier to read alphanumeric 8 segment weekday digit above.
+ * In addition the '24H' indicator is active when the selected digit represents a number and 
+ * the 'PM' indicator for a letter. 
  * 
  * This mode is also automatically activated when editing an OLC or Geohash code.
  * 
- * When Digit Info (LAP) is activated on the decimal or DMS Latitude & Longitude modes 
- * the automatic switching to the next place when pressing ALARM is prevented.
+ * Auxiliary Mode: Remain
+ * ======================
+ * 
+ * When this mode (LAP) is activated on the decimal or DMS Latitude & Longitude modes the 
+ * automatic switching to the next place when pressing ALARM is prevented.
+ * 
  * Instead the display remains at the current place and ALARM cycles the available screens
  * for easier recollection of the available coordinate information.
  * 
  * Notes on Coordinate Precision
  * =============================
  * 
- * A general limitation of the common WGS84 Latitude and Longitude system is that its degrees
- * do not translate 1:1 to meters in distance on the ground. 1° Longitude on the equator equals
- * a width of 111.32 kilometers, but at 40° latitude it is approximately 85 kilometers wide. The
- * closer to the poles the narrower (and more precise) the latitude degrees get.
+ * The common WGS84 Latitude and Longitude degrees naturally do not represent meters in distance 
+ * on the ground. 1° Longitude on the equatorial line equals a width of 111.32 kilometers, but 
+ * at 40° latitude further North or South it is approximately 85 kilometers wide. The closer to 
+ * the poles the narrower (and more precise) the latitude degrees get.
  * 
  * The Sensor Watch's traditional 16bit location register only stores latitudes and longitudes 
- * with two decimal points to make them fit. That equals a longitudal precision of 36 seconds
- * of a degree, or ~1111 meters at the equator - precise enough for astronomical calculations, 
- * but not if you want to store the location of a building, for example.
+ * with two decimal points. That equals a longitudal precision of 36 arc seconds, or ~1111 meters
+ * at the equator - precise enough for astronomical calculations, but not if you want to store the 
+ * location of let's say a building.
  * 
- * Hence we propose the <place.loc> file that serves the same purpose, but with five decimal digits.
- * That equals 0.04 seconds of a longitudal degree, or a precision of 1.11 meters at the equator.
+ * Hence we propose the <place.loc> file that serves the same purpose, but with a precision of 
+ * five decimal digits. That equals 0.04 arc seconds or 1.11 meters at the equator.
  * 
- * The different notations which this watch face offers also have varying magnitudes of precision:
+ * Please also note that the different notations of this watch face also have varying magnitudes 
+ * of precision:
  * 
- * In contrast to the aforementioned default decimal notation, coordinates entered in traditional
- * full Degrees, Minutes, and Seconds naturally have only a max. resolution of 1 second of a degree,
- * which equals a precision of ~31 meters.
- * 
- * Both, Open Location Code and Geohash standards support different lengths. The default OLC length 
- * is ten. which translates to 0.45 seconds of a degree - or ~14 meters longitude at the equator.
- * The same amount of digits in a Geohash allows to encode coordinates with a ten times higher
- * precision of around 1.2 meters in longitude at the equator.
+ * | Format             | Notation    | Precision at Equator | Precision at 67° N/S |
+ * | ------------------ | ----------- | -------------------- | -------------------- |
+ * | Decimal LatLon     | 29.97916    |              1.111 m |              0.435 m |
+ * | DMS LatLon         | 29°58'45"   |             30.833 m |            12.083  m |
+ * | Open Location Code | 7GXHX4HM+MM |             13.875 m |             13.875 m |
+ * | Geohash            | stq4s3x1qu  |              1.189 m |              0.596 m |
  * 
  * Since all notations are internally converted into degrees with 5 decimal points, expect some
  * rounding errors when editing or loading the coordinates in other notation formats.
@@ -159,6 +163,20 @@ typedef struct {
 } places_format_olc_t;
 
 typedef struct {
+    uint8_t d01;
+    uint8_t d02;
+    uint8_t d03;
+    uint8_t d04;
+    uint8_t d05;
+} places_name_t;
+
+typedef struct {
+    places_format_decimal_latlon_t latitude;
+    places_format_decimal_latlon_t longitude;
+    places_name_t name;
+} places_coordinate_t;
+
+typedef struct {
     uint8_t d01: 6;          // 0-z
     uint8_t d02: 6;          // 0-z 
     uint8_t d03: 6;          // 0-z
@@ -172,23 +190,9 @@ typedef struct {
 } places_format_geohash_t;
 
 typedef struct {
-    double high;
-    double low;
+    double max;
+    double min;
 } places_format_geohash_interval;
-
-typedef struct {
-    uint8_t d01;
-    uint8_t d02;
-    uint8_t d03;
-    uint8_t d04;
-    uint8_t d05;
-} places_name_t;
-
-typedef struct {
-    places_format_decimal_latlon_t latitude;
-    places_format_decimal_latlon_t longitude;
-    places_name_t name;
-} places_coordinate_t;
 
 typedef struct {
     uint8_t min_digit : 1;
