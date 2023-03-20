@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 <#author_name#>
+ * Copyright (c) 2023 Tobias Raayoni Last / @randogoth
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,84 +32,36 @@
 #include <emscripten.h>
 #endif
 
-// STATIC HELPER FUNCTIONS ////////////////////////////////////////////////////
+// STATIC HELPER FUNCTION DECLARATION /////////////////////////////////////////
 
-// convert and write Place Name struct to char array
-static void _name_struct_to_string(char *buf, places_name_t name);
-
-// converts decimal LatLon struct to integer
-static int32_t _ll_decimal_struct_to_int(places_format_decimal_latlon_t val);
-
-// convert decimal LatLon integer to struct
-static places_format_decimal_latlon_t _ll_decimal_int_to_struct(int32_t val);
-
-// converts DMS LatLon struct to integer
-static int32_t _ll_dms_struct_to_int(places_format_dms_latlon_t val);
-
-// convert DMS LatLon integer to struct
-static places_format_dms_latlon_t _ll_dms_int_to_struct(int32_t val);
-
-// convert and write Open Location Code struct to char array
-static void _olc_struct_to_array(uint8_t *buf, places_format_olc_t pluscode);
-
-// convert DMS LatLon struct to decimal integer
-static int32_t _ll_dms_struct_to_decimal_int( places_format_dms_latlon_t val );
-
-// convert decimal LatLon struct to DMS integer
-static int32_t _ll_decimal_struct_to_dms_int( places_format_decimal_latlon_t val );
-
-// convert LatLon integer to Open Location Code string and write to char array
-static places_format_olc_t _ll_decimal_ints_to_olc(int32_t lat, int32_t lon);
-
-// convert Open Location Code struct to LatLon Coordinate struct
-static places_coordinate_t _ll_olc_to_decimal_coordinate(places_format_olc_t pluscode);
-
-static places_format_geohash_t _ll_decimal_ints_to_geohash(int32_t latitude, int32_t longitude);
-static places_coordinate_t _ll_geohash_to_decimal_coordinate(places_format_geohash_t geohash);
-
-// Display Place Name
+// (descriptions in the function definitions below)
+static void _convert_name_struct_to_string(char *buf, places_name_t name);
+static int32_t _convert_decimal_struct_to_int(places_format_decimal_latlon_t val);
+static places_format_decimal_latlon_t _convert_decimal_int_to_struct(int32_t val);
+static int32_t _convert_dms_struct_to_int(places_format_dms_latlon_t val);
+static places_format_dms_latlon_t _convert_dms_int_to_struct(int32_t val);
+static int32_t _convert_dms_struct_to_decimal_int( places_format_dms_latlon_t val );
+static int32_t _convert_decimal_struct_to_dms_int( places_format_decimal_latlon_t val );
+static places_format_olc_t _convert_decimal_ints_to_olc(int32_t lat, int32_t lon);
+static places_coordinate_t _convert_olc_to_decimal_coordinate(places_format_olc_t pluscode);
+static places_format_geohash_t _convert_decimal_ints_to_geohash(int32_t latitude, int32_t longitude);
+static places_coordinate_t _convert_geohash_to_decimal_coordinate(places_format_geohash_t geohash);
 static void _places_face_update_name_display(movement_event_t event, places_state_t *state);
-
-// Display Decimal Latitude & Longitude
 static void _places_face_update_latlon_display(movement_event_t event, places_state_t *state);
-
-// Display Latitude & Longitude in Degrees, Minutes, Seconds
 static void _places_face_update_dms_display(movement_event_t event, places_state_t *state);
-
-// Display Open Location Code
 static void _places_face_update_code_display(movement_event_t event, places_state_t *state);
-
-// manage display formats
 static void _places_face_update_display(movement_event_t event, places_state_t *state);
-
-// Place Name Editor
 static void _places_face_advance_name_digit(places_state_t *state);
-
-// Decimal LatLon Editor
 static void _places_face_advance_latlon_digit(places_state_t *state);
-
-// DMS LatLon Editor
 static void _places_face_advance_dms_digit(places_state_t *state);
-
-// Open Location Code Editor
 static void _places_face_advance_olc_digit(places_state_t *state);
-
-// Editor Manager
 static void _places_face_advance_digit(places_state_t *state);
-
-static void _load_place_from_memory(places_state_t *state);
-
-static void _save_place_to_memory(places_state_t *state);
-
-// DATA MANAGEMENT FUNCTIONS
-
-static void _load_place_from_register(places_state_t *state);
-
-static void _save_place_to_register(places_state_t *state);
-
-static void _load_place_from_file(places_state_t *state);
-
-static void _save_place_to_file(places_state_t *state);
+static void _data_load_place_from_memory(places_state_t *state);
+static void _data_load_place_from_register(places_state_t *state);
+static void _data_load_place_from_file(places_state_t *state);
+static void _data_save_place_to_memory(places_state_t *state);
+static void _data_save_place_to_register(places_state_t *state);
+static void _data_save_place_to_file(places_state_t *state);
 
 // MOVEMENT WATCH FACE FUNCTIONS //////////////////////////////////////////////
 
@@ -144,6 +96,7 @@ void places_face_activate(movement_settings_t *settings, void *context) {
     }
 #endif
 
+    // Pages & Digits Schema of the different Modes
     state->modes[PLACE].max_page = 0;
     state->modes[PLACE].page[0].min_digit = 1;
     state->modes[PLACE].page[0].max_digit = 5;
@@ -203,6 +156,7 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
             if (event.event_type == EVENT_LOW_ENERGY_UPDATE && !watch_tick_animation_is_running()) watch_start_tick_animation(1000);
             // check if we need to update the display
             if ( state->edit || state->digit_info ) {
+                // in Edit or Digit Info modes, refresh every tick to show blinking cursors
                 if ( state->mode != DATA )
                     _places_face_update_display(event, state);
             }
@@ -210,71 +164,92 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
         case EVENT_LIGHT_BUTTON_DOWN:
             break;
         case EVENT_LIGHT_BUTTON_UP:
-            if ( state->edit || state->digit_info )
+            // flips through the different display modes for each place
+            // increments active digit when in Edit or Display Info auxiliary modes
+            if ( state->edit || state->digit_info || state->mode == DATA )
                 state->active_digit++;
             else {
                 state->mode = (state->mode + 1) % 5;
                 state->page = 0;
             }
 
-            if ( state->mode == DECIMAL || state->mode == DMS ) 
-                if ( state->page == 0 && state->active_digit == 1 )
-                    state->active_digit++;
-            
-            if ( state->active_digit > state->modes[state->mode].page[state->page].max_digit ) {
-                if ( state->page == state->modes[state->mode].max_page ) {
-                    state->page = 0;
-                    state->active_digit = state->modes[state->mode].page[state->page].min_digit;
-                } else {
-                    state->page++;
-                    state->active_digit = state->modes[state->mode].page[state->page].min_digit;
-                }
+            // handles particularities for the different modes
+            switch ( state->mode ) {
+                case DATA:
+                    // toggles between Read and Write options
+                    state->active_digit %= 2;
+                    switch ( state->active_digit ) {
+                        case 0:
+                            watch_display_string("R  ", 0);
+                            state->write = false;
+                            break;
+                        case 1:
+                            watch_display_string("W  ", 0);
+                            state->write = true;
+                            break;
+                    }
+                    break;
+                case DECIMAL:
+                case DMS:
+                    // skip hundreds digit for latitude degrees
+                    if ( state->page == 0 && state->active_digit == 1 )
+                        state->active_digit++;
+                default:
+                    // when max amount of digits per mode is reached flip to next page / wrap around
+                    if ( state->active_digit > state->modes[state->mode].page[state->page].max_digit ) {
+                        if ( state->page == state->modes[state->mode].max_page ) {
+                            state->page = 0;
+                            state->active_digit = state->modes[state->mode].page[state->page].min_digit;
+                        } else {
+                            state->page++;
+                            state->active_digit = state->modes[state->mode].page[state->page].min_digit;
+                        }
+                    }
             }
-
-            if ( state->mode == DATA ) {
-                state->page = 0;
-                switch ( state->active_digit ) {
-                    case 0:
-                        watch_display_string("R  ", 0);
-                        state->write = false;
-                        break;
-                    case 1:
-                        watch_display_string("W  ", 0);
-                        state->write = true;
-                        break;
-                }
-            }
-            state->place %= 5;
+            // update display
             _places_face_update_display(event, state);
             break;
         case EVENT_LIGHT_LONG_PRESS:
+            // toggles Edit auxiliary mode in all place display modes
+            // Triggers a Read/Write in Data mode
+
            if ( state->mode == DATA ) {
+                // just to make sure we exit if none are selected
                 if ( !state->file && !state->registry )
                     state->mode = PLACE;
                 else {
+                    // if options are selected read/write location file/register
                     if ( state->registry && state->write )
-                        _save_place_to_register(state);
+                        _data_save_place_to_register(state);
                     if ( state->registry && !state->write )
-                        _load_place_from_register(state);   
+                        _data_load_place_from_register(state);   
                     if ( state->file && state->write )
-                        _save_place_to_file(state);
+                        _data_save_place_to_file(state);
                     if ( state->file && !state->write )
-                        _load_place_from_file(state);
+                        _data_load_place_from_file(state);
                 }
             } else {
+                // toggle Edit auxiliary mode
                 state->edit = !state->edit;
-                state->active_digit = state->modes[state->mode].page[state->page].min_digit;
-            }
-            if ( !state->edit ) { // leaving edit mode saves data in state
-                _save_place_to_memory(state);
                 if ( !state->digit_info )
-                    state->active_digit = 0;
-                else
                     state->active_digit = state->modes[state->mode].page[state->page].min_digit;
             }
+            if ( !state->edit ) { // leaving edit mode saves data in state
+                _data_save_place_to_memory(state);
+                if ( !state->digit_info )
+                    state->active_digit = 0;
+                else {
+                    if ( state->active_digit < state->modes[state->mode].page[state->page].min_digit )
+                        state->active_digit = state->modes[state->mode].page[state->page].min_digit;
+                }
+            }
+            // update display
             _places_face_update_display(event, state);
             break;
         case EVENT_ALARM_BUTTON_UP:
+            // Flips through the 5 available places
+            // In Edit mode increments the selected digit
+
              if ( state->edit )
                 _places_face_advance_digit(state);
             else {
@@ -282,12 +257,14 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
                     state->page++;
             }
 
+            // wraps around pages and goes to the next display mode
             if ( state->page > state->modes[state->mode].max_page ) {
                 state->page = 0;
                 state->place = (state->place + 1) % 5;
-                _load_place_from_memory(state);
+                _data_load_place_from_memory(state);
             }
 
+            // toggles between file and location register in Data mode
             if ( state->mode == DATA ) {
                 switch ( state->page ) {
                     case 0:
@@ -303,33 +280,49 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
                 }
                 break;
             }
+            // update display
             _places_face_update_display(event, state);
             break;
         case EVENT_ALARM_LONG_PRESS:
-            printf("%d\n", state->digit_info);
-            switch ( state->mode ) {
-                case DATA:
-                    state->file = false;
-                    state->registry = false;
-                    state->mode = PLACE;
-                    break;
-                case OLC:
-                case GEO:
-                    state->digit_info = !state->digit_info;
-                    if ( !state->digit_info )
-                        if ( !state->edit )
-                            state->active_digit = 0;
-                    else
-                        if ( !state->edit )
-                            state->active_digit = 1;
-                    break;
-                default:
-                    state->mode = DATA;
-                    watch_display_string("R  ", 0);
-                    watch_display_string(" file ", 4);
-                    state->write = false;
-                    state->file = true;
-                    state->registry = false;
+            // Toggles Data mode in place name & numerical coordinate display modes
+            // Toggles Digit Info mode in alphanumerical shortcode display modes
+            // Discards changes in Edit mode
+
+            if ( !state->edit ) {
+                switch ( state->mode ) {
+                    case DATA:
+                        state->file = false;
+                        state->registry = false;
+                        state->mode = PLACE;
+                        break;
+                    case OLC:
+                    case GEO:
+                        // toggle Digit Info auxiliary
+                        state->digit_info = !state->digit_info;
+
+                        // coming out of Digit Info:
+                        if ( !state->digit_info ) {
+                            if ( !state->edit )
+                                state->active_digit = 0;
+                        // going into Digit Info:
+                        } else
+                            if ( !state->edit )
+                                state->active_digit = 1;
+                        break;
+                    default:
+                        state->mode = DATA;
+                        watch_display_string("R  ", 0);
+                        watch_display_string(" file ", 4);
+                        state->write = false;
+                        state->file = true;
+                        state->registry = false;
+                        state->page = 0;
+                        state->active_digit = 0;
+                }
+            } else {
+                // discard changes
+                state->edit = false;
+                _data_load_place_from_memory(state);
             }
             _places_face_update_display(event, state);
             break;
@@ -371,13 +364,14 @@ void places_face_resign(movement_settings_t *settings, void *context) {
     // handle any cleanup before your watch face goes off-screen.
 }
 
-// PRIVATE STATIC FUNCTIONS ///////////////////////////////////////////////////
+// PRIVATE STATIC FUNCTION DEFINITIONS ////////////////////////////////////////
 
 // CONVERSION FUNCTIONS
 
 // Place Descriptor (ABCDE)
 
-static void _name_struct_to_string(char *buf, places_name_t name) {
+// convert internal place name struct to char array
+static void _convert_name_struct_to_string(char *buf, places_name_t name) {
     buf[0] = name_alphabet[name.d01];
     buf[1] = name_alphabet[name.d02];
     buf[2] = name_alphabet[name.d03];
@@ -388,23 +382,23 @@ static void _name_struct_to_string(char *buf, places_name_t name) {
 // Decimal Latitude & Longitude Format (DD.DDDDD)
 
 // converts decimal LatLon struct to integer
-static int32_t _ll_decimal_struct_to_int(places_format_decimal_latlon_t val) {
+static int32_t _convert_decimal_struct_to_int(places_format_decimal_latlon_t val) {
     int32_t retval = (val.sign ? -1 : 1) *
                         (
                             val.hundreds * 10000000 +
                             val.tens     * 1000000 +
                             val.ones     * 100000 +
-                            val.d01       * 10000 +
-                            val.d02       * 1000+
-                            val.d03       * 100+
-                            val.d04       * 10 +
-                            val.d05       * 1
+                            val.d01      * 10000 +
+                            val.d02      * 1000 +
+                            val.d03      * 100 +
+                            val.d04      * 10 +
+                            val.d05      * 1
                         );
     return retval;
 }
 
 // converts decimal LatLon struct to integer
-static int16_t _ll_decimal_struct_to_int16(places_format_decimal_latlon_t val) {
+static int16_t _convert_decimal_struct_to_int16(places_format_decimal_latlon_t val) {
     if ( val.d05 >=5 && val.d04 < 9 ) val.d04++;
     else if ( val.d04 < 9 ) val.d04--;
     if ( val.d03 >=5 && val.d03 < 9) val.d03++;
@@ -416,32 +410,24 @@ static int16_t _ll_decimal_struct_to_int16(places_format_decimal_latlon_t val) {
                             val.hundreds * 10000 +
                             val.tens     * 1000 +
                             val.ones     * 100 +
-                            val.d01       * 10 +
-                            val.d02       * 1
+                            val.d01      * 10 +
+                            val.d02      * 1
                         );
     return retval;
 }
 
-static places_format_decimal_latlon_t _ll_decimal_int_to_struct(int32_t val) {
-    // convert decimal LatLon integer to struct
+// convert decimal LatLon integer to struct
+static places_format_decimal_latlon_t _convert_decimal_int_to_struct(int32_t val) {
     places_format_decimal_latlon_t retval;
 
-    retval.sign = val < 0;
-    val = abs(val);
-    retval.d05 = val % 10;
-    val /= 10;
-    retval.d04 = val % 10;
-    val /= 10;
-    retval.d03 = val % 10;
-    val /= 10;
-    retval.d02 = val % 10;
-    val /= 10;
-    retval.d01 = val % 10;
-    val /= 10;
-    retval.ones = val % 10;
-    val /= 10;
-    retval.tens = val % 10;
-    val /= 10;
+    retval.sign     = val < 0;  val = abs(val);
+    retval.d05      = val % 10; val /= 10;
+    retval.d04      = val % 10; val /= 10;
+    retval.d03      = val % 10; val /= 10;
+    retval.d02      = val % 10; val /= 10;
+    retval.d01      = val % 10; val /= 10;
+    retval.ones     = val % 10; val /= 10;
+    retval.tens     = val % 10; val /= 10;
     retval.hundreds = val % 10;
 
     return retval;
@@ -449,7 +435,7 @@ static places_format_decimal_latlon_t _ll_decimal_int_to_struct(int32_t val) {
 
 // Latitude & Longitude in Degrees, Minutes, Seconds (DD° MM' SS")
 
-static int32_t _ll_dms_struct_to_int(places_format_dms_latlon_t val) {
+static int32_t _convert_dms_struct_to_int(places_format_dms_latlon_t val) {
     // converts DMS LatLon struct to integer
     int32_t retval = (val.sign ? -1 : 1) *
                         (
@@ -464,60 +450,26 @@ static int32_t _ll_dms_struct_to_int(places_format_dms_latlon_t val) {
     return retval;
 }
 
-static places_format_dms_latlon_t _ll_dms_int_to_struct(int32_t val) {
-    // convert DMS LatLon integer to struct
+// convert DMS LatLon integer to struct
+static places_format_dms_latlon_t _convert_dms_int_to_struct(int32_t val) {
     places_format_dms_latlon_t retval;
 
-    retval.sign = val < 0;
-    val = abs(val);
-    retval.secs_ones = val % 10;
-    val /= 10;
-    retval.secs_tens = val % 10;
-    val /= 10;
-    retval.mins_ones = val % 10;
-    val /= 10;
-    retval.mins_tens = val % 10;
-    val /= 10;
-    retval.ones = val % 10;
-    val /= 10;
-    retval.tens = val % 10;
-    val /= 10;
-    retval.hundreds = val % 10;
+    retval.sign      = val < 0;     val = abs(val);
+    retval.secs_ones = val % 10;    val /= 10;
+    retval.secs_tens = val % 10;    val /= 10;
+    retval.mins_ones = val % 10;    val /= 10;
+    retval.mins_tens = val % 10;    val /= 10;
+    retval.ones      = val % 10;    val /= 10;
+    retval.tens      = val % 10;    val /= 10;
+    retval.hundreds  = val % 10;
 
     return retval;
 }
 
-static void _olc_struct_to_array(uint8_t *buf, places_format_olc_t pluscode) {
-    // convert and write Open Location Code struct to char array
-    buf[0] = pluscode.lat1;
-    buf[1] = pluscode.lon1;
-    buf[2] = pluscode.lat2;
-    buf[3] = pluscode.lon2;
-    buf[4] = pluscode.lat3;
-    buf[5] = pluscode.lon3;
-    buf[6] = pluscode.lat4;
-    buf[7] = pluscode.lon4;
-    buf[8] = pluscode.lat5;
-    buf[9] = pluscode.lon5;
-}
-
-static void _geohash_struct_to_array(uint8_t *buf, places_format_geohash_t hash) {
-    buf[0] = hash.d01;
-    buf[1] = hash.d02;
-    buf[2] = hash.d03;
-    buf[3] = hash.d04;
-    buf[4] = hash.d05;
-    buf[5] = hash.d06;
-    buf[6] = hash.d07;
-    buf[7] = hash.d08;
-    buf[8] = hash.d09;
-    buf[9] = hash.d10;
-}
-
 // Conversion between Decimal and DMS Latitude & Longitude
 
-static int32_t _ll_dms_struct_to_decimal_int( places_format_dms_latlon_t val ) {
-    // convert DMS LatLon struct to decimal integer
+// convert DMS LatLon struct to decimal integer
+static int32_t _convert_dms_struct_to_decimal_int( places_format_dms_latlon_t val ) {
     double retval = (val.sign ? -1 : 1) *
                         (
                             (double)val.hundreds  * 100 +
@@ -529,10 +481,10 @@ static int32_t _ll_dms_struct_to_decimal_int( places_format_dms_latlon_t val ) {
     return (int32_t) round(retval * 100000);
 }
 
-static int32_t _ll_decimal_struct_to_dms_int( places_format_decimal_latlon_t val ) {
-    // convert decimal LatLon struct to DMS integer
+// convert decimal LatLon struct to DMS integer
+static int32_t _convert_decimal_struct_to_dms_int( places_format_decimal_latlon_t val ) {
     places_format_dms_latlon_t dms;
-    double coord = (double)abs(_ll_decimal_struct_to_int(val)) / 100000;
+    double coord = (double)abs(_convert_decimal_struct_to_int(val)) / 100000;
     
     // conversion
     int sec = (int)round(coord * 3600);
@@ -563,18 +515,23 @@ static int32_t _ll_decimal_struct_to_dms_int( places_format_decimal_latlon_t val
         dms.secs_ones = sec % 10;
         dms.secs_tens = ( sec / 10 ) % 10;
     }
-    return _ll_dms_struct_to_int(dms);
-
+    return _convert_dms_struct_to_int(dms);
 }
 
 // Conversion between Decimal Latitude & Longitude and Open Location Code
 
 // convert LatLon integer to Open Location Code struct
-static places_format_olc_t _ll_decimal_ints_to_olc(int32_t lat, int32_t lon) {
+static places_format_olc_t _convert_decimal_ints_to_olc(int32_t lat, int32_t lon) {
     uint8_t values[10];
     places_format_olc_t retval;
     double latitude = (double)lat / 100000;
     double longitude = (double)lon / 100000;
+
+    // Encode a latitude and longitude into a 10-digit (8+2) plus code.
+    // This is a short version of the encoding library that does not support other
+    // code lengths. If you need more precision or decode functionality, see
+    // https://github.com/google/open-location-code/
+    // Code from: https://www.mail-archive.com/open-location-code@googlegroups.com/msg00315.html
     int a = (latitude + 90) * 1e6;
     int b = (longitude + 180) * 1e6;
     for (int8_t i = 9; i > -1; i--) {
@@ -583,6 +540,8 @@ static places_format_olc_t _ll_decimal_ints_to_olc(int32_t lat, int32_t lon) {
         b = a;
         a = d / 20;
     }
+
+    // fill struct
     retval.lat1 = values[0];
     retval.lon1 = values[1];
     retval.lat2 = values[2];
@@ -596,12 +555,14 @@ static places_format_olc_t _ll_decimal_ints_to_olc(int32_t lat, int32_t lon) {
     return retval;
 }
 
-static places_coordinate_t _ll_olc_to_decimal_coordinate(places_format_olc_t pluscode) {
-    // convert Open Location Code char array to LatLon Coordinate struct
+// convert Open Location Code char array to LatLon Coordinate struct
+static places_coordinate_t _convert_olc_to_decimal_coordinate(places_format_olc_t pluscode) {
     double lat = 0, lon = 0;
     double deg = 20;
     uint8_t buf[10];
     places_coordinate_t retval;
+
+    // crude struct to array conversion
     buf[0] = pluscode.lat1;
     buf[1] = pluscode.lon1;
     buf[2] = pluscode.lat2;
@@ -612,6 +573,10 @@ static places_coordinate_t _ll_olc_to_decimal_coordinate(places_format_olc_t plu
     buf[7] = pluscode.lon4;
     buf[8] = pluscode.lat5;
     buf[9] = pluscode.lon5;
+
+    // conversion based on algorithm description found at:
+    // https://www.dcode.fr/open-location-code
+
     for (int8_t i = 0; i < 10; i++) {
         uint8_t value = buf[i];
         switch ( i % 2 ) {
@@ -624,25 +589,27 @@ static places_coordinate_t _ll_olc_to_decimal_coordinate(places_format_olc_t plu
                 break;
         }       
     }
-    retval.latitude = _ll_decimal_int_to_struct((int32_t)((lat - 90) * 100000));
-    retval.longitude = _ll_decimal_int_to_struct((int32_t)((lon - 180) * 100000));
+
+    // fill coordinate struct
+    retval.latitude = _convert_decimal_int_to_struct((int32_t)((lat - 90) * 100000));
+    retval.longitude = _convert_decimal_int_to_struct((int32_t)((lon - 180) * 100000));
     return retval;
 }
 
 // convert LatLon integer to Geohash struct
-static places_format_geohash_t _ll_decimal_ints_to_geohash(int32_t latitude, int32_t longitude) {
+static places_format_geohash_t _convert_decimal_ints_to_geohash(int32_t latitude, int32_t longitude) {
     uint8_t hash[10] = {0};
     double lat = (double)latitude / 100000;
     double lng = (double)longitude / 100000;
 
-    /*  C implementation created by Derek Smith
-     *  https://github.com/simplegeo/libgeohash/
-     *  Copyright (c) 2010, SimpleGeo
-     */
+    // C implementation created by Derek Smith
+    // https://github.com/simplegeo/libgeohash/
+    // Copyright (c) 2010, SimpleGeo
                         
     places_format_geohash_interval lat_interval = {90, -90};
     places_format_geohash_interval lng_interval = {180, -180};
 
+    // conversion
     places_format_geohash_interval *interval;
     double coord, mid;
     int is_even = 1;
@@ -675,7 +642,8 @@ static places_format_geohash_t _ll_decimal_ints_to_geohash(int32_t latitude, int
         
         is_even = !is_even;
     }
-            
+    
+    // fill struct
     places_format_geohash_t geohash;
     geohash.d01 = hash[0];
     geohash.d02 = hash[1];
@@ -691,15 +659,23 @@ static places_format_geohash_t _ll_decimal_ints_to_geohash(int32_t latitude, int
 }
 
 // convert Geohash struct to LatLon Coordinate
-static places_coordinate_t _ll_geohash_to_decimal_coordinate(places_format_geohash_t geohash) {
+static places_coordinate_t _convert_geohash_to_decimal_coordinate(places_format_geohash_t geohash) {
     
     uint8_t hash[10];
-    _geohash_struct_to_array(hash, geohash);
+    hash[0] = geohash.d01;
+    hash[1] = geohash.d02;
+    hash[2] = geohash.d03;
+    hash[3] = geohash.d04;
+    hash[4] = geohash.d05;
+    hash[5] = geohash.d06;
+    hash[6] = geohash.d07;
+    hash[7] = geohash.d08;
+    hash[8] = geohash.d09;
+    hash[9] = geohash.d10;
     
-    /*  C implementation created by Derek Smith
-     *  https://github.com/simplegeo/libgeohash/
-     *  Copyright (c) 2010, SimpleGeo
-     */
+    // C implementation created by Derek Smith
+    // https://github.com/simplegeo/libgeohash/
+    // Copyright (c) 2010, SimpleGeo
 
     unsigned int char_mapIndex;
     places_format_geohash_interval lat_interval = {90, -90};
@@ -731,11 +707,13 @@ static places_coordinate_t _ll_geohash_to_decimal_coordinate(places_format_geoha
             is_even = !is_even;
         }
     }
+
+    // fill struct
     places_coordinate_t retval;
-    retval.latitude = _ll_decimal_int_to_struct(
+    retval.latitude = _convert_decimal_int_to_struct(
         (int32_t)((lat_interval.high - ((lat_interval.high - lat_interval.low) / 2.0)) * 100000)
     );
-    retval.longitude = _ll_decimal_int_to_struct(
+    retval.longitude = _convert_decimal_int_to_struct(
         (int32_t)((lng_interval.high - ((lng_interval.high - lng_interval.low) / 2.0)) * 100000)
     );
 
@@ -749,7 +727,7 @@ static void _places_face_update_name_display(movement_event_t event, places_stat
     char buf[12];
     char name[6] = {0};
     watch_clear_display();
-    _name_struct_to_string(name, state->working_name);
+    _convert_name_struct_to_string(name, state->working_name);
     
     char help[3];
     sprintf(help, "PL");
@@ -769,9 +747,9 @@ static void _places_face_update_latlon_display(movement_event_t event, places_st
     watch_clear_display();
 
     if ( state->page < 2 )
-        sprintf(lln, "%08d", abs( _ll_decimal_struct_to_int(state->working_latitude)));
+        sprintf(lln, "%08d", abs( _convert_decimal_struct_to_int(state->working_latitude)));
     else
-        sprintf(lln, "%08d", abs( _ll_decimal_struct_to_int(state->working_longitude)));
+        sprintf(lln, "%08d", abs( _convert_decimal_struct_to_int(state->working_longitude)));
 
     switch (state->page) {
         case 0: // Latitude
@@ -799,9 +777,9 @@ static void _places_face_update_dms_display(movement_event_t event, places_state
     char lln[8];
     watch_clear_display();
     if ( state->page < 2 ) 
-        sprintf(lln, "%07d", abs( _ll_dms_struct_to_int(state->working_dms_latitude)));
+        sprintf(lln, "%07d", abs( _convert_dms_struct_to_int(state->working_dms_latitude)));
     else
-        sprintf(lln, "%07d", abs( _ll_dms_struct_to_int(state->working_dms_longitude)));
+        sprintf(lln, "%07d", abs( _convert_dms_struct_to_int(state->working_dms_longitude)));
     
     switch (state->page) {
         case 0: // Latitude
@@ -823,6 +801,8 @@ static void _places_face_update_dms_display(movement_event_t event, places_state
         buf[state->active_digit + 4] = ' ';
     }
     watch_display_string(buf, 0);
+
+    // degrees icon °
     if ( state->page % 2 == 0) {
         watch_set_pixel(1, 2);
         watch_set_pixel(2, 2);
@@ -842,28 +822,60 @@ static void _places_face_update_code_display(movement_event_t event, places_stat
     watch_clear_display();
 
     uint8_t index = state->active_digit + ( state->page == 0 ? -1 : 4);
-    switch ( state->mode ) {
-        case OLC:
-            _olc_struct_to_array(code_array, state->working_pluscode);
-            for ( uint8_t i = 0; i < 10; i++)
-                code_string[i] = olc_alphabet[code_array[i]];
-            if ( state->digit_info || state->edit )
-                if ( code_array[index] > 7 )
-                    watch_set_indicator(WATCH_INDICATOR_PM);
-                else
-                    watch_set_indicator(WATCH_INDICATOR_24H);
-            break;
-        case GEO:
-            _geohash_struct_to_array(code_array, state->working_geohash);
-            for ( uint8_t i = 0; i < 10; i++)
-                code_string[i] = geohash_alphabet[code_array[i]];
-            if ( state->digit_info || state->edit )
-                if ( code_array[index] > 9 )
-                    watch_set_indicator(WATCH_INDICATOR_PM);
-                else
-                    watch_set_indicator(WATCH_INDICATOR_24H);
-            break;
+
+    // set up letters
+    if ( state->mode == OLC ) {
+        // populate array from struct
+        code_array[0] = state->working_pluscode.lat1;
+        code_array[1] = state->working_pluscode.lon1;
+        code_array[2] = state->working_pluscode.lat2;
+        code_array[3] = state->working_pluscode.lon2;
+        code_array[4] = state->working_pluscode.lat3;
+        code_array[5] = state->working_pluscode.lon3;
+        code_array[6] = state->working_pluscode.lat4;
+        code_array[7] = state->working_pluscode.lon4;
+        code_array[8] = state->working_pluscode.lat5;
+        code_array[9] = state->working_pluscode.lon5;
+
+        // get letters from alphabet to display
+        for ( uint8_t i = 0; i < 10; i++)
+            code_string[i] = olc_alphabet[code_array[i]];
     }
+
+    if ( state->mode == GEO ) {
+        // populate array from struct
+        code_array[0] = state->working_geohash.d01;
+        code_array[1] = state->working_geohash.d02;
+        code_array[2] = state->working_geohash.d03;
+        code_array[3] = state->working_geohash.d04;
+        code_array[4] = state->working_geohash.d05;
+        code_array[5] = state->working_geohash.d06;
+        code_array[6] = state->working_geohash.d07;
+        code_array[7] = state->working_geohash.d08;
+        code_array[8] = state->working_geohash.d09;
+        code_array[9] = state->working_geohash.d10;
+
+        // get letters from alphabet to display
+        for ( uint8_t i = 0; i < 10; i++)
+            code_string[i] = geohash_alphabet[code_array[i]];
+    }
+
+    // if Digit Info mode is enabled, show PM for letters and 24H for numbers
+    if ( state->digit_info || state->edit ) {
+        if ( code_array[index] > 7 )
+            watch_set_indicator(WATCH_INDICATOR_PM);
+        else
+            watch_set_indicator(WATCH_INDICATOR_24H);
+    }
+
+    // show LAP when Digit Info auxiliary mode is enabled
+    if ( state->digit_info)
+        watch_set_indicator(WATCH_INDICATOR_LAP);
+    else
+        watch_clear_indicator(WATCH_INDICATOR_LAP);
+
+    // in Edit mode and Digit Info auxiliary modes
+    // display currently selected letter also as alphanumeric digit in digit position 0
     if ( state->active_digit > 0 ) {
         char letter_digit = code_string[index];
             if ( code_array[index] == 27 ) {
@@ -875,6 +887,7 @@ static void _places_face_update_code_display(movement_event_t event, places_stat
         sprintf(help, (state->mode == OLC ? "OL" : "GH"));
     }
 
+    // prepare string
     switch (state->page) {
         case 0: // OLC Digits 1-5
             sprintf(buf, "%c%c %d %c%c%c%c%c", help[0], help[1], state->place + 1, code_string[0], code_string[1], code_string[2], code_string[3], code_string[4]);
@@ -883,22 +896,26 @@ static void _places_face_update_code_display(movement_event_t event, places_stat
             sprintf(buf, "%c%c %d %c%c%c%c%c", help[0], help[1], state->place + 1, code_string[5], code_string[6], code_string[7], code_string[8], code_string[9]);
             break;
     }
+
     if (state->edit && event.subsecond % 2) {
         buf[state->active_digit + 4] = ' ';
     } else {
-        if (state->digit_info && event.subsecond == 1) {
+        // blink also in Digit Info auxiliary mode
+        if (state->digit_info && event.subsecond < 1) {
             buf[state->active_digit + 4] = '-';
-            printf("blink\n");
         }
     }
 
     watch_display_string(buf, 0);
+
+    // show position indicator for pages
     if ( state->page % 2 == 0) {
         watch_set_pixel(0, 18);
     } else {
         watch_set_pixel(0, 19);
     }
 
+    // fix the display for the letter 'V' because it is indistinguishable from 'U'
     if ( fix ) {
         watch_set_pixel(0, 14);
         watch_set_pixel(1, 14);
@@ -924,11 +941,7 @@ static void _places_face_update_display(movement_event_t event, places_state_t *
             break;
         case DATA:
             break;
-    }  
-    if ( state->digit_info)
-        watch_set_indicator(WATCH_INDICATOR_LAP);
-    else
-        watch_clear_indicator(WATCH_INDICATOR_LAP);
+    }
 }
 
 // DATA EDITOR FUNCTIONS
@@ -970,7 +983,7 @@ static void _places_face_advance_latlon_digit(places_state_t *state) {
                     break;
                 case 2:
                     state->working_latitude.tens = (state->working_latitude.tens + 1) % 10;
-                    if (abs(_ll_decimal_struct_to_int(state->working_latitude)) > 9000000) {
+                    if (abs(_convert_decimal_struct_to_int(state->working_latitude)) > 9000000) {
                         // prevent latitude from going over ±90.
                         // TODO: perform these checks when advancing the digit?
                         state->working_latitude.ones = 0;
@@ -983,7 +996,7 @@ static void _places_face_advance_latlon_digit(places_state_t *state) {
                     break;
                 case 3:
                     state->working_latitude.ones = (state->working_latitude.ones + 1) % 10;
-                    if (abs(_ll_decimal_struct_to_int(state->working_latitude)) > 9000000) 
+                    if (abs(_convert_decimal_struct_to_int(state->working_latitude)) > 9000000) 
                         state->working_latitude.ones = 0;
                     break;
             }
@@ -995,27 +1008,27 @@ static void _places_face_advance_latlon_digit(places_state_t *state) {
                     break;
                 case 1:
                     state->working_latitude.d01 = (state->working_latitude.d01 + 1) % 10;
-                    if (abs(_ll_decimal_struct_to_int(state->working_latitude)) > 9000000) 
+                    if (abs(_convert_decimal_struct_to_int(state->working_latitude)) > 9000000) 
                         state->working_latitude.d01 = 0;
                     break;
                 case 2:
                     state->working_latitude.d02 = (state->working_latitude.d02 + 1) % 10;
-                    if (abs(_ll_decimal_struct_to_int(state->working_latitude)) > 9000000) 
+                    if (abs(_convert_decimal_struct_to_int(state->working_latitude)) > 9000000) 
                         state->working_latitude.d02 = 0;
                     break;
                 case 3:
                     state->working_latitude.d03 = (state->working_latitude.d03 + 1) % 10;
-                    if (abs(_ll_decimal_struct_to_int(state->working_latitude)) > 9000000) 
+                    if (abs(_convert_decimal_struct_to_int(state->working_latitude)) > 9000000) 
                         state->working_latitude.d03 = 0;
                     break;
                 case 4:
                     state->working_latitude.d04 = (state->working_latitude.d04 + 1) % 10;
-                    if (abs(_ll_decimal_struct_to_int(state->working_latitude)) > 9000000) 
+                    if (abs(_convert_decimal_struct_to_int(state->working_latitude)) > 9000000) 
                         state->working_latitude.d04 = 0;
                     break;
                 case 5:
                     state->working_latitude.d05 = (state->working_latitude.d05 + 1) % 10;
-                    if (abs(_ll_decimal_struct_to_int(state->working_latitude)) > 9000000) 
+                    if (abs(_convert_decimal_struct_to_int(state->working_latitude)) > 9000000) 
                         state->working_latitude.d05 = 0;
                     break;
             }
@@ -1027,7 +1040,7 @@ static void _places_face_advance_latlon_digit(places_state_t *state) {
                     break;
                 case 1:
                     state->working_longitude.hundreds = (state->working_longitude.hundreds + 1) % 10;
-                    if (abs(_ll_decimal_struct_to_int(state->working_longitude)) > 18000000) {
+                    if (abs(_convert_decimal_struct_to_int(state->working_longitude)) > 18000000) {
                         // prevent longitude from going over ±90.
                         // TODO: perform these checks when advancing the digit?
                         state->working_longitude.tens = 0;
@@ -1041,14 +1054,14 @@ static void _places_face_advance_latlon_digit(places_state_t *state) {
                     break;
                 case 2:
                     state->working_longitude.tens = (state->working_longitude.tens + 1) % 10;
-                    if (abs(_ll_decimal_struct_to_int(state->working_longitude)) > 18000000) {
+                    if (abs(_convert_decimal_struct_to_int(state->working_longitude)) > 18000000) {
                         state->working_longitude.tens = 0;
 
                     }
                     break;
                 case 3:
                     state->working_longitude.ones = (state->working_longitude.ones + 1) % 10;
-                    if (abs(_ll_decimal_struct_to_int(state->working_longitude)) > 18000000) 
+                    if (abs(_convert_decimal_struct_to_int(state->working_longitude)) > 18000000) 
                         state->working_longitude.ones = 0;
                     break;
             }
@@ -1060,27 +1073,27 @@ static void _places_face_advance_latlon_digit(places_state_t *state) {
                     break;
                 case 1:
                     state->working_longitude.d01 = (state->working_longitude.d01 + 1) % 10;
-                    if (abs(_ll_decimal_struct_to_int(state->working_longitude)) > 18000000) 
+                    if (abs(_convert_decimal_struct_to_int(state->working_longitude)) > 18000000) 
                         state->working_longitude.d01 = 0;
                     break;
                 case 2:
                     state->working_longitude.d02 = (state->working_longitude.d02 + 1) % 10;
-                    if (abs(_ll_decimal_struct_to_int(state->working_longitude)) > 18000000) 
+                    if (abs(_convert_decimal_struct_to_int(state->working_longitude)) > 18000000) 
                         state->working_longitude.d02 = 0;
                     break;
                 case 3:
                     state->working_longitude.d03 = (state->working_longitude.d03 + 1) % 10;
-                    if (abs(_ll_decimal_struct_to_int(state->working_longitude)) > 18000000) 
+                    if (abs(_convert_decimal_struct_to_int(state->working_longitude)) > 18000000) 
                         state->working_longitude.d03 = 0;
                     break;
                 case 4:
                     state->working_longitude.d04 = (state->working_longitude.d04 + 1) % 10;
-                    if (abs(_ll_decimal_struct_to_int(state->working_longitude)) > 18000000) 
+                    if (abs(_convert_decimal_struct_to_int(state->working_longitude)) > 18000000) 
                         state->working_longitude.d04 = 0;
                     break;
                 case 5:
                     state->working_longitude.d05 = (state->working_longitude.d05 + 1) % 10;
-                    if (abs(_ll_decimal_struct_to_int(state->working_longitude)) > 18000000) 
+                    if (abs(_convert_decimal_struct_to_int(state->working_longitude)) > 18000000) 
                         state->working_longitude.d05 = 0;
                     break;
             }
@@ -1101,7 +1114,7 @@ static void _places_face_advance_dms_digit(places_state_t *state) {
                     break;
                 case 2:
                     state->working_dms_latitude.tens = (state->working_dms_latitude.tens + 1) % 10;
-                    if (abs(_ll_dms_struct_to_int(state->working_dms_latitude)) > 900000) {
+                    if (abs(_convert_dms_struct_to_int(state->working_dms_latitude)) > 900000) {
                         // prevent latitude from going over ±90.
                         // TODO: perform these checks when advancing the digit?
                         state->working_dms_latitude.ones = 0;
@@ -1113,7 +1126,7 @@ static void _places_face_advance_dms_digit(places_state_t *state) {
                     break;
                 case 3:
                     state->working_dms_latitude.ones = (state->working_dms_latitude.ones + 1) % 10;
-                    if (abs(_ll_dms_struct_to_int(state->working_dms_latitude)) > 900000) 
+                    if (abs(_convert_dms_struct_to_int(state->working_dms_latitude)) > 900000) 
                         state->working_dms_latitude.ones = 0;
                     break;
             }
@@ -1127,22 +1140,22 @@ static void _places_face_advance_dms_digit(places_state_t *state) {
                     // we skip this digit
                 case 2:
                     state->working_dms_latitude.mins_tens = (state->working_dms_latitude.mins_tens + 1) % 10;
-                    if (abs(_ll_dms_struct_to_int(state->working_dms_latitude)) > 900000) 
+                    if (abs(_convert_dms_struct_to_int(state->working_dms_latitude)) > 900000) 
                         state->working_dms_latitude.mins_tens = 0;
                     break;
                 case 3:
                     state->working_dms_latitude.mins_ones = (state->working_dms_latitude.mins_ones + 1) % 10;
-                    if (abs(_ll_dms_struct_to_int(state->working_dms_latitude)) > 900000) 
+                    if (abs(_convert_dms_struct_to_int(state->working_dms_latitude)) > 900000) 
                         state->working_dms_latitude.mins_ones = 0;
                     break;
                 case 4:
                     state->working_dms_latitude.secs_tens = (state->working_dms_latitude.secs_tens + 1) % 10;
-                    if (abs(_ll_dms_struct_to_int(state->working_dms_latitude)) > 900000) 
+                    if (abs(_convert_dms_struct_to_int(state->working_dms_latitude)) > 900000) 
                         state->working_dms_latitude.secs_tens = 0;
                     break;
                 case 5:
                     state->working_dms_latitude.secs_ones = (state->working_dms_latitude.secs_ones + 1) % 10;
-                    if (abs(_ll_dms_struct_to_int(state->working_dms_latitude)) > 900000) 
+                    if (abs(_convert_dms_struct_to_int(state->working_dms_latitude)) > 900000) 
                         state->working_dms_latitude.secs_ones = 0;
                     break;
             }
@@ -1154,7 +1167,7 @@ static void _places_face_advance_dms_digit(places_state_t *state) {
                     break;
                 case 1:
                     state->working_dms_longitude.hundreds = (state->working_dms_longitude.hundreds + 1) % 10;
-                    if (abs(_ll_dms_struct_to_int(state->working_dms_longitude)) > 1800000) {
+                    if (abs(_convert_dms_struct_to_int(state->working_dms_longitude)) > 1800000) {
                         // prevent longitude from going over ±90.
                         // TODO: perform these checks when advancing the digit?
                         state->working_dms_longitude.tens = 0;
@@ -1167,12 +1180,12 @@ static void _places_face_advance_dms_digit(places_state_t *state) {
                     break;
                 case 2:
                     state->working_dms_longitude.tens = (state->working_dms_longitude.tens + 1) % 10;
-                    if (abs(_ll_dms_struct_to_int(state->working_dms_longitude)) > 1800000)
+                    if (abs(_convert_dms_struct_to_int(state->working_dms_longitude)) > 1800000)
                         state->working_dms_longitude.tens = 0;
                     break;
                 case 3:
                     state->working_dms_longitude.ones = (state->working_dms_longitude.ones + 1) % 10;
-                    if (abs(_ll_dms_struct_to_int(state->working_dms_longitude)) > 1800000) 
+                    if (abs(_convert_dms_struct_to_int(state->working_dms_longitude)) > 1800000) 
                         state->working_dms_longitude.ones = 0;
                     break;
             }
@@ -1186,22 +1199,22 @@ static void _places_face_advance_dms_digit(places_state_t *state) {
                     // we skip this digit
                 case 2:
                     state->working_dms_longitude.mins_tens = (state->working_dms_longitude.mins_tens + 1) % 6;
-                    if (abs(_ll_dms_struct_to_int(state->working_dms_longitude)) > 1800000) 
+                    if (abs(_convert_dms_struct_to_int(state->working_dms_longitude)) > 1800000) 
                         state->working_dms_longitude.mins_tens = 0;
                     break;
                 case 3:
                     state->working_dms_longitude.mins_ones = (state->working_dms_longitude.mins_ones + 1) % 10;
-                    if (abs(_ll_dms_struct_to_int(state->working_dms_longitude)) > 1800000) 
+                    if (abs(_convert_dms_struct_to_int(state->working_dms_longitude)) > 1800000) 
                         state->working_dms_longitude.mins_ones = 0;
                     break;
                 case 4:
                     state->working_dms_longitude.secs_tens = (state->working_dms_longitude.secs_tens + 1) % 6;
-                    if (abs(_ll_dms_struct_to_int(state->working_dms_longitude)) > 1800000) 
+                    if (abs(_convert_dms_struct_to_int(state->working_dms_longitude)) > 1800000) 
                         state->working_dms_longitude.secs_tens = 0;
                     break;
                 case 5:
                     state->working_dms_longitude.secs_ones = (state->working_dms_longitude.secs_ones + 1) % 10;
-                    if (abs(_ll_dms_struct_to_int(state->working_dms_longitude)) > 1800000) 
+                    if (abs(_convert_dms_struct_to_int(state->working_dms_longitude)) > 1800000) 
                         state->working_dms_longitude.secs_ones = 0;
                     break;
             }
@@ -1334,17 +1347,18 @@ static void _places_face_advance_digit(places_state_t *state) {
 // DATA MANAGEMENT FUNCTIONS
 
 // load place from state array and populate working structs
-static void _load_place_from_memory(places_state_t *state) {
+static void _data_load_place_from_memory(places_state_t *state) {
     state->working_name = state->places[state->place].name;
     state->working_latitude = state->places[state->place].latitude;
     state->working_longitude = state->places[state->place].longitude;
-    state->working_dms_latitude = _ll_dms_int_to_struct(_ll_decimal_struct_to_dms_int(state->working_latitude));
-    state->working_dms_longitude = _ll_dms_int_to_struct(_ll_decimal_struct_to_dms_int(state->working_longitude));
-    state->working_pluscode = _ll_decimal_ints_to_olc(_ll_decimal_struct_to_int(state->working_latitude), _ll_decimal_struct_to_int(state->working_longitude));
-    state->working_geohash = _ll_decimal_ints_to_geohash(_ll_decimal_struct_to_int(state->working_latitude), _ll_decimal_struct_to_int(state->working_longitude));
+    state->working_dms_latitude = _convert_dms_int_to_struct(_convert_decimal_struct_to_dms_int(state->working_latitude));
+    state->working_dms_longitude = _convert_dms_int_to_struct(_convert_decimal_struct_to_dms_int(state->working_longitude));
+    state->working_pluscode = _convert_decimal_ints_to_olc(_convert_decimal_struct_to_int(state->working_latitude), _convert_decimal_struct_to_int(state->working_longitude));
+    state->working_geohash = _convert_decimal_ints_to_geohash(_convert_decimal_struct_to_int(state->working_latitude), _convert_decimal_struct_to_int(state->working_longitude));
 }
 
-static void _save_place_to_memory(places_state_t *state) {
+// saves last edited place coordinate/code converted into decimal LatLon into state array
+static void _data_save_place_to_memory(places_state_t *state) {
     switch ( state->mode ) {
         case PLACE:
             state->places[state->place].name = state->working_name;
@@ -1354,28 +1368,30 @@ static void _save_place_to_memory(places_state_t *state) {
             state->places[state->place].longitude = state->working_longitude;
             break;
         case DMS:
-            state->places[state->place].latitude  = _ll_decimal_int_to_struct(_ll_dms_struct_to_decimal_int(state->working_dms_latitude));
-            state->places[state->place].longitude = _ll_decimal_int_to_struct(_ll_dms_struct_to_decimal_int(state->working_dms_longitude));
+            state->places[state->place].latitude  = _convert_decimal_int_to_struct(_convert_dms_struct_to_decimal_int(state->working_dms_latitude));
+            state->places[state->place].longitude = _convert_decimal_int_to_struct(_convert_dms_struct_to_decimal_int(state->working_dms_longitude));
             break;
         case OLC:
-            state->places[state->place].latitude  = _ll_olc_to_decimal_coordinate(state->working_pluscode).latitude;
-            state->places[state->place].longitude = _ll_olc_to_decimal_coordinate(state->working_pluscode).longitude;
+            state->places[state->place].latitude  = _convert_olc_to_decimal_coordinate(state->working_pluscode).latitude;
+            state->places[state->place].longitude = _convert_olc_to_decimal_coordinate(state->working_pluscode).longitude;
             break;
         case GEO:
-            state->places[state->place].latitude  = _ll_geohash_to_decimal_coordinate(state->working_geohash).latitude;
-            state->places[state->place].longitude = _ll_geohash_to_decimal_coordinate(state->working_geohash).longitude;
+            state->places[state->place].latitude  = _convert_geohash_to_decimal_coordinate(state->working_geohash).latitude;
+            state->places[state->place].longitude = _convert_geohash_to_decimal_coordinate(state->working_geohash).longitude;
             break;
         case DATA:
             break;
     }
-    _load_place_from_memory(state);
+    // reload working structs
+    _data_load_place_from_memory(state);
 }
 
-static void _load_place_from_register(places_state_t *state) {
+// load coordinate from location register into selected place slot
+static void _data_load_place_from_register(places_state_t *state) {
     watch_set_indicator(WATCH_INDICATOR_SIGNAL);
     movement_location_t movement_location = (movement_location_t) watch_get_backup_data(1);
-    state->places[state->place].latitude = _ll_decimal_int_to_struct(movement_location.bit.latitude * 1000);
-    state->places[state->place].longitude = _ll_decimal_int_to_struct(movement_location.bit.longitude * 1000);
+    state->places[state->place].latitude = _convert_decimal_int_to_struct(movement_location.bit.latitude * 1000);
+    state->places[state->place].longitude = _convert_decimal_int_to_struct(movement_location.bit.longitude * 1000);
     delay_ms(200);
     watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
     watch_display_string("  OK  ", 4);
@@ -1383,11 +1399,12 @@ static void _load_place_from_register(places_state_t *state) {
     state->mode = PLACE;
 }
 
-static void _save_place_to_register(places_state_t *state) {
+// save coordinate to location register from selected place slot (truncated to 2 decimal points)
+static void _data_save_place_to_register(places_state_t *state) {
     watch_set_indicator(WATCH_INDICATOR_SIGNAL);
     movement_location_t movement_location;
-    int16_t lat = _ll_decimal_struct_to_int16(state->working_latitude);
-    int16_t lon = _ll_decimal_struct_to_int16(state->working_longitude);
+    int16_t lat = _convert_decimal_struct_to_int16(state->working_latitude);
+    int16_t lon = _convert_decimal_struct_to_int16(state->working_longitude);
     movement_location.bit.latitude = lat;
     movement_location.bit.longitude = lon;
     watch_store_backup_data(movement_location.reg, 1);
@@ -1398,7 +1415,8 @@ static void _save_place_to_register(places_state_t *state) {
     state->mode = PLACE;
 }
 
-static void _load_place_from_file(places_state_t *state) {
+// load coordinate from LFS file into selected place slot
+static void _data_load_place_from_file(places_state_t *state) {
     places_coordinate_t place;
     if (filesystem_file_exists("place.loc"))
         if (filesystem_read_file("place.loc", (char*)&place, sizeof(place))) {
@@ -1425,7 +1443,8 @@ static void _load_place_from_file(places_state_t *state) {
     state->mode = PLACE;
 }
 
-static void _save_place_to_file(places_state_t *state) {
+// save coordinate to LFS file from selected place slot
+static void _data_save_place_to_file(places_state_t *state) {
     watch_set_indicator(WATCH_INDICATOR_SIGNAL);
     places_coordinate_t place;
     place.latitude = state->places[state->place].latitude;

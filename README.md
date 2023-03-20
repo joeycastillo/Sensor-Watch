@@ -14,5 +14,3 @@ fork of [Sensor Watch](https://github.com/joeycastillo/Sensor-Watch/)
 ## To do
 
 * memory optimization
-* documentation
-* bugfixes
