@@ -26,6 +26,7 @@
 #define RANDONAUT_FACE_H_
 
 #include "movement.h"
+#include "place_face.h"
 
 /*
  * A DESCRIPTION OF YOUR WATCH FACE
