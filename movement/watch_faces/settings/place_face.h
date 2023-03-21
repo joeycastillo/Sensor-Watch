@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef PLACES_FACE_H_
-#define PLACES_FACE_H_
+#ifndef place_FACE_H_
+#define place_FACE_H_
 
 #include "movement.h"
 
@@ -31,20 +31,18 @@
  * PLACES FACE
  * ===========
  *
- * Based on and expanded from the Sunrise/Sunset face. Initially just intended to outsource 
- * the location setting functionality to its own face it has become an advanced managing
- * application for location data that also serves as a converter between different coordinate
- * notation formats.
+ * Based on and expanded from the Sunrise/Sunset face. Outsourced the location setting functionality to 
+ * its own face. Also serves as a converter between different coordinate notation formats.
  * 
- * Using the ALARM button the user can flip through 5 available place slots.
+ * With the LIGHT button each place coordinate can be shown and edited in 4 different display modes:
  * 
- * With the LIGHT button each place coordinate can be shown and edited in 5 different display modes:
+ * 1) Decimal Latitude and Longitude (WGS84) up to 5 decimal points
+ * 2) Latitude and Longitude (WGS84) in traditional DD°MM'SS" notation
+ * 3) Ten digit Open Location Code (aka. PlusCode) format
+ * 4) Ten digit Geohash format
  * 
- * 1) Place Name
- * 2) Decimal Latitude and Longitude (WGS84) up to 5 decimal points
- * 3) Latitude and Longitude (WGS84) in traditional DD°MM'SS" notation
- * 4) Ten digit Open Location Code (aka. PlusCode) format
- * 5) Ten digit Geohash format
+ * Using the ALARM button the user can flip through 2 pages of coordinate info to see the first and
+ * second sets of digits.
  * 
  * (please also refer to the notes on precision below)
  *
@@ -57,49 +55,25 @@
  * alphabet or numbers. Another LONG PRESS of LIGHT saves the changes, a LONG PRESS of ALARM discards
  * them.
  * 
- * Auxiliary Modes
- * ===============
- * 
- * A LONG PRESS of the ALARM button toggles one of three auxiliary modes (LAP indicator):
- * 
- * 1) DATA import/export when in Place Name mode.
- * 2) DIGIT INFO when Open Location Code or Geohash are selected.
- * 3) REMAIN when any of the Latitude and Longitude modes are selected.
- * 
- * Auxiliary Mode: Data Import and Export
- * ======================================
- * 
- * In this mode ALARM toggles between File and Registry and LIGHT toggles between 'R' for
- * read and 'W' for write.
- * 
- * Coordinates can be read or stored from/to the selected place slot either from the traditional 
- * internal location register or a file on the LFS file system ("place.loc").
- * 
- * The actual read/write operation is triggered by a LONG PRESS of the LIGHT button.
- * LONG PRESS of ALARM leaves this mode without any changes and returns to the Place Name.
+ * Coordinates are read or stored to both the traditional internal location register and a file on 
+ * the LFS file system ("place.loc"). By default the Watch Face loads the coordinates from file
+ * when activated. If no file is present, the coordinates are loaded from the register.
+ * (please also see the notes on precision below)
  * 
  * Auxiliary Mode: Digit Info
  * ==========================
  * 
- * To work around the limitation of how ambiguously alphanumeric characters are displayed on 
- * the main seven segment digits of the watch face ( S or 5, G or 6?) Digit Info mode can be 
- * activated when in OLC or Geohash mode (shows LAP when toggled).
+ * A LONG PRESS of the ALARM button toggles Digit Info mode when OLC or Geohash display is active.
  * 
- * Now the LIGHT button can be used to flip through the alphaumeric letters. The selected one
- * is now also shown in the much easier to read alphanumeric 8 segment weekday digit above.
+ * It serves as a workaround for the limitation of how ambiguously alphanumeric characters are 
+ * displayed on the main seven segment digits of the watch face ( S or 5, G or 6?)
+ * 
+ * When active, the LIGHT button can be used to flip through the alphaumeric letters. The selected 
+ * one is now also shown in the much easier to read alphanumeric 8 segment weekday digit above.
  * In addition the '24H' indicator is active when the selected digit represents a number and 
  * the 'PM' indicator for a letter. 
  * 
  * This mode is also automatically activated when editing an OLC or Geohash code.
- * 
- * Auxiliary Mode: Remain
- * ======================
- * 
- * When this mode (LAP) is activated on the decimal or DMS Latitude & Longitude modes the 
- * automatic switching to the next place when pressing ALARM is prevented.
- * 
- * Instead the display remains at the current place and ALARM cycles the available screens
- * for easier recollection of the available coordinate information.
  * 
  * Notes on Coordinate Precision
  * =============================
@@ -147,7 +121,7 @@ typedef struct {
     uint8_t d03: 4;         // 0-9
     uint8_t d04: 4;         // 0-9
     uint8_t d05: 4;         // 0-9
-} places_format_decimal_latlon_t;
+} place_format_decimal_latlon_t;
 
 typedef struct {
     uint8_t sign: 1;        // 0-1
@@ -158,7 +132,7 @@ typedef struct {
     uint8_t mins_ones: 4;   // 0-9
     uint8_t secs_tens: 3;   // 0-5
     uint8_t secs_ones: 4;   // 0-9
-} places_format_dms_latlon_t;
+} place_format_dms_latlon_t;
 
 typedef struct {
     uint8_t lat1: 5;        // 2-X
@@ -171,21 +145,12 @@ typedef struct {
     uint8_t lon4: 5;        // 2-X
     uint8_t lat5: 5;        // 2-X
     uint8_t lon5: 5;        // 2-X
-} places_format_olc_t;
+} place_format_olc_t;
 
 typedef struct {
-    uint8_t d01;
-    uint8_t d02;
-    uint8_t d03;
-    uint8_t d04;
-    uint8_t d05;
-} places_name_t;
-
-typedef struct {
-    places_format_decimal_latlon_t latitude;
-    places_format_decimal_latlon_t longitude;
-    places_name_t name;
-} places_coordinate_t;
+    place_format_decimal_latlon_t latitude;
+    place_format_decimal_latlon_t longitude;
+} place_coordinate_t;
 
 typedef struct {
     uint8_t d01: 6;          // 0-z
@@ -198,67 +163,59 @@ typedef struct {
     uint8_t d08: 6;          // 0-z
     uint8_t d09: 6;          // 0-z
     uint8_t d10: 6;          // 0-z
-} places_format_geohash_t;
+} place_format_geohash_t;
 
 typedef struct {
     double max;
     double min;
-} places_format_geohash_interval;
+} place_format_geohash_interval;
 
 typedef struct {
     uint8_t min_digit : 1;
     uint8_t max_digit : 3;
-} places_mode_schema_page_t;
+} place_mode_schema_page_t;
 
 typedef struct {
     uint8_t max_page : 3;
-    places_mode_schema_page_t page[4];
-} places_mode_schema_mode_t;
+    place_mode_schema_page_t page[4];
+} place_mode_schema_mode_t;
 
-enum places_modes_e {
-    PLACE = 0,
-    DECIMAL,
+enum place_modes_e {
+    DECIMAL = 0,
     DMS,
     OLC,
-    GEO,
-    DATA
+    GEO
 };
 
 typedef struct {
-    enum places_modes_e mode;
-    uint8_t place: 3;
+    enum place_modes_e mode;
     uint8_t page : 3;
     int8_t active_digit: 4;
     bool edit;
     bool digit_info;
-    places_name_t working_name;
-    places_format_decimal_latlon_t working_latitude;
-    places_format_decimal_latlon_t working_longitude;
-    places_format_dms_latlon_t working_dms_latitude;
-    places_format_dms_latlon_t working_dms_longitude;
-    places_format_olc_t working_pluscode;
-    places_format_geohash_t working_geohash;
-    places_coordinate_t places[5];
-    bool file;
-    bool registry;
-    bool write;
-    places_mode_schema_mode_t modes[6];
-} places_state_t;
+    place_format_decimal_latlon_t working_latitude;
+    place_format_decimal_latlon_t working_longitude;
+    place_format_dms_latlon_t working_dms_latitude;
+    place_format_dms_latlon_t working_dms_longitude;
+    place_format_olc_t working_pluscode;
+    place_format_geohash_t working_geohash;
+    place_mode_schema_mode_t modes[4];
+} place_state_t;
 
 // PUBLIC WATCH FACE FUNCTIONS ////////////////////////////////////////////////
 
-void places_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
-void places_face_activate(movement_settings_t *settings, void *context);
-bool places_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
-void places_face_resign(movement_settings_t *settings, void *context);
+void place_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
+void place_face_activate(movement_settings_t *settings, void *context);
+bool place_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void place_face_resign(movement_settings_t *settings, void *context);
 
-#define places_face ((const watch_face_t){ \
-    places_face_setup, \
-    places_face_activate, \
-    places_face_loop, \
-    places_face_resign, \
+#define place_face ((const watch_face_t){ \
+    place_face_setup, \
+    place_face_activate, \
+    place_face_loop, \
+    place_face_resign, \
     NULL, \
 })
 
-#endif // PLACES_FACE_H_
+#endif // place_FACE_H_
 

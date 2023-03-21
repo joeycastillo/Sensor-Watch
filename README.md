@@ -9,20 +9,18 @@ fork of [Sensor Watch](https://github.com/joeycastillo/Sensor-Watch/)
  * PLACES FACE
  * ===========
  *
- * Based on and expanded from the Sunrise/Sunset face. Initially just intended to outsource 
- * the location setting functionality to its own face it has become an advanced managing
- * application for location data that also serves as a converter between different coordinate
- * notation formats.
+ * Based on and expanded from the Sunrise/Sunset face. Outsourced the location setting functionality to 
+ * its own face. Also serves as a converter between different coordinate notation formats.
  * 
- * Using the ALARM button the user can flip through 5 available place slots.
+ * With the LIGHT button each place coordinate can be shown and edited in 4 different display modes:
  * 
- * With the LIGHT button each place coordinate can be shown and edited in 5 different display modes:
+ * 1) Decimal Latitude and Longitude (WGS84) up to 5 decimal points
+ * 2) Latitude and Longitude (WGS84) in traditional DD°MM'SS" notation
+ * 3) Ten digit Open Location Code (aka. PlusCode) format
+ * 4) Ten digit Geohash format
  * 
- * 1) Place Name
- * 2) Decimal Latitude and Longitude (WGS84) up to 5 decimal points
- * 3) Latitude and Longitude (WGS84) in traditional DD°MM'SS" notation
- * 4) Ten digit Open Location Code (aka. PlusCode) format
- * 5) Ten digit Geohash format
+ * Using the ALARM button the user can flip through 2 pages of coordinate info to see the first and
+ * second sets of digits.
  * 
  * (please also refer to the notes on precision below)
  *
@@ -35,49 +33,25 @@ fork of [Sensor Watch](https://github.com/joeycastillo/Sensor-Watch/)
  * alphabet or numbers. Another LONG PRESS of LIGHT saves the changes, a LONG PRESS of ALARM discards
  * them.
  * 
- * Auxiliary Modes
- * ===============
- * 
- * A LONG PRESS of the ALARM button toggles one of three auxiliary modes (LAP indicator):
- * 
- * 1) DATA import/export when in Place Name mode.
- * 2) DIGIT INFO when Open Location Code or Geohash are selected.
- * 3) REMAIN when any of the Latitude and Longitude modes are selected.
- * 
- * Auxiliary Mode: Data Import and Export
- * ======================================
- * 
- * In this mode ALARM toggles between File and Registry and LIGHT toggles between 'R' for
- * read and 'W' for write.
- * 
- * Coordinates can be read or stored from/to the selected place slot either from the traditional 
- * internal location register or a file on the LFS file system ("place.loc").
- * 
- * The actual read/write operation is triggered by a LONG PRESS of the LIGHT button.
- * LONG PRESS of ALARM leaves this mode without any changes and returns to the Place Name.
+ * Coordinates are read or stored to both the traditional internal location register and a file on 
+ * the LFS file system ("place.loc"). By default the Watch Face loads the coordinates from file
+ * when activated. If no file is present, the coordinates are loaded from the register.
+ * (please also see the notes on precision below)
  * 
  * Auxiliary Mode: Digit Info
  * ==========================
  * 
- * To work around the limitation of how ambiguously alphanumeric characters are displayed on 
- * the main seven segment digits of the watch face ( S or 5, G or 6?) Digit Info mode can be 
- * activated when in OLC or Geohash mode (shows LAP when toggled).
+ * A LONG PRESS of the ALARM button toggles Digit Info mode when OLC or Geohash display is active.
  * 
- * Now the LIGHT button can be used to flip through the alphaumeric letters. The selected one
- * is now also shown in the much easier to read alphanumeric 8 segment weekday digit above.
+ * It serves as a workaround for the limitation of how ambiguously alphanumeric characters are 
+ * displayed on the main seven segment digits of the watch face ( S or 5, G or 6?)
+ * 
+ * When active, the LIGHT button can be used to flip through the alphaumeric letters. The selected 
+ * one is now also shown in the much easier to read alphanumeric 8 segment weekday digit above.
  * In addition the '24H' indicator is active when the selected digit represents a number and 
  * the 'PM' indicator for a letter. 
  * 
  * This mode is also automatically activated when editing an OLC or Geohash code.
- * 
- * Auxiliary Mode: Remain
- * ======================
- * 
- * When this mode (LAP) is activated on the decimal or DMS Latitude & Longitude modes the 
- * automatic switching to the next place when pressing ALARM is prevented.
- * 
- * Instead the display remains at the current place and ALARM cycles the available screens
- * for easier recollection of the available coordinate information.
  * 
  * Notes on Coordinate Precision
  * =============================
