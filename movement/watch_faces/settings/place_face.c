@@ -205,12 +205,26 @@ bool place_face_loop(movement_event_t event, movement_settings_t *settings, void
              if ( state->edit )
                 _place_face_advance_digit(state);
             else {
-                state->page++;
+                if ( state->digit_info )
+                    state->active_digit++;
+                else
+                    state->page++;
             }
 
             // wraps around pages and goes to the next display mode
             if ( state->page > state->modes[state->mode].max_page ) {
                 state->page = 0;
+            }
+
+            // when max amount of digits per mode is reached flip to next page / wrap around
+            if ( state->active_digit > state->modes[state->mode].page[state->page].max_digit ) {
+                if ( state->page == state->modes[state->mode].max_page ) {
+                    state->page = 0;
+                    state->active_digit = state->modes[state->mode].page[state->page].min_digit;
+                } else {
+                    state->page++;
+                    state->active_digit = state->modes[state->mode].page[state->page].min_digit;
+                }
             }
 
             // update display

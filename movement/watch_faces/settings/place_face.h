@@ -28,8 +28,8 @@
 #include "movement.h"
 
 /*
- * PLACES FACE
- * ===========
+ * PLACE FACE
+ * ==========
  *
  * Based on and expanded from the Sunrise/Sunset face. Outsourced the location setting functionality to 
  * its own face. Also serves as a converter between different coordinate notation formats.
@@ -52,8 +52,17 @@
  * A LONG PRESS of the LIGHT button toggles editing mode for each of the selected notations.
  * 
  * In this mode LIGHT moves the cursor and ALARM changes the letter cycling through the available
- * alphabet or numbers. Another LONG PRESS of LIGHT saves the changes, a LONG PRESS of ALARM discards
- * them.
+ * alphabet or numbers. 
+ * 
+ * When OLC or Geohash display are edited, Digit Info mode is activated. It serves as a workaround 
+ * for the limitation of how ambiguously alphanumeric characters are displayed on the main seven segment 
+ * digits of the watch face ( S or 5, I or 1, U or W?).
+ * 
+ * The selected letter is also shown in the much easier to read alphanumeric 8 segment weekday digit above.
+ * In addition the '24H' indicator is active when the selected digit represents a number and the 'PM' 
+ * indicator for a letter. 
+ * 
+ * A LONG PRESS of LIGHT saves the changes, a LONG PRESS of ALARM discards them.
  * 
  * Coordinates are read or stored to both the traditional internal location register and a file on 
  * the LFS file system ("place.loc"). By default the Watch Face loads the coordinates from file
@@ -64,16 +73,10 @@
  * ==========================
  * 
  * A LONG PRESS of the ALARM button toggles Digit Info mode when OLC or Geohash display is active.
+ * (LAP indicator is on) It is a means of being able to see the detailed Digit Info as described above
+ * but without the risk of accidentally editing any of digits.
  * 
- * It serves as a workaround for the limitation of how ambiguously alphanumeric characters are 
- * displayed on the main seven segment digits of the watch face ( S or 5, G or 6?)
- * 
- * When active, the LIGHT button can be used to flip through the alphaumeric letters. The selected 
- * one is now also shown in the much easier to read alphanumeric 8 segment weekday digit above.
- * In addition the '24H' indicator is active when the selected digit represents a number and 
- * the 'PM' indicator for a letter. 
- * 
- * This mode is also automatically activated when editing an OLC or Geohash code.
+ * Both ALARM and LIGHT buttons can be used to flip through the letters.
  * 
  * Notes on Coordinate Precision
  * =============================
