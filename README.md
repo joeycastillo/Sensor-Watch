@@ -18,15 +18,25 @@ fork of [Sensor Watch](https://github.com/joeycastillo/Sensor-Watch/)
  * 
  * With the LIGHT button each place coordinate can be shown and edited in 5 different display modes:
  * 
- * 1. Place Name
- * 2. Decimal Latitude and Longitude (WGS84) up to 5 decimal points
- * 3. Latitude and Longitude (WGS84) in traditional DD°MM'SS" notation
- * 4. Ten digit Open Location Code (aka. PlusCode) format
- * 5. Ten digit Geohash format
+ * 1) Place Name
+ * 2) Decimal Latitude and Longitude (WGS84) up to 5 decimal points
+ * 3) Latitude and Longitude (WGS84) in traditional DD°MM'SS" notation
+ * 4) Ten digit Open Location Code (aka. PlusCode) format
+ * 5) Ten digit Geohash format
  * 
  * (please also refer to the notes on precision below)
  *
+ * Editing Mode
+ * ============
+ * 
  * A LONG PRESS of the LIGHT button toggles editing mode for each of the selected notations.
+ * 
+ * In this mode LIGHT moves the cursor and ALARM changes the letter cycling through the available
+ * alphabet or numbers. Another LONG PRESS of LIGHT saves the changes, a LONG PRESS of ALARM discards
+ * them.
+ * 
+ * Auxiliary Modes
+ * ===============
  * 
  * A LONG PRESS of the ALARM button toggles one of three auxiliary modes (LAP indicator):
  * 
