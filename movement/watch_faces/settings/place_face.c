@@ -60,6 +60,49 @@ static void _data_save_place_to_memory(place_state_t *state);
 static void _data_save_place_to_register(place_state_t *state);
 static void _data_save_place_to_file(place_state_t *state);
 
+// PUBLIC FUNCTIONS ///////////////////////////////////////////////////////////
+
+/** @brief converts latitude and longitude coordinate into a ten digit Open Location Code
+ */
+void place_latlon_to_olc(char *pluscode, double latitude, double longitude) {
+    place_format_olc_t olc;
+    int32_t lat, lon;
+    lat = (double)round(latitude * 100000);
+    lon = (double)round(latitude * 100000);
+    olc = _convert_decimal_ints_to_olc(lat, lon);
+    pluscode[0] = olc_alphabet[olc.lat1];
+    pluscode[1] = olc_alphabet[olc.lon1];
+    pluscode[2] = olc_alphabet[olc.lat2];
+    pluscode[3] = olc_alphabet[olc.lon2];
+    pluscode[4] = olc_alphabet[olc.lat3];
+    pluscode[5] = olc_alphabet[olc.lon3];
+    pluscode[6] = olc_alphabet[olc.lat4];
+    pluscode[7] = olc_alphabet[olc.lon4];
+    pluscode[9] = olc_alphabet[olc.lat5];
+    pluscode[10] = olc_alphabet[olc.lon5];
+    pluscode[8] = '+';
+}
+
+/** @brief converts latitude and longitude coordinate into a ten digit Geohash
+ */
+void place_latlon_to_geohash(char *hash, double latitude, double longitude) {
+    place_format_geohash_t geohash;
+    int32_t lat, lon;
+    lat = (double)round(latitude * 100000);
+    lon = (double)round(latitude * 100000);
+    geohash = _convert_decimal_ints_to_geohash(lat, lon);
+    hash[0] = geohash_alphabet[geohash.d01];
+    hash[1] = geohash_alphabet[geohash.d02];
+    hash[2] = geohash_alphabet[geohash.d03];
+    hash[3] = geohash_alphabet[geohash.d04];
+    hash[4] = geohash_alphabet[geohash.d05];
+    hash[5] = geohash_alphabet[geohash.d06];
+    hash[6] = geohash_alphabet[geohash.d07];
+    hash[7] = geohash_alphabet[geohash.d08];
+    hash[9] = geohash_alphabet[geohash.d09];
+    hash[10] = geohash_alphabet[geohash.d10];
+}
+
 // MOVEMENT WATCH FACE FUNCTIONS //////////////////////////////////////////////
 
 void place_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
