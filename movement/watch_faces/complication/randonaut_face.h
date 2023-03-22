@@ -35,9 +35,35 @@
  *
  */
 
+enum mode_t {
+    HOME = 0,
+    GENERATE,
+    POINT,
+    SETUP
+};
+
+enum location_t { TITLE, DIST, BEAR, LAT1, LAT2, LON1, LON2 };
+
+typedef struct {
+    enum mode_t mode;
+    enum location_t location_format;    
+} randonaut_face_mode_t;
+
+typedef struct {
+    int32_t latitude : 25;
+    int32_t longitude : 25;
+    uint16_t distance : 14;
+    uint16_t bearing : 9;
+} randonaut_coordinate_t;
+
 typedef struct {
     // Anything you need to keep track of, put it here!
-    uint8_t unused;
+    coordinate_t location;
+    randonaut_coordinate_t point;
+    uint16_t radius : 14;
+    bool quantum;
+    randonaut_face_mode_t face;
+    char scratchpad[10];
 } randonaut_state_t;
 
 void randonaut_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);

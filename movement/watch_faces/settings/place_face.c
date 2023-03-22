@@ -1289,12 +1289,13 @@ static void _data_save_place_to_register(place_state_t *state) {
 
 // load coordinate from LFS file into selected place slot
 static void _data_load_place_from_file(place_state_t *state) {
-    place_coordinate_t place;
+
+    coordinate_t place;
     if (filesystem_file_exists("place.loc"))
         if (filesystem_read_file("place.loc", (char*)&place, sizeof(place))) {
             watch_set_indicator(WATCH_INDICATOR_SIGNAL);
-            state->working_latitude = place.latitude;
-            state->working_longitude = place.longitude;
+            state->working_latitude = _convert_decimal_int_to_struct(place.latitude);
+            state->working_longitude = _convert_decimal_int_to_struct(place.longitude);
             watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
         } else {
             watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
@@ -1312,9 +1313,9 @@ static void _data_load_place_from_file(place_state_t *state) {
 // save coordinate to LFS file from selected place slot
 static void _data_save_place_to_file(place_state_t *state) {
     watch_set_indicator(WATCH_INDICATOR_SIGNAL);
-    place_coordinate_t place;
-    place.latitude = state->working_latitude;
-    place.longitude = state->working_longitude;
+    coordinate_t place;
+    place.latitude = _convert_decimal_struct_to_int(state->working_latitude);
+    place.longitude = _convert_decimal_struct_to_int(state->working_longitude);
     if (filesystem_write_file("place.loc", (char*)&place, sizeof(place))) {
         watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
     } else {

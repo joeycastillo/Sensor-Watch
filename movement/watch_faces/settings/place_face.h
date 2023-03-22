@@ -156,6 +156,11 @@ typedef struct {
 } place_coordinate_t;
 
 typedef struct {
+    int32_t latitude : 25;
+    int32_t longitude : 25;
+} coordinate_t;
+
+typedef struct {
     uint8_t d01: 6;          // 0-z
     uint8_t d02: 6;          // 0-z 
     uint8_t d03: 6;          // 0-z
