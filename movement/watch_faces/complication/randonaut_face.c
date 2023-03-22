@@ -200,7 +200,7 @@ static void _randonaut_face_display(randonaut_state_t *state) {
             state->face.mode = POINT;
             state->face.location_format = DIST;
             watch_display_string("RA   Found", 0);
-            delay_ms(1000);
+            delay_ms(500);
             sprintf(buf, "RA   Found");
             break;
         case POINT:
