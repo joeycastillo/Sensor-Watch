@@ -702,13 +702,13 @@ static void _place_face_update_latlon_display(movement_event_t event, place_stat
             sprintf(buf, "LA #%c %c%c  ", state->working_latitude.sign ? '-' : '+', lln[1], lln[2] );
             break;
         case 1:
-            sprintf(buf, "LA - %c%c%c%c%c", lln[3], lln[4],lln[5], lln[6],lln[7]);
+            sprintf(buf, "LA , %c%c%c%c%c", lln[3], lln[4],lln[5], lln[6],lln[7]);
             break;
         case 2: // Longitude
             sprintf(buf, "LO #%c%c%c%c  ", state->working_longitude.sign ? '-' : '+', lln[0], lln[1], lln[2] );
             break;
         case 3:
-            sprintf(buf, "LO - %c%c%c%c%c", lln[3], lln[4],lln[5], lln[6],lln[7]);
+            sprintf(buf, "LO , %c%c%c%c%c", lln[3], lln[4],lln[5], lln[6],lln[7]);
             break;
     }
     if (state->edit && event.subsecond % 2) {
@@ -736,7 +736,7 @@ static void _place_face_update_dms_display(movement_event_t event, place_state_t
             sprintf(buf, "LA \"%c%c%c%c  ", lln[3], lln[4], lln[5], lln[6]);
             break;
         case 2: // Longitude
-            sprintf(buf, "LO #%c %c%c  ", state->working_dms_longitude.sign ? 'W' : 'E', lln[0], lln[1], lln[2] );
+            sprintf(buf, "LO #%c%c%c%c  ", state->working_dms_longitude.sign ? 'W' : 'E', lln[0], lln[1], lln[2] );
             break;
         case 3:
             watch_set_colon();
