@@ -36,6 +36,13 @@ const watch_face_t watch_faces[] = {
     //stopwatch_face,
     //preferences_face,
     //set_time_face,
+    // world_clock_face,
+    planetary_time_face,
+    planetary_hours_face,
+    //moon_phase_face,
+    // stopwatch_face,
+    preferences_face,
+    set_time_face,
 };
 
 #define MOVEMENT_NUM_FACES (sizeof(watch_faces) / sizeof(watch_face_t))
