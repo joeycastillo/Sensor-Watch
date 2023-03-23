@@ -35,117 +35,142 @@
 #include "filesystem.h"
 #include "randonaut_face.h"
 
-
 #define R 6371 // Earth's radius in km
 #define PI 3.14159265358979323846
 
-// pseudo random number generator
-int get_pseudo_entropy(uint32_t max) {
-    #if __EMSCRIPTEN__
-    return rand() % max;
-    #else
-    return arc4random_uniform(max);
-    #endif
-}
-
-// quantum random number generator
-int get_true_entropy(void *buf, size_t buflen) {
-    #if __EMSCRIPTEN__
-    #else
-    hri_mclk_set_APBCMASK_TRNG_bit(MCLK);
-    hri_trng_set_CTRLA_ENABLE_bit(TRNG);
-
-    size_t i = 0;
-    while(i < buflen / 4) {
-        while (!hri_trng_get_INTFLAG_reg(TRNG, TRNG_INTFLAG_DATARDY));
-        ((uint32_t *)buf)[i++] = hri_trng_read_DATA_reg(TRNG);
-    }
-
-    if (buflen % 4) {
-        while (!hri_trng_get_INTFLAG_reg(TRNG, TRNG_INTFLAG_DATARDY));
-        uint32_t last_little_bit = hri_trng_read_DATA_reg(TRNG);
-        for(size_t j = 0; j <= (buflen % 4); j++) {
-            ((uint8_t *)buf)[i * 4 + j] = (last_little_bit >> (j * 8)) & 0xFF;
-        }
-    }
-
-    hri_trng_clear_CTRLA_ENABLE_bit(TRNG);
-    hri_mclk_clear_APBCMASK_TRNG_bit(MCLK);
-    #endif
-    return 0;
-}
-
-// get location from place.loc
-static coordinate_t _get_location_from_file(randonaut_state_t *state) {
-    coordinate_t place;
-    if (filesystem_file_exists("place.loc")) {
-        if (filesystem_read_file("place.loc", (char*)&place, sizeof(place)))
-            state->location = place;
-    } else watch_set_indicator(WATCH_INDICATOR_BELL);
-}
-
-// save generated point to place.loc
-static void _save_point_to_file(randonaut_state_t *state) {
-    watch_set_indicator(WATCH_INDICATOR_SIGNAL);
-    coordinate_t place;
-    place.latitude = state->point.latitude;
-    place.longitude = state->point.longitude;
-    if (filesystem_write_file("place.loc", (char*)&place, sizeof(place))) {
-        delay_ms(100);
-        watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
-    } else {
-        watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
-        watch_set_indicator(WATCH_INDICATOR_BELL);
-        delay_ms(500);
-        watch_clear_indicator(WATCH_INDICATOR_BELL);
-        
-    }
-}
-
-// what's going on here?
+static int get_pseudo_entropy(uint32_t max);
+static int get_true_entropy(void *buf);
+static coordinate_t _get_location_from_file(randonaut_state_t *state);
+static void _save_point_to_file(randonaut_state_t *state);
+static uint32_t _get_entropy(randonaut_state_t *state);
+static void _generate_blindspot(randonaut_state_t *state);
+static void _randonaut_face_display(randonaut_state_t *state);
 static int (*__0x2_)(uint8_t) = &get_pseudo_entropy;
 static void (*_0x22)(uint8_t,uint8_t) = &watch_clear_pixel;
 static void (*___0xf322)(uint8_t,uint8_t) = &watch_set_pixel;
 static void (*_0x2_)(char, uint8_t) = &watch_display_string;
 
-// get pseudo/quantum entropy
-uint32_t _get_entropy(randonaut_state_t *state) {
-    uint32_t entropy;
+// MOVEMENT WATCH FACE FUNCTIONS //////////////////////////////////////////////
 
-    #if __EMSCRIPTEN__
-    entropy = rand() % INT32_MAX;
-    #else
-    if ( state->quantum ) {
-        get_true_entropy(entropy, 4);
-    } else {
-        entropy = get_pseudo_entropy(INT32_MAX);
+void randonaut_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
+    (void) settings;
+    if (*context_ptr == NULL) {
+        *context_ptr = malloc(sizeof(randonaut_state_t));
+        memset(*context_ptr, 0, sizeof(randonaut_state_t));
+        // Do any one-time tasks in here; the inside of this conditional happens only at boot.
     }
-    #endif
-    return entropy;
+    // Do any pin or peripheral setup here; this will be called whenever the watch wakes from deep sleep.
 }
 
-/* Official Randonautica Blindspot Algorithm */
-static void _generate_blindspot(randonaut_state_t *state) {
-
-    double lat = (double)state->location.latitude / 100000;
-    double lon = (double)state->location.longitude / 100000;
-    uint16_t radius = state->radius;
-
-    const double random_distance  = radius * sqrt( (double)_get_entropy(state) / INT32_MAX ) / 1000;
-    const double random_bearing = 2 * PI * (double)_get_entropy(state) / INT32_MAX;
-
-    const double phi = lat * PI / 180;
-    const double lambda = lon * PI / 180;
-    const double alpha = random_distance / R;
-
-    lat = asin( sin(phi) * cos(alpha) + cos(phi) * sin(alpha) * cos(random_bearing) );
-    lon = lambda + atan2( sin(random_bearing) * sin(alpha) * cos(phi), cos(alpha) - sin(phi) * sin( lat ));
-    
-    state->point.latitude  = (int)round(lat * (180 / PI) * 100000);
-    state->point.longitude = (int)round(lon * (180 / PI) * 100000);
-    state->point.distance = random_distance * 1000;
-    state->point.bearing   = (uint16_t)round(random_bearing * (180 / PI) < 0 ? random_bearing * (180 / PI) + 360 : random_bearing * (180 / PI));
+void randonaut_face_activate(movement_settings_t *settings, void *context) {
+    (void) settings;
+    randonaut_state_t *state = (randonaut_state_t *)context;
+    _get_location_from_file(state);
+    state->face.mode = HOME;
+    state->radius = 1000;
+    state->quantum = true;
+    // Handle any tasks related to your watch face coming on screen.
 }
+
+bool randonaut_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
+    randonaut_state_t *state = (randonaut_state_t *)context;
+
+    switch (event.event_type) {
+        case EVENT_ACTIVATE:
+            // Show your initial UI here.
+            break;
+        case EVENT_TICK:
+            // If needed, update your display here.
+            break;
+        case EVENT_LIGHT_BUTTON_DOWN:
+            break;
+        case EVENT_LIGHT_BUTTON_UP:
+            switch ( state->face.mode ) {
+                case HOME:
+                    state->face.mode = POINT;
+                    state->face.location_format = TITLE;
+                    break;
+                case GENERATE:
+                    state->face.mode = HOME;
+                    break;
+                case POINT:
+                    state->face.mode = HOME;
+                    break;
+                case SETUP:
+                    state->quantum = !state->quantum;
+            }
+            break;
+        case EVENT_LIGHT_LONG_PRESS:
+            switch ( state->face.mode ) {
+                case SETUP:
+                    state->face.mode = HOME;
+                    break;
+                default:
+                    state->face.mode = SETUP;
+                    watch_clear_display();
+            }
+            break;
+        case EVENT_ALARM_BUTTON_UP:
+            switch ( state->face.mode ) {
+                case HOME:
+                    movement_request_tick_frequency(40);
+                    state->face.mode = GENERATE;
+                    break;
+                case POINT:
+                    movement_request_tick_frequency(1);
+                    state->face.location_format = (( state->face.location_format + 1) % (LON2 + 1));
+                    if ( state->face.location_format == 0 ) 
+                        state->face.location_format++;
+                    break;
+                case SETUP:
+                    movement_request_tick_frequency(1);
+                    state->radius += 500;
+                    if ( state->radius > 10000 )
+                        state->radius = 1000;
+            }
+            break;
+        case EVENT_ALARM_LONG_PRESS:
+            _save_point_to_file(state);
+            break;
+        case EVENT_TIMEOUT:
+            // Your watch face will receive this event after a period of inactivity. If it makes sense to resign,
+            // you may uncomment this line to move back to the first watch face in the list:
+            // movement_move_to_face(0);
+            break;
+        case EVENT_LOW_ENERGY_UPDATE:
+            // If you did not resign in EVENT_TIMEOUT, you can use this event to update the display once a minute.
+            // Avoid displaying fast-updating values like seconds, since the display won't update again for 60 seconds.
+            // You should also consider starting the tick animation, to show the wearer that this is sleep mode:
+            // watch_start_tick_animation(500);
+            break;
+        default:
+            // Movement's default loop handler will step in for any cases you don't handle above:
+            // * EVENT_LIGHT_BUTTON_DOWN lights the LED
+            // * EVENT_MODE_BUTTON_UP moves to the next watch face in the list
+            // * EVENT_MODE_LONG_PRESS returns to the first watch face (or skips to the secondary watch face, if configured)
+            // You can override any of these behaviors by adding a case for these events to this switch statement.
+            return movement_default_loop_handler(event, settings);
+    }
+
+    _randonaut_face_display(state);
+
+    // return true if the watch can enter standby mode. Generally speaking, you should always return true.
+    // Exceptions:
+    //  * If you are displaying a color using the low-level watch_set_led_color function, you should return false.
+    //  * If you are sounding the buzzer using the low-level watch_set_buzzer_on function, you should return false.
+    // Note that if you are driving the LED or buzzer using Movement functions like movement_illuminate_led or
+    // movement_play_alarm, you can still return true. This guidance only applies to the low-level watch_ functions.
+    return true;
+}
+
+void randonaut_face_resign(movement_settings_t *settings, void *context) {
+    (void) settings;
+    (void) context;
+
+    // handle any cleanup before your watch face goes off-screen.
+}
+
+// PRIVATE STATIC FUNCTIONS ///////////////////////////////////////////////////
 
 // display handler
 static void _randonaut_face_display(randonaut_state_t *state) {
@@ -241,119 +266,97 @@ static void _randonaut_face_display(randonaut_state_t *state) {
     watch_display_string(buf, 0);
 }
 
-void randonaut_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
-    (void) settings;
-    if (*context_ptr == NULL) {
-        *context_ptr = malloc(sizeof(randonaut_state_t));
-        memset(*context_ptr, 0, sizeof(randonaut_state_t));
-        // Do any one-time tasks in here; the inside of this conditional happens only at boot.
-    }
-    // Do any pin or peripheral setup here; this will be called whenever the watch wakes from deep sleep.
+/* Official Randonautica Blindspot Algorithm */
+static void _generate_blindspot(randonaut_state_t *state) {
+
+    double lat = (double)state->location.latitude / 100000;
+    double lon = (double)state->location.longitude / 100000;
+    uint16_t radius = state->radius;
+
+    const double random_distance  = radius * sqrt( (double)_get_entropy(state) / INT32_MAX ) / 1000;
+    const double random_bearing = 2 * PI * (double)_get_entropy(state) / INT32_MAX;
+
+    const double phi = lat * PI / 180;
+    const double lambda = lon * PI / 180;
+    const double alpha = random_distance / R;
+
+    lat = asin( sin(phi) * cos(alpha) + cos(phi) * sin(alpha) * cos(random_bearing) );
+    lon = lambda + atan2( sin(random_bearing) * sin(alpha) * cos(phi), cos(alpha) - sin(phi) * sin( lat ));
+    
+    state->point.latitude  = (int)round(lat * (180 / PI) * 100000);
+    state->point.longitude = (int)round(lon * (180 / PI) * 100000);
+    state->point.distance = random_distance * 1000;
+    state->point.bearing   = (uint16_t)round(random_bearing * (180 / PI) < 0 ? random_bearing * (180 / PI) + 360 : random_bearing * (180 / PI));
 }
 
-void randonaut_face_activate(movement_settings_t *settings, void *context) {
-    (void) settings;
-    randonaut_state_t *state = (randonaut_state_t *)context;
-    _get_location_from_file(state);
-    state->face.mode = HOME;
-    state->radius = 1000;
-    state->quantum = true;
-    // Handle any tasks related to your watch face coming on screen.
+
+// pseudo random number generator
+static int get_pseudo_entropy(uint32_t max) {
+    #if __EMSCRIPTEN__
+    return rand() % max;
+    #else
+    return arc4random_uniform(max);
+    #endif
 }
 
-bool randonaut_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
-    randonaut_state_t *state = (randonaut_state_t *)context;
+// quantum random number generator
+static int get_true_entropy(void *buf) {
+    #if __EMSCRIPTEN__
+    #else
+    hri_mclk_set_APBCMASK_TRNG_bit(MCLK);
+    hri_trng_set_CTRLA_ENABLE_bit(TRNG);
 
-    switch (event.event_type) {
-        case EVENT_ACTIVATE:
-            // Show your initial UI here.
-            break;
-        case EVENT_TICK:
-            // If needed, update your display here.
-            break;
-        case EVENT_LIGHT_BUTTON_DOWN:
-            break;
-        case EVENT_LIGHT_BUTTON_UP:
-            switch ( state->face.mode ) {
-                case HOME:
-                    state->face.mode = POINT;
-                    state->face.location_format = TITLE;
-                    break;
-                case GENERATE:
-                    state->face.mode = HOME;
-                    break;
-                case POINT:
-                    state->face.mode = HOME;
-                    break;
-                case SETUP:
-                    state->quantum = !state->quantum;
-            }
-            break;
-        case EVENT_LIGHT_LONG_PRESS:
-            switch ( state->face.mode ) {
-                case SETUP:
-                    state->face.mode = HOME;
-                    break;
-                default:
-                    state->face.mode = SETUP;
-                    watch_clear_display();
-            }
-            break;
-        case EVENT_ALARM_BUTTON_UP:
-            switch ( state->face.mode ) {
-                case HOME:
-                    movement_request_tick_frequency(40);
-                    state->face.mode = GENERATE;
-                    break;
-                case POINT:
-                    state->face.location_format = (( state->face.location_format + 1) % (LON2 + 1));
-                    if ( state->face.location_format == 0 ) 
-                        state->face.location_format++;
-                    break;
-                case SETUP:
-                    state->radius += 500;
-                    if ( state->radius > 10000 )
-                        state->radius = 1000;
-            }
-            break;
-        case EVENT_ALARM_LONG_PRESS:
-            _save_point_to_file(state);
-            break;
-        case EVENT_TIMEOUT:
-            // Your watch face will receive this event after a period of inactivity. If it makes sense to resign,
-            // you may uncomment this line to move back to the first watch face in the list:
-            // movement_move_to_face(0);
-            break;
-        case EVENT_LOW_ENERGY_UPDATE:
-            // If you did not resign in EVENT_TIMEOUT, you can use this event to update the display once a minute.
-            // Avoid displaying fast-updating values like seconds, since the display won't update again for 60 seconds.
-            // You should also consider starting the tick animation, to show the wearer that this is sleep mode:
-            // watch_start_tick_animation(500);
-            break;
-        default:
-            // Movement's default loop handler will step in for any cases you don't handle above:
-            // * EVENT_LIGHT_BUTTON_DOWN lights the LED
-            // * EVENT_MODE_BUTTON_UP moves to the next watch face in the list
-            // * EVENT_MODE_LONG_PRESS returns to the first watch face (or skips to the secondary watch face, if configured)
-            // You can override any of these behaviors by adding a case for these events to this switch statement.
-            return movement_default_loop_handler(event, settings);
+    size_t i = 0;
+    while(i < 1) {
+        while (!hri_trng_get_INTFLAG_reg(TRNG, TRNG_INTFLAG_DATARDY));
+        ((uint32_t *)buf)[i++] = hri_trng_read_DATA_reg(TRNG);
     }
 
-    _randonaut_face_display(state);
-
-    // return true if the watch can enter standby mode. Generally speaking, you should always return true.
-    // Exceptions:
-    //  * If you are displaying a color using the low-level watch_set_led_color function, you should return false.
-    //  * If you are sounding the buzzer using the low-level watch_set_buzzer_on function, you should return false.
-    // Note that if you are driving the LED or buzzer using Movement functions like movement_illuminate_led or
-    // movement_play_alarm, you can still return true. This guidance only applies to the low-level watch_ functions.
-    return true;
+    hri_trng_clear_CTRLA_ENABLE_bit(TRNG);
+    hri_mclk_clear_APBCMASK_TRNG_bit(MCLK);
+    #endif
+    return 0;
 }
 
-void randonaut_face_resign(movement_settings_t *settings, void *context) {
-    (void) settings;
-    (void) context;
-
-    // handle any cleanup before your watch face goes off-screen.
+// get location from place.loc
+static coordinate_t _get_location_from_file(randonaut_state_t *state) {
+    coordinate_t place;
+    if (filesystem_file_exists("place.loc")) {
+        if (filesystem_read_file("place.loc", (char*)&place, sizeof(place)))
+            state->location = place;
+    } else watch_set_indicator(WATCH_INDICATOR_BELL);
 }
 
+// save generated point to place.loc
+static void _save_point_to_file(randonaut_state_t *state) {
+    watch_set_indicator(WATCH_INDICATOR_SIGNAL);
+    coordinate_t place;
+    place.latitude = state->point.latitude;
+    place.longitude = state->point.longitude;
+    if (filesystem_write_file("place.loc", (char*)&place, sizeof(place))) {
+        delay_ms(100);
+        watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
+    } else {
+        watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
+        watch_set_indicator(WATCH_INDICATOR_BELL);
+        delay_ms(500);
+        watch_clear_indicator(WATCH_INDICATOR_BELL);
+        
+    }
+}
+
+// get pseudo/quantum entropy
+static uint32_t _get_entropy(randonaut_state_t *state) {
+    uint32_t entropy;
+
+    #if __EMSCRIPTEN__
+    entropy = rand() % INT32_MAX;
+    #else
+    if ( state->quantum ) {
+        get_true_entropy(entropy);
+    } else {
+        entropy = get_pseudo_entropy(INT32_MAX);
+    }
+    #endif
+    return entropy;
+}

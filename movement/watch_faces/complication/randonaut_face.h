@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 <#author_name#>
+ * Copyright (c) 2023 Tobias Raayoni Last / @randogoth
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,7 +29,8 @@
 #include "place_face.h"
 
 /*
- * A DESCRIPTION OF YOUR WATCH FACE
+ * RANDONAUT FACE
+ * ==============
  *
  * and a description of how use it
  *
