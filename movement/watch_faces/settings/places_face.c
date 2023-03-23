@@ -70,6 +70,52 @@ void places_face_setup(movement_settings_t *settings, uint8_t watch_face_index, 
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(places_state_t));
         memset(*context_ptr, 0, sizeof(places_state_t));
+        places_state_t *state = (places_state_t *)*context_ptr;
+
+        // Pages & Digits Schema of the different Modes
+        state->modes[PLACE].max_page = 0;
+        state->modes[PLACE].page[0].min_digit = 1;
+        state->modes[PLACE].page[0].max_digit = 5;
+
+        state->modes[DECIMAL].max_page = 3;
+        state->modes[DECIMAL].page[0].min_digit = 0;
+        state->modes[DECIMAL].page[0].max_digit = 3;
+        state->modes[DECIMAL].page[1].min_digit = 1;
+        state->modes[DECIMAL].page[1].max_digit = 5;
+        state->modes[DECIMAL].page[2].min_digit = 0;
+        state->modes[DECIMAL].page[2].max_digit = 3;
+        state->modes[DECIMAL].page[3].min_digit = 1;
+        state->modes[DECIMAL].page[3].max_digit = 5;
+
+        state->modes[DMS].max_page = 3;
+        state->modes[DMS].page[0].min_digit = 0;
+        state->modes[DMS].page[0].max_digit = 3;
+        state->modes[DMS].page[1].min_digit = 0;
+        state->modes[DMS].page[1].max_digit = 3;
+        state->modes[DMS].page[2].min_digit = 0;
+        state->modes[DMS].page[2].max_digit = 3;
+        state->modes[DMS].page[3].min_digit = 0;
+        state->modes[DMS].page[3].max_digit = 3;
+
+        state->modes[OLC].max_page = 1;
+        state->modes[OLC].page[0].min_digit = 1;
+        state->modes[OLC].page[0].max_digit = 5;
+        state->modes[OLC].page[1].min_digit = 1;
+        state->modes[OLC].page[1].max_digit = 5;
+
+        state->modes[GEO].max_page = 1;
+        state->modes[GEO].page[0].min_digit = 1;
+        state->modes[GEO].page[0].max_digit = 5;
+        state->modes[GEO].page[1].min_digit = 1;
+        state->modes[GEO].page[1].max_digit = 5;
+    
+        for (uint8_t i = 0; i < 5; i++) {
+            state->places[i].name.d01 = 12;
+            state->places[i].name.d02 = 15;
+            state->places[i].name.d03 =  3;
+            state->places[i].name.d05 =  i + 29;
+        }
+        
         // Do any one-time tasks in here; the inside of this conditional happens only at boot.
     }
     // Do any pin or peripheral setup here; this will be called whenever the watch wakes from deep sleep.
@@ -96,47 +142,6 @@ void places_face_activate(movement_settings_t *settings, void *context) {
     }
 #endif
 
-    // Pages & Digits Schema of the different Modes
-    state->modes[PLACE].max_page = 0;
-    state->modes[PLACE].page[0].min_digit = 1;
-    state->modes[PLACE].page[0].max_digit = 5;
-
-    state->modes[DECIMAL].max_page = 3;
-    state->modes[DECIMAL].page[0].min_digit = 0;
-    state->modes[DECIMAL].page[0].max_digit = 3;
-    state->modes[DECIMAL].page[1].min_digit = 1;
-    state->modes[DECIMAL].page[1].max_digit = 5;
-    state->modes[DECIMAL].page[2].min_digit = 0;
-    state->modes[DECIMAL].page[2].max_digit = 3;
-    state->modes[DECIMAL].page[3].min_digit = 1;
-    state->modes[DECIMAL].page[3].max_digit = 5;
-
-    state->modes[DMS].max_page = 3;
-    state->modes[DMS].page[0].min_digit = 0;
-    state->modes[DMS].page[0].max_digit = 3;
-    state->modes[DMS].page[1].min_digit = 0;
-    state->modes[DMS].page[1].max_digit = 3;
-    state->modes[DMS].page[2].min_digit = 0;
-    state->modes[DMS].page[2].max_digit = 3;
-    state->modes[DMS].page[3].min_digit = 0;
-    state->modes[DMS].page[3].max_digit = 3;
-
-    state->modes[OLC].max_page = 1;
-    state->modes[OLC].page[0].min_digit = 1;
-    state->modes[OLC].page[0].max_digit = 5;
-    state->modes[OLC].page[1].min_digit = 1;
-    state->modes[OLC].page[1].max_digit = 5;
-
-    state->modes[GEO].max_page = 1;
-    state->modes[GEO].page[0].min_digit = 1;
-    state->modes[GEO].page[0].max_digit = 5;
-    state->modes[GEO].page[1].min_digit = 1;
-    state->modes[GEO].page[1].max_digit = 5;
-
-    state->modes[DATA].max_page = 1;
-    state->modes[DATA].page[0].min_digit = 0;
-    state->modes[DATA].page[0].max_digit = 1;
-
 }
 
 bool places_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
@@ -144,11 +149,14 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
     switch (event.event_type) {
         case EVENT_ACTIVATE:
             // Show your initial UI here.
+            movement_request_tick_frequency(4);
             state->page = 0;
             state->active_digit = 0;
             state->place = 0;
-            movement_request_tick_frequency(4);
-            _places_face_update_display(event, context);
+            state->mode = PLACE;
+            _data_load_place_from_file(state);
+            _data_load_place_from_memory(state);
+            _places_face_update_display(event, state);
             break;
         case EVENT_TICK:
             // If needed, update your display here.
@@ -157,77 +165,79 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
             // check if we need to update the display
             if ( state->edit || state->digit_info ) {
                 // in Edit or Digit Info modes, refresh every tick to show blinking cursors
-                if ( state->mode != DATA )
-                    _places_face_update_display(event, state);
+                _places_face_update_display(event, state);
             }
             break;
         case EVENT_LIGHT_BUTTON_DOWN:
             break;
         case EVENT_LIGHT_BUTTON_UP:
-            // flips through the different display modes for each place
-            // increments active digit when in Edit or Display Info auxiliary modes
-            if ( state->edit || state->digit_info || state->mode == DATA )
-                state->active_digit++;
-            else {
-                state->mode = (state->mode + 1) % 5;
-                state->page = 0;
-            }
+            if ( state->swap ) {
+                if ( state->place != 0 ) {
+                    // swap current place with selected place
+                    state->places[state->place].name = state->places[0].name;
+                    state->places[state->place].latitude = state->places[0].latitude;
+                    state->places[state->place].longitude = state->places[0].longitude;
 
-            // handles particularities for the different modes
-            switch ( state->mode ) {
-                case DATA:
-                    // toggles between Read and Write options
-                    state->active_digit %= 2;
-                    switch ( state->active_digit ) {
-                        case 0:
-                            watch_display_string(" Read  ", 4);
-                            state->write = false;
-                            break;
-                        case 1:
-                            watch_display_string(" Write  ", 4);
-                            state->write = true;
-                            break;
-                    }
-                    break;
-                case DECIMAL:
-                case DMS:
-                    // skip hundreds digit for latitude degrees
-                    if ( state->page == 0 && state->active_digit == 1 )
-                        state->active_digit++;
-                default:
-                    // when max amount of digits per mode is reached flip to next page / wrap around
-                    if ( state->active_digit > state->modes[state->mode].page[state->page].max_digit ) {
-                        if ( state->page == state->modes[state->mode].max_page ) {
-                            state->page = 0;
-                            state->active_digit = state->modes[state->mode].page[state->page].min_digit;
-                        } else {
-                            state->page++;
-                            state->active_digit = state->modes[state->mode].page[state->page].min_digit;
+                    state->places[0].name = state->working_name;
+                    state->places[0].latitude = state->working_latitude;
+                    state->places[0].longitude = state->working_longitude;
+
+                    _data_load_place_from_memory(state);
+                    _data_save_place_to_register(state);
+                    _data_save_place_to_file(state);
+
+                    state->swap = false;
+                    state->mode = PLACE;
+                    
+                }
+            } else {
+                // flips through the different display modes for each place
+                // increments active digit when in Edit or Display Info auxiliary modes
+                if ( state->edit || state->digit_info )
+                    state->active_digit++;
+                else {
+                    state->mode = (state->mode + 1) % 5;
+                    state->page = 0;
+                }
+
+                // handles particularities for the different modes
+                switch ( state->mode ) {
+                    case DECIMAL:
+                    case DMS:
+                        // skip hundreds digit for latitude degrees
+                        if ( state->page == 0 && state->active_digit == 1 )
+                            state->active_digit++;
+                    default:
+                        // when max amount of digits per mode is reached flip to next page / wrap around
+                        if ( state->active_digit > state->modes[state->mode].page[state->page].max_digit ) {
+                            if ( state->page == state->modes[state->mode].max_page ) {
+                                state->page = 0;
+                                state->active_digit = state->modes[state->mode].page[state->page].min_digit;
+                            } else {
+                                state->page++;
+                                state->active_digit = state->modes[state->mode].page[state->page].min_digit;
+                            }
                         }
-                    }
+                }
             }
             // update display
             _places_face_update_display(event, state);
             break;
         case EVENT_LIGHT_LONG_PRESS:
             // toggles Edit auxiliary mode in all place display modes
-            // Triggers a Read/Write in Data mode
+            // Writes changes of Place 1 to File & Register
 
-           if ( state->mode == DATA ) {
-                if ( state->write ) {
-                    _data_save_place_to_register(state);
-                    _data_save_place_to_file(state);
-                } else {
-                    _data_load_place_from_file(state);
-                }
-            } else {
-                // toggle Edit auxiliary mode
-                state->edit = !state->edit;
-                if ( !state->digit_info )
-                    state->active_digit = state->modes[state->mode].page[state->page].min_digit;
-            }
+            // toggle Edit auxiliary mode
+            state->edit = !state->edit;
+            if ( !state->digit_info )
+                state->active_digit = state->modes[state->mode].page[state->page].min_digit;
+
             if ( !state->edit ) { // leaving edit mode saves data in state
                 _data_save_place_to_memory(state);
+                if ( state->place == 0 ) {
+                    _data_save_place_to_register(state);
+                    _data_save_place_to_file(state);
+                }
                 if ( !state->digit_info )
                     state->active_digit = 0;
                 else {
@@ -238,7 +248,11 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
             // update display
             _places_face_update_display(event, state);
             break;
+        case EVENT_ALARM_BUTTON_DOWN:
+            state->swap = true;
+            break;
         case EVENT_ALARM_BUTTON_UP:
+            state->swap = false;
             // Flips through the 5 available places
             // In Edit mode increments the selected digit
 
@@ -260,37 +274,40 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
             _places_face_update_display(event, state);
             break;
         case EVENT_ALARM_LONG_PRESS:
-            // Toggles Data mode in place name & numerical coordinate display modes
+            state->swap = false;
             // Toggles Digit Info mode in alphanumerical shortcode display modes
+            // Toggles Remain mode in latitude & longitude display modes
             // Discards changes in Edit mode
 
-            if ( !state->edit ) {
-                switch ( state->mode ) {
-                    case DATA:
-                        state->mode = PLACE;
-                        break;
-                    case PLACE:
-                        state->mode = DATA;
-                        watch_display_string(" Read  ", 4);
-                        state->write = false;
-                        state->page = 0;
-                        state->active_digit = 0;
-                        break;
-                    default:
-                        // toggle Digit Info auxiliary
-                        state->digit_info = !state->digit_info;
+            if ( !state->edit && state->mode == PLACE) {
+                if ( state->place != 0 ) {
+                    // swap current place with selected place
+                    state->places[state->place].name = state->places[0].name;
+                    state->places[state->place].latitude = state->places[0].latitude;
+                    state->places[state->place].longitude = state->places[0].longitude;
 
-                        // coming out of Digit Info:
-                        if ( !state->digit_info ) {
-                            if ( !state->edit )
-                                state->active_digit = 0;
-                        // going into Digit Info:
-                        } else
-                            if ( !state->edit )
-                                state->active_digit = 1;
-                        break;
-                    
+                    state->places[0].name = state->working_name;
+                    state->places[0].latitude = state->working_latitude;
+                    state->places[0].longitude = state->working_longitude;
+
+                    _data_load_place_from_memory(state);
+                    _data_save_place_to_register(state);
+                    _data_save_place_to_file(state);                    
                 }
+            }
+
+            if ( !state->edit && state->mode > PLACE) {
+                // toggle Digit Info auxiliary
+                state->digit_info = !state->digit_info;
+
+                // coming out of Digit Info:
+                if ( !state->digit_info ) {
+                    if ( !state->edit )
+                        state->active_digit = 0;
+                // going into Digit Info:
+                } else
+                    if ( !state->edit )
+                        state->active_digit = 1;                    
             } else {
                 // discard changes
                 state->edit = false;
@@ -700,13 +717,9 @@ static places_coordinate_t _convert_geohash_to_decimal_coordinate(places_format_
 static void _places_face_update_name_display(movement_event_t event, places_state_t *state) {
     char buf[12];
     char name[6] = {0};
-    watch_clear_display();
     _convert_name_struct_to_string(name, state->working_name);
     
-    char help[3];
-    sprintf(help, "PL");
-
-    sprintf(buf, "%c%c %d %c%c%c%c%c", help[0], help[1], state->place + 1, name[0], name[1], name[2], name[3], name[4]);
+    sprintf(buf, "PL %d %c%c%c%c%c", state->place + 1, name[0], name[1], name[2], name[3], name[4]);
     
     if (state->edit && event.subsecond % 2) {
         buf[state->active_digit + 4] = ' ';
@@ -906,8 +919,6 @@ static void _places_face_update_display(movement_event_t event, places_state_t *
         case OLC:
         case GEO:
             _places_face_update_code_display(event, state);
-            break;
-        case DATA:
             break;
     }
 
@@ -1313,8 +1324,6 @@ static void _places_face_advance_digit(places_state_t *state) {
         case GEO:
             _places_face_advance_geohash_digit(state);
             break;
-        case DATA:
-            break;
     }
 }
 
@@ -1353,8 +1362,6 @@ static void _data_save_place_to_memory(places_state_t *state) {
             state->places[state->place].latitude  = _convert_geohash_to_decimal_coordinate(state->working_geohash).latitude;
             state->places[state->place].longitude = _convert_geohash_to_decimal_coordinate(state->working_geohash).longitude;
             break;
-        case DATA:
-            break;
     }
     // reload working structs
     _data_load_place_from_memory(state);
@@ -1366,23 +1373,20 @@ static void _data_load_place_from_register(places_state_t *state) {
     movement_location_t movement_location = (movement_location_t) watch_get_backup_data(1);
     state->places[state->place].latitude = _convert_decimal_int_to_struct(movement_location.bit.latitude * 1000);
     state->places[state->place].longitude = _convert_decimal_int_to_struct(movement_location.bit.longitude * 1000);
-    delay_ms(100);
     watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
-    state->mode = PLACE;
 }
 
 // save coordinate to location register from selected place slot (truncated to 2 decimal points)
 static void _data_save_place_to_register(places_state_t *state) {
     watch_set_indicator(WATCH_INDICATOR_SIGNAL);
     movement_location_t movement_location;
-    int16_t lat = _convert_decimal_struct_to_int16(state->working_latitude);
-    int16_t lon = _convert_decimal_struct_to_int16(state->working_longitude);
+    int16_t lat = _convert_decimal_struct_to_int16(state->places[0].latitude);
+    int16_t lon = _convert_decimal_struct_to_int16(state->places[0].longitude);
     movement_location.bit.latitude = lat;
     movement_location.bit.longitude = lon;
     watch_store_backup_data(movement_location.reg, 1);
     delay_ms(100);
     watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
-    state->mode = PLACE;
 }
 
 // load coordinate from LFS file into selected place slot
@@ -1393,29 +1397,24 @@ static void _data_load_place_from_file(places_state_t *state) {
             watch_set_indicator(WATCH_INDICATOR_SIGNAL);
             state->places[state->place].latitude = place.latitude;
             state->places[state->place].longitude = place.longitude;
-            delay_ms(100);
-            watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
         } else {
             watch_set_indicator(WATCH_INDICATOR_BELL);
-            delay_ms(100);
             watch_clear_indicator(WATCH_INDICATOR_BELL);
             watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
     } else {
         watch_set_indicator(WATCH_INDICATOR_BELL);
         _data_load_place_from_register(state);
-        delay_ms(100);
         watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
         watch_clear_indicator(WATCH_INDICATOR_BELL);
     }
-    state->mode = PLACE;
 }
 
 // save coordinate to LFS file from selected place slot
 static void _data_save_place_to_file(places_state_t *state) {
     watch_set_indicator(WATCH_INDICATOR_SIGNAL);
     places_coordinate_t place;
-    place.latitude = state->places[state->place].latitude;
-    place.longitude = state->places[state->place].longitude;
+    place.latitude = state->places[0].latitude;
+    place.longitude = state->places[0].longitude;
     if (filesystem_write_file("place.loc", (char*)&place, sizeof(place))) {
         delay_ms(200);
         watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
@@ -1426,5 +1425,4 @@ static void _data_save_place_to_file(places_state_t *state) {
         watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
         
     }
-    state->mode = PLACE;
 }

@@ -36,7 +36,8 @@
  * application for location data that also serves as a converter between different coordinate
  * notation formats.
  * 
- * Using the ALARM button the user can flip through 5 available place slots.
+ * Using the ALARM button the user can flip through 5 available place slots. The first place is
+ * always the one that is activated across all watch faces.
  * 
  * With the LIGHT button each place coordinate can be shown and edited in 5 different display modes:
  * 
@@ -57,26 +58,25 @@
  * alphabet or numbers. Another LONG PRESS of LIGHT saves the changes, a LONG PRESS of ALARM discards
  * them.
  * 
+ * Swapping Places
+ * ===============
+ * 
+ * This is inspired by the Casio FA-1500 World Time watch where you can swap the current timezone
+ * with another one while traveling simply by pressing two of the available buttons simultaneously.
+ * 
+ * When one of the places 2 - 5 is selected, pressing and holding ALARM and then pressing LIGHT
+ * swaps the place with slot 1 and saving it as active location across all watch faces.
+ * 
+ * (When in Place Name display mode, simply LONG PRESSING ALARM does the same thing)
+ * 
  * Auxiliary Modes
  * ===============
  * 
- * A LONG PRESS of the ALARM button toggles one of three auxiliary modes (LAP indicator):
+ * A LONG PRESS of the ALARM button toggles one of two auxiliary functions when displaying
+ * one of the coordinate formats (LAP indicator turns on):
  * 
- * 1) DATA import/export when in Place Name mode.
- * 2) DIGIT INFO when Open Location Code or Geohash are selected.
- * 3) REMAIN when any of the Latitude and Longitude modes are selected.
- * 
- * Auxiliary Mode: Data Import and Export
- * ======================================
- * 
- * In this mode ALARM toggles between File and Registry and LIGHT toggles between 'R' for
- * read and 'W' for write.
- * 
- * Coordinates can be read or stored from/to the selected place slot either from the traditional 
- * internal location register or a file on the LFS file system ("place.loc").
- * 
- * The actual read/write operation is triggered by a LONG PRESS of the LIGHT button.
- * LONG PRESS of ALARM leaves this mode without any changes and returns to the Place Name.
+ * 1) DIGIT INFO when Open Location Code or Geohash are selected.
+ * 2) REMAIN when any of the Latitude and Longitude modes are selected.
  * 
  * Auxiliary Mode: Digit Info
  * ==========================
@@ -134,7 +134,7 @@
  */
 
 static const char olc_alphabet[20] = "23456789CFGHJMPQRUWX";
-static const char name_alphabet[38] = "_0123456789 AbCdEFGHIJKLMNOPQRSTUVWXYZ";
+static const char name_alphabet[38] = " AbCdEFGHIJKLMNOPQRSTUVWXYZ_0123456789";
 static const char geohash_alphabet[32] =  "0123456789bCdEfGhjkmnpqrstuVwxyz";
 
 typedef struct {
@@ -220,8 +220,7 @@ enum places_modes_e {
     DECIMAL,
     DMS,
     OLC,
-    GEO,
-    DATA
+    GEO
 };
 
 typedef struct {
@@ -239,7 +238,7 @@ typedef struct {
     places_format_olc_t working_pluscode;
     places_format_geohash_t working_geohash;
     places_coordinate_t places[5];
-    bool write;
+    bool swap;
     places_mode_schema_mode_t modes[6];
 } places_state_t;
 
