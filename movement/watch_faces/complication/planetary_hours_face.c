@@ -426,7 +426,7 @@ bool planetary_hours_face_loop(movement_event_t event, movement_settings_t *sett
             // You can use the Light button for your own purposes. Note that by default, Movement will also
             // illuminate the LED in response to EVENT_LIGHT_BUTTON_DOWN; to suppress that behavior, add an
             // empty case for EVENT_LIGHT_BUTTON_DOWN.
-            state->ruler++;
+            state->ruler = (state->ruler + 1) % 3;
             break;
         case EVENT_LIGHT_LONG_PRESS:
             // Just in case you have need for another button.

@@ -304,8 +304,8 @@ static void _planetary_time(movement_settings_t *settings, planetary_time_state_
     if ( state->ruler == 2 ) strncpy(ruler, "  ", 3);
 
     // display planetary time with ruler of the hour or ruler of the day
-    if ( state->day_ruler ) sprintf(buf, "%s d%2d%02d%2d", ruler, scratch_time.unit.hour, scratch_time.unit.minute, scratch_time.unit.second);
-    else sprintf(buf, "%s h%2d%02d%2d", ruler, scratch_time.unit.hour, scratch_time.unit.minute, scratch_time.unit.second);
+    if ( state->day_ruler ) sprintf(buf, "%s d%2d%02d%02d", ruler, scratch_time.unit.hour, scratch_time.unit.minute, scratch_time.unit.second);
+    else sprintf(buf, "%s h%2d%02d%02d", ruler, scratch_time.unit.hour, scratch_time.unit.minute, scratch_time.unit.second);
     
     watch_set_colon();
     watch_display_string(buf, 0);
@@ -364,7 +364,7 @@ bool planetary_time_face_loop(movement_event_t event, movement_settings_t *setti
             // You can use the Light button for your own purposes. Note that by default, Movement will also
             // illuminate the LED in response to EVENT_LIGHT_BUTTON_DOWN; to suppress that behavior, add an
             // empty case for EVENT_LIGHT_BUTTON_DOWN.
-            state->ruler++;
+            state->ruler = (state->ruler + 1) % 3;
             break;
         case EVENT_ALARM_BUTTON_UP:
             // Just in case you have need for another button.
