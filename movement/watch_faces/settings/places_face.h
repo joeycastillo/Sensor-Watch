@@ -26,6 +26,7 @@
 #define PLACES_FACE_H_
 
 #include "movement.h"
+#include "place_face.h"
 
 /*
  * PLACES FACE
@@ -133,9 +134,7 @@
  * 
  */
 
-static const char olc_alphabet[20] = "23456789CFGHJMPQRUWX";
 static const char name_alphabet[38] = " AbCdEFGHIJKLMNOPQRSTUVWXYZ_0123456789";
-static const char geohash_alphabet[32] =  "0123456789bCdEfGhjkmnpqrstuVwxyz";
 
 typedef struct {
     uint8_t sign: 1;        // 0-1

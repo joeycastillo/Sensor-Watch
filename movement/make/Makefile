@@ -108,6 +108,7 @@ SRCS += \
   ../watch_faces/clock/world_clock2_face.c \
   ../watch_faces/complication/time_left_face.c \
   ../watch_faces/settings/place_face.c \
+  ../watch_faces/settings/places_face.c \
   ../watch_faces/complication/randonaut_face.c \
   ../watch_faces/complication/planetary_time_face.c \
   ../watch_faces/complication/planetary_hours_face.c \
