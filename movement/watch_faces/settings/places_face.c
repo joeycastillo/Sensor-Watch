@@ -180,11 +180,11 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
                     state->active_digit %= 2;
                     switch ( state->active_digit ) {
                         case 0:
-                            watch_display_string("R  ", 0);
+                            watch_display_string(" Read  ", 4);
                             state->write = false;
                             break;
                         case 1:
-                            watch_display_string("W  ", 0);
+                            watch_display_string(" Write  ", 4);
                             state->write = true;
                             break;
                     }
@@ -214,19 +214,11 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
             // Triggers a Read/Write in Data mode
 
            if ( state->mode == DATA ) {
-                // just to make sure we exit if none are selected
-                if ( !state->file && !state->registry )
-                    state->mode = PLACE;
-                else {
-                    // if options are selected read/write location file/register
-                    if ( state->registry && state->write )
-                        _data_save_place_to_register(state);
-                    if ( state->registry && !state->write )
-                        _data_load_place_from_register(state);   
-                    if ( state->file && state->write )
-                        _data_save_place_to_file(state);
-                    if ( state->file && !state->write )
-                        _data_load_place_from_file(state);
+                if ( state->write ) {
+                    _data_save_place_to_register(state);
+                    _data_save_place_to_file(state);
+                } else {
+                    _data_load_place_from_file(state);
                 }
             } else {
                 // toggle Edit auxiliary mode
@@ -264,23 +256,6 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
                     _data_load_place_from_memory(state);
                 }
             }
-
-            // toggles between file and location register in Data mode
-            if ( state->mode == DATA ) {
-                switch ( state->page ) {
-                    case 0:
-                        watch_display_string(" file ", 4);
-                        state->file = true;
-                        state->registry = false;
-                        break;
-                    case 1:
-                        watch_display_string(" regst", 4);
-                        state->file = false;
-                        state->registry = true;
-                        break;
-                }
-                break;
-            }
             // update display
             _places_face_update_display(event, state);
             break;
@@ -292,17 +267,12 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
             if ( !state->edit ) {
                 switch ( state->mode ) {
                     case DATA:
-                        state->file = false;
-                        state->registry = false;
                         state->mode = PLACE;
                         break;
                     case PLACE:
                         state->mode = DATA;
-                        watch_display_string("R  ", 0);
-                        watch_display_string(" file ", 4);
+                        watch_display_string(" Read  ", 4);
                         state->write = false;
-                        state->file = true;
-                        state->registry = false;
                         state->page = 0;
                         state->active_digit = 0;
                         break;
@@ -1396,10 +1366,8 @@ static void _data_load_place_from_register(places_state_t *state) {
     movement_location_t movement_location = (movement_location_t) watch_get_backup_data(1);
     state->places[state->place].latitude = _convert_decimal_int_to_struct(movement_location.bit.latitude * 1000);
     state->places[state->place].longitude = _convert_decimal_int_to_struct(movement_location.bit.longitude * 1000);
-    delay_ms(200);
+    delay_ms(100);
     watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
-    watch_display_string("  OK  ", 4);
-    delay_ms(1000);
     state->mode = PLACE;
 }
 
@@ -1412,10 +1380,8 @@ static void _data_save_place_to_register(places_state_t *state) {
     movement_location.bit.latitude = lat;
     movement_location.bit.longitude = lon;
     watch_store_backup_data(movement_location.reg, 1);
-    delay_ms(200);
+    delay_ms(100);
     watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
-    watch_display_string("  OK  ", 4);
-    delay_ms(1000);
     state->mode = PLACE;
 }
 
@@ -1427,21 +1393,18 @@ static void _data_load_place_from_file(places_state_t *state) {
             watch_set_indicator(WATCH_INDICATOR_SIGNAL);
             state->places[state->place].latitude = place.latitude;
             state->places[state->place].longitude = place.longitude;
-            delay_ms(200);
+            delay_ms(100);
             watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
-            watch_display_string("  OK  ", 4);
-            delay_ms(1000);
         } else {
-            watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
             watch_set_indicator(WATCH_INDICATOR_BELL);
-            watch_display_string(" Error", 4);
-            delay_ms(2000);
+            delay_ms(100);
             watch_clear_indicator(WATCH_INDICATOR_BELL);
+            watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
     } else {
-        watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
         watch_set_indicator(WATCH_INDICATOR_BELL);
-        watch_display_string("no   file ", 0);
-        delay_ms(2000);
+        _data_load_place_from_register(state);
+        delay_ms(100);
+        watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
         watch_clear_indicator(WATCH_INDICATOR_BELL);
     }
     state->mode = PLACE;
@@ -1456,14 +1419,11 @@ static void _data_save_place_to_file(places_state_t *state) {
     if (filesystem_write_file("place.loc", (char*)&place, sizeof(place))) {
         delay_ms(200);
         watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
-        watch_display_string("  OK  ", 4);
-        delay_ms(1000);
     } else {
-        watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
         watch_set_indicator(WATCH_INDICATOR_BELL);
-        watch_display_string(" Error", 4);
-        delay_ms(2000);
+        delay_ms(1000);
         watch_clear_indicator(WATCH_INDICATOR_BELL);
+        watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
         
     }
     state->mode = PLACE;

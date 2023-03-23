@@ -239,8 +239,6 @@ typedef struct {
     places_format_olc_t working_pluscode;
     places_format_geohash_t working_geohash;
     places_coordinate_t places[5];
-    bool file;
-    bool registry;
     bool write;
     places_mode_schema_mode_t modes[6];
 } places_state_t;
