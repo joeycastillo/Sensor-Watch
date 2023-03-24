@@ -40,15 +40,14 @@
 
 static int get_pseudo_entropy(uint32_t max);
 static int get_true_entropy(void *buf);
-static coordinate_t _get_location_from_file(randonaut_state_t *state);
+static void _get_location_from_file(randonaut_state_t *state);
 static void _save_point_to_file(randonaut_state_t *state);
 static uint32_t _get_entropy(randonaut_state_t *state);
 static void _generate_blindspot(randonaut_state_t *state);
 static void _randonaut_face_display(randonaut_state_t *state);
-static int (*__0x2_)(uint8_t) = &get_pseudo_entropy;
+static int (*__0x2_)(uint32_t) = &get_pseudo_entropy;
 static void (*_0x22)(uint8_t,uint8_t) = &watch_clear_pixel;
 static void (*___0xf322)(uint8_t,uint8_t) = &watch_set_pixel;
-static void (*_0x2_)(char, uint8_t) = &watch_display_string;
 
 // MOVEMENT WATCH FACE FUNCTIONS //////////////////////////////////////////////
 
@@ -127,6 +126,8 @@ bool randonaut_face_loop(movement_event_t event, movement_settings_t *settings, 
                     state->radius += 500;
                     if ( state->radius > 10000 )
                         state->radius = 1000;
+                default:
+                    break;
             }
             break;
         case EVENT_ALARM_LONG_PRESS:
@@ -174,7 +175,7 @@ void randonaut_face_resign(movement_settings_t *settings, void *context) {
 
 // display handler
 static void _randonaut_face_display(randonaut_state_t *state) {
-    char buf[10];
+    char buf[11];
     watch_clear_colon();
     switch ( state->face.mode ) {
         case HOME:
@@ -197,7 +198,7 @@ static void _randonaut_face_display(randonaut_state_t *state) {
                     /*_0x22*/__0x2_(002),__0x2_(0xD68-/*_0x2222222*/
                     0xD4A));}if(c<50){_0x22(__0x2_(0x2),/*____0x22*/
                     __0x2_(14+9));}delay_ms(__0x2_(c)+20);if/*_0x2*/
-                    (c<30){_0x2_("",__0x2_(/*__0x22*//*__0x22*//*2*/
+                    (c<30){watch_display_string(" ",__0x2_(/*_2**2*/
                     10));}_0x22(__0x2_(02),__0x2_(3432-3409)/*0x22*/
                     );_0x22(__0x2_(002),__0x2_(51-28));/*_____0x22*/
                     /**/  _0x22(__0x2_(0x2),__0x2_(23));if(c<20)////
@@ -229,15 +230,16 @@ static void _randonaut_face_display(randonaut_state_t *state) {
             sprintf(buf, "RA   Found");
             break;
         case POINT:
+            sprintf(buf, "          ");
             switch ( state->face.location_format ) {
                 case TITLE:
                     sprintf(buf, "RA   Point");
                     break;
                 case DIST: // distance to point
-                    sprintf(buf, "DI m %d      ", state->point.distance );
+                    sprintf(buf, "DI m %d", state->point.distance );
                     break;
                 case BEAR: // bearing relative to point
-                    sprintf(buf, "BE # %d      ", state->point.bearing );
+                    sprintf(buf, "BE # %d", state->point.bearing );
                     break;
                 case LAT1: // latitude DD._____
                     sprintf(state->scratchpad, "%07d", abs(state->point.latitude));
@@ -319,7 +321,7 @@ static int get_true_entropy(void *buf) {
 }
 
 // get location from place.loc
-static coordinate_t _get_location_from_file(randonaut_state_t *state) {
+static void _get_location_from_file(randonaut_state_t *state) {
     coordinate_t place;
     if (filesystem_file_exists("place.loc")) {
         if (filesystem_read_file("place.loc", (char*)&place, sizeof(place)))
