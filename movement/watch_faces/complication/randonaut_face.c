@@ -230,15 +230,16 @@ static void _randonaut_face_display(randonaut_state_t *state) {
             sprintf(buf, "RA   Found");
             break;
         case POINT:
-            sprintf(buf, "          ");
             switch ( state->face.location_format ) {
                 case TITLE:
                     sprintf(buf, "RA   Point");
                     break;
                 case DIST: // distance to point
+                    watch_clear_display();
                     sprintf(buf, "DI m %d", state->point.distance );
                     break;
                 case BEAR: // bearing relative to point
+                    watch_clear_display();
                     sprintf(buf, "BE # %d", state->point.bearing );
                     break;
                 case LAT1: // latitude DD._____
