@@ -59,6 +59,8 @@ static void _data_load_place_from_file(place_state_t *state);
 static void _data_save_place_to_memory(place_state_t *state);
 static void _data_save_place_to_register(place_state_t *state);
 static void _data_save_place_to_file(place_state_t *state);
+static bool _quick_ticks_running;
+static void _abort_quick_ticks();
 
 // PUBLIC FUNCTIONS ///////////////////////////////////////////////////////////
 
@@ -191,11 +193,16 @@ bool place_face_loop(movement_event_t event, movement_settings_t *settings, void
             if ( state->edit || state->digit_info ) {
                 // in Edit or Digit Info modes, refresh every tick to show blinking cursors
                 _place_face_update_display(event, state);
+                if (_quick_ticks_running) {
+                    if (watch_get_pin_level(BTN_ALARM)) _place_face_advance_digit(state);
+                    else _abort_quick_ticks();
+                }
             }
             break;
         case EVENT_LIGHT_BUTTON_DOWN:
             break;
         case EVENT_LIGHT_BUTTON_UP:
+            _abort_quick_ticks();
             // flips through the different display modes for each place
             // increments active digit when in Edit or Display Info auxiliary modes
             if ( state->edit || state->digit_info )
@@ -243,6 +250,10 @@ bool place_face_loop(movement_event_t event, movement_settings_t *settings, void
             _place_face_update_display(event, state);
             break;
         case EVENT_ALARM_BUTTON_UP:
+            if ( _quick_ticks_running ) {
+                    _abort_quick_ticks();
+                    break;
+                }
             // In Edit mode increments the selected digit
 
              if ( state->edit )
@@ -294,12 +305,23 @@ bool place_face_loop(movement_event_t event, movement_settings_t *settings, void
                     
             } else {
                 // discard changes
-                state->edit = false;
-                _data_load_place_from_memory(state);
+                //state->edit = false;
+                //_data_load_place_from_memory(state);
+                _quick_ticks_running = true;
+                movement_request_tick_frequency(8);
             }
             _place_face_update_display(event, state);
             break;
+        case EVENT_ALARM_LONG_UP:
+            _abort_quick_ticks();
+            break;
+        case EVENT_MODE_BUTTON_UP:
+            _abort_quick_ticks();
+            movement_move_to_next_face();
+            return false;
         case EVENT_TIMEOUT:
+            _abort_quick_ticks();
+            movement_move_to_face(0);
             // Your watch face will receive this event after a period of inactivity. If it makes sense to resign,
             // you may uncomment this line to move back to the first watch face in the list:
             // movement_move_to_face(0);
@@ -711,7 +733,7 @@ static void _place_face_update_latlon_display(movement_event_t event, place_stat
             sprintf(buf, "LO , %c%c%c%c%c", lln[3], lln[4],lln[5], lln[6],lln[7]);
             break;
     }
-    if (state->edit && event.subsecond % 2) {
+    if (state->edit && !_quick_ticks_running && event.subsecond % 2) {
         buf[state->active_digit + 4] = ' ';
     }
     watch_display_string(buf, 0);
@@ -743,7 +765,7 @@ static void _place_face_update_dms_display(movement_event_t event, place_state_t
             sprintf(buf, "LO \"%c%c%c%c  ", lln[3], lln[4], lln[5], lln[6]);
             break;
     }
-    if (state->edit && event.subsecond % 2) {
+    if (state->edit && !_quick_ticks_running && event.subsecond % 2) {
         buf[state->active_digit + 4] = ' ';
     }
     watch_display_string(buf, 0);
@@ -829,7 +851,7 @@ static void _place_face_update_code_display(movement_event_t event, place_state_
             break;
     }
 
-    if (state->edit && event.subsecond % 2) {
+    if (state->edit && !_quick_ticks_running && event.subsecond % 2) {
         buf[state->active_digit + 4] = ' ';
     } else {
         // blink also in Digit Info auxiliary mode
@@ -1325,5 +1347,12 @@ static void _data_save_place_to_file(place_state_t *state) {
         watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
         delay_ms(100);
         watch_set_indicator(WATCH_INDICATOR_BELL);        
+    }
+}
+
+static void _abort_quick_ticks() {
+    if (_quick_ticks_running) {
+        _quick_ticks_running = false;
+        movement_request_tick_frequency(4);
     }
 }

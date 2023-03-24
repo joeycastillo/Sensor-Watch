@@ -42,6 +42,8 @@ static void _data_load_place_from_register(places_state_t *state);
 static void _data_load_place_from_file(places_state_t *state);
 static void _data_save_place_to_register(places_state_t *state);
 static void _data_save_place_to_file(places_state_t *state);
+static bool _quick_ticks_running;
+static void _abort_quick_ticks();
 
 // MOVEMENT WATCH FACE FUNCTIONS //////////////////////////////////////////////
 
@@ -69,6 +71,7 @@ void places_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
     if (watch_tick_animation_is_running()) watch_stop_tick_animation();
+    movement_request_tick_frequency(4);
     // Handle any tasks related to your watch face coming on screen.
 
 #if __EMSCRIPTEN__
@@ -108,38 +111,26 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
             if ( state->edit ) {
                 // in Edit or Digit Info modes, refresh every tick to show blinking cursors
                 _places_face_update_display(event, state);
+                if (_quick_ticks_running) {
+                    if (watch_get_pin_level(BTN_ALARM)) _places_face_advance_name_digit(state);
+                    else _abort_quick_ticks();
+                }
             }
             break;
         case EVENT_LIGHT_BUTTON_DOWN:
             break;
         case EVENT_LIGHT_BUTTON_UP:
-            if ( state->swap ) {
-                if ( state->place != 0 ) {
-                    // swap current place with selected place
-                    state->places[state->place] = state->places[0];
-                    state->places[0] = state->clipboard;
-
-                    state->clipboard = state->places[state->place];
-                    _data_save_place_to_register(state);
-                    _data_save_place_to_file(state);
-
-                    state->swap = false;
-                    
-                }
-            } else {
-                // flips through the different display modes for each place
-                // increments active digit when in Edit or Display Info auxiliary modes
-                if ( state->edit ) {
-                    state->active_digit = ((state->active_digit + 1) % 6);
-                    if ( state->active_digit == 0 ) state->active_digit++;
-                }
-
+            _abort_quick_ticks();
+            // flips through the different display modes for each place
+            // increments active digit when in Edit or Display Info auxiliary modes
+            if ( state->edit ) {
+                state->active_digit = ((state->active_digit + 1) % 6);
+                if ( state->active_digit == 0 ) state->active_digit++;
             }
             // update display
             _places_face_update_display(event, state);
             break;
         case EVENT_LIGHT_LONG_PRESS:
-            state->swap = false;
             // toggle Edit auxiliary mode
             state->edit = !state->edit;
 
@@ -149,11 +140,11 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
             // update display
             _places_face_update_display(event, state);
             break;
-        case EVENT_ALARM_BUTTON_DOWN:
-            state->swap = true;
-            break;
         case EVENT_ALARM_BUTTON_UP:
-            state->swap = false;
+            if ( _quick_ticks_running ) {
+                _abort_quick_ticks();
+                break;
+            }
             // Flips through the 5 available places
             // In Edit mode increments the selected digit
 
@@ -167,17 +158,37 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
             _places_face_update_display(event, state);
             break;
         case EVENT_ALARM_LONG_PRESS:
-            state->swap = false;
+            if ( state->place != 0 && !state->edit) {
+                // swap current place with selected place
+                state->places[state->place] = state->places[0];
+                state->places[0] = state->clipboard;
+
+                state->clipboard = state->places[state->place];
+                _data_save_place_to_register(state);
+                _data_save_place_to_file(state);
+                
+            }
             // Discards changes in Edit mode
 
             if ( state->edit ) {
                 // discard changes
-                state->edit = false;
-                state->clipboard = state->places[state->place];
+                //state->edit = false;
+                //state->clipboard = state->places[state->place];
+                _quick_ticks_running = true;
+                movement_request_tick_frequency(8);
             }
             _places_face_update_display(event, state);
             break;
+        case EVENT_ALARM_LONG_UP:
+            _abort_quick_ticks();
+            break;
+        case EVENT_MODE_BUTTON_UP:
+            _abort_quick_ticks();
+            movement_move_to_next_face();
+            return false;
         case EVENT_TIMEOUT:
+            _abort_quick_ticks();
+            movement_move_to_face(0);
             // Your watch face will receive this event after a period of inactivity. If it makes sense to resign,
             // you may uncomment this line to move back to the first watch face in the list:
             // movement_move_to_face(0);
@@ -234,7 +245,7 @@ static void _places_face_update_display(movement_event_t event, places_state_t *
     
     sprintf(buf, "PL %d %c%c%c%c%c", state->place + 1, name[0], name[1], name[2], name[3], name[4]);
     
-    if (state->edit && event.subsecond % 2) {
+    if (state->edit && !_quick_ticks_running && event.subsecond % 2) {
         buf[state->active_digit + 4] = ' ';
     }
     watch_display_string(buf, 0);
@@ -320,5 +331,12 @@ static void _data_save_place_to_file(places_state_t *state) {
         watch_clear_indicator(WATCH_INDICATOR_BELL);
         watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
         
+    }
+}
+
+static void _abort_quick_ticks() {
+    if (_quick_ticks_running) {
+        _quick_ticks_running = false;
+        movement_request_tick_frequency(4);
     }
 }
