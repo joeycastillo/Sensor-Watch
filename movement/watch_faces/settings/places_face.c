@@ -38,10 +38,8 @@
 static void _convert_name_struct_to_string(char *buf, places_name_t name);
 static void _places_face_update_display(movement_event_t event, places_state_t *state);
 static void _places_face_advance_name_digit(places_state_t *state);
-static void _data_load_place_from_memory(places_state_t *state);
 static void _data_load_place_from_register(places_state_t *state);
 static void _data_load_place_from_file(places_state_t *state);
-static void _data_save_place_to_memory(places_state_t *state);
 static void _data_save_place_to_register(places_state_t *state);
 static void _data_save_place_to_file(places_state_t *state);
 
@@ -69,7 +67,7 @@ void places_face_setup(movement_settings_t *settings, uint8_t watch_face_index, 
 
 void places_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
-    places_state_t *state = (places_state_t *)context;
+    (void) context;
     if (watch_tick_animation_is_running()) watch_stop_tick_animation();
     // Handle any tasks related to your watch face coming on screen.
 
