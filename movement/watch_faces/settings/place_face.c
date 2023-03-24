@@ -1297,7 +1297,6 @@ static void _data_load_place_from_file(place_state_t *state) {
             watch_set_indicator(WATCH_INDICATOR_SIGNAL);
             state->working_latitude = _convert_decimal_int_to_struct(place.latitude);
             state->working_longitude = _convert_decimal_int_to_struct(place.longitude);
-            delay_ms(100);
             watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
         } else {
             watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
@@ -1308,6 +1307,7 @@ static void _data_load_place_from_file(place_state_t *state) {
         _data_load_place_from_register(state);
         delay_ms(100);
         watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
+        _data_save_place_to_file(state);
         watch_clear_indicator(WATCH_INDICATOR_BELL);
     }
 }
