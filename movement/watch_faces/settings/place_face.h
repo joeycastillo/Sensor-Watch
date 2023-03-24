@@ -111,7 +111,6 @@
  */
 
 static const char olc_alphabet[20] = "23456789CFGHJMPQRUWX";
-static const char name_alphabet[38] = "_0123456789 AbCdEFGHIJKLMNOPQRSTUVWXYZ";
 static const char geohash_alphabet[32] =  "0123456789bCdEfGhjkmnpqrstuVwxyz";
 
 typedef struct {
@@ -151,14 +150,14 @@ typedef struct {
 } place_format_olc_t;
 
 typedef struct {
-    place_format_decimal_latlon_t latitude;
-    place_format_decimal_latlon_t longitude;
-} place_coordinate_t;
-
-typedef struct {
     int32_t latitude : 25;
     int32_t longitude : 25;
 } coordinate_t;
+
+typedef struct {
+    place_format_decimal_latlon_t latitude;
+    place_format_decimal_latlon_t longitude;
+} place_coordinate_t;
 
 typedef struct {
     uint8_t d01: 6;          // 0-z
@@ -189,10 +188,10 @@ typedef struct {
 } place_mode_schema_mode_t;
 
 enum place_modes_e {
-    DECIMAL = 0,
-    DMS,
-    OLC,
-    GEO
+    MODE_DECIMAL = 0,
+    MODE_DMS,
+    MODE_OLC,
+    MODE_GEOHASH
 };
 
 typedef struct {
