@@ -96,26 +96,21 @@ bool randonaut_face_loop(movement_event_t event, movement_settings_t *settings, 
                 case 2: // point
                     state->face.mode = 0; //home
                     break;
-                case 3: //setup
-                    state->face.rng = (state->face.rng + 1) % 3;
-                    switch ( state->face.rng ) {
-                        case 0:
-                            state->chance = true;
-                            break;
-                        case 1:
-                            state->chance = false;
-                            state->quantum = true;
-                            break;
-                        case 2:
-                            state->chance = false;
-                            state->quantum = false;
-                            break;
-                    }
+                case 3: // setup radius
+                    state->face.mode = 4; // toggle to RNG
+                    break;
+                case 4: // setup RNG
+                    state->face.mode = 3; // toggle to Radius
+                    break;
+                case 5: // data processing
+                    state->file = !state->file;
+                    break;
             }
             break;
         case EVENT_LIGHT_LONG_PRESS:
             switch ( state->face.mode ) {
                 case 3: // setup
+                case 4:
                     state->face.mode = 0; //home
                     break;
                 default:
@@ -135,17 +130,40 @@ bool randonaut_face_loop(movement_event_t event, movement_settings_t *settings, 
                     if ( state->face.location_format == 0 ) 
                         state->face.location_format++;
                     break;
-                case 3: //setup
-                    movement_request_tick_frequency(1);
+                case 3: //setup radius
                     state->radius += 500;
                     if ( state->radius > 10000 )
                         state->radius = 1000;
+                    break;
+                case 4: //setup RNG
+                    state->face.rng = (state->face.rng + 1) % 3;
+                    switch ( state->face.rng ) {
+                        case 0:
+                            state->chance = true;
+                            break;
+                        case 1:
+                            state->chance = false;
+                            state->quantum = true;
+                            break;
+                        case 2:
+                            state->chance = false;
+                            state->quantum = false;
+                            break;
+                    }
+                    break;
+                case 5: // data processing
+                    if ( state->file )
+                        _save_point_to_file(state);
+                    break;
                 default:
                     break;
             }
             break;
         case EVENT_ALARM_LONG_PRESS:
-            _save_point_to_file(state);
+            if ( state->face.mode == 5 )
+                state->face.mode = 0; // home
+            else
+                state->face.mode = 5; // data processing
             break;
         case EVENT_TIMEOUT:
             // Your watch face will receive this event after a period of inactivity. If it makes sense to resign,
@@ -272,13 +290,21 @@ static void _randonaut_face_display(randonaut_state_t *state) {
                     break;
             }
             break;
-        case 3: // setup radius and RNG
+        case 3: // setup radius
             watch_set_colon();
             if ( state->radius < 10000 )
-                sprintf(buf, "%s r %d ", state->chance ? "Ch" : (state->quantum ? "Tr" : "Pr"), state->radius);
+                sprintf(buf, "RA m %d ", state->radius);
             else
-                sprintf(buf, "%s r%d ", state->chance ? "Ch" : (state->quantum ? "Tr" : "Pr"), state->radius);
+                sprintf(buf, "RA m%d ", state->radius);
             break;
+        case 4: // setup RNG
+            sprintf(buf, "RN G %s ", state->chance ? "Chnce" : (state->quantum ? "True" : "Psudo"), state->radius);
+            break;
+        case 5: // data processing
+            if ( state->file )
+                sprintf(buf, "WR   File ");
+            else
+                sprintf(buf, "TX   Chirp");
     }
     watch_display_string(buf, 0);
 }
