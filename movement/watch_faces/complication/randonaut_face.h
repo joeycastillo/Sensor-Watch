@@ -62,6 +62,7 @@ typedef struct {
     coordinate_t location;
     randonaut_coordinate_t point;
     uint16_t radius : 14;
+    uint32_t entropy;
     bool quantum;
     randonaut_face_mode_t face;
     char scratchpad[10];

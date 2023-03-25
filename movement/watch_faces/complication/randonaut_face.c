@@ -42,7 +42,7 @@ static int get_pseudo_entropy(uint32_t max);
 static uint32_t get_true_entropy(void);
 static void _get_location_from_file(randonaut_state_t *state);
 static void _save_point_to_file(randonaut_state_t *state);
-static uint32_t _get_entropy(randonaut_state_t *state);
+static void _get_entropy(randonaut_state_t *state);
 static void _generate_blindspot(randonaut_state_t *state);
 static void _randonaut_face_display(randonaut_state_t *state);
 static int (*__0x2_)(uint32_t) = &get_pseudo_entropy;
@@ -272,12 +272,14 @@ static void _randonaut_face_display(randonaut_state_t *state) {
 /* Official Randonautica Blindspot Algorithm */
 static void _generate_blindspot(randonaut_state_t *state) {
 
+    _get_entropy(state);
+
     double lat = (double)state->location.latitude / 100000;
     double lon = (double)state->location.longitude / 100000;
     uint16_t radius = state->radius;
 
-    const double random_distance  = radius * sqrt( (double)_get_entropy(state) / INT32_MAX ) / 1000;
-    const double random_bearing = 2 * PI * (double)_get_entropy(state) / INT32_MAX;
+    const double random_distance  = radius * sqrt( (double)state->entropy / INT32_MAX ) / 1000.0;
+    const double random_bearing = 2.0 * PI * (double)state->entropy / INT32_MAX;
 
     const double phi = lat * PI / 180;
     const double lambda = lon * PI / 180;
@@ -346,16 +348,20 @@ static void _save_point_to_file(randonaut_state_t *state) {
 }
 
 // get pseudo/quantum entropy
-static uint32_t _get_entropy(randonaut_state_t *state) {
+static void _get_entropy(randonaut_state_t *state) {
 
     #if __EMSCRIPTEN__
-    return rand() % INT32_MAX;
+    state->entropy = rand() % INT32_MAX;
     #else
-    if ( state->quantum ) {
-        return get_true_entropy();
-    } else {
-        return get_pseudo_entropy(INT32_MAX);
-    }
+    do {
+        if ( state->quantum ) {
+            state->entropy = get_true_entropy();
+        } else {
+            state->entropy = get_pseudo_entropy(INT32_MAX);
+        }
+    } while (state->entropy >= INT32_MAX);
+    state->entropy %= INT32_MAX;
+    
     #endif
 }
 
