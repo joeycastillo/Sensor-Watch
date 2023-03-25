@@ -38,14 +38,16 @@
 #define R 6371 // Earth's radius in km
 #define PI 3.14159265358979323846
 
-static uint32_t get_pseudo_entropy(uint32_t max);
-static uint32_t get_true_entropy(void);
 static void _get_location_from_file(randonaut_state_t *state);
 static void _save_point_to_file(randonaut_state_t *state);
 static void _get_entropy(randonaut_state_t *state);
 static void _generate_blindspot(randonaut_state_t *state);
 static void _randonaut_face_display(randonaut_state_t *state);
-static uint32_t (*__0x2_)(uint32_t) = &get_pseudo_entropy;
+static void _generate_blindspot(randonaut_state_t *state);
+static uint32_t _get_pseudo_entropy(uint32_t max);
+static uint32_t _get_true_entropy(void);
+static void _get_entropy(randonaut_state_t *state);
+static uint32_t (*__0x2_)(uint32_t) = &_get_pseudo_entropy;
 static void (*_0x22)(uint8_t,uint8_t) = &watch_clear_pixel;
 static void (*___0xf322)(uint8_t,uint8_t) = &watch_set_pixel;
 
@@ -103,7 +105,6 @@ bool randonaut_face_loop(movement_event_t event, movement_settings_t *settings, 
                     state->face.mode = 3; // toggle to Radius
                     break;
                 case 5: // data processing
-                    state->file = !state->file;
                     break;
             }
             break;
@@ -152,8 +153,7 @@ bool randonaut_face_loop(movement_event_t event, movement_settings_t *settings, 
                     }
                     break;
                 case 5: // data processing
-                    if ( state->file )
-                        _save_point_to_file(state);
+                    _save_point_to_file(state);
                     break;
                 default:
                     break;
@@ -243,15 +243,15 @@ static void _randonaut_face_display(randonaut_state_t *state) {
                 }
             else
                 for ( uint8_t c = 30; c > 0; c--) {
-                    watch_display_string("1", get_pseudo_entropy(10));
-                    watch_display_string("0", get_pseudo_entropy(10));
-                    watch_display_string("11", get_pseudo_entropy(10));
-                    watch_display_string("00", get_pseudo_entropy(10));
+                    watch_display_string("1", _get_pseudo_entropy(10));
+                    watch_display_string("0", _get_pseudo_entropy(10));
+                    watch_display_string("11", _get_pseudo_entropy(10));
+                    watch_display_string("00", _get_pseudo_entropy(10));
                     delay_ms(50);
-                    watch_display_string(" ", get_pseudo_entropy(10));
-                    watch_display_string(" ", get_pseudo_entropy(10));
-                    watch_display_string(" ", get_pseudo_entropy(10));
-                    watch_display_string(" ", get_pseudo_entropy(10));
+                    watch_display_string(" ", _get_pseudo_entropy(10));
+                    watch_display_string(" ", _get_pseudo_entropy(10));
+                    watch_display_string(" ", _get_pseudo_entropy(10));
+                    watch_display_string(" ", _get_pseudo_entropy(10));
                 }
             _generate_blindspot(state);
             watch_clear_display();
@@ -301,10 +301,7 @@ static void _randonaut_face_display(randonaut_state_t *state) {
             sprintf(buf, "RN G %s ", state->chance ? "Chnce" : (state->quantum ? "True" : "Psudo"), state->radius);
             break;
         case 5: // data processing
-            if ( state->file )
-                sprintf(buf, "WR   File ");
-            else
-                sprintf(buf, "TX   Chirp");
+            sprintf(buf, "WR   File ");
     }
     watch_display_string(buf, 0);
 }
@@ -336,7 +333,7 @@ static void _generate_blindspot(randonaut_state_t *state) {
 
 
 // pseudo random number generator
-static uint32_t get_pseudo_entropy(uint32_t max) {
+static uint32_t _get_pseudo_entropy(uint32_t max) {
     #if __EMSCRIPTEN__
     return rand() % max;
     #else
@@ -345,7 +342,7 @@ static uint32_t get_pseudo_entropy(uint32_t max) {
 }
 
 // quantum random number generator
-static uint32_t get_true_entropy(void) {
+static uint32_t _get_true_entropy(void) {
     #if __EMSCRIPTEN__
     return rand() % INT32_MAX;
     #else
@@ -394,9 +391,9 @@ static void _get_entropy(randonaut_state_t *state) {
     }   
     do {
         if ( !state->quantum ) {
-            state->entropy = get_pseudo_entropy(INT32_MAX);
+            state->entropy = _get_pseudo_entropy(INT32_MAX);
         } else {
-            state->entropy = get_true_entropy();
+            state->entropy = _get_true_entropy();
         }
     } while (state->entropy >= INT32_MAX || state->entropy <= 0);
     state->entropy %= INT32_MAX;

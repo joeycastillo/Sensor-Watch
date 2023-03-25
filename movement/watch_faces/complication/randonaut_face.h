@@ -57,7 +57,6 @@ typedef struct {
     uint32_t entropy;
     bool quantum;
     bool chance;
-    bool file;
     randonaut_face_mode_t face;
     char scratchpad[10];
 } randonaut_state_t;
