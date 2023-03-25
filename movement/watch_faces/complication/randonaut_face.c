@@ -39,7 +39,7 @@
 #define PI 3.14159265358979323846
 
 static int get_pseudo_entropy(uint32_t max);
-static int get_true_entropy(void *buf);
+static uint32_t get_true_entropy(void);
 static void _get_location_from_file(randonaut_state_t *state);
 static void _save_point_to_file(randonaut_state_t *state);
 static uint32_t _get_entropy(randonaut_state_t *state);
