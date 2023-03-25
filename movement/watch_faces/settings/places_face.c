@@ -228,7 +228,8 @@ void places_face_resign(movement_settings_t *settings, void *context) {
 
 // PRIVATE STATIC FUNCTION DEFINITIONS ////////////////////////////////////////
 
-// convert internal place name struct to char array
+/** @brief convert internal place name struct to char array
+ */
 static void _convert_name_struct_to_string(char *buf, places_name_t name) {
     buf[0] = name_alphabet[name.d01];
     buf[1] = name_alphabet[name.d02];
@@ -237,7 +238,8 @@ static void _convert_name_struct_to_string(char *buf, places_name_t name) {
     buf[4] = name_alphabet[name.d05];
 }
 
-// Display Place Name
+/** @brief Display Place Name
+ */
 static void _places_face_update_display(movement_event_t event, places_state_t *state) {
     char buf[12];
     char name[6] = {0};
@@ -251,7 +253,8 @@ static void _places_face_update_display(movement_event_t event, places_state_t *
     watch_display_string(buf, 0);
 }
 
-// Place Name Editor
+/** @brief Place Name Editor
+ */
 static void _places_face_advance_name_digit(places_state_t *state) {
     switch (state->active_digit) {
         case 0:
@@ -275,7 +278,8 @@ static void _places_face_advance_name_digit(places_state_t *state) {
     }
 }
 
-// load coordinate from location register into selected place slot
+/** @brief load coordinate from location register into selected place slot
+ */
 static void _data_load_place_from_register(places_state_t *state) {
     watch_set_indicator(WATCH_INDICATOR_SIGNAL);
     movement_location_t movement_location = (movement_location_t) watch_get_backup_data(1);
@@ -284,7 +288,8 @@ static void _data_load_place_from_register(places_state_t *state) {
     watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
 }
 
-// save coordinate to location register from selected place slot (truncated to 2 decimal points)
+/** @brief save coordinate to location register from selected place slot (truncated to 2 decimal points)
+ */
 static void _data_save_place_to_register(places_state_t *state) {
     watch_set_indicator(WATCH_INDICATOR_SIGNAL);
     movement_location_t movement_location;
@@ -297,7 +302,8 @@ static void _data_save_place_to_register(places_state_t *state) {
     watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
 }
 
-// load coordinate from LFS file into selected place slot
+/** @brief load coordinate from LFS file into selected place slot
+ */
 static void _data_load_place_from_file(places_state_t *state) {
     coordinate_t place;
     if (filesystem_file_exists("place.loc"))
@@ -317,7 +323,8 @@ static void _data_load_place_from_file(places_state_t *state) {
     }
 }
 
-// save coordinate to LFS file from selected place slot
+/** @brief save coordinate to LFS file from selected place slot
+ */
 static void _data_save_place_to_file(places_state_t *state) {
     watch_set_indicator(WATCH_INDICATOR_SIGNAL);
     coordinate_t place;
@@ -334,6 +341,8 @@ static void _data_save_place_to_file(places_state_t *state) {
     }
 }
 
+/** @brief abort quick ticks
+ */
 static void _abort_quick_ticks() {
     if (_quick_ticks_running) {
         _quick_ticks_running = false;
