@@ -38,14 +38,14 @@
 #define R 6371 // Earth's radius in km
 #define PI 3.14159265358979323846
 
-static int get_pseudo_entropy(uint32_t max);
+static uint32_t get_pseudo_entropy(uint32_t max);
 static uint32_t get_true_entropy(void);
 static void _get_location_from_file(randonaut_state_t *state);
 static void _save_point_to_file(randonaut_state_t *state);
 static void _get_entropy(randonaut_state_t *state);
 static void _generate_blindspot(randonaut_state_t *state);
 static void _randonaut_face_display(randonaut_state_t *state);
-static int (*__0x2_)(uint32_t) = &get_pseudo_entropy;
+static uint32_t (*__0x2_)(uint32_t) = &get_pseudo_entropy;
 static void (*_0x22)(uint8_t,uint8_t) = &watch_clear_pixel;
 static void (*___0xf322)(uint8_t,uint8_t) = &watch_set_pixel;
 
@@ -65,9 +65,10 @@ void randonaut_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
     randonaut_state_t *state = (randonaut_state_t *)context;
     _get_location_from_file(state);
-    state->face.mode = HOME;
+    state->face.mode = 0;
     state->radius = 1000;
-    state->quantum = true;
+    _get_entropy(state);
+    state->chance = true;
     // Handle any tasks related to your watch face coming on screen.
 }
 
@@ -85,43 +86,56 @@ bool randonaut_face_loop(movement_event_t event, movement_settings_t *settings, 
             break;
         case EVENT_LIGHT_BUTTON_UP:
             switch ( state->face.mode ) {
-                case HOME:
-                    state->face.mode = POINT;
-                    state->face.location_format = TITLE;
+                case 0: // home
+                    state->face.mode = 2; //point
+                    state->face.location_format = 0; // title
                     break;
-                case GENERATE:
-                    state->face.mode = HOME;
+                case 1: // generate
+                    state->face.mode = 0; //home
                     break;
-                case POINT:
-                    state->face.mode = HOME;
+                case 2: // point
+                    state->face.mode = 0; //home
                     break;
-                case SETUP:
-                    state->quantum = !state->quantum;
+                case 3: //setup
+                    state->face.rng = (state->face.rng + 1) % 3;
+                    switch ( state->face.rng ) {
+                        case 0:
+                            state->chance = true;
+                            break;
+                        case 1:
+                            state->chance = false;
+                            state->quantum = true;
+                            break;
+                        case 2:
+                            state->chance = false;
+                            state->quantum = false;
+                            break;
+                    }
             }
             break;
         case EVENT_LIGHT_LONG_PRESS:
             switch ( state->face.mode ) {
-                case SETUP:
-                    state->face.mode = HOME;
+                case 3: // setup
+                    state->face.mode = 0; //home
                     break;
                 default:
-                    state->face.mode = SETUP;
+                    state->face.mode = 3; //setup
                     watch_clear_display();
             }
             break;
         case EVENT_ALARM_BUTTON_UP:
             switch ( state->face.mode ) {
-                case HOME:
+                case 0: //home
                     movement_request_tick_frequency(40);
-                    state->face.mode = GENERATE;
+                    state->face.mode = 1; // generate
                     break;
-                case POINT:
+                case 2: // point
                     movement_request_tick_frequency(1);
-                    state->face.location_format = (( state->face.location_format + 1) % (LON2 + 1));
+                    state->face.location_format = (( state->face.location_format + 1) % (7));
                     if ( state->face.location_format == 0 ) 
                         state->face.location_format++;
                     break;
-                case SETUP:
+                case 3: //setup
                     movement_request_tick_frequency(1);
                     state->radius += 500;
                     if ( state->radius > 10000 )
@@ -178,10 +192,10 @@ static void _randonaut_face_display(randonaut_state_t *state) {
     char buf[11];
     watch_clear_colon();
     switch ( state->face.mode ) {
-        case HOME:
+        case 0: //home
             sprintf(buf, "RA   Rando");
             break;
-        case GENERATE:
+        case 1: //generate
             if ( state->quantum )
                 // All Hail Steve /;[;[/.;]/[.;[/;/;/;/;.;.];.]]--=/ 
                 for ( uint8_t c = 100; c > 0; c--) {////////////////
@@ -223,47 +237,47 @@ static void _randonaut_face_display(randonaut_state_t *state) {
                 }
             _generate_blindspot(state);
             watch_clear_display();
-            state->face.mode = POINT;
-            state->face.location_format = DIST;
+            state->face.mode = 2; // point
+            state->face.location_format = 1; // distance
             watch_display_string("RA   Found", 0);
             delay_ms(500);
             sprintf(buf, "RA   Found");
             break;
-        case POINT:
+        case 2: //point
             switch ( state->face.location_format ) {
-                case TITLE:
+                case 0:
                     sprintf(buf, "RA   Point");
                     break;
-                case DIST: // distance to point
+                case 1: // distance to point
                     watch_clear_display();
                     sprintf(buf, "DI m %d", state->point.distance );
                     break;
-                case BEAR: // bearing relative to point
+                case 2: // bearing relative to point
                     watch_clear_display();
                     sprintf(buf, "BE # %d", state->point.bearing );
                     break;
-                case LAT1: // latitude DD._____
+                case 3: // latitude DD._____
                     sprintf(state->scratchpad, "%07d", abs(state->point.latitude));
                     sprintf(buf, "LA #%c %c%c  ", state->point.latitude < 0 ? '-' : '+', state->scratchpad[0], state->scratchpad[1]);
                     break;
-                case LAT2: // latitude __.DDDDD
+                case 4: // latitude __.DDDDD
                     sprintf(buf, "LA , %c%c%c%c%c", state->scratchpad[2], state->scratchpad[3],state->scratchpad[4], state->scratchpad[5],state->scratchpad[6]);
                     break;
-                case LON1: // longitude DD._____
+                case 5: // longitude DD._____
                     sprintf(state->scratchpad, "%08d", abs(state->point.longitude));
                     sprintf(buf, "LO #%c%c%c%c  ", state->point.longitude < 0 ? '-' : '+',state->scratchpad[0], state->scratchpad[1], state->scratchpad[2]);
                     break;
-                case LON2: // longitude __.DDDDD
+                case 6: // longitude __.DDDDD
                     sprintf(buf, "LO , %c%c%c%c%c", state->scratchpad[3], state->scratchpad[4],state->scratchpad[5], state->scratchpad[6],state->scratchpad[7]);
                     break;
             }
             break;
-        case SETUP: // radius and RNG
+        case 3: // setup radius and RNG
             watch_set_colon();
             if ( state->radius < 10000 )
-                sprintf(buf, "%s r %d ", state->quantum ? "Qr" : "Pr", state->radius);
+                sprintf(buf, "%s r %d ", state->chance ? "Ch" : (state->quantum ? "Tr" : "Pr"), state->radius);
             else
-                sprintf(buf, "%s r%d ", state->quantum ? "Qr" : "Pr", state->radius);
+                sprintf(buf, "%s r%d ", state->chance ? "Ch" : (state->quantum ? "Tr" : "Pr"), state->radius);
             break;
     }
     watch_display_string(buf, 0);
@@ -296,7 +310,7 @@ static void _generate_blindspot(randonaut_state_t *state) {
 
 
 // pseudo random number generator
-static int get_pseudo_entropy(uint32_t max) {
+static uint32_t get_pseudo_entropy(uint32_t max) {
     #if __EMSCRIPTEN__
     return rand() % max;
     #else
@@ -305,7 +319,7 @@ static int get_pseudo_entropy(uint32_t max) {
 }
 
 // quantum random number generator
-uint32_t get_true_entropy(void) {
+static uint32_t get_true_entropy(void) {
     #if __EMSCRIPTEN__
     return rand() % INT32_MAX;
     #else
@@ -349,22 +363,15 @@ static void _save_point_to_file(randonaut_state_t *state) {
 
 // get pseudo/quantum entropy
 static void _get_entropy(randonaut_state_t *state) {
-
-    #if __EMSCRIPTEN__
-    state->entropy = rand() % INT32_MAX;
-    #else
+    if ( state->chance ) {
+        state->quantum = (bool)(state->entropy % 2);
+    }   
     do {
-        if ( state->quantum ) {
-            state->entropy = get_true_entropy();
-        } else {
+        if ( !state->quantum ) {
             state->entropy = get_pseudo_entropy(INT32_MAX);
+        } else {
+            state->entropy = get_true_entropy();
         }
-    } while (state->entropy >= INT32_MAX);
+    } while (state->entropy >= INT32_MAX || state->entropy <= 0);
     state->entropy %= INT32_MAX;
-    
-    #endif
-}
-
-static void testing(uint8_t *buf) {
-
 }

@@ -36,18 +36,10 @@
  *
  */
 
-enum mode_t {
-    HOME = 0,
-    GENERATE,
-    POINT,
-    SETUP
-};
-
-enum location_t { TITLE, DIST, BEAR, LAT1, LAT2, LON1, LON2 };
-
 typedef struct {
-    enum mode_t mode;
-    enum location_t location_format;    
+    uint8_t mode :3;
+    uint8_t location_format :3;
+    uint8_t rng: 2;
 } randonaut_face_mode_t;
 
 typedef struct {
@@ -64,6 +56,7 @@ typedef struct {
     uint16_t radius : 14;
     uint32_t entropy;
     bool quantum;
+    bool chance;
     randonaut_face_mode_t face;
     char scratchpad[10];
 } randonaut_state_t;
