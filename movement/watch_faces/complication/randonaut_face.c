@@ -303,22 +303,19 @@ static int get_pseudo_entropy(uint32_t max) {
 }
 
 // quantum random number generator
-static int get_true_entropy(void *buf) {
+uint32_t get_true_entropy(void) {
     #if __EMSCRIPTEN__
+    return rand() % INT32_MAX;
     #else
     hri_mclk_set_APBCMASK_TRNG_bit(MCLK);
     hri_trng_set_CTRLA_ENABLE_bit(TRNG);
 
-    size_t i = 0;
-    while(i < 1) {
-        while (!hri_trng_get_INTFLAG_reg(TRNG, TRNG_INTFLAG_DATARDY));
-        ((uint32_t *)buf)[i++] = hri_trng_read_DATA_reg(TRNG);
-    }
+    while (!hri_trng_get_INTFLAG_reg(TRNG, TRNG_INTFLAG_DATARDY)); // Wait for TRNG data to be ready
 
     hri_trng_clear_CTRLA_ENABLE_bit(TRNG);
     hri_mclk_clear_APBCMASK_TRNG_bit(MCLK);
+    return hri_trng_read_DATA_reg(TRNG); // Read a single 32-bit word from TRNG and return it
     #endif
-    return 0;
 }
 
 // get location from place.loc
@@ -350,16 +347,18 @@ static void _save_point_to_file(randonaut_state_t *state) {
 
 // get pseudo/quantum entropy
 static uint32_t _get_entropy(randonaut_state_t *state) {
-    uint32_t entropy;
 
     #if __EMSCRIPTEN__
-    entropy = rand() % INT32_MAX;
+    return rand() % INT32_MAX;
     #else
     if ( state->quantum ) {
-        get_true_entropy(entropy);
+        return get_true_entropy();
     } else {
-        entropy = get_pseudo_entropy(INT32_MAX);
+        return get_pseudo_entropy(INT32_MAX);
     }
     #endif
-    return entropy;
+}
+
+static void testing(uint8_t *buf) {
+
 }
