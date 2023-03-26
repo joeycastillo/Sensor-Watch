@@ -41,9 +41,15 @@ typedef struct {
 } nibble_t;
 
 typedef struct {
+    uint8_t bits : 3;
+} tribble_t;
+
+typedef struct {
     // Anything you need to keep track of, put it here!
     uint32_t entropy;
-    uint8_t mode; // 3 coins, 4 coins
+    uint8_t mode; // 1 coin, 2 coins, 3 coins, 4 coins, dice, iching, geomnc
+    bool setup;
+    char binary[2][6];
 } divinate_state_t;
 
 void divinate_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
