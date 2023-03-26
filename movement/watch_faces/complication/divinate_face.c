@@ -26,6 +26,51 @@
 #include <string.h>
 #include "divinate_face.h"
 
+static const uint64_t geomantic = 0x4ABF39D25E76C180;
+static const uint32_t badua = 0b11111010010010000101000000000000;
+
+static void pick_figure() {
+    int index = rand() % 16;
+    nibble_t chosen_nibble;
+    chosen_nibble.bits = (geomantic >> (4 * (15 - index))) & 0xF;
+}
+
+static uint8_t pick_trigram() {
+    int index = rand() % 8;
+    return (badua >> (3 * index)) & 0b111;
+}
+
+static uint8_t form_hexagram() {
+    uint8_t inner = pick_trigram();
+    uint8_t outer = pick_trigram();
+    uint8_t hexagram = (inner << 3) | outer;
+}
+
+void hexagram_code(uint8_t hexagram) {
+    char str[6];
+    for (int i = 0; i < 6; i++) {
+        if (hexagram & (1 << (5 - i))) {
+            str[i] = '2';
+        } else {
+            str[i] = 'Z';
+        }
+    }
+}
+
+
+static void geomantic_code(nibble_t code) {
+    // draw geomantic figures
+    watch_set_pixel(1, 18 + (code.bits >> 3 & 1));
+    watch_set_pixel(1, 19 - (code.bits >> 3 & 1));
+    watch_set_pixel(2, 20 + (code.bits >> 2 & 1));
+    watch_set_pixel(0, 21 - (code.bits >> 2 & 1));
+    watch_set_pixel(1, 20 - (code.bits >> 2 & 1));
+    watch_set_pixel(0, 22 + (code.bits >> 1 & 1));
+    watch_set_pixel(1, 23 - (code.bits >> 1 & 1));
+    watch_set_pixel(2, 1 + (code.bits & 1));
+    watch_set_pixel(0, (code.bits & 1));
+}
+
 void divinate_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
     if (*context_ptr == NULL) {
