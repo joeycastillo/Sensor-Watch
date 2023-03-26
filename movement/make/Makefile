@@ -109,6 +109,7 @@ SRCS += \
   ../watch_faces/complication/time_left_face.c \
   ../watch_faces/settings/place_face.c \
   ../watch_faces/complication/randonaut_face.c \
+  ../watch_faces/complication/divinate_face.c \
 # New watch faces go above this line.
 
 # Leave this line at the bottom of the file; it has all the targets for making your project.
