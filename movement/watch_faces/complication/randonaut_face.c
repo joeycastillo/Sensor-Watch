@@ -205,7 +205,8 @@ void randonaut_face_resign(movement_settings_t *settings, void *context) {
 
 // PRIVATE STATIC FUNCTIONS ///////////////////////////////////////////////////
 
-// display handler
+/** @brief display handler
+ */
 static void _randonaut_face_display(randonaut_state_t *state) {
     char buf[11];
     watch_clear_colon();
@@ -306,7 +307,8 @@ static void _randonaut_face_display(randonaut_state_t *state) {
     watch_display_string(buf, 0);
 }
 
-/* Official Randonautica Blindspot Algorithm */
+/** @brief Official Randonautica Blindspot Algorithm
+ */
 static void _generate_blindspot(randonaut_state_t *state) {
 
     _get_entropy(state);
@@ -332,7 +334,8 @@ static void _generate_blindspot(randonaut_state_t *state) {
 }
 
 
-// pseudo random number generator
+/** @brief pseudo random number generator
+ */
 static uint32_t _get_pseudo_entropy(uint32_t max) {
     #if __EMSCRIPTEN__
     return rand() % max;
@@ -341,7 +344,8 @@ static uint32_t _get_pseudo_entropy(uint32_t max) {
     #endif
 }
 
-// quantum random number generator
+/** @brief true random number generator
+ */
 static uint32_t _get_true_entropy(void) {
     #if __EMSCRIPTEN__
     return rand() % INT32_MAX;
@@ -357,7 +361,8 @@ static uint32_t _get_true_entropy(void) {
     #endif
 }
 
-// get location from place.loc
+/** @brief get location from place.loc
+ */
 static void _get_location_from_file(randonaut_state_t *state) {
     coordinate_t place;
     if (filesystem_file_exists("place.loc")) {
@@ -366,7 +371,8 @@ static void _get_location_from_file(randonaut_state_t *state) {
     } else watch_set_indicator(WATCH_INDICATOR_BELL);
 }
 
-// save generated point to place.loc
+/** @brief save generated point to place.loc
+ */
 static void _save_point_to_file(randonaut_state_t *state) {
     watch_set_indicator(WATCH_INDICATOR_SIGNAL);
     coordinate_t place;
@@ -384,7 +390,8 @@ static void _save_point_to_file(randonaut_state_t *state) {
     }
 }
 
-// get pseudo/quantum entropy
+/** @brief get pseudo/quantum entropy and filter modulo bias
+ */
 static void _get_entropy(randonaut_state_t *state) {
     if ( state->chance ) {
         state->quantum = (bool)(state->entropy % 2);

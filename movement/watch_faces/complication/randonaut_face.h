@@ -65,7 +65,9 @@
  * - Setting it to "chance" will randomly chose either of the RNGs for each generation (default)
  *
  * LONG PRESSING ALARM toggles DATA mode in which the currently generated Blind Spot coordinate can
- * be written to the watch (press ALARM) and set as active location used by other watch faces.
+ * be written to the <place.loc> file on the watch (press ALARM) and set as active high precision 
+ * location used by other watch faces. It does not overwrite the low precision location information
+ * in the watch register commonly used for astronomical watch faces.
  * 
  */
 
