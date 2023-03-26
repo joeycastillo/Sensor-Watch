@@ -32,8 +32,41 @@
  * RANDONAUT FACE
  * ==============
  *
- * and a description of how use it
+ * Randonauting is a way to turn the world around you into an adventure and get the user outside 
+ * of their day-to-day routine by using a random number generator to derive a coordinate to journey 
+ * to. In Randonauts lore so-called "Blind Spots" are places you cannot reach methodologically. They
+ * may exist in your own backyard for your whole life and you will never even notice them, because 
+ * you simply have no reason to go to that exact place or look in its direction. Since the very 
+ * limitations of our behavioral algorithms are the reason for the existence of blindspots, they 
+ * can only be found using a randomizer.
+ * 
+ * This watch face generates a random location based on the watch's location and a set radius using
+ * the official Randonautica Blind Spot algorithm.
+ * 
+ * The ALARM button starts the random location generation and then automatically displays the found
+ * Blind Spot.
+ * 
+ * By pressing ALARM again the user can flip through different pieces of information about the Blind
+ * Spot: Distance (DI), Bearing Degree (BE), Latitude degrees and decimal digits (LA), Longitude 
+ * degrees and decimal digits (LO).
+ * 
+ * Pressing LIGHT switches between generating a new blind spot ("Rando") and displaying the info of
+ * the last generated one ("Point").
+ * 
+ * LONG PRESSING LIGHT toggles setup mode. Here pressing LIGHT switches between setting the desired
+ * radius (RA) and setting the random number generator (RNG) for generating the blind spot. 
+ * 
+ * ALARM changes the values respectively:
+ * 
+ * - The radius can be set in 500 meter steps between 1000 and 10,000 meters
+ * 
+ * - The RNG can be set to "true" which utilizes the SAML22J's internal True Random Number Generator
+ * - Setting it to "psudo" will use the pseudorandom number generation algorithm arc4random
+ * - Setting it to "chance" will randomly chose either of the RNGs for each generation (default)
  *
+ * LONG PRESSING ALARM toggles DATA mode in which the currently generated Blind Spot coordinate can
+ * be written to the watch (press ALARM) and set as active location used by other watch faces.
+ * 
  */
 
 typedef struct {
