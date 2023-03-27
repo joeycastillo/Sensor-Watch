@@ -47,9 +47,16 @@ typedef struct {
 typedef struct {
     // Anything you need to keep track of, put it here!
     uint32_t entropy;
-    uint8_t mode; // 1 coin, 2 coins, 3 coins, 4 coins, dice, iching, geomnc
+    uint8_t mode : 4; // 1 coin, 2 coins, 3 coins, 4 coins, dice, iching, geomnc
     bool setup;
-    char binary[2][6];
+    char binary[3][2][7];
+    bool one_coin;
+    bool two_coins[2];
+    bool three_coins[2];
+    bool four_coins[2];
+    uint8_t dice;
+    uint8_t iching : 6;
+    uint8_t geomancy : 4;
 } divinate_state_t;
 
 void divinate_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);

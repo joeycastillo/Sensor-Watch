@@ -34,25 +34,35 @@
 static const uint64_t geomantic = 0x4ABF39D25E76C180;
 static const uint32_t badua = 0b11111010010010000101000000000000;
 
-static nibble_t geomancy_pick_figure() {
-    uint8_t index = (divine_bit() << 3) | (divine_bit() << 2) | (divine_bit() << 1) | divine_bit();
+static uint32_t _get_true_entropy(void);
+static uint8_t _divine_bit();
+static nibble_t _geomancy_pick_figure();
+static tribble_t _iching_pick_trigram();
+static uint8_t _iching_form_hexagram();
+uint8_t _roll_dice(uint8_t sides);
+static void _divination_token_display(char* output_str, uint8_t code, uint8_t bit_length, char zero_char, char one_char);
+static void _geomancy_display(nibble_t code);
+static void divinate_face_display(divinate_state_t *state);
+
+static nibble_t _geomancy_pick_figure() {
+    uint8_t index = (_divine_bit() << 3) | (_divine_bit() << 2) | (_divine_bit() << 1) | _divine_bit();
     nibble_t figure = {(geomantic >> (4 * (15 - index))) & 0xF};
     return figure;
 }
 
-static tribble_t iching_pick_trigram() {
-    uint8_t index = (divine_bit() << 2) | (divine_bit() << 1) | divine_bit();
+static tribble_t _iching_pick_trigram() {
+    uint8_t index = (_divine_bit() << 2) | (_divine_bit() << 1) | _divine_bit();
     tribble_t trigram = {(badua >> (3 * index)) & 0b111};
     return trigram;
 }
 
-static uint8_t iching_form_hexagram() {
-    tribble_t inner = iching_pick_trigram();
-    tribble_t outer = iching_pick_trigram();
+static uint8_t _iching_form_hexagram() {
+    tribble_t inner = _iching_pick_trigram();
+    tribble_t outer = _iching_pick_trigram();
     uint8_t hexagram = (inner.bits << 3) | outer.bits;
 }
 
-uint8_t roll_dice(uint8_t sides) {
+uint8_t _roll_dice(uint8_t sides) {
     uint8_t bits_needed = 0;
     uint8_t temp_sides = sides - 1;
     while (temp_sides > 0) {
@@ -62,12 +72,12 @@ uint8_t roll_dice(uint8_t sides) {
     uint8_t result = 0;
     for (int i = 0; i < bits_needed; i++) {
         result <<= 1; // Shift left to make room for the next bit
-        result |= divine_bit(); // Add the next bit to the result
+        result |= _divine_bit(); // Add the next bit to the result
     }
     return result + 1; // Add 1 to convert the range from 0 to sides-1 to 1 to sides
 }
 
-static void divination_token_display(char* output_str, uint8_t code, uint8_t bit_length, char zero_char, char one_char) {
+static void _divination_token_display(char* output_str, uint8_t code, uint8_t bit_length, char zero_char, char one_char) {
     char str[bit_length+1];
     for (uint8_t i = 0; i < bit_length; i++) {
         if (code & (1 << (bit_length - 1 - i))) {
@@ -77,10 +87,11 @@ static void divination_token_display(char* output_str, uint8_t code, uint8_t bit
         }
     }
     str[bit_length] = '\0';
+    printf("bits: %s\n", str);
     strcpy(output_str, str);
 }
 
-static void geomancy_display(nibble_t code) {
+static void _geomancy_display(nibble_t code) {
     // draw geomantic figures
     watch_display_string("      ", 4);
     watch_set_pixel(1, 18 + (code.bits >> 3 & 1));
@@ -94,7 +105,7 @@ static void geomancy_display(nibble_t code) {
     watch_set_pixel(0, (code.bits & 1));
 }
 
-uint8_t divine_bit() {
+static uint8_t _divine_bit() {
     uint32_t stalks;
     uint8_t pile = 0;
 
@@ -129,12 +140,57 @@ static uint32_t _get_true_entropy(void) {
     #endif
 }
 
+static void divinate_face_display(divinate_state_t *state) {
+    char buf[10];
+    char token[6];
+    uint8_t bits;
+    printf("%d\n", state->mode);
+    switch ( state->mode ) {
+        case 0: // 1 coin
+            bits = state->one_coin;
+            printf("%s\n", state->binary[0][bits]);
+            sprintf(buf, "di1c%s", state->binary[0][bits]);
+            break;
+        case 1: // 2 coins
+            bits = (state->two_coins[0] << 1) | (state->two_coins[1]);
+            _divination_token_display(token, bits, 2, '0', '8');
+            sprintf(buf, "di2c%s", token);
+            break;
+        case 2: // 3 coin
+            bits = (state->three_coins[0] << 2) | (state->three_coins[1] << 1) | (state->three_coins[2]);
+            _divination_token_display(token, bits, 3, '0', '8');
+            sprintf(buf, "di3c%s", token);
+            break;
+        case 3: // 4 coins
+            bits = (state->four_coins[0] << 2) |(state->four_coins[1] << 2) | (state->four_coins[2] << 1) | (state->four_coins[3]);
+            _divination_token_display(token, bits, 4, '0', '8');
+            sprintf(buf, "di4c%s", token);
+            break;
+        case 4: // dice
+            break;
+        case 5: // I Ching
+            break;
+        case 6: // Geomancy
+            break;
+        default:
+            break;
+    }
+    watch_display_string(buf, 0);
+}
+
 void divinate_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(divinate_state_t));
         memset(*context_ptr, 0, sizeof(divinate_state_t));
-        // Do any one-time tasks in here; the inside of this conditional happens only at boot.
+        divinate_state_t *state = (divinate_state_t *)context_ptr;
+        sprintf(state->binary[0][1], "YES   ");
+        sprintf(state->binary[0][0], "    NO");
+        sprintf(state->binary[1][1], "heads ");
+        sprintf(state->binary[1][0], " tails");
+        sprintf(state->binary[2][1], "8     ");
+        sprintf(state->binary[2][0], "     0");
+        
     }
     // Do any pin or peripheral setup here; this will be called whenever the watch wakes from deep sleep.
 }
@@ -156,13 +212,19 @@ bool divinate_face_loop(movement_event_t event, movement_settings_t *settings, v
         case EVENT_TICK:
             // If needed, update your display here.
             break;
+        case EVENT_LIGHT_BUTTON_DOWN:
+            break;
         case EVENT_LIGHT_BUTTON_UP:
-            // You can use the Light button for your own purposes. Note that by default, Movement will also
-            // illuminate the LED in response to EVENT_LIGHT_BUTTON_DOWN; to suppress that behavior, add an
-            // empty case for EVENT_LIGHT_BUTTON_DOWN.
+            state->mode = (state->mode + 1) % 7;
+            divinate_face_display(state);
             break;
         case EVENT_ALARM_BUTTON_UP:
             // Just in case you have need for another button.
+            divinate_face_display(state);
+            break;
+        case EVENT_LIGHT_LONG_PRESS:
+            state->setup = !state->setup;
+            divinate_face_display(state);
             break;
         case EVENT_TIMEOUT:
             // Your watch face will receive this event after a period of inactivity. If it makes sense to resign,
