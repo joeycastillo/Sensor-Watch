@@ -136,6 +136,7 @@ bool places_face_loop(movement_event_t event, movement_settings_t *settings, voi
 
             if ( !state->edit ) { // leaving edit mode saves data in state
                 state->places[state->place] = state->clipboard;
+                state->active_digit = 1;
             }
             // update display
             _places_face_update_display(event, state);
