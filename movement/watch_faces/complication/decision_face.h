@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 <#author_name#>
+ * Copyright (c) 2023 Tobias Raayoni Last / @randogoth
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,15 +28,18 @@
 #include "movement.h"
 
 /*
- * A DESCRIPTION OF YOUR WATCH FACE
+ * DECIDE FACE
+ * ===========
  *
- * and a description of how use it
+ * A very simple face for difficult decisions.
+ * 
+ * ALARM helps you decide Yes/No questions.
  *
  */
 
 typedef struct {
-    // Anything you need to keep track of, put it here!
-    char binary[3][2][7];
+    char binary[2][7];
+    bool decision;
 } decision_state_t;
 
 void decision_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);

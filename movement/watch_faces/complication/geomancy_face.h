@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 <#author_name#>
+ * Copyright (c) 2023 Tobias Raayoni Last / @randogoth
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,9 +28,18 @@
 #include "movement.h"
 
 /*
- * A DESCRIPTION OF YOUR WATCH FACE
+ * GEOMANCY WATCH FACE
  *
- * and a description of how use it
+ * A simple and straightforward watch face for the ancient Eastern geomantic divination system
+ * of I Ching and the western system of "Geomancy". It is an addition to the Divinate Face.
+ * 
+ * The LIGHT button toggles between the two systems
+ * 
+ * The ALARM button casts an I Ching hexagram or Geomantic figure based on drawing virtual
+ * stalks from the True Random Number Generator in the Sensor Watch.
+ * 
+ * The figures are flipped 90 degrees clockwise, so the left side is the bottom and the
+ * right side the top.
  *
  */
 
@@ -43,7 +52,6 @@ typedef struct {
 } tribble_t;
 
 typedef struct {
-    // Anything you need to keep track of, put it here!
     uint8_t mode : 3;
     uint8_t geomantic_figure;
     uint8_t i_ching_hexagram : 6;

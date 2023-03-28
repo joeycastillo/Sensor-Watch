@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 <#author_name#>
+ * Copyright (c) 2023 Tobias Raayoni Last / @randogoth
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "divinate_face.h"
 #include "decision_face.h"
 
 void decision_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
@@ -32,22 +33,14 @@ void decision_face_setup(movement_settings_t *settings, uint8_t watch_face_index
         *context_ptr = malloc(sizeof(decision_state_t));
         memset(*context_ptr, 0, sizeof(decision_state_t));
         decision_state_t *state = (decision_state_t *)*context_ptr;
-        sprintf(state->binary[0][1], "4ES   ");
-        sprintf(state->binary[0][0], "    NO");
-        sprintf(state->binary[1][1], "heads ");
-        sprintf(state->binary[1][0], " tails");
-        sprintf(state->binary[2][1], "8     ");
-        sprintf(state->binary[2][0], "     0");
-        // Do any one-time tasks in here; the inside of this conditional happens only at boot.
+        sprintf(state->binary[1], "4ES   ");
+        sprintf(state->binary[0], "    NO");
     }
-    // Do any pin or peripheral setup here; this will be called whenever the watch wakes from deep sleep.
 }
 
 void decision_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
-    decision_state_t *state = (decision_state_t *)context;
-
-    // Handle any tasks related to your watch face coming on screen.
+    (void) context;
 }
 
 bool decision_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
@@ -55,52 +48,23 @@ bool decision_face_loop(movement_event_t event, movement_settings_t *settings, v
 
     switch (event.event_type) {
         case EVENT_ACTIVATE:
-            // Show your initial UI here.
-            break;
-        case EVENT_TICK:
-            // If needed, update your display here.
-            break;
-        case EVENT_LIGHT_BUTTON_UP:
-            // You can use the Light button for your own purposes. Note that by default, Movement will also
-            // illuminate the LED in response to EVENT_LIGHT_BUTTON_DOWN; to suppress that behavior, add an
-            // empty case for EVENT_LIGHT_BUTTON_DOWN.
+            watch_display_string("    Decide", 0);
             break;
         case EVENT_ALARM_BUTTON_UP:
-            // Just in case you have need for another button.
+            state->decision = divine_bit();
+            watch_display_string(state->binary[state->decision], 4);
             break;
         case EVENT_TIMEOUT:
-            // Your watch face will receive this event after a period of inactivity. If it makes sense to resign,
-            // you may uncomment this line to move back to the first watch face in the list:
-            // movement_move_to_face(0);
-            break;
-        case EVENT_LOW_ENERGY_UPDATE:
-            // If you did not resign in EVENT_TIMEOUT, you can use this event to update the display once a minute.
-            // Avoid displaying fast-updating values like seconds, since the display won't update again for 60 seconds.
-            // You should also consider starting the tick animation, to show the wearer that this is sleep mode:
-            // watch_start_tick_animation(500);
+            movement_move_to_face(0);
             break;
         default:
-            // Movement's default loop handler will step in for any cases you don't handle above:
-            // * EVENT_LIGHT_BUTTON_DOWN lights the LED
-            // * EVENT_MODE_BUTTON_UP moves to the next watch face in the list
-            // * EVENT_MODE_LONG_PRESS returns to the first watch face (or skips to the secondary watch face, if configured)
-            // You can override any of these behaviors by adding a case for these events to this switch statement.
             return movement_default_loop_handler(event, settings);
     }
-
-    // return true if the watch can enter standby mode. Generally speaking, you should always return true.
-    // Exceptions:
-    //  * If you are displaying a color using the low-level watch_set_led_color function, you should return false.
-    //  * If you are sounding the buzzer using the low-level watch_set_buzzer_on function, you should return false.
-    // Note that if you are driving the LED or buzzer using Movement functions like movement_illuminate_led or
-    // movement_play_alarm, you can still return true. This guidance only applies to the low-level watch_ functions.
     return true;
 }
 
 void decision_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
-
-    // handle any cleanup before your watch face goes off-screen.
 }
 

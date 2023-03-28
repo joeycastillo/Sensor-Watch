@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 <#author_name#>
+ * Copyright (c) 2023 Tobias Raayoni Last / @randogoth
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,12 +33,14 @@
 
 static const char heads[] = { '8', 'h', '4', 'E', '(' };
 static const char tails[] = { '0', '+', 'n', '3', ')' };
-static const uint8_t dd[] = {1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,21,22,24,26,28,30,32,34,36,48,50,60}; 
+static const uint8_t dd[] = {2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,21,22,24,26,28,30,32,34,36,48,50,60}; 
 
 static void _roll_dice_multiple(char* result, uint8_t* dice, uint8_t num_dice);
 static void _sort_coins(char* token, uint8_t num_bits, uint8_t bits, char* heads, char* tails);
 void _display_coins(char* token, bool* bit_array, uint8_t length, divinate_state_t *state);
 static void _divinate_face_display(divinate_state_t *state);
+static bool _quick_ticks_running;
+static void _abort_quick_ticks();
 
 // PUBLIC FUNCTIONS ///////////////////////////////////////////////////////////
 
@@ -55,15 +57,26 @@ bool divinate_face_loop(movement_event_t event, movement_settings_t *settings, v
             watch_display_string("di  Coins", 0);
             break;
         case EVENT_TICK:
+            if (_quick_ticks_running) {
+                if (watch_get_pin_level(BTN_LIGHT)) {
+                    state->dd = (state->dd + 1) % 31;
+                    state->dice_sides[state->dice_num-1] = dd[state->dd];
+                    state->dice[state->dice_num-1] = dd[state->dd];
+                    _divinate_face_display(state);
+                }
+                else _abort_quick_ticks();
+            }
             break;
         case EVENT_LIGHT_BUTTON_DOWN:
             break;
         case EVENT_LIGHT_BUTTON_UP:
+            _abort_quick_ticks();
             if ( state->mode <= 1 ) state->mode = 2;
             else if ( state->mode >= 2 ) state->mode = 0;
             _divinate_face_display(state);
             break;
         case EVENT_ALARM_BUTTON_UP:
+            _abort_quick_ticks();
             switch (state->mode) {
                 case 0:
                     state->mode++;
@@ -106,10 +119,12 @@ bool divinate_face_loop(movement_event_t event, movement_settings_t *settings, v
                     state->dd = (state->dd + 1) % 32;
                     state->dice_sides[state->dice_num-1] = dd[state->dd];
                     state->dice[state->dice_num-1] = dd[state->dd];
+                    _quick_ticks_running = true;
                     break;
                 default:
                     break;
             }
+            printf("%d\n", _quick_ticks_running);
             _divinate_face_display(state);
             break;
         case EVENT_ALARM_LONG_PRESS:
@@ -132,40 +147,26 @@ bool divinate_face_loop(movement_event_t event, movement_settings_t *settings, v
             }
             _divinate_face_display(state);
             break;
-        case EVENT_TIMEOUT:
-            // Your watch face will receive this event after a period of inactivity. If it makes sense to resign,
-            // you may uncomment this line to move back to the first watch face in the list:
-            // movement_move_to_face(0);
+        case EVENT_ALARM_LONG_UP:
+            _abort_quick_ticks();
             break;
-        case EVENT_LOW_ENERGY_UPDATE:
-            // If you did not resign in EVENT_TIMEOUT, you can use this event to update the display once a minute.
-            // Avoid displaying fast-updating values like seconds, since the display won't update again for 60 seconds.
-            // You should also consider starting the tick animation, to show the wearer that this is sleep mode:
-            // watch_start_tick_animation(500);
+        case EVENT_LIGHT_LONG_UP:
+            _abort_quick_ticks();
+            break;
+        case EVENT_TIMEOUT:
+            _abort_quick_ticks();
+            movement_move_to_face(0);
             break;
         default:
-            // Movement's default loop handler will step in for any cases you don't handle above:
-            // * EVENT_LIGHT_BUTTON_DOWN lights the LED
-            // * EVENT_MODE_BUTTON_UP moves to the next watch face in the list
-            // * EVENT_MODE_LONG_PRESS returns to the first watch face (or skips to the secondary watch face, if configured)
-            // You can override any of these behaviors by adding a case for these events to this switch statement.
             return movement_default_loop_handler(event, settings);
     }
 
-    // return true if the watch can enter standby mode. Generally speaking, you should always return true.
-    // Exceptions:
-    //  * If you are displaying a color using the low-level watch_set_led_color function, you should return false.
-    //  * If you are sounding the buzzer using the low-level watch_set_buzzer_on function, you should return false.
-    // Note that if you are driving the LED or buzzer using Movement functions like movement_illuminate_led or
-    // movement_play_alarm, you can still return true. This guidance only applies to the low-level watch_ functions.
     return true;
 }
 
 void divinate_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
-
-    // handle any cleanup before your watch face goes off-screen.
 }
 
 static void _divinate_face_display(divinate_state_t *state) {
@@ -307,4 +308,10 @@ void _display_coins(char* token, bool* bit_array, uint8_t length, divinate_state
         }
     }
     _sort_coins(token, length, bits, state->coin_style[0], state->coin_style[1]);
+}
+
+static void _abort_quick_ticks() {
+    if (_quick_ticks_running) {
+        _quick_ticks_running = false;
+    }
 }

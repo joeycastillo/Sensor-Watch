@@ -35,6 +35,7 @@ const watch_face_t watch_faces[] = {
     character_set_face,
     divinate_face,
     geomancy_face,
+    decision_face,
     //moon_phase_face,
     //stopwatch_face,
     //preferences_face,
