@@ -62,7 +62,7 @@
  * In addition the '24H' indicator is active when the selected digit represents a number and the 'PM' 
  * indicator for a letter. 
  * 
- * A LONG PRESS of LIGHT saves the changes, a LONG PRESS of ALARM discards them.
+ * A LONG PRESS of LIGHT saves the changes.
  * 
  * Coordinates are read or stored to both the traditional internal location register and a file on 
  * the LFS file system ("place.loc"). By default the Watch Face loads the coordinates from file
