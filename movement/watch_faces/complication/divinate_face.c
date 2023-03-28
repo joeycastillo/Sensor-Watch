@@ -45,8 +45,6 @@ static void _divinate_face_display(divinate_state_t *state);
 void divinate_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
     divinate_state_t *state = (divinate_state_t *)context;
-
-    // Handle any tasks related to your watch face coming on screen.
 }
 
 bool divinate_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
@@ -54,11 +52,9 @@ bool divinate_face_loop(movement_event_t event, movement_settings_t *settings, v
     uint8_t i = 0;
     switch (event.event_type) {
         case EVENT_ACTIVATE:
-            // Show your initial UI here.
             watch_display_string("di  Coins", 0);
             break;
         case EVENT_TICK:
-            // If needed, update your display here.
             break;
         case EVENT_LIGHT_BUTTON_DOWN:
             break;
@@ -68,7 +64,6 @@ bool divinate_face_loop(movement_event_t event, movement_settings_t *settings, v
             _divinate_face_display(state);
             break;
         case EVENT_ALARM_BUTTON_UP:
-            // Just in case you have need for another button.
             switch (state->mode) {
                 case 0:
                     state->mode++;

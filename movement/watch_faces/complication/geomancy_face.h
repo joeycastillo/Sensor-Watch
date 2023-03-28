@@ -44,7 +44,9 @@ typedef struct {
 
 typedef struct {
     // Anything you need to keep track of, put it here!
-    uint8_t unused;
+    uint8_t mode : 3;
+    uint8_t geomantic_figure;
+    uint8_t i_ching_hexagram : 6;
 } geomancy_state_t;
 
 void geomancy_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);

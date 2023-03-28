@@ -30,38 +30,12 @@
 static const uint64_t geomantic = 0x4ABF39D25E76C180;
 static const uint32_t badua = 0b11111010010010000101000000000000;
 
-static nibble_t _geomancy_pick_figure() {
-    uint8_t index = (divine_bit() << 3) | (divine_bit() << 2) | (divine_bit() << 1) | divine_bit();
-    nibble_t figure = {(geomantic >> (4 * (15 - index))) & 0xF};
-    return figure;
-}
-
-static tribble_t _iching_pick_trigram() {
-    uint8_t index = (divine_bit() << 2) | (divine_bit() << 1) | divine_bit();
-    tribble_t trigram = {(badua >> (3 * index)) & 0b111};
-    return trigram;
-}
-
-static uint8_t _iching_form_hexagram() {
-    tribble_t inner = _iching_pick_trigram();
-    tribble_t outer = _iching_pick_trigram();
-    uint8_t hexagram = (inner.bits << 3) | outer.bits;
-    return hexagram;
-}
-
-static void _geomancy_display(nibble_t code) {
-    // draw geomantic figures
-    watch_display_string("      ", 4);
-    watch_set_pixel(1, 18 + (code.bits >> 3 & 1));
-    watch_set_pixel(1, 19 - (code.bits >> 3 & 1));
-    watch_set_pixel(2, 20 + (code.bits >> 2 & 1));
-    watch_set_pixel(0, 21 - (code.bits >> 2 & 1));
-    watch_set_pixel(1, 20 - (code.bits >> 2 & 1));
-    watch_set_pixel(0, 22 + (code.bits >> 1 & 1));
-    watch_set_pixel(1, 23 - (code.bits >> 1 & 1));
-    watch_set_pixel(2, 1 + (code.bits & 1));
-    watch_set_pixel(0, (code.bits & 1));
-}
+static void geomancy_face_display();
+static nibble_t _geomancy_pick_figure();
+static tribble_t _iching_pick_trigram();
+static uint8_t _iching_form_hexagram();
+static void _geomancy_display(nibble_t code);
+static void _display_hexagram(uint8_t hexagram, char* str);
 
 void geomancy_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
@@ -91,12 +65,26 @@ bool geomancy_face_loop(movement_event_t event, movement_settings_t *settings, v
             // If needed, update your display here.
             break;
         case EVENT_LIGHT_BUTTON_UP:
-            // You can use the Light button for your own purposes. Note that by default, Movement will also
-            // illuminate the LED in response to EVENT_LIGHT_BUTTON_DOWN; to suppress that behavior, add an
-            // empty case for EVENT_LIGHT_BUTTON_DOWN.
+            if ( state->mode <= 1 ) state->mode = 2;
+            else if ( state->mode >= 2 ) state->mode = 0;
+            geomancy_face_display(state);
             break;
         case EVENT_ALARM_BUTTON_UP:
-            // Just in case you have need for another button.
+            switch ( state->mode ) {
+                case 0:
+                    state->mode++;
+                case 1:
+                    state->i_ching_hexagram = _iching_form_hexagram();
+                    break;
+                case 2:
+                    state->mode++;
+                case 3:
+                    state->geomantic_figure = _geomancy_pick_figure().bits;
+                    break;
+                default:
+                    break;
+            }
+            geomancy_face_display(state);
             break;
         case EVENT_TIMEOUT:
             // Your watch face will receive this event after a period of inactivity. If it makes sense to resign,
@@ -134,3 +122,70 @@ void geomancy_face_resign(movement_settings_t *settings, void *context) {
     // handle any cleanup before your watch face goes off-screen.
 }
 
+static void geomancy_face_display(geomancy_state_t *state) {
+    char buf[11] = {0};
+    char token[7] = {0};
+    nibble_t figure = *((nibble_t*) &state->geomantic_figure);
+    watch_clear_display();
+    switch ( state->mode ) {
+        case 0:
+            sprintf(buf, "gm  iching");
+            break;
+        case 1:
+            _display_hexagram(state->i_ching_hexagram, token);
+            watch_display_string(token, 4);
+            break;
+        case 2:
+            sprintf(buf, "gm  geomcy");
+            break;
+        case 3:
+            _geomancy_display(figure);
+            break;
+        default:
+            break;
+    }
+}
+
+static nibble_t _geomancy_pick_figure() {
+    uint8_t index = (divine_bit() << 3) | (divine_bit() << 2) | (divine_bit() << 1) | divine_bit();
+    nibble_t figure = {(geomantic >> (4 * (15 - index))) & 0xF};
+    return figure;
+}
+
+static tribble_t _iching_pick_trigram() {
+    uint8_t index = (divine_bit() << 2) | (divine_bit() << 1) | divine_bit();
+    tribble_t trigram = {(badua >> (3 * index)) & 0b111};
+    return trigram;
+}
+
+static uint8_t _iching_form_hexagram() {
+    tribble_t inner = _iching_pick_trigram();
+    tribble_t outer = _iching_pick_trigram();
+    uint8_t hexagram = (inner.bits << 3) | outer.bits;
+    return hexagram;
+}
+
+static void _geomancy_display(nibble_t code) {
+    // draw geomantic figures
+    watch_display_string("      ", 4);
+    watch_set_pixel(1, 18 + (code.bits >> 3 & 1));
+    watch_set_pixel(1, 19 - (code.bits >> 3 & 1));
+    watch_set_pixel(2, 20 + (code.bits >> 2 & 1));
+    watch_set_pixel(0, 21 - (code.bits >> 2 & 1));
+    watch_set_pixel(1, 20 - (code.bits >> 2 & 1));
+    watch_set_pixel(0, 22 + (code.bits >> 1 & 1));
+    watch_set_pixel(1, 23 - (code.bits >> 1 & 1));
+    watch_set_pixel(2, 1 + (code.bits & 1));
+    watch_set_pixel(0, (code.bits & 1));
+}
+
+static void _display_hexagram(uint8_t hexagram, char* str) {
+    str[6] = '\0';  // Null-terminate the string
+    for (int i = 0; i < 6; i++) {
+        if (hexagram & (1 << (5 - i))) {
+            str[i] = '\'';
+        } else {
+            str[i] = '1';
+        }
+    }
+}
