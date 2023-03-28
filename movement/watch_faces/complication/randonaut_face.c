@@ -364,11 +364,16 @@ static uint32_t _get_true_entropy(void) {
 /** @brief get location from place.loc
  */
 static void _get_location_from_file(randonaut_state_t *state) {
+    movement_location_t movement_location = (movement_location_t) watch_get_backup_data(1);
     coordinate_t place;
     if (filesystem_file_exists("place.loc")) {
         if (filesystem_read_file("place.loc", (char*)&place, sizeof(place)))
             state->location = place;
-    } else watch_set_indicator(WATCH_INDICATOR_BELL);
+    } else {
+        watch_set_indicator(WATCH_INDICATOR_BELL);
+        state->location.latitude = movement_location.bit.latitude * 1000;
+        state->location.longitude = movement_location.bit.longitude * 1000;
+    }
 }
 
 /** @brief save generated point to place.loc
