@@ -30,10 +30,48 @@
 #include "sunrise_sunset_face.h"
 
 /*
- * A DESCRIPTION OF YOUR WATCH FACE
- *
- * and a description of how use it
- *
+ * BACKGROUND
+
+ * Both the 24 hour day and the order of our weekdays have quite esoteric roots.
+ * The ancient Egyptians divided the day up into 12 hours of sunlight and 12 hours
+ * of night time. Obviously the length of these hours varied throughout the year.
+ * 
+ * The Greeks assigned each hour a ruler of the planetary gods in the ancient
+ * "Chaldean" order from slowest (Chronos for Saturn) to fastest (Selene for Moon).
+ * Because 24 hours cannot be equally divided by seven, the planetary rulers carried
+ * over to the first hour of the next day, effectively ruling over the entire day 
+ * and lending the whole day their name. The seven day week was born.
+ * 
+ * PLANETARY HOUR CHART COMPLICATION
+ * 
+ * This complication watch face displays the start time of the current planetary hour 
+ * according to the given location and day of the year. The number of the current
+ * planetary hour (1 - 24) is indicated at the top right.
+ * 
+ * Short pressing the ALARM button flips through the start times of the following 
+ * planetary hours, long pressing it flips backwards in time. A long press of the 
+ * LIGHT button immediately switches back to the start time of the current hour.
+ * The Bell indicator always marks the current planetary hour in the list.
+ * The LAP indicator shows up when the hours of the next phase are part of the 
+ * upcoming day instead of the current one. This happens when the watch face is 
+ * launched after sunset.
+ * 
+ * The planetary ruler of the current hour and day is displayed at the top in 
+ * Latin or Greek shorthand notation:
+ * 
+ * Saturn (SA) / Chronos (CH) / ♄
+ * Jupiter (JU) / Zeus (ZE) / ♃
+ * Mars (MA) / Ares (AR) / ♂
+ * Sol (SO) / Helios (HE) / ☉
+ * Venus (VE) / Aphrodite (AF) / ♀
+ * Mercury (ME) / Hermes (HR) / ☿
+ * Luna (LU) / Selene (SE) / ☾
+ * 
+ * A short press of the LIGHT button toggles between Latin and Greek ruler shorthand
+ * notation.
+ * 
+ * (IMPORTANT: Make sure the watch's time, timezone and location are set correctly for this
+ * watch face to work properly!)
  */
 
 typedef struct {
