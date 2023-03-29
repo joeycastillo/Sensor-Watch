@@ -87,6 +87,7 @@ typedef struct {
     bool day_ruler;
     bool no_location;
     sunrise_sunset_state_t sunstate;
+    watch_date_time scratch;
 } planetary_time_state_t;
 
 void planetary_time_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
