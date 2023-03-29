@@ -100,6 +100,10 @@ bool geomancy_face_loop(movement_event_t event, movement_settings_t *settings, v
             }
             geomancy_face_display(state);
             break;
+        case EVENT_ALARM_LONG_PRESS:
+            state->caption = !state->caption;
+            geomancy_face_display(state);
+            break;
         case EVENT_TIMEOUT:
             movement_move_to_face(0);
             break;
@@ -126,15 +130,19 @@ static void geomancy_face_display(geomancy_state_t *state) {
             _display_hexagram(state->i_ching_hexagram, token);
             watch_display_string(token, 4);
             _fix_broken_line(state->i_ching_hexagram);
-            sprintf(token, "%2d", wen_order[state->i_ching_hexagram] + 1);
-            watch_display_string(token, 2);
+            if (state->caption) {
+                sprintf(token, "%2d", wen_order[state->i_ching_hexagram] + 1);
+                watch_display_string(token, 2);
+            }
             break;
         case 2:
             watch_display_string("gm  GeomCy", 0);
             break;
         case 3:
-            sprintf(token, "%c%c", figures[state->geomantic_figure][0], figures[state->geomantic_figure][1]);
-            watch_display_string(token, 0);
+            if ( state->caption ) {
+                sprintf(token, "%c%c", figures[state->geomantic_figure][0], figures[state->geomantic_figure][1]);
+                watch_display_string(token, 0);
+            }
             _geomancy_display(figure);
             break;
         default:
