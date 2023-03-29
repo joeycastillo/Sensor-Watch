@@ -30,6 +30,7 @@
 const watch_face_t watch_faces[] = {
     simple_clock_face,
     // world_clock_face,
+    place_face,
     planetary_time_face,
     planetary_hours_face,
     //moon_phase_face,
