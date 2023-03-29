@@ -28,7 +28,7 @@
 #include "geomancy_face.h"
 
 static const uint64_t geomantic = 0x4ABF39D25E76C180;
-static const uint32_t badua = 0b11111010010010000101000000000000;
+static const uint32_t badua = 0b00000101001110010111011100000000;
 
 static void geomancy_face_display();
 static nibble_t _geomancy_pick_figure();
@@ -129,6 +129,7 @@ static nibble_t _geomancy_pick_figure() {
 static tribble_t _iching_pick_trigram() {
     uint8_t index = (divine_bit() << 2) | (divine_bit() << 1) | divine_bit();
     tribble_t trigram = {(badua >> (3 * index)) & 0b111};
+    printf("trigram: %d\n", trigram.bits);
     return trigram;
 }
 
@@ -141,7 +142,7 @@ static uint8_t _iching_form_hexagram() {
 
 static void _geomancy_display(nibble_t code) {
     // draw geomantic figures
-     bool row1 = (code.bits >> 3) & 1;
+    bool row1 = (code.bits >> 3) & 1;
     bool row2 = (code.bits >> 2) & 1;
     bool row3 = (code.bits >> 1) & 1;
     bool row4 = code.bits & 1;
@@ -156,20 +157,16 @@ static void _display_hexagram(uint8_t hexagram, char* str) {
     str[6] = '\0';  // Null-terminate the string
     for (uint8_t i = 0; i < 6; i++) {
         if (hexagram & (1 << (5 - i))) {
-            str[i] = '=';
-            if ( i == 1 ) watch_set_pixel(2, 20);
-            if ( i == 3 ) watch_set_pixel(2, 1);
-            if ( i == 4 ) watch_set_pixel(2, 2);
-            if ( i == 5 ) watch_set_pixel(2, 4);
-        } else {
             str[i] = '1';
+        } else {
+            str[i] = '=';
         }
     }
 }
 
 static void _fix_broken_line(uint8_t hexagram) {
     for (uint8_t i = 0; i < 6; i++) {
-        if (hexagram & (1 << (5 - i))) {
+        if (!(hexagram & (1 << (5 - i)))) {
             if ( i == 1 ) watch_set_pixel(2, 20);
             if ( i == 3 ) watch_set_pixel(2, 1);
             if ( i == 4 ) watch_set_pixel(2, 2);

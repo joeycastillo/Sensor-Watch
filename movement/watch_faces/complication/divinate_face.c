@@ -214,20 +214,26 @@ uint8_t roll_dice(uint8_t sides) {
 
 uint8_t divine_bit() {
     uint32_t stalks;
-    uint8_t pile = 0;
-
-    // get 32 random bits
     do {
         stalks = get_true_entropy();
     } while (stalks >= INT32_MAX || stalks <= 0);
 
+    uint8_t pile1_xor = 0;
+    uint8_t pile2_xor = 0;
     // Divide the stalks into two piles, alternating ends
     for (uint8_t i = 0; i < 16; i++) {
-        pile ^= (stalks >> (31 - 2*i)) & 1;
-        pile ^= (stalks >> (30 - 2*i)) & 1;
+        uint8_t left_bit = (stalks >> (31 - 2*i)) & 1;
+        uint8_t right_bit = (stalks >> (30 - 2*i)) & 1;
+        if (i % 2 == 0) {
+            pile1_xor ^= left_bit;
+            pile2_xor ^= right_bit;
+        } else {
+            pile1_xor ^= right_bit;
+            pile2_xor ^= left_bit;
+        }
     }
     // Take the XOR of the pile results
-    uint8_t result_xor = pile;
+    uint8_t result_xor = pile1_xor ^ pile2_xor;
     // Output 1 if result_xor is 1, 0 otherwise
     return result_xor;
 }
