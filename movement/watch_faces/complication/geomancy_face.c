@@ -28,7 +28,25 @@
 #include "geomancy_face.h"
 
 static const uint64_t geomantic = 0x4ABF39D25E76C180;
-static const uint32_t badua = 0b00000101001110010111011100000000;
+static const uint32_t bagua = 0b00000101001110010111011100000000;
+
+static const uint8_t wen_order[] = {
+     1, 22,  7, 19, 15, 34, 44, 11, 
+    14, 51, 38, 52, 61, 55, 30, 32, 
+     6,  3, 28, 58, 39, 63, 46,  5, 
+    45, 17, 47, 56, 31, 49, 27, 43, 
+    23, 26,  2, 41, 50, 20, 16, 24, 
+    35, 21, 62, 36, 54, 29, 48, 12, 
+    18, 40, 59, 60, 53, 37, 57,  9, 
+    10, 25,  4,  8, 33, 13, 42,  0
+};
+
+static const char figures[16][2] = {
+    "VI", "Hd", "PA", "GF", 
+    "PR", "AQ", "CA", "TR",
+    "Td", "CO", "AM", "AL",
+    "LF", "RU", "LA", "PO"
+};
 
 static void geomancy_face_display();
 static nibble_t _geomancy_pick_figure();
@@ -108,11 +126,15 @@ static void geomancy_face_display(geomancy_state_t *state) {
             _display_hexagram(state->i_ching_hexagram, token);
             watch_display_string(token, 4);
             _fix_broken_line(state->i_ching_hexagram);
+            sprintf(token, "%2d", wen_order[state->i_ching_hexagram] + 1);
+            watch_display_string(token, 2);
             break;
         case 2:
             watch_display_string("gm  GeomCy", 0);
             break;
         case 3:
+            sprintf(token, "%c%c", figures[state->geomantic_figure][0], figures[state->geomantic_figure][1]);
+            watch_display_string(token, 0);
             _geomancy_display(figure);
             break;
         default:
@@ -128,7 +150,7 @@ static nibble_t _geomancy_pick_figure() {
 
 static tribble_t _iching_pick_trigram() {
     uint8_t index = (divine_bit() << 2) | (divine_bit() << 1) | divine_bit();
-    tribble_t trigram = {(badua >> (3 * index)) & 0b111};
+    tribble_t trigram = {(bagua >> (3 * index)) & 0b111};
     printf("trigram: %d\n", trigram.bits);
     return trigram;
 }
