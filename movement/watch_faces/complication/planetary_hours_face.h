@@ -1,7 +1,8 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 <#author_name#>
+ * Copyright (c) 2023 Tobias Raayoni Last / @randogoth
+ * Copyright (c) 2022 Joey Castillo (sunrise_sunset_face)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +27,6 @@
 #define planetary_hours_face_H_
 
 #include "movement.h"
-#include "planetary_time_face.h"
 #include "sunrise_sunset_face.h"
 
 /*

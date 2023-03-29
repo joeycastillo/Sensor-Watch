@@ -1,7 +1,8 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 <#author_name#>
+ * Copyright (c) 2023 Tobias Raayoni Last / @randogoth
+ * Copyright (c) 2022 Joey Castillo (sunrise_sunset_face)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -68,7 +69,7 @@
  * Mercury (ME) / Hermes (HR) / ☿
  * Luna (LU) / Selene (SE) / ☾
  * 
- * The ALARM button toggles between displaying the ruler of the hour or the day
+ * The ALARM button toggles between displaying the ruler of the hour and the ruler of the day
  * 
  * The LIGHT button toggles between Latin and Greek ruler shorthand notation
  * 

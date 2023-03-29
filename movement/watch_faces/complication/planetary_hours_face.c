@@ -34,14 +34,21 @@
 #include <emscripten.h>
 #endif
 
-// Planetary rulers in the Chaldean order from slowest to fastest
-// Saturn, Jupiter, Mars, Sun, Venus, Mercury, Moon
+// STATIC FUNCTIONS AND CONSTANTS /////////////////////////////////////////////
+
+/** @brief Planetary rulers in the Chaldean order from slowest to fastest
+ *  @details Planetary rulers in the Chaldean order from slowest to fastest: 
+ *  Jupiter, Mars, Sun, Venus, Mercury, Moon
+ */
 static const char planets[7][3] = {"Sa", "Ju", "Ma", "So", "Ve", "Me", "Lu"}; // Latin
 static const char planetes[7][3] = {"Ch", "Ze", "Ar", "He", "Af", "Hr", "Se"}; // Greek
 
-// Ruler of each weekday for easy lookup
+/** @brief Ruler of each weekday for easy lookup
+ */
 static const uint8_t plindex[7] = {3, 6, 2, 5, 1, 4, 0}; // day ruler index
 
+/** @brief Astrological symbol for each planet
+ */
 static void _planetary_icon(uint8_t planet) {
 
     watch_clear_pixel(0, 13);
@@ -102,11 +109,11 @@ static void _planetary_icon(uint8_t planet) {
     }
 }
 
-static void _planetary_solar_phases(movement_settings_t *settings, planetary_hours_state_t *state) {
-/* A solar phase can be a day phase between sunrise and sunset or an alternating night phase.
- * This function calculates the start and end of the current phase based on a given geographic location.
- * It also calculates the start of the next following phase.
+/** @details A solar phase can be a day phase between sunrise and sunset or an alternating night phase.
+ *  This function calculates the start and end of the current phase based on a given geographic location.
+ *  It also calculates the start of the next following phase.
  */
+static void _planetary_solar_phases(movement_settings_t *settings, planetary_hours_state_t *state) {
     uint8_t phase, h;
     double sunrise, sunset;
     double hour_duration, next_hour_duration;
@@ -211,11 +218,11 @@ static void _planetary_solar_phases(movement_settings_t *settings, planetary_hou
 
 }
 
-static void _planetary_hours(movement_settings_t *settings, planetary_hours_state_t *state) {
-/* A planetary hour is one of exactly twelve hours of a solar phase. Its length varies.
- * This function calculates the current planetary hour and divides it up into relative minutes and seconds.
- * It also calculates the current planetary ruler of the hour and of the day.
+/** @details A planetary hour is one of exactly twelve hours of a solar phase. Its length varies.
+ *  This function calculates the current planetary hour and divides it up into relative minutes and seconds.
+ *  It also calculates the current planetary ruler of the hour and of the day.
  */
+static void _planetary_hours(movement_settings_t *settings, planetary_hours_state_t *state) {
     char buf[14];
     char ruler[3];
     uint8_t weekday, planet, planetary_hour;
@@ -324,6 +331,8 @@ static void _planetary_hours(movement_settings_t *settings, planetary_hours_stat
 
     if ( state->ruler == 2 ) _planetary_icon(planet);
 }
+
+// PUBLIC WATCH FACE FUNCTIONS ////////////////////////////////////////////////
 
 void planetary_hours_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
