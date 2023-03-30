@@ -194,7 +194,6 @@ static void _planetary_solar_phase(movement_settings_t *settings, planetary_time
     // calculate the duration of a planetary second during this solar phase 
     // and convert to Hertz so we can call a faster tick rate
     state->freq = (1 / ((double)( state->phase_end - state->phase_start ) / 43200));
-
 }
 
 /** @details A planetary hour is one of exactly twelve hours of a solar phase. Its length varies.
@@ -228,14 +227,16 @@ static void _planetary_time(movement_event_t event, movement_settings_t *setting
     }
 
     // calculate the duration of a planetary hour during this solar phase
-    hour_duration = ( state->phase_end - state->phase_start ) / 12.0;
-    second_duration = ( state->phase_end - state->phase_start ) / 43200.00;
+    hour_duration = (( state->phase_end - state->phase_start)) / 12.0;
 
     // which planetary hour are we in?
-    current_hour = ( watch_utility_date_time_to_unix_time(state->scratch, 0) - state->phase_start ) / hour_duration;
+
+    // RTC only provides full second precision, so we have to manually add subseconds with each tick
+    current_hour = ((( watch_utility_date_time_to_unix_time(state->scratch, 0) ) + event.subsecond * 0.11111111) - state->phase_start ) / hour_duration;
     planetary_hour = floor(current_hour) + ( state->night ? 12 : 0 );
-    current_hour += night_hour_count; //adjust for 24hr display
+    current_hour  += night_hour_count; //adjust for 24hr display
     current_minute = modf(current_hour, &current_hour) * 60.0;
+    current_second = modf(current_minute, &current_minute) * 60.0;
 
     // the day changes after sunrise, so if we are at night it is yesterday's planetary day
     // hence we take the datetime object of when the last solar phase started as the current day
@@ -243,9 +244,7 @@ static void _planetary_time(movement_event_t event, movement_settings_t *setting
     state->scratch = watch_utility_date_time_from_unix_time(state->phase_start, 0);
     state->scratch.unit.hour = floor(current_hour);
     state->scratch.unit.minute = floor(current_minute);
-
-    current_second = (modf(current_minute, &current_minute) * 60.0 );
-    state->scratch.unit.second = (uint8_t)floor(current_second + event.subsecond * (second_duration / 8)) % 60;
+    state->scratch.unit.second = (uint8_t)floor(current_second) % 60;
 
     // what weekday is it (0 - 6)
     weekday = watch_utility_get_iso8601_weekday_number(state->scratch.unit.year, state->scratch.unit.month, state->scratch.unit.day) - 1;
@@ -306,7 +305,9 @@ bool planetary_time_face_loop(movement_event_t event, movement_settings_t *setti
     switch (event.event_type) {
         case EVENT_ACTIVATE:
             _planetary_time(event, settings, state);
-            movement_request_tick_frequency( 8 );
+            if ( state->freq > 1 )
+                // for hours with shorter seconds let's increase the tick to not skip seconds in the display
+                movement_request_tick_frequency( 8 );
             break;
         case EVENT_TICK:
             _planetary_time(event, settings, state);
