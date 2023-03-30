@@ -41,6 +41,7 @@ void _display_coins(char* token, bool* bit_array, uint8_t length, divinate_state
 static void _divinate_face_display(divinate_state_t *state);
 static bool _quick_ticks_running;
 static void _abort_quick_ticks();
+static void _display_animation(divinate_state_t *state);
 
 // PUBLIC FUNCTIONS ///////////////////////////////////////////////////////////
 
@@ -66,6 +67,10 @@ bool divinate_face_loop(movement_event_t event, movement_settings_t *settings, v
                 }
                 else _abort_quick_ticks();
             }
+            if ( state->animate ) {
+                state->animation = (state->animation + 1);
+                _divinate_face_display(state);
+            } 
             break;
         case EVENT_LIGHT_BUTTON_DOWN:
             break;
@@ -81,6 +86,7 @@ bool divinate_face_loop(movement_event_t event, movement_settings_t *settings, v
                 case 0:
                     state->mode++;
                 case 1:
+                    state->animate = true;
                     for (i = 0; i < state->coin_num; i++) {
                         state->coins[i] = divine_bit();
                     }             
@@ -98,6 +104,7 @@ bool divinate_face_loop(movement_event_t event, movement_settings_t *settings, v
             _divinate_face_display(state);
             break;
         case EVENT_LIGHT_LONG_PRESS:
+            state->animate = true;
             switch (state->mode) {
                 case 0:
                     state->coin_style[0] = heads[0];
@@ -124,10 +131,10 @@ bool divinate_face_loop(movement_event_t event, movement_settings_t *settings, v
                 default:
                     break;
             }
-            printf("%d\n", _quick_ticks_running);
             _divinate_face_display(state);
             break;
         case EVENT_ALARM_LONG_PRESS:
+            state->animate = false;
             switch (state->mode) {
                 case 0:
                     state->coin_num = 1;
@@ -170,16 +177,19 @@ void divinate_face_resign(movement_settings_t *settings, void *context) {
 }
 
 static void _divinate_face_display(divinate_state_t *state) {
-    char buf[10];
+    char buf[10] = {0};
     char token[7] = {0};
-    watch_clear_display();
     switch ( state->mode ) {
         case 0: // coins title
             sprintf(buf, "di  Coins");
             break;
         case 1: // coins divination
-            _display_coins(token, state->coins, state->coin_num, state);
-            sprintf(buf, "    %s", token);
+            _display_animation(state);
+            if ( !state->animate ) {
+                watch_clear_display();
+                _display_coins(token, state->coins, state->coin_num, state);
+                sprintf(buf, "    %s", token);
+            }
             break;
         case 2: // dice title
             sprintf(buf, "di  Dice");
@@ -319,5 +329,389 @@ void _display_coins(char* token, bool* bit_array, uint8_t length, divinate_state
 static void _abort_quick_ticks() {
     if (_quick_ticks_running) {
         _quick_ticks_running = false;
+    }
+}
+
+static void _display_animation(divinate_state_t *state) {
+    bool heads = false;
+    bool tails = false;
+    for (uint8_t i = 0; i < state->coin_num; i++) {
+        if (state->coins[i] == true) {
+            heads++;
+        } else {
+            tails++;
+        }
+    }
+    movement_request_tick_frequency(32);
+    switch ( state->animation ) {
+        case 0:
+            watch_display_string("      ", 4);
+            if ( heads ) {
+                watch_set_pixel(0, 18);
+                watch_set_pixel(2, 18);
+            } else {
+                state->animation = 12;
+            }
+            break;
+        case 1:
+            if ( heads ) {
+                watch_set_pixel(1, 18);
+            }
+            break;
+        case 2:
+            if ( heads ) {
+                watch_set_pixel(0, 19);
+                watch_set_pixel(2, 19);
+            }
+            break;
+        case 3:
+            if ( heads ) {
+                watch_clear_pixel(0, 18);
+                watch_clear_pixel(2, 18);
+            }
+            break;
+        case 4:
+            if ( heads ) {
+                watch_clear_pixel(1, 18);
+            }
+            break;
+        case 5:
+            if ( heads ) {
+                watch_clear_pixel(0, 19);
+                watch_clear_pixel(2, 19);
+                watch_set_pixel(1, 17);
+                watch_set_pixel(0, 20);
+            }
+            break;
+        case 6:
+            if ( heads ) {
+                watch_set_pixel(2, 20);
+                watch_set_pixel(0, 21);
+            }
+            break;
+        case 7:
+            if ( heads ) {
+                watch_set_pixel(1, 21);
+                watch_set_pixel(2, 21);
+            }
+            break;
+        case 8:
+            if ( heads ) {
+                watch_clear_pixel(1, 17);
+                watch_clear_pixel(0, 20);
+            }
+            break;
+        case 9:
+            if ( heads ) {
+                watch_clear_pixel(2, 20);
+                watch_clear_pixel(0, 21);
+            }
+            break;
+        case 10:
+            if ( heads ) {
+                watch_clear_pixel(1, 21);
+                watch_clear_pixel(2, 21);
+                watch_set_pixel(1, 22);
+                watch_set_pixel(2, 22);
+            }
+            break;
+        case 11:
+            if ( heads ) {
+                watch_set_pixel(0, 22);
+            }
+            break;
+        case 12:
+            if ( heads ) {
+                watch_set_pixel(2, 23);
+                watch_set_pixel(0, 23);
+            }
+            if ( tails ) {
+                watch_set_pixel(0, 18);
+                watch_set_pixel(2, 18);
+            }
+            break;
+        case 13:
+            if ( heads ) {
+                watch_clear_pixel(1, 22);
+                watch_clear_pixel(2, 22);
+            }
+            if ( tails ) {
+                watch_set_pixel(1, 18);
+            }
+            break;
+        case 14:
+            if ( heads ) {
+                watch_clear_pixel(0, 22);
+            }
+            if ( tails ) {
+                watch_set_pixel(0, 19);
+                watch_set_pixel(2, 19);
+            }
+            break;
+        case 15:
+            if ( heads ) {
+                watch_clear_pixel(2, 23);
+                watch_clear_pixel(0, 23);
+                watch_set_pixel(2, 0);
+                watch_set_pixel(1, 0);
+            }
+            if ( tails ) {
+                watch_clear_pixel(0, 18);
+                watch_clear_pixel(2, 18);
+            }
+            break;
+        case 16:
+            if ( heads ) {
+                watch_set_pixel(2, 1);
+                watch_set_pixel(0, 0);
+            }
+            if ( tails ) {
+                watch_clear_pixel(1, 18);
+            }
+            break;
+        case 17:
+            if ( heads ) {
+                watch_set_pixel(2, 10);
+                watch_set_pixel(0, 1);
+            }
+            if ( tails ) {
+                watch_clear_pixel(0, 19);
+                watch_clear_pixel(2, 19);
+                watch_set_pixel(1, 17);
+                watch_set_pixel(0, 20);
+            }
+            break;
+        case 18:
+            if ( heads ) {
+                watch_clear_pixel(2, 0);
+                watch_clear_pixel(1, 0);
+            }
+            if ( tails ) {
+                watch_set_pixel(2, 20);
+                watch_set_pixel(0, 21);
+            }
+            break;
+        case 19:
+            if ( heads ) {
+                watch_clear_pixel(2, 1);
+                watch_clear_pixel(0, 0);
+            }
+            if ( tails ) {
+                watch_set_pixel(1, 21);
+                watch_set_pixel(2, 21);
+            }
+            break;
+        case 20:
+            if ( heads ) {
+                watch_set_pixel(2, 1);
+                watch_set_pixel(0, 0);
+            }
+            if ( tails ) {
+                watch_clear_pixel(1, 17);
+                watch_clear_pixel(0, 20);
+            }
+            break;
+        case 21:
+            if ( heads ) {
+                watch_set_pixel(2, 0);
+                watch_set_pixel(1, 0);
+            }
+            if ( tails ) {
+                watch_clear_pixel(2, 20);
+                watch_clear_pixel(0, 21);
+            }
+            break;
+        case 22:
+            if ( heads ) {
+                watch_clear_pixel(2, 10);
+                watch_clear_pixel(0, 1);
+            }
+            if ( tails ) {
+                watch_clear_pixel(1, 21);
+                watch_clear_pixel(2, 21);
+                watch_set_pixel(1, 22);
+                watch_set_pixel(2, 22);
+            }
+            break;
+        case 23:
+            if ( heads ) {
+                watch_clear_pixel(2, 1);
+                watch_clear_pixel(0, 0);
+            }
+            if ( tails ) {
+                watch_set_pixel(0, 22);
+            }
+            break;
+        case 24:
+            if ( heads ) {
+                watch_set_pixel(2, 23);
+                watch_set_pixel(0, 23);
+                watch_clear_pixel(2, 0);
+                watch_clear_pixel(1, 0);
+            }
+            if ( tails ) {
+                watch_set_pixel(2, 23);
+                watch_set_pixel(0, 23);
+            }
+            break;
+        case 25:
+            if ( heads ) {
+                watch_set_pixel(0, 22);
+            }
+            if ( tails ) {
+                watch_clear_pixel(1, 22);
+                watch_clear_pixel(2, 22);
+            }
+            break;
+        case 26:
+            if ( heads ) {
+                watch_set_pixel(1, 22);
+                watch_set_pixel(2, 22);
+            }
+            if ( tails ) {
+                watch_clear_pixel(0, 22);
+            }
+            break;
+        case 27:
+            if ( heads ) {
+                watch_clear_pixel(2, 23);
+                watch_clear_pixel(0, 23);
+            }
+            if ( tails ) {
+                watch_clear_pixel(2, 23);
+                watch_clear_pixel(0, 23);
+                watch_set_pixel(2, 0);
+                watch_set_pixel(1, 0);
+            }
+            break;
+        case 28:
+            if ( heads ) {
+                watch_clear_pixel(0, 22);
+            }
+            if ( tails ) {
+                watch_set_pixel(2, 1);
+                watch_set_pixel(0, 0);
+            }
+            break;
+        case 29:
+            if ( heads ) {
+                watch_set_pixel(1, 21);
+                watch_set_pixel(2, 21);
+                watch_clear_pixel(1, 22);
+                watch_clear_pixel(2, 22);
+            }
+            if ( tails ) {
+                watch_set_pixel(2, 10);
+                watch_set_pixel(0, 1);
+            }
+            break;
+        case 30:
+            if ( heads ) {
+                watch_set_pixel(2, 20);
+                watch_set_pixel(0, 21);
+            }
+            if ( tails ) {
+                watch_clear_pixel(1, 0);
+                watch_clear_pixel(2, 0);
+            }
+            break;
+        case 31:
+            if ( heads ) {
+                watch_set_pixel(1, 17);
+                watch_set_pixel(0, 20);
+            }
+            if ( tails ) {
+                watch_clear_pixel(2, 1);
+                watch_clear_pixel(0, 0);
+            }
+            break;
+        case 32:
+            if ( heads ) {
+                watch_clear_pixel(1, 21);
+                watch_clear_pixel(2, 21);
+            }
+            if ( tails ) {
+                watch_clear_pixel(2, 10);
+                watch_clear_pixel(0, 1);
+                watch_set_pixel(0, 2);
+                watch_set_pixel(1, 2);
+            }
+            break;
+        case 33:
+            if ( heads ) {
+                watch_clear_pixel(2, 20);
+                watch_clear_pixel(0, 21);
+            }
+            if ( tails ) {
+                watch_set_pixel(2, 2);
+                watch_set_pixel(0, 3);
+            }
+            break;
+        case 34:
+            if ( heads ) {
+                watch_set_pixel(0, 19);
+                watch_set_pixel(2, 19);
+                watch_clear_pixel(1, 17);
+                watch_clear_pixel(0, 20);
+            }
+            if ( tails ) {
+                watch_set_pixel(2, 3);
+                watch_set_pixel(0, 4);
+            }
+            break;
+        case 35:
+            if ( heads ) {
+                watch_set_pixel(1, 18);
+            }
+            if ( tails ) {
+                watch_clear_pixel(1, 2);
+                watch_clear_pixel(0, 2);
+            }
+            break;
+        case 36:
+            if ( heads ) {
+                watch_set_pixel(0, 18);
+                watch_set_pixel(2, 18);
+            }
+            if ( tails ) {
+                watch_clear_pixel(2, 2);
+                watch_clear_pixel(0, 3);
+            }
+            break;
+        case 37:
+            if ( heads ) {
+                watch_clear_pixel(0, 19);
+                watch_clear_pixel(2, 19);
+            }
+            if ( tails ) {
+                watch_clear_pixel(2, 3);
+                watch_clear_pixel(0, 4);
+                watch_set_pixel(1, 4);
+                watch_set_pixel(0, 5);
+            }
+            break;
+        case 38:
+            if ( heads ) {
+                watch_clear_pixel(1, 18);
+            }
+            if ( tails ) {
+                watch_set_pixel(2, 4);
+                watch_set_pixel(0, 6);
+            }
+            break;
+        case 39:
+            if ( heads ) {
+                watch_clear_pixel(0, 18);
+                watch_clear_pixel(2, 18);
+            }
+            if ( tails ) {
+                watch_set_pixel(1, 6);
+                watch_set_pixel(2, 5);
+            }
+            break;
+        default:
+            state->animate = false;
+            state->animation = 0;
+            movement_request_tick_frequency(1);
     }
 }

@@ -49,6 +49,8 @@ typedef struct {
     uint8_t dice_num : 2;
     uint8_t dd : 6;
     uint8_t dice_sides[3];
+    uint8_t animation;
+    bool animate;
 } divinate_state_t;
 
 uint32_t get_true_entropy(void);
