@@ -85,9 +85,8 @@
 #include "time_left_face.h"
 #include "place_face.h"
 #include "randonaut_face.h"
-#include "divinate_face.h"
+#include "toss_up_face.h"
 #include "geomancy_face.h"
-#include "decision_face.h"
 // New includes go above this line.
 
 #endif // MOVEMENT_FACES_H_

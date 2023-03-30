@@ -24,7 +24,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "divinate_face.h"
+#include "toss_up_face.h"
 #if __EMSCRIPTEN__
 #include <time.h>
 #else
@@ -32,25 +32,43 @@
 #endif
 
 static const char heads[] = { '8', 'h', '4', 'E', '(' };
-static const char tails[] = { '0', '+', 'n', '3', ')' };
+static const char tails[] = { '0', '+', 'N', '3', ')' };
 static const uint8_t dd[] = {2, 4, 6, 8, 10,12,20,24,30,32,36,48,99}; 
 
 static void _roll_dice_multiple(char* result, uint8_t* dice, uint8_t num_dice);
 static void _sort_coins(char* token, uint8_t num_bits, uint8_t bits, char* heads, char* tails);
-void _display_coins(char* token, bool* bit_array, uint8_t length, divinate_state_t *state);
-static void _divinate_face_display(divinate_state_t *state);
-static void _dice_animation(divinate_state_t *state);
-static void _coin_animation(divinate_state_t *state);
+void _display_coins(char* token, bool* bit_array, uint8_t length, toss_up_state_t *state);
+static void _toss_up_face_display(toss_up_state_t *state);
+static void _dice_animation(toss_up_state_t *state);
+static void _coin_animation(toss_up_state_t *state);
 
 // PUBLIC FUNCTIONS ///////////////////////////////////////////////////////////
 
-void divinate_face_activate(movement_settings_t *settings, void *context) {
+void toss_up_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
-    divinate_state_t *state = (divinate_state_t *)context;
+    if (*context_ptr == NULL) {
+        *context_ptr = malloc(sizeof(toss_up_state_t));
+        memset(*context_ptr, 0, sizeof(toss_up_state_t));
+        toss_up_state_t *state = (toss_up_state_t *)*context_ptr;
+
+        // defaults
+        state->coin_num = 1;
+        state->dice_num = 1;
+        state->dice_sides[0] = 6;
+        state->dice_sides[1] = 6;
+        state->dice_sides[2] = 6;
+        state->coin_style[0] = '8';
+        state->coin_style[1] = '0';
+    }
 }
 
-bool divinate_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
-    divinate_state_t *state = (divinate_state_t *)context;
+void toss_up_face_activate(movement_settings_t *settings, void *context) {
+    (void) settings;
+    (void) context;
+}
+
+bool toss_up_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
+    toss_up_state_t *state = (toss_up_state_t *)context;
     uint8_t i = 0;
     switch (event.event_type) {
         case EVENT_ACTIVATE:
@@ -59,17 +77,21 @@ bool divinate_face_loop(movement_event_t event, movement_settings_t *settings, v
         case EVENT_TICK:
             if ( state->animate ) {
                 state->animation = (state->animation + 1);
-                _divinate_face_display(state);
+                _toss_up_face_display(state);
             } 
             break;
         case EVENT_LIGHT_BUTTON_DOWN:
             break;
         case EVENT_LIGHT_BUTTON_UP:
+            if ( state->animate ) break;
+            // change between coins and dice
             if ( state->mode <= 1 ) state->mode = 2;
             else if ( state->mode >= 2 ) state->mode = 0;
-            _divinate_face_display(state);
+            _toss_up_face_display(state);
             break;
         case EVENT_ALARM_BUTTON_UP:
+            // toss
+            if ( state->animate ) break;
             switch (state->mode) {
                 case 0:
                     state->mode++;
@@ -90,28 +112,29 @@ bool divinate_face_loop(movement_event_t event, movement_settings_t *settings, v
                 default:
                     break;
             }
-            _divinate_face_display(state);
+            _toss_up_face_display(state);
             break;
         case EVENT_LIGHT_LONG_PRESS:
+            if ( state->animate ) break;
             state->animate = false;
             switch (state->mode) {
-                case 0:
+                case 0: // change to default coin style
                     state->coin_style[0] = heads[0];
                     state->coin_style[1] = tails[0];
                     state->coinface = 0;
                     break;
-                case 1:
+                case 1: // change the coin style
                     state->coinface = (state->coinface + 1) % 5;
                     state->coin_style[0] = heads[state->coinface];
                     state->coin_style[1] = tails[state->coinface];         
                     break;
-                case 2:
+                case 2: // change to default dice sides
                     state->dice_sides[0] = 6;
                     state->dice_sides[1] = 6;
                     state->dice_sides[2] = 6;
                     state->dd = 0;
                     break;
-                case 3:
+                case 3: // change the sides of the dice
                     state->dd = (state->dd + 1) % 13;
                     state->dice_sides[state->dice_num-1] = dd[state->dd];
                     state->dice[state->dice_num-1] = dd[state->dd];
@@ -119,28 +142,29 @@ bool divinate_face_loop(movement_event_t event, movement_settings_t *settings, v
                 default:
                     break;
             }
-            _divinate_face_display(state);
+            _toss_up_face_display(state);
             break;
         case EVENT_ALARM_LONG_PRESS:
+            if ( state->animate ) break;
             state->animate = false;
             switch (state->mode) {
-                case 0:
+                case 0: // back to one coin
                     state->coin_num = 1;
                     break;
-                case 1:
+                case 1: // up to 6 coins total
                     state->coin_num = (state->coin_num % 6) + 1;             
                     break;
-                case 2:
+                case 2: // back to one dice
                     state->dice_num = 1;
                     break;
-                case 3:
+                case 3: // add up to 3 dice total
                     state->dice_num = (state->dice_num % 3) + 1;
                     state->dd = 0;
                     break;
                 default:
                     break;
             }
-            _divinate_face_display(state);
+            _toss_up_face_display(state);
             break;
         default:
             return movement_default_loop_handler(event, settings);
@@ -149,13 +173,17 @@ bool divinate_face_loop(movement_event_t event, movement_settings_t *settings, v
     return true;
 }
 
-void divinate_face_resign(movement_settings_t *settings, void *context) {
+void toss_up_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
 }
 
-static void _divinate_face_display(divinate_state_t *state) {
-    char buf[10] = {0};
+// STATIC FUNCTIONS ///////////////////////////////////////////////////////////
+
+/** @brief handles the display 
+ */
+static void _toss_up_face_display(toss_up_state_t *state) {
+    char buf[11] = {0};
     char token[7] = {0};
     switch ( state->mode ) {
         case 0: // coins title
@@ -185,28 +213,12 @@ static void _divinate_face_display(divinate_state_t *state) {
     watch_display_string(buf, 0);
 }
 
-uint8_t roll_dice(uint8_t sides) {
-    uint8_t bits_needed = 0;
-    uint8_t temp_sides = sides - 1;
-    uint8_t result = 0;
-    while (temp_sides > 0) {
-        bits_needed++;
-        temp_sides >>= 1; // Shift right to check the next bit
-    }
-    do {
-        result = 0;
-        for (int i = 0; i < bits_needed; i++) {
-            result <<= 1; // Shift left to make room for the next bit
-            result |= divine_bit(); // Add the next bit to the result
-        }
-    } while ( result > sides -1 );
-    return result + 1; // Add 1 to convert the range from 0 to sides-1 to 1 to sides
-}
-
-uint8_t divine_bit() {
+/** @brief divination method to derive a bit from 32 TRNG bits
+ */
+uint8_t divine_bit(void) {
     uint32_t stalks;
-    do {
-        stalks = get_true_entropy();
+    do { // modulo bias filter
+        stalks = get_true_entropy(); // get 32 TRNG bits as stalks
     } while (stalks >= INT32_MAX || stalks <= 0);
 
     uint8_t pile1_xor = 0;
@@ -229,6 +241,8 @@ uint8_t divine_bit() {
     return result_xor;
 }
 
+/** @brief get 32 True Random Number bits
+ */
 uint32_t get_true_entropy(void) {
     #if __EMSCRIPTEN__
     return rand() % INT32_MAX;
@@ -244,45 +258,15 @@ uint32_t get_true_entropy(void) {
     #endif
 }
 
-void divinate_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
-    (void) settings;
-    if (*context_ptr == NULL) {
-        *context_ptr = malloc(sizeof(divinate_state_t));
-        memset(*context_ptr, 0, sizeof(divinate_state_t));
-        divinate_state_t *state = (divinate_state_t *)*context_ptr;
+// COIN FUNCTIONS /////////////////////////////////////////////////////////////
 
-        state->coin_num = 1;
-        state->dice_num = 1;
-        state->dice_sides[0] = 6;
-        state->dice_sides[1] = 6;
-        state->dice_sides[2] = 6;
-        state->coin_style[0] = '8';
-        state->coin_style[1] = '0';
-    }
-    // Do any pin or peripheral setup here; this will be called whenever the watch wakes from deep sleep.
-}
-
-// STATIC FUNCTIONS ///////////////////////////////////////////////////////////
-
-static void _roll_dice_multiple(char* result, uint8_t* dice, uint8_t num_dice) {
-    // initialize the result array to all spaces
-    memset(result, ' ', 6);
-
-    // roll the dice and write the result to the result array
-    for (uint8_t i = 0; i < num_dice-1; i++) {
-        uint8_t dice_result = dice[i];
-        uint8_t tens_digit = dice_result / 10;
-        uint8_t ones_digit = dice_result % 10;
-        result[(i * 2)] = tens_digit == 0 ? ' ' : (char)('0' + tens_digit);
-        result[(i * 2) + 1] = (char)('0' + ones_digit);
-    }
-}
-
+/** @brief sort tossed coins into a pile of heads and a pile of tails
+ */
 static void _sort_coins(char* token, uint8_t num_bits, uint8_t bits, char* heads, char* tails) {
     uint8_t num_ones = 0;
     for (uint8_t i = 0; i < num_bits; i++) {
         if ((bits >> i) & 1) {
-            *token++ = heads;
+            *token++ = *heads;
             num_ones++;
         }
     }
@@ -293,93 +277,25 @@ static void _sort_coins(char* token, uint8_t num_bits, uint8_t bits, char* heads
     }
     for (uint8_t i = 0; i < (num_bits - num_ones); i++) {
 
-        *token++ = tails;
+        *token++ = *tails;
     }
 }
 
-void _display_coins(char* token, bool* bit_array, uint8_t length, divinate_state_t *state) {
+/** @brief convert bool array of coinflips to integer for sorting
+ */
+void _display_coins(char* token, bool* bit_array, uint8_t length, toss_up_state_t *state) {
     uint8_t bits = 0;
     for (uint8_t i = 0; i < length; i++) {
         if (bit_array[i]) {
             bits |= (1 << (length - 1 - i));
         }
     }
-    _sort_coins(token, length, bits, state->coin_style[0], state->coin_style[1]);
+    _sort_coins(token, length, bits, &state->coin_style[0], &state->coin_style[1]);
 }
 
-static void _dice_animation(divinate_state_t *state) {
-    watch_display_string("      ", 4);
-    for (uint8_t i = 0; i < state->dice_num; i++) {
-        watch_display_string("0",i*2 + 5);
-    }
-    movement_request_tick_frequency(16);
-    switch ( state->animation ) {
-        case 0:
-            watch_clear_pixel(1, 17);
-            watch_clear_pixel(0, 0);
-            watch_clear_pixel(1, 6);
-            break;
-        case 1:
-            watch_clear_pixel(2, 20);
-            watch_clear_pixel(1, 0);
-            watch_clear_pixel(0, 6);
-            break;
-        case 2:
-            watch_clear_pixel(2, 21);
-            watch_clear_pixel(2, 0);
-            watch_clear_pixel(0, 5);
-            break;
-        case 3:
-            watch_clear_pixel(1, 21);
-            watch_clear_pixel(2, 1);
-            watch_clear_pixel(1, 4);
-            break;
-        case 4:
-            watch_clear_pixel(0, 21);
-            watch_clear_pixel(2, 10);
-            watch_clear_pixel(2, 4);
-            break;
-        case 5:
-            watch_clear_pixel(0, 20);
-            watch_clear_pixel(0, 1);
-            watch_clear_pixel(2, 5);
-            break;
-        case 6:
-            watch_clear_pixel(1, 17);
-            watch_clear_pixel(0, 0);
-            watch_clear_pixel(1, 6);
-            break;
-        case 7:
-            watch_clear_pixel(2, 20);
-            watch_clear_pixel(1, 0);
-            watch_clear_pixel(0, 6);
-            break;
-        case 8:
-            watch_clear_pixel(2, 21);
-            watch_clear_pixel(2, 0);
-            watch_clear_pixel(0, 5);
-            break;
-        case 9:
-            watch_clear_pixel(1, 21);
-            watch_clear_pixel(2, 1);
-            watch_clear_pixel(1, 4);
-            break;
-        case 10:
-            watch_clear_pixel(0, 21);
-            watch_clear_pixel(2, 10);
-            watch_clear_pixel(2, 4);
-            break;
-        case 11:
-            watch_clear_pixel(0, 20);
-            watch_clear_pixel(0, 1);
-            watch_clear_pixel(2, 5);
-            state->animate = false;
-            state->animation = 0;
-            movement_request_tick_frequency(1);
-    }
-}
-
-static void _coin_animation(divinate_state_t *state) {
+/** @brief coin animation
+ */
+static void _coin_animation(toss_up_state_t *state) {
     bool heads = false;
     bool tails = false;
     for (uint8_t i = 0; i < state->coin_num; i++) {
@@ -755,6 +671,118 @@ static void _coin_animation(divinate_state_t *state) {
                 watch_set_pixel(1, 6);
                 watch_set_pixel(2, 5);
             }
+            state->animate = false;
+            state->animation = 0;
+            movement_request_tick_frequency(1);
+    }
+}
+
+// DICE FUNCTIONS /////////////////////////////////////////////////////////////
+
+/** @brief rolls a dice
+ */
+uint8_t roll_dice(uint8_t sides) {
+    uint8_t bits_needed = 0;
+    uint8_t temp_sides = sides - 1;
+    uint8_t result = 0;
+    while (temp_sides > 0) {
+        bits_needed++; // how many bits do we need to represent this number?
+        temp_sides >>= 1; // Shift right to check the next bit
+    }
+    do {
+        result = 0;
+        for (int i = 0; i < bits_needed; i++) {
+            result <<= 1; // Shift left to make room for the next bit
+            result |= divine_bit(); // Add the next bit to the result
+        }
+    } while ( result > sides -1 );
+    return result + 1; // Add 1 to convert the range from 0 to sides-1 to 1 to sides
+}
+
+/** @brief roll multiple dice and print a char array for displaying them
+ */
+static void _roll_dice_multiple(char* result, uint8_t* dice, uint8_t num_dice) {
+    // initialize the result array to all spaces
+    memset(result, ' ', 6);
+
+    // roll the dice and write the result to the result array
+    for (uint8_t i = 0; i < num_dice-1; i++) {
+        uint8_t dice_result = dice[i];
+        uint8_t tens_digit = dice_result / 10;
+        uint8_t ones_digit = dice_result % 10;
+        result[(i * 2)] = tens_digit == 0 ? ' ' : (char)('0' + tens_digit);
+        result[(i * 2) + 1] = (char)('0' + ones_digit);
+    }
+}
+
+/** @brief dice animation
+ */
+static void _dice_animation(toss_up_state_t *state) {
+    watch_display_string("      ", 4);
+    for (uint8_t i = 0; i < state->dice_num; i++) {
+        watch_display_string("0",i*2 + 5);
+    }
+    movement_request_tick_frequency(16);
+    switch ( state->animation ) {
+        case 0:
+            watch_clear_pixel(1, 17);
+            watch_clear_pixel(0, 0);
+            watch_clear_pixel(1, 6);
+            break;
+        case 1:
+            watch_clear_pixel(2, 20);
+            watch_clear_pixel(1, 0);
+            watch_clear_pixel(0, 6);
+            break;
+        case 2:
+            watch_clear_pixel(2, 21);
+            watch_clear_pixel(2, 0);
+            watch_clear_pixel(0, 5);
+            break;
+        case 3:
+            watch_clear_pixel(1, 21);
+            watch_clear_pixel(2, 1);
+            watch_clear_pixel(1, 4);
+            break;
+        case 4:
+            watch_clear_pixel(0, 21);
+            watch_clear_pixel(2, 10);
+            watch_clear_pixel(2, 4);
+            break;
+        case 5:
+            watch_clear_pixel(0, 20);
+            watch_clear_pixel(0, 1);
+            watch_clear_pixel(2, 5);
+            break;
+        case 6:
+            watch_clear_pixel(1, 17);
+            watch_clear_pixel(0, 0);
+            watch_clear_pixel(1, 6);
+            break;
+        case 7:
+            watch_clear_pixel(2, 20);
+            watch_clear_pixel(1, 0);
+            watch_clear_pixel(0, 6);
+            break;
+        case 8:
+            watch_clear_pixel(2, 21);
+            watch_clear_pixel(2, 0);
+            watch_clear_pixel(0, 5);
+            break;
+        case 9:
+            watch_clear_pixel(1, 21);
+            watch_clear_pixel(2, 1);
+            watch_clear_pixel(1, 4);
+            break;
+        case 10:
+            watch_clear_pixel(0, 21);
+            watch_clear_pixel(2, 10);
+            watch_clear_pixel(2, 4);
+            break;
+        case 11:
+            watch_clear_pixel(0, 20);
+            watch_clear_pixel(0, 1);
+            watch_clear_pixel(2, 5);
             state->animate = false;
             state->animation = 0;
             movement_request_tick_frequency(1);

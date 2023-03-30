@@ -31,16 +31,38 @@
  * GEOMANCY WATCH FACE
  *
  * A simple and straightforward watch face for the ancient Eastern geomantic divination system
- * of I Ching and the western system of "Geomancy". It is an addition to the Divinate Face.
+ * of I Ching and the western system of "Geomancy". It is an optional addition to the Toss Up
+ * Face.
  * 
- * The LIGHT button toggles between the two systems
+ * The LIGHT button toggles between the two systems of geomancy.
  * 
  * The ALARM button casts an I Ching hexagram or Geomantic figure based on drawing virtual
  * stalks from the True Random Number Generator in the Sensor Watch.
  * 
  * The figures are flipped 90 degrees clockwise, so the left side is the bottom and the
  * right side the top.
- *
+ * 
+ * LONG PRESSING ALARM toggles the display of the King Wen sequence index for the cast I Ching
+ * Hexagram (https://en.wikipedia.org/wiki/King_Wen_sequence )or the abbreviated name for the
+ * cast Geomantic Figure:
+ * 
+ * GF - Greater Fortune (Fortuna Major)
+ * LF - Lesser Fortune (Fortuna Minor)
+ * PO - Populus
+ * VI - Via
+ * AL - Albus
+ * CO - Conjunctio
+ * PA - Puella
+ * AM - Amissio
+ * PR - Puer
+ * RU - Rubeus
+ * AQ - Acquisitio
+ * LA - Laetitia
+ * TR - Tristitia
+ * CA - Carcer
+ * HD - Head of the Dragon (Caput Draconis)
+ * TD - Tail of the Dragon (Cauda Draconis)
+ * 
  */
 
 typedef struct {
