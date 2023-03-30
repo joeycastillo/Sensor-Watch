@@ -33,15 +33,14 @@
 
 static const char heads[] = { '8', 'h', '4', 'E', '(' };
 static const char tails[] = { '0', '+', 'n', '3', ')' };
-static const uint8_t dd[] = {2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,21,22,24,26,28,30,32,34,36,48,50,60}; 
+static const uint8_t dd[] = {2, 4, 6, 8, 10,12,20,24,30,32,36,48,99}; 
 
 static void _roll_dice_multiple(char* result, uint8_t* dice, uint8_t num_dice);
 static void _sort_coins(char* token, uint8_t num_bits, uint8_t bits, char* heads, char* tails);
 void _display_coins(char* token, bool* bit_array, uint8_t length, divinate_state_t *state);
 static void _divinate_face_display(divinate_state_t *state);
-static bool _quick_ticks_running;
-static void _abort_quick_ticks();
-static void _display_animation(divinate_state_t *state);
+static void _dice_animation(divinate_state_t *state);
+static void _coin_animation(divinate_state_t *state);
 
 // PUBLIC FUNCTIONS ///////////////////////////////////////////////////////////
 
@@ -55,18 +54,9 @@ bool divinate_face_loop(movement_event_t event, movement_settings_t *settings, v
     uint8_t i = 0;
     switch (event.event_type) {
         case EVENT_ACTIVATE:
-            watch_display_string("di  Coins", 0);
+            watch_display_string("    Coins ", 0);
             break;
         case EVENT_TICK:
-            if (_quick_ticks_running) {
-                if (watch_get_pin_level(BTN_LIGHT)) {
-                    state->dd = (state->dd + 1) % 31;
-                    state->dice_sides[state->dice_num-1] = dd[state->dd];
-                    state->dice[state->dice_num-1] = dd[state->dd];
-                    _divinate_face_display(state);
-                }
-                else _abort_quick_ticks();
-            }
             if ( state->animate ) {
                 state->animation = (state->animation + 1);
                 _divinate_face_display(state);
@@ -75,13 +65,11 @@ bool divinate_face_loop(movement_event_t event, movement_settings_t *settings, v
         case EVENT_LIGHT_BUTTON_DOWN:
             break;
         case EVENT_LIGHT_BUTTON_UP:
-            _abort_quick_ticks();
             if ( state->mode <= 1 ) state->mode = 2;
             else if ( state->mode >= 2 ) state->mode = 0;
             _divinate_face_display(state);
             break;
         case EVENT_ALARM_BUTTON_UP:
-            _abort_quick_ticks();
             switch (state->mode) {
                 case 0:
                     state->mode++;
@@ -94,6 +82,7 @@ bool divinate_face_loop(movement_event_t event, movement_settings_t *settings, v
                 case 2:
                     state->mode++;
                 case 3:
+                    state->animate = true;
                     for (i = 0; i < state->dice_num; i++) {
                         state->dice[i] = roll_dice(state->dice_sides[i]);
                     }  
@@ -104,7 +93,7 @@ bool divinate_face_loop(movement_event_t event, movement_settings_t *settings, v
             _divinate_face_display(state);
             break;
         case EVENT_LIGHT_LONG_PRESS:
-            state->animate = true;
+            state->animate = false;
             switch (state->mode) {
                 case 0:
                     state->coin_style[0] = heads[0];
@@ -123,10 +112,9 @@ bool divinate_face_loop(movement_event_t event, movement_settings_t *settings, v
                     state->dd = 0;
                     break;
                 case 3:
-                    state->dd = (state->dd + 1) % 32;
+                    state->dd = (state->dd + 1) % 13;
                     state->dice_sides[state->dice_num-1] = dd[state->dd];
                     state->dice[state->dice_num-1] = dd[state->dd];
-                    _quick_ticks_running = true;
                     break;
                 default:
                     break;
@@ -154,16 +142,6 @@ bool divinate_face_loop(movement_event_t event, movement_settings_t *settings, v
             }
             _divinate_face_display(state);
             break;
-        case EVENT_ALARM_LONG_UP:
-            _abort_quick_ticks();
-            break;
-        case EVENT_LIGHT_LONG_UP:
-            _abort_quick_ticks();
-            break;
-        case EVENT_TIMEOUT:
-            _abort_quick_ticks();
-            movement_move_to_face(0);
-            break;
         default:
             return movement_default_loop_handler(event, settings);
     }
@@ -181,10 +159,10 @@ static void _divinate_face_display(divinate_state_t *state) {
     char token[7] = {0};
     switch ( state->mode ) {
         case 0: // coins title
-            sprintf(buf, "di  Coins");
+            sprintf(buf, "    Coins ");
             break;
         case 1: // coins divination
-            _display_animation(state);
+            _coin_animation(state);
             if ( !state->animate ) {
                 watch_clear_display();
                 _display_coins(token, state->coins, state->coin_num, state);
@@ -192,11 +170,14 @@ static void _divinate_face_display(divinate_state_t *state) {
             }
             break;
         case 2: // dice title
-            sprintf(buf, "di  Dice");
+            sprintf(buf, "    Dice ");
             break;
         case 3: // dice divination
-            _roll_dice_multiple(token, state->dice, state->dice_num + 1);
-            sprintf(buf, "    %s", token);
+            _dice_animation(state);
+            if ( !state->animate ) {
+                _roll_dice_multiple(token, state->dice, state->dice_num + 1);
+                sprintf(buf, "    %s", token);
+            }
             break;
         default:
             break;
@@ -326,13 +307,79 @@ void _display_coins(char* token, bool* bit_array, uint8_t length, divinate_state
     _sort_coins(token, length, bits, state->coin_style[0], state->coin_style[1]);
 }
 
-static void _abort_quick_ticks() {
-    if (_quick_ticks_running) {
-        _quick_ticks_running = false;
+static void _dice_animation(divinate_state_t *state) {
+    watch_display_string("      ", 4);
+    for (uint8_t i = 0; i < state->dice_num; i++) {
+        watch_display_string("0",i*2 + 5);
+    }
+    movement_request_tick_frequency(16);
+    switch ( state->animation ) {
+        case 0:
+            watch_clear_pixel(1, 17);
+            watch_clear_pixel(0, 0);
+            watch_clear_pixel(1, 6);
+            break;
+        case 1:
+            watch_clear_pixel(2, 20);
+            watch_clear_pixel(1, 0);
+            watch_clear_pixel(0, 6);
+            break;
+        case 2:
+            watch_clear_pixel(2, 21);
+            watch_clear_pixel(2, 0);
+            watch_clear_pixel(0, 5);
+            break;
+        case 3:
+            watch_clear_pixel(1, 21);
+            watch_clear_pixel(2, 1);
+            watch_clear_pixel(1, 4);
+            break;
+        case 4:
+            watch_clear_pixel(0, 21);
+            watch_clear_pixel(2, 10);
+            watch_clear_pixel(2, 4);
+            break;
+        case 5:
+            watch_clear_pixel(0, 20);
+            watch_clear_pixel(0, 1);
+            watch_clear_pixel(2, 5);
+            break;
+        case 6:
+            watch_clear_pixel(1, 17);
+            watch_clear_pixel(0, 0);
+            watch_clear_pixel(1, 6);
+            break;
+        case 7:
+            watch_clear_pixel(2, 20);
+            watch_clear_pixel(1, 0);
+            watch_clear_pixel(0, 6);
+            break;
+        case 8:
+            watch_clear_pixel(2, 21);
+            watch_clear_pixel(2, 0);
+            watch_clear_pixel(0, 5);
+            break;
+        case 9:
+            watch_clear_pixel(1, 21);
+            watch_clear_pixel(2, 1);
+            watch_clear_pixel(1, 4);
+            break;
+        case 10:
+            watch_clear_pixel(0, 21);
+            watch_clear_pixel(2, 10);
+            watch_clear_pixel(2, 4);
+            break;
+        case 11:
+            watch_clear_pixel(0, 20);
+            watch_clear_pixel(0, 1);
+            watch_clear_pixel(2, 5);
+            state->animate = false;
+            state->animation = 0;
+            movement_request_tick_frequency(1);
     }
 }
 
-static void _display_animation(divinate_state_t *state) {
+static void _coin_animation(divinate_state_t *state) {
     bool heads = false;
     bool tails = false;
     for (uint8_t i = 0; i < state->coin_num; i++) {
@@ -708,8 +755,6 @@ static void _display_animation(divinate_state_t *state) {
                 watch_set_pixel(1, 6);
                 watch_set_pixel(2, 5);
             }
-            break;
-        default:
             state->animate = false;
             state->animation = 0;
             movement_request_tick_frequency(1);
