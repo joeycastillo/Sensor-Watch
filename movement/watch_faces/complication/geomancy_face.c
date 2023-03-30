@@ -55,6 +55,7 @@ static uint8_t _iching_form_hexagram();
 static void _geomancy_display(nibble_t code);
 static void _display_hexagram(uint8_t hexagram, char* str);
 static void _fix_broken_line(uint8_t hexagram);
+static void _throw_animation(geomancy_state_t *state);
 
 void geomancy_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
@@ -74,7 +75,15 @@ bool geomancy_face_loop(movement_event_t event, movement_settings_t *settings, v
 
     switch (event.event_type) {
         case EVENT_ACTIVATE:
+            state->animate = false;
+            state->animation = 0;
             watch_display_string("gm  IChing", 0);
+            break;
+        case EVENT_TICK:
+            if ( state->animate ) {
+                state->animation = (state->animation + 1) % 39;
+                geomancy_face_display(state);
+            }
             break;
         case EVENT_LIGHT_BUTTON_DOWN:
             break;
@@ -88,11 +97,13 @@ bool geomancy_face_loop(movement_event_t event, movement_settings_t *settings, v
                 case 0:
                     state->mode++;
                 case 1:
+                    state->animate = true;
                     state->i_ching_hexagram = _iching_form_hexagram();
                     break;
                 case 2:
                     state->mode++;
                 case 3:
+                    state->animate = true;
                     state->geomantic_figure = _geomancy_pick_figure().bits;
                     break;
                 default:
@@ -101,11 +112,9 @@ bool geomancy_face_loop(movement_event_t event, movement_settings_t *settings, v
             geomancy_face_display(state);
             break;
         case EVENT_ALARM_LONG_PRESS:
+            state->animate = false;
             state->caption = !state->caption;
             geomancy_face_display(state);
-            break;
-        case EVENT_TIMEOUT:
-            movement_move_to_face(0);
             break;
         default:
             return movement_default_loop_handler(event, settings);
@@ -121,29 +130,35 @@ void geomancy_face_resign(movement_settings_t *settings, void *context) {
 static void geomancy_face_display(geomancy_state_t *state) {
     char token[7] = {0};
     nibble_t figure = *((nibble_t*) &state->geomantic_figure);
-    watch_clear_display();
     switch ( state->mode ) {
         case 0:
-            watch_display_string("gm  IChing", 0);
+            watch_display_string("    IChing", 0);
             break;
         case 1:
-            _display_hexagram(state->i_ching_hexagram, token);
-            watch_display_string(token, 4);
-            _fix_broken_line(state->i_ching_hexagram);
-            if (state->caption) {
-                sprintf(token, "%2d", wen_order[state->i_ching_hexagram] + 1);
-                watch_display_string(token, 2);
+            printf("ani: %d\n", state->animation);
+            _throw_animation(state);
+            if ( !state->animate ) {
+                _display_hexagram(state->i_ching_hexagram, token);
+                watch_display_string(token, 4);
+                _fix_broken_line(state->i_ching_hexagram);
+                if (state->caption) {
+                    sprintf(token, "%2d", wen_order[state->i_ching_hexagram] + 1);
+                    watch_display_string(token, 2);
+                }
             }
             break;
         case 2:
-            watch_display_string("gm  GeomCy", 0);
+            watch_display_string("    GeomCy", 0);
             break;
         case 3:
-            if ( state->caption ) {
-                sprintf(token, "%c%c", figures[state->geomantic_figure][0], figures[state->geomantic_figure][1]);
-                watch_display_string(token, 0);
+            _throw_animation(state);
+            if ( !state->animate ) {
+                if ( state->caption ) {
+                    sprintf(token, "%c%c", figures[state->geomantic_figure][0], figures[state->geomantic_figure][1]);
+                    watch_display_string(token, 0);
+                }
+                _geomancy_display(figure);
             }
-            _geomancy_display(figure);
             break;
         default:
             break;
@@ -159,7 +174,6 @@ static nibble_t _geomancy_pick_figure() {
 static tribble_t _iching_pick_trigram() {
     uint8_t index = (divine_bit() << 2) | (divine_bit() << 1) | divine_bit();
     tribble_t trigram = {(bagua >> (3 * index)) & 0b111};
-    printf("trigram: %d\n", trigram.bits);
     return trigram;
 }
 
@@ -202,5 +216,89 @@ static void _fix_broken_line(uint8_t hexagram) {
             if ( i == 4 ) watch_set_pixel(2, 2);
             if ( i == 5 ) watch_set_pixel(2, 4);
         }
+    }
+}
+
+static void _throw_animation(geomancy_state_t *state) {
+    movement_request_tick_frequency(16);
+    switch ( state->animation ) {
+        case 0:
+            watch_clear_display();
+            watch_set_pixel(0, 22);
+            break;
+        case 1:
+            watch_set_pixel(2, 22);
+            watch_set_pixel(2, 23);
+            watch_clear_pixel(0, 22);
+            break;
+        case 2:
+            watch_set_pixel(1, 22);
+            watch_set_pixel(0, 23);
+            break;
+        case 3:
+            watch_set_pixel(2, 0);
+            watch_set_pixel(1, 0);
+            watch_set_pixel(2, 21);
+            watch_set_pixel(1, 21);
+            watch_clear_pixel(2, 22);
+            watch_clear_pixel(1, 22);
+            watch_clear_pixel(2, 23);
+            watch_clear_pixel(0, 23);
+            break;
+        case 4:
+            watch_set_pixel(1, 17);
+            watch_set_pixel(0, 20);
+            watch_set_pixel(2, 10);
+            watch_set_pixel(0, 1);
+            break;
+        case 5:
+            watch_clear_pixel(2, 21);
+            watch_clear_pixel(1, 21);
+            watch_clear_pixel(2, 0);
+            watch_clear_pixel(1, 0);
+            watch_set_pixel(2, 19);
+            watch_set_pixel(0, 19);
+            watch_set_pixel(1, 2);
+            watch_set_pixel(0, 2);
+            break;
+        case 6:
+            watch_clear_pixel(1, 17);
+            watch_clear_pixel(0, 20);
+            watch_clear_pixel(2, 10);
+            watch_clear_pixel(0, 1);
+            watch_set_pixel(2, 18);
+            watch_set_pixel(0, 18);
+            watch_set_pixel(2, 3);
+            watch_set_pixel(0, 4);
+            break;
+        case 7:
+            watch_clear_pixel(2, 19);
+            watch_clear_pixel(0, 19);
+            watch_clear_pixel(1, 2);
+            watch_clear_pixel(0, 2);
+            watch_set_pixel(1, 4);
+            watch_set_pixel(0, 5);
+            break;
+        case 8:
+            watch_clear_pixel(2, 18);
+            watch_clear_pixel(0, 18);
+            watch_clear_pixel(2, 3);
+            watch_clear_pixel(0, 4);
+            watch_set_pixel(2, 5);
+            watch_set_pixel(1, 6);
+            break;
+        case 9:
+            watch_clear_pixel(1, 4);
+            watch_clear_pixel(0, 5);
+            break;
+        case 10:
+            watch_clear_pixel(2, 5);
+            watch_clear_pixel(1, 6);
+            break;
+        case 11:
+            state->animate = false;
+            state->animation = 0;
+            movement_request_tick_frequency(1);
+            break;
     }
 }
