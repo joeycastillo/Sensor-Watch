@@ -1,90 +1,79 @@
-# The Sensor Watch
+The Sensor Watch
+================
 
-### Settings watch-face for location coordinate management
+The [Sensor Watch](https://www.sensorwatch.net) is a board replacement for the classic Casio F-91W wristwatch. It is powered by a Microchip SAM L22 microcontroller with built-in segment LCD controller. You can write your own programs for the watch using the provided watch library, program the watch over USB using the built-in UF2 bootloader, and then install the board in your existing watch case to run your own software on your wrist.
 
-fork of [Sensor Watch](https://github.com/joeycastillo/Sensor-Watch/)
+![image](/images/sensor-watch.jpg)
+
+Features:
+* ARM Cortex M0+ microcontroller
+* 32KHz crystal for real-time clock with alarm function
+* Ten digit segment LCD, plus five indicator segments
+* Three interrupt capable buttons
+* Red / green PWM’able LED backlight
+* Optional piezo buzzer (requires some light soldering)
+* On-board USB Micro B connector
+* Reset button with double-tap UF2 bootloader
+* Nine-pin flex PCB connector
+
+![image](/images/sensor-board.png)
+
+You may have noticed that there are no sensors on this board. That is by design: rather than pick sensors for you, the goal is to add a tiny flexible PCB with the sensors YOU want, and interface them over the nine-pin connector. The connector provides the following options for power and connectivity:
+
+* 3V power (nominal voltage from a CR2016 coin cell, can drop to ~2.7V)
+* An I²C interface with built-in pull-up resistors
+* Five general purpose IO pins, which can be configured as:
+    * Five analog inputs
+    * Five interrupt-capable digital inputs, with internal pull-up or pull-down resistors
+    * Five digital outputs
+    * SPI controller (with one spare analog / GPIO pin leftover)
+    * One UART TX/RX pair (with three GPIO leftover)
+    * Up to four PWM pins on two independent TC instances
+    * Two external wake inputs that can wake from the ultra-low-power BACKUP mode
+
+| **Pin** | **Digital** | **Interrupt**   | **Analog**    | **I2C**             | **SPI**              | **UART**                 | **PWM**  | **Ext. Wake** |
+| :-----: | :---------: | :-------------: | :-----------: | :-----------------: | :------------------: | :----------------------: | :------: | :-----------: |
+| **A0**  | PB04        | EIC/EXTINT\[4\] | ADC/AIN\[12\] | —                   | —                    | —                        | —        | —             |
+| **SCL** | —           | —               | —             | SCL<br>SERCOM1\[1\] | —                    | —                        | —        | —             |
+| **SDA** | —           | —               | —             | SDA<br>SERCOM1\[0\] | —                    | —                        | —        | —             |
+| **A1**  | PB01        | EIC/EXTINT\[1\] | ADC/AIN\[9\]  | —                   | SCK<br>SERCOM3\[3\]  | RX<br>SERCOM3\[3\]       | TC3\[1\] | —             |
+| **A2**  | PB02        | EIC/EXTINT\[2\] | ADC/AIN\[10\] | —                   | MOSI<br>SERCOM3\[0\] | TX or RX<br>SERCOM3\[0\] | TC2\[0\] | RTC/IN\[1\]   |
+| **A3**  | PB03        | EIC/EXTINT\[3\] | ADC/AIN\[11\] | —                   | CS<br>SERCOM3\[1\]   | RX<br>SERCOM3\[1\]       | TC2\[1\] | —             |
+| **A4**  | PB00        | EIC/EXTINT\[0\] | ADC/AIN\[8\]  | —                   | MISO<br>SERCOM3\[2\] | TX or RX<br>SERCOM3\[2\] | TC3\[0\] | RTC/IN\[0\]   |
+
+These tiny “sensor boards” have a set outline, and the available area for your electronics is quite small (5.7 × 5.7 × 1 mm). Still, this is plenty of room for an environmental sensor, MEMS accelerometer or magnetometer and a couple of decoupling capacitors. Note that you will likely be limited to QFN and LGA type parts; SOICs are too large, and even SSOP packages are generally too thick. You can find reference designs for several sensor boards in the `PCB/Sensor Boards` directory within this repository.
+
+Getting code on the watch
+-------------------------
+The watch library in this repository is very work-in-progress, but it should allow you to get started. To create a new project, copy the “starter-project” folder in the apps folder, and write your code in the app.c file.
+
+You will need to install [the GNU Arm Embedded Toolchain](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads/) to build projects for the watch. The watch library has been tested with the `9-2019-q4-major` version and the `10.3-2021.07` versions. If you're using Debian or Ubuntu, it should be sufficient to `apt install gcc-arm-none-eabi`.
+
+To build your project, open your terminal and navigate to the project's `make` folder, then type `make`.
+
+To install the project onto your Sensor Watch board, plug the watch into your USB port and double tap the tiny Reset button on the back of the board. You should see the LED light up red and begin pulsing. (If it does not, make sure you didn’t plug the board in upside down). Once you see the “WATCHBOOT” drive appear on your desktop, type `make install`. This will convert your compiled program to a UF2 file, and copy it over to the watch.
+
+Using the Movement framework
+----------------------------
+If you just want to make minor modifications and use existing code, start with the `movement` directory. You can build the default watch firmware with:
 
 ```
-/*
- * PLACE FACE
- * ==========
- *
- * Based on and expanded from the Sunrise/Sunset face. Outsourced the location setting functionality to 
- * its own face. Also serves as a converter between different coordinate notation formats.
- * 
- * With the LIGHT button each place coordinate can be shown and edited in 4 different display modes:
- * 
- * 1) Decimal Latitude and Longitude (WGS84) up to 5 decimal points
- * 2) Latitude and Longitude (WGS84) in traditional DD°MM'SS" notation
- * 3) Ten digit Open Location Code (aka. PlusCode) format
- * 4) Ten digit Geohash format
- * 
- * Using the ALARM button the user can flip through 2 pages of coordinate info to see the first and
- * second sets of digits.
- * 
- * (please also refer to the notes on precision below)
- *
- * Editing Mode
- * ============
- * 
- * A LONG PRESS of the LIGHT button toggles editing mode for each of the selected notations.
- * 
- * In this mode LIGHT moves the cursor and ALARM changes the letter cycling through the available
- * alphabet or numbers. 
- * 
- * When OLC or Geohash display are edited, Digit Info mode is activated. It serves as a workaround 
- * for the limitation of how ambiguously alphanumeric characters are displayed on the main seven segment 
- * digits of the watch face ( S or 5, I or 1, U or W?).
- * 
- * The selected letter is also shown in the much easier to read alphanumeric 8 segment weekday digit above.
- * In addition the '24H' indicator is active when the selected digit represents a number and the 'PM' 
- * indicator for a letter. 
- * 
- * A LONG PRESS of LIGHT saves the changes, a LONG PRESS of ALARM discards them.
- * 
- * Coordinates are read or stored to both the traditional internal location register and a file on 
- * the LFS file system ("place.loc"). By default the Watch Face loads the coordinates from file
- * when activated. If no file is present, the coordinates are loaded from the register.
- * (please also see the notes on precision below)
- * 
- * Auxiliary Mode: Digit Info
- * ==========================
- * 
- * A LONG PRESS of the ALARM button toggles Digit Info mode when OLC or Geohash display is active.
- * (LAP indicator is on) It is a means of being able to see the detailed Digit Info as described above
- * but without the risk of accidentally editing any of digits.
- * 
- * Both ALARM and LIGHT buttons can be used to flip through the letters.
- * 
- * Notes on Coordinate Precision
- * =============================
- * 
- * The common WGS84 Latitude and Longitude degrees naturally do not represent meters in distance 
- * on the ground. 1° Longitude on the equatorial line equals a width of 111.32 kilometers, but 
- * at 40° latitude further North or South it is approximately 85 kilometers wide. The closer to 
- * the poles the narrower (and more precise) the latitude degrees get.
- * 
- * The Sensor Watch's traditional 16bit location register only stores latitudes and longitudes 
- * with two decimal points. That equals a longitudal precision of 36 arc seconds, or ~1111 meters
- * at the equator - precise enough for astronomical calculations, but not if you want to store the 
- * location of let's say a building.
- * 
- * Hence we propose the <place.loc> file that serves the same purpose, but with a precision of 
- * five decimal digits. That equals 0.04 arc seconds or 1.11 meters at the equator.
- * 
- * Please also note that the different notations of this watch face also have varying magnitudes 
- * of precision:
- * 
- * | Format             | Notation               | Precision at Equator | Precision at 67° N/S |
- * | ------------------ | ---------------------- | -------------------- | -------------------- |
- * | 2d. Decimal LatLon | 29.98, 31.13           |           1111.320 m |            435.125 m |
- * | 5d. Decimal LatLon | 29.97916, 31.13417     |              1.111 m |              0.435 m |
- * | DMS LatLon         | N 29°58′45″, E 31°8′3″ |             30.833 m |             12.083 m |
- * | Open Location Code | 7GXHX4HM+MM            |             13.875 m |             13.875 m |
- * | Geohash            | stq4s3x1qu             |              1.189 m |              0.596 m |
- * 
- * Since all notations are internally converted into degrees with 5 decimal points, expect some
- * rounding errors when editing or loading the coordinates in other notation formats.
- * 
- */
- ```
+cd movement/make
+make
+```
+
+Then copy `movement/make/build/watch.uf2` to your watch. If you'd like to modify which faces are built, see `movement_config.h`.
+
+You may want to test out changes in the emulator first. To do this, you'll need to install [emscripten](https://emscripten.org/), then run:
+
+```
+cd movement/make
+emmake make
+python3 -m http.server -d build-sim
+```
+
+Finally, visit [watch.html](http://localhost:8000/watch.html) to see your work.
+
+License
+-------
+Different components of the project are licensed differently, see [LICENSE.md](https://github.com/joeycastillo/Sensor-Watch/blob/main/LICENSE.md).
