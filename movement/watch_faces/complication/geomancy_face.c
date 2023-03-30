@@ -91,7 +91,7 @@ bool geomancy_face_loop(movement_event_t event, movement_settings_t *settings, v
         case EVENT_ACTIVATE:
             state->animate = false;
             state->animation = 0;
-            watch_display_string("gm  IChing", 0);
+            watch_display_string("    IChing", 0);
             break;
         case EVENT_TICK:
             if ( state->animate ) {
@@ -102,11 +102,13 @@ bool geomancy_face_loop(movement_event_t event, movement_settings_t *settings, v
         case EVENT_LIGHT_BUTTON_DOWN:
             break;
         case EVENT_LIGHT_BUTTON_UP:
+            if ( state->animate ) break;
             if ( state->mode <= 1 ) state->mode = 2;
             else if ( state->mode >= 2 ) state->mode = 0;
             geomancy_face_display(state);
             break;
         case EVENT_ALARM_BUTTON_UP:
+            if ( state->animate ) break;
             switch ( state->mode ) {
                 case 0:
                     state->mode++;
@@ -126,8 +128,9 @@ bool geomancy_face_loop(movement_event_t event, movement_settings_t *settings, v
             geomancy_face_display(state);
             break;
         case EVENT_ALARM_LONG_PRESS:
-            state->animate = false;
+            if ( state->animate ) break;
             state->caption = !state->caption;
+            watch_display_string("    ", 0);
             geomancy_face_display(state);
             break;
         default:
@@ -186,7 +189,6 @@ static void _throw_animation(geomancy_state_t *state) {
     movement_request_tick_frequency(16);
     switch ( state->animation ) {
         case 0:
-            //watch_clear_display();
             watch_set_pixel(0, 22);
             break;
         case 1:
