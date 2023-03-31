@@ -122,11 +122,9 @@ bool randonaut_face_loop(movement_event_t event, movement_settings_t *settings, 
         case EVENT_ALARM_BUTTON_UP:
             switch ( state->face.mode ) {
                 case 0: //home
-                    movement_request_tick_frequency(40);
                     state->face.mode = 1; // generate
                     break;
                 case 2: // point
-                    movement_request_tick_frequency(1);
                     state->face.location_format = (( state->face.location_format + 1) % (7));
                     if ( state->face.location_format == 0 ) 
                         state->face.location_format++;
