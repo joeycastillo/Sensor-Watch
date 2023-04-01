@@ -154,7 +154,6 @@ static void start_timer(dual_timer_state_t *state, bool timer) {
     // if it is not running yet, run it
     if ( !_is_running ) {
         _is_running = true;
-        state->remain = true;
         movement_request_tick_frequency(16);
         state->start_ticks[timer] = 0;
         state->stop_ticks[timer] = 0;
@@ -266,7 +265,11 @@ bool dual_timer_face_loop(movement_event_t event, movement_settings_t *settings,
                 if ( state->running[0] )
                     state->show = 0;
                 else state->show = 1;
-            } else watch_display_string(state, 0);
+            } else {
+                if (state->stop_ticks[0] > 0 || state->stop_ticks[1] > 0)
+                    dual_timer_display(state);
+                else watch_display_string("A   000000", 0);
+            }
             break;
         case EVENT_TICK:
             if ( _is_running ) {
@@ -302,19 +305,11 @@ bool dual_timer_face_loop(movement_event_t event, movement_settings_t *settings,
             dual_timer_display(state);
             break;
         case EVENT_MODE_BUTTON_UP:
-            // prevent watch from going to the next face when a timer is running
-            // if no timers are running fall back to default functionality
-            if ( !_is_running && !state->remain ) movement_move_to_next_face();
+            // don't switch to next face...
             break;
         case EVENT_MODE_LONG_PRESS:
-            // but do it on long press MODE!
-            // if no timers are running fall back to default functionality
-            if ( state->remain ) {
-                movement_move_to_next_face();
-                if ( !_is_running )
-                    state->remain = false;
-            }
-            else movement_move_to_face(0);
+            // ...but do it on long press MODE!
+            movement_move_to_next_face();
             break;
         case EVENT_TIMEOUT:
             // go back to 
