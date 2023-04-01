@@ -73,38 +73,38 @@ static inline void _dual_timer_cb_start() {
 #else
 
 static inline void _dual_timer_cb_start() {
-    // start the TC2 timer
-    hri_tc_set_CTRLA_ENABLE_bit(TC2);
+    // start the TC3 timer
+    hri_tc_set_CTRLA_ENABLE_bit(TC3);
     _is_running = true;
 }
 
 static inline void _dual_timer_cb_stop() {
-    // stop the TC2 timer
-    hri_tc_clear_CTRLA_ENABLE_bit(TC2);
+    // stop the TC3 timer
+    hri_tc_clear_CTRLA_ENABLE_bit(TC3);
     _is_running = false;
 }
 
 static void _dual_timer_cb_initialize() {
-    // setup and initialize TC2 for a 64 Hz interrupt
-    hri_mclk_set_APBCMASK_TC2_bit(MCLK);
-    hri_gclk_write_PCHCTRL_reg(GCLK, TC2_GCLK_ID, GCLK_PCHCTRL_GEN_GCLK3 | GCLK_PCHCTRL_CHEN);
+    // setup and initialize TC3 for a 64 Hz interrupt
+    hri_mclk_set_APBCMASK_TC3_bit(MCLK);
+    hri_gclk_write_PCHCTRL_reg(GCLK, TC3_GCLK_ID, GCLK_PCHCTRL_GEN_GCLK3 | GCLK_PCHCTRL_CHEN);
     _dual_timer_cb_stop();
-    hri_tc_write_CTRLA_reg(TC2, TC_CTRLA_SWRST);
-    hri_tc_wait_for_sync(TC2, TC_SYNCBUSY_SWRST);
-    hri_tc_write_CTRLA_reg(TC2, TC_CTRLA_PRESCALER_DIV64 | // 32 Khz divided by 64 divided by 4 results in a 128 Hz interrupt
+    hri_tc_write_CTRLA_reg(TC3, TC_CTRLA_SWRST);
+    hri_tc_wait_for_sync(TC3, TC_SYNCBUSY_SWRST);
+    hri_tc_write_CTRLA_reg(TC3, TC_CTRLA_PRESCALER_DIV64 | // 32 Khz divided by 64 divided by 4 results in a 128 Hz interrupt
                            TC_CTRLA_MODE_COUNT8 | 
                            TC_CTRLA_RUNSTDBY);
-    hri_tccount8_write_PER_reg(TC2, 3);
-    hri_tc_set_INTEN_OVF_bit(TC2);
-    NVIC_ClearPendingIRQ(TC2_IRQn);
-    NVIC_EnableIRQ (TC2_IRQn);
+    hri_tccount8_write_PER_reg(TC3, 3);
+    hri_tc_set_INTEN_OVF_bit(TC3);
+    NVIC_ClearPendingIRQ(TC3_IRQn);
+    NVIC_EnableIRQ (TC3_IRQn);
 }
 
-/* void TC2_Handler(void) {
-    // interrupt handler for TC2 (globally!)
+void TC3_Handler(void) {
+    // interrupt handler for TC3 (globally!)
     _ticks++;
-    TC2->COUNT8.INTFLAG.reg |= TC_INTFLAG_OVF;
-} */
+    TC3->COUNT8.INTFLAG.reg |= TC_INTFLAG_OVF;
+}
 
 #endif
 
