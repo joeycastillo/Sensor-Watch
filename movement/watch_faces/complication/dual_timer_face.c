@@ -266,7 +266,7 @@ bool dual_timer_face_loop(movement_event_t event, movement_settings_t *settings,
                 if ( state->running[0] )
                     state->show = 0;
                 else state->show = 1;
-            } else watch_display_string("A   000000", 0);
+            } else watch_display_string(state, 0);
             break;
         case EVENT_TICK:
             if ( _is_running ) {
