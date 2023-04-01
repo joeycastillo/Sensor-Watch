@@ -87,6 +87,8 @@
 #include "randonaut_face.h"
 #include "place_face.h"
 #include "places_face.h"
+#include "planetary_time_face.h"
+#include "planetary_hours_face.h"
 // New includes go above this line.
 
 #endif // MOVEMENT_FACES_H_
