@@ -26,10 +26,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include "dual_timer_face.h"
-#include "stock_stopwatch_face.h"
 #include "watch.h"
 #include "watch_utility.h"
 #include "watch_rtc.h"
+
+/*
+ * IMPORTANT: This watch face uses the same TC2 callback counter as the Stock Stopwatch
+ * watch-face. It works through calling a global handler function. The two watch-faces
+ * therefore can't coexist within the same firmware. If you want to compile this watch-face
+ * then you need to remove the line <../watch_faces/complication/stock_stopwatch_face.c \>
+ * from the Makefile.
+ */
 
 // FROM stock_stopwatch_face.c ////////////////////////////////////////////////
 // Copyright (c) 2022 Andreas Nebinger
