@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "dual_timer_face.h"
+#include "stock_stopwatch_face.h"
 #include "watch.h"
 #include "watch_utility.h"
 #include "watch_rtc.h"
@@ -99,11 +100,11 @@ static void _dual_timer_cb_initialize() {
     NVIC_EnableIRQ (TC2_IRQn);
 }
 
-void TC2_Handler(void) {
+/* void TC2_Handler(void) {
     // interrupt handler for TC2 (globally!)
     _ticks++;
     TC2->COUNT8.INTFLAG.reg |= TC_INTFLAG_OVF;
-}
+} */
 
 #endif
 
@@ -218,6 +219,7 @@ static void dual_timer_display(dual_timer_state_t *state) {
 
 void dual_timer_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
+    (void) watch_face_index;
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(dual_timer_state_t));
         memset(*context_ptr, 0, sizeof(dual_timer_state_t));
