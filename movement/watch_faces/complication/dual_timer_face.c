@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Tobias Raayoni Last
+ * Copyright (c) 2023 Tobias Raayoni Last / @randogoth
  * Copyright (c) 2022 Andreas Nebinger
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -107,12 +107,16 @@ void TC2_Handler(void) {
 
 #endif
 
-///////////////////////////////////////////////////////////////////////////////
+// STATIC FUNCTIONS ///////////////////////////////////////////////////////////
 
+/** @brief converts tick counts to duration struct for time display 
+ */
 static dual_timer_duration_t ticks_to_duration(uint32_t ticks) {
     dual_timer_duration_t duration;
-    uint8_t hours, days;
+    uint8_t hours = 0;
+    uint8_t days = 0;
 
+    // count hours and days
     while (ticks >= (128 * 60 * 60)) {
         ticks -= (128 * 60 * 60);
         hours++;
@@ -122,6 +126,7 @@ static dual_timer_duration_t ticks_to_duration(uint32_t ticks) {
         }
     }
 
+    // convert minutes, seconds, centiseconds
     duration.centiseconds = (ticks & 0x7F) * 100 / 128;
     duration.seconds = (ticks >> 7) % 60;
     duration.minutes = (ticks >> 7) / 60;
@@ -131,6 +136,10 @@ static dual_timer_duration_t ticks_to_duration(uint32_t ticks) {
     return duration;
 }
 
+/** @brief starts one of the dual timers
+ *  @details Starts a dual timer. If no previous timer is running it starts the global
+ *  tick counter. If a previous timer is already running it registers the current tick. 
+ */
 static void start_timer(dual_timer_state_t *state, bool timer) {
     // if it is not running yet, run it
     if ( !_is_running ) {
@@ -138,6 +147,7 @@ static void start_timer(dual_timer_state_t *state, bool timer) {
         movement_request_tick_frequency(16);
         state->start_ticks[timer] = 0;
         state->stop_ticks[timer] = 0;
+        _ticks = 0;
         _dual_timer_cb_start();
         movement_schedule_background_task(distant_future);
     } else {
@@ -148,39 +158,63 @@ static void start_timer(dual_timer_state_t *state, bool timer) {
     state->running[timer] = true;
 }
 
+/** @brief stops one of the dual timers
+ *  @details Stops a dual timer. If no other timer is running it stops the global
+ *  tick counter. If another timer is already running it registers the current stop tick. 
+ */
 static void stop_timer(dual_timer_state_t *state, bool timer) {
     // stop timer and save duration
     state->stop_ticks[timer] = _ticks;
+    state->duration[timer] = ticks_to_duration(state->stop_ticks[timer] - state->start_ticks[timer]);
     state->running[timer] = false;
     // if the other timer is not running, stop callback
     if ( state->running[!timer] == false ) {
         _is_running = false;
         _dual_timer_cb_stop();
-        _ticks = 0;
         movement_request_tick_frequency(1);
         movement_cancel_background_task();
     }
 }
 
-void dual_timer_display(dual_timer_state_t *state) {
+/** @brief displays the measured time for each of the dual timers
+ *  @details displays the dual timer. Below 1 hour it displays the timed minutes, seconds,
+ *  and centiseconds. Above that it shows the timed hours, minutes, and seconds. If it 
+ *  has run for more than a day it shows the days, hours, and minutes.
+ *  When the timer is running, the colon blinks every half second.
+ *  It also indicates at the top if another counter is running and for how long.
+ */
+static void dual_timer_display(dual_timer_state_t *state) {
     char buf[11];
     char oi[3];
-    dual_timer_duration_t timer = ticks_to_duration(state->stop_ticks[state->show] - state->start_ticks[state->show]);
+    // get the current time count of the selected counter
+    dual_timer_duration_t timer = state->running[state->show] ? ticks_to_duration(state->stop_ticks[state->show] - state->start_ticks[state->show]) : state->duration[state->show];
+    // get the current time count of the other counter
     dual_timer_duration_t other = ticks_to_duration(state->stop_ticks[!state->show] - state->start_ticks[!state->show]);
+    
     if ( timer.days > 0 )
-        sprintf(buf, "%02lu%02lu%02u", timer.days, timer.hours, timer.minutes);
+        sprintf(buf, "%02u%02u%02u", timer.days, timer.hours, timer.minutes);
     else if ( timer.hours > 0 )
-        sprintf(buf, "%02lu%02lu%02u", timer.hours, timer.minutes, timer.seconds);
+        sprintf(buf, "%02u%02u%02u", timer.hours, timer.minutes, timer.seconds);
     else
-        sprintf(buf, "%02lu%02lu%02u", timer.minutes, timer.seconds, timer.centiseconds);
+        sprintf(buf, "%02u%02u%02u", timer.minutes, timer.seconds, timer.centiseconds);
     watch_display_string(buf, 4);
+    
+    // which counter is displayed
     watch_display_string(state->show ? "B" : "A", 0);
+    
+    // indicate whether other counter is running
     watch_display_string(state->running[!state->show] && (_ticks % 100) < 50 ? "+" : " ", 1);
-    sprintf(oi, "%2d", other.days > 0 ? other.days : (other.hours > 0 ? other.hours : (other.minutes > 0 ? other.minutes : (other.seconds > 0 ? other.seconds : other.centiseconds))));
-    watch_display_string( other.centiseconds > 0 ? oi : " ", 2);
+    
+    // indicate for how long the other counter has been running
+    sprintf(oi, "%2u", other.days > 0 ? other.days : (other.hours > 0 ? other.hours : (other.minutes > 0 ? other.minutes : (other.seconds > 0 ? other.seconds : other.centiseconds))));
+    watch_display_string( (state->stop_ticks[!state->show] - state->start_ticks[!state->show]) > 0 ? oi : "  ", 2);
+    
+    // blink colon when running
     if ( timer.centiseconds > 50 || !state->running[state->show] ) watch_set_colon();
     else watch_clear_colon();
 }
+
+// PUBLIC WATCH FACE FUNCTIONS ////////////////////////////////////////////////
 
 void dual_timer_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
@@ -196,7 +230,7 @@ void dual_timer_face_setup(movement_settings_t *settings, uint8_t watch_face_ind
 
 void dual_timer_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
-    dual_timer_state_t *state = (dual_timer_state_t *)context;
+    (void) context;
     if (_is_running) {
         movement_schedule_background_task(distant_future);
     }
@@ -220,6 +254,7 @@ bool dual_timer_face_loop(movement_event_t event, movement_settings_t *settings,
             break;
         case EVENT_TICK:
             if ( _is_running ) {
+                // update stop ticks
                 if ( state->running[0] )
                     state->stop_ticks[0] = _ticks;
                 if ( state->running[1] )
@@ -228,6 +263,7 @@ bool dual_timer_face_loop(movement_event_t event, movement_settings_t *settings,
             }
             break;
         case EVENT_LIGHT_BUTTON_DOWN:
+            // start/stop timer B
             state->running[1] = !state->running[1];
             if ( state->running[1] ) {
                 start_timer(state, 1);
@@ -236,6 +272,7 @@ bool dual_timer_face_loop(movement_event_t event, movement_settings_t *settings,
             }
             break;
         case EVENT_ALARM_BUTTON_DOWN:
+            // start/stop timer A
             state->running[0] = !state->running[0];
             if ( state->running[0] ) {
                 start_timer(state, 0);
@@ -244,15 +281,23 @@ bool dual_timer_face_loop(movement_event_t event, movement_settings_t *settings,
             }
             break;
         case EVENT_MODE_BUTTON_DOWN:
+            // switch between the timers
             state->show = !state->show;
             dual_timer_display(state);
             break;
         case EVENT_MODE_BUTTON_UP:
+            // prevent watch from going to the next face when a timer is running
+            // if no timers are running fall back to default functionality
+            if ( !_is_running ) movement_move_to_next_face();
             break;
         case EVENT_MODE_LONG_PRESS:
-            movement_move_to_next_face();
+            // but do it on long press MODE!
+            // if no timers are running fall back to default functionality
+            if ( _is_running ) movement_move_to_next_face();
+            else movement_move_to_face(0);
             break;
         case EVENT_TIMEOUT:
+            // go back to 
             if (!_is_running) movement_move_to_face(0);
             break;
         case EVENT_LOW_ENERGY_UPDATE:
