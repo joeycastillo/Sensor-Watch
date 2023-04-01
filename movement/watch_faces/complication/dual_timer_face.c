@@ -26,10 +26,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include "dual_timer_face.h"
-#include "stock_stopwatch_face.h"
 #include "watch.h"
 #include "watch_utility.h"
 #include "watch_rtc.h"
+
+/*
+ * IMPORTANT: This watch face uses the same TC2 callback counter as the Stock Stopwatch
+ * watch-face. It works through calling a global handler function. The two watch-faces
+ * therefore can't coexist within the same firmware. If you want to compile this watch-face
+ * then you need to remove the line <../watch_faces/complication/stock_stopwatch_face.c \>
+ * from the Makefile.
+ */
 
 // FROM stock_stopwatch_face.c ////////////////////////////////////////////////
 // Copyright (c) 2022 Andreas Nebinger
@@ -258,7 +265,11 @@ bool dual_timer_face_loop(movement_event_t event, movement_settings_t *settings,
                 if ( state->running[0] )
                     state->show = 0;
                 else state->show = 1;
-            } else watch_display_string("A   000000", 0);
+            } else {
+                if (state->stop_ticks[0] > 0 || state->stop_ticks[1] > 0)
+                    dual_timer_display(state);
+                else watch_display_string("A   000000", 0);
+            }
             break;
         case EVENT_TICK:
             if ( _is_running ) {
@@ -294,15 +305,11 @@ bool dual_timer_face_loop(movement_event_t event, movement_settings_t *settings,
             dual_timer_display(state);
             break;
         case EVENT_MODE_BUTTON_UP:
-            // prevent watch from going to the next face when a timer is running
-            // if no timers are running fall back to default functionality
-            if ( !_is_running ) movement_move_to_next_face();
+            // don't switch to next face...
             break;
         case EVENT_MODE_LONG_PRESS:
-            // but do it on long press MODE!
-            // if no timers are running fall back to default functionality
-            if ( _is_running ) movement_move_to_next_face();
-            else movement_move_to_face(0);
+            // ...but do it on long press MODE!
+            movement_move_to_next_face();
             break;
         case EVENT_TIMEOUT:
             // go back to 

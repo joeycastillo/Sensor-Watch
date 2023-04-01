@@ -96,7 +96,7 @@ typedef struct {
     char scratchpad[10];
 } randonaut_state_t;
 
-void randonaut_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
+void randonaut_face_setup(movement_settings_t *settings, void ** context_ptr);
 void randonaut_face_activate(movement_settings_t *settings, void *context);
 bool randonaut_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void randonaut_face_resign(movement_settings_t *settings, void *context);
