@@ -53,8 +53,9 @@ static void (*___0xf322)(uint8_t,uint8_t) = &watch_set_pixel;
 
 // MOVEMENT WATCH FACE FUNCTIONS //////////////////////////////////////////////
 
-void randonaut_face_setup(movement_settings_t *settings, void ** context_ptr) {
+void randonaut_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
+    (void) watch_face_index;
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(randonaut_state_t));
         memset(*context_ptr, 0, sizeof(randonaut_state_t));
@@ -297,7 +298,7 @@ static void _randonaut_face_display(randonaut_state_t *state) {
                 sprintf(buf, "RA m%d ", state->radius);
             break;
         case 4: // setup RNG
-            sprintf(buf, "RN G %s ", state->chance ? "Chnce" : (state->quantum ? "True" : "Psudo") );
+            sprintf(buf, "RN G %s ", state->chance ? "Chnce" : (state->quantum ? "True" : "Psudo"), state->radius);
             break;
         case 5: // data processing
             sprintf(buf, "WR   File ");
