@@ -86,6 +86,7 @@ typedef struct {
     dual_timer_duration_t duration[2];
     bool running[2];
     bool show;
+    bool remain;
 } dual_timer_state_t;
 
 void dual_timer_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
