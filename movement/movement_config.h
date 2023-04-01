@@ -31,6 +31,7 @@ const watch_face_t watch_faces[] = {
     simple_clock_face,
     //world_clock_face,
     dual_timer_face,
+    stock_stopwatch_face,
     //moon_phase_face,
     //stopwatch_face,
     //preferences_face,

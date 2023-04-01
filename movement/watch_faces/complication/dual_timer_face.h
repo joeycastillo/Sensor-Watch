@@ -39,16 +39,14 @@ typedef struct {
     uint8_t seconds : 6;  // 0-59
     uint8_t minutes : 6;  // 0-59
     uint8_t hours : 5;    // 0-23
-    uint32_t days;    // 0-4294967295
+    uint8_t days : 7;    // 0-99
 } dual_timer_duration_t;
 
 typedef struct {
-    // Anything you need to keep track of, put it here!
-    watch_date_time start_time[2];
-    dual_timer_duration_t duration[2];
-    watch_date_time old_time[2];
-    uint32_t ticks[2];
+    uint32_t start_ticks[2];
+    uint32_t stop_ticks[2];
     bool running[2];
+    bool show;
 } dual_timer_state_t;
 
 void dual_timer_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);

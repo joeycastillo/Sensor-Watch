@@ -1,7 +1,8 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 <#author_name#>
+ * Copyright (c) 2023 Tobias Raayoni Last
+ * Copyright (c) 2022 Andreas Nebinger
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -98,11 +99,11 @@ static void _dual_timer_cb_initialize() {
     NVIC_EnableIRQ (TC2_IRQn);
 }
 
-/* void TC2_Handler(void) {
+void TC2_Handler(void) {
     // interrupt handler for TC2 (globally!)
     _ticks++;
     TC2->COUNT8.INTFLAG.reg |= TC_INTFLAG_OVF;
-} */
+}
 
 #endif
 
@@ -133,30 +134,52 @@ static dual_timer_duration_t ticks_to_duration(uint32_t ticks) {
 static void start_timer(dual_timer_state_t *state, bool timer) {
     // if it is not running yet, run it
     if ( !_is_running ) {
+        _is_running = true;
         movement_request_tick_frequency(16);
-        state->ticks[timer] = 0;
+        state->start_ticks[timer] = 0;
+        state->stop_ticks[timer] = 0;
         _dual_timer_cb_start();
         movement_schedule_background_task(distant_future);
     } else {
         // if another timer is already running save the current tick
-        state->ticks[timer] = _ticks;
+        state->start_ticks[timer] = _ticks;
+        state->stop_ticks[timer] = _ticks;
     }
-    state->start_time[timer] = watch_rtc_get_date_time();
     state->running[timer] = true;
 }
 
 static void stop_timer(dual_timer_state_t *state, bool timer) {
-    if ( _is_running ) {
-        // stop timer and save duration
-        state->running[timer] == false;
-        state->duration[timer] = ticks_to_duration(_ticks - state->ticks[timer]);
-        // if the other timer is not running, stop callback
-        if ( state->running[!timer] == false ) {
-            _dual_timer_cb_stop();
-            movement_request_tick_frequency(1);
-            movement_cancel_background_task();
-        }
+    // stop timer and save duration
+    state->stop_ticks[timer] = _ticks;
+    state->running[timer] = false;
+    // if the other timer is not running, stop callback
+    if ( state->running[!timer] == false ) {
+        _is_running = false;
+        _dual_timer_cb_stop();
+        _ticks = 0;
+        movement_request_tick_frequency(1);
+        movement_cancel_background_task();
     }
+}
+
+void dual_timer_display(dual_timer_state_t *state) {
+    char buf[11];
+    char oi[3];
+    dual_timer_duration_t timer = ticks_to_duration(state->stop_ticks[state->show] - state->start_ticks[state->show]);
+    dual_timer_duration_t other = ticks_to_duration(state->stop_ticks[!state->show] - state->start_ticks[!state->show]);
+    if ( timer.days > 0 )
+        sprintf(buf, "%02lu%02lu%02u", timer.days, timer.hours, timer.minutes);
+    else if ( timer.hours > 0 )
+        sprintf(buf, "%02lu%02lu%02u", timer.hours, timer.minutes, timer.seconds);
+    else
+        sprintf(buf, "%02lu%02lu%02u", timer.minutes, timer.seconds, timer.centiseconds);
+    watch_display_string(buf, 4);
+    watch_display_string(state->show ? "B" : "A", 0);
+    watch_display_string(state->running[!state->show] && (_ticks % 100) < 50 ? "+" : " ", 1);
+    sprintf(oi, "%2d", other.days > 0 ? other.days : (other.hours > 0 ? other.hours : (other.minutes > 0 ? other.minutes : (other.seconds > 0 ? other.seconds : other.centiseconds))));
+    watch_display_string( other.centiseconds > 0 ? oi : " ", 2);
+    if ( timer.centiseconds > 50 || !state->running[state->show] ) watch_set_colon();
+    else watch_clear_colon();
 }
 
 void dual_timer_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
@@ -167,80 +190,78 @@ void dual_timer_face_setup(movement_settings_t *settings, uint8_t watch_face_ind
         _ticks = 0;
     }
     if (!_is_running) {
-        // prepare the 128 Hz callback source
         _dual_timer_cb_initialize();
     }
-    // Do any pin or peripheral setup here; this will be called whenever the watch wakes from deep sleep.
 }
 
 void dual_timer_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
     dual_timer_state_t *state = (dual_timer_state_t *)context;
     if (_is_running) {
-        // The background task will keep the watch from entering low energy mode while the stopwatch is on screen.
         movement_schedule_background_task(distant_future);
     }
-    // Handle any tasks related to your watch face coming on screen.
 }
 
 bool dual_timer_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     dual_timer_state_t *state = (dual_timer_state_t *)context;
 
+    // timers stop at 99:23:59:59:99
+    if ( (_ticks - state->start_ticks[0]) >= 1105919999 )
+        stop_timer(state, 0);
+
+    if ( (_ticks - state->start_ticks[1]) >= 1105919999 )
+        stop_timer(state, 1);
+
     switch (event.event_type) {
         case EVENT_ACTIVATE:
+            watch_set_colon();
             if (_is_running) movement_request_tick_frequency(16);
+            else watch_display_string("A   000000", 0);
             break;
         case EVENT_TICK:
-            printf("%d\n", _is_running);
+            if ( _is_running ) {
+                if ( state->running[0] )
+                    state->stop_ticks[0] = _ticks;
+                if ( state->running[1] )
+                    state->stop_ticks[1] = _ticks;
+                dual_timer_display(state);
+            }
             break;
         case EVENT_LIGHT_BUTTON_DOWN:
-            if ( !state->running[1] ) {
+            state->running[1] = !state->running[1];
+            if ( state->running[1] ) {
                 start_timer(state, 1);
             } else {
                 stop_timer(state, 1);
             }
             break;
-        case EVENT_LIGHT_BUTTON_UP:
-            // You can use the Light button for your own purposes. Note that by default, Movement will also
-            // illuminate the LED in response to EVENT_LIGHT_BUTTON_DOWN; to suppress that behavior, add an
-            // empty case for EVENT_LIGHT_BUTTON_DOWN.
-            break;
         case EVENT_ALARM_BUTTON_DOWN:
-            if ( !state->running[0] ) {
+            state->running[0] = !state->running[0];
+            if ( state->running[0] ) {
                 start_timer(state, 0);
             } else {
                 stop_timer(state, 0);
             }
             break;
-        case EVENT_ALARM_BUTTON_UP:
-            // Just in case you have need for another button.
+        case EVENT_MODE_BUTTON_DOWN:
+            state->show = !state->show;
+            dual_timer_display(state);
+            break;
+        case EVENT_MODE_BUTTON_UP:
+            break;
+        case EVENT_MODE_LONG_PRESS:
+            movement_move_to_next_face();
             break;
         case EVENT_TIMEOUT:
-            // Your watch face will receive this event after a period of inactivity. If it makes sense to resign,
-            // you may uncomment this line to move back to the first watch face in the list:
-            // movement_move_to_face(0);
+            if (!_is_running) movement_move_to_face(0);
             break;
         case EVENT_LOW_ENERGY_UPDATE:
-            // If you did not resign in EVENT_TIMEOUT, you can use this event to update the display once a minute.
-            // Avoid displaying fast-updating values like seconds, since the display won't update again for 60 seconds.
-            // You should also consider starting the tick animation, to show the wearer that this is sleep mode:
-            // watch_start_tick_animation(500);
+            dual_timer_display(state);
             break;
         default:
-            // Movement's default loop handler will step in for any cases you don't handle above:
-            // * EVENT_LIGHT_BUTTON_DOWN lights the LED
-            // * EVENT_MODE_BUTTON_UP moves to the next watch face in the list
-            // * EVENT_MODE_LONG_PRESS returns to the first watch face (or skips to the secondary watch face, if configured)
-            // You can override any of these behaviors by adding a case for these events to this switch statement.
             return movement_default_loop_handler(event, settings);
     }
 
-    // return true if the watch can enter standby mode. Generally speaking, you should always return true.
-    // Exceptions:
-    //  * If you are displaying a color using the low-level watch_set_led_color function, you should return false.
-    //  * If you are sounding the buzzer using the low-level watch_set_buzzer_on function, you should return false.
-    // Note that if you are driving the LED or buzzer using Movement functions like movement_illuminate_led or
-    // movement_play_alarm, you can still return true. This guidance only applies to the low-level watch_ functions.
     return true;
 }
 
