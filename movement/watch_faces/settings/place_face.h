@@ -151,7 +151,7 @@ typedef struct {
 
 typedef struct {
     int32_t latitude : 25;
-    int32_t longitude : 26;
+    int32_t longitude : 26; 
 } coordinate_t;
 
 typedef struct {

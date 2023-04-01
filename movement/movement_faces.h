@@ -85,6 +85,8 @@
 #include "time_left_face.h"
 #include "dual_timer_face.h"
 #include "randonaut_face.h"
+#include "place_face.h"
+#include "places_face.h"
 // New includes go above this line.
 
 #endif // MOVEMENT_FACES_H_
