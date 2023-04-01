@@ -253,8 +253,12 @@ bool dual_timer_face_loop(movement_event_t event, movement_settings_t *settings,
     switch (event.event_type) {
         case EVENT_ACTIVATE:
             watch_set_colon();
-            if (_is_running) movement_request_tick_frequency(16);
-            else watch_display_string("A   000000", 0);
+            if (_is_running) {
+                movement_request_tick_frequency(16);
+                if ( state->running[0] )
+                    state->show = 0;
+                else state->show = 1;
+            } else watch_display_string("A   000000", 0);
             break;
         case EVENT_TICK:
             if ( _is_running ) {
