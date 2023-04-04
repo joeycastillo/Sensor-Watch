@@ -119,6 +119,32 @@ void watch_display_character(uint8_t character, uint8_t position) {
     }
 }
 
+void watch_display_character_lp_seconds(uint8_t character, uint8_t position) {
+    // Will only work for digits and for positions  8 and 9 - but less code & checks to reduce power consumption
+
+    uint64_t segmap = Segment_Map[position];
+    uint64_t segdata = Character_Set[character - 0x20];
+
+    for (int i = 0; i < 8; i++) {
+        uint8_t com = (segmap & 0xFF) >> 6;
+        if (com > 2) {
+            // COM3 means no segment exists; skip it.
+            segmap = segmap >> 8;
+            segdata = segdata >> 1;
+            continue;
+        }
+        uint8_t seg = segmap & 0x3F;
+
+        if (segdata & 1)
+          watch_set_pixel(com, seg);
+        else
+          watch_clear_pixel(com, seg);
+
+        segmap = segmap >> 8;
+        segdata = segdata >> 1;
+    }
+}
+
 void watch_display_string(char *string, uint8_t position) {
     size_t i = 0;
     while(string[i] != 0) {

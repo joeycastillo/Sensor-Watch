@@ -27,6 +27,13 @@
 
 #include "movement.h"
 
+/*
+ * A DESCRIPTION OF YOUR WATCH FACE
+ *
+ * and a description of how use it
+ *
+ */
+
 typedef struct {
     // Anything you need to keep track of, put it here!
     uint8_t unused;

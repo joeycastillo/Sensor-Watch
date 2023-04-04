@@ -202,7 +202,7 @@ SRCS += \
 endif
 
 ifeq ($(LED), BLUE)
-CFLAGS += -DWATCH_SWAP_LED_PINS
+CFLAGS += -DWATCH_IS_BLUE_BOARD
 endif
 
 ifdef FIRMWARE

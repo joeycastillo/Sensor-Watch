@@ -96,10 +96,7 @@ bool frequency_correction_face_loop(movement_event_t event, movement_settings_t 
             break;
         case EVENT_TICK:
             break;
-        case EVENT_MODE_BUTTON_UP:
-            movement_move_to_next_face();
-            break;
-        case EVENT_LIGHT_BUTTON_UP:
+        case EVENT_LIGHT_BUTTON_DOWN:
             freqcorr = RTC->MODE2.FREQCORR.reg;
             if (freqcorr < 127) {
                 RTC->MODE2.FREQCORR.reg++;
@@ -126,6 +123,7 @@ bool frequency_correction_face_loop(movement_event_t event, movement_settings_t 
             watch_start_tick_animation(500);
             break;
         default:
+            movement_default_loop_handler(event, settings);
             break;
     }
 

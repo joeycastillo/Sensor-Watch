@@ -144,15 +144,17 @@ bool wake_face_loop(movement_event_t event, movement_settings_t *settings, void 
         movement_play_alarm();
             // 2022-07-23: Thx @joeycastillo for the dedicated “alarm” signal
         break;
-    case EVENT_MODE_BUTTON_UP:
-        movement_move_to_next_face();
-        break;
     case EVENT_TIMEOUT:
         movement_move_to_face(0);
         break;
     case EVENT_LOW_ENERGY_UPDATE:
+        break;
+    case EVENT_LIGHT_BUTTON_DOWN:
+        // don't light up every time light is hit
+        break;
     default:
-      break;
+        movement_default_loop_handler(event, settings);
+        break;
     }
 
     return true;

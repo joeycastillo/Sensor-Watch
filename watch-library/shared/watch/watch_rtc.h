@@ -147,5 +147,15 @@ void watch_rtc_disable_matching_periodic_callbacks(uint8_t mask);
   */
 void watch_rtc_disable_all_periodic_callbacks(void);
 
+/** @brief Enable/disable RTC while in-flight. This is quite dangerous operation, so we repeat writing register twice.
+ * Used when temporarily pausing RTC when adjusting subsecond, which are not accessible otherwise.
+  */
+void watch_rtc_enable(bool en);
+
+/** @brief Adjusts frequency correction in single register write. Not waiting for syncronisation to save power - if you won't write new
+ * correction value in the same ~millisecond - will not cause issue.
+  */
+void watch_rtc_freqcorr_write(int16_t value, int16_t sign);
+
 /// @}
 #endif

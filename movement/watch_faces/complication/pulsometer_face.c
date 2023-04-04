@@ -46,12 +46,6 @@ bool pulsometer_face_loop(movement_event_t event, movement_settings_t *settings,
     pulsometer_state_t *pulsometer_state = (pulsometer_state_t *)context;
     char buf[14];
     switch (event.event_type) {
-        case EVENT_MODE_BUTTON_UP:
-            movement_move_to_next_face();
-            break;
-        case EVENT_LIGHT_BUTTON_DOWN:
-            movement_illuminate_led();
-            break;
         case EVENT_ALARM_BUTTON_DOWN:
             pulsometer_state->measuring = true;
             pulsometer_state->pulse = 0xFFFF;
@@ -102,6 +96,7 @@ bool pulsometer_face_loop(movement_event_t event, movement_settings_t *settings,
             movement_move_to_face(0);
             break;
         default:
+            movement_default_loop_handler(event, settings);
             break;
     }
 
