@@ -28,8 +28,8 @@
 #include "watch.h"
 #include "watch_utility.h"
 
-#define MENSTRUAL_CYCLE_FACE_NUM_PREFEFENCES (6)
-const char menstrual_cycle_face_titles[MENSTRUAL_CYCLE_FACE_NUM_PREFEFENCES][11] = {
+#define MENSTRUAL_CYCLE_FACE_NUM_PAGES (6)
+const char menstrual_cycle_face_titles[MENSTRUAL_CYCLE_FACE_NUM_PAGES][11] = {
     "PRin   day",   // Period In <num> Days: Days till your period
     "AV  cycle ",   // Average Cycle: Show the calculated daily average of your cycle
     "OV   prb  ",   // Ovulation Probability: The probability of you ovulating today (no, Lo, Hi)
@@ -45,15 +45,21 @@ void menstrual_cycle_face_setup(movement_settings_t *settings, uint8_t watch_fac
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(menstrual_cycle_state_t));
         memset(*context_ptr, 0, sizeof(menstrual_cycle_state_t));
-        ((menstrual_cycle_state_t *)*context_ptr)->average.total_days = 120;
-        ((menstrual_cycle_state_t *)*context_ptr)->average.total_cycles = 4;
+        menstrual_cycle_state_t *state = ((menstrual_cycle_state_t *)*context_ptr);
+        state->average.bit.total_cycles = 0;
+        state->average.bit.first_day = 0;
+        state->average.bit.first_month = 0;
+        state->average.bit.first_year = 0;
+        state->bits.backup_register = 0;
+        state->days_since = 0;
+    }
+    menstrual_cycle_state_t *state = ((menstrual_cycle_state_t *)*context_ptr);
+    if (!(state->bits.backup_register)) {
+        state->bits.backup_register = movement_claim_backup_register();
+        if (state->bits.backup_register) watch_store_backup_data(state->average.reg, state->bits.backup_register);
     }
     else {
-        menstrual_cycle_state_t *state = (menstrual_cycle_state_t *)*context_ptr;
-        if (state->bits.backup_register) {
-            state->average.total_days = 0; //get_total_days(settings, state->bits.backup_register);
-            state->average.total_cycles = 0; //get_total_cycles(state->bits.backup_register);
-        }
+        state->average.reg = watch_get_backup_data(state->bits.backup_register);
     }
 }
 
@@ -69,6 +75,8 @@ void menstrual_cycle_face_activate(movement_settings_t *settings, void *context)
 bool menstrual_cycle_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     menstrual_cycle_state_t *state = (menstrual_cycle_state_t *)context;
     uint8_t current_page = state->bits.current_page;
+    uint32_t now;
+    watch_date_time date_last_period;
     switch (event.event_type) {
         case EVENT_TICK:
         case EVENT_ACTIVATE:
@@ -78,9 +86,46 @@ bool menstrual_cycle_face_loop(movement_event_t event, movement_settings_t *sett
             movement_move_to_next_face();
             return false;
         case EVENT_LIGHT_BUTTON_DOWN:
-            current_page = (current_page + 1) % MENSTRUAL_CYCLE_FACE_NUM_PREFEFENCES;
+            current_page = (current_page + 1) % MENSTRUAL_CYCLE_FACE_NUM_PAGES;
             state->bits.current_page = current_page;
             break;
+        case EVENT_ALARM_LONG_PRESS:
+            switch (current_page) {
+                case 0:
+                    break;
+                case 1:
+                    break;
+                case 2:
+                    break;
+                case 3:
+                    if (state->bits.period_today) {
+                        state->average.bit.total_cycles += 1;
+                        watch_store_backup_data(state->average.reg, state->bits.backup_register);
+                        watch_buzzer_play_note(BUZZER_NOTE_E8, 100);
+                    }
+                    break;
+                case 4:
+                    if (!(get_total_days(settings, state))) {
+                        now = watch_utility_date_time_to_unix_time(watch_rtc_get_date_time(), movement_timezone_offsets[settings->bit.time_zone] * 60);
+                        date_last_period = watch_utility_date_time_from_unix_time(now - (state->days_since * 86400), movement_timezone_offsets[settings->bit.time_zone] * 60); 
+                        state->average.bit.first_day = date_last_period.unit.day;
+                        state->average.bit.first_month = date_last_period.unit.month;
+                        state->average.bit.first_year = date_last_period.unit.year;
+                        watch_store_backup_data(state->average.reg, state->bits.backup_register);
+                        watch_buzzer_play_note(BUZZER_NOTE_E8, 100);
+                    }
+                    break;
+                case 5:
+                    if (state->bits.reset_tracking) {
+                        state->average.bit.total_cycles = 0;
+                        state->average.bit.first_day = 0;
+                        state->average.bit.first_month = 0;
+                        state->average.bit.first_year = 0;
+                        watch_store_backup_data(state->average.reg, state->bits.backup_register);
+                        watch_buzzer_play_note(BUZZER_NOTE_E8, 100);
+                    }
+                    break;
+            }
         case EVENT_ALARM_BUTTON_UP:
             switch (current_page) {
                 case 0:
@@ -93,29 +138,10 @@ bool menstrual_cycle_face_loop(movement_event_t event, movement_settings_t *sett
                     state->bits.period_today = !(state->bits.period_today);
                     break;
                 case 4:
+                    if (!(get_total_days(settings, state))) state->days_since = (state->days_since > 50) ? 0 : state->days_since + 1;
                     break;
                 case 5:
                     state->bits.reset_tracking = !(state->bits.reset_tracking);
-                    break;
-            }
-        case EVENT_ALARM_LONG_PRESS:
-            switch (current_page) {
-                case 0:
-                    break;
-                case 1:
-                    break;
-                case 2:
-                    break;
-                case 3:
-                    if(state->bits.period_today) {
-                        state->average.total_cycles += 1;
-                        watch_buzzer_play_note(BUZZER_NOTE_C8, 100);
-                        return false;
-                    }
-                    break;
-                case 4:
-                    break;
-                case 5:
                     break;
             }
             break;
@@ -133,11 +159,11 @@ bool menstrual_cycle_face_loop(movement_event_t event, movement_settings_t *sett
         char buf[3];
         switch (current_page) {
             case 0:
-                sprintf(buf, "%2d", get_days_till_period(state));
+                sprintf(buf, "%2d", get_days_till_period(settings, state));
                 watch_display_string(buf, 4);
                 break;
             case 1:
-                if (state->average.total_cycles > 0) sprintf(buf, "%2d", state->average.total_days / state->average.total_cycles);
+                if (state->average.bit.total_cycles > 0) sprintf(buf, "%2d", get_total_days(settings, state) / state->average.bit.total_cycles);
                 else strcpy(buf, "28"); // Typical average for a menstral cycle is 28 days
                 watch_display_string(buf, 2);
                 break;
@@ -149,7 +175,9 @@ bool menstrual_cycle_face_loop(movement_event_t event, movement_settings_t *sett
                 else watch_display_string("n", 9);
                 break;
             case 4:
-                watch_display_string("15", 8);
+                if (!(get_total_days(settings, state))) sprintf(buf, "%2d", state->days_since);
+                else strcpy(buf, "TR"); // Already Tracking
+                watch_display_string(buf, 8);
                 break;
             case 5:
                 if (state->bits.reset_tracking) {
@@ -165,34 +193,25 @@ bool menstrual_cycle_face_loop(movement_event_t event, movement_settings_t *sett
 void menstrual_cycle_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
-    watch_set_led_off();
-    menstrual_cycle_state_t *state = (menstrual_cycle_state_t *)context;
-    uint32_t average_data = (((((state->average.first_period.day << 4) | state->average.first_period.month) << 7) | \
-                                 state->average.first_period.year) << 16) | state->average.total_cycles;
-    if(!state->bits.backup_register) {
-        uint8_t backup_register = movement_claim_backup_register();
-        state->bits.backup_register = backup_register;
-    }
-    if (state->bits.backup_register) watch_store_backup_data(average_data, state->bits.backup_register);
+    // menstrual_cycle_state_t *state = (menstrual_cycle_state_t *)context;
+    // if (state->bits.backup_register) watch_store_backup_data(state->average.reg, state->bits.backup_register);
 }
 
-uint16_t get_total_days(movement_settings_t *settings, uint8_t backup_reg) {
-    uint16_t date_first_period = watch_get_backup_data(backup_reg) >> 16;
+uint16_t get_total_days(movement_settings_t *settings, menstrual_cycle_state_t *state) {
+    if (!(state->average.reg)) return 0; // Tracking has not yet been activated by logging the last period
+    
     watch_date_time date_time_start;
-    date_time_start.unit.day = date_first_period >> 11; // grab 5 msb
-    date_time_start.unit.month = (date_first_period & 0x0780) >> 4; // grab next 4 bits
-    date_time_start.unit.year = (date_first_period & 0x007F); // grab last 7 bits
+    date_time_start.unit.day = state->average.bit.first_day;
+    date_time_start.unit.month = state->average.bit.first_month;
+    date_time_start.unit.year = state->average.bit.first_year;
     watch_date_time date_time_now = watch_rtc_get_date_time();
     uint32_t start_of_tracking = watch_utility_date_time_to_unix_time(date_time_start, movement_timezone_offsets[settings->bit.time_zone] * 60);
     uint32_t now = watch_utility_date_time_to_unix_time(date_time_now, movement_timezone_offsets[settings->bit.time_zone] * 60);
     return (now - start_of_tracking) / 86400; // 86400 seconds in a day
 }
 
-uint16_t get_total_cycles(uint8_t backup_reg) {
-    return watch_get_backup_data(backup_reg) & 0xFFFF;
-}
-
-uint16_t get_days_till_period(menstrual_cycle_state_t *state) {
-    uint8_t average_cycle = (state->average.total_cycles > 0) ? state->average.total_days / state->average.total_cycles : 28;
-    return (average_cycle * (state->average.total_cycles + 1)) - state->average.total_days;
+uint16_t get_days_till_period(movement_settings_t *settings, menstrual_cycle_state_t *state) {
+    uint8_t average_cycle = 28;
+    if (state->average.bit.total_cycles > 0) average_cycle = get_total_days(settings, state) / state->average.bit.total_cycles;
+    return (average_cycle * (state->average.bit.total_cycles + 1)) - get_total_days(settings, state);
 }

@@ -30,23 +30,20 @@
 typedef struct {
     union {
         struct {
-            struct {
-                uint8_t day : 5;
-                uint8_t month : 4;
-                uint8_t year : 7; // Decade resolution only
-            } first_period; // Date of user's first logged period for total days calculation
-            uint8_t total_days; // Total number of days since the start of tracking
-            uint16_t total_cycles; // Total cycles/periods since the start of tracking
-        } average;
-    };
-    union {
-        struct {
-            uint8_t current_page : 3;
-            uint8_t backup_register : 3;
-            bool period_today : 1;
-            bool reset_tracking : 1;
-        } bits;
-    };
+            uint8_t first_day : 5;
+            uint8_t first_month : 4;
+            uint8_t first_year : 7; // Decade resolution only, up to 2099
+            uint16_t total_cycles : 16;
+        } bit; 
+        uint32_t reg;
+    } average; // Save the date of the first logged period and the total cycles since to calulate the average menstrual cycle
+    struct {
+        uint8_t current_page : 3;
+        uint8_t backup_register : 3;
+        bool period_today : 1;
+        bool reset_tracking : 1;
+    } bits;
+    uint8_t days_since; // Days since the last period
 } menstrual_cycle_state_t;
 
 void menstrual_cycle_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
@@ -54,9 +51,8 @@ void menstrual_cycle_face_activate(movement_settings_t *settings, void *context)
 bool menstrual_cycle_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void menstrual_cycle_face_resign(movement_settings_t *settings, void *context);
 
-uint16_t get_total_days(movement_settings_t *settings, uint8_t backup_reg);
-uint16_t get_total_cycles(uint8_t backup_reg);
-uint16_t get_days_till_period(menstrual_cycle_state_t *state);
+uint16_t get_total_days(movement_settings_t *settings, menstrual_cycle_state_t *state);
+uint16_t get_days_till_period(movement_settings_t *settings, menstrual_cycle_state_t *state);
 
 #define menstrual_cycle_face ((const watch_face_t){ \
     menstrual_cycle_face_setup, \
