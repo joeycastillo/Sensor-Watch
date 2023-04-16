@@ -1,7 +1,8 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Christian Chapman
+ * Copyright (c) 2023 Konrad Rieck
+ * Copyright (c) 2022 Joey Castillo
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,38 +23,41 @@
  * SOFTWARE.
  */
 
-#ifndef MORSECALC_FACE_H_
-#define MORSECALC_FACE_H_
+#ifndef WORLD_CLOCK2_FACE_H_
+#define WORLD_CLOCK2_FACE_H_
 
-#define MORSECALC_TOKEN_LEN 32
-#define MORSECODE_LEN 5
+/* Number of zones. See movement_timezone_offsets. */
+#define NUM_TIME_ZONES  41
 
 #include "movement.h"
-#include "calc.h"
-#include "morsecode.c"
 
-void morsecalc_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
-void morsecalc_face_activate(movement_settings_t *settings, void *context);
-bool morsecalc_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
-void morsecalc_face_resign(movement_settings_t *settings, void *context);
+typedef enum {
+    WORLD_CLOCK2_MODE_DISPLAY,
+    WORLD_CLOCK2_MODE_SETTINGS
+} world_clock2_mode_t;
 
 typedef struct {
-	calc_state_t *cs;
-	unsigned int mc; // Morse code character
-	char token[MORSECALC_TOKEN_LEN];
-	uint8_t idxt;
-	uint8_t led_is_on;
-} morsecalc_state_t;
+    bool selected;
+} world_clock2_zone_t;
 
-void morsecalc_reset_token(morsecalc_state_t *mcs);
-void morsecalc_input(morsecalc_state_t *mcs);
+typedef struct {
+    world_clock2_zone_t zones[NUM_TIME_ZONES];
+    world_clock2_mode_t current_mode;
+    uint8_t current_zone;
+    uint32_t previous_date_time;
+} world_clock2_state_t;
 
-#define morsecalc_face ((const watch_face_t){ \
-    morsecalc_face_setup, \
-    morsecalc_face_activate, \
-    morsecalc_face_loop, \
-    morsecalc_face_resign, \
+void world_clock2_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void **context_ptr);
+void world_clock2_face_activate(movement_settings_t *settings, void *context);
+bool world_clock2_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void world_clock2_face_resign(movement_settings_t *settings, void *context);
+
+#define world_clock2_face ((const watch_face_t){ \
+    world_clock2_face_setup, \
+    world_clock2_face_activate, \
+    world_clock2_face_loop, \
+    world_clock2_face_resign, \
     NULL, \
 })
 
-#endif // MORSECALC_FACE_H_
+#endif /* WORLD_CLOCK2_FACE_H_ */

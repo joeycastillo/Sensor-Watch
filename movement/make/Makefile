@@ -17,6 +17,7 @@ INCLUDES += \
   -I../watch_faces/sensor/ \
   -I../watch_faces/demo/ \
   -I../../littlefs/ \
+  -I../lib/chirpy_tx/ \
   -I../lib/TOTP/ \
   -I../lib/base32/ \
   -I../lib/sunriset/ \
@@ -31,6 +32,7 @@ INCLUDES += \
 #   ../drivers/lis2dh.c \
 #   ../watch_faces/fitness/step_count_face.c
 SRCS += \
+  ../lib/chirpy_tx/chirpy_tx.c \
   ../lib/TOTP/sha1.c \
   ../lib/TOTP/sha256.c \
   ../lib/TOTP/sha512.c \
@@ -39,10 +41,11 @@ SRCS += \
   ../lib/sunriset/sunriset.c \
   ../lib/vsop87/vsop87a_milli.c \
   ../lib/astrolib/astrolib.c \
+  ../lib/morsecalc/morsecode.c \
   ../lib/morsecalc/calc.c \
   ../lib/morsecalc/calc_fns.c \
   ../lib/morsecalc/calc_strtof.c \
-  ../lib/morsecalc/mc.c \
+  ../lib/morsecalc/morsecalc_display.c \
   ../../littlefs/lfs.c \
   ../../littlefs/lfs_util.c \
   ../movement.c \
@@ -95,10 +98,18 @@ SRCS += \
   ../watch_faces/complication/tarot_face.c \
   ../watch_faces/complication/morsecalc_face.c \
   ../watch_faces/complication/rpn_calculator_face.c \
+  ../watch_faces/complication/activity_face.c \
+  ../watch_faces/demo/chirpy_demo_face.c \
   ../watch_faces/complication/ships_bell_face.c \
+  ../watch_faces/complication/discgolf_face.c \
   ../watch_faces/complication/habit_face.c \
   ../watch_faces/complication/planetary_time_face.c \
   ../watch_faces/complication/planetary_hours_face.c \
+  ../watch_faces/clock/repetition_minute_face.c \
+  ../watch_faces/complication/timer_face.c \
+  ../watch_faces/complication/invaders_face.c \
+  ../watch_faces/clock/world_clock2_face.c \
+  ../watch_faces/complication/time_left_face.c \
 # New watch faces go above this line.
 
 # Leave this line at the bottom of the file; it has all the targets for making your project.
