@@ -76,8 +76,12 @@
 #include "activity_face.h"
 #include "chirpy_demo_face.h"
 #include "ships_bell_face.h"
+#include "lightmeter_face.h"
 #include "discgolf_face.h"
 #include "habit_face.h"
+#include "planetary_time_face.h"
+#include "planetary_hours_face.h"
+#include "breathing_face.h"
 #include "repetition_minute_face.h"
 #include "timer_face.h"
 #include "invaders_face.h"
@@ -85,6 +89,7 @@
 #include "time_left_face.h"
 #include "toss_up_face.h"
 #include "geomancy_face.h"
+#include "dual_timer_face.h"
 // New includes go above this line.
 
 #endif // MOVEMENT_FACES_H_
