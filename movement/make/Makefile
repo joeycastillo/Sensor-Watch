@@ -104,6 +104,8 @@ SRCS += \
   ../watch_faces/sensor/lightmeter_face.c \
   ../watch_faces/complication/discgolf_face.c \
   ../watch_faces/complication/habit_face.c \
+  ../watch_faces/complication/planetary_time_face.c \
+  ../watch_faces/complication/planetary_hours_face.c \
   ../watch_faces/complication/breathing_face.c \
   ../watch_faces/clock/repetition_minute_face.c \
   ../watch_faces/complication/timer_face.c \

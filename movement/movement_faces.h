@@ -79,6 +79,8 @@
 #include "lightmeter_face.h"
 #include "discgolf_face.h"
 #include "habit_face.h"
+#include "planetary_time_face.h"
+#include "planetary_hours_face.h"
 #include "breathing_face.h"
 #include "repetition_minute_face.h"
 #include "timer_face.h"
