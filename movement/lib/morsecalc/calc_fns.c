@@ -227,4 +227,14 @@ int calc_atan2d(calc_state_t *cs) {
     cs->s--;
     return 0;
 }
+int calc_torad(calc_state_t *cs) {
+    STACK_CHECK_1_IN_1_OUT;
+    cs->stack[cs->s-1] = cs->stack[cs->s-1]*to_rad;
+    return 0;
+}
+int calc_todeg(calc_state_t *cs) {
+    STACK_CHECK_1_IN_1_OUT;
+    cs->stack[cs->s-1] = cs->stack[cs->s-1]*to_deg;
+    return 0;
+}
 

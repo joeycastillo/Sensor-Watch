@@ -67,57 +67,62 @@ int calc_asind(calc_state_t *cs);
 int calc_acosd(calc_state_t *cs);
 int calc_atand(calc_state_t *cs);
 int calc_atan2d(calc_state_t *cs);
+int calc_torad(calc_state_t *cs);
+int calc_todeg(calc_state_t *cs);
 
 // Dictionary definition
 typedef int (*calc_fn_t)(calc_state_t *cs);
 typedef struct {
-    char *names[3]; // Token to use to run this function
+    uint8_t n_names; // Number of aliases
+    const char ** names; // Token to use to run this function
     calc_fn_t fn; // Pointer to function 
 } calc_dict_entry_t;
 
 static const calc_dict_entry_t calc_dict[] = {
     // Stack and register control
-    {{"x"}, &calc_delete},
-    {{"xx"}, &calc_clear_stack},
-    {{"xxx"}, &calc_init},
-    {{"f"}, &calc_flip},
-    {{"mc"}, &calc_mem_clear},
-    {{"mr"}, &calc_mem_recall},
-    {{"ma"}, &calc_mem_add},
-    {{"ms"}, &calc_mem_subtract},
+    {1, (const char*[]){"x"}, &calc_delete},
+    {1, (const char*[]){"xx"}, &calc_clear_stack},
+    {1, (const char*[]){"xxx"}, &calc_init},
+    {1, (const char*[]){"f"}, &calc_flip},
+    {1, (const char*[]){"mc"}, &calc_mem_clear},
+    {1, (const char*[]){"mr"}, &calc_mem_recall},
+    {1, (const char*[]){"ma"}, &calc_mem_add},
+    {1, (const char*[]){"ms"}, &calc_mem_subtract},
 
     // Basic operations
-    {{"a"}, &calc_add}, 
-    {{"s"}, &calc_subtract},
-    {{"n"}, &calc_negate},
-    {{"m"}, &calc_multiply},
-    {{"d"}, &calc_divide},
-    {{"i"}, &calc_invert},
+    {1, (const char*[]){"a"}, &calc_add}, 
+    {1, (const char*[]){"s"}, &calc_subtract},
+    {1, (const char*[]){"n"}, &calc_negate},
+    {1, (const char*[]){"m"}, &calc_multiply},
+    {1, (const char*[]){"d"}, &calc_divide},
+    {1, (const char*[]){"i"}, &calc_invert},
     
     // Constants
-    {{"e"}, &calc_e}, 
-    {{"pi"}, &calc_pi},  
+    {1, (const char*[]){"e"}, &calc_e}, 
+    {1, (const char*[]){"pi"}, &calc_pi}, 
     
     // Exponential/logarithmic
-    {{"exp"}, &calc_exp},
-    {{"pow"}, &calc_pow}, 
-    {{"ln"}, &calc_ln}, 
-    {{"log"}, &calc_log},
-    {{"sqrt"}, &calc_sqrt},
+    {1, (const char*[]){"exp"}, &calc_exp},
+    {1, (const char*[]){"pow"}, &calc_pow}, 
+    {1, (const char*[]){"ln"}, &calc_ln}, 
+    {1, (const char*[]){"log"}, &calc_log},
+    {1, (const char*[]){"sqrt"}, &calc_sqrt},
     
     // Trigonometric 
-    {{"sin", "sn"}, &calc_sin},
-    {{"cos"}, &calc_cos},
-    {{"tan"}, &calc_tan},
-    {{"asin"}, &calc_asin},
-    {{"acos"}, &calc_acos},
-    {{"atan"}, &calc_atan}, 
-    {{"atan2"}, &calc_atan2},
-    {{"sind"}, &calc_sind},
-    {{"cosd"}, &calc_cosd},
-    {{"tand"}, &calc_tand},
-    {{"asind"}, &calc_asind},
-    {{"acosd"}, &calc_acosd},
-    {{"atand"}, &calc_atand}, 
-    {{"atan2d"}, &calc_atan2d}, 
+    {2, (const char*[]){"sin", "sn"}, &calc_sin},
+    {1, (const char*[]){"cos"}, &calc_cos},
+    {1, (const char*[]){"tan"}, &calc_tan},
+    {1, (const char*[]){"asin"}, &calc_asin},
+    {1, (const char*[]){"acos"}, &calc_acos},
+    {1, (const char*[]){"atan"}, &calc_atan}, 
+    {1, (const char*[]){"atan2"}, &calc_atan2},
+    {1, (const char*[]){"sind"}, &calc_sind},
+    {1, (const char*[]){"cosd"}, &calc_cosd},
+    {1, (const char*[]){"tand"}, &calc_tand},
+    {1, (const char*[]){"asind"}, &calc_asind},
+    {1, (const char*[]){"acosd"}, &calc_acosd},
+    {1, (const char*[]){"atand"}, &calc_atand}, 
+    {1, (const char*[]){"atan2d"}, &calc_atan2d}, 
+    {1, (const char*[]){"tor"}, &calc_torad}, 
+    {1, (const char*[]){"tod"}, &calc_todeg}, 
 }; 

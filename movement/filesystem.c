@@ -196,6 +196,7 @@ static void filesystem_cat(char *filename) {
         if (info.size > 0) {
             char *buf = malloc(info.size + 1);
             filesystem_read_file(filename, buf, info.size);
+            buf[info.size] = '\0';
             printf("%s\n", buf);
             free(buf);
         } else {

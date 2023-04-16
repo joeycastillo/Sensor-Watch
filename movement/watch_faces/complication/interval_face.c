@@ -129,15 +129,15 @@ static const int8_t _sound_seq_break[] = {BUZZER_NOTE_B6, 15, BUZZER_NOTE_REST, 
 static const int8_t _sound_seq_cooldown[] = {BUZZER_NOTE_C7, 15, BUZZER_NOTE_REST, 1, -2, 1, BUZZER_NOTE_C7, 24, 0};
 static const int8_t _sound_seq_finish[] = {BUZZER_NOTE_C7, 6, BUZZER_NOTE_E7, 6, BUZZER_NOTE_G7, 6, BUZZER_NOTE_C8, 18, 0};
 
-interval_setting_idx_t _setting_idx;
-int8_t _ticks;
-bool _erase_timer_flag;
-uint32_t _target_ts;
-uint32_t _now_ts;
-uint32_t _paused_ts;
-uint8_t _timer_work_round;
-uint8_t _timer_full_round;
-uint8_t _timer_run_state;
+static interval_setting_idx_t _setting_idx;
+static int8_t _ticks;
+static bool _erase_timer_flag;
+static uint32_t _target_ts;
+static uint32_t _now_ts;
+static uint32_t _paused_ts;
+static uint8_t _timer_work_round;
+static uint8_t _timer_full_round;
+static uint8_t _timer_run_state;
 
 static inline void _inc_uint8(uint8_t *value, uint8_t step, uint8_t max) {
     *value += step;
