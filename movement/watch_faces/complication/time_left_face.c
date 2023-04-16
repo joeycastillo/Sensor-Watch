@@ -83,7 +83,7 @@ static void _display_percentage(float percentage, char *buf) {
 
 /// @brief draw the current state to the display
 static void _draw(time_left_state_t *state, uint8_t subsecond) {
-    char buf[14];
+    char buf[17];
     watch_display_character(_state_titles[state->current_page][0], 0);
     watch_display_character(_state_titles[state->current_page][1], 1);
     watch_display_character(' ', 2);
