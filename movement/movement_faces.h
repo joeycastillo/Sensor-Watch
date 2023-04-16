@@ -78,6 +78,7 @@
 #include "ships_bell_face.h"
 #include "discgolf_face.h"
 #include "habit_face.h"
+#include "breathing_face.h"
 #include "repetition_minute_face.h"
 #include "timer_face.h"
 #include "invaders_face.h"
