@@ -87,8 +87,6 @@
 #include "invaders_face.h"
 #include "world_clock2_face.h"
 #include "time_left_face.h"
-#include "toss_up_face.h"
-#include "geomancy_face.h"
 #include "dual_timer_face.h"
 // New includes go above this line.
 
