@@ -45,6 +45,7 @@ static void _coin_animation(toss_up_state_t *state);
 // PUBLIC FUNCTIONS ///////////////////////////////////////////////////////////
 
 void toss_up_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
+    (void) watch_face_index;
     (void) settings;
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(toss_up_state_t));
@@ -95,6 +96,7 @@ bool toss_up_face_loop(movement_event_t event, movement_settings_t *settings, vo
             switch (state->mode) {
                 case 0:
                     state->mode++;
+                    // fall through
                 case 1:
                     state->animate = true;
                     for (i = 0; i < state->coin_num; i++) {
@@ -103,6 +105,7 @@ bool toss_up_face_loop(movement_event_t event, movement_settings_t *settings, vo
                     break;
                 case 2:
                     state->mode++;
+                    // fall through
                 case 3:
                     state->animate = true;
                     for (i = 0; i < state->dice_num; i++) {

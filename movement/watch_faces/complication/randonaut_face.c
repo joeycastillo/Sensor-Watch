@@ -207,7 +207,7 @@ void randonaut_face_resign(movement_settings_t *settings, void *context) {
 /** @brief display handler
  */
 static void _randonaut_face_display(randonaut_state_t *state) {
-    char buf[11];
+    char buf[12];
     watch_clear_colon();
     switch ( state->face.mode ) {
         case 0: //home
