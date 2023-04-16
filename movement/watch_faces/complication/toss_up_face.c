@@ -303,9 +303,9 @@ static void _coin_animation(toss_up_state_t *state) {
     bool tails = false;
     for (uint8_t i = 0; i < state->coin_num; i++) {
         if (state->coins[i] == true) {
-            heads++;
+            heads = true;
         } else {
-            tails++;
+            tails = true;
         }
     }
     movement_request_tick_frequency(32);
