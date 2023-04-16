@@ -101,10 +101,12 @@ SRCS += \
   ../watch_faces/complication/activity_face.c \
   ../watch_faces/demo/chirpy_demo_face.c \
   ../watch_faces/complication/ships_bell_face.c \
+  ../watch_faces/sensor/lightmeter_face.c \
   ../watch_faces/complication/discgolf_face.c \
   ../watch_faces/complication/habit_face.c \
   ../watch_faces/complication/planetary_time_face.c \
   ../watch_faces/complication/planetary_hours_face.c \
+  ../watch_faces/complication/breathing_face.c \
   ../watch_faces/clock/repetition_minute_face.c \
   ../watch_faces/complication/timer_face.c \
   ../watch_faces/complication/invaders_face.c \
