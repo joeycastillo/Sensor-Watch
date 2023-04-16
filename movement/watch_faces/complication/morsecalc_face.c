@@ -116,6 +116,19 @@ To see all the calculator operations and their token aliases, see the `calc_dict
 #include "morsecalc_face.h"
 #include "morsecalc_display.h"
 
+/* mc_input Read an input into a morse code buffer 
+ * Input: mc = index of MORSECODE_TREE[]
+ *        len = max morse code char length
+ *        in = character to read into buffer (0='.', 1='-', ignored otherwise).
+ * If the buffer is full, reset it instead of entering the new character.
+ */
+static void morsecode_input(unsigned int *mc, unsigned int len, char in) {
+    if(*mc >= (unsigned int) ((1<<len)-1)) *mc = 0;
+    else if((in == 0) | (in == 1)) *mc = (*mc)*2+in+1;
+    return;
+}
+
+
 // Clear token buffer
 void morsecalc_reset_token(morsecalc_state_t *mcs) { 
     memset(mcs->token, '\0', MORSECALC_TOKEN_LEN*sizeof(mcs->token[0]));

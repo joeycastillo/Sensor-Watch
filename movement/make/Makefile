@@ -41,7 +41,6 @@ SRCS += \
   ../lib/sunriset/sunriset.c \
   ../lib/vsop87/vsop87a_milli.c \
   ../lib/astrolib/astrolib.c \
-  ../lib/morsecalc/morsecode.c \
   ../lib/morsecalc/calc.c \
   ../lib/morsecalc/calc_fns.c \
   ../lib/morsecalc/calc_strtof.c \
