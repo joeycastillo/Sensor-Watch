@@ -76,6 +76,7 @@
 #include "activity_face.h"
 #include "chirpy_demo_face.h"
 #include "ships_bell_face.h"
+#include "lightmeter_face.h"
 #include "discgolf_face.h"
 #include "habit_face.h"
 #include "breathing_face.h"
