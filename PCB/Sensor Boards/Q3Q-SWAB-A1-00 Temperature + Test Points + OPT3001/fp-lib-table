@@ -1,0 +1,4 @@
+(fp_lib_table
+  (lib (name "Q3Q-SWAB-A1-00 Temperature + Test Points + OPT3001")(type KiCad)(uri "$(KIPRJMOD)/Q3Q-SWAB-A1-00 Temperature + Test Points + OPT3001.pretty")(options "")(descr ""))
+  (lib (name OPT3001DNPT)(type KiCad)(uri ${KIPRJMOD}/OPT3001DNPT)(options "")(descr ""))
+)
