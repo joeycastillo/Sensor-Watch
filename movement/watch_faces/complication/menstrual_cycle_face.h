@@ -28,22 +28,27 @@
 #include "movement.h"
 
 typedef struct {
+    // Store the "first" period and the total cycles since, to calulate the average menstrual cycle.
+    // Store the shortest and longest cycle to calculate the fertility window, after tracking for >= 8
+    // months, using The Calender Method.
     union {
         struct {
             uint8_t first_day : 5;
             uint8_t first_month : 4;
-            uint8_t first_year : 7; // Decade resolution only, up to 2099
-            uint16_t total_cycles : 16;
+            uint8_t first_year : 6; // 0-63 (representing 2020-2083)
+            uint8_t shortest_cycle : 5; // For step 2 of The Calender Method 
+            uint8_t longest_cycle : 6; // For step 3 of The Calender Method 
+            uint8_t total_cycles : 6; // 4-6 years of tracking before overflow, triggering reset when > 63
         } bit; 
         uint32_t reg;
-    } average; // Save the date of the first logged period and the total cycles since to calulate the average menstrual cycle
+    } period;
     struct {
         uint8_t current_page : 3;
         uint8_t backup_register : 3;
         bool period_today : 1;
         bool reset_tracking : 1;
     } bits;
-    uint8_t days_since; // Days since the last period
+    uint8_t days_since_period; // Days since the last period
 } menstrual_cycle_state_t;
 
 void menstrual_cycle_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
@@ -51,8 +56,8 @@ void menstrual_cycle_face_activate(movement_settings_t *settings, void *context)
 bool menstrual_cycle_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void menstrual_cycle_face_resign(movement_settings_t *settings, void *context);
 
-uint16_t get_total_days(movement_settings_t *settings, menstrual_cycle_state_t *state);
-uint16_t get_days_till_period(movement_settings_t *settings, menstrual_cycle_state_t *state);
+// uint16_t get_total_days(movement_settings_t *settings, menstrual_cycle_state_t *state);
+// uint16_t get_days_till_period(movement_settings_t *settings, menstrual_cycle_state_t *state);
 
 #define menstrual_cycle_face ((const watch_face_t){ \
     menstrual_cycle_face_setup, \
