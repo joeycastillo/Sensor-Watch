@@ -205,7 +205,7 @@ static void _planetary_time(movement_event_t event, movement_settings_t *setting
     char ruler[3];
     double night_hour_count = 0.0;
     uint8_t weekday, planet, planetary_hour;
-    double hour_duration, current_hour, current_minute, current_second, second_duration;
+    double hour_duration, current_hour, current_minute, current_second;
 
         watch_set_colon();
 
@@ -271,6 +271,7 @@ static void _planetary_time(movement_event_t event, movement_settings_t *setting
 // PUBLIC WATCH FACE FUNCTIONS ////////////////////////////////////////////////
 
 void planetary_time_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
+    (void) watch_face_index;
     (void) settings;
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(planetary_time_state_t));

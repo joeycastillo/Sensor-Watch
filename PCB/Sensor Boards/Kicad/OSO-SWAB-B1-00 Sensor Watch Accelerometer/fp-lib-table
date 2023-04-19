@@ -1,0 +1,3 @@
+(fp_lib_table
+  (lib (name "OSO-MISC-21-021 Sensor Watch Motion II")(type "KiCad")(uri "$(KIPRJMOD)/OSO-SWAB-B1-00 Sensor Watch Accelerometer.pretty")(options "")(descr ""))
+)

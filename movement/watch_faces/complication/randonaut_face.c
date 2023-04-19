@@ -47,9 +47,6 @@ static void _generate_blindspot(randonaut_state_t *state);
 static uint32_t _get_pseudo_entropy(uint32_t max);
 static uint32_t _get_true_entropy(void);
 static void _get_entropy(randonaut_state_t *state);
-static uint32_t (*__0x2_)(uint32_t) = &_get_pseudo_entropy;
-static void (*_0x22)(uint8_t,uint8_t) = &watch_clear_pixel;
-static void (*___0xf322)(uint8_t,uint8_t) = &watch_set_pixel;
 
 // MOVEMENT WATCH FACE FUNCTIONS //////////////////////////////////////////////
 
@@ -207,7 +204,7 @@ void randonaut_face_resign(movement_settings_t *settings, void *context) {
 /** @brief display handler
  */
 static void _randonaut_face_display(randonaut_state_t *state) {
-    char buf[11];
+    char buf[12];
     watch_clear_colon();
     switch ( state->face.mode ) {
         case 0: //home
@@ -216,30 +213,36 @@ static void _randonaut_face_display(randonaut_state_t *state) {
         case 1: //generate
             if ( state->quantum )
                 // All Hail Steve /;[;[/.;]/[.;[/;/;/;/;.;.];.]]--=/ 
-                for ( uint8_t c = 100; c > 0; c--) {////////////////
-                    ___0xf322(__0x2_(/*0xD68 _0x22*//*__0x22*///////
-                    /*_0x22*/0x2),__0x2_(/*  _0x22*//*_0x22*////////
-                    0x33-0x1C));___0xf322(__0x2_(/*___0x2222_22___*/
-                    /*0x2*/0x2),__0x2_(3432/*_0x22*//*_0x2222*//////
-                    -3409));___0xf322(__0x2_(/*0x2*//*____0x222222*/
-                    002),__0x2_(0xE +9));___0xf322(/*_0x2222222222*/
-                    __0x2_(0x2),__0x2_(23));___0xf322(/*____0x2222*/
-                    /*0x2*/__0x2_(002),__0x2_(12+7+11));/*___00x22*/
-                    if(/*_0x22*/c<70){_0x22(__0x2_(2),/*____0x2222*/
-                    __0x2_(12+7+11));}if(c<60){_0x22(/*_______0x22*/
-                    /*_0x22*/__0x2_(002),__0x2_(0xD68-/*_0x2222222*/
-                    0xD4A));}if(c<50){_0x22(__0x2_(0x2),/*____0x22*/
-                    __0x2_(14+9));}delay_ms(__0x2_(c)+20);if/*_0x2*/
-                    (c<30){watch_display_string(" ",__0x2_(/*_2**2*/
-                    10));}_0x22(__0x2_(02),__0x2_(3432-3409)/*0x22*/
-                    );_0x22(__0x2_(002),__0x2_(51-28));/*_____0x22*/
-                    /**/  _0x22(__0x2_(0x2),__0x2_(23));if(c<20)////
-                    /*_*/{_0x22(__0x2_(02),__0x2_(51-28));/*__0x22*/
-                    /*_0x22*/_0x22(__0x2_(2),__0x2_(14+9));/*_0x22*/
-                    /*_0x22*/_0x22(__0x2_(0x2),__0x2_(0xD68-0xD4A));
-                    /*_0x22*/_0x22(__0x2_(0x2),__0x2_(3432-3409));//
-                    /*_0x22*/_0x22(__0x2_(002),__0x2_(12+7+11));////
-                    /*_0x22**_0x22*/_0x22(__0x2_(2),__0x2_(51-28));}
+                for ( uint8_t c = 100; c > 0; c--) {
+                    watch_set_pixel(_get_pseudo_entropy(0x2),_get_pseudo_entropy(0x33-0x1C));
+                    watch_set_pixel(_get_pseudo_entropy(0x2),_get_pseudo_entropy(3432-3409));
+                    watch_set_pixel(_get_pseudo_entropy(002),_get_pseudo_entropy(0xE +9));
+                    watch_set_pixel(_get_pseudo_entropy(0x2),_get_pseudo_entropy(23));
+                    watch_set_pixel(_get_pseudo_entropy(002),_get_pseudo_entropy(12+7+11));
+                    if( c < 70 ) {
+                        watch_clear_pixel(_get_pseudo_entropy(2),_get_pseudo_entropy(12+7+11));
+                    }
+                    if ( c < 60 ) {
+                        watch_clear_pixel(_get_pseudo_entropy(002),_get_pseudo_entropy(0xD68-0xD4A));
+                    }
+                    if ( c < 50 ) { 
+                        watch_clear_pixel(_get_pseudo_entropy(0x2),_get_pseudo_entropy(14+9));
+                    }
+                    delay_ms(_get_pseudo_entropy(c)+20);
+                    if ( c < 30 ) {
+                        watch_display_string(" ",_get_pseudo_entropy(10));
+                    }
+                    watch_clear_pixel(_get_pseudo_entropy(02),_get_pseudo_entropy(3432-3409));
+                    watch_clear_pixel(_get_pseudo_entropy(002),_get_pseudo_entropy(51-28));
+                    watch_clear_pixel(_get_pseudo_entropy(0x2),_get_pseudo_entropy(23));
+                    if ( c < 20 ) {
+                        watch_clear_pixel(_get_pseudo_entropy(02),_get_pseudo_entropy(51-28));
+                        watch_clear_pixel(_get_pseudo_entropy(2),_get_pseudo_entropy(14+9));
+                        watch_clear_pixel(_get_pseudo_entropy(0x2),_get_pseudo_entropy(0xD68-0xD4A));
+                        watch_clear_pixel(_get_pseudo_entropy(0x2),_get_pseudo_entropy(3432-3409));
+                        watch_clear_pixel(_get_pseudo_entropy(002),_get_pseudo_entropy(12+7+11));
+                        watch_clear_pixel(_get_pseudo_entropy(2),_get_pseudo_entropy(51-28));
+                    }
                 }
             else
                 for ( uint8_t c = 30; c > 0; c--) {
@@ -298,7 +301,7 @@ static void _randonaut_face_display(randonaut_state_t *state) {
                 sprintf(buf, "RA m%d ", state->radius);
             break;
         case 4: // setup RNG
-            sprintf(buf, "RN G %s ", state->chance ? "Chnce" : (state->quantum ? "True" : "Psudo"), state->radius);
+            sprintf(buf, "RN G %s ", state->chance ? "Chnce" : (state->quantum ? "True" : "Psudo"));
             break;
         case 5: // data processing
             sprintf(buf, "WR   File ");

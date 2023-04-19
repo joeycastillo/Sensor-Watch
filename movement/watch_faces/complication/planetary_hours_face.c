@@ -335,6 +335,7 @@ static void _planetary_hours(movement_settings_t *settings, planetary_hours_stat
 // PUBLIC WATCH FACE FUNCTIONS ////////////////////////////////////////////////
 
 void planetary_hours_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
+    (void) watch_face_index;
     (void) settings;
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(planetary_hours_state_t));
