@@ -53,7 +53,7 @@
  * alphanumeric characters. 
  */
 
-static const char name_alphabet[38] = " AbCdEFGHIJKLMNOPQRSTUVWXYZ_0123456789";
+static const char name_alphabet[39] = " AbCdEFGHIJKLMNOPQRSTUVWXYZ_0123456789";
 
 typedef struct {
     uint8_t d01 : 6;

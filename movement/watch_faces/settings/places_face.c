@@ -43,12 +43,13 @@ static void _data_load_place_from_file(places_state_t *state);
 static void _data_save_place_to_register(places_state_t *state);
 static void _data_save_place_to_file(places_state_t *state);
 static bool _quick_ticks_running;
-static void _abort_quick_ticks();
+static void _abort_quick_ticks(void);
 
 // MOVEMENT WATCH FACE FUNCTIONS //////////////////////////////////////////////
 
 void places_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
+    (void) watch_face_index;
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(places_state_t));
         memset(*context_ptr, 0, sizeof(places_state_t));

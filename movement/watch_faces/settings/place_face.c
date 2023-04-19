@@ -60,7 +60,7 @@ static void _data_save_place_to_memory(place_state_t *state);
 static void _data_save_place_to_register(place_state_t *state);
 static void _data_save_place_to_file(place_state_t *state);
 static bool _quick_ticks_running;
-static void _abort_quick_ticks();
+static void _abort_quick_ticks(void);
 
 // PUBLIC FUNCTIONS ///////////////////////////////////////////////////////////
 
@@ -70,7 +70,7 @@ void place_latlon_to_olc(char *pluscode, double latitude, double longitude) {
     place_format_olc_t olc;
     int32_t lat, lon;
     lat = (double)round(latitude * 100000);
-    lon = (double)round(latitude * 100000);
+    lon = (double)round(longitude * 100000);
     olc = _convert_decimal_ints_to_olc(lat, lon);
     pluscode[0] = olc_alphabet[olc.lat1];
     pluscode[1] = olc_alphabet[olc.lon1];
@@ -91,7 +91,7 @@ void place_latlon_to_geohash(char *hash, double latitude, double longitude) {
     place_format_geohash_t geohash;
     int32_t lat, lon;
     lat = (double)round(latitude * 100000);
-    lon = (double)round(latitude * 100000);
+    lon = (double)round(longitude * 100000);
     geohash = _convert_decimal_ints_to_geohash(lat, lon);
     hash[0] = geohash_alphabet[geohash.d01];
     hash[1] = geohash_alphabet[geohash.d02];
@@ -109,19 +109,16 @@ void place_latlon_to_geohash(char *hash, double latitude, double longitude) {
 
 void place_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
+    (void) watch_face_index;
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(place_state_t));
         memset(*context_ptr, 0, sizeof(place_state_t));
-        // Do any one-time tasks in here; the inside of this conditional happens only at boot.
     }
-    // Do any pin or peripheral setup here; this will be called whenever the watch wakes from deep sleep.
 }
 
 void place_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
     place_state_t *state = (place_state_t *)context;
-    if (watch_tick_animation_is_running()) watch_stop_tick_animation();
-    // Handle any tasks related to your watch face coming on screen.
 
 #if __EMSCRIPTEN__
     int16_t browser_lat = EM_ASM_INT({
@@ -322,22 +319,10 @@ bool place_face_loop(movement_event_t event, movement_settings_t *settings, void
         case EVENT_TIMEOUT:
             _abort_quick_ticks();
             movement_move_to_face(0);
-            // Your watch face will receive this event after a period of inactivity. If it makes sense to resign,
-            // you may uncomment this line to move back to the first watch face in the list:
-            // movement_move_to_face(0);
             break;
         case EVENT_LOW_ENERGY_UPDATE:
-            // If you did not resign in EVENT_TIMEOUT, you can use this event to update the display once a minute.
-            // Avoid displaying fast-updating values like seconds, since the display won't update again for 60 seconds.
-            // You should also consider starting the tick animation, to show the wearer that this is sleep mode:
-            // watch_start_tick_animation(500);
             break;
         default:
-            // Movement's default loop handler will step in for any cases you don't handle above:
-            // * EVENT_LIGHT_BUTTON_DOWN lights the LED
-            // * EVENT_MODE_BUTTON_UP moves to the next watch face in the list
-            // * EVENT_MODE_LONG_PRESS returns to the first watch face (or skips to the secondary watch face, if configured)
-            // You can override any of these behaviors by adding a case for these events to this switch statement.
             return movement_default_loop_handler(event, settings);
     }
 
@@ -724,7 +709,7 @@ static place_coordinate_t _convert_geohash_to_decimal_coordinate(place_format_ge
  */
 static void _place_face_update_latlon_display(movement_event_t event, place_state_t *state) {
     char buf[12];
-    char lln[9];
+    char lln[11];
     watch_clear_display();
 
     if ( state->page < 2 )
@@ -756,7 +741,7 @@ static void _place_face_update_latlon_display(movement_event_t event, place_stat
  */
 static void _place_face_update_dms_display(movement_event_t event, place_state_t *state) {
     char buf[12];
-    char lln[8];
+    char lln[11];
     watch_clear_display();
     if ( state->page < 2 ) 
         sprintf(lln, "%07d", abs( _convert_dms_struct_to_int(state->working_dms_latitude)));
