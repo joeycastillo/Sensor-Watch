@@ -30,7 +30,21 @@
 
 #include "movement.h"
 #include "calc.h"
-#include "morsecode.c"
+
+/*
+ * MC International Morse Code binary tree
+ * Levels of the tree are concatenated.
+ * '.' = 0 and '-' = 1. 
+ *
+ * Capitals denote special characters:
+ * C = Ch digraph
+ * V = VERIFY (ITU-R "UNDERSTOOD")
+ * R = REPEAT
+ * W = WAIT
+ * S = START TRANSMISSION
+ * E = END OF WORK
+ */
+static const char MORSECODE_TREE[] = " etianmsurwdkgohvf\0l\0pjbxcyzq\0C\x35\x34V\x33\0R\0\x32W\0+\0\0\0\0\x31\x36=/\0\0S(\0\x37\0\0\0\x38\0\x39\x30\0\0\0\0\0E\0\0\0\0\0\0?_\0\0\0\0\"\0\0.\0\0\0\0@\0\0\0'\0\0-\0\0\0\0\0\0\0\0;!\0)\0\0\0\0\0,\0\0\0\0:\0\0\0\0\0\0";
 
 void morsecalc_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
 void morsecalc_face_activate(movement_settings_t *settings, void *context);

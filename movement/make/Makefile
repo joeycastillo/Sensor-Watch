@@ -41,7 +41,6 @@ SRCS += \
   ../lib/sunriset/sunriset.c \
   ../lib/vsop87/vsop87a_milli.c \
   ../lib/astrolib/astrolib.c \
-  ../lib/morsecalc/morsecode.c \
   ../lib/morsecalc/calc.c \
   ../lib/morsecalc/calc_fns.c \
   ../lib/morsecalc/calc_strtof.c \
@@ -112,6 +111,7 @@ SRCS += \
   ../watch_faces/complication/invaders_face.c \
   ../watch_faces/clock/world_clock2_face.c \
   ../watch_faces/complication/time_left_face.c \
+  ../watch_faces/complication/randonaut_face.c \
   ../watch_faces/complication/toss_up_face.c \
   ../watch_faces/complication/geomancy_face.c \
 # New watch faces go above this line.

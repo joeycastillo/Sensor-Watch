@@ -60,10 +60,10 @@ static const char figures[16][2] = {
 
 // DECLARATIONS ///////////////////////////////////////////////////////////////
 
-static void geomancy_face_display();
-static nibble_t _geomancy_pick_figure();
-static tribble_t _iching_pick_trigram();
-static uint8_t _iching_form_hexagram();
+static void geomancy_face_display(geomancy_state_t *state);
+static nibble_t _geomancy_pick_figure(void);
+static tribble_t _iching_pick_trigram(void);
+static uint8_t _iching_form_hexagram(void);
 static void _geomancy_display(nibble_t code);
 static void _display_hexagram(uint8_t hexagram, char* str);
 static void _fix_broken_line(uint8_t hexagram);
@@ -72,6 +72,7 @@ static void _throw_animation(geomancy_state_t *state);
 // WATCH FACE FUNCTIONS ///////////////////////////////////////////////////////
 
 void geomancy_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
+    (void) watch_face_index;
     (void) settings;
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(geomancy_state_t));
@@ -112,12 +113,14 @@ bool geomancy_face_loop(movement_event_t event, movement_settings_t *settings, v
             switch ( state->mode ) {
                 case 0:
                     state->mode++;
+                    // fall through
                 case 1:
                     state->animate = true;
                     state->i_ching_hexagram = _iching_form_hexagram();
                     break;
                 case 2:
                     state->mode++;
+                    // fall through
                 case 3:
                     state->animate = true;
                     state->geomantic_figure = _geomancy_pick_figure().bits;
@@ -287,7 +290,7 @@ static void _throw_animation(geomancy_state_t *state) {
 
 /** @brief form a trigram from three random bit picks
  */
-static tribble_t _iching_pick_trigram() {
+static tribble_t _iching_pick_trigram(void) {
     uint8_t index = (divine_bit() << 2) | (divine_bit() << 1) | divine_bit();
     tribble_t trigram = {(bagua >> (3 * index)) & 0b111};
     return trigram;
@@ -295,7 +298,8 @@ static tribble_t _iching_pick_trigram() {
 
 /** @brief form a hexagram from two trigrams
  */
-static uint8_t _iching_form_hexagram() {
+static uint8_t _iching_form_hexagram(void);
+static uint8_t _iching_form_hexagram(void) {
     tribble_t inner = _iching_pick_trigram();
     tribble_t outer = _iching_pick_trigram();
     uint8_t hexagram = (inner.bits << 3) | outer.bits;
@@ -305,6 +309,7 @@ static uint8_t _iching_form_hexagram() {
 /** @brief display hexagram
  *  @details | for unbroken lines and Ξ for broken lines, left of display is bottom
  */
+static void _display_hexagram(uint8_t hexagram, char* str);
 static void _display_hexagram(uint8_t hexagram, char* str) {
     str[6] = '\0';  // Null-terminate the string
     for (uint8_t i = 0; i < 6; i++) {
@@ -334,7 +339,8 @@ static void _fix_broken_line(uint8_t hexagram) {
 /** @brief choose a geomantic figure from four random bits
  *  @details 0 represents · and 1 represents : counting from the bottom
  */
-static nibble_t _geomancy_pick_figure() {
+static nibble_t _geomancy_pick_figure(void);
+static nibble_t _geomancy_pick_figure(void) {
     uint8_t index = (divine_bit() << 3) | (divine_bit() << 2) | (divine_bit() << 1) | divine_bit();
     nibble_t figure = {(geomantic >> (4 * (15 - index))) & 0xF};
     return figure;
