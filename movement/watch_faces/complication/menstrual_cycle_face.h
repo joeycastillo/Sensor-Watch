@@ -36,28 +36,33 @@ typedef struct {
             uint8_t first_day : 5;
             uint8_t first_month : 4;
             uint8_t first_year : 6; // 0-63 (representing 2020-2083)
-            uint8_t shortest_cycle : 5; // For step 2 of The Calender Method 
-            uint8_t longest_cycle : 6; // For step 3 of The Calender Method 
-            uint8_t total_cycles : 6; // 4-6 years of tracking before overflow, triggering reset when > 63
+            uint8_t last_day : 5;
+            uint8_t last_month : 4;
+            uint8_t last_year : 6; // 0-63 (representing 2020-2083)
+        } bit;
+        uint32_t reg;
+    } dates;
+    union {
+        struct {
+            uint8_t shortest_cycle : 6; // For step 2 of The Calender Method 
+            uint8_t longest_cycle : 7; // For step 3 of The Calender Method 
+            uint8_t average_cycle : 6; // The average menstrual cycle lasts 28 days, but normal cycles can vary from 21 to 35 days
+            uint16_t total_cycles : 13;
         } bit; 
         uint32_t reg;
-    } period;
-    struct {
-        uint8_t current_page : 3;
-        uint8_t backup_register : 3;
-        bool period_today : 1;
-        bool reset_tracking : 1;
-    } bits;
+    } cycles;
+    uint8_t current_page;
+    uint8_t backup_register_dt;
+    uint8_t backup_register_cy;
     uint8_t days_since_period; // Days since the last period
+    bool period_today;
+    bool reset_tracking;
 } menstrual_cycle_state_t;
 
 void menstrual_cycle_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
 void menstrual_cycle_face_activate(movement_settings_t *settings, void *context);
 bool menstrual_cycle_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void menstrual_cycle_face_resign(movement_settings_t *settings, void *context);
-
-// uint16_t get_total_days(movement_settings_t *settings, menstrual_cycle_state_t *state);
-// uint16_t get_days_till_period(movement_settings_t *settings, menstrual_cycle_state_t *state);
 
 #define menstrual_cycle_face ((const watch_face_t){ \
     menstrual_cycle_face_setup, \
@@ -68,4 +73,3 @@ void menstrual_cycle_face_resign(movement_settings_t *settings, void *context);
 })
 
 #endif // MENSTRUAL_CYCLE_FACE_H_
-
