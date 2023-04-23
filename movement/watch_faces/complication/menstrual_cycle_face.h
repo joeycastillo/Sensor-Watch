@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Joseph Komosa
+ * Copyright (c) 2023 Joseph Komosa | @jokomo24
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,9 +36,9 @@ typedef struct {
             uint8_t first_day : 5;
             uint8_t first_month : 4;
             uint8_t first_year : 6; // 0-63 (representing 2020-2083)
-            uint8_t last_day : 5;
-            uint8_t last_month : 4;
-            uint8_t last_year : 6; // 0-63 (representing 2020-2083)
+            uint8_t prev_day : 5;
+            uint8_t prev_month : 4;
+            uint8_t prev_year : 6; // 0-63 (representing 2020-2083)
         } bit;
         uint32_t reg;
     } dates;
