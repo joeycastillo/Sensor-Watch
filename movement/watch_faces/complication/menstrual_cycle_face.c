@@ -54,7 +54,7 @@ static inline void beep(movement_settings_t *settings) {
     if (settings->bit.button_should_sound) watch_buzzer_play_note(BUZZER_NOTE_E8, 75);
 }
 
-static inline uint16_t total_days_tracked(movement_settings_t *settings, menstrual_cycle_state_t *state) {
+static inline uint16_t total_days_tracked(menstrual_cycle_state_t *state) {
     if (!(state->dates.reg)) return 0; // Tracking has not yet been activated
     
     watch_date_time date_time_start;
@@ -67,8 +67,8 @@ static inline uint16_t total_days_tracked(movement_settings_t *settings, menstru
     return (unix_now - unix_start) / SECONDS_PER_DAY;
 }
 
-static inline uint8_t days_till_period(movement_settings_t *settings, menstrual_cycle_state_t *state) {
-    int16_t days_left = (state->cycles.bit.average_cycle * (state->cycles.bit.total_cycles + 1)) - total_days_tracked(settings, state);
+static inline uint8_t days_till_period(menstrual_cycle_state_t *state) {
+    int16_t days_left = (state->cycles.bit.average_cycle * (state->cycles.bit.total_cycles + 1)) - total_days_tracked(state);
     if (days_left < 0) return 0;
     return days_left;
 }
@@ -105,7 +105,7 @@ Step 4: Using a calendar, mark down the start of the next period (using previous
         of days calculated in step 2. This is when peak fertility begins. Peak fertility ends
         at the number of days calculated in step 3.
 */
-static inline uint8_t get_day_pk_fert(movement_settings_t *settings, menstrual_cycle_state_t *state, fertile_window which_day) {
+static inline uint8_t get_day_pk_fert(menstrual_cycle_state_t *state, fertile_window which_day) {
     watch_date_time date_prev_period;
     date_prev_period.unit.day = state->dates.bit.prev_day;
     date_prev_period.unit.month = state->dates.bit.prev_month;
@@ -123,21 +123,21 @@ static inline uint8_t get_day_pk_fert(movement_settings_t *settings, menstrual_c
     return watch_utility_date_time_from_unix_time(unix_pk_date, state->utc_offset).unit.day;
 }
 
-static inline bool inside_fert_window(movement_settings_t *settings, menstrual_cycle_state_t *state) {
+static inline bool inside_fert_window(menstrual_cycle_state_t *state) {
     watch_date_time date_time_now = watch_rtc_get_date_time();
-    if (date_time_now.unit.day > get_day_pk_fert(settings, state, first_day) && 
-       (date_time_now.unit.day < get_day_pk_fert(settings, state, last_day)))
+    if (date_time_now.unit.day > get_day_pk_fert(state, first_day) && 
+       (date_time_now.unit.day < get_day_pk_fert(state, last_day)))
        return true;
     return false;
 }
 
-static inline void calc_shortest_longest_cycle(movement_settings_t *settings, menstrual_cycle_state_t *state) {
+static inline void calc_shortest_longest_cycle(menstrual_cycle_state_t *state) {
     watch_date_time date_prev_period;
     date_prev_period.unit.day = state->dates.bit.prev_day;
     date_prev_period.unit.month = state->dates.bit.prev_month;
     date_prev_period.unit.year = state->dates.bit.prev_year;
     uint32_t unix_prev_period = watch_utility_date_time_to_unix_time(date_prev_period, state->utc_offset);
-    uint8_t cycle_length = total_days_tracked(settings, state) - (unix_prev_period / SECONDS_PER_DAY);
+    uint8_t cycle_length = total_days_tracked(state) - (unix_prev_period / SECONDS_PER_DAY);
     if (cycle_length < state->cycles.bit.shortest_cycle)
         state->cycles.bit.shortest_cycle = cycle_length;
     else if (cycle_length > state->cycles.bit.longest_cycle)
@@ -222,9 +222,9 @@ bool menstrual_cycle_face_loop(movement_event_t event, movement_settings_t *sett
                 case peak_fertility_window:
                     break;
                 case period_is_here:
-                    if (state->period_today && total_days_tracked(settings, state)) {
+                    if (state->period_today && total_days_tracked(state)) {
                         // Calculate before updating date of last period
-                        calc_shortest_longest_cycle(settings, state);
+                        calc_shortest_longest_cycle(state);
                         // Update last period
                         date_period = watch_rtc_get_date_time();
                         state->dates.bit.prev_day = date_period.unit.day;
@@ -232,7 +232,7 @@ bool menstrual_cycle_face_loop(movement_event_t event, movement_settings_t *sett
                         state->dates.bit.prev_year = date_period.unit.year;
                         // Calculate new cycle average
                         state->cycles.bit.total_cycles += 1;
-                        state->cycles.bit.average_cycle = total_days_tracked(settings, state) / state->cycles.bit.total_cycles;
+                        state->cycles.bit.average_cycle = total_days_tracked(state) / state->cycles.bit.total_cycles;
                         // Store the new data
                         watch_store_backup_data(state->dates.reg, state->backup_register_dt);
                         watch_store_backup_data(state->cycles.reg, state->backup_register_cy);
@@ -240,7 +240,7 @@ bool menstrual_cycle_face_loop(movement_event_t event, movement_settings_t *sett
                     }
                     break;
                 case first_period:
-                    if (!(total_days_tracked(settings, state))) {
+                    if (!(total_days_tracked(state))) {
                         unix_now = watch_utility_date_time_to_unix_time(watch_rtc_get_date_time(), state->utc_offset);
                         date_period = watch_utility_date_time_from_unix_time(unix_now - (state->days_prev_period * SECONDS_PER_DAY), state->utc_offset); 
                         state->dates.bit.first_day = date_period.unit.day;
@@ -269,7 +269,7 @@ bool menstrual_cycle_face_loop(movement_event_t event, movement_settings_t *sett
                 case peak_fertility_window:
                     break;
                 case period_is_here:
-                    if (total_days_tracked(settings, state))
+                    if (total_days_tracked(state))
                         state->period_today = !(state->period_today);
                     break;
                 case first_period:
@@ -297,8 +297,8 @@ bool menstrual_cycle_face_loop(movement_event_t event, movement_settings_t *sett
         char buf[11];
         switch (current_page) {
             case period_in_num_days:
-                sprintf(buf, "%2d", days_till_period(settings, state));
-                if (inside_fert_window(settings, state))
+                sprintf(buf, "%2d", days_till_period(state));
+                if (inside_fert_window(state))
                     watch_set_indicator(WATCH_INDICATOR_BELL);
                 watch_display_string(buf, 4);
                 break;
@@ -308,10 +308,10 @@ bool menstrual_cycle_face_loop(movement_event_t event, movement_settings_t *sett
                 break;
             case peak_fertility_window:
                 if (state->dates.reg) {
-                    first_day_fert = get_day_pk_fert(settings, state, first_day);
-                    last_day_fert = get_day_pk_fert(settings, state, last_day);
+                    first_day_fert = get_day_pk_fert(state, first_day);
+                    last_day_fert = get_day_pk_fert(state, last_day);
                     sprintf(buf, "Fr%2d To %2d", first_day_fert, last_day_fert);
-                    if (inside_fert_window(settings, state))
+                    if (inside_fert_window(state))
                         watch_set_indicator(WATCH_INDICATOR_BELL);
                     watch_display_string("          ", 0); // Clear title screen but not indicators
                     watch_display_string(buf, 0);
@@ -320,7 +320,7 @@ bool menstrual_cycle_face_loop(movement_event_t event, movement_settings_t *sett
             case period_is_here:
                 if (!(state->dates.reg))
                     watch_display_string("NA", 8); // Not Applicable: Do not allow period entry until tracking is activated...
-                else if (total_days_tracked(settings, state) % state->cycles.bit.average_cycle < 10) // ...and it's been >= 10 days since the last period
+                else if (total_days_tracked(state) % state->cycles.bit.average_cycle < 10) // ...and it's been >= 10 days since the last period
                     watch_start_tick_animation(500);
                 else if (state->period_today)
                     watch_display_string("y", 9);
