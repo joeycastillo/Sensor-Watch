@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Joseph Komosa | @jokomo24
+ * Copyright (c) 2023 Joseph Borne Komosa | @jokomo24
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -39,24 +39,27 @@ typedef struct {
             uint8_t prev_day : 5;
             uint8_t prev_month : 4;
             uint8_t prev_year : 6; // 0-63 (representing 2020-2083)
+            // uint8_t left_over : 2;
         } bit;
-        uint32_t reg;
+        uint32_t reg; // Tracking's been activated if > 0
     } dates;
     union {
         struct {
             uint8_t shortest_cycle : 6; // For step 2 of The Calender Method 
-            uint8_t longest_cycle : 7; // For step 3 of The Calender Method 
+            uint8_t longest_cycle : 6; // For step 3 of The Calender Method 
             uint8_t average_cycle : 6; // The average menstrual cycle lasts 28 days, but normal cycles can vary from 21 to 35 days
-            uint16_t total_cycles : 13;
+            uint16_t total_cycles : 10; // The total cycles (periods) counted since the start of tracking, ~82 years before overflow
+            // uint8_t left_over : 4;
         } bit; 
         uint32_t reg;
     } cycles;
     uint8_t current_page;
     uint8_t backup_register_dt;
     uint8_t backup_register_cy;
-    uint8_t days_since_period; // Days since the last period
+    uint8_t days_prev_period; // Days since the prev period, logged once to activate tracking
     bool period_today;
     bool reset_tracking;
+    int32_t utc_offset;
 } menstrual_cycle_state_t;
 
 void menstrual_cycle_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
