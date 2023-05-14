@@ -55,8 +55,8 @@ static inline void beep(movement_settings_t *settings) {
 }
 
 static inline uint16_t total_days_tracked(menstrual_cycle_state_t *state) {
-    if (!(state->dates.reg)) return 0; // Tracking has not yet been activated
-    
+    if (!(state->dates.reg)) 
+        return 0; // Tracking has not yet been activated
     watch_date_time date_time_start;
     date_time_start.unit.day = state->dates.bit.first_day;
     date_time_start.unit.month = state->dates.bit.first_month;
@@ -64,7 +64,8 @@ static inline uint16_t total_days_tracked(menstrual_cycle_state_t *state) {
     watch_date_time date_time_now = watch_rtc_get_date_time();
     uint32_t unix_start = watch_utility_date_time_to_unix_time(date_time_start, state->utc_offset);
     uint32_t unix_now = watch_utility_date_time_to_unix_time(date_time_now, state->utc_offset);
-    return (unix_now - unix_start) / SECONDS_PER_DAY;
+    int32_t total_days = (unix_now - unix_start) / SECONDS_PER_DAY;;
+    return (total_days < 0) ? 0 : total_days;
 }
 
 static inline uint8_t days_till_period(menstrual_cycle_state_t *state) {
@@ -145,7 +146,6 @@ static inline void calc_shortest_longest_cycle(menstrual_cycle_state_t *state) {
 }
 
 void menstrual_cycle_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
-    (void) settings;
     (void) watch_face_index;
     
     if (*context_ptr == NULL) {
@@ -164,7 +164,6 @@ void menstrual_cycle_face_setup(movement_settings_t *settings, uint8_t watch_fac
         state->cycles.bit.total_cycles = 0;
         state->backup_register_dt = 0;
         state->backup_register_cy = 0;
-        state->utc_offset = movement_timezone_offsets[settings->bit.time_zone] * 60;
     }
     menstrual_cycle_state_t *state = ((menstrual_cycle_state_t *)*context_ptr);
     if (!(state->backup_register_dt && state->backup_register_cy)) {
@@ -187,6 +186,7 @@ void menstrual_cycle_face_activate(movement_settings_t *settings, void *context)
     state->period_today = 0;
     state->current_page = 0;
     state->reset_tracking = 0;
+    state->utc_offset = movement_timezone_offsets[settings->bit.time_zone] * 60;
     movement_request_tick_frequency(4); // we need to manually blink some pixels
 }
 
@@ -313,7 +313,7 @@ bool menstrual_cycle_face_loop(movement_event_t event, movement_settings_t *sett
                     sprintf(buf, "Fr%2d To %2d", first_day_fert, last_day_fert);
                     if (inside_fert_window(state))
                         watch_set_indicator(WATCH_INDICATOR_BELL);
-                    watch_display_string("          ", 0); // Clear title screen but not indicators
+                    watch_display_string("          ", 0); // Clear title but not indicators
                     watch_display_string(buf, 0);
                 }
                 break;
