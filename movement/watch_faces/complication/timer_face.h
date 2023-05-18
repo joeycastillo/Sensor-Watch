@@ -77,6 +77,7 @@ typedef struct {
     uint32_t now_ts;
     uint16_t paused_left;
     uint8_t pausing_seconds;
+    uint8_t watch_face_index;
     timer_setting_t timers[TIMER_SLOTS]; 
     uint8_t settings_state : 4;
     uint8_t current_timer : 4;
