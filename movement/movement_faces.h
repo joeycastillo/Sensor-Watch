@@ -91,6 +91,7 @@
 #include "toss_up_face.h"
 #include "geomancy_face.h"
 #include "dual_timer_face.h"
+#include "simple_clock_bin_led_face.h"
 // New includes go above this line.
 
 #endif // MOVEMENT_FACES_H_
