@@ -28,9 +28,8 @@
 #include "movement.h"
 
 typedef struct {
-    // Store the "first" period and the total cycles since, to calulate the average menstrual cycle.
-    // Store the shortest and longest cycle to calculate the fertility window, after tracking for >= 8
-    // months, using The Calender Method.
+    // Store the first period and the total cycles since, to calulate the average menstrual cycle.
+    // Store the shortest and longest cycle to calculate the fertility window for The Calender Method.
     union {
         struct {
             uint8_t first_day : 5;

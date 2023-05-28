@@ -41,12 +41,12 @@ enum {
     reset,
 } page_titles_e;
 const char menstrual_cycle_face_titles[MENSTRUAL_CYCLE_FACE_NUM_PAGES][11] = {
-    "Prin   day",   // Period In <num> Days: Estimated days till the next period
-    "Av  cycle ",   // Average Cycle: The average number of days estimated for the cycle
+    "Prin   day",   // Period In <num> Days: Estimated days till the next period occurs
+    "Av  cycle ",   // Average Cycle: The average number of days estimated per cycle
     "Peak Fert ",   // Peak Fertility Window: The first and last day of month (displayed top & bottom right, respectively, once tracking) for the estimated window of fertility
-    "Prishere  ",   // Period Is Here: Set to yes (toggle to 'y' and hold alarm) to save current date as the "previous" period, improving the 'days till next period', 'average cycle', and 'peak fertility window' estimations
-    "Last Per  ",   // Last (first) Period: To begin tracking and for one time only, enter the number of days (++days via alarm, and hold to enter) since the most recent period, thus calculating the date of the "first" period
-    "    Reset ",   // Reset: Set to yes (toggle to 'y' and hold alarm) to reset period tracking
+    "Prishere  ",   // Period Is Here: Toggle and enter 'y' on the day the actual period occurs to improve Avg and Fert estimations
+    "Last Per  ",   // Last Period: Enter the number of days since the last period to begin tracking from that corresponding date by storing it as the 'first'
+    "    Reset ",   // Reset: Toggle and enter 'y' to reset tracking data
 };
 
 /* Beep function */
@@ -114,7 +114,7 @@ static inline void reset_tracking(menstrual_cycle_state_t *state) {
 
 /*
 Fertility Window based on "The Calendar Method"
-Trusted Source: https://www.womenshealth.gov/pregnancy/you-get-pregnant/trying-conceive
+Source: https://www.womenshealth.gov/pregnancy/you-get-pregnant/trying-conceive
 
 The Calendar Method has several steps:
 
@@ -128,8 +128,9 @@ Step 4: Using a calendar, mark down the start of the next period (using previous
         at the number of days calculated in step 3.
 NOTE: Right now, the fertility window face displays its estimated window as soon as tracking is activated, although
       it is important to keep in mind that The Calender Method states that peak accuracy of the window will be 
-      reached only after at least 8 months of tracking the menstrual cycle. (We could make it so that it only displays
-      after total_days_tracked >= 8 months...)
+      reached only after at least 8 months of tracking the menstrual cycle (can make it so that it only displays
+      after total_days_tracked >= 8 months...but the info is interesting and should already be taken with the understanding that,
+      in general, it is a rough estimation at best).
 */
 typedef enum Fertile_Window {first_day, last_day} fertile_window;
 // Calculate the predicted starting or ending day of peak fertility
@@ -181,11 +182,14 @@ static inline bool inside_fert_window(menstrual_cycle_state_t *state) {
     return false;
 }
 
-// Calculate the shortest and longest menstrual cycles based on the previous menstrual cycle
-static inline void calc_shortest_longest_cycle(menstrual_cycle_state_t *state) {
+// Update the shortest and longest menstrual cycles based on the previous menstrual cycle
+static inline void update_shortest_longest_cycle(menstrual_cycle_state_t *state) {
 
     // Get the date of the previous menstrual cycle
     watch_date_time date_prev_period;
+    date_prev_period.unit.second = 0;
+    date_prev_period.unit.minute = 0;
+    date_prev_period.unit.hour = 0;
     date_prev_period.unit.day = state->dates.bit.prev_day;
     date_prev_period.unit.month = state->dates.bit.prev_month;
     date_prev_period.unit.year = state->dates.bit.prev_year;
@@ -196,13 +200,12 @@ static inline void calc_shortest_longest_cycle(menstrual_cycle_state_t *state) {
     // Calculate the length of the current menstrual cycle
     uint8_t cycle_length = total_days_tracked(state) - (unix_prev_period / SECONDS_PER_DAY);
 
-    // Update the shortest and longest cycle lengths if necessary
+    // Update the shortest or longest cycle length if necessary
     if (cycle_length < state->cycles.bit.shortest_cycle)
         state->cycles.bit.shortest_cycle = cycle_length;
     else if (cycle_length > state->cycles.bit.longest_cycle)
         state->cycles.bit.longest_cycle = cycle_length;
 }
-
 
 void menstrual_cycle_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) watch_face_index;
@@ -274,7 +277,7 @@ bool menstrual_cycle_face_loop(movement_event_t event, movement_settings_t *sett
         case EVENT_LIGHT_BUTTON_DOWN:
             current_page = (current_page + 1) % MENSTRUAL_CYCLE_FACE_NUM_PAGES;
             state->current_page = current_page;
-            state->days_prev_period = 9;
+            state->days_prev_period = 0;
             watch_clear_indicator(WATCH_INDICATOR_BELL);
             if (watch_tick_animation_is_running())
                 watch_stop_tick_animation();
@@ -290,7 +293,7 @@ bool menstrual_cycle_face_loop(movement_event_t event, movement_settings_t *sett
                 case period_is_here:
                     if (state->period_today && total_days_tracked(state)) {
                         // Calculate before updating date of last period
-                        calc_shortest_longest_cycle(state);
+                        update_shortest_longest_cycle(state);
                         // Update the date of last period after calulating the, now previous, cycle length
                         date_period = watch_rtc_get_date_time();
                         state->dates.bit.prev_day = date_period.unit.day;
@@ -310,7 +313,7 @@ bool menstrual_cycle_face_loop(movement_event_t event, movement_settings_t *sett
                     if (!(state->dates.reg)) {
                         unix_now = watch_utility_date_time_to_unix_time(watch_rtc_get_date_time(), state->utc_offset);
                         unix_day_of_prev_period = unix_now - (state->days_prev_period * SECONDS_PER_DAY);
-                        date_period = watch_utility_date_time_from_unix_time(unix_day_of_prev_period, state->utc_offset); 
+                        date_period = watch_utility_date_time_from_unix_time(unix_day_of_prev_period, state->utc_offset);
                         state->dates.bit.first_day = date_period.unit.day;
                         state->dates.bit.first_month = date_period.unit.month;
                         state->dates.bit.first_year = date_period.unit.year;
