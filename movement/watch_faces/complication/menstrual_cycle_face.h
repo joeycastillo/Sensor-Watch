@@ -48,8 +48,8 @@ typedef struct {
             uint8_t shortest_cycle : 6; // For step 2 of The Calender Method 
             uint8_t longest_cycle : 6; // For step 3 of The Calender Method 
             uint8_t average_cycle : 6; // The average menstrual cycle lasts 28 days, but normal cycles can vary from 21 to 35 days
-            uint16_t total_cycles : 10; // The total cycles (periods) counted since the start of tracking, ~82 years before overflow
-            // uint8_t left_over : 4;
+            uint16_t total_cycles : 11; // The total cycles (periods) counted since the start of tracking
+            // uint8_t left_over : 3;
         } bit; 
         uint32_t reg;
     } cycles;
