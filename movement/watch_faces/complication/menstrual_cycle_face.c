@@ -133,10 +133,13 @@ NOTE: Right now, the fertility window face displays its estimated window as soon
 */
 typedef enum Fertile_Window {first_day, last_day} fertile_window;
 // Calculate the predicted starting or ending day of peak fertility
-static inline uint8_t get_day_pk_fert(menstrual_cycle_state_t *state, fertile_window which_day) {
+static inline uint32_t get_day_pk_fert(menstrual_cycle_state_t *state, fertile_window which_day) {
 
     // Get the date of the previous period
     watch_date_time date_prev_period;
+    date_prev_period.unit.second = 0;
+    date_prev_period.unit.minute = 0;
+    date_prev_period.unit.hour = 0;
     date_prev_period.unit.day = state->dates.bit.prev_day;
     date_prev_period.unit.month = state->dates.bit.prev_month;
     date_prev_period.unit.year = state->dates.bit.prev_year;
@@ -166,10 +169,14 @@ static inline bool inside_fert_window(menstrual_cycle_state_t *state) {
     watch_date_time date_time_now = watch_rtc_get_date_time();
 
     // Check if the current day falls between the first and last predicted peak fertility days
-    if (date_time_now.unit.day > get_day_pk_fert(state, first_day) && 
-       (date_time_now.unit.day < get_day_pk_fert(state, last_day)))
-       return true;
-
+    if (get_day_pk_fert(state, first_day) > get_day_pk_fert(state, last_day)) { // We are crossing over the end of the month
+        if (date_time_now.unit.day >= get_day_pk_fert(state, first_day) ||
+            date_time_now.unit.day <= get_day_pk_fert(state, last_day))
+            return true;
+    }
+    else if (date_time_now.unit.day >= get_day_pk_fert(state, first_day) &&
+             date_time_now.unit.day <= get_day_pk_fert(state, last_day))
+             return true;
     // If the current day does not fall within the predicted peak fertility window, return false
     return false;
 }
@@ -267,7 +274,7 @@ bool menstrual_cycle_face_loop(movement_event_t event, movement_settings_t *sett
         case EVENT_LIGHT_BUTTON_DOWN:
             current_page = (current_page + 1) % MENSTRUAL_CYCLE_FACE_NUM_PAGES;
             state->current_page = current_page;
-            state->days_prev_period = 0;
+            state->days_prev_period = 9;
             watch_clear_indicator(WATCH_INDICATOR_BELL);
             if (watch_tick_animation_is_running())
                 watch_stop_tick_animation();
