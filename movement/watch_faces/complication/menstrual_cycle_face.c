@@ -20,16 +20,18 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- */
-
-
-/*
+ *
+ * 
+ * Menstrual Cycle Face
+ * 
  * Background:
+ * 
  * I discovered the Casio F-91W through my partner, appreciated the retro analog aesthetic of the watch,
- * and got one for myself. Soon afterward I discovered the Sensor Watch project and ordered two boards. 
- * I introduced the Sensor Watch to my partner who requested that she be able to track her menstrual cycle.
+ * and got one for myself. Soon afterward I discovered the Sensor Watch project and ordered two boards! 
+ * I introduced the Sensor Watch to my partner who inquired whether she could track her menstrual cycle.
  * So I decided to implement a menstrual cycle watch face that also calculates the peak fertility window
- * using The Calendar Method. Information that may be useful when attempting to achieve or avoid pregnancy.
+ * using The Calendar Method. While this information may be useful when attempting to achieve or avoid 
+ * pregnancy, it is important to understand that these are rough estimates at best.
  * 
  * How to use:
  * 
