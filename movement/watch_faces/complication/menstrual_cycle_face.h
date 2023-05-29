@@ -28,8 +28,11 @@
 #include "movement.h"
 
 typedef struct {
-    // Store the first period and the total cycles since, to calulate the average menstrual cycle.
+    // Store the date of the 'first' and the total cycles since to calulate and store the average menstrual cycle.
+    // Store the date of the previous, most recent, period to calculate the cycle length.
     // Store the shortest and longest cycle to calculate the fertility window for The Calender Method.
+    // NOTE: Not thrilled about using two registers, but could not find a way to perform The Calender Method
+    //       without requiring both the 'first' and 'prev' dates.
     union {
         struct {
             uint8_t first_day : 5;
@@ -38,7 +41,7 @@ typedef struct {
             uint8_t prev_day : 5;
             uint8_t prev_month : 4;
             uint8_t prev_year : 6; // 0-63 (representing 2020-2083)
-            // uint8_t left_over : 2;
+            uint8_t reserved : 2; // left over bit space
         } bit;
         uint32_t reg; // Tracking's been activated if > 0
     } dates;
@@ -47,18 +50,18 @@ typedef struct {
             uint8_t shortest_cycle : 6; // For step 2 of The Calender Method 
             uint8_t longest_cycle : 6; // For step 3 of The Calender Method 
             uint8_t average_cycle : 6; // The average menstrual cycle lasts 28 days, but normal cycles can vary from 21 to 35 days
-            uint16_t total_cycles : 11; // The total cycles (periods) counted since the start of tracking
-            // uint8_t left_over : 3;
+            uint16_t total_cycles : 11; // The total cycles (periods) entered since the start of tracking
+            uint8_t reserved : 3; // left over bit space
         } bit; 
         uint32_t reg;
     } cycles;
-    uint8_t current_page;
     uint8_t backup_register_dt;
     uint8_t backup_register_cy;
-    uint8_t days_prev_period; // Days since the prev period, logged once to activate tracking
+    uint8_t current_page;
+    uint8_t days_prev_period;
+    int32_t utc_offset;
     bool period_today;
     bool reset_tracking;
-    int32_t utc_offset;
 } menstrual_cycle_state_t;
 
 void menstrual_cycle_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);

@@ -22,6 +22,39 @@
  * SOFTWARE.
  */
 
+
+/*
+ * Background:
+ * I discovered the Casio F-91W through my partner, appreciated the retro analog aesthetic of the watch,
+ * and got one for myself. Soon afterward I discovered the Sensor Watch project and ordered two boards. 
+ * I introduced the Sensor Watch to my partner who requested that she be able to track her menstrual cycle.
+ * So I decided to implement a menstrual cycle watch face that also calculates the peak fertility window
+ * using The Calendar Method. Information that may be useful when attempting to achieve or avoid pregnancy.
+ * 
+ * How to use:
+ * 
+ * 1. To begin tracking, go to 'Last Period' page and toggle the alarm button to the number of days since 
+ *    the last, most recent, period and hold the alarm button to enter. This will perform the following actions:
+ *    - It will store the corresponding date as the 'first' period in order to calculate the total_days_tracked.
+ *    - It will turn on the Signal Indicator to signify that tracking has been activated.
+ *    - It will deactivate this page and instead show the ticking animation.
+ *    - It will adjust the days left in the 'Period in <num> Days' page accordingly.
+ *    - It will cause the 'Period Is Here' page to become active and no longer display 'NA'. And to prevent 
+ *      accidental entry after activation, the page will display the ticking animation until ten days have passed 
+ *      since the date of the last period entered.
+ *    - It will activate the 'Peak Fertility' page, which will begin showing the estimated window,
+ *      as well as display the Alarm Indicator, on this page and on the main 'Period in <num> Days' page
+ *      whenever the current date falls within the Peak Fertility Window.
+ * 
+ * 2. Toggle and enter 'y' in the 'Period Is Here' page on the day of every sequential period afterward. 
+ *    DO NOT FORGET TO DO SO!
+ *    - If forgotten, the data will become inaccurate and tracking will need to be reset! -> (FIXME, allow one to enter a 'missed' period using the 'Last Period' page).
+ *    This will perform the following actions:
+ *    - Calculate this completed cycle's length and reevaluate the current shortest and longest cycle variables.
+ *    - Increment total_cycles by one.
+ *    - Recalculate and save the average cycle for 'Average Cycle' page.
+ */
+
 #include <stdlib.h>
 #include <string.h>
 #include "menstrual_cycle_face.h"
@@ -51,7 +84,8 @@ const char menstrual_cycle_face_titles[MENSTRUAL_CYCLE_FACE_NUM_PAGES][11] = {
 
 /* Beep function */
 static inline void beep(movement_settings_t *settings) {
-    if (settings->bit.button_should_sound) watch_buzzer_play_note(BUZZER_NOTE_E8, 75);
+    if (settings->bit.button_should_sound) 
+        watch_buzzer_play_note(BUZZER_NOTE_E8, 75);
 }
 
 // Calculate the total number of days for which menstrual cycle tracking has been active
@@ -228,6 +262,9 @@ void menstrual_cycle_face_setup(movement_settings_t *settings, uint8_t watch_fac
         state->cycles.bit.average_cycle = TYPICAL_AVG_CYC;
         state->cycles.bit.total_cycles = 0;
 
+        state->dates.bit.reserved = 0;
+        state->cycles.bit.reserved = 0;
+
         state->backup_register_dt = 0;
         state->backup_register_cy = 0;
     }
@@ -305,7 +342,7 @@ bool menstrual_cycle_face_loop(movement_event_t event, movement_settings_t *sett
                         // Store the new data
                         watch_store_backup_data(state->dates.reg, state->backup_register_dt);
                         watch_store_backup_data(state->cycles.reg, state->backup_register_cy);
-                        // beep(settings);
+                        beep(settings);
                     }
                     break;
                 case first_period:
@@ -321,7 +358,7 @@ bool menstrual_cycle_face_loop(movement_event_t event, movement_settings_t *sett
                         state->dates.bit.prev_month = date_period.unit.month;
                         state->dates.bit.prev_year = date_period.unit.year;
                         watch_store_backup_data(state->dates.reg, state->backup_register_dt);
-                        // beep(settings);
+                        beep(settings);
                     }
                     break;
                 case reset:
@@ -351,6 +388,9 @@ bool menstrual_cycle_face_loop(movement_event_t event, movement_settings_t *sett
                     state->reset_tracking = !(state->reset_tracking);
                     break;
             }
+            break;
+        case EVENT_LOW_ENERGY_UPDATE:
+            watch_display_string("PR  SLEEP ", 0);
             break;
         case EVENT_TIMEOUT:
             movement_move_to_face(0);
