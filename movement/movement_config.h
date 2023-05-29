@@ -28,11 +28,11 @@
 #include "movement_faces.h"
 
 const watch_face_t watch_faces[] = {
-    menstrual_cycle_face,
     simple_clock_face,
     world_clock_face,
     sunrise_sunset_face,
     moon_phase_face,
+    stopwatch_face,
     preferences_face,
     set_time_face,
 };
