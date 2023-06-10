@@ -114,6 +114,7 @@ SRCS += \
   ../watch_faces/complication/randonaut_face.c \
   ../watch_faces/complication/toss_up_face.c \
   ../watch_faces/complication/geomancy_face.c \
+  ../watch_faces/clock/simple_clock_bin_led_face.c \
   ../watch_faces/complication/menstrual_cycle_face.c \
 # New watch faces go above this line.
 
