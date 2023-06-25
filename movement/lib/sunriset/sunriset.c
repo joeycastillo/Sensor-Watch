@@ -23,7 +23,7 @@ static void sunpos( double d, double *lon, double *r );
 /* (which is equal to 1999 Dec 31, 0h UT)                           */
 
 #define days_since_2000_Jan_0(y,m,d) \
-    (367L*(y)-((7*((y)+(((m)+9)/12.0)))/4)+((275*(m))/9.0)+(d)-730530L)
+    (367L*(y)-((7*((y)+(((m)+9)/12)))/4)+((275*(m))/9)+(d)-730530L)
 
 /* Some conversion factors between radians and degrees */
 
