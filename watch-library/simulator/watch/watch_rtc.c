@@ -97,8 +97,7 @@ void watch_rtc_register_periodic_callback(ext_irq_cb_t callback, uint8_t frequen
     // 0x01 (1 Hz) will have 7 leading zeros for PER7. 0xF0 (128 Hz) will have no leading zeroes for PER0.
     uint8_t per_n = __builtin_clz(tmp);
 
-    // this also maps nicely to an index for our list of tick callbacks.
-    double interval = 1000 / frequency; // in msec
+    double interval = 1000.0 / frequency; // in msec
 
     if (tick_callbacks[per_n] != -1) emscripten_clear_interval(tick_callbacks[per_n]);
     tick_callbacks[per_n] = emscripten_set_interval(watch_invoke_periodic_callback, interval, (void *)callback);

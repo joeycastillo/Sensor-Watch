@@ -2,6 +2,7 @@
 **/build-sim/
 *.b#*
 *.bin
+.cache/
 *.d
 *.elf
 *.hex
