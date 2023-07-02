@@ -52,6 +52,7 @@
 #define BOARD_DISPLAY_END 9
 #define MIN_CARD_VALUE 2
 #define MAX_CARD_VALUE 14
+#define FLIP_BOARD_DIRECTION false
 
 typedef struct card_t {
     uint8_t value;
@@ -128,11 +129,13 @@ static void set_segment_at_position(segment_t segment, uint8_t position) {
 }
 
 static void render_board_position(size_t board_position) {
-    const size_t display_position = BOARD_DISPLAY_END - board_position;
+    size_t display_position = FLIP_BOARD_DIRECTION
+            ? BOARD_DISPLAY_START + board_position
+            : BOARD_DISPLAY_END - board_position;
     const bool revealed = game_board[board_position].revealed;
 
+    //// Current position indicator spot
     //if (board_position == guess_position) {
-    //    // Current spot
     //    watch_display_character('-', display_position);
     //    return;
     //}
