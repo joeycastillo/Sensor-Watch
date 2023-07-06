@@ -26,14 +26,17 @@
 #include <string.h>
 #include "wyoscan_face.h"
 #include "watch_private_display.h"
+#if __EMSCRIPTEN__
 #include <emscripten.h>
 #include <emscripten/html5.h>
+#endif
 
 /*
 Slowly render the current time from left to right, 
 scanning across its liquid crystal face, completing 1 cycle every 2 seconds.
 
 Created to mimic the wyoscan watch that was produced by Halmos and designed by Dexter Sinister
+It looks like this https://www.o-r-g.com/apps/wyoscan
 
 You’ll notice that reading this watch requires more attention than usual, 
 as the seven segments of each digit are lit one by one across its display. 
@@ -42,7 +45,7 @@ You and your watch are now in tune.
 */
 
 
-char *segment_map[] = {
+static char *segment_map[] = {
     "AFBGECD",  // 0
     "BC",       // 1
     "ABGED",    // 2
@@ -54,7 +57,7 @@ char *segment_map[] = {
     "AFBGECD",  // 8
     "AFBGCD"    // 9
 };
-uint32_t clock_mapping[6][7][2] = {
+static int32_t clock_mapping[6][7][2] = {
     // hour 1
     {{1,18}, {2,19}, {0,19}, {1,18}, {0,18}, {2,18}, {1,19}},
     // hour 2
@@ -74,14 +77,12 @@ static long colon_interval_id = -1;
 
 static void _wyoscan_animation(wyoscan_state_t *state) {
     uint32_t position, segment;
-    char *segments;
-    state->start = 0, 
-    state->end = 0;     
+    char *segments;     
     
     // Calculate total_frames
     state->total_frames += MAX_ILLUMINATED_SEGMENTS; // for clearing
     
-    movement_request_tick_frequency(16);
+    movement_request_tick_frequency(32);
     
     if (state->animation < state->total_frames - MAX_ILLUMINATED_SEGMENTS) {
         // calculate the start position for the current frame
@@ -136,7 +137,6 @@ static bool watch_colon_animation_is_running(void) {
 
 static void watch_start_colon_animation(uint32_t duration) {
     if (colon_interval_id != -1) return;
-    watch_display_character(' ', 8);
 
     colon_state = true;
     colon_interval_id = emscripten_set_interval(watch_invoke_colon_callback, (double)duration, NULL);
@@ -163,16 +163,14 @@ bool wyoscan_face_loop(movement_event_t event, movement_settings_t *settings, vo
     watch_date_time date_time;
     switch (event.event_type) {
         case EVENT_ACTIVATE:
-        case EVENT_TICK:
-            if ( state->animate ) {
-                _wyoscan_animation(state);
-                state->animation = (state->animation + 1);
-            } 
             break;
-        case EVENT_LOW_ENERGY_UPDATE:
-            date_time = watch_rtc_get_date_time();
-            int i=0;
+        case EVENT_TICK:
+            printf("Loop: Received EVENT_TICK\n");            date_time = watch_rtc_get_date_time();
             if (date_time.unit.second % 2 && !state->animate) {
+                int i=0;
+                state->start = 0; 
+                state->end = 0;
+                printf("Loop: Preparing to start animation\n");
                 state->total_frames = 0;
                 for(i = 0; i < 6; i++) {
                     state->total_frames += strlen(segment_map[state->time_digits[i]]);
@@ -185,7 +183,17 @@ bool wyoscan_face_loop(movement_event_t event, movement_settings_t *settings, vo
                 state->time_digits[4] = date_time.unit.second / 10;
                 state->time_digits[5] = date_time.unit.second % 10;
             }
-            if (!watch_colon_animation_is_running()) watch_start_colon_animation(1000);
+            if (!watch_colon_animation_is_running()) {
+                printf("Loop: Starting colon animation\n");
+                watch_start_colon_animation(1000);
+            }
+            if ( state->animate ) {
+                printf("Loop: Starting animation\n");
+                _wyoscan_animation(state);
+                state->animation = (state->animation + 1);
+            } 
+            break;
+        case EVENT_LOW_ENERGY_UPDATE:
             break;
         case EVENT_ALARM_LONG_PRESS:
             break;
