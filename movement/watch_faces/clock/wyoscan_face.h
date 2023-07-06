@@ -34,22 +34,36 @@
  *
  */
 
+#define MAX_ILLUMINATED_SEGMENTS 7
+
 typedef struct {
-    // Anything you need to keep track of, put it here!
-    uint8_t unused;
+    uint32_t previous_date_time;
+    uint8_t last_battery_check;
+    uint8_t watch_face_index;
+    bool signal_enabled;
+    bool battery_low;
+    bool alarm_enabled;
+    uint8_t animation;
+    bool animate;
+    uint32_t start;
+    uint32_t end;
+    uint32_t total_frames;
+    uint32_t time_digits[6];
+    uint32_t illuminated_segments[MAX_ILLUMINATED_SEGMENTS][2]; 
 } wyoscan_state_t;
 
 void wyoscan_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
 void wyoscan_face_activate(movement_settings_t *settings, void *context);
 bool wyoscan_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void wyoscan_face_resign(movement_settings_t *settings, void *context);
+bool wyoscan_face_wants_background_task(movement_settings_t *settings, void *context);
 
 #define wyoscan_face ((const watch_face_t){ \
     wyoscan_face_setup, \
     wyoscan_face_activate, \
     wyoscan_face_loop, \
     wyoscan_face_resign, \
-    NULL, \
+    wyoscan_face_wants_background_task, \
 })
 
 #endif // WYOSCAN_FACE_H_
