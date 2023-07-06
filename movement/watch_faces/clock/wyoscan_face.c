@@ -57,7 +57,8 @@ static char *segment_map[] = {
     "AFBGECD",  // 8
     "AFBGCD"    // 9
 };
-static int32_t clock_mapping[6][7][2] = {
+
+const static int32_t clock_mapping[6][7][2] = {
     // hour 1
     {{1,18}, {2,19}, {0,19}, {1,18}, {0,18}, {2,18}, {1,19}},
     // hour 2
@@ -69,58 +70,11 @@ static int32_t clock_mapping[6][7][2] = {
     // second 1
     {{2,2}, {2,3}, {0,4}, {0,3}, {0,2}, {1,2}, {1,3}},
     // second 2
-    {{2,2}, {2,3}, {0,4}, {0,6}, {0,5}, {1,4}, {1,5}},
+    {{2,4}, {2,5}, {1,6}, {0,6}, {0,5}, {1,4}, {1,5}},
 };
 
 static bool colon_state;
 static long colon_interval_id = -1;
-
-static void _wyoscan_animation(wyoscan_state_t *state) {
-    uint32_t position, segment;
-    char *segments;     
-    
-    // Calculate total_frames
-    state->total_frames += MAX_ILLUMINATED_SEGMENTS; // for clearing
-    
-    movement_request_tick_frequency(32);
-    
-    if (state->animation < state->total_frames - MAX_ILLUMINATED_SEGMENTS) {
-        // calculate the start position for the current frame
-        position = (state->animation / 7) % 6;
-        // calculate the current segment for the current digit
-        segment = state->animation % strlen(segment_map[state->time_digits[position]]);
-        // get the segments for the current digit
-        segments = segment_map[state->time_digits[position]];
-        // calculate the animation frame
-        uint32_t x = clock_mapping[position][segments[segment]-'A'][0];
-        uint32_t y = clock_mapping[position][segments[segment]-'A'][1];
-        
-        // if we have reached the max number of illuminated segments, we clear the oldest one
-        if ((state->end + 1) % MAX_ILLUMINATED_SEGMENTS == state->start) {
-            // clear the oldest pixel
-            watch_clear_pixel(state->illuminated_segments[state->start][0], state->illuminated_segments[state->start][1]);
-            // increment the start index to point to the next oldest pixel
-            state->start = (state->start + 1) % MAX_ILLUMINATED_SEGMENTS;
-        }
-        
-        // set the new pixel
-        watch_set_pixel(x, y);
-        // store this pixel in the buffer
-        state->illuminated_segments[state->end][0] = x;
-        state->illuminated_segments[state->end][1] = y;
-        // increment the end index to the next position
-        state->end = (state->end + 1) % MAX_ILLUMINATED_SEGMENTS;
-    } else if (state->animation < state->total_frames) {
-        // clear the oldest pixel
-        watch_clear_pixel(state->illuminated_segments[state->start][0], state->illuminated_segments[state->start][1]);
-        // increment the start index to point to the next oldest pixel
-        state->start = (state->start + 1) % MAX_ILLUMINATED_SEGMENTS;
-    } else {
-        // reset the animation state and request for tick frequency 1
-        state->animation = 0;
-        state->animate = false;
-    }
-}
 
 static void watch_invoke_colon_callback(void *userData) {
     colon_state = !colon_state;
@@ -153,9 +107,10 @@ void wyoscan_face_setup(movement_settings_t *settings, uint8_t watch_face_index,
 }
 
 void wyoscan_face_activate(movement_settings_t *settings, void *context) {
-    // wyoscan_state_t *state = (wyoscan_state_t *)context;
-
+    movement_request_tick_frequency(32);
 }
+
+uint8_t i;
 
 bool wyoscan_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     wyoscan_state_t *state = (wyoscan_state_t *)context;
@@ -164,17 +119,13 @@ bool wyoscan_face_loop(movement_event_t event, movement_settings_t *settings, vo
     switch (event.event_type) {
         case EVENT_ACTIVATE:
             break;
-        case EVENT_TICK:
-            printf("Loop: Received EVENT_TICK\n");            date_time = watch_rtc_get_date_time();
-            if (date_time.unit.second % 2 && !state->animate) {
-                int i=0;
+        case EVENT_TICK:            
+            if (!state->animate) {
+                date_time = watch_rtc_get_date_time();
                 state->start = 0; 
                 state->end = 0;
-                printf("Loop: Preparing to start animation\n");
-                state->total_frames = 0;
-                for(i = 0; i < 6; i++) {
-                    state->total_frames += strlen(segment_map[state->time_digits[i]]);
-                }
+                state->animation = 0;
+                state->total_frames = 7 * 6 + MAX_ILLUMINATED_SEGMENTS;
                 state->animate = true;
                 state->time_digits[0] = date_time.unit.hour / 10;
                 state->time_digits[1] = date_time.unit.hour % 10;
@@ -183,15 +134,47 @@ bool wyoscan_face_loop(movement_event_t event, movement_settings_t *settings, vo
                 state->time_digits[4] = date_time.unit.second / 10;
                 state->time_digits[5] = date_time.unit.second % 10;
             }
-            if (!watch_colon_animation_is_running()) {
-                printf("Loop: Starting colon animation\n");
-                watch_start_colon_animation(1000);
-            }
             if ( state->animate ) {
-                printf("Loop: Starting animation\n");
-                _wyoscan_animation(state);
+                if (state->animation < state->total_frames - MAX_ILLUMINATED_SEGMENTS) {
+                    // calculate the start position for the current frame
+                    state->position = (state->animation / 7) % 6;
+                    // calculate the current segment for the current digit
+                    state->segment = state->animation % strlen(segment_map[state->time_digits[state->position]]);
+                    // get the segments for the current digit
+                    state->segments = segment_map[state->time_digits[state->position]];
+                    // calculate the animation frame
+                    state->x = clock_mapping[state->position][state->segments[state->segment]-'A'][0];
+                    state->y = clock_mapping[state->position][state->segments[state->segment]-'A'][1];
+                    
+                    // if we have reached the max number of illuminated segments, we clear the oldest one
+                    if ((state->end + 1) % MAX_ILLUMINATED_SEGMENTS == state->start) {
+                        // clear the oldest pixel
+                        watch_clear_pixel(state->illuminated_segments[state->start][0], state->illuminated_segments[state->start][1]);
+                        // increment the start index to point to the next oldest pixel
+                        state->start = (state->start + 1) % MAX_ILLUMINATED_SEGMENTS;
+                    }
+                    
+                    // set the new pixel
+                    watch_set_pixel(state->x, state->y);
+                    // store this pixel in the buffer
+                    state->illuminated_segments[state->end][0] = state->x;
+                    state->illuminated_segments[state->end][1] = state->y;
+                    // increment the end index to the next position
+                    state->end = (state->end + 1) % MAX_ILLUMINATED_SEGMENTS;
+                } else if (state->animation < state->total_frames) {
+                    // clear the oldest pixel
+                    watch_clear_pixel(state->illuminated_segments[state->start][0], state->illuminated_segments[state->start][1]);
+                    // increment the start index to point to the next oldest pixel
+                    state->start = (state->start + 1) % MAX_ILLUMINATED_SEGMENTS;
+                } else {
+                    // reset the animation state and request for tick frequency 1
+                    state->animate = false;
+                }
                 state->animation = (state->animation + 1);
             } 
+            if (!watch_colon_animation_is_running()) {
+                watch_start_colon_animation(1000);
+            }
             break;
         case EVENT_LOW_ENERGY_UPDATE:
             break;
@@ -211,15 +194,5 @@ void wyoscan_face_resign(movement_settings_t *settings, void *context) {
     (void) context;
 
     // handle any cleanup before your watch face goes off-screen.
-}
-
-bool wyoscan_face_wants_background_task(movement_settings_t *settings, void *context) {
-    (void) settings;
-    wyoscan_state_t *state = (wyoscan_state_t *)context;
-    if (!state->signal_enabled) return false;
-
-    watch_date_time date_time = watch_rtc_get_date_time();
-
-    return date_time.unit.minute == 0;
 }
 

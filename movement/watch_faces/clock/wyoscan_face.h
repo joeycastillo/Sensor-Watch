@@ -34,7 +34,7 @@
  *
  */
 
-#define MAX_ILLUMINATED_SEGMENTS 7
+#define MAX_ILLUMINATED_SEGMENTS 14
 
 typedef struct {
     uint32_t previous_date_time;
@@ -48,6 +48,9 @@ typedef struct {
     uint32_t start;
     uint32_t end;
     uint32_t total_frames;
+    uint8_t position, segment;
+    char *segments;
+    uint8_t x, y;
     uint32_t time_digits[6];
     uint32_t illuminated_segments[MAX_ILLUMINATED_SEGMENTS][2]; 
 } wyoscan_state_t;
@@ -63,7 +66,7 @@ bool wyoscan_face_wants_background_task(movement_settings_t *settings, void *con
     wyoscan_face_activate, \
     wyoscan_face_loop, \
     wyoscan_face_resign, \
-    wyoscan_face_wants_background_task, \
+    NULL, \
 })
 
 #endif // WYOSCAN_FACE_H_
