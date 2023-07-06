@@ -46,13 +46,13 @@ You and your watch are now in tune.
 
 
 static char *segment_map[] = {
-    "AFBGECD",  // 0
+    "AFBECD",  // 0
     "BC",       // 1
     "ABGED",    // 2
     "ABGCD",    // 3
     "FGBC",     // 4
     "AFGCD",    // 5
-    "AFGEDC",   // 6
+    "AFGECD",   // 6
     "ABC",      // 7
     "AFBGECD",  // 8
     "AFBGCD"    // 9
@@ -125,7 +125,7 @@ bool wyoscan_face_loop(movement_event_t event, movement_settings_t *settings, vo
                 state->start = 0; 
                 state->end = 0;
                 state->animation = 0;
-                state->total_frames = 7 * 6 + MAX_ILLUMINATED_SEGMENTS;
+                state->total_frames = 7 * 3 + 6 * 3 + MAX_ILLUMINATED_SEGMENTS;
                 state->animate = true;
                 state->time_digits[0] = date_time.unit.hour / 10;
                 state->time_digits[1] = date_time.unit.hour % 10;
