@@ -107,7 +107,7 @@ void wyoscan_face_setup(movement_settings_t *settings, uint8_t watch_face_index,
 }
 
 void wyoscan_face_activate(movement_settings_t *settings, void *context) {
-    movement_request_tick_frequency(32);
+    movement_request_tick_frequency(16);
 }
 
 uint8_t i;
