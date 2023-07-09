@@ -22,15 +22,6 @@
  * SOFTWARE.
  */
 
-// TODO: Win animation?
-// TODO: Save highscore?
-// TODO: Add sounds?
-//       Add sound option
-// TODO: Flip board direction?
-
-// Future Ideas:
-// - Use lap indicator for larger score improvement?
-
 // Emulator only: need time() to seed the random number generator.
 #if __EMSCRIPTEN__
 #include <time.h>
@@ -43,7 +34,7 @@
 
 #define TITLE_TEXT "Hi-Lo"
 #define GAME_BOARD_SIZE 6
-#define MAX_BOARDS 3 //40
+#define MAX_BOARDS 40
 #define GUESSES_PER_SCREEN 5
 #define WIN_SCORE MAX_BOARDS * GUESSES_PER_SCREEN
 #define STATUS_DISPLAY_START 0
@@ -104,8 +95,7 @@ static void reset_board(bool first_round) {
     // Fill remainder of board
     for (size_t i = 1; i < GAME_BOARD_SIZE; ++i) {
         game_board[i] = (card_t) {
-                //.value = generate_random_number(MAX_CARD_VALUE - MIN_CARD_VALUE + 1) + MIN_CARD_VALUE,
-                .value = i + MIN_CARD_VALUE,
+                .value = generate_random_number(MAX_CARD_VALUE - MIN_CARD_VALUE + 1) + MIN_CARD_VALUE,
                 .revealed = false
         };
     }
@@ -129,7 +119,7 @@ static void set_segment_at_position(segment_t segment, uint8_t position) {
 }
 
 static void render_board_position(size_t board_position) {
-    size_t display_position = FLIP_BOARD_DIRECTION
+    const size_t display_position = FLIP_BOARD_DIRECTION
             ? BOARD_DISPLAY_START + board_position
             : BOARD_DISPLAY_END - board_position;
     const bool revealed = game_board[board_position].revealed;
@@ -371,4 +361,3 @@ void higher_lower_game_face_resign(movement_settings_t *settings, void *context)
 
     // handle any cleanup before your watch face goes off-screen.
 }
-

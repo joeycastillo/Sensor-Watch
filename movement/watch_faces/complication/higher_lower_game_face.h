@@ -28,10 +28,59 @@
 #include "movement.h"
 
 /*
- * A DESCRIPTION OF YOUR WATCH FACE
+ * Higher-Lower game face
+ * ======================
  *
- * and a description of how use it
+ * A game face based on the "higher-lower" card game where the objective is to correctly guess if the next card will
+ * be higher or lower than the last revealed cards.
  *
+ * Game Flow:
+ * - When the face is selected, the "Hi-Lo" "Title" screen will be displayed, and the status indicator will display "GA" for game
+ * - Pressing `ALARM` or `LIGHT` will start the game and proceed to the "Guessing" screen
+ *   - The first card will be revealed and the player must now make a guess
+ *   - A player can guess `Higher` by pressing the `LIGHT` button, and `Lower` by pressing the `ALARM` button
+ *   - The status indicator will show the result of the guess: HI (Higher), LO (Lower), or == (Equal)
+ *   - There are five guesses to make on each game screen, once the end of the screen is reached, a new screen
+ *     will be started, with the last revealed card carried over
+ *   - The number of completed screens is displayed in the top right (see Scoring)
+ * - If the player has guessed correctly, the score is updated and play continues (see Scoring)
+ * - If the player has guessed incorrectly, the status will change to GO (Game Over)
+ *   - The current card will be revealed
+ *   - Pressing `ALARM` or `LIGHT` will transition to the "Score" screen
+ * - If the game is won, the status indicator will display "WI" and the "Win" screen will be displayed
+ *   - Pressing `ALARM` or `LIGHT` will transition to the "Score" screen
+ * - The status indicator will change to "SC" when the final score is displayed
+ *   - The number of completed game screens will be displayed on using the first two digits
+ *   - The number of correct guesses will be displayed using the final three digits
+ *   - E.g. "13: 063" represents 13 completed screens, with 63 correct guesses
+ * - Pressing `ALARM` or `LIGHT` while on the "Score" screen will transition to back to the "Title" screen
+ *
+ * Scoring:
+ * - If the player guesses correctly (HI/LO) a point is gained
+ * - If the player guesses incorrectly the game ends
+ *   - Unless the revealed card is equal (==) to the last card, in which case play continues, but no point is gained
+ * - If the player completes 40 screens full of cards, the game ends and a win screen is displayed
+ *
+ * Misc:
+ * The face tries to remain true to the spirit of using "cards"; to cope with the display limitations I've arrived at
+ * the following mapping of card values to screen display, but am open to better suggestions:
+ *
+ * | Cards   |                          |
+ * |---------|--------------------------|
+ * | Value   |2|3|4|5|6|7|8|9|10|J|Q|K|A|
+ * | Display |2|3|4|5|6|7|8|9| 0|-|=|≡|H|
+ *
+ * The following may more legible choice:
+ * | Cards   |                          |
+ * |---------|--------------------------|
+ * | Value   |2|3|4|5|6|7|8|9|10|J|Q|K|A|
+ * | Display |0|1|2|3|4|5|6|7|8 |9|-|=|≡|
+ *
+ * Future Ideas:
+ * - Add sounds
+ * - Save/Display high score
+ * - Add a "Win" animation
+ * - Consider using lap indicator for larger score limit
  */
 
 typedef struct {
@@ -52,4 +101,3 @@ void higher_lower_game_face_resign(movement_settings_t *settings, void *context)
 })
 
 #endif // HIGHER_LOWER_GAME_FACE_H_
-
