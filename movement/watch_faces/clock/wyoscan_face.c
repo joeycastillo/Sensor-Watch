@@ -29,6 +29,10 @@
 #if __EMSCRIPTEN__
 #include <emscripten.h>
 #include <emscripten/html5.h>
+#else
+#include "../../../watch-library/hardware/include/saml22j18a.h"
+#include "../../../watch-library/hardware/include/component/tc.h"
+#include "../../../watch-library/hardware/hri/hri_tc_l22.h"
 #endif
 
 /*
@@ -58,7 +62,7 @@ static char *segment_map[] = {
     "AFBGCD"    // 9
 };
 
-const static int32_t clock_mapping[6][7][2] = {
+static const int32_t clock_mapping[6][7][2] = {
     // hour 1
     {{1,18}, {2,19}, {0,19}, {1,18}, {0,18}, {2,18}, {1,19}},
     // hour 2
@@ -76,7 +80,10 @@ const static int32_t clock_mapping[6][7][2] = {
 static bool colon_state;
 static long colon_interval_id = -1;
 
+#if __EMSCRIPTEN__
+
 static void watch_invoke_colon_callback(void *userData) {
+    (void) userData;
     colon_state = !colon_state;
     if (colon_state) {
         watch_set_colon();
@@ -91,10 +98,24 @@ static bool watch_colon_animation_is_running(void) {
 
 static void watch_start_colon_animation(uint32_t duration) {
     if (colon_interval_id != -1) return;
-
     colon_state = true;
     colon_interval_id = emscripten_set_interval(watch_invoke_colon_callback, (double)duration, NULL);
 }
+
+#else
+
+static void watch_start_colon_animation(uint32_t duration) {
+    watch_set_colon();
+    const uint32_t segs[] = { SLCD_SEGID(1, 16)};
+    slcd_sync_start_animation(&SEGMENT_LCD_0, segs, 1, duration);
+}
+
+static bool watch_colon_animation_is_running(void) {
+    return hri_slcd_get_CTRLD_CSREN_bit(SLCD);
+}
+
+#endif
+
 
 void wyoscan_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
@@ -107,10 +128,11 @@ void wyoscan_face_setup(movement_settings_t *settings, uint8_t watch_face_index,
 }
 
 void wyoscan_face_activate(movement_settings_t *settings, void *context) {
-    movement_request_tick_frequency(16);
+    movement_request_tick_frequency(32);
+    if (!watch_colon_animation_is_running()) {
+        watch_start_colon_animation(1000);
+    }
 }
-
-uint8_t i;
 
 bool wyoscan_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     wyoscan_state_t *state = (wyoscan_state_t *)context;
@@ -172,9 +194,6 @@ bool wyoscan_face_loop(movement_event_t event, movement_settings_t *settings, vo
                 }
                 state->animation = (state->animation + 1);
             } 
-            if (!watch_colon_animation_is_running()) {
-                watch_start_colon_animation(1000);
-            }
             break;
         case EVENT_LOW_ENERGY_UPDATE:
             break;
