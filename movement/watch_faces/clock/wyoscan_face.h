@@ -34,7 +34,7 @@
  *
  */
 
-#define MAX_ILLUMINATED_SEGMENTS 14
+#define MAX_ILLUMINATED_SEGMENTS 16
 
 typedef struct {
     uint32_t previous_date_time;
@@ -48,6 +48,7 @@ typedef struct {
     uint32_t start;
     uint32_t end;
     uint32_t total_frames;
+    bool colon;
     uint8_t position, segment;
     char *segments;
     uint8_t x, y;
