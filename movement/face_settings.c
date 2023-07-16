@@ -140,23 +140,24 @@ bool face_data_save(void *context) {
         if (data_buffer != NULL) {
             memcpy(data_buffer, face_data_details->context_data, face_data_details->context_length);
             face_data_details->save_callback(data_buffer);
-           free(data_buffer); 
         }
     } else {
         data_buffer = face_data_details->context_data;
     }
-    uint32_t mem_hash = DJBHash(data_buffer, face_data_details->context_length);
-    if (face_data_details->context_hash) {
+
+    if (data_buffer) {
+        uint32_t mem_hash = DJBHash(data_buffer, face_data_details->context_length);
         // abort if hashes are identical
         if (mem_hash == face_data_details->context_hash) return false;
+        // otherwise save current data to file
+        char filename[FACE_DATA_FILENAME_LEN];
+        _set_filename(filename, face_data_details->identifier_hash, face_data_details->schema_version);
+        bool written = filesystem_write_file(filename, data_buffer, face_data_details->context_length);
+        free(data_buffer);
+        if (written) {
+            face_data_details->context_hash = mem_hash;
+            return true;
+        }
     }
-    // save current data to file
-    char filename[FACE_DATA_FILENAME_LEN];
-    _set_filename(filename, face_data_details->identifier_hash, face_data_details->schema_version);
-    if (filesystem_write_file(filename, data_buffer, face_data_details->context_length)) {
-        face_data_details->context_hash = mem_hash;
-        return true;
-    } else {
-        return false;
-    }
+    return false;
 }
