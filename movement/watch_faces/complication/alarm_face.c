@@ -31,6 +31,7 @@
 #include "watch.h"
 #include "watch_utility.h"
 #include "watch_private_display.h"
+#include "face_settings.h"
 
 /*
     Implements 16 alarm slots on the sensor watch
@@ -88,6 +89,26 @@ static void _alarm_set_signal(alarm_state_t *state) {
         watch_set_indicator(WATCH_INDICATOR_SIGNAL);
     else
         watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
+}
+
+/// @brief default some data before saving to flash storage
+static void _face_save_data(void *context) {
+    alarm_state_t *state = (alarm_state_t *)context;
+    state->alarm_idx = 0;
+    state->alarm_playing_idx = 0;
+    state->alarm_quick_ticks = false;
+    state->alarm_handled_minute = -1;
+    // default all one time alarms
+    for (uint8_t i = 0; i < ALARM_ALARMS; i++) {
+        if (state->alarm[i].day == ALARM_DAY_ONE_TIME) {
+            state->alarm[i].day = ALARM_DAY_EACH_DAY;
+            state->alarm[i].beeps = 5;
+            state->alarm[i].pitch = 1;
+            state->alarm[i].enabled = false;
+            state->alarm[i].minute = 0;
+            state->alarm[i].hour = 0;
+        }
+    }
 }
 
 static void _alarm_face_draw(movement_settings_t *settings, alarm_state_t *state, uint8_t subsecond) {
@@ -194,6 +215,8 @@ static void _alarm_update_alarm_enabled(movement_settings_t *settings, alarm_sta
         }
     }
     settings->bit.alarm_enabled = active_alarms;
+    // save alarm settings to flash storage if needed
+    face_data_save(state);
 }
 
 static void _alarm_play_short_beep(uint8_t pitch_idx) {
@@ -239,6 +262,7 @@ void alarm_face_setup(movement_settings_t *settings, uint8_t watch_face_index, v
         }
         state->alarm_handled_minute = -1;
         _wait_ticks = -1;
+        face_data_init("alarm_face", 0, *context_ptr, sizeof(alarm_state_t), _face_save_data, NULL);
     }
 }
 
