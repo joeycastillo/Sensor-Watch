@@ -86,20 +86,12 @@ bool face_data_init(const char* watch_face_identifier,
     face_data_details_t *face_data_details = _get_face_data_details(context);
     if (face_data_details == NULL) return false;
 
-    printf("face_data_init: callbacks %d, %d\n", save_callback, version_callback);
-
     // set face data details
     face_data_details->schema_version = schema_version;
     face_data_details->identifier_hash = DJBHash(watch_face_identifier, (uint16_t)strlen(watch_face_identifier));
     face_data_details->context_hash = 0;
     face_data_details->context_length = context_length;
     face_data_details->save_callback = save_callback;
-    printf("face_data_init: details pointer %d, identifier hash %08x, content hash %04x, length %d, context pointer %d, version callback %d\n",
-        face_data_details,
-        face_data_details->identifier_hash,
-        face_data_details->context_hash, 
-        face_data_details->context_length,
-        face_data_details->context_data, version_callback);
 
     // look for data file (current schema version)
     char filename[FACE_DATA_FILENAME_LEN];
@@ -108,32 +100,25 @@ bool face_data_init(const char* watch_face_identifier,
         // we have a context file
         if (filesystem_read_file(filename, face_data_details->context_data, face_data_details->context_length)) {
             face_data_details->context_hash = DJBHash(face_data_details->context_data, face_data_details->context_length);
-            printf("face_data_init: file %s loaded, hash updated to %04x\n", filename, face_data_details->context_hash);
             return true;
         }
     } 
 
     if (version_callback && schema_version) {
-        printf("face_data_init: file not read yet, callback is: %d\n", version_callback);
         // check if there is an older data file version
         for (uint8_t i = schema_version - 1; i != UINT8_MAX; i--) {
             _set_filename(filename, face_data_details->identifier_hash, i);
-            printf("face_data_init: check for file %s, callback is %d\n", filename, version_callback);
             if (filesystem_file_exists(filename)) {
-                printf("face_data_init: file %s exists, callback is %d\n", filename, version_callback);
                 bool erase_file = true;
                 // load data to temporary buffer
                 uint32_t file_len = filesystem_get_file_size(filename);
                 void *data_buffer = malloc(file_len);
                 if (data_buffer != NULL) {
-                    printf("face_data_init: file not read yet, callback is %d\n", version_callback);
                     filesystem_read_file(filename, data_buffer, file_len);
-                    printf("face_data_init: previous file %s read / callback fn: %d\n", filename, version_callback);
                     // and invoke callback function
-                    version_callback(data_buffer, i, context, &erase_file); // void *context_old, uint8_t schema_version, void *context, bool *erase_data
+                    version_callback(data_buffer, i, context, &erase_file);
                     free(data_buffer);
                     if (erase_file) filesystem_rm(filename);
-                    printf("face_data_init: return value %d\n", erase_file);
                     return true;
                 }
                 break;
@@ -147,14 +132,6 @@ bool face_data_save(void *context) {
 
     face_data_details_t *face_data_details = _get_face_data_details(context);
     if (face_data_details == NULL) return false;
-
-    printf("face_data_save: details pointer %d, identifier hash %08x, content hash %04x, length %d, context pointer %d, save callback %d\n",
-        face_data_details,
-        face_data_details->identifier_hash,
-        face_data_details->context_hash, 
-        face_data_details->context_length,
-        face_data_details->context_data,
-        face_data_details->save_callback);
 
     // handle the save callback function, if set
     void *data_buffer = NULL;
@@ -171,21 +148,13 @@ bool face_data_save(void *context) {
     uint32_t mem_hash = DJBHash(data_buffer, face_data_details->context_length);
     if (face_data_details->context_hash) {
         // abort if hashes are identical
-        printf("face_data_save: hash file %04x, hash mem %04x\n", face_data_details->context_hash, mem_hash);
-        if (mem_hash == face_data_details->context_hash) {
-            printf("face_data_save: no changes in data, nothing saved.\n");
-            return false;
-        }
-    } else {
-        printf("face_data_save: hash equals zero.\n");
+        if (mem_hash == face_data_details->context_hash) return false;
     }
     // save current data to file
     char filename[FACE_DATA_FILENAME_LEN];
     _set_filename(filename, face_data_details->identifier_hash, face_data_details->schema_version);
-    printf("face_data_save: save file %s\n", filename);
     if (filesystem_write_file(filename, data_buffer, face_data_details->context_length)) {
         face_data_details->context_hash = mem_hash;
-        printf("face_data_save: hash updated to %04x\n", face_data_details->context_hash);
         return true;
     } else {
         return false;

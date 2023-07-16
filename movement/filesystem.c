@@ -84,10 +84,8 @@ int32_t filesystem_get_free_space(void) {
                 var strData = fileContent.split(",");
                 available -= strData.length;
             }
-            console.log("filesystem_get_free_space: %d (raw value)", available);
             return available < 0 ? 0 : available;
         } else {
-            console.log("localStorage not supported in this browser!");
             return -1;
         }
     });
@@ -152,7 +150,6 @@ bool filesystem_init(void) {
             // local storage not supported!
             error = -10; 
         }
-        console.log("filesystem_init() result: %d", error);
         return error;
     );
 #else
@@ -179,10 +176,8 @@ bool filesystem_file_exists(char *filename) {
     int val = EM_ASM_INT({
         if ('localStorage' in window && window['localStorage'] !== null) {
             var fileStr = UTF8ArrayToString(HEAPU8.subarray($0, $0 + $1), 0, $1);
-            console.log("filesystem_file_exists(%s)", fileStr);
             return (localStorage.getItem(fileStr) !== null);
         } else {
-            console.log("localStorage not supported in this browser!");
             return -1;
         }
     }, filename, len);
@@ -207,10 +202,8 @@ bool filesystem_rm(char *filename) {
                 localStorage.removeItem(fileStr);
                 value = 0;
             }
-            console.log("filesystem_rm: %d", value);
             return value;
         } else {
-            console.log("localStorage not supported in this browser!");
             return -1;
         }
     }, filename, filename_len);
@@ -238,13 +231,11 @@ int32_t filesystem_get_file_size(char *filename) {
             var fileContent = localStorage.getItem(fileStr);
             if (fileContent !== null) {
                 var strData = fileContent.split(",");
-                console.log("filesystem_get_file_size: %d", strData.length);
                 return strData.length;
             } else {
                 return -2;
             }
         } else {
-            console.log("localStorage not supported in this browser!");
             return -1;
         }
     }, filename, filename_len);
@@ -276,13 +267,11 @@ bool filesystem_read_file(char *filename, char *buf, int32_t length) {
                 for (let i = 0; i < strData.length && i < $3; i++) {
                     Module.HEAPU8[i + $2] = parseInt(strData[i]);
                 }
-                console.log("filesystem_read_file: %s", fileContent);
                 return 1;
             } else {
                 return -2;
             }
         } else {
-            console.log("localStorage not supported in this browser!");
             return -1;
         }
     }, filename, filename_len, buf, length);
@@ -313,19 +302,16 @@ bool filesystem_read_line(char *filename, char *buf, int32_t *offset, int32_t le
             if (fileContent !== null) {
                 var strData = fileContent.split(",");
                 if ($3 > strData.length) {
-                    console.log("filesystem_read_line: given offset is bigger than file size!");
                     return -3;
                 }
                 for (let i = 0; i < strData.length - $3 && i < $4; i++) {
                     Module.HEAPU8[i + $2] = parseInt(strData[i + $3]);
                 }
-                console.log("filesystem_read_line: %s", fileContent);
                 return 1;
             } else {
                 return -2;
             }
         } else {
-            console.log("localStorage not supported in this browser!");
             return -1;
         }
     }, filename, filename_len, buf, *offset, length);
@@ -391,11 +377,9 @@ bool filesystem_write_file(char *filename, char *text, int32_t length) {
         if ('localStorage' in window && window['localStorage'] !== null) {
             var fileStr = UTF8ArrayToString(HEAPU8.subarray($0, $0 + $1), 0, $1);
             var fileContent = HEAPU8.subarray($2, $2 + $3);
-            console.log("filesystem_write_file: %s", fileContent);
             localStorage.setItem(fileStr, fileContent);
             return 1;
         } else {
-            console.log("localStorage not supported in this browser!");
             return -1;
         }
     }, filename, filename_len, text, length);

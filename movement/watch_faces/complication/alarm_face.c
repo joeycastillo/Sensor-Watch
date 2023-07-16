@@ -215,8 +215,6 @@ static void _alarm_update_alarm_enabled(movement_settings_t *settings, alarm_sta
         }
     }
     settings->bit.alarm_enabled = active_alarms;
-    // save alarm settings to flash storage if needed
-    face_data_save(state);
 }
 
 static void _alarm_play_short_beep(uint8_t pitch_idx) {
@@ -307,6 +305,8 @@ bool alarm_face_wants_background_task(movement_settings_t *settings, void *conte
     state->alarm_handled_minute = -1;
     // update the movement's alarm indicator five times an hour
     if (now.unit.minute % 12 == 0) _alarm_update_alarm_enabled(settings, state);
+    // check if we should save settings every 2 hours
+    if (now.unit.minute == 0 && (now.unit.hour % 2) == 0) face_data_save(state);
     return false;
 }
 
