@@ -32,6 +32,7 @@
 #include "watch_utility.h"
 #include "watch_private_display.h"
 #include "watch_buzzer.h"
+#include "face_settings.h"
 
 /*
     This face brings 9 customizable interval timers to the sensor watch,
@@ -432,17 +433,19 @@ void interval_face_setup(movement_settings_t *settings, uint8_t watch_face_index
         state->face_idx = watch_face_index;
         // somehow the memset above doesn't to the trick. So set the state explicitly
         state->face_state = interval_state_waiting;
-        for (uint8_t i = 0; i < INTERVAL_TIMERS; i++) state->timer[i].work_rounds = 1;
-        // set up default timers
-        for (uint8_t i = 0; i < 6; i++) {
-            state->timer[i].warmup_seconds = _default_timers[i][0];
-            if (_default_timers[i][1] < 0) state->timer[i].work_minutes = -_default_timers[i][1];
-            else state->timer[i].work_seconds = _default_timers[i][1];
-            state->timer[i].work_rounds = 1;
-            if (_default_timers[i][2] < 0) state->timer[i].break_minutes = -_default_timers[i][2];
-            else state->timer[i].break_seconds = _default_timers[i][2];
-            state->timer[i].full_rounds = _default_timers[i][3];
-            state->timer[i].cooldown_seconds = _default_timers[i][4];
+        if (!face_data_init("interval_face", 0, state->timer, sizeof(interval_timer_setting_t) * INTERVAL_TIMERS, NULL, NULL)) {
+            for (uint8_t i = 0; i < INTERVAL_TIMERS; i++) state->timer[i].work_rounds = 1;
+            // set up default timers
+            for (uint8_t i = 0; i < 6; i++) {
+                state->timer[i].warmup_seconds = _default_timers[i][0];
+                if (_default_timers[i][1] < 0) state->timer[i].work_minutes = -_default_timers[i][1];
+                else state->timer[i].work_seconds = _default_timers[i][1];
+                state->timer[i].work_rounds = 1;
+                if (_default_timers[i][2] < 0) state->timer[i].break_minutes = -_default_timers[i][2];
+                else state->timer[i].break_seconds = _default_timers[i][2];
+                state->timer[i].full_rounds = _default_timers[i][3];
+                state->timer[i].cooldown_seconds = _default_timers[i][4];
+            }
         }
     }
 }
@@ -467,6 +470,8 @@ void interval_face_resign(movement_settings_t *settings, void *context) {
     watch_set_led_off();
     movement_request_tick_frequency(1);
     state->is_active = false;
+    // save timers(if they have changed)
+    face_data_save(state->timer);
 }
 
 bool interval_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
