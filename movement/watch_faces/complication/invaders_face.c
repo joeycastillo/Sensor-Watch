@@ -31,6 +31,7 @@
 #include <string.h>
 #include "watch_private_display.h"
 #include "invaders_face.h"
+#include "face_settings.h"
 
 #define INVADERS_FACE_WAVES_PER_STAGE 9 // number of waves per stage (there are two stages)
 #define INVADERS_FACE_WAVE_INVADERS 16  // number of invaders attacking per wave
@@ -210,8 +211,10 @@ void invaders_face_setup(movement_settings_t *settings, uint8_t watch_face_index
         *context_ptr = malloc(sizeof(invaders_state_t));
         memset(*context_ptr, 0, sizeof(invaders_state_t));
         invaders_state_t *state = (invaders_state_t *)*context_ptr;
-        // default: sound on
-        state->sound_on = true;
+        if (!face_data_init("invaders_face", 0, state, sizeof(invaders_state_t), NULL, NULL)) {
+            // default: sound on
+            state->sound_on = true;
+        } 
     }
 #if __EMSCRIPTEN__
     // simulator only: seed the randon number generator
@@ -428,7 +431,11 @@ bool invaders_face_loop(movement_event_t event, movement_settings_t *settings, v
 
 void invaders_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
-    (void) context;
+    invaders_state_t *state = (invaders_state_t *)context;
     _current_state = invaders_state_game_over;
+    // save current score to highscore, if applicable
+    if (_score > state->highscore) state->highscore = _score;
+    // check if data needs to be saved
+    face_data_save(state);
 }
 

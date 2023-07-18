@@ -53,8 +53,9 @@ static void _set_filename(char *filename, uint32_t hash_value, uint8_t schema_ve
 
 /// @brief Retrieve a pointer to the face data details of a given face data structure pointer.
 /// @param context Pointer to the face data structure
+/// @param find_only Set to true if we are just looking for a suitable item. Setting this to false leads to appending an item if no suitable one is found.
 /// @return Pointer to the face datails struct of type face_data_details_t or NULL if there was an error
-static face_data_details_t * _get_face_data_details(void *context) {
+static face_data_details_t * _get_face_data_details(void *context, bool find_only) {
     // find the corresponding details entry or append one
     face_data_item_t *previous_item = NULL;
     face_data_item_t *current_item = _item_head;
@@ -63,6 +64,7 @@ static face_data_details_t * _get_face_data_details(void *context) {
         previous_item = current_item;
         current_item = current_item->next_item;
     }
+    if (find_only) return NULL;
     // nothing found so far - add a new data item
     current_item = malloc(sizeof(face_data_item_t));
     if (current_item == NULL) return NULL;
@@ -83,7 +85,7 @@ bool face_data_init(const char* watch_face_identifier,
                     face_data_save_callback_t save_callback,
                     face_data_version_callback_t version_callback) {
     
-    face_data_details_t *face_data_details = _get_face_data_details(context);
+    face_data_details_t *face_data_details = _get_face_data_details(context, false);
     if (face_data_details == NULL) return false;
 
     // set face data details
@@ -130,7 +132,7 @@ bool face_data_init(const char* watch_face_identifier,
 
 bool face_data_save(void *context) {
 
-    face_data_details_t *face_data_details = _get_face_data_details(context);
+    face_data_details_t *face_data_details = _get_face_data_details(context, true);
     if (face_data_details == NULL) return false;
 
     // handle the save callback function, if set
@@ -153,7 +155,7 @@ bool face_data_save(void *context) {
         char filename[FACE_DATA_FILENAME_LEN];
         _set_filename(filename, face_data_details->identifier_hash, face_data_details->schema_version);
         bool written = filesystem_write_file(filename, data_buffer, face_data_details->context_length);
-        free(data_buffer);
+        if (face_data_details->save_callback) free(data_buffer);
         if (written) {
             face_data_details->context_hash = mem_hash;
             return true;

@@ -29,6 +29,7 @@
 #include "timer_face.h"
 #include "watch.h"
 #include "watch_utility.h"
+#include "face_settings.h"
 
 static const uint16_t _default_timer_values[] = {0x200, 0x500, 0xA00, 0x1400, 0x2D02}; // default timers: 2 min, 5 min, 10 min, 20 min, 2 h 45 min
 
@@ -202,6 +203,7 @@ void timer_face_setup(movement_settings_t *settings, uint8_t watch_face_index, v
         for (uint8_t i = 0; i < sizeof(_default_timer_values) / sizeof(uint16_t); i++) {
             state->timers[i].value = _default_timer_values[i];
         }
+        face_data_init("timer_face", 0, state->timers, sizeof(timer_setting_t) * TIMER_SLOTS, NULL, NULL);
     }
 }
 
@@ -363,4 +365,5 @@ void timer_face_resign(movement_settings_t *settings, void *context) {
         state->settings_state = 0;
         state->mode = waiting;
     }
+    face_data_save(state->timers);
 }

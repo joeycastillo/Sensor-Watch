@@ -375,8 +375,8 @@ bool filesystem_write_file(char *filename, char *text, int32_t length) {
     uint8_t filename_len = _str_len(filename);
     int val = EM_ASM_INT({
         if ('localStorage' in window && window['localStorage'] !== null) {
-            var fileStr = UTF8ArrayToString(HEAPU8.subarray($0, $0 + $1), 0, $1);
-            var fileContent = HEAPU8.subarray($2, $2 + $3);
+            var fileStr = UTF8ToString($0, $1);
+            var fileContent = HEAPU8.subarray($2, $2 + $3).join();
             localStorage.setItem(fileStr, fileContent);
             return 1;
         } else {
