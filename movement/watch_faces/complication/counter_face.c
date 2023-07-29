@@ -27,23 +27,23 @@
 #include "counter_face.h"
 #include "watch.h"
 
-bool beep_on = true;
-
 void counter_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
     (void) watch_face_index;
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(counter_state_t));
         memset(*context_ptr, 0, sizeof(counter_state_t));
+        counter_state_t *state = (counter_state_t *)*context_ptr;
+        state->beep_on = true;
     }
 }
 
 void counter_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
-    if (beep_on) {
+    counter_state_t *state = (counter_state_t *)context;
+    if (state->beep_on) {
         watch_set_indicator(WATCH_INDICATOR_SIGNAL);
     }
-    (void) context;
 }
 
 bool counter_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
@@ -59,14 +59,14 @@ bool counter_face_loop(movement_event_t event, movement_settings_t *settings, vo
                 state->counter_idx=0;//reset counter index
             }
             print_counter(state);
-            if (beep_on) {
+            if (state->beep_on) {
                 beep_counter(state);
             }
             break;
         case EVENT_LIGHT_LONG_PRESS:
             watch_buzzer_abort_sequence();
-            beep_on = !beep_on;
-            if (beep_on) {
+            state->beep_on = !state->beep_on;
+            if (state->beep_on) {
                 watch_set_indicator(WATCH_INDICATOR_SIGNAL);
             } else {
                 watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
