@@ -50,19 +50,15 @@ typedef void (*face_data_version_callback_t)(void *context_old, uint8_t schema_v
   */
  typedef void (*face_data_save_callback_t)(void *context);
 
-typedef struct {
+typedef struct face_data_details {
     uint32_t identifier_hash;
     uint8_t schema_version;
     void *context_data;
     uint16_t context_length;
     uint32_t context_hash;
     face_data_save_callback_t save_callback;
+    struct face_data_details *next_item;
 } face_data_details_t;
-
-typedef struct face_data_item {
-  face_data_details_t *details;
-  struct face_data_item *next_item;
-} face_data_item_t;
 
 /** @brief Connects the given details with the given watch face context pointer, to make subsequent calls of face_save_data()
  *         easier and tries to load a data file.

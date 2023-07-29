@@ -34,7 +34,7 @@
 #define FACE_DATA_FILENAME_LEN 17
 
 // face_data_details items are implemented as a linked list
-static face_data_item_t *_item_head = NULL;
+static face_data_details_t *_item_head = NULL;
 
 /// @brief Quick and easy hash function.
 static uint32_t DJBHash(const char* str, uint16_t length)
@@ -57,25 +57,23 @@ static void _set_filename(char *filename, uint32_t hash_value, uint8_t schema_ve
 /// @return Pointer to the face datails struct of type face_data_details_t or NULL if there was an error
 static face_data_details_t * _get_face_data_details(void *context, bool find_only) {
     // find the corresponding details entry or append one
-    face_data_item_t *previous_item = NULL;
-    face_data_item_t *current_item = _item_head;
+    face_data_details_t *previous_item = NULL;
+    face_data_details_t *current_item = _item_head;
     while (current_item != NULL) {
-        if (current_item->details->context_data == context) return current_item->details;
+        if (current_item->context_data == context) return current_item;
         previous_item = current_item;
         current_item = current_item->next_item;
     }
     if (find_only) return NULL;
     // nothing found so far - add a new data item
-    current_item = malloc(sizeof(face_data_item_t));
+    current_item = malloc(sizeof(face_data_details_t));
     if (current_item == NULL) return NULL;
     if (_item_head == NULL) _item_head = current_item;
+    memset(current_item, 0, sizeof(face_data_details_t));
     current_item->next_item = NULL;
-    current_item->details = malloc(sizeof(face_data_details_t));
-    if (current_item->details == NULL) return NULL;
-    memset(current_item->details, 0, sizeof(face_data_details_t));
-    current_item->details->context_data = context;
+    current_item->context_data = context;
     if (previous_item != NULL) previous_item->next_item = current_item;
-    return current_item->details;
+    return current_item;
 }
 
 bool face_data_init(const char* watch_face_identifier, 
