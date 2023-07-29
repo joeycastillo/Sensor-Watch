@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include "preferences_face.h"
 #include "watch.h"
+#include "face_settings.h"
 
 #define PREFERENCES_FACE_NUM_PREFEFENCES (7)
 const char preferences_face_titles[PREFERENCES_FACE_NUM_PREFEFENCES][11] = {
@@ -42,9 +43,11 @@ const char preferences_face_titles[PREFERENCES_FACE_NUM_PREFEFENCES][11] = {
 };
 
 void preferences_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
-    (void) settings;
     (void) watch_face_index;
-    if (*context_ptr == NULL) *context_ptr = malloc(sizeof(uint8_t));
+    if (*context_ptr == NULL) {
+        *context_ptr = malloc(sizeof(uint8_t));
+        face_data_init("preferences_face", 0, settings, sizeof(movement_settings_t), NULL, NULL);
+    } 
 }
 
 void preferences_face_activate(movement_settings_t *settings, void *context) {
@@ -187,6 +190,13 @@ bool preferences_face_loop(movement_event_t event, movement_settings_t *settings
 
     watch_set_led_off();
     return true;
+}
+
+bool preferences_face_wants_background_task(movement_settings_t *settings, void *context) {
+    watch_date_time now = watch_rtc_get_date_time();
+    // check if we need to save settings every 4 hours
+    if (now.unit.minute == 0 && (now.unit.hour % 4) == 0) face_data_save(settings);
+    return false;
 }
 
 void preferences_face_resign(movement_settings_t *settings, void *context) {
