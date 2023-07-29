@@ -92,6 +92,7 @@ static const int32_t clock_mapping[6][7][2] = {
 
 void wyoscan_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
+    (void) watch_face_index;
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(wyoscan_state_t));
         memset(*context_ptr, 0, sizeof(wyoscan_state_t));
@@ -101,6 +102,7 @@ void wyoscan_face_setup(movement_settings_t *settings, uint8_t watch_face_index,
 }
 
 void wyoscan_face_activate(movement_settings_t *settings, void *context) {
+    (void) settings;
     wyoscan_state_t *state = (wyoscan_state_t *)context;
     movement_request_tick_frequency(32);
     state->total_frames = 64;
