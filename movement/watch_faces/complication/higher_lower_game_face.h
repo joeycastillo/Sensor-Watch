@@ -68,13 +68,14 @@
  * | Cards   |                          |
  * |---------|--------------------------|
  * | Value   |2|3|4|5|6|7|8|9|10|J|Q|K|A|
- * | Display |2|3|4|5|6|7|8|9| 0|-|=|≡|H|
+ * | Display |0|1|2|3|4|5|6|7|8 |9|-|=|≡|
  *
- * The following may more legible choice:
+ * A previous alternative can be found in the git history:
  * | Cards   |                          |
  * |---------|--------------------------|
  * | Value   |2|3|4|5|6|7|8|9|10|J|Q|K|A|
- * | Display |0|1|2|3|4|5|6|7|8 |9|-|=|≡|
+ * | Display |2|3|4|5|6|7|8|9| 0|-|=|≡|H|
+ *
  *
  * Future Ideas:
  * - Add sounds
