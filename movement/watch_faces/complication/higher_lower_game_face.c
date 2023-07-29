@@ -139,28 +139,22 @@ static void render_board_position(size_t board_position) {
 
     const uint8_t value = game_board[board_position].value;
     switch (value) {
-        case 14: // A
-            watch_display_character('H', display_position);
-            break;
-        case 13: // K (≡)
+        case 14: // A (≡)
             watch_display_character(' ', display_position);
             set_segment_at_position(A, display_position);
             set_segment_at_position(D, display_position);
             set_segment_at_position(G, display_position);
             break;
-        case 12: // Q (=)
+        case 13: // K (=)
             watch_display_character(' ', display_position);
             set_segment_at_position(A, display_position);
             set_segment_at_position(D, display_position);
             break;
-        case 11: // J (-)
+        case 12: // Q (-)
             watch_display_character('-', display_position);
             break;
-        case 10: // 10 (0)
-            watch_display_character('0', display_position);
-            break;
         default: {
-            const char display_char = value + '0';
+            const char display_char = (value - MIN_CARD_VALUE) + '0';
             watch_display_character(display_char, display_position);
         }
     }
