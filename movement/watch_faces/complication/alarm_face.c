@@ -245,7 +245,6 @@ static void _abort_quick_ticks(alarm_state_t *state) {
 }
 
 void alarm_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void **context_ptr) {
-    (void) settings;
     (void) watch_face_index;
 
     if (*context_ptr == NULL) {
@@ -260,7 +259,10 @@ void alarm_face_setup(movement_settings_t *settings, uint8_t watch_face_index, v
         }
         state->alarm_handled_minute = -1;
         _wait_ticks = -1;
-        face_data_init("alarm_face", 0, *context_ptr, sizeof(alarm_state_t), _face_save_data, NULL);
+        if (face_data_init("alarm_face", 0, *context_ptr, sizeof(alarm_state_t), _face_save_data, NULL)) {
+            // we have just restored the alarm settings: update alarm indicator
+            _alarm_update_alarm_enabled(settings, state);
+        };
     }
 }
 
@@ -305,8 +307,8 @@ bool alarm_face_wants_background_task(movement_settings_t *settings, void *conte
     state->alarm_handled_minute = -1;
     // update the movement's alarm indicator five times an hour
     if (now.unit.minute % 12 == 0) _alarm_update_alarm_enabled(settings, state);
-    // check if we should save settings every 2 hours
-    if (now.unit.minute == 0 && (now.unit.hour % 2) == 0) face_data_save(state);
+    // check if we need to save settings every 4 hours
+    if (now.unit.minute == 0 && (now.unit.hour % 4) == 0) face_data_save(state);
     return false;
 }
 
