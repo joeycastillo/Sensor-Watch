@@ -46,7 +46,10 @@ void preferences_face_setup(movement_settings_t *settings, uint8_t watch_face_in
     (void) watch_face_index;
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(uint8_t));
-        face_data_init("preferences_face", 0, settings, sizeof(movement_settings_t), NULL, NULL);
+        bool alarm_indicator = settings->bit.alarm_enabled;
+        if (face_data_init("preferences_face", 0, settings, sizeof(movement_settings_t), NULL, NULL)) {
+            settings->bit.alarm_enabled |= alarm_indicator;
+        }
     } 
 }
 
