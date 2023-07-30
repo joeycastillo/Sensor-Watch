@@ -48,7 +48,7 @@ static uint32_t DJBHash(const char* str, uint16_t length)
 }
 
 static void _set_filename(char *filename, uint32_t hash_value, uint8_t schema_version) {
-    sprintf(filename, "data_%08x_%02x", hash_value, schema_version);
+    sprintf(filename, "data_%04x%04x_%02x", (uint16_t)(hash_value >> 16), (uint16_t)(hash_value & 0xFFFF), schema_version);
 }
 
 /// @brief Retrieve a pointer to the face data details of a given face data structure pointer.

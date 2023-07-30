@@ -196,6 +196,7 @@ bool preferences_face_loop(movement_event_t event, movement_settings_t *settings
 }
 
 bool preferences_face_wants_background_task(movement_settings_t *settings, void *context) {
+    (void) context;
     watch_date_time now = watch_rtc_get_date_time();
     // check if we need to save settings every 4 hours
     if (now.unit.minute == 0 && (now.unit.hour % 4) == 0) face_data_save(settings);
