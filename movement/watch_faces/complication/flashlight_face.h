@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Shogo Okamoto
+ * Copyright (c) 2023 Joey Castillo
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,32 +22,36 @@
  * SOFTWARE.
  */
 
-#ifndef COUNTER_FACE_H_
-#define COUNTER_FACE_H_
+#ifndef FLASHLIGHT_FACE_H_
+#define FLASHLIGHT_FACE_H_
 
 #include "movement.h"
 
-// Counter face is designed to count the number of running laps during excercises.
+/*
+ * A flashlight for use with the Flashlight sensor board.
+ *
+ * When the watch face appears, the display will show "FL" in the top two positions.
+ * Pressing the Light button will toggle the flashlight on and off.
+ *
+ */
+
 typedef struct {
-    uint8_t counter_idx;
-    bool beep_on;
-} counter_state_t;
+    // Anything you need to keep track of, put it here!
+    uint8_t unused;
+} flashlight_state_t;
 
+void flashlight_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
+void flashlight_face_activate(movement_settings_t *settings, void *context);
+bool flashlight_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void flashlight_face_resign(movement_settings_t *settings, void *context);
 
-void counter_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
-void counter_face_activate(movement_settings_t *settings, void *context);
-bool counter_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
-void counter_face_resign(movement_settings_t *settings, void *context);
-
-void print_counter(counter_state_t *state);
-void beep_counter(counter_state_t *state);
-
-#define counter_face ((const watch_face_t){ \
-    counter_face_setup, \
-    counter_face_activate, \
-    counter_face_loop, \
-    counter_face_resign, \
+#define flashlight_face ((const watch_face_t){ \
+    flashlight_face_setup, \
+    flashlight_face_activate, \
+    flashlight_face_loop, \
+    flashlight_face_resign, \
     NULL, \
 })
 
-#endif // COUNTER_FACE_H_
+#endif // FLASHLIGHT_FACE_H_
+
