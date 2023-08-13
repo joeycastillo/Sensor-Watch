@@ -32,12 +32,13 @@
 #include "movement.h"
 
 typedef enum {
-    WORLD_CLOCK2_MODE_DISPLAY,
+    WORLD_CLOCK2_MODE_RUNNING = 0,
     WORLD_CLOCK2_MODE_SETTINGS
 } world_clock2_mode_t;
 
 typedef struct {
-    bool selected;
+    char selected:1;
+    char dst:1;
 } world_clock2_zone_t;
 
 typedef struct {
@@ -60,4 +61,4 @@ void world_clock2_face_resign(movement_settings_t *settings, void *context);
     NULL, \
 })
 
-#endif /* WORLD_CLOCK2_FACE_H_ */
+#endif                          /* WORLD_CLOCK2_FACE_H_ */
