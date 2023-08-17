@@ -315,7 +315,9 @@ uint8_t movement_claim_backup_register(void) {
 }
 
 void app_init(void) {
-#ifdef WATCH_IS_BLUE_BOARD
+#if defined(NO_FREQCORR)
+    watch_rtc_freqcorr_write(0, 0);
+#elif defined(WATCH_IS_BLUE_BOARD)
     watch_rtc_freqcorr_write(11, 0);
 #else
     watch_rtc_freqcorr_write(22, 0);

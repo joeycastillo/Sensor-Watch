@@ -15,7 +15,7 @@ while [ true ] ; do
     done
     sleep 0.5
     clear
-    cp ./standard-green.uf2 /Volumes/WATCHBOOT/
+    cp ./standard-red.uf2 /Volumes/WATCHBOOT/
     if [ $? -eq 0 ]
     then
         echo -e "${GREEN}Success!${END} Board flashed successfully!"
