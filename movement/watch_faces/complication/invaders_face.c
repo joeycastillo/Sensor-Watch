@@ -406,7 +406,7 @@ bool invaders_face_loop(movement_event_t event, movement_settings_t *settings, v
             }
             break;
         case EVENT_TIMEOUT:
-            movement_move_to_face(0);
+            movement_move_to_page(0);
             break;
         default:
             // Movement's default loop handler will step in for any cases you don't handle above:

@@ -59,7 +59,7 @@ In addition to the settings and context, this function receives another paramete
 
 There is also a `subsecond` property on the event that contains the fractional second of the event. If you are using 1 Hz updates, subsecond will always be 0.
 
-You should set up a switch statement that handles, at the very least, the `EVENT_TICK` and `EVENT_MODE_BUTTON_UP` event types. The mode button up event occurs when the user presses the MODE button. **Your loop function SHOULD call the movement_move_to_next_face function in response to this event.** If you have a very good reason to override this behavior (e.g. your user interface requires all three buttons), you may do so, but the user will have to long-press the Mode button to advance to the next watch face.
+You should set up a switch statement that handles, at the very least, the `EVENT_TICK` and `EVENT_MODE_BUTTON_UP` event types. The mode button up event occurs when the user presses the MODE button. **Your loop function SHOULD call the movement_move_to_next_page function in response to this event.** If you have a very good reason to override this behavior (e.g. your user interface requires all three buttons), you may do so, but the user will have to long-press the Mode button to advance to the next watch face.
 
 Note that `watch_face_loop` returns a boolean value. This boolean value indicates to Movement whether the watch can enter standby mode after handling your loop (true), or whether it should stay awake (false). You SHOULD almost always return true here, as the watch uses significantly more power when idling as opposed to standing by. The only times you would return false here are if you are PWM'ing the LED or emitting a sound from the buzzer. Your watch face would want to keep the watch awake in this case because the PWM driver does not run in standby.
 
@@ -158,7 +158,7 @@ Let's go through each case one by one. In response to the user releasing the MOD
 
 ```c
 case EVENT_MODE_BUTTON_UP:
-    movement_move_to_next_face();
+    movement_move_to_next_page();
     break;
 ```
 
@@ -240,7 +240,7 @@ Finally, the timeout event. After a period of inactivity (configurable from one 
 
 ```c
 case EVENT_TIMEOUT:
-    movement_move_to_face(0);
+    movement_move_to_page(0);
     break;
 ```
 
@@ -291,7 +291,7 @@ Your watch face receives this event after it has has been inactive for a while. 
 
 ### EVENT_LOW_ENERGY_UPDATE
 
-If your watch face is in the foreground when the watch goes into low energy mode, you will receive an `EVENT_LOW_ENERGY_UPDATE` event once a minute (at the top of the minute) so that you can update the screen. Note however that when you receive this event, all pins and peripherals other than the RTC will have been disabled to save energy. If your display is clock or calendar oriented, this is fine. But if your display requires polling an I2C sensor or reading a value with the ADC, you won't be able to do this. You should either display the name of the watch face in response to the low power tick, or ensure that you resign before low power mode triggers (you can do this by calling `movement_move_to_face(0)` in your `EVENT_TIMEOUT` handler).
+If your watch face is in the foreground when the watch goes into low energy mode, you will receive an `EVENT_LOW_ENERGY_UPDATE` event once a minute (at the top of the minute) so that you can update the screen. Note however that when you receive this event, all pins and peripherals other than the RTC will have been disabled to save energy. If your display is clock or calendar oriented, this is fine. But if your display requires polling an I2C sensor or reading a value with the ADC, you won't be able to do this. You should either display the name of the watch face in response to the low power tick, or ensure that you resign before low power mode triggers (you can do this by calling `movement_move_to_page(0)` in your `EVENT_TIMEOUT` handler).
 
 **Your watch face MUST NOT wake up peripherals in response to a low energy update event.** The purpose of this mode is to consume as little energy as possible during the (potentially long) intervals when it's unlikely the user is wearing or looking at the watch.
 

@@ -112,7 +112,7 @@ bool set_time_face_loop(movement_event_t event, movement_settings_t *settings, v
             break;
         case EVENT_MODE_BUTTON_UP:
             _abort_quick_ticks();
-            movement_move_to_next_face();
+            movement_move_to_next_page();
             return false;
         case EVENT_LIGHT_BUTTON_DOWN:
             current_page = (current_page + 1) % SET_TIME_FACE_NUM_SETTINGS;
@@ -124,7 +124,7 @@ bool set_time_face_loop(movement_event_t event, movement_settings_t *settings, v
             break;
         case EVENT_TIMEOUT:
             _abort_quick_ticks();
-            movement_move_to_face(0);
+            movement_move_to_page(0);
             break;
         default:
             return movement_default_loop_handler(event, settings);

@@ -230,7 +230,7 @@ bool morsecalc_face_loop(movement_event_t event, movement_settings_t *settings, 
     case EVENT_MODE_BUTTON_UP:
     // submit character (or quit)
         if(mcs->mc || mcs->idxt) morsecalc_input(mcs); 
-        else movement_move_to_next_face();
+        else movement_move_to_next_page();
         break;
 
     // show stack
@@ -255,10 +255,10 @@ bool morsecalc_face_loop(movement_event_t event, movement_settings_t *settings, 
 
     // quit
     case EVENT_TIMEOUT:
-        movement_move_to_face(0);
+        movement_move_to_page(0);
         break;
     case EVENT_MODE_LONG_PRESS:
-        movement_move_to_next_face();
+        movement_move_to_next_page();
         break;
 
     case EVENT_TICK:

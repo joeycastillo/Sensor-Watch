@@ -223,7 +223,7 @@ bool countdown_face_loop(movement_event_t event, movement_settings_t *settings, 
             break;
         case EVENT_MODE_BUTTON_UP:
             abort_quick_ticks(state);
-            movement_move_to_next_face();
+            movement_move_to_next_page();
             break;
         case EVENT_LIGHT_BUTTON_UP:
             switch(state->mode) {
@@ -301,7 +301,7 @@ bool countdown_face_loop(movement_event_t event, movement_settings_t *settings, 
             break;
         case EVENT_TIMEOUT:
             abort_quick_ticks(state);
-            movement_move_to_face(0);
+            movement_move_to_page(0);
             break;
         case EVENT_LOW_ENERGY_UPDATE:
         // intentionally squelch the light default event; we only show the light when cd is running

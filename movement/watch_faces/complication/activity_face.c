@@ -469,7 +469,7 @@ static void _activity_handle_tick(movement_settings_t *settings, activity_state_
     // Display countown animation, and exit face when down
     else if (state->mode == ACTM_DONE) {
         if (state->counter == 0) {
-            movement_move_to_face(0);
+            movement_move_to_page(0);
             movement_request_tick_frequency(1);
         }
         else {
@@ -662,7 +662,7 @@ bool activity_face_loop(movement_event_t event, movement_settings_t *settings, v
         case EVENT_MODE_BUTTON_UP:
             if (state->mode != ACTM_LOGGING && state->mode != ACTM_PAUSED && state->mode != ACTM_CHIRPING) {
                 movement_request_tick_frequency(1);
-                movement_move_to_next_face();
+                movement_move_to_next_page();
             }
             break;
         case EVENT_LIGHT_BUTTON_UP:
@@ -683,7 +683,7 @@ bool activity_face_loop(movement_event_t event, movement_settings_t *settings, v
             if (state->mode != ACTM_LOGGING && state->mode != ACTM_PAUSED &&
                 state->mode != ACTM_CHIRP && state->mode != ACTM_CHIRPING) {
                 movement_request_tick_frequency(1);
-                movement_move_to_face(0);
+                movement_move_to_page(0);
             }
             break;
         case EVENT_LOW_ENERGY_UPDATE:

@@ -129,7 +129,7 @@ bool weeknumber_clock_face_loop(movement_event_t event, movement_settings_t *set
             break;
         case EVENT_BACKGROUND_TASK:
             // uncomment this line to snap back to the clock face when the hour signal sounds:
-            // movement_move_to_face(state->watch_face_index);
+            // movement_move_to_page(movement_face_to_page(state->watch_face_index));
             movement_play_signal();
             break;
         default:

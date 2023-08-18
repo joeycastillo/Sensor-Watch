@@ -74,6 +74,9 @@
 #endif
 
 movement_state_t movement_state;
+uint16_t page_to_face[MOVEMENT_NUM_FACES]; // i-th el. is the face_index for page i
+uint16_t face_to_page[MOVEMENT_NUM_FACES]; // i-th el. is the page_index for face i
+bool watch_face_status[MOVEMENT_NUM_FACES]; // i-th el. indicates if face i is enabled
 void * watch_face_contexts[MOVEMENT_NUM_FACES];
 watch_date_time scheduled_tasks[MOVEMENT_NUM_FACES];
 const int32_t movement_le_inactivity_deadlines[8] = {INT_MAX, 3600, 7200, 21600, 43200, 86400, 172800, 604800};
@@ -226,18 +229,20 @@ bool movement_default_loop_handler(movement_event_t event, movement_settings_t *
 
     switch (event.event_type) {
         case EVENT_MODE_BUTTON_UP:
-            movement_move_to_next_face();
+            movement_move_to_next_page();
             break;
         case EVENT_LIGHT_BUTTON_DOWN:
             movement_illuminate_led();
             break;
-        case EVENT_MODE_LONG_PRESS:
-            if (MOVEMENT_SECONDARY_FACE_INDEX && movement_state.current_watch_face == 0) {
-                movement_move_to_face(MOVEMENT_SECONDARY_FACE_INDEX);
+        case EVENT_MODE_LONG_PRESS: {
+            uint8_t home_page = movement_find_first_enabled_page(0);
+            if (movement_state.secondary_page && movement_state.current_page == home_page) {
+                movement_move_to_page(movement_state.secondary_page);
             } else {
-                movement_move_to_face(0);
+                movement_move_to_page(home_page);
             }
             break;
+        }
         default:
             break;
     }
@@ -245,27 +250,111 @@ bool movement_default_loop_handler(movement_event_t event, movement_settings_t *
     return true;
 }
 
-void movement_move_to_face(uint8_t watch_face_index) {
-    movement_state.watch_face_changed = true;
-    movement_state.next_watch_face = watch_face_index;
+uint8_t movement_get_num_faces(void) {
+    return MOVEMENT_NUM_FACES;
 }
 
-void movement_move_to_next_face(void) {
-    uint16_t face_max;
-    if (MOVEMENT_SECONDARY_FACE_INDEX) {
-        face_max = (movement_state.current_watch_face < (int16_t)MOVEMENT_SECONDARY_FACE_INDEX) ? MOVEMENT_SECONDARY_FACE_INDEX : MOVEMENT_NUM_FACES;
-    } else {
-        face_max = MOVEMENT_NUM_FACES;
+uint8_t movement_page_to_face(uint8_t page_index) {
+    return page_to_face[page_index];
+}
+
+uint8_t movement_face_to_page(uint8_t watch_face_index) {
+    return face_to_page[watch_face_index];
+}
+
+bool movement_is_secondary_page(uint8_t page_index) {
+    // NOTE: If the secondary_page_index is 0, effectively all pages are secondary
+    return page_index >= movement_state.secondary_page;
+}
+
+uint8_t movement_find_first_enabled_page(uint8_t page_index) {
+    bool found = false;
+    bool is_secondary = movement_is_secondary_page(page_index);
+
+    uint8_t enabled_page_index = page_index;
+
+    uint8_t max_page_index = is_secondary ? MOVEMENT_NUM_FACES : movement_state.secondary_page;
+
+    for (uint8_t i = 0; i < max_page_index; i++) {
+        uint8_t curr_page_index = (page_index + i) % max_page_index;
+        if (movement_is_page_enabled(curr_page_index)) {
+            enabled_page_index  = curr_page_index;
+            found = true;
+
+            break;
+        }
     }
-    movement_move_to_face((movement_state.current_watch_face + 1) % face_max);
+
+    if (found || is_secondary) {
+        return enabled_page_index;
+    }
+
+    // Corner case: If requesting a primary face (for example go to page 0)
+    // but all primary pages are disable, extend search to secondary pages
+    for (uint8_t i = movement_state.secondary_page; i < MOVEMENT_NUM_FACES; i++) {
+        uint8_t curr_page_index = i % MOVEMENT_NUM_FACES;
+        if (movement_is_page_enabled(curr_page_index)) {
+            enabled_page_index  = curr_page_index;
+
+            break;
+        }
+    }
+
+    return enabled_page_index;
+}
+
+void movement_move_to_page(uint8_t page_index) {
+    movement_state.page_changed = true;
+    movement_state.next_page = movement_find_first_enabled_page(page_index);
+}
+
+void movement_move_to_next_page(void) {
+    uint8_t page_max = movement_is_secondary_page(movement_state.current_page) ? MOVEMENT_NUM_FACES : movement_state.secondary_page;
+
+    movement_move_to_page((movement_state.current_page + 1) % page_max);
+}
+
+void movement_swap_page_order(uint8_t page_a_index, uint8_t page_b_index) {
+    uint8_t face_a_index = movement_page_to_face(page_a_index);
+    uint8_t face_b_index = movement_page_to_face(page_b_index);
+
+    page_to_face[page_a_index] = face_b_index;
+    page_to_face[page_b_index] = face_a_index;
+
+    face_to_page[face_a_index] = page_b_index;
+    face_to_page[face_b_index] = page_a_index;
+}
+
+void movement_enable_page(uint8_t page_index, bool enable) {
+    movement_enable_face(movement_page_to_face(page_index), enable);
+}
+
+bool movement_is_page_enabled(uint8_t page_index) {
+    return movement_is_face_enabled(movement_page_to_face(page_index));
+}
+
+void movement_enable_face(uint8_t watch_face_index, bool enable) {
+    watch_face_status[watch_face_index] = enable;
+}
+
+bool movement_is_face_enabled(uint8_t watch_face_index) {
+    return watch_face_status[watch_face_index];
+}
+
+uint8_t movement_get_secondary_page(void) {
+    return movement_state.secondary_page;
+}
+
+void movement_set_secondary_page(uint8_t page_index) {
+    movement_state.secondary_page = page_index;
 }
 
 void movement_schedule_background_task(watch_date_time date_time) {
-    movement_schedule_background_task_for_face(movement_state.current_watch_face, date_time);
+    movement_schedule_background_task_for_face(movement_state.current_face, date_time);
 }
 
 void movement_cancel_background_task(void) {
-    movement_cancel_background_task_for_face(movement_state.current_watch_face);
+    movement_cancel_background_task_for_face(movement_state.current_face);
 }
 
 void movement_schedule_background_task_for_face(uint8_t watch_face_index, watch_date_time date_time) {
@@ -385,10 +474,17 @@ void app_setup(void) {
         #endif
 
         for(uint8_t i = 0; i < MOVEMENT_NUM_FACES; i++) {
+            page_to_face[i] = i;
+            face_to_page[i] = i;
+            watch_face_status[i] = true;
             watch_face_contexts[i] = NULL;
             scheduled_tasks[i].reg = 0;
             is_first_launch = false;
         }
+
+        movement_state.secondary_page = MOVEMENT_SECONDARY_FACE_INDEX;
+        movement_state.current_page = movement_find_first_enabled_page(0);
+        movement_state.current_face = movement_page_to_face(movement_state.current_page);
 
         // set up the 1 minute alarm (for background tasks and low power updates)
         watch_date_time alarm_time;
@@ -414,7 +510,7 @@ void app_setup(void) {
             watch_faces[i].setup(&movement_state.settings, i, &watch_face_contexts[i]);
         }
 
-        watch_faces[movement_state.current_watch_face].activate(&movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
+        watch_faces[movement_state.current_face].activate(&movement_state.settings, watch_face_contexts[movement_state.current_face]);
         event.subsecond = 0;
         event.event_type = EVENT_ACTIVATE;
     }
@@ -434,7 +530,8 @@ static void _sleep_mode_app_loop(void) {
         if (movement_state.needs_background_tasks_handled) _movement_handle_background_tasks();
 
         event.event_type = EVENT_LOW_ENERGY_UPDATE;
-        watch_faces[movement_state.current_watch_face].loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
+
+        watch_faces[movement_state.current_face].loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_face]);
 
         // if we need to wake immediately, do it!
         if (movement_state.needs_wake) return;
@@ -444,19 +541,23 @@ static void _sleep_mode_app_loop(void) {
 }
 
 bool app_loop(void) {
-    if (movement_state.watch_face_changed) {
+    if (movement_state.page_changed) {
         if (movement_state.settings.bit.button_should_sound) {
             // low note for nonzero case, high note for return to watch_face 0
-            watch_buzzer_play_note(movement_state.next_watch_face ? BUZZER_NOTE_C7 : BUZZER_NOTE_C8, 50);
+            uint8_t home_page = movement_find_first_enabled_page(0);
+            watch_buzzer_play_note(movement_state.next_page == home_page ? BUZZER_NOTE_C8 : BUZZER_NOTE_C7, 50);
         }
-        watch_faces[movement_state.current_watch_face].resign(&movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
-        movement_state.current_watch_face = movement_state.next_watch_face;
+
+        watch_faces[movement_state.current_face].resign(&movement_state.settings, watch_face_contexts[movement_state.current_face]);
+        movement_state.current_page = movement_state.next_page;
+        movement_state.current_face = movement_page_to_face(movement_state.current_page);
         watch_clear_display();
         movement_request_tick_frequency(1);
-        watch_faces[movement_state.current_watch_face].activate(&movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
+
+        watch_faces[movement_state.current_face].activate(&movement_state.settings, watch_face_contexts[movement_state.current_face]);
         event.subsecond = 0;
         event.event_type = EVENT_ACTIVATE;
-        movement_state.watch_face_changed = false;
+        movement_state.page_changed = false;
     }
 
     // if the LED should be off, turn it off
@@ -498,7 +599,7 @@ bool app_loop(void) {
 
     if (event.event_type) {
         event.subsecond = movement_state.subsecond;
-        can_sleep = watch_faces[movement_state.current_watch_face].loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
+        can_sleep = watch_faces[movement_state.current_face].loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_face]);
         event.event_type = EVENT_NONE;
     }
 
@@ -510,11 +611,12 @@ bool app_loop(void) {
             event.event_type = EVENT_TIMEOUT;
         }
         event.subsecond = movement_state.subsecond;
-        watch_faces[movement_state.current_watch_face].loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
+        watch_faces[movement_state.current_face].loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_face]);
         event.event_type = EVENT_NONE;
-        if (movement_state.settings.bit.to_always && movement_state.current_watch_face != 0) {
+        uint8_t home_page = movement_find_first_enabled_page(0);
+        if (movement_state.settings.bit.to_always && movement_state.current_page != home_page) {
             // ...but if the user has "timeout always" set, give it the boot.
-            movement_move_to_face(0);
+            movement_move_to_page(home_page);
         }
     }
 
@@ -567,7 +669,7 @@ bool app_loop(void) {
     event.subsecond = 0;
 
     // if the watch face changed, we can't sleep because we need to update the display.
-    if (movement_state.watch_face_changed) can_sleep = false;
+    if (movement_state.page_changed) can_sleep = false;
 
     // if the buzzer or the LED is on, we need to stay awake to keep the TCC running.
     if (movement_state.is_buzzing || movement_state.light_ticks != -1) can_sleep = false;

@@ -89,7 +89,7 @@ bool blinky_face_loop(movement_event_t event, movement_settings_t *settings, voi
             }
             break;
         case EVENT_TIMEOUT:
-            if (!state->active) movement_move_to_face(0);
+            if (!state->active) movement_move_to_page(0);
             break;
         default:
             movement_default_loop_handler(event, settings);

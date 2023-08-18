@@ -170,9 +170,9 @@ typedef void (*watch_face_activate)(movement_settings_t *settings, void *context
   *          at the very least, the EVENT_TICK and EVENT_MODE_BUTTON_UP event types. The tick event happens once
   *          per second (or more frequently if you asked for a faster tick with movement_request_tick_frequency).
   *          The mode button up event occurs when the user presses the MODE button. **Your loop function SHOULD
-  *          call the movement_move_to_next_face function in response to this event.** If you have a good reason
+  *          call the movement_move_to_next_page function in response to this event.** If you have a good reason
   *          to override this behavior (e.g. your user interface requires all three buttons), your watch face MUST
-  *          call the movement_move_to_next_face function in response to the EVENT_MODE_LONG_PRESS event. If you
+  *          call the movement_move_to_next_page function in response to the EVENT_MODE_LONG_PRESS event. If you
   *          fail to do this, the user will become stuck on your watch face.
   * @param event A struct containing information about the event, including its type. @see movement_event_type_t
   *              for a list of all possible event types.
@@ -180,8 +180,8 @@ typedef void (*watch_face_activate)(movement_settings_t *settings, void *context
   * @param context A pointer to your application's context. @see watch_face_setup.
   * @return true if your watch face is prepared for the system to enter STANDBY mode; false to keep the system awake.
   *         You should almost always return true.
-  *         Note that this return value has no effect if your loop function has called movement_move_to_next_face
-  *         or movement_move_to_face; in that case, your watch face will resign immediately, and the next watch
+  *         Note that this return value has no effect if your loop function has called movement_move_to_next_page
+  *         or movement_move_to_page; in that case, your watch face will resign immediately, and the next watch
   *         face will make the decision on entering standby mode.
   * @note There are two event types that require some extra thought:
           The EVENT_LOW_ENERGY_UPDATE event type is a special case. If you are in the foreground when the watch
@@ -190,7 +190,7 @@ typedef void (*watch_face_activate)(movement_settings_t *settings, void *context
           the RTC will have been disabled to save energy. If your display is clock or calendar oriented, this is
           fine. But if your display requires polling an I2C sensor or reading a value with the ADC, you won't be
           able to do this. You should either display the name of the watch face in response to the low power tick,
-          or ensure that you resign before low power mode triggers, (e.g. by calling movement_move_to_face(0)).
+          or ensure that you resign before low power mode triggers, (e.g. by calling movement_move_to_page(0)).
           **Your watch face MUST NOT wake up peripherals in response to a low power tick.** The purpose of this
           mode is to consume as little energy as possible during the (potentially long) intervals when it's
           unlikely the user is wearing or looking at the watch.
@@ -244,9 +244,11 @@ typedef struct {
     movement_settings_t settings;
 
     // transient properties
-    int16_t current_watch_face;
-    int16_t next_watch_face;
-    bool watch_face_changed;
+    uint8_t current_face;
+    uint8_t current_page;
+    uint8_t next_page;
+    uint8_t secondary_page;
+    bool page_changed;
     bool fast_tick_enabled;
     int16_t fast_ticks;
 
@@ -283,8 +285,27 @@ typedef struct {
     uint8_t next_available_backup_register;
 } movement_state_t;
 
-void movement_move_to_face(uint8_t watch_face_index);
-void movement_move_to_next_face(void);
+uint8_t movement_get_num_faces(void);
+
+uint8_t movement_page_to_face(uint8_t page_index);
+uint8_t movement_face_to_page(uint8_t watch_face_index);
+
+bool movement_is_secondary_page(uint8_t page_index);
+uint8_t movement_find_first_enabled_page(uint8_t page_index);
+
+void movement_move_to_page(uint8_t page_index);
+void movement_move_to_next_page(void);
+
+void movement_swap_page_order(uint8_t page_a_index, uint8_t page_b_index);
+
+void movement_enable_page(uint8_t page_index, bool enable);
+bool movement_is_page_enabled(uint8_t page_index);
+
+void movement_enable_face(uint8_t watch_face_index, bool enable);
+bool movement_is_face_enabled(uint8_t watch_face_index);
+
+uint8_t movement_get_secondary_page(void);
+void movement_set_secondary_page(uint8_t page_index);
 
 bool movement_default_loop_handler(movement_event_t event, movement_settings_t *settings);
 

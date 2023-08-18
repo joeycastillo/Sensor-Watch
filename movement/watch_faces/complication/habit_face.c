@@ -142,7 +142,7 @@ bool habit_face_loop(movement_event_t event, movement_settings_t *settings,
     break;
   }
   case EVENT_TIMEOUT: {
-    movement_move_to_face(0);
+    movement_move_to_page(0);
     break;
   }
   default:

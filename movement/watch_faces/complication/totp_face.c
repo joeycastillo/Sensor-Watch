@@ -83,7 +83,7 @@ bool totp_face_loop(movement_event_t event, movement_settings_t *settings, void 
             _update_display(totp_state);
             break;
         case EVENT_TIMEOUT:
-            movement_move_to_face(0);
+            movement_move_to_page(0);
             break;
         case EVENT_ALARM_BUTTON_UP:
             if (totp_state->current_index + 1 < num_keys) {

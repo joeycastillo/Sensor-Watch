@@ -265,7 +265,7 @@ bool chirpy_demo_face_loop(movement_event_t event, movement_settings_t *settings
         case EVENT_MODE_BUTTON_UP:
             // Do not exit face while we're chirping
             if (state->mode != CDM_CHIRPING) {
-                movement_move_to_next_face();
+                movement_move_to_next_page();
             }
             break;
         case EVENT_LIGHT_BUTTON_UP:
@@ -310,7 +310,7 @@ bool chirpy_demo_face_loop(movement_event_t event, movement_settings_t *settings
         case EVENT_TIMEOUT:
             // Do not time out while we're chirping
             if (state->mode != CDM_CHIRPING) {
-                movement_move_to_face(0);
+                movement_move_to_page(0);
             }
         default:
             break;

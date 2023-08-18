@@ -187,7 +187,7 @@ bool discgolf_face_loop(movement_event_t event, movement_settings_t *settings, v
         case EVENT_TIMEOUT:
             /* Snap to first screen if we're not playing*/
             if ( count_played(state) == holes[state->course] || state->mode == dg_setting) {
-                movement_move_to_face(0);
+                movement_move_to_page(0);
             }
             /* Cancel scoring if timed out */
             if (state->mode == dg_scoring) {
@@ -198,13 +198,13 @@ bool discgolf_face_loop(movement_event_t event, movement_settings_t *settings, v
         /* Advance if not scoring */
         case EVENT_MODE_BUTTON_UP:
             if ( state->mode != dg_scoring ) {
-				movement_move_to_next_face();
+				movement_move_to_next_page();
             }
             break;
         /* Go to default face if not scoring */
         case EVENT_MODE_LONG_PRESS:
             if ( state->mode != dg_scoring ) {
-                movement_move_to_face(0);
+                movement_move_to_page(0);
             }
             break;
         case EVENT_LIGHT_BUTTON_UP:

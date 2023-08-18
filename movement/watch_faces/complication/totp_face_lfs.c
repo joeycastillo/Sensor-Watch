@@ -243,7 +243,7 @@ bool totp_face_lfs_loop(movement_event_t event, movement_settings_t *settings, v
             totp_face_display(totp_state);
             break;
         case EVENT_TIMEOUT:
-            movement_move_to_face(0);
+            movement_move_to_page(0);
             break;
         case EVENT_ALARM_BUTTON_UP:
             totp_face_set_record(totp_state, (totp_state->current_index + 1) % num_totp_records);
