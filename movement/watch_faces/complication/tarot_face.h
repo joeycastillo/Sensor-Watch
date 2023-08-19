@@ -84,6 +84,7 @@ void tarot_face_resign(movement_settings_t *settings, void *context);
     tarot_face_loop, \
     tarot_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // TAROT_FACE_H_

@@ -48,6 +48,7 @@ void beep_counter(counter_state_t *state);
     counter_face_loop, \
     counter_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // COUNTER_FACE_H_

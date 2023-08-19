@@ -57,7 +57,8 @@ void page_ordering_face_activate(movement_settings_t *settings, void *context) {
 static void _page_ordering_face_update_lcd(page_ordering_face_state_t *state) {
     char buf[11];
 
-    snprintf(buf + 0, 3, "FA");
+    // Label of the face associated with the current page
+    movement_get_page_label(state->current_page_index, buf + 0, 3);
 
     // Index of the face associated with the current page
     snprintf(buf + 2, 3, "%2.1d", movement_page_to_face(state->current_page_index));
@@ -174,4 +175,11 @@ bool page_ordering_face_loop(movement_event_t event, movement_settings_t *settin
 void page_ordering_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
+}
+
+void page_ordering_face_label(movement_settings_t *settings, void *context, char* label, uint8_t size)
+{
+    (void) settings;
+    (void) context;
+    snprintf(label, size, "PN");
 }

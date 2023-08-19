@@ -97,3 +97,11 @@ void <#watch_face_name#>_face_resign(movement_settings_t *settings, void *contex
     // handle any cleanup before your watch face goes off-screen.
 }
 
+void <#watch_face_name#>_face_label(movement_settings_t *settings, void *context, char* label, uint8_t size) {
+    // Provide a 2 letter human readable label for this face.
+    // This label will most likely be displayed in the weekday display section
+
+    (void) settings;
+    (void) context;
+    snprintf(label, size, "FA");
+}

@@ -31,6 +31,7 @@ void preferences_face_setup(movement_settings_t *settings, uint8_t watch_face_in
 void preferences_face_activate(movement_settings_t *settings, void *context);
 bool preferences_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void preferences_face_resign(movement_settings_t *settings, void *context);
+void preferences_face_label(movement_settings_t *settings, void *context, char* label, uint8_t size);
 
 #define preferences_face ((const watch_face_t){ \
     preferences_face_setup, \
@@ -38,6 +39,7 @@ void preferences_face_resign(movement_settings_t *settings, void *context);
     preferences_face_loop, \
     preferences_face_resign, \
     NULL, \
+    preferences_face_label, \
 })
 
 #endif // PREFERENCES_FACE_H_

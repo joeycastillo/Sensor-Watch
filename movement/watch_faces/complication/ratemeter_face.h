@@ -43,6 +43,7 @@ void ratemeter_face_resign(movement_settings_t *settings, void *context);
     ratemeter_face_loop, \
     ratemeter_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // RATEMETER_FACE_H_

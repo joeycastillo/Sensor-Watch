@@ -46,6 +46,7 @@ void world_clock_face_setup(movement_settings_t *settings, uint8_t watch_face_in
 void world_clock_face_activate(movement_settings_t *settings, void *context);
 bool world_clock_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void world_clock_face_resign(movement_settings_t *settings, void *context);
+void world_clock_face_label(movement_settings_t *settings, void *context, char* label, uint8_t size);
 
 uint8_t world_clock_face_get_weekday(uint16_t day, uint16_t month, uint16_t year);
 
@@ -55,6 +56,7 @@ uint8_t world_clock_face_get_weekday(uint16_t day, uint16_t month, uint16_t year
     world_clock_face_loop, \
     world_clock_face_resign, \
     NULL, \
+    world_clock_face_label, \
 })
 
 #endif // WORLD_CLOCK_FACE_H_

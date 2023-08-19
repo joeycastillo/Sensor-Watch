@@ -47,6 +47,7 @@ bool wake_face_wants_background_task(movement_settings_t *settings, void *contex
     wake_face_loop, \
     wake_face_resign, \
     wake_face_wants_background_task \
+    NULL, \
 })
 
 #endif // WAKE_FACE_H_

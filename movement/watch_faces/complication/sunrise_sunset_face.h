@@ -60,6 +60,7 @@ void sunrise_sunset_face_resign(movement_settings_t *settings, void *context);
     sunrise_sunset_face_loop, \
     sunrise_sunset_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // SUNRISE_SUNSET_FACE_H_

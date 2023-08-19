@@ -67,6 +67,7 @@ void decimal_time_face_resign(movement_settings_t *settings, void *context);
     decimal_time_face_loop, \
     decimal_time_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // DECIMAL_TIME_FACE_H_

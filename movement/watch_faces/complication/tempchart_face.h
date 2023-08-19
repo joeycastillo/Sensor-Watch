@@ -40,6 +40,7 @@ bool tempchart_face_wants_background_task(movement_settings_t *settings, void *c
     tempchart_face_loop, \
     tempchart_face_resign, \
     tempchart_face_wants_background_task, \
+    NULL, \
 })
 
 #endif // TEMPCHART_FACE_H_

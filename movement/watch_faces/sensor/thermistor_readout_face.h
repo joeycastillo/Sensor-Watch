@@ -38,6 +38,7 @@ void thermistor_readout_face_resign(movement_settings_t *settings, void *context
     thermistor_readout_face_loop, \
     thermistor_readout_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // THERMISTOR_READOUT_FACE_H_

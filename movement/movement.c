@@ -349,6 +349,19 @@ void movement_set_secondary_page(uint8_t page_index) {
     movement_state.secondary_page = page_index;
 }
 
+void movement_get_page_label(uint8_t page_index, char* label, uint8_t size) {
+    return movement_get_face_label(movement_page_to_face(page_index), label, size);
+}
+
+void movement_get_face_label(uint8_t watch_face_index, char* label, uint8_t size) {
+    if (watch_faces[watch_face_index].label != NULL) {
+        watch_faces[watch_face_index].label(&movement_state.settings, watch_face_contexts[watch_face_index], label, size);
+    } else {
+        // If there is no explicit label use "FA" (short for face)
+        snprintf(label, size, "FA");
+    }
+}
+
 void movement_schedule_background_task(watch_date_time date_time) {
     movement_schedule_background_task_for_face(movement_state.current_face, date_time);
 }

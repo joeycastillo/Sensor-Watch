@@ -54,6 +54,7 @@ void page_ordering_face_setup(movement_settings_t *settings, uint8_t watch_face_
 void page_ordering_face_activate(movement_settings_t *settings, void *context);
 bool page_ordering_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void page_ordering_face_resign(movement_settings_t *settings, void *context);
+void page_ordering_face_label(movement_settings_t *settings, void *context, char* label, uint8_t size);
 
 #define page_ordering_face ((const watch_face_t){ \
     page_ordering_face_setup, \
@@ -61,6 +62,7 @@ void page_ordering_face_resign(movement_settings_t *settings, void *context);
     page_ordering_face_loop, \
     page_ordering_face_resign, \
     NULL, \
+    page_ordering_face_label, \
 })
 
 #endif // PAGE_ORDERING_FACE_H_

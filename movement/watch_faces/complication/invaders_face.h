@@ -76,6 +76,7 @@ void invaders_face_resign(movement_settings_t *settings, void *context);
     invaders_face_loop, \
     invaders_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // INVADERS_FACE_H_

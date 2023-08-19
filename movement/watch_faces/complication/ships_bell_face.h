@@ -62,6 +62,7 @@ bool ships_bell_face_wants_background_task(movement_settings_t *settings, void *
     ships_bell_face_loop, \
     ships_bell_face_resign, \
     ships_bell_face_wants_background_task, \
+    NULL, \
 })
 
 #endif // SHIPS_BELL_FACE_H_

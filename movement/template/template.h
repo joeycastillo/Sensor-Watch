@@ -43,6 +43,7 @@ void <#watch_face_name#>_face_setup(movement_settings_t *settings, uint8_t watch
 void <#watch_face_name#>_face_activate(movement_settings_t *settings, void *context);
 bool <#watch_face_name#>_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void <#watch_face_name#>_face_resign(movement_settings_t *settings, void *context);
+void <#watch_face_name#>_face_label(movement_settings_t *settings, void *context, char* label, uint8_t size);
 
 #define <#watch_face_name#>_face ((const watch_face_t){ \
     <#watch_face_name#>_face_setup, \
@@ -50,6 +51,7 @@ void <#watch_face_name#>_face_resign(movement_settings_t *settings, void *contex
     <#watch_face_name#>_face_loop, \
     <#watch_face_name#>_face_resign, \
     NULL, \
+    <#watch_face_name#>_face_label, \
 })
 
 #endif // <#WATCH_FACE_NAME#>_FACE_H_

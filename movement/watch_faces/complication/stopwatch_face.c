@@ -172,3 +172,10 @@ void stopwatch_face_resign(movement_settings_t *settings, void *context) {
     // that was keeping us awake while on screen.
     movement_cancel_background_task();
 }
+
+void stopwatch_face_label(movement_settings_t *settings, void *context, char* label, uint8_t size)
+{
+    (void) settings;
+    (void) context;
+    snprintf(label, size, "ST");
+}

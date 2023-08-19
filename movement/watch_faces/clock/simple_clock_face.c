@@ -163,3 +163,9 @@ bool simple_clock_face_wants_background_task(movement_settings_t *settings, void
 
     return date_time.unit.minute == 0;
 }
+
+void simple_clock_face_label(movement_settings_t *settings, void *context, char* label, uint8_t size) {
+    (void) settings;
+    (void) context;
+    snprintf(label, size, "CL");
+}

@@ -448,3 +448,10 @@ void world_clock2_face_resign(movement_settings_t *settings, void *context)
     (void) settings;
     (void) context;
 }
+
+void world_clock2_face_label(movement_settings_t *settings, void *context, char* label, uint8_t size)
+{
+    (void) settings;
+    (void) context;
+    snprintf(label, size, "WT");
+}

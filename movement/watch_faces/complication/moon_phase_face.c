@@ -176,3 +176,10 @@ void moon_phase_face_resign(movement_settings_t *settings, void *context) {
     moon_phase_state_t *state = (moon_phase_state_t *)context;
     state->offset = 0;
 }
+
+void moon_phase_face_label(movement_settings_t *settings, void *context, char* label, uint8_t size)
+{
+    (void) settings;
+    (void) context;
+    snprintf(label, size, "MO");
+}

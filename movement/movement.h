@@ -231,12 +231,23 @@ typedef void (*watch_face_resign)(movement_settings_t *settings, void *context);
   */
 typedef bool (*watch_face_wants_background_task)(movement_settings_t *settings, void *context);
 
+/** @brief OPTIONAL. Provide a 2 character label for this face.
+  * @details The label will be used to refer to this face when rearranging the order of the faces
+  *
+  * @param settings A pointer to the global Movement settings. @see watch_face_setup.
+  * @param context A pointer to your application's context. @see watch_face_setup.
+  * @param label A pointer to a 3 char buffer.
+  * @return true to request a background task; false otherwise.
+  */
+typedef void (*watch_face_label)(movement_settings_t *settings, void *context, char* label, uint8_t size);
+
 typedef struct {
     watch_face_setup setup;
     watch_face_activate activate;
     watch_face_loop loop;
     watch_face_resign resign;
     watch_face_wants_background_task wants_background_task;
+    watch_face_label label;
 } watch_face_t;
 
 typedef struct {
@@ -306,6 +317,9 @@ bool movement_is_face_enabled(uint8_t watch_face_index);
 
 uint8_t movement_get_secondary_page(void);
 void movement_set_secondary_page(uint8_t page_index);
+
+void movement_get_page_label(uint8_t page_index, char* label, uint8_t size);
+void movement_get_face_label(uint8_t watch_face_index, char* label, uint8_t size);
 
 bool movement_default_loop_handler(movement_event_t event, movement_settings_t *settings);
 

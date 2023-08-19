@@ -38,6 +38,7 @@ void character_set_face_resign(movement_settings_t *settings, void *context);
     character_set_face_loop, \
     character_set_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // CHARACTER_SET_FACE_H_

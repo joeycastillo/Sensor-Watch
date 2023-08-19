@@ -185,3 +185,10 @@ void set_time_face_resign(movement_settings_t *settings, void *context) {
     watch_set_led_off();
     watch_store_backup_data(settings->reg, 0);
 }
+
+void set_time_face_label(movement_settings_t *settings, void *context, char* label, uint8_t size)
+{
+    (void) settings;
+    (void) context;
+    snprintf(label, size, "AD");
+}

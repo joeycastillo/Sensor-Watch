@@ -63,6 +63,7 @@ void astronomy_face_resign(movement_settings_t *settings, void *context);
     astronomy_face_loop, \
     astronomy_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // ASTRONOMY_FACE_H_

@@ -50,6 +50,7 @@ void tomato_face_setup(movement_settings_t *settings, uint8_t watch_face_index, 
 void tomato_face_activate(movement_settings_t *settings, void *context);
 bool tomato_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void tomato_face_resign(movement_settings_t *settings, void *context);
+void tomato_face_label(movement_settings_t *settings, void *context, char* label, uint8_t size);
 
 #define tomato_face ((const watch_face_t){ \
     tomato_face_setup, \
@@ -57,6 +58,7 @@ void tomato_face_resign(movement_settings_t *settings, void *context);
     tomato_face_loop, \
     tomato_face_resign, \
     NULL, \
+    tomato_face_label, \
 })
 
 #endif // TOMATO_FACE_H_

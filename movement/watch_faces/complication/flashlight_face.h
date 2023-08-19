@@ -51,6 +51,7 @@ void flashlight_face_resign(movement_settings_t *settings, void *context);
     flashlight_face_loop, \
     flashlight_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // FLASHLIGHT_FACE_H_

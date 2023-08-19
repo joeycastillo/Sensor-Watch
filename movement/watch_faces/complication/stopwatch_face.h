@@ -38,6 +38,7 @@ void stopwatch_face_setup(movement_settings_t *settings, uint8_t watch_face_inde
 void stopwatch_face_activate(movement_settings_t *settings, void *context);
 bool stopwatch_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void stopwatch_face_resign(movement_settings_t *settings, void *context);
+void stopwatch_face_label(movement_settings_t *settings, void *context, char* label, uint8_t size);
 
 #define stopwatch_face ((const watch_face_t){ \
     stopwatch_face_setup, \
@@ -45,6 +46,7 @@ void stopwatch_face_resign(movement_settings_t *settings, void *context);
     stopwatch_face_loop, \
     stopwatch_face_resign, \
     NULL, \
+    stopwatch_face_label, \
 })
 
 #endif // STOPWATCH_FACE_H_

@@ -42,6 +42,7 @@ void frequency_correction_face_resign(movement_settings_t *settings, void *conte
     frequency_correction_face_loop, \
     frequency_correction_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // FREQUENCY_CORRECTION_FACE_H_

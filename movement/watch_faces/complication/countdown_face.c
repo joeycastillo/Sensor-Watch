@@ -324,3 +324,10 @@ void countdown_face_resign(movement_settings_t *settings, void *context) {
         store_countdown(state);
     }
 }
+
+void countdown_face_label(movement_settings_t *settings, void *context, char* label, uint8_t size)
+{
+    (void) settings;
+    (void) context;
+    snprintf(label, size, "CD");
+}

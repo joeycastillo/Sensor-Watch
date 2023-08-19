@@ -74,6 +74,7 @@ bool simple_clock_bin_led_face_wants_background_task(movement_settings_t *settin
     simple_clock_bin_led_face_loop, \
     simple_clock_bin_led_face_resign, \
     simple_clock_bin_led_face_wants_background_task, \
+    NULL, \
 })
 
 #endif // SIIMPLE_CLOCK_BIN_LED_FACE_H_

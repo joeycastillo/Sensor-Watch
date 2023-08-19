@@ -93,6 +93,7 @@ void geomancy_face_resign(movement_settings_t *settings, void *context);
     geomancy_face_loop, \
     geomancy_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // GEOMANCY_FACE_H_

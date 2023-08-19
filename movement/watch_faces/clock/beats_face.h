@@ -20,6 +20,7 @@ void beats_face_resign(movement_settings_t *settings, void *context);
     beats_face_loop, \
     beats_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // BEATS_FACE_H_

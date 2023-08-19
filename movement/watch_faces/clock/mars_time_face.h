@@ -52,6 +52,7 @@ void mars_time_face_resign(movement_settings_t *settings, void *context);
     mars_time_face_loop, \
     mars_time_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // MARS_TIME_FACE_H_

@@ -38,6 +38,7 @@ void probability_face_setup(movement_settings_t *settings, uint8_t watch_face_in
 void probability_face_activate(movement_settings_t *settings, void *context);
 bool probability_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void probability_face_resign(movement_settings_t *settings, void *context);
+void probability_face_label(movement_settings_t *settings, void *context, char* label, uint8_t size);
 
 #define probability_face ((const watch_face_t){ \
     probability_face_setup, \
@@ -45,6 +46,7 @@ void probability_face_resign(movement_settings_t *settings, void *context);
     probability_face_loop, \
     probability_face_resign, \
     NULL, \
+    probability_face_label, \
 })
 
 #endif // PROBABILITY_FACE_H_

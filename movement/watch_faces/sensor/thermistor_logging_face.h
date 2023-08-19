@@ -54,6 +54,7 @@ bool thermistor_logging_face_wants_background_task(movement_settings_t *settings
     thermistor_logging_face_loop, \
     thermistor_logging_face_resign, \
     thermistor_logging_face_wants_background_task, \
+    NULL, \
 })
 
 #endif // THERMISTOR_LOGGING_FACE_H_

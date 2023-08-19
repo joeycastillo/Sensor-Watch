@@ -50,6 +50,7 @@ void day_one_face_resign(movement_settings_t *settings, void *context);
     day_one_face_loop, \
     day_one_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // DAY_ONE_FACE_H_
