@@ -46,8 +46,7 @@ static void _handle_alarm_button(movement_settings_t *settings, watch_date_time 
             date_time.unit.second = 0;
             break;
         case 3: // year
-            // only allow 2021-2030. fix this sometime next decade
-            date_time.unit.year = ((date_time.unit.year % 10) + 1);
+            date_time.unit.year = ((date_time.unit.year % 60) + 1);
             break;
         case 4: // month
             date_time.unit.month = (date_time.unit.month % 12) + 1;
