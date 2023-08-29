@@ -26,7 +26,7 @@
  * 
  * Background:
  * 
- * I discovered the Casio F-91W through my partner, appreciated the retro analog aesthetic of the watch,
+ * I discovered the Casio F-91W through my partner, appreciated the retro aesthetic of the watch,
  * and got one for myself. Soon afterward I discovered the Sensor Watch project and ordered two boards! 
  * I introduced the Sensor Watch to my partner who inquired whether she could track her menstrual cycle.
  * So I decided to implement a menstrual cycle watch face that also calculates the peak fertility window
@@ -37,22 +37,22 @@
  * 
  * 1. To begin tracking, go to 'Last Period' page and toggle the alarm button to the number of days since 
  *    the last, most recent, period and hold the alarm button to enter. This will perform the following actions:
- *    - It will store the corresponding date as the 'first' period in order to calculate the total_days_tracked.
- *    - It will turn on the Signal Indicator to signify that tracking has been activated.
- *    - It will deactivate this page and instead show the ticking animation.
- *    - It will adjust the days left in the 'Period in <num> Days' page accordingly.
- *    - It will cause the 'Period Is Here' page to become active and no longer display 'NA'. And to prevent 
- *      accidental entry after activation, the page will display the ticking animation until ten days have passed 
- *      since the date of the last period entered.
- *    - It will activate the 'Peak Fertility' page, which will begin showing the estimated window,
- *      as well as display the Alarm Indicator, on this page and on the main 'Period in <num> Days' page
+ *    - Store the corresponding date as the 'first' period in order to calculate the total_days_tracked.
+ *    - Turn on the Signal Indicator to signify that tracking has been activated.
+ *    - Deactivate this page and instead show the ticking animation.
+ *    - Adjust the days left in the 'Period in <num> Days' page accordingly.
+ *    - Activate the 'Period Is Here' page and no longer display 'NA'. To prevent accidental user entry,
+ *      the page will display the ticking animation until ten days have passed since the date of the last 
+ *      period entered.
+ *    - Activate the 'Peak Fertility' page to begin showing the estimated window,
+ *      as well as display the Alarm Indicator, on this page and on the main 'Period in <num> Days' page,
  *      whenever the current date falls within the Peak Fertility Window.
  * 
  * 2. Toggle and enter 'y' in the 'Period Is Here' page on the day of every sequential period afterward. 
  *    DO NOT FORGET TO DO SO!
  *    - If forgotten, the data will become inaccurate and tracking will need to be reset! -> (FIXME, allow one to enter a 'missed' period using the 'Last Period' page).
  *    This will perform the following actions:
- *    - Calculate this completed cycle's length and reevaluate the current shortest and longest cycle variables.
+ *    - Calculate this completed cycle's length and reevaluate the shortest and longest cycle variables.
  *    - Increment total_cycles by one.
  *    - Recalculate and save the average cycle for 'Average Cycle' page.
  */
@@ -163,7 +163,7 @@ Step 4: Using a calendar, mark down the start of the next period (using previous
         of days calculated in step 2. This is when peak fertility begins. Peak fertility ends
         at the number of days calculated in step 3.
 NOTE: Right now, the fertility window face displays its estimated window as soon as tracking is activated, although
-      it is important to keep in mind that The Calender Method states that peak accuracy of the window will be 
+      it is important to keep in mind that The Calendar Method states that peak accuracy of the window will be 
       reached only after at least 8 months of tracking the menstrual cycle (can make it so that it only displays
       after total_days_tracked >= 8 months...but the info is interesting and should already be taken with the understanding that,
       in general, it is a rough estimation at best).
@@ -299,12 +299,12 @@ void menstrual_cycle_face_activate(movement_settings_t *settings, void *context)
 
 bool menstrual_cycle_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     menstrual_cycle_state_t *state = (menstrual_cycle_state_t *)context;
-    uint8_t current_page = state->current_page;
-    uint32_t unix_now;
-    uint32_t unix_day_of_prev_period;
     watch_date_time date_period;
+    uint8_t current_page = state->current_page;
     uint8_t first_day_fert;
     uint8_t last_day_fert;
+    uint32_t unix_now;
+    uint32_t unix_prev_period;
     switch (event.event_type) {
         case EVENT_TICK:
         case EVENT_ACTIVATE:
@@ -344,15 +344,15 @@ bool menstrual_cycle_face_loop(movement_event_t event, movement_settings_t *sett
                         // Store the new data
                         watch_store_backup_data(state->dates.reg, state->backup_register_dt);
                         watch_store_backup_data(state->cycles.reg, state->backup_register_cy);
-                        beep(settings);
+                        // beep(settings);
                     }
                     break;
                 case first_period:
                     // If tracking has not yet been activated
                     if (!(state->dates.reg)) {
                         unix_now = watch_utility_date_time_to_unix_time(watch_rtc_get_date_time(), state->utc_offset);
-                        unix_day_of_prev_period = unix_now - (state->days_prev_period * SECONDS_PER_DAY);
-                        date_period = watch_utility_date_time_from_unix_time(unix_day_of_prev_period, state->utc_offset);
+                        unix_prev_period = unix_now - (state->days_prev_period * SECONDS_PER_DAY);
+                        date_period = watch_utility_date_time_from_unix_time(unix_prev_period, state->utc_offset);
                         state->dates.bit.first_day = date_period.unit.day;
                         state->dates.bit.first_month = date_period.unit.month;
                         state->dates.bit.first_year = date_period.unit.year;
@@ -360,16 +360,17 @@ bool menstrual_cycle_face_loop(movement_event_t event, movement_settings_t *sett
                         state->dates.bit.prev_month = date_period.unit.month;
                         state->dates.bit.prev_year = date_period.unit.year;
                         watch_store_backup_data(state->dates.reg, state->backup_register_dt);
-                        beep(settings);
+                        // beep(settings);
                     }
                     break;
                 case reset:
                     if (state->reset_tracking) {
                         reset_tracking(state);
-                        beep(settings);
+                        // beep(settings);
                     }
                     break;
             }
+            break;
         case EVENT_ALARM_BUTTON_UP:
             switch (current_page) {
                 case period_in_num_days:
@@ -423,7 +424,7 @@ bool menstrual_cycle_face_loop(movement_event_t event, movement_settings_t *sett
                 if (state->dates.reg) {
                     first_day_fert = get_day_pk_fert(state, first_day);
                     last_day_fert = get_day_pk_fert(state, last_day);
-                    sprintf(buf, "Fr%2d To %2d", first_day_fert, last_day_fert);
+                    sprintf(buf, "Fr%2d To %2d", first_day_fert, last_day_fert); // From: first day | To: last day
                     if (inside_fert_window(state))
                         watch_set_indicator(WATCH_INDICATOR_BELL);
                     watch_display_string("          ", 0); // Clear title but not indicators
