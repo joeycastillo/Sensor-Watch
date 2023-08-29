@@ -1,0 +1,4 @@
+(fp_lib_table
+  (lib (name "OSO-SWAT-A1-05")(type "KiCad")(uri "$(KIPRJMOD)/OSO-SWAT-B1.pretty")(options "")(descr ""))
+  (lib (name "OSO-SWD")(type "KiCad")(uri "${KIPRJMOD}/OSO-SWD.pretty")(options "")(descr ""))
+)
