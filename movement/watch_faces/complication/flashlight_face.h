@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Joey Castillo
+ * Copyright (c) 2023 Joey Castillo
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,33 +22,36 @@
  * SOFTWARE.
  */
 
-#ifndef MOVEMENT_CONFIG_H_
-#define MOVEMENT_CONFIG_H_
+#ifndef FLASHLIGHT_FACE_H_
+#define FLASHLIGHT_FACE_H_
 
-#include "movement_faces.h"
+#include "movement.h"
 
-const watch_face_t watch_faces[] = {
-    menstrual_cycle_face,
-    simple_clock_face,
-    world_clock_face,
-    sunrise_sunset_face,
-    moon_phase_face,
-    stopwatch_face,
-    preferences_face,
-    set_time_face,
-};
-
-#define MOVEMENT_NUM_FACES (sizeof(watch_faces) / sizeof(watch_face_t))
-
-/* Determines what face to go to from the first face if you've already set 
- * a mode long press to go to the first face in preferences, and
- * excludes these faces from the normal rotation.
- * Usually it makes sense to set this to the preferences face.
+/*
+ * A flashlight for use with the Flashlight sensor board.
+ *
+ * When the watch face appears, the display will show "FL" in the top two positions.
+ * Pressing the Light button will toggle the flashlight on and off.
+ *
  */
-#define MOVEMENT_SECONDARY_FACE_INDEX 0 // or (MOVEMENT_NUM_FACES - 2)
 
-/* Custom hourly chime tune. Check movement_custom_signal_tunes.h for options */
-#define SIGNAL_TUNE_DEFAULT
-#include "movement_custom_signal_tunes.h"
+typedef struct {
+    // Anything you need to keep track of, put it here!
+    uint8_t unused;
+} flashlight_state_t;
 
-#endif // MOVEMENT_CONFIG_H_
+void flashlight_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
+void flashlight_face_activate(movement_settings_t *settings, void *context);
+bool flashlight_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void flashlight_face_resign(movement_settings_t *settings, void *context);
+
+#define flashlight_face ((const watch_face_t){ \
+    flashlight_face_setup, \
+    flashlight_face_activate, \
+    flashlight_face_loop, \
+    flashlight_face_resign, \
+    NULL, \
+})
+
+#endif // FLASHLIGHT_FACE_H_
+

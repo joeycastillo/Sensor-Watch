@@ -245,6 +245,7 @@ static inline void update_shortest_longest_cycle(menstrual_cycle_state_t *state)
 
 void menstrual_cycle_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) watch_face_index;
+    (void) settings;
     
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(menstrual_cycle_state_t));
@@ -408,7 +409,7 @@ bool menstrual_cycle_face_loop(movement_event_t event, movement_settings_t *sett
 
     // blink active for 3 quarter-seconds
     if (event.subsecond % 5) {
-        char buf[11];
+        char buf[13];
         switch (current_page) {
             case period_in_num_days:
                 sprintf(buf, "%2d", days_till_period(state));
