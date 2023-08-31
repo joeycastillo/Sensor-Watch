@@ -407,56 +407,58 @@ bool menstrual_cycle_face_loop(movement_event_t event, movement_settings_t *sett
     if (state->dates.reg)
         watch_set_indicator(WATCH_INDICATOR_SIGNAL); // signal that we are now in a tracking state
 
-    // blink active for 3 quarter-seconds
-    if (event.subsecond % 5) {
-        char buf[11];
-        switch (current_page) {
-            case period_in_num_days:
-                sprintf(buf, "%2d", days_till_period(state));
+    char buf[11];
+    switch (current_page) {
+        case period_in_num_days:
+            sprintf(buf, "%2d", days_till_period(state));
+            if (inside_fert_window(state))
+                watch_set_indicator(WATCH_INDICATOR_BELL);
+            watch_display_string(buf, 4);
+            break;
+        case average_cycle:
+            sprintf(buf, "%2d", state->cycles.bit.average_cycle);
+            watch_display_string(buf, 2);
+            break;
+        case peak_fertility_window:
+            if (event.subsecond % 5 && state->dates.reg) { // blink active for 3 quarter-seconds
+                first_day_fert = get_day_pk_fert(state, first_day);
+                last_day_fert = get_day_pk_fert(state, last_day);
+                sprintf(buf, "Fr%2d To %2d", first_day_fert, last_day_fert); // From: first day | To: last day
                 if (inside_fert_window(state))
                     watch_set_indicator(WATCH_INDICATOR_BELL);
-                watch_display_string(buf, 4);
-                break;
-            case average_cycle:
-                sprintf(buf, "%2d", state->cycles.bit.average_cycle);
-                watch_display_string(buf, 2);
-                break;
-            case peak_fertility_window:
-                if (state->dates.reg) {
-                    first_day_fert = get_day_pk_fert(state, first_day);
-                    last_day_fert = get_day_pk_fert(state, last_day);
-                    sprintf(buf, "Fr%2d To %2d", first_day_fert, last_day_fert); // From: first day | To: last day
-                    if (inside_fert_window(state))
-                        watch_set_indicator(WATCH_INDICATOR_BELL);
-                    watch_display_string("          ", 0); // Clear title but not indicators
-                    watch_display_string(buf, 0);
-                }
-                break;
-            case period_is_here:
-                if (!(state->dates.reg))
-                    watch_display_string("NA", 8); // Not Applicable: Do not allow period entry until tracking is activated...
-                else if (total_days_tracked(state) % state->cycles.bit.average_cycle < 10) // ...and it's been >= 10 days since the last period, to prevent user entry error
+                watch_display_string("          ", 0); // Clear title but not indicators
+                watch_display_string(buf, 0);
+            }
+            break;
+        case period_is_here:
+            if (!(state->dates.reg))
+                watch_display_string("NA", 8); // Not Applicable: Do not allow period entry until tracking is activated...
+            else if (total_days_tracked(state) % state->cycles.bit.average_cycle < 10) { // ...and it's been >= 10 days since the last period, to prevent user entry error
+                if (!watch_tick_animation_is_running()) 
                     watch_start_tick_animation(500);
-                else if (state->period_today)
-                    watch_display_string("y", 9);
-                else
-                    watch_display_string("n", 9);
-                break;
-            case first_period:
-                if (state->dates.reg) 
+            }
+            else if (state->period_today && event.subsecond % 5) // blink active for 3 quarter-seconds
+                watch_display_string("y", 9);
+            else if (event.subsecond % 5) // blink active for 3 quarter-seconds
+                watch_display_string("n", 9);
+            break;
+        case first_period:
+            if (state->dates.reg) {
+                if (!watch_tick_animation_is_running())
                     watch_start_tick_animation(500); // Tracking activated
-                else {
-                    sprintf(buf, "%2d", state->days_prev_period);
-                    watch_display_string(buf, 8);
-                }
-                break;
-            case reset:
-                if (state->reset_tracking) 
-                    watch_display_string("y", 9);
-                else 
-                    watch_display_string("n", 9);
-                break;
-        }
+            }
+            else if (event.subsecond % 5) { // blink active for 3 quarter-seconds
+                sprintf(buf, "%2d", state->days_prev_period);
+                watch_display_string(buf, 8);
+            }
+            break;
+        case reset:
+            // blink active for 3 quarter-seconds
+            if (event.subsecond % 5 && state->reset_tracking)
+                watch_display_string("y", 9);
+            else if (event.subsecond % 5)
+                watch_display_string("n", 9);
+            break;
     }
     return true;
 }
