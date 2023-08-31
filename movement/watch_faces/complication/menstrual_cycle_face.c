@@ -367,6 +367,7 @@ bool menstrual_cycle_face_loop(movement_event_t event, movement_settings_t *sett
                     if (state->reset_tracking) {
                         reset_tracking(state);
                         beep(settings);
+                        state->reset_tracking = !(state->reset_tracking);
                     }
                     break;
             }
