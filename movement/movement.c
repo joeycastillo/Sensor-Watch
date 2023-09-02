@@ -122,6 +122,107 @@ const int16_t movement_timezone_offsets[] = {
     -60,    // 40 :  -1:00:00 (Azores Standard Time)
 };
 
+/* These are approximate equivalent DST timezones for each
+ * timezone in the offset table. Unlike the full tzinfo file,
+ * the time-offsets used above are incomplete, so there are
+ * cases below where an approximate DST timezone is proposed
+ * for a timezone where no one observes DST, and cases
+ * where we can't propose an equivaent DST timezone since
+ * there isn't an appropriate one in the offset table.
+ *
+ * However, this should be good enough for anyone living in
+ * a DST-observing region to manually toggle DST without
+ * having to separately change the hour and timezone info
+ * in the time set face.
+ */
+const uint8_t movement_dst_jump_table[] = {
+    1,  // 0  UTC  + 1 = CET
+    2,  // 1  CET  + 1 = SAST
+    3,  // 2  SAST + 1 = AST
+    5,  // 3  AST  + 1 = GST
+    6,  // 4  IST  + 1 = AT
+    7,  // 5  GST  + 1 = PST
+    8,  // 6  AT   + 1 = IST
+    10, // 7  PST  + 1 = KT
+    11, // 8  IST  + 1 = MT
+    9,  // 9  Nepal has no equivalent DST timezone, but they don't observe DST anyway
+    12, // 10 KT   + 1 = TST
+    11, // 11 Myanmar has no equivalent DST timezone, but they don't observe DST anyway
+    13, // 12 TST  + 1 = CST
+    15, // 13 CST  + 1 = JST
+    14, // 14 ACWST has no equivalent DST timezone, but they don't observe DST anyway
+    17, // 15 JST  + 1 = AEST
+    18, // 16 ACST + 1 = LHST
+    19, // 17 AEST + 1 = SIT
+    18, // 18 LHST has no equivalent DST timezone, but they don't observe DST anyway
+    20, // 19 SIT  + 1 = NZST
+    22, // 20 NZST + 1 = TT
+    23, // 21 CST  + 1 = CDT
+    24, // 22 TT   + 1 = LIT
+    23, // 23 CDT is already a daylight timezone
+    24, // 24 LIT has no equivalent DST timezone, but they don't observe DST anyway
+    26, // 25 BIT  + 1 = NT
+    27, // 26 NT   + 1 = HAST
+    29, // 27 HAST + 1 = AST
+    28, // 28 MIT has no equivalent DST timezone, but they don't observe DST anyway
+    30, // 29 AST  + 1 = PST
+    31, // 30 PST  + 1 = MST
+    32, // 31 MST  + 1 = CST
+    33, // 32 CST  + 1 = EST
+    35, // 33 EST  + 1 = AST
+    36, // 34 VST  + 1 = NST
+    37, // 35 AST  + 1 = BT
+    38, // 36 NST  + 1 = NDT
+    39, // 37 BT   + 1 = 39
+    38, // 38 NDT is already a daylight timezone
+    40, // 39 FNT  + 1 = AST
+    0   // 40 AST  + 1 = UTC
+};
+
+const uint8_t movement_dst_inverse_jump_table[] = {
+    40, // 0
+    0,  // 1
+    1,  // 2
+    2,  // 3
+    4,  // 4
+    3,  // 5
+    4,  // 6
+    5,  // 7
+    6,  // 8
+    9,  // 9
+    7,  // 10
+    8,  // 11
+    10, // 12
+    12, // 13
+    14, // 14
+    13, // 15
+    16, // 16
+    15, // 17
+    16, // 18
+    17, // 19
+    19, // 20
+    21, // 21
+    20, // 22
+    21, // 23
+    24, // 24
+    25, // 25
+    25, // 26
+    26, // 27
+    28, // 28
+    27, // 29
+    29, // 30
+    30, // 31
+    31, // 32
+    32, // 33
+    34, // 34
+    33, // 35
+    34, // 36
+    35, // 37
+    36, // 38
+    37, // 39
+    39  // 40
+};
+
 const char movement_valid_position_0_chars[] = " AaBbCcDdEeFGgHhIiJKLMNnOoPQrSTtUuWXYZ-='+\\/0123456789";
 const char movement_valid_position_1_chars[] = " ABCDEFHlJLNORTtUX-='01378";
 
@@ -613,13 +714,13 @@ void cb_fast_tick(void) {
     // Notice: is it possible that two or more buttons have an identical timestamp? In this case
     // only one of these buttons would receive the long press event. Don't bother for now...
     if (movement_state.light_down_timestamp > 0)
-        if (movement_state.fast_ticks - movement_state.light_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1) 
+        if (movement_state.fast_ticks - movement_state.light_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1)
             event.event_type = EVENT_LIGHT_LONG_PRESS;
     if (movement_state.mode_down_timestamp > 0)
-        if (movement_state.fast_ticks - movement_state.mode_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1) 
+        if (movement_state.fast_ticks - movement_state.mode_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1)
             event.event_type = EVENT_MODE_LONG_PRESS;
     if (movement_state.alarm_down_timestamp > 0)
-        if (movement_state.fast_ticks - movement_state.alarm_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1) 
+        if (movement_state.fast_ticks - movement_state.alarm_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1)
             event.event_type = EVENT_ALARM_LONG_PRESS;
     // this is just a fail-safe; fast tick should be disabled as soon as the button is up, the LED times out, and/or the alarm finishes.
     // but if for whatever reason it isn't, this forces the fast tick off after 20 seconds.
