@@ -58,8 +58,8 @@ typedef struct {
 } french_revolutionary_state_t;
 
 typedef struct {
-    uint8_t second : 6;    // 0-99
-    uint8_t minute : 6;    // 0-99
+    uint8_t second : 8;    // 0-99
+    uint8_t minute : 8;    // 0-99
     uint8_t hour : 5;      // 0-10
 } fr_decimal_time;
 

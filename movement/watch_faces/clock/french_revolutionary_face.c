@@ -158,7 +158,7 @@ fr_decimal_time get_decimal_time(watch_date_time *date_time) {
     decimal_time.minute = current_decimal_seconds / 100;
     // Remove the minutes from total seconds and keep the remaining seconds
     // Note: I think I used an extra seconds variable here because sprintf or movement weren't liking a uint32...
-    decimal_time.second = current_decimal_seconds - decimal_time.hour * 100;
+    decimal_time.second = current_decimal_seconds - decimal_time.minute * 100;
     return decimal_time;
 }
 
@@ -166,7 +166,7 @@ fr_decimal_time get_decimal_time(watch_date_time *date_time) {
 // - Decimal-time only
 // - Decimal-time with date in top-right
 // - Decimal-time with normal time in the top (minutes first, then hours, due to display limitations)
-// Note: There is some power-saving stuff that simple clock does here around not redrawing characters that haven't changed, but we're not doing that here.
+// TODO: There is some power-saving stuff that simple clock does here around not redrawing characters that haven't changed, but we're not doing that here.
 //       I'll try to add that optimization could be added in a future commit.
 void set_display_buffer(char *buf, french_revolutionary_state_t *state, fr_decimal_time *decimal_time, watch_date_time *date_time) {
     switch (state->display_type) {
