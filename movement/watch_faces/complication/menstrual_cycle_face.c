@@ -339,6 +339,7 @@ bool menstrual_cycle_face_loop(movement_event_t event, movement_settings_t *sett
                         watch_store_backup_data(state->dates.reg, state->backup_register_dt);
                         watch_store_backup_data(state->cycles.reg, state->backup_register_cy);
                         beep(settings);
+                        state->period_today = !(state->period_today);
                     }
                     break;
                 case first_period:
@@ -427,10 +428,6 @@ bool menstrual_cycle_face_loop(movement_event_t event, movement_settings_t *sett
         case period_is_here:
             if (!(state->dates.reg))
                 watch_display_string("NA", 8); // Not Applicable: Do not allow period entry until tracking is activated...
-            else if (total_days_tracked(state) % state->cycles.bit.average_cycle < 10) { // ...and it's been >= 10 days since the last period, to prevent user entry error
-                if (!watch_tick_animation_is_running()) 
-                    watch_start_tick_animation(500);
-            }
             else if (state->period_today && event.subsecond % 5) // blink active for 3 quarter-seconds
                 watch_display_string("y", 9);
             else if (event.subsecond % 5) // blink active for 3 quarter-seconds
