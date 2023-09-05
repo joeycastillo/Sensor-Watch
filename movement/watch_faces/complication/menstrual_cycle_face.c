@@ -129,12 +129,21 @@ static inline int8_t days_till_period(menstrual_cycle_state_t *state) {
 
 static inline void reset_tracking(menstrual_cycle_state_t *state) {
 
-    state->dates.reg = 0;
-    state->cycles.reg = 0;
+    state->dates.bit.first_day = 0;
+    state->dates.bit.first_month = 0;
+    state->dates.bit.first_year = 0;
+
+    state->dates.bit.prev_day = 0;
+    state->dates.bit.prev_month = 0;
+    state->dates.bit.prev_year = 0;
 
     state->cycles.bit.shortest_cycle = TYPICAL_AVG_CYC;
     state->cycles.bit.longest_cycle = TYPICAL_AVG_CYC;
     state->cycles.bit.average_cycle = TYPICAL_AVG_CYC;
+    state->cycles.bit.total_cycles = 0;
+
+    state->dates.bit.reserved = 0;
+    state->cycles.bit.reserved = 0;
 
     watch_store_backup_data(state->dates.reg, state->backup_register_dt);
     watch_store_backup_data(state->cycles.reg, state->backup_register_cy);
@@ -195,6 +204,10 @@ static inline uint32_t get_day_pk_fert(menstrual_cycle_state_t *state, fertile_w
 
 // Determine if today falls within the predicted peak fertility window
 static inline bool inside_fert_window(menstrual_cycle_state_t *state) {
+
+    // If tracking has not yet been activated, return false
+    if (!(state->dates.reg)) 
+        return false;
 
     // Get the current date/time
     watch_date_time date_time_now = watch_rtc_get_date_time();
@@ -338,8 +351,8 @@ bool menstrual_cycle_face_loop(movement_event_t event, movement_settings_t *sett
                         // Store the new data
                         watch_store_backup_data(state->dates.reg, state->backup_register_dt);
                         watch_store_backup_data(state->cycles.reg, state->backup_register_cy);
-                        beep(settings);
                         state->period_today = !(state->period_today);
+                        beep(settings);
                     }
                     break;
                 case first_period:
@@ -361,8 +374,8 @@ bool menstrual_cycle_face_loop(movement_event_t event, movement_settings_t *sett
                 case reset:
                     if (state->reset_tracking) {
                         reset_tracking(state);
-                        beep(settings);
                         state->reset_tracking = !(state->reset_tracking);
+                        beep(settings);
                     }
                     break;
             }
@@ -387,9 +400,6 @@ bool menstrual_cycle_face_loop(movement_event_t event, movement_settings_t *sett
                     state->reset_tracking = !(state->reset_tracking);
                     break;
             }
-            break;
-        case EVENT_LOW_ENERGY_UPDATE:
-            watch_display_string("PR  SLEEP ", 0);
             break;
         case EVENT_TIMEOUT:
             movement_move_to_face(0);
@@ -421,17 +431,18 @@ bool menstrual_cycle_face_loop(movement_event_t event, movement_settings_t *sett
                 sprintf(buf, "Fr%2d To %2d", first_day_fert, last_day_fert); // From: first day | To: last day
                 if (inside_fert_window(state))
                     watch_set_indicator(WATCH_INDICATOR_BELL);
-                watch_display_string("          ", 0); // Clear title but not indicators
                 watch_display_string(buf, 0);
             }
             break;
         case period_is_here:
-            if (!(state->dates.reg))
-                watch_display_string("NA", 8); // Not Applicable: Do not allow period entry until tracking is activated...
-            else if (state->period_today && event.subsecond % 5) // blink active for 3 quarter-seconds
-                watch_display_string("y", 9);
-            else if (event.subsecond % 5) // blink active for 3 quarter-seconds
-                watch_display_string("n", 9);
+            if (event.subsecond % 5) { // blink active for 3 quarter-seconds
+                if (!(state->dates.reg))
+                    watch_display_string("NA", 8); // Not Applicable: Do not allow period entry until tracking is activated...
+                else if (state->period_today) 
+                    watch_display_string("y", 9);
+                else 
+                    watch_display_string("n", 9);
+            }
             break;
         case first_period:
             if (state->dates.reg) {
