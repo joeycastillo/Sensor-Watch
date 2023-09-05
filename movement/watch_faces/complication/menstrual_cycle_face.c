@@ -129,21 +129,15 @@ static inline int8_t days_till_period(menstrual_cycle_state_t *state) {
 
 static inline void reset_tracking(menstrual_cycle_state_t *state) {
 
-    state->dates.bit.first_day = 0;
-    state->dates.bit.first_month = 0;
-    state->dates.bit.first_year = 0;
-
-    state->dates.bit.prev_day = 0;
-    state->dates.bit.prev_month = 0;
-    state->dates.bit.prev_year = 0;
+    state->dates.reg = 0;
+    state->cycles.reg = 0;
 
     state->cycles.bit.shortest_cycle = TYPICAL_AVG_CYC;
     state->cycles.bit.longest_cycle = TYPICAL_AVG_CYC;
     state->cycles.bit.average_cycle = TYPICAL_AVG_CYC;
-    state->cycles.bit.total_cycles = 0;
 
     watch_store_backup_data(state->dates.reg, state->backup_register_dt);
-    watch_store_backup_data(state->dates.reg, state->backup_register_cy);
+    watch_store_backup_data(state->cycles.reg, state->backup_register_cy);
 
     watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
 }
