@@ -27,6 +27,21 @@
 
 #include "movement.h"
 
+/*
+ * Chess watchface
+ *
+ * Implements a (very) simple chess engine.
+ * Uses smallchesslib for the engine: https://git.sr.ht/~drummyfish/smallchesslib
+ *
+ * When moving a piece, only valid pieces and moves are presented.
+ *
+ * Interaction is done through a simple menu/submenu system:
+ * - Light button: navigate backwards through the current menu
+ * - Alarm button: navigate forwards through the current menu
+ * - Light button (long press): navigate up to the parent menu
+ * - Alarm button (long press): select the current item or submenu
+ */
+
 enum smallchess_state {
     /* main menu */
     SMALLCHESS_MENU_RESUME,
