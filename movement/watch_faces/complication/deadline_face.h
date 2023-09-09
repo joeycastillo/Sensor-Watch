@@ -42,6 +42,7 @@ typedef struct {
     deadline_mode_t mode:1;
     uint8_t current_page:3;
     uint8_t current_index:2;
+    uint8_t alarm_enabled:1;
     uint32_t deadlines[DEADLINE_FACE_DATES];
 } deadline_state_t;
 
