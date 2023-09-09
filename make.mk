@@ -209,6 +209,7 @@ endif
 
 ifeq ($(LED), RED)
 CFLAGS += -DWATCH_INVERT_LED_POLARITY
+CFLAGS += -DNO_FREQCORR
 endif
 
 ifdef FIRMWARE
