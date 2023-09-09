@@ -503,6 +503,18 @@ void deadline_face_activate(movement_settings_t *settings, void *context)
     /* Set display options */
     _running_init(settings, state);
     state->mode = DEADLINE_FACE_RUNNING;
+
+    /* Determine closest deadline */
+    watch_date_time now = watch_rtc_get_date_time();
+    uint32_t now_ts = watch_utility_date_time_to_unix_time(now, _get_tz_offset(settings));
+    uint32_t min_ts = UINT32_MAX;
+
+    for (uint8_t i = 0; i < DEADLINE_FACE_DATES; i++) {
+        if (state->deadlines[i] < now_ts || state->deadlines[i] > min_ts)
+            continue;
+        min_ts = state->deadlines[i];
+        state->current_index = i;
+    }
 }
 
 /* Loop face */
