@@ -397,6 +397,7 @@ static bool _running_loop(movement_event_t event, movement_settings_t *settings,
         case EVENT_LIGHT_BUTTON_DOWN:
             break;
         case EVENT_LIGHT_LONG_PRESS:
+            _beep_button(settings);
             state->alarm_enabled = !state->alarm_enabled;
             _running_display(event, settings, state);
             break;
