@@ -2,7 +2,7 @@
 
 fw_dir="firmware/download"
 sim_dir="firmware/simulate"
-colors=("green" "blue")
+colors=("green" "blue" "red")
 variants=("standard" "backer" "alt_time" "deep_space_now" "focus" "the_athlete" "the_backpacker" "the_stargazer")
 
 if [ -d "$fw_dir" ] ; then

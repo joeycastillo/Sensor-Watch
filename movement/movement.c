@@ -54,6 +54,8 @@
 #include "alt_fw/deep_space_now.h"
 #endif
 
+#include "movement_custom_signal_tunes.h"
+
 // Default to no secondary face behaviour.
 #ifndef MOVEMENT_SECONDARY_FACE_INDEX
 #define MOVEMENT_SECONDARY_FACE_INDEX 0
