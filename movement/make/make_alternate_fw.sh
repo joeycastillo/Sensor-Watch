@@ -22,7 +22,7 @@ do
     do
         COLOR=$(echo "$color" | tr '[:lower:]' '[:upper:]')
         make clean
-        make LED=$COLOR FIRMWARE=$VARIANT
+        make COLOR=$COLOR FIRMWARE=$VARIANT
         mv "build/watch.uf2" "$fw_dir/$variant-$color.uf2"
     done
     rm -rf ./build-sim
