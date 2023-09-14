@@ -163,7 +163,7 @@ static inline void _movement_disable_fast_tick_if_possible(void) {
 static void _movement_handle_background_tasks(void) {
     for(uint8_t i = 0; i < MOVEMENT_NUM_FACES; i++) {
         // For each face, if the watch face wants a background task...
-        if (watch_faces[i].wants_background_task != NULL && watch_faces[i].wants_background_task(&movement_state.settings, watch_face_contexts[i])) {
+        if (watch_face_status[i] && watch_faces[i].wants_background_task != NULL && watch_faces[i].wants_background_task(&movement_state.settings, watch_face_contexts[i])) {
             // ...we give it one. pretty straightforward!
             movement_event_t background_event = { EVENT_BACKGROUND_TASK, 0 };
             watch_faces[i].loop(background_event, &movement_state.settings, watch_face_contexts[i]);
@@ -335,6 +335,10 @@ bool movement_is_page_enabled(uint8_t page_index) {
 
 void movement_enable_face(uint8_t watch_face_index, bool enable) {
     watch_face_status[watch_face_index] = enable;
+
+    if (!enable) {
+        movement_cancel_background_task_for_face(watch_face_index);
+    }
 }
 
 bool movement_is_face_enabled(uint8_t watch_face_index) {
