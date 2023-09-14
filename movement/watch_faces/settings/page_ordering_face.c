@@ -61,11 +61,11 @@ static void _page_ordering_face_update_lcd(page_ordering_face_state_t *state) {
     movement_get_page_label(state->current_page_index, buf + 0, 3);
 
     // Index of the face associated with the current page
-    snprintf(buf + 2, 3, "%2.1d", movement_page_to_face(state->current_page_index));
+    snprintf(buf + 2, 4, "%2.1u", movement_page_to_face(state->current_page_index));
 
     // Current page
     if (!state->reordering || state->tick_tock) {
-        snprintf(buf + 4, 3, "%2.2d", state->current_page_index);
+        snprintf(buf + 4, 4, "%2.2u", state->current_page_index);
     } else {
         snprintf(buf + 4, 3, "  ");
     }
