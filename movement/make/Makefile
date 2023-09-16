@@ -24,6 +24,7 @@ INCLUDES += \
   -I../lib/vsop87/ \
   -I../lib/astrolib/ \
   -I../lib/morsecalc/ \
+  -I../lib/animations/
 
 # If you add any other source files you wish to compile, add them after ../app.c
 # Note that you will need to add a backslash at the end of any line you wish to continue, i.e.
@@ -45,6 +46,7 @@ SRCS += \
   ../lib/morsecalc/calc_fns.c \
   ../lib/morsecalc/calc_strtof.c \
   ../lib/morsecalc/morsecalc_display.c \
+  ../lib/animations/animations.c \
   ../../littlefs/lfs.c \
   ../../littlefs/lfs_util.c \
   ../movement.c \
@@ -118,6 +120,7 @@ SRCS += \
   ../watch_faces/complication/flashlight_face.c \
   ../watch_faces/clock/decimal_time_face.c \
   ../watch_faces/clock/wyoscan_face.c \
+  ../watch_faces/clock/animated_clock_face.c \
 # New watch faces go above this line.
 
 # Leave this line at the bottom of the file; it has all the targets for making your project.
