@@ -885,8 +885,8 @@
   <table cellpadding="5">
     <tr>
       <td id="skinselect">
-        <input type="radio" id="f91w" name="skin" value="f91w" onclick="toggleSkin()" checked><label for="f91w">F-91W</label>
-        <input type="radio" name="skin" id="a158wea" value="a158wea" onclick="toggleSkin()"><label id="a158wea-label" for="a158wea">A158WEA-9</label>
+        <input type="radio" id="f91w" name="skin" value="f91w" onclick="setSkin(this.value)" checked><label for="f91w">F-91W</label>
+        <input type="radio" name="skin" id="a158wea9" value="a158wea9" onclick="setSkin(this.value)"><label id="a158wea-label" for="a158wea9">A158WEA-9</label>
       </td>
       <td>
         <a href="https://github.com/alexisphilip/Casio-F-91W">Original F-91W SVG</a> is &copy; 2020 Alexis Philip,<br>used here under the terms of the MIT license.
@@ -979,20 +979,17 @@
     }
   }
 
-  function toggleSkin() {
-    var isBlack = document.getElementById('f91w').checked;
-    Array.from(document.getElementsByClassName("f91w")).forEach(
-        function(element, index, array) {
-            element.setAttribute('style', 'display:' + (isBlack ? 'inline':'none') + ';');
+  const validSkins = ["f91w", "a158wea9"];
+  function setSkin(chosenSkin) {
+    setLocalPref("skin", chosenSkin);
+    validSkins.forEach(function(skin) {
+      Array.from(document.getElementsByClassName(skin)).forEach(
+        function(element) {
+          element.setAttribute('style', 'display:' + (skin == chosenSkin ? 'inline':'none') + ';');
         }
-    );
-    Array.from(document.getElementsByClassName("a158wea9")).forEach(
-        function(element, index, array) {
-            element.setAttribute('style', 'display:' + (isBlack ? 'none':'inline') + ';');
-        }
-    );
+      );
+    });
   }
-  toggleSkin();
 
   // emulator runs on localhost:8000 which could very well be used by other
   // things, so we'll scope our localStorage keys with a prefix
@@ -1019,6 +1016,13 @@
     }
     document.getElementById("volume").value = vol;
     setVolume(vol);
+
+    let skin = getLocalPref("skin", "f91w");
+    if (!validSkins.includes(skin)) {
+      skin = "f91w";
+    }
+    document.getElementById(skin).checked = true;
+    setSkin(skin);
   }
   loadPrefs();
 </script>
