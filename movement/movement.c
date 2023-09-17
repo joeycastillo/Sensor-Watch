@@ -632,7 +632,6 @@ void cb_fast_tick(void) {
 }
 
 void cb_tick(void) {
-    event.event_type = EVENT_TICK;
     watch_date_time date_time = watch_rtc_get_date_time();
     if (date_time.unit.second != movement_state.last_second) {
         // TODO: can we consolidate these two ticks?
@@ -644,4 +643,8 @@ void cb_tick(void) {
     } else {
         movement_state.subsecond++;
     }
+    if (event.event_type != EVENT_NONE) {
+        return;
+    }
+    event.event_type = EVENT_TICK;
 }
