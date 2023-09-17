@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Joey Castillo
+ * Copyright (c) 2023 <#author_name#>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,26 +22,23 @@
  * SOFTWARE.
  */
 
-#ifndef MOVEMENT_CONFIG_H_
-#define MOVEMENT_CONFIG_H_
+#ifndef EVENT_RACE_FACE_H_
+#define EVENT_RACE_FACE_H_
 
-#include "movement_faces.h"
+#include "movement.h"
 
-const watch_face_t watch_faces[] = {
-    event_race_face
-};
+void event_race_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
+void event_race_face_activate(movement_settings_t *settings, void *context);
+bool event_race_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void event_race_face_resign(movement_settings_t *settings, void *context);
 
-#define MOVEMENT_NUM_FACES (sizeof(watch_faces) / sizeof(watch_face_t))
+#define event_race_face ((const watch_face_t){ \
+    event_race_face_setup, \
+    event_race_face_activate, \
+    event_race_face_loop, \
+    event_race_face_resign, \
+    NULL, \
+})
 
-/* Determines what face to go to from the first face on long press of the Mode button.
- * Also excludes these faces from the normal rotation.
- * In the default firmware, this lets you access temperature and battery voltage with a long press of Mode.
- * Some folks also like to use this to hide the preferences and time set faces from the normal rotation.
- * If you don't want any faces to be excluded, set this to 0 and a long Mode press will have no effect.
- */
-#define MOVEMENT_SECONDARY_FACE_INDEX (0) // or (0)
+#endif // EVENT_RACE_FACE_H_
 
-/* Custom hourly chime tune. Check movement_custom_signal_tunes.h for options */
-#define SIGNAL_TUNE_DEFAULT
-
-#endif // MOVEMENT_CONFIG_H_
