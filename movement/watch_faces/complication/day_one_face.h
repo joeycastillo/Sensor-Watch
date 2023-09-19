@@ -43,6 +43,7 @@ typedef struct {
     uint8_t birth_month;
     uint8_t birth_day;
     bool birthday_changed;
+    bool quick_cycle;
 } day_one_state_t;
 
 void day_one_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);

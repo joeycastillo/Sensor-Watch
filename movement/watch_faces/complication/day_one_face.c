@@ -27,6 +27,8 @@
 #include "day_one_face.h"
 #include "watch.h"
 
+static const uint8_t days_in_month[12] = {31, 29, 31, 30, 31, 30, 30, 31, 30, 31, 30, 31};
+
 static uint32_t _day_one_face_juliandaynum(uint16_t year, uint16_t month, uint16_t day) {
     // from here: https://en.wikipedia.org/wiki/Julian_day#Julian_day_number_calculation
     return (1461 * (year + 4800 + (month - 14) / 12)) / 4 + (367 * (month - 2 - 12 * ((month - 14) / 12))) / 12 - (3 * ((year + 4900 + (month - 14) / 12) / 100))/4 + day - 32075;
@@ -43,6 +45,34 @@ static void _day_one_face_update(day_one_state_t *state) {
         sprintf(buf, "DA  %6lu", julian_date - julian_birthdate);
     }
     watch_display_string(buf, 0);
+}
+
+static void _day_one_face_abort_quick_cycle(day_one_state_t *state) {
+    if (state->quick_cycle) {
+        state->quick_cycle = false;
+        movement_request_tick_frequency(4);
+    }
+}
+
+static void _day_one_face_increment(day_one_state_t *state) {
+    state->birthday_changed = true;
+    switch (state->current_page) {
+        case PAGE_YEAR:
+            state->birth_year = state->birth_year + 1;
+            if (state->birth_year > 2080) state->birth_year = 1900;
+            break;
+        case PAGE_MONTH:
+            state->birth_month = (state->birth_month % 12) + 1;
+            break;
+        case PAGE_DAY:
+            state->birth_day = state->birth_day + 1;
+            if (state->birth_day == 0 || state->birth_day > days_in_month[state->birth_month - 1]) {
+                state->birth_day = 1;
+            }
+            break;
+        default:
+            break;
+    }
 }
 
 void day_one_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
@@ -69,6 +99,7 @@ void day_one_face_activate(movement_settings_t *settings, void *context) {
     day_one_state_t *state = (day_one_state_t *)context;
 
     state->current_page = PAGE_DISPLAY;
+    state->quick_cycle = false;
 
     // fetch the user's birth date from the birthday register.
     movement_birthdate_t movement_birthdate = (movement_birthdate_t) watch_get_backup_data(2);
@@ -81,7 +112,6 @@ bool day_one_face_loop(movement_event_t event, movement_settings_t *settings, vo
     (void) settings;
     day_one_state_t *state = (day_one_state_t *)context;
 
-    const uint8_t days_in_month[12] = {31, 29, 31, 30, 31, 30, 30, 31, 30, 31, 30, 31};
     char buf[6];
 
     switch (event.event_type) {
@@ -91,6 +121,13 @@ bool day_one_face_loop(movement_event_t event, movement_settings_t *settings, vo
         case EVENT_LOW_ENERGY_UPDATE:
         case EVENT_TICK:
             if (state->current_page != PAGE_DISPLAY) {
+                if (state->quick_cycle) {
+                    if (watch_get_pin_level(BTN_ALARM)) {
+                        _day_one_face_increment(state);
+                    } else {
+                        _day_one_face_abort_quick_cycle(state);
+                    }
+                }
                 // if in settings mode, update whatever the current page is
                 switch (state->current_page) {
                     case PAGE_YEAR:
@@ -145,24 +182,8 @@ bool day_one_face_loop(movement_event_t event, movement_settings_t *settings, vo
         case EVENT_ALARM_BUTTON_UP:
             // if we are on a settings page, increment whatever value we're setting.
             if (state->current_page != PAGE_DISPLAY) {
-                state->birthday_changed = true;
-                switch (state->current_page) {
-                    case PAGE_YEAR:
-                        state->birth_year = state->birth_year + 1;
-                        if (state->birth_year > 2080) state->birth_year = 1900;
-                        break;
-                    case PAGE_MONTH:
-                        state->birth_month = (state->birth_month % 12) + 1;
-                        break;
-                    case PAGE_DAY:
-                        state->birth_day = state->birth_day + 1;
-                        if (state->birth_day == 0 || state->birth_day > days_in_month[state->birth_month - 1]) {
-                            state->birth_day = 1;
-                        }
-                        break;
-                    default:
-                        break;
-                }
+                _day_one_face_abort_quick_cycle(state);
+                _day_one_face_increment(state);
             }
             break;
         case EVENT_ALARM_LONG_PRESS:
@@ -170,9 +191,16 @@ bool day_one_face_loop(movement_event_t event, movement_settings_t *settings, vo
             if (state->current_page == PAGE_DISPLAY) {
                 state->current_page++;
                 movement_request_tick_frequency(4);
+            } else {
+                state->quick_cycle = true;
+                movement_request_tick_frequency(8);
             }
             break;
+        case EVENT_ALARM_LONG_UP:
+            _day_one_face_abort_quick_cycle(state);
+            break;
         case EVENT_TIMEOUT:
+            _day_one_face_abort_quick_cycle(state);
             // return home if we're on a settings page (this saves our changes when we resign).
             if (state->current_page != PAGE_DISPLAY) {
                 movement_move_to_face(0);
