@@ -32,15 +32,15 @@ static uint32_t _day_one_face_juliandaynum(uint16_t year, uint16_t month, uint16
     return (1461 * (year + 4800 + (month - 14) / 12)) / 4 + (367 * (month - 2 - 12 * ((month - 14) / 12))) / 12 - (3 * ((year + 4900 + (month - 14) / 12) / 100))/4 + day - 32075;
 }
 
-static void _day_one_face_update(day_one_state_t state) {
+static void _day_one_face_update(day_one_state_t *state) {
     char buf[15];
     watch_date_time date_time = watch_rtc_get_date_time();
     uint32_t julian_date = _day_one_face_juliandaynum(date_time.unit.year + WATCH_RTC_REFERENCE_YEAR, date_time.unit.month, date_time.unit.day);
-    uint32_t julian_birthdate = _day_one_face_juliandaynum(state.birth_year, state.birth_month, state.birth_day);
+    uint32_t julian_birthdate = _day_one_face_juliandaynum(state->birth_year, state->birth_month, state->birth_day);
     if (julian_date < julian_birthdate) {
-    	sprintf(buf, "DA  %6lu", julian_birthdate - julian_date);
+        sprintf(buf, "DA  %6lu", julian_birthdate - julian_date);
     } else {
-    	sprintf(buf, "DA  %6lu", julian_date - julian_birthdate);
+        sprintf(buf, "DA  %6lu", julian_date - julian_birthdate);
     }
     watch_display_string(buf, 0);
 }
@@ -71,8 +71,7 @@ void day_one_face_activate(movement_settings_t *settings, void *context) {
     // stash the current year, useful in birthday setting mode.
     watch_date_time date_time = watch_rtc_get_date_time();
     state->current_year = date_time.unit.year + WATCH_RTC_REFERENCE_YEAR;
-    // reset the current page to 0, display days alive.
-    state->current_page = 0;
+    state->current_page = PAGE_DISPLAY;
 
     // fetch the user's birth date from the birthday register.
     movement_birthdate_t movement_birthdate = (movement_birthdate_t) watch_get_backup_data(2);
@@ -90,91 +89,95 @@ bool day_one_face_loop(movement_event_t event, movement_settings_t *settings, vo
 
     switch (event.event_type) {
         case EVENT_ACTIVATE:
-            _day_one_face_update(*state);
+            _day_one_face_update(state);
             break;
         case EVENT_LOW_ENERGY_UPDATE:
         case EVENT_TICK:
-            if (state->current_page != 0) {
+            if (state->current_page != PAGE_DISPLAY) {
                 // if in settings mode, update whatever the current page is
                 switch (state->current_page) {
-                    case 1:
+                    case PAGE_YEAR:
                         watch_display_string("YR        ", 0);
                         if (event.subsecond % 2) {
                             sprintf(buf, "%4d", state->birth_year);
                             watch_display_string(buf, 4);
                         }
                         break;
-                    case 2:
+                    case PAGE_MONTH:
                         watch_display_string("MO        ", 0);
                         if (event.subsecond % 2) {
                             sprintf(buf, "%2d", state->birth_month);
                             watch_display_string(buf, 4);
                         }
                         break;
-                    case 3:
+                    case PAGE_DAY:
                         watch_display_string("DA        ", 0);
                         if (event.subsecond % 2) {
                             sprintf(buf, "%2d", state->birth_day);
                             watch_display_string(buf, 6);
                         }
                         break;
+                    default:
+                        break;
                 }
             } else {
                 // otherwise, check if we have to update. the display only needs to change at midnight!
                 watch_date_time date_time = watch_rtc_get_date_time();
                 if (date_time.unit.hour == 0 &&  date_time.unit.minute == 0 && date_time.unit.second == 0) {
-                    _day_one_face_update(*state);
+                    _day_one_face_update(state);
                 }
             }
             break;
         case EVENT_LIGHT_BUTTON_DOWN:
             // only illuminate if we're in display mode
-            if (state->current_page == 0) movement_illuminate_led();
+            if (state->current_page == PAGE_DISPLAY) movement_illuminate_led();
             break;
         case EVENT_LIGHT_BUTTON_UP:
             // otherwise use the light button to advance settings pages.
-            if (state->current_page != 0) {
+            if (state->current_page != PAGE_DISPLAY) {
                 // go to next setting page...
                 state->current_page = (state->current_page + 1) % 4;
                 if (state->current_page == 0) {
                     // ...unless we've been pushed back to display mode.
                     movement_request_tick_frequency(1);
                     // force display since it normally won't update til midnight.
-                    _day_one_face_update(*state);
+                    _day_one_face_update(state);
                 }
             }
             break;
         case EVENT_ALARM_BUTTON_UP:
             // if we are on a settings page, increment whatever value we're setting.
-            if (state->current_page != 0) {
+            if (state->current_page != PAGE_DISPLAY) {
                 state->birthday_changed = true;
                 switch (state->current_page) {
-                    case 1:
+                    case PAGE_YEAR:
                         state->birth_year = state->birth_year + 1;
                         if (state->birth_year > state->current_year) state->birth_year = 1900;
                         break;
-                    case 2:
+                    case PAGE_MONTH:
                         state->birth_month = (state->birth_month % 12) + 1;
                         break;
-                    case 3:
+                    case PAGE_DAY:
                         state->birth_day = state->birth_day + 1;
                         if (state->birth_day == 0 || state->birth_day > days_in_month[state->birth_month - 1]) {
                             state->birth_day = 1;
                         }
+                        break;
+                    default:
                         break;
                 }
             }
             break;
         case EVENT_ALARM_LONG_PRESS:
             // if we aren't already in settings mode, put us there.
-            if (state->current_page == 0) {
+            if (state->current_page == PAGE_DISPLAY) {
                 state->current_page++;
                 movement_request_tick_frequency(4);
             }
             break;
         case EVENT_TIMEOUT:
             // return home if we're on a settings page (this saves our changes when we resign).
-            if (state->current_page != 0) {
+            if (state->current_page != PAGE_DISPLAY) {
                 movement_move_to_face(0);
             }
             break;

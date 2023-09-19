@@ -27,11 +27,18 @@
 
 #include "movement.h"
 
-// The Day One face is designed to count upwards from the wearer's date of birth. It also functions as an
+// The Day One face is designed to count the days since or until a given date. It also functions as an
 // interface for setting the birth date register, which other watch faces can use for various purposes.
 
+typedef enum {
+    PAGE_DISPLAY,
+    PAGE_YEAR,
+    PAGE_MONTH,
+    PAGE_DAY
+} day_one_page_t;
+
 typedef struct {
-    uint8_t current_page;
+    day_one_page_t current_page;
     uint16_t current_year;
     uint16_t birth_year;
     uint8_t birth_month;
