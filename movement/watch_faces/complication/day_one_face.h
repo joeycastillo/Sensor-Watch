@@ -39,7 +39,6 @@ typedef enum {
 
 typedef struct {
     day_one_page_t current_page;
-    uint16_t current_year;
     uint16_t birth_year;
     uint8_t birth_month;
     uint8_t birth_day;

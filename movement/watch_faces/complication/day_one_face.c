@@ -54,7 +54,7 @@ void day_one_face_setup(movement_settings_t *settings, uint8_t watch_face_index,
         movement_birthdate_t movement_birthdate = (movement_birthdate_t) watch_get_backup_data(2);
         if (movement_birthdate.reg == 0) {
             // if birth date is totally blank, set a reasonable starting date. this works well for anyone under 63, but
-            // you can keep pressing to go back to 1900; just pass the current year. also picked this date because if you
+            // you can keep pressing to go back to 1900; just pass the year 2080. also picked this date because if you
             // set it to 1959-01-02, it counts up from the launch of Luna-1, the first spacecraft to leave the well.
             movement_birthdate.bit.year = 1959;
             movement_birthdate.bit.month = 1;
@@ -68,9 +68,6 @@ void day_one_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
     day_one_state_t *state = (day_one_state_t *)context;
 
-    // stash the current year, useful in birthday setting mode.
-    watch_date_time date_time = watch_rtc_get_date_time();
-    state->current_year = date_time.unit.year + WATCH_RTC_REFERENCE_YEAR;
     state->current_page = PAGE_DISPLAY;
 
     // fetch the user's birth date from the birthday register.
@@ -137,7 +134,7 @@ bool day_one_face_loop(movement_event_t event, movement_settings_t *settings, vo
             if (state->current_page != PAGE_DISPLAY) {
                 // go to next setting page...
                 state->current_page = (state->current_page + 1) % 4;
-                if (state->current_page == 0) {
+                if (state->current_page == PAGE_DISPLAY) {
                     // ...unless we've been pushed back to display mode.
                     movement_request_tick_frequency(1);
                     // force display since it normally won't update til midnight.
@@ -152,7 +149,7 @@ bool day_one_face_loop(movement_event_t event, movement_settings_t *settings, vo
                 switch (state->current_page) {
                     case PAGE_YEAR:
                         state->birth_year = state->birth_year + 1;
-                        if (state->birth_year > state->current_year) state->birth_year = 1900;
+                        if (state->birth_year > 2080) state->birth_year = 1900;
                         break;
                     case PAGE_MONTH:
                         state->birth_month = (state->birth_month % 12) + 1;
