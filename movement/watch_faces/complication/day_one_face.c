@@ -100,6 +100,7 @@ void day_one_face_activate(movement_settings_t *settings, void *context) {
 
     state->current_page = PAGE_DISPLAY;
     state->quick_cycle = false;
+    state->ticks = 0;
 
     // fetch the user's birth date from the birthday register.
     movement_birthdate_t movement_birthdate = (movement_birthdate_t) watch_get_backup_data(2);
@@ -112,7 +113,7 @@ bool day_one_face_loop(movement_event_t event, movement_settings_t *settings, vo
     (void) settings;
     day_one_state_t *state = (day_one_state_t *)context;
 
-    char buf[6];
+    char buf[9];
 
     switch (event.event_type) {
         case EVENT_ACTIVATE:
@@ -120,80 +121,126 @@ bool day_one_face_loop(movement_event_t event, movement_settings_t *settings, vo
             break;
         case EVENT_LOW_ENERGY_UPDATE:
         case EVENT_TICK:
-            if (state->current_page != PAGE_DISPLAY) {
-                if (state->quick_cycle) {
-                    if (watch_get_pin_level(BTN_ALARM)) {
-                        _day_one_face_increment(state);
-                    } else {
-                        _day_one_face_abort_quick_cycle(state);
-                    }
+            if (state->quick_cycle) {
+                if (watch_get_pin_level(BTN_ALARM)) {
+                    _day_one_face_increment(state);
+                } else {
+                    _day_one_face_abort_quick_cycle(state);
                 }
+            }
+            switch (state->current_page) {
                 // if in settings mode, update whatever the current page is
-                switch (state->current_page) {
-                    case PAGE_YEAR:
-                        watch_display_string("YR        ", 0);
-                        if (event.subsecond % 2) {
-                            sprintf(buf, "%4d", state->birth_year);
-                            watch_display_string(buf, 4);
-                        }
-                        break;
-                    case PAGE_MONTH:
-                        watch_display_string("MO        ", 0);
-                        if (event.subsecond % 2) {
-                            sprintf(buf, "%2d", state->birth_month);
-                            watch_display_string(buf, 4);
-                        }
-                        break;
-                    case PAGE_DAY:
-                        watch_display_string("DA        ", 0);
-                        if (event.subsecond % 2) {
-                            sprintf(buf, "%2d", state->birth_day);
-                            watch_display_string(buf, 6);
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            } else {
+                case PAGE_YEAR:
+                    watch_display_string("YR        ", 0);
+                    if (event.subsecond % 2) {
+                        sprintf(buf, "%4d", state->birth_year);
+                        watch_display_string(buf, 4);
+                    }
+                    break;
+                case PAGE_MONTH:
+                    watch_display_string("MO        ", 0);
+                    if (event.subsecond % 2) {
+                        sprintf(buf, "%2d", state->birth_month);
+                        watch_display_string(buf, 4);
+                    }
+                    break;
+                case PAGE_DAY:
+                    watch_display_string("DA        ", 0);
+                    if (event.subsecond % 2) {
+                        sprintf(buf, "%2d", state->birth_day);
+                        watch_display_string(buf, 6);
+                    }
+                    break;
                 // otherwise, check if we have to update. the display only needs to change at midnight!
-                watch_date_time date_time = watch_rtc_get_date_time();
-                if (date_time.unit.hour == 0 &&  date_time.unit.minute == 0 && date_time.unit.second == 0) {
-                    _day_one_face_update(state);
-                }
+                case PAGE_DISPLAY: {
+                    watch_date_time date_time = watch_rtc_get_date_time();
+                    if (date_time.unit.hour == 0 &&  date_time.unit.minute == 0 && date_time.unit.second == 0) {
+                        _day_one_face_update(state);
+                    }
+                    break;}
+                case PAGE_DATE:
+                    if (state->ticks > 0) {
+                        state->ticks--;
+                    } else {
+                        state->current_page = PAGE_DISPLAY;
+                        _day_one_face_update(state);
+                    }
+                    break;
+                default:
+                    break;
             }
             break;
         case EVENT_LIGHT_BUTTON_DOWN:
             // only illuminate if we're in display mode
-            if (state->current_page == PAGE_DISPLAY) movement_illuminate_led();
+            switch (state->current_page) {
+                case PAGE_DISPLAY:
+                    // fall through
+                case PAGE_DATE:
+                    movement_illuminate_led();
+                    break;
+                default:
+                    break;
+            }
             break;
         case EVENT_LIGHT_BUTTON_UP:
             // otherwise use the light button to advance settings pages.
-            if (state->current_page != PAGE_DISPLAY) {
-                // go to next setting page...
-                state->current_page = (state->current_page + 1) % 4;
-                if (state->current_page == PAGE_DISPLAY) {
-                    // ...unless we've been pushed back to display mode.
-                    movement_request_tick_frequency(1);
-                    // force display since it normally won't update til midnight.
-                    _day_one_face_update(state);
-                }
+            switch (state->current_page) {
+                case PAGE_YEAR:
+                    // fall through
+                case PAGE_MONTH:
+                    // fall through
+                case PAGE_DAY:
+                    // go to next setting page...
+                    state->current_page = (state->current_page + 1) % 4;
+                    if (state->current_page == PAGE_DISPLAY) {
+                        // ...unless we've been pushed back to display mode.
+                        movement_request_tick_frequency(1);
+                        // force display since it normally won't update til midnight.
+                        _day_one_face_update(state);
+                    }
+                    break;
+                default:
+                    break;
             }
             break;
         case EVENT_ALARM_BUTTON_UP:
             // if we are on a settings page, increment whatever value we're setting.
-            if (state->current_page != PAGE_DISPLAY) {
-                _day_one_face_abort_quick_cycle(state);
-                _day_one_face_increment(state);
+            switch (state->current_page) {
+                case PAGE_YEAR:
+                    // fall through
+                case PAGE_MONTH:
+                    // fall through
+                case PAGE_DAY:
+                    _day_one_face_abort_quick_cycle(state);
+                    _day_one_face_increment(state);
+                    break;
+                case PAGE_DISPLAY:
+                    state->current_page = PAGE_DATE;
+                    sprintf(buf, "%04d%02d%02d", state->birth_year % 10000, state->birth_month % 100, state->birth_day % 100);
+                    watch_display_string(buf, 2);
+                    state->ticks = 2;
+                    break;
+                default:
+                    break;
             }
             break;
         case EVENT_ALARM_LONG_PRESS:
             // if we aren't already in settings mode, put us there.
-            if (state->current_page == PAGE_DISPLAY) {
-                state->current_page++;
-                movement_request_tick_frequency(4);
-            } else {
-                state->quick_cycle = true;
-                movement_request_tick_frequency(8);
+            switch (state->current_page) {
+                case PAGE_DISPLAY:
+                    state->current_page++;
+                    movement_request_tick_frequency(4);
+                    break;
+                case PAGE_YEAR:
+                    // fall through
+                case PAGE_MONTH:
+                    // fall through
+                case PAGE_DAY:
+                    state->quick_cycle = true;
+                    movement_request_tick_frequency(8);
+                    break;
+                default:
+                    break;
             }
             break;
         case EVENT_ALARM_LONG_UP:
