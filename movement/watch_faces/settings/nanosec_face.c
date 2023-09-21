@@ -249,6 +249,10 @@ static void value_increase(int16_t delta) {
             break;
         case 4: // Profile
             nanosec_state.correction_profile = (nanosec_state.correction_profile + delta) % nanosec_profile_count;
+            // if ALARM decreases profile below 0, roll back around
+            if (nanosec_state.correction_profile < 0) {
+                nanosec_state.correction_profile += nanosec_profile_count;
+            }
             break;
         case 5: // Cadence
             switch (nanosec_state.correction_cadence) {
@@ -330,7 +334,11 @@ bool nanosec_face_loop(movement_event_t event, movement_settings_t *settings, vo
             value_increase(-1);
             break;
         case EVENT_ALARM_LONG_PRESS:
-            value_increase(-50);
+            if (nanosec_screen == 4) { // If we are in profile - still decrease by 1
+                value_increase(-1);
+            } else {
+                value_increase(-50);
+            }
             break;
         case EVENT_TIMEOUT:
             // Your watch face will receive this event after a period of inactivity. If it makes sense to resign,

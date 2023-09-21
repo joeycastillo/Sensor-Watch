@@ -35,19 +35,21 @@ const watch_face_t watch_faces[] = {
     stopwatch_face,
     preferences_face,
     set_time_face,
+    thermistor_readout_face,
+    voltage_face
 };
 
 #define MOVEMENT_NUM_FACES (sizeof(watch_faces) / sizeof(watch_face_t))
 
-/* Determines what face to go to from the first face if you've already set 
- * a mode long press to go to the first face in preferences, and
- * excludes these faces from the normal rotation.
- * Usually it makes sense to set this to the preferences face.
+/* Determines what face to go to from the first face on long press of the Mode button.
+ * Also excludes these faces from the normal rotation.
+ * In the default firmware, this lets you access temperature and battery voltage with a long press of Mode.
+ * Some folks also like to use this to hide the preferences and time set faces from the normal rotation.
+ * If you don't want any faces to be excluded, set this to 0 and a long Mode press will have no effect.
  */
-#define MOVEMENT_SECONDARY_FACE_INDEX 0 // or (MOVEMENT_NUM_FACES - 2)
+#define MOVEMENT_SECONDARY_FACE_INDEX (MOVEMENT_NUM_FACES - 2) // or (0)
 
 /* Custom hourly chime tune. Check movement_custom_signal_tunes.h for options */
 #define SIGNAL_TUNE_DEFAULT
-#include "movement_custom_signal_tunes.h"
 
 #endif // MOVEMENT_CONFIG_H_
