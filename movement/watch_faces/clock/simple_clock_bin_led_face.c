@@ -181,15 +181,9 @@ bool simple_clock_bin_led_face_loop(movement_event_t event, movement_settings_t 
             // uncomment this line to snap back to the clock face when the hour signal sounds:
             // movement_move_to_face(state->watch_face_index);
             if (watch_is_buzzer_or_led_enabled()) {
-                // if we are in the foreground, we can just beep.
                 movement_play_signal();
             } else {
-                // if we were in the background, we need to enable the buzzer peripheral first,
-                watch_enable_buzzer();
-                // beep quickly (this call blocks for 275 ms),
-                movement_play_signal();
-                // and then turn the buzzer peripheral off again.
-                watch_disable_buzzer();
+                movement_play_signal_background();
             }
             break;
         case EVENT_LIGHT_LONG_PRESS:
