@@ -294,25 +294,25 @@ void movement_request_wake() {
 }
 
 void movement_play_signal(void) {
+    bool buzzer_enabled = watch_is_buzzer_or_led_enabled();
+    if (!buzzer_enabled) {
+        watch_enable_buzzer();
+    }
     watch_buzzer_play_note(BUZZER_NOTE_C8, 75);
     watch_buzzer_play_note(BUZZER_NOTE_REST, 100);
     watch_buzzer_play_note(BUZZER_NOTE_C8, 100);
-}
-
-void movement_play_signal_background(void) {
-    watch_enable_buzzer();
-    movement_play_signal();
-    watch_disable_buzzer();
+    if (!buzzer_enabled) {
+        watch_disable_buzzer();
+    }
 }
 
 void movement_play_tune(void) {
-    watch_buzzer_play_sequence(signal_tune, NULL);
-}
-
-/* Special version of movement_play_tune meant for use during LE mode */
-void movement_play_tune_background(void) {
-    watch_enable_buzzer();
-    watch_buzzer_play_sequence(signal_tune, watch_disable_buzzer);
+    if (!watch_is_buzzer_or_led_enabled()) {
+        watch_enable_buzzer();
+        watch_buzzer_play_sequence(signal_tune, watch_disable_buzzer);
+    } else {
+        watch_buzzer_play_sequence(signal_tune, NULL);
+    }
 }
 
 void movement_play_alarm(void) {

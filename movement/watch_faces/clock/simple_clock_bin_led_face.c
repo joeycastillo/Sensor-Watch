@@ -180,11 +180,7 @@ bool simple_clock_bin_led_face_loop(movement_event_t event, movement_settings_t 
         case EVENT_BACKGROUND_TASK:
             // uncomment this line to snap back to the clock face when the hour signal sounds:
             // movement_move_to_face(state->watch_face_index);
-            if (watch_is_buzzer_or_led_enabled()) {
-                movement_play_signal();
-            } else {
-                movement_play_signal_background();
-            }
+            movement_play_signal();
             break;
         case EVENT_LIGHT_LONG_PRESS:
             if (state->flashing_state == 0) {

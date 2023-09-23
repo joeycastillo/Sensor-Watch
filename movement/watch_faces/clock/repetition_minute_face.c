@@ -151,11 +151,7 @@ bool repetition_minute_face_loop(movement_event_t event, movement_settings_t *se
             else watch_clear_indicator(WATCH_INDICATOR_BELL);
             break;
         case EVENT_BACKGROUND_TASK:
-            if (watch_is_buzzer_or_led_enabled()) {
-                movement_play_signal();
-            } else {
-                movement_play_signal_background();
-            }
+            movement_play_signal();
             break;
         case EVENT_LIGHT_LONG_UP:
             /*
