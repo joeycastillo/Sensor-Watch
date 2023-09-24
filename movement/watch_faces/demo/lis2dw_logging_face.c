@@ -41,6 +41,7 @@ static void _lis2dw_logging_face_update_display(movement_settings_t *settings, l
     char time_indication_character;
     int8_t pos;
     watch_date_time date_time;
+    bool set_leading_zero = false;
 
     if (logger_state->log_ticks) {
         pos = (logger_state->data_points - 1 - logger_state->display_index) % LIS2DW_LOGGING_NUM_DATA_POINTS;
@@ -50,12 +51,14 @@ static void _lis2dw_logging_face_update_display(movement_settings_t *settings, l
         } else {
             date_time = logger_state->data[pos].timestamp;
             watch_set_colon();
-            if (settings->bit.clock_mode_24h) {
-                watch_set_indicator(WATCH_INDICATOR_24H);
-            } else {
+            if (!settings->bit.clock_mode_24h) {
                 if (date_time.unit.hour > 11) watch_set_indicator(WATCH_INDICATOR_PM);
                 date_time.unit.hour %= 12;
                 if (date_time.unit.hour == 0) date_time.unit.hour = 12;
+            } else if (!settings->bit.clock_24h_leading_zero) {
+                watch_set_indicator(WATCH_INDICATOR_24H);
+            } else if (date_time.unit.hour < 10) {
+                set_leading_zero = true;
             }
             switch (logger_state->axis_index) {
                 case 0:
@@ -89,6 +92,8 @@ static void _lis2dw_logging_face_update_display(movement_settings_t *settings, l
             logger_state->interrupts[2]);
     }
     watch_display_string(buf, 0);
+    if (set_leading_zero)
+        watch_display_string("0", 4);
 }
 
 static void _lis2dw_logging_face_log_data(lis2dw_logger_state_t *logger_state) {
