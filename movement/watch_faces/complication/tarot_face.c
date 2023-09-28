@@ -32,7 +32,7 @@
 #include <string.h>
 #include "tarot_face.h"
 
-#define TAROT_MIN_CARDS_TO_DRAW 3
+#define TAROT_MIN_CARDS_TO_DRAW 1
 #define TAROT_ANIMATION_TICK_FREQUENCY 8
 #define FLIPPED_BIT_POS 7
 #define FLIPPED_MASK ((uint8_t)(1 << FLIPPED_BIT_POS))
