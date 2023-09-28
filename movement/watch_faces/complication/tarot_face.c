@@ -252,7 +252,7 @@ bool tarot_face_loop(movement_event_t event, movement_settings_t *settings, void
             if (state->drawn_cards[0] == 0xff) {
                 // deck is inited; cycle through # cards to draw
                 state->num_cards_to_draw++;
-                if (state->num_cards_to_draw > 10) {
+                if (state->num_cards_to_draw > TAROT_MAX_CARDS_TO_DRAW) {
                     state->num_cards_to_draw = 3;
                 }
             } else {
