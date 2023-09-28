@@ -28,7 +28,9 @@
 #include "watch.h"
 
 #define BREATHING_DEFAULT_SOUND_ON true
+#define BREATHING_MIN_LENGTH 4
 #define BREATHING_DEFAULT_LENGTH 4
+#define BREATHING_MAX_LENGTH 10
 
 typedef struct {
     uint8_t current_stage;
@@ -144,17 +146,17 @@ bool breathing_face_loop(movement_event_t event, movement_settings_t *settings, 
                 watch_clear_indicator(WATCH_INDICATOR_BELL); 
             }
 
-            char buf[7];
+            char buf[9];
 
             if (state->current_stage == 0) {
-                sprintf(buf, "Breath");
+                sprintf(buf, "%2iBreath", state->count_seconds);
             } else {
                 uint8_t count = state->count_seconds - (state->current_stage % state->count_seconds);
                 switch (state->current_stage / state->count_seconds) {
-                    case 0: sprintf(buf, "In  %2i", count); break;
-                    case 1: sprintf(buf, "Hold%2i", count); break;
-                    case 2: sprintf(buf, "Ou t%2i", count); break;
-                    case 3: sprintf(buf, "Hold%2i", count); break;
+                    case 0: sprintf(buf, "%2iIn  %2i", state->count_seconds, count); break;
+                    case 1: sprintf(buf, "%2iHold%2i", state->count_seconds, count); break;
+                    case 2: sprintf(buf, "%2iOu t%2i", state->count_seconds, count); break;
+                    case 3: sprintf(buf, "%2iHold%2i", state->count_seconds, count); break;
                 }
             }
 
@@ -167,7 +169,7 @@ bool breathing_face_loop(movement_event_t event, movement_settings_t *settings, 
                 }
             }
 
-            watch_display_string(buf, 4);
+            watch_display_string(buf, 2);
 
             // and increment it so that it will update on the next tick.
             state->current_stage = (state->current_stage + 1) % (state->count_seconds * 4);
@@ -181,6 +183,18 @@ bool breathing_face_loop(movement_event_t event, movement_settings_t *settings, 
                 watch_clear_indicator(WATCH_INDICATOR_BELL); 
             }
             break;
+        case EVENT_LIGHT_LONG_PRESS:
+            {
+                uint8_t stage = state->current_stage / state->count_seconds;
+                uint8_t num = state->current_stage % state->count_seconds;
+                if (state->count_seconds++ > BREATHING_MAX_LENGTH) {
+                    state->count_seconds = BREATHING_MIN_LENGTH;
+                    state->current_stage = 0;
+                } else {
+                    state->current_stage = (stage * state->count_seconds) + num;
+                }
+                break;
+            }
         case EVENT_LOW_ENERGY_UPDATE:
             // This low energy mode update occurs once a minute, if the watch face is in the
             // foreground when Movement enters low energy mode. We have the option of supporting
