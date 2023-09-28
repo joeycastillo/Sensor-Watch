@@ -62,10 +62,10 @@
  * - Light button (long press): go back to Draw screen, for choosing different draw parameters.
  */
 
-#define MAX_CARDS_TO_DRAW 10
+#define TAROT_MAX_CARDS_TO_DRAW 10
 
 typedef struct {
-    uint8_t drawn_cards[MAX_CARDS_TO_DRAW];
+    uint8_t drawn_cards[TAROT_MAX_CARDS_TO_DRAW];
     uint8_t current_card;
     uint8_t animation_frame;
     uint8_t num_cards_to_draw;
