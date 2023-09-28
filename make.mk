@@ -207,6 +207,10 @@ ifeq ($(LED), BLUE)
 CFLAGS += -DWATCH_IS_BLUE_BOARD
 endif
 
+ifndef COLOR
+$(error Set the COLOR variable to RED, BLUE, or GREEN depending on what board you have.)
+endif
+
 ifeq ($(COLOR), BLUE)
 CFLAGS += -DWATCH_IS_BLUE_BOARD
 endif
