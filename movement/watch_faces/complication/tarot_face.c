@@ -32,6 +32,7 @@
 #include <string.h>
 #include "tarot_face.h"
 
+#define DEFAULT_MAJOR_ARCANA_ONLY true
 #define TAROT_MIN_CARDS_TO_DRAW 1
 #define TAROT_ANIMATION_TICK_FREQUENCY 8
 #define FLIPPED_BIT_POS 7
@@ -229,7 +230,7 @@ void tarot_face_activate(movement_settings_t *settings, void *context) {
     watch_display_string("TA", 0);
     init_deck(state);
     state->num_cards_to_draw = TAROT_MIN_CARDS_TO_DRAW;
-    state->major_arcana_only = true;
+    state->major_arcana_only = DEFAULT_MAJOR_ARCANA_ONLY;
 }
 
 bool tarot_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
