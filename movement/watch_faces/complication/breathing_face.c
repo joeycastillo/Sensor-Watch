@@ -33,7 +33,7 @@
 #define BREATHING_MAX_LENGTH 10
 
 typedef struct {
-    uint8_t current_stage;
+    uint8_t ticks;
     uint8_t count_seconds;
     bool sound_on;
 } breathing_state_t;
@@ -61,7 +61,7 @@ void breathing_face_activate(movement_settings_t *settings, void *context) {
     // we do however need to set some things in our context. Here we cast it to the correct type...
     breathing_state_t *state = (breathing_state_t *)context;
     // ...and set the initial state of our watch face.
-    state->current_stage = 0;
+    state->ticks = 0;
     state->count_seconds = BREATHING_DEFAULT_LENGTH;
     state->sound_on = BREATHING_DEFAULT_SOUND_ON;
 }
@@ -148,11 +148,11 @@ bool breathing_face_loop(movement_event_t event, movement_settings_t *settings, 
 
             char buf[9];
 
-            if (state->current_stage == 0) {
+            if (state->ticks == 0) {
                 sprintf(buf, "%2iBreath", state->count_seconds);
             } else {
-                uint8_t count = state->count_seconds - (state->current_stage % state->count_seconds);
-                switch (state->current_stage / state->count_seconds) {
+                uint8_t count = state->count_seconds - (state->ticks % state->count_seconds);
+                switch (state->ticks / state->count_seconds) {
                     case 0: sprintf(buf, "%2iIn  %2i", state->count_seconds, count); break;
                     case 1: sprintf(buf, "%2iHold%2i", state->count_seconds, count); break;
                     case 2: sprintf(buf, "%2iOu t%2i", state->count_seconds, count); break;
@@ -160,8 +160,8 @@ bool breathing_face_loop(movement_event_t event, movement_settings_t *settings, 
                 }
             }
 
-            if (state->sound_on && state->current_stage % state->count_seconds == 0) {
-                switch (state->current_stage / state->count_seconds) {
+            if (state->sound_on && state->ticks % state->count_seconds == 0) {
+                switch (state->ticks / state->count_seconds) {
                     case 0: beep_in(); break;
                     case 1: beep_in_hold(); break;
                     case 2: beep_out(); break;
@@ -172,7 +172,7 @@ bool breathing_face_loop(movement_event_t event, movement_settings_t *settings, 
             watch_display_string(buf, 2);
 
             // and increment it so that it will update on the next tick.
-            state->current_stage = (state->current_stage + 1) % (state->count_seconds * 4);
+            state->ticks = (state->ticks + 1) % (state->count_seconds * 4);
 
             break;
         case EVENT_ALARM_BUTTON_UP:
@@ -185,13 +185,13 @@ bool breathing_face_loop(movement_event_t event, movement_settings_t *settings, 
             break;
         case EVENT_LIGHT_LONG_PRESS:
             {
-                uint8_t stage = state->current_stage / state->count_seconds;
-                uint8_t num = state->current_stage % state->count_seconds;
+                uint8_t stage = state->ticks / state->count_seconds;
+                uint8_t num = state->ticks % state->count_seconds;
                 if (state->count_seconds++ > BREATHING_MAX_LENGTH) {
                     state->count_seconds = BREATHING_MIN_LENGTH;
-                    state->current_stage = 0;
+                    state->ticks = 0;
                 } else {
-                    state->current_stage = (stage * state->count_seconds) + num;
+                    state->ticks = (stage * state->count_seconds) + num;
                 }
                 break;
             }
