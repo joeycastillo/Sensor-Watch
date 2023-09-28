@@ -27,6 +27,8 @@
 #include "breathing_face.h"
 #include "watch.h"
 
+#define BREATHING_DEFAULT_SOUND_ON true
+
 typedef struct {
     uint8_t current_stage;
     bool sound_on;
@@ -56,7 +58,7 @@ void breathing_face_activate(movement_settings_t *settings, void *context) {
     breathing_state_t *state = (breathing_state_t *)context;
     // ...and set the initial state of our watch face.
     state->current_stage = 0;
-    state->sound_on = true;
+    state->sound_on = BREATHING_DEFAULT_SOUND_ON;
 }
 
 const int NOTE_LENGTH = 80;
