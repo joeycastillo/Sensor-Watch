@@ -105,9 +105,9 @@ static void tarot_display(tarot_state_t *state) {
     }
 
     // show a special status if we're looking at the first or last card in the spread
-    if (state->current_card == 0) {
+    if (state->current_card == 0 && state->num_cards_to_draw > 1) {
         start_end_string = "St";
-    } else if (state->current_card == state->num_cards_to_draw - 1) {
+    } else if (state->current_card == state->num_cards_to_draw - 1 && state->num_cards_to_draw > 1) {
         start_end_string = "En";
     } else {
         start_end_string = "  ";
