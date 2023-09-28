@@ -149,14 +149,14 @@ bool breathing_face_loop(movement_event_t event, movement_settings_t *settings, 
             char buf[9];
 
             if (state->ticks == 0) {
-                sprintf(buf, "%2iBreath", state->count_seconds);
+                sprintf(buf, "%2iBreath", state->count_seconds%100);
             } else {
                 uint8_t count = state->count_seconds - (state->ticks % state->count_seconds);
                 switch (state->ticks / state->count_seconds) {
-                    case 0: sprintf(buf, "%2iIn  %2i", state->count_seconds, count); break;
-                    case 1: sprintf(buf, "%2iHold%2i", state->count_seconds, count); break;
-                    case 2: sprintf(buf, "%2iOu t%2i", state->count_seconds, count); break;
-                    case 3: sprintf(buf, "%2iHold%2i", state->count_seconds, count); break;
+                    case 0: sprintf(buf, "%2iIn  %2i", state->count_seconds%100, count%100); break;
+                    case 1: sprintf(buf, "%2iHold%2i", state->count_seconds%100, count%100); break;
+                    case 2: sprintf(buf, "%2iOu t%2i", state->count_seconds%100, count%100); break;
+                    case 3: sprintf(buf, "%2iHold%2i", state->count_seconds%100, count%100); break;
                 }
             }
 
