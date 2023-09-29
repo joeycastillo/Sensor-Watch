@@ -32,9 +32,11 @@ static void _minimal_clock_face_update_display(movement_settings_t *settings) {
 
     if (!settings->bit.clock_mode_24h) {
         date_time.unit.hour %= 12;
+        sprintf(buffer, "%2d%02d  ", date_time.unit.hour, date_time.unit.minute);
+    } else {
+        sprintf(buffer, "%02d%02d  ", date_time.unit.hour, date_time.unit.minute);
     }
 
-    sprintf(buffer, "%2d%02d ", date_time.unit.hour, date_time.unit.minute);
     watch_display_string(buffer, 4);
 }
 
