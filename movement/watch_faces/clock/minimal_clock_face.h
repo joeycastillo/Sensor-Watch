@@ -28,9 +28,10 @@
 #include "movement.h"
 
 /*
- * A DESCRIPTION OF YOUR WATCH FACE
+ * MINIMAL CLOCK FACE
  *
- * and a description of how use it
+ * A minimal clock face that just shows hours and minutes.
+ * There is nothing to configure. The face follows the 12h/24h setting
  *
  */
 
