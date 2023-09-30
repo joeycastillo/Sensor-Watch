@@ -207,8 +207,13 @@ ifeq ($(LED), BLUE)
 CFLAGS += -DWATCH_IS_BLUE_BOARD
 endif
 
-ifeq ($(LED), RED)
+ifeq ($(COLOR), BLUE)
+CFLAGS += -DWATCH_IS_BLUE_BOARD
+endif
+
+ifeq ($(COLOR), RED)
 CFLAGS += -DWATCH_INVERT_LED_POLARITY
+CFLAGS += -DNO_FREQCORR
 endif
 
 ifdef FIRMWARE

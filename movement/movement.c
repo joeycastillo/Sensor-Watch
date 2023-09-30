@@ -54,6 +54,8 @@
 #include "alt_fw/deep_space_now.h"
 #endif
 
+#include "movement_custom_signal_tunes.h"
+
 // Default to no secondary face behaviour.
 #ifndef MOVEMENT_SECONDARY_FACE_INDEX
 #define MOVEMENT_SECONDARY_FACE_INDEX 0
@@ -292,7 +294,25 @@ void movement_request_wake() {
 }
 
 void movement_play_signal(void) {
-    watch_buzzer_play_sequence(signal_tune, NULL);
+    bool buzzer_enabled = watch_is_buzzer_or_led_enabled();
+    if (!buzzer_enabled) {
+        watch_enable_buzzer();
+    }
+    watch_buzzer_play_note(BUZZER_NOTE_C8, 75);
+    watch_buzzer_play_note(BUZZER_NOTE_REST, 100);
+    watch_buzzer_play_note(BUZZER_NOTE_C8, 100);
+    if (!buzzer_enabled) {
+        watch_disable_buzzer();
+    }
+}
+
+void movement_play_tune(void) {
+    if (!watch_is_buzzer_or_led_enabled()) {
+        watch_enable_buzzer();
+        watch_buzzer_play_sequence(signal_tune, watch_disable_buzzer);
+    } else {
+        watch_buzzer_play_sequence(signal_tune, NULL);
+    }
 }
 
 void movement_play_alarm(void) {
@@ -315,7 +335,9 @@ uint8_t movement_claim_backup_register(void) {
 }
 
 void app_init(void) {
-#ifdef WATCH_IS_BLUE_BOARD
+#if defined(NO_FREQCORR)
+    watch_rtc_freqcorr_write(0, 0);
+#elif defined(WATCH_IS_BLUE_BOARD)
     watch_rtc_freqcorr_write(11, 0);
 #else
     watch_rtc_freqcorr_write(22, 0);
