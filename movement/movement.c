@@ -364,7 +364,7 @@ void app_init(void) {
     movement_state.settings.bit.led_green_color = MOVEMENT_DEFAULT_GREEN_COLOR;
     movement_state.settings.bit.button_should_sound = true;
     movement_state.settings.bit.le_interval = 1;
-    movement_state.settings.bit.led_duration = 1;
+    movement_state.settings.bit.led_duration = 0;
     movement_state.light_ticks = -1;
     movement_state.alarm_ticks = -1;
     movement_state.next_available_backup_register = 4;
