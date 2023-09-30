@@ -34,6 +34,8 @@
 
 #define DEFAULT_MAJOR_ARCANA_ONLY true
 #define TAROT_MIN_CARDS_TO_DRAW 1
+#define TAROT_FACE_CARD_REMINDER false
+
 #define TAROT_ANIMATION_TICK_FREQUENCY 8
 #define FLIPPED_BIT_POS 7
 #define FLIPPED_MASK ((uint8_t)(1 << FLIPPED_BIT_POS))
@@ -126,6 +128,18 @@ static void tarot_display(tarot_state_t *state) {
         // minor arcana
         uint8_t suit = (card - NUM_MAJOR_ARCANA) / NUM_CARDS_PER_SUIT;
         uint8_t rank = ((card - NUM_MAJOR_ARCANA) % NUM_CARDS_PER_SUIT) + 1;
+
+        if (TAROT_FACE_CARD_REMINDER) {
+            if (rank == 11) {
+                start_end_string = "P ";
+            } else if (rank == 12) {
+                start_end_string = "Kn";
+            } else if (rank == 13) {
+                start_end_string = "q ";
+            } else if (rank == 14) {
+                start_end_string = "K ";
+            }
+        }
 
         // show start/end, rank + suit
         sprintf(buf, "%s%2d%s", start_end_string, rank, suits[suit]);
