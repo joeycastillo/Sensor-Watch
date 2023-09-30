@@ -36,6 +36,18 @@
 #define TAROT_MIN_CARDS_TO_DRAW 1
 #define TAROT_FACE_CARD_REMINDER false
 
+#define TAROT_LOOP_STYLE_NONE 0
+#define TAROT_LOOP_STYLE_ST_EN 1
+#define TAROT_LOOP_STYLE_LAP_START 2
+#define TAROT_LOOP_STYLE_LAP_END 3
+// What style of indicator to use to note when you've wrapped around to the
+// beginning of the deck.
+// * TAROT_LOOP_STYLE_NONE = No indicators
+// * TAROT_LOOP_STYLE_ST_EN = "St" and "En" in weekday display for first / last cards
+// * TAROT_LOOP_STYLE_LAP_START = Show lap indicator on first card
+// * TAROT_LOOP_STYLE_LAP_END = Show lap indicator on last card
+#define TAROT_LOOP_STYLE TAROT_LOOP_STYLE_ST_EN
+
 #define TAROT_ANIMATION_TICK_FREQUENCY 8
 #define FLIPPED_BIT_POS 7
 #define FLIPPED_MASK ((uint8_t)(1 << FLIPPED_BIT_POS))
@@ -107,12 +119,22 @@ static void tarot_display(tarot_state_t *state) {
     }
 
     // show a special status if we're looking at the first or last card in the spread
-    if (state->current_card == 0 && state->num_cards_to_draw > 1) {
-        start_end_string = "St";
-    } else if (state->current_card == state->num_cards_to_draw - 1 && state->num_cards_to_draw > 1) {
-        start_end_string = "En";
-    } else {
-        start_end_string = "  ";
+    start_end_string = "  ";
+    watch_clear_indicator(WATCH_INDICATOR_LAP);
+    if (TAROT_LOOP_STYLE != TAROT_LOOP_STYLE_NONE && state->num_cards_to_draw > 1) {
+        if (state->current_card == 0) {
+            if (TAROT_LOOP_STYLE == TAROT_LOOP_STYLE_ST_EN) {
+                start_end_string = "St";
+            } else if (TAROT_LOOP_STYLE == TAROT_LOOP_STYLE_LAP_START) {
+                watch_set_indicator(WATCH_INDICATOR_LAP);
+            }
+        } else if (state->current_card == state->num_cards_to_draw - 1) {
+            if (TAROT_LOOP_STYLE == TAROT_LOOP_STYLE_ST_EN) {
+                start_end_string = "En";
+            } else if (TAROT_LOOP_STYLE == TAROT_LOOP_STYLE_LAP_END) {
+                watch_set_indicator(WATCH_INDICATOR_LAP);
+            }
+        }
     }
 
     // figure out the card we're showing
