@@ -33,6 +33,7 @@
 #include "tarot_face.h"
 
 #define DEFAULT_MAJOR_ARCANA_ONLY true
+#define SHOW_REVERSED_CARDS true
 #define TAROT_MIN_CARDS_TO_DRAW 1
 #define TAROT_FACE_CARD_REMINDER false
 
@@ -169,7 +170,7 @@ static void tarot_display(tarot_state_t *state) {
 
     watch_display_string(buf, 0);
 
-    if (flipped) {
+    if (flipped && SHOW_REVERSED_CARDS) {
         watch_set_indicator(WATCH_INDICATOR_SIGNAL);
     } else {
         watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
