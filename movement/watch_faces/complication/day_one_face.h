@@ -25,8 +25,6 @@
 #ifndef DAY_ONE_FACE_H_
 #define DAY_ONE_FACE_H_
 
-#include "movement.h"
-
 /*
  * DAY ONE face
  *
@@ -48,6 +46,8 @@
  * unresponsive in sleep mode. You can still press the Alarm button to
  * wake the watch. This UI quirk will be addressed in a future update.
  */
+
+#include "movement.h"
 
 typedef struct {
     uint8_t current_page;

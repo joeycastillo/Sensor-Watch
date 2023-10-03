@@ -25,10 +25,8 @@
 #ifndef FINETUNE_FACE_H_
 #define FINETUNE_FACE_H_
 
-#include "movement.h"
-
 /*
- * FINETUNE FACE
+ * FINETUNE face
  *
  * FineTune face allows to align watch with sub-second precision in 25/250ms
  * accuracy. Counts time since previous finetune, and allows to calculate &
@@ -54,6 +52,8 @@
  * For full usage instructions, please refer to the wiki:
  *  https://www.sensorwatch.net/docs/watchfaces/nanosec/
  */
+
+#include "movement.h"
 
 typedef struct {
     // Anything you need to keep track of, put it here!

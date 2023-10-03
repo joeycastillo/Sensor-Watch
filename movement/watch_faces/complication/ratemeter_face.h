@@ -25,10 +25,8 @@
 #ifndef RATEMETER_FACE_H_
 #define RATEMETER_FACE_H_
 
-#include "movement.h"
-
 /*
- * RATE METER
+ * RATE METER face
  *
  * The rate meter shows the rate per minute at which the ALARM button is
  * being pressed. This is particularly useful in sports where cadence
@@ -36,6 +34,8 @@
  * rate meter - clicking the rate button each time the crew puts their oars
  * in the water to see the rate (strokes per minute) on the rate meter.
  */
+
+#include "movement.h"
 
 typedef struct {
     int16_t rate;

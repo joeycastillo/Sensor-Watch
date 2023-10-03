@@ -26,6 +26,7 @@
 #define MORSECALC_FACE_H_
 
 /*
+ * MORSECALC face
  * Morse-code-based RPN calculator
  *
  * The calculator is operated by first composing a **token** in Morse code,

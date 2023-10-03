@@ -25,9 +25,6 @@
 #ifndef LIS2DW_LOGGING_FACE_H_
 #define LIS2DW_LOGGING_FACE_H_
 
-#include "movement.h"
-#include "watch.h"
-
 /*
  * LIS2DW Accelerometer Data Logger
  *
@@ -35,6 +32,9 @@
  * Motion Express” board. I will add more documentation for this watch face
  * once this sensor board is more widely available.
  */
+
+#include "movement.h"
+#include "watch.h"
 
 #define LIS2DW_LOGGING_NUM_DATA_POINTS (96)
 

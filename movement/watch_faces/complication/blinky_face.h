@@ -25,10 +25,8 @@
 #ifndef BLINKY_FACE_H_
 #define BLINKY_FACE_H_
 
-#include "movement.h"
-
 /*
- * BLINKY LIGHT
+ * BLINKY LIGHT face
  *
  * The blinky light watch face was designed as a tutorial for making a watch
  * face in Movement, but it actually might be useful to have a blinking light
@@ -52,6 +50,8 @@
  * this watch face could come in handy. Just try to use the green LED as much
  * as you can.
  */
+
+#include "movement.h"
 
 typedef struct {
     bool active;

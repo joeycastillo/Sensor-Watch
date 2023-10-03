@@ -25,8 +25,6 @@
 #ifndef COUNTER_FACE_H_
 #define COUNTER_FACE_H_
 
-#include "movement.h"
-
 /*
  * COUNTER face
  *
@@ -37,6 +35,8 @@
  * Long-press ALARM to reset the counter.
  * Long-press LIGHT to toggle sound.
  */
+
+#include "movement.h"
 
 typedef struct {
     uint8_t counter_idx;

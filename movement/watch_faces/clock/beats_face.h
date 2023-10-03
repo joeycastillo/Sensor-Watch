@@ -25,10 +25,8 @@
 #ifndef BEATS_FACE_H_
 #define BEATS_FACE_H_
 
-#include "movement.h"
-
 /*
- * BEATS TIME FACE
+ * BEATS TIME face
  *
  * The Beat Time face displays the current Swatch Internet Time, or .beat time.
  * This is a decimal time system that divides the day into 1000 beats.
@@ -37,6 +35,8 @@
  * two smaller digits (normally the seconds in Simple Clock) indicate the
  * fractional beat; so for example you can read “67214” as “beat 672.14”.
  */
+
+#include "movement.h"
 
 typedef struct {
     int8_t next_subsecond_update;

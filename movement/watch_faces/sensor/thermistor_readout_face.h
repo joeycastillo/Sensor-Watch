@@ -25,8 +25,6 @@
 #ifndef THERMISTOR_READOUT_FACE_H_
 #define THERMISTOR_READOUT_FACE_H_
 
-#include "movement.h"
-
 /*
  * THERMISTOR READOUT (aka Temperature Display)
  *
@@ -49,6 +47,8 @@
  * any other watch face that displays localizable units will display them in
  * the system selected here.
  */
+
+#include "movement.h"
 
 void thermistor_readout_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
 void thermistor_readout_face_activate(movement_settings_t *settings, void *context);

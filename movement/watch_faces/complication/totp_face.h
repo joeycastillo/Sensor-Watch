@@ -25,9 +25,8 @@
 #ifndef TOTP_FACE_H_
 #define TOTP_FACE_H_
 
-#include "movement.h"
-
 /*
+ * TOTP face
  * Time-based one-time password (TOTP) generator
  *
  * Generate one-time passwords often used for two-factor authentication.
@@ -53,6 +52,8 @@
  *
  * If you have more than one secret key, press ALARM to cycle through them.
  */
+
+#include "movement.h"
 
 typedef struct {
     uint32_t timestamp;

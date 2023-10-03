@@ -26,8 +26,6 @@
 #ifndef STOPWATCH_FACE_H_
 #define STOPWATCH_FACE_H_
 
-#include "movement.h"
-
 /*
  * STOPWATCH FACE
  *
@@ -38,6 +36,8 @@
  * This face does not count sub-seconds.
  * See also: "stock_stopwatch_face.h"
  */
+
+#include "movement.h"
 
 typedef struct {
     bool running;

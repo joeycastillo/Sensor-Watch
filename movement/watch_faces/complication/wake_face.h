@@ -25,10 +25,8 @@
 #ifndef WAKE_FACE_H_
 #define WAKE_FACE_H_
 
-#include "movement.h"
-
 /*
- * WAKE FACE
+ * WAKE daily alarm face
  *
  * Basic daily alarm clock face. Seems useful if nothing else in the interest
  * of feature parity with the F-91W’s OEM module, 593.
@@ -41,6 +39,8 @@
  *   º ALARM advances minute by 10
  *   º ALARM long press cycles through signal modes (just one at the moment)
  */
+
+#include "movement.h"
 
 typedef struct {
     uint32_t hour : 5;

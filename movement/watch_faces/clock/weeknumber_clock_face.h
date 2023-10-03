@@ -25,8 +25,6 @@
 #ifndef WEEKNUMBER_CLOCK_FACE_H_
 #define WEEKNUMBER_CLOCK_FACE_H_
 
-#include "movement.h"
-
 /*
  * WEEK-NUMBER WATCH FACE
  *
@@ -34,6 +32,8 @@
  *
  * Long-press ALARM to toggle the hourly chime.
  */
+
+#include "movement.h"
 
 typedef struct {
     uint32_t previous_date_time;

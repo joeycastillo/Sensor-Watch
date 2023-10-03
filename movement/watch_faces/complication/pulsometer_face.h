@@ -25,10 +25,8 @@
 #ifndef PULSOMETER_FACE_H_
 #define PULSOMETER_FACE_H_
 
-#include "movement.h"
-
 /*
- * PULSOMETER
+ * PULSOMETER face
  *
  * The Pulsometer is an implementation of a sort of a classic mechanical
  * watch complication. A classic pulsometer complication involves a
@@ -53,6 +51,8 @@
  *    read “Lo”. If it took this long for you to count 30 heartbeats, this
  *    indicates that your heart rate is below 40 beats per minute.
  */
+
+#include "movement.h"
 
 typedef struct {
     bool measuring;

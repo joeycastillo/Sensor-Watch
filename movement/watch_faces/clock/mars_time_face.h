@@ -25,10 +25,8 @@
 #ifndef MARS_TIME_FACE_H_
 #define MARS_TIME_FACE_H_
 
-#include "movement.h"
-
 /*
- * MARS TIME FACE
+ * MARS TIME face
  *
  * This watch face is dedicated to Martian timekeeping.
  * It has several modes, and can display either a time or a date.
@@ -52,6 +50,8 @@
  * word “Sol” will not fit and so it displays a stylized letter S at the top
  * right.
  */
+
+#include "movement.h"
 
 typedef enum {
     MARS_TIME_MERIDIAN,

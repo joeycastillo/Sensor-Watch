@@ -25,8 +25,6 @@
 #ifndef COUNTDOWN_FACE_H_
 #define COUNTDOWN_FACE_H_
 
-#include "movement.h"
-
 /*
  * COUNTDOWN TIMER face
  *
@@ -43,6 +41,8 @@
  * Note: we have to prevent the watch from going to deep sleep using
  * movement_schedule_background_task() while the timer is running.
  */
+
+#include "movement.h"
 
 typedef enum {
     cd_paused,

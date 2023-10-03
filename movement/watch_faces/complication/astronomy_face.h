@@ -25,11 +25,8 @@
 #ifndef ASTRONOMY_FACE_H_
 #define ASTRONOMY_FACE_H_
 
-#include "movement.h"
-#include "astrolib.h"
-
 /*
- * ASTRONOMY
+ * ASTRONOMY face
  *
  * The Astronomy watch face is among the most complex watch faces in the
  * Movement collection. It allows you to calculate the locations of celestial
@@ -68,6 +65,9 @@
  * 
  * Long press on the Alarm button to select another celestial body.
  */
+
+#include "movement.h"
+#include "astrolib.h"
 
 typedef enum {
     ASTRONOMY_MODE_SELECTING_BODY = 0,

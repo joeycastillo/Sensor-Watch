@@ -25,10 +25,8 @@
 #ifndef STOCK_STOPWATCH_FACE_H_
 #define STOCK_STOPWATCH_FACE_H_
 
-#include "movement.h"
-
 /*
- * STOCK STOPWATCH FACE
+ * STOCK STOPWATCH face
  *
  * The Stock Stopwatch face implements the original F-91W stopwatch
  * functionality, including counting hundredths of seconds and lap timing.
@@ -53,6 +51,8 @@
  * The advantage is that accessing vars is more direct and faster, and we
  * can save some precious cpu cycles.  :-)
  */
+
+#include "movement.h"
 
 typedef struct {
     bool light_on_button;   // determines whether the light button actually triggers the led

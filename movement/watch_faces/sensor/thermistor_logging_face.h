@@ -25,9 +25,6 @@
 #ifndef THERMISTOR_LOGGING_FACE_H_
 #define THERMISTOR_LOGGING_FACE_H_
 
-#include "movement.h"
-#include "watch.h"
-
 /*
  * THERMISTOR LOGGING (aka Temperature Log)
  *
@@ -55,6 +52,9 @@
  * If you need to illuminate the LED to read the data point, long press the
  * Light button and release it.
  */
+
+#include "movement.h"
+#include "watch.h"
 
 #define THERMISTOR_LOGGING_NUM_DATA_POINTS (36)
 

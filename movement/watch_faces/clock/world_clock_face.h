@@ -25,8 +25,6 @@
 #ifndef WORLD_CLOCK_FACE_H_
 #define WORLD_CLOCK_FACE_H_
 
-#include "movement.h"
-
 /*
  * WORLD CLOCK FACE
  *
@@ -47,6 +45,8 @@
  * that at this time, time zones do not automatically update for daylight saving
  * time; you will need to manually adjust this field each spring and fall.
  */
+
+#include "movement.h"
 
 typedef union {
     struct {

@@ -25,9 +25,8 @@
 #ifndef TOTP_FACE_LFS_H_
 #define TOTP_FACE_LFS_H_
 
-#include "movement.h"
-
 /*
+ * TOTP-LFS face
  * Time-based one-time password (TOTP) generator using LFS
  *
  * Reads from a file "totp_uris.txt", containing a single secret key in a
@@ -49,6 +48,8 @@
  *
  * If you have more than one secret key, press ALARM to cycle through them.
  */
+
+#include "movement.h"
 
 typedef struct {
     uint32_t timestamp;

@@ -25,8 +25,6 @@
 #ifndef MOON_PHASE_FACE_H_
 #define MOON_PHASE_FACE_H_
 
-#include "movement.h"
-
 /*
  * MOON PHASE face
  *
@@ -50,6 +48,8 @@
  * display the moon phase for that day. Try pressing the Alarm button 27 times
  * now, just to visualize what the moon will look like over the next month.
  */
+
+#include "movement.h"
 
 typedef struct {
     uint32_t offset;

@@ -25,8 +25,6 @@
 #ifndef INTERVAL_FACE_H_
 #define INTERVAL_FACE_H_
 
-#include "movement.h"
-
 /*
  * INTERVAL TIMER face
  *
@@ -78,6 +76,8 @@
  *   Feel free to adjust the timer slots to your own needs (or completely 
  *   wipe them ;-)
  */
+
+#include "movement.h"
 
 #define INTERVAL_TIMERS 9     // no of available customizable timers (be aware: only 4 bits reserved for this value in struct below)
 

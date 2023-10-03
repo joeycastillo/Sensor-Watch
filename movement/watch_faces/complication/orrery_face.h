@@ -25,8 +25,6 @@
 #ifndef ORRERY_FACE_H_
 #define ORRERY_FACE_H_
 
-#include "movement.h"
-
 /*
  * ORRERY face
  *
@@ -68,6 +66,8 @@
  * Saturn. (The Z coordinates tend to be pretty close to zero, as the
  * planets largely orbit on a single plane, the ecliptic.)
  */
+
+#include "movement.h"
 
 typedef enum {
     ORRERY_MODE_SELECTING_BODY = 0,

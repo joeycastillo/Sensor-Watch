@@ -25,10 +25,8 @@
 #ifndef WYOSCAN_FACE_H_
 #define WYOSCAN_FACE_H_
 
-#include "movement.h"
-
 /*
- * Wyoscan .5 hz watchface
+ * WYOSCAN .5 hz watchface
  *
  * This is a recreation of the Wyoscan watch, which was a $175 watch in 2014.
  * It was an f-91w pcb replacement.
@@ -50,6 +48,8 @@
  * There are no controls; it simply animates as long as the page is active.
  *
  */
+
+#include "movement.h"
 
 #define MAX_ILLUMINATED_SEGMENTS 16
 

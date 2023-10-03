@@ -25,8 +25,6 @@
 #ifndef DEMO_FACE_H_
 #define DEMO_FACE_H_
 
-#include "movement.h"
-
 /*
  * DEMO FACE
  *
@@ -37,6 +35,8 @@
  * This watch face may only be useful to you if you need to photograph Sensor
  * Watch, i.e. for a blog post.
  */
+
+#include "movement.h"
 
 void demo_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
 void demo_face_activate(movement_settings_t *settings, void *context);

@@ -25,9 +25,6 @@
 #ifndef LIGHTMETER_FACE_H_
 #define LIGHTMETER_FACE_H_
 
-#include "movement.h"
-#include "opt3001.h"
-
 /*
  * Aperture-priority Light Meter Face
  *
@@ -58,6 +55,9 @@
  *
  *  - Mode long-press changes the main digits to show raw sensor lux measurements.
  */
+
+#include "movement.h"
+#include "opt3001.h"
 
 #define LIGHTMETER_CALIBRATION 2.58
 typedef struct { 

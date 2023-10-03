@@ -25,8 +25,6 @@
 #ifndef PROBABILITY_FACE_H_
 #define PROBABILITY_FACE_H_
 
-#include "movement.h"
-
 /*
  * PROBABILITY face
  *
@@ -38,6 +36,8 @@
  *
  * Press ALARM to roll the selected die.
  */
+
+#include "movement.h"
 
 typedef struct {
     uint8_t dice_sides;

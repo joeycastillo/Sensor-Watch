@@ -25,8 +25,6 @@
 #ifndef DATABANK_FACE_H_
 #define DATABANK_FACE_H_
 
-#include "movement.h"
-
 /*
  * DATABANK face
  *
@@ -43,7 +41,8 @@
  * Long-press ALARM to display the next item.
  * Long-press LIGHT to display the previous item.
  */
- 
+
+#include "movement.h"
 
 void databank_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
 void databank_face_activate(movement_settings_t *settings, void *context);

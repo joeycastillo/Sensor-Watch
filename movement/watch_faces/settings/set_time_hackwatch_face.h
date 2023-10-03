@@ -25,8 +25,6 @@
 #ifndef SET_TIME_HACKWATCH_FACE_H_
 #define SET_TIME_HACKWATCH_FACE_H_
 
-#include "movement.h"
-
 /*
  * SET TIME HACKWATCH
  *
@@ -49,6 +47,8 @@
  * is why this face sets seconds last to achiveve best precision. Still,
  * best possible precision is achieved with finetune face. 
  */
+
+#include "movement.h"
 
 void set_time_hackwatch_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
 void set_time_hackwatch_face_activate(movement_settings_t *settings, void *context);

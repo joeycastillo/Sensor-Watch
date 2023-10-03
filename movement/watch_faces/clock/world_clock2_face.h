@@ -51,13 +51,13 @@
  *
  * The user can navigate through the time zones and select them using the
  * following buttons:
- *  * The alarm button moves forward to the next time zone, while the light
+ *  * The ALARM button moves forward to the next time zone, while the LIGHT
  *    button moves backward to the previous zone. This way, the user can
  *    cycle through all 41 supported time zones.
- *  * A long press on the light button selects the current time zone, and
+ *  * A long press on the LIGHT button selects the current time zone, and
  *    the signal indicator appears at the top left. Another long press of
- *    the light button deselects the time zone.
- *  * A long press on the alarm button exits settings mode and returns to
+ *    the LIGHT button deselects the time zone.
+ *  * A long press on the ALARM button exits settings mode and returns to
  *    display mode.
  *
  * Display mode
@@ -76,14 +76,13 @@
  *
  * The user can navigate through the selected time zones using the following
  * buttons:
- *  * The alarm button moves to the next selected time zone, while the light
+ *  * The ALARM button moves to the next selected time zone, while the LIGHT
  *    button moves to the previous zone. If no time zone is selected, the
  *    face simply shows UTC.
- *  * A long press on the alarm button enters settings mode and enables the
+ *  * A long press on the ALARM button enters settings mode and enables the
  *    user to re-configure the selected time zones.
- *  * A long press on the light button activates the LED illumination of the
+ *  * A long press on the LIGHT button activates the LED illumination of the
  *    watch.
- *
  */
 
 /* Number of zones. See movement_timezone_offsets. */

@@ -25,8 +25,6 @@
 #ifndef SIMPLE_CLOCK_FACE_H_
 #define SIMPLE_CLOCK_FACE_H_
 
-#include "movement.h"
-
 /*
  * SIMPLE CLOCK FACE
  *
@@ -35,6 +33,8 @@
  *
  * Long-press ALARM to toggle the hourly chime.
  */
+
+#include "movement.h"
 
 typedef struct {
     uint32_t previous_date_time;

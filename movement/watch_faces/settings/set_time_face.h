@@ -25,10 +25,8 @@
 #ifndef SET_TIME_FACE_H_
 #define SET_TIME_FACE_H_
 
-#include "movement.h"
-
 /*
- * SET TIME FACE
+ * SET TIME face
  *
  * The default method for adjusting Sensor Watch time.
  *
@@ -43,6 +41,8 @@
  * means that when daylight savings time starts or ends, you must update
  * both the time and the time zone on this screen.
  */
+
+#include "movement.h"
 
 void set_time_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
 void set_time_face_activate(movement_settings_t *settings, void *context);

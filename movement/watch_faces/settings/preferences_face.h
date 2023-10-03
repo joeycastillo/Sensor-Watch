@@ -25,10 +25,8 @@
 #ifndef PREFERENCES_FACE_H_
 #define PREFERENCES_FACE_H_
 
-#include "movement.h"
-
 /*
- * PREFERENCES FACE
+ * PREFERENCES face
  *
  * The Preferences watch face allows you to configure various options on your
  * Sensor Watch. Like all other screens, you advance the field you’re setting
@@ -76,6 +74,8 @@
  *      you’ll have red, blue and a variety of shades of pink and purple to
  *      experiment with!
  */
+
+#include "movement.h"
 
 void preferences_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
 void preferences_face_activate(movement_settings_t *settings, void *context);

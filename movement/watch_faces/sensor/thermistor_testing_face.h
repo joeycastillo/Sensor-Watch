@@ -25,8 +25,6 @@
 #ifndef THERMISTOR_TESTING_FACE_H_
 #define THERMISTOR_TESTING_FACE_H_
 
-#include "movement.h"
-
 /*
  * THERMISTOR TESTING FACE
  *
@@ -37,6 +35,8 @@
  *
  * Press ALARM to toggle display of metric vs. imperial units.
  */
+
+#include "movement.h"
 
 void thermistor_testing_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
 void thermistor_testing_face_activate(movement_settings_t *settings, void *context);

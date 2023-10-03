@@ -25,9 +25,8 @@
 #ifndef TACHYMETER_FACE_H_
 #define TACHYMETER_FACE_H_
 
-#include "movement.h"
-
-/* TACHYMETER FACE
+/*
+ * TACHYMETER face
  *
  * The Tachymeter complication emulates the tachymeter function often
  * present in watches, that computes the average speed in [units per hour]
@@ -68,6 +67,8 @@
  *   if the same idea is used for the total time (showing hundredths),
  *   this limits the display to 9999.99 seconds (~2h:45m).
  */
+
+#include "movement.h"
 
 typedef struct {
     uint8_t thousands: 4;   // 0-9 (must wrap at 10)

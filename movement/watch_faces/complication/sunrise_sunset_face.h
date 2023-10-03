@@ -25,9 +25,8 @@
 #ifndef SUNRISE_SUNSET_FACE_H_
 #define SUNRISE_SUNSET_FACE_H_
 
-#include "movement.h"
-
-/* SUNRISE & SUNSET FACE
+/*
+ * SUNRISE & SUNSET FACE
  *
  * The Sunrise/Sunset face is designed to display the next sunrise or sunset
  * for a given location. It also functions as an interface for setting the
@@ -36,6 +35,8 @@
  * Refer to the wiki for usage instructions:
  *  https://www.sensorwatch.net/docs/watchfaces/complication/#sunrisesunset
  */
+
+#include "movement.h"
 
 typedef struct {
     uint8_t sign: 1;    // 0-1

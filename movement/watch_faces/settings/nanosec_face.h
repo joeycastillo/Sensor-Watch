@@ -25,10 +25,8 @@
 #ifndef NANOSEC_FACE_H_
 #define NANOSEC_FACE_H_
 
-#include "movement.h"
-
 /*
- * NANOSEC FACE
+ * NANOSEC face
  *
  * The goal of nanosec face is dramatic improvement of SensorWatch accuracy.
  * Minimum goal is <60 seconds of error per year. Full success is if we can
@@ -67,6 +65,8 @@
  * For full usage instructions, please refer to the wiki:
  *  https://www.sensorwatch.net/docs/watchfaces/nanosec/
  */
+
+#include "movement.h"
 
 #define nanosec_profile_count 5
 typedef struct {

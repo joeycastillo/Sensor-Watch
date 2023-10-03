@@ -25,8 +25,6 @@
 #ifndef FREQUENCY_CORRECTION_FACE_H_
 #define FREQUENCY_CORRECTION_FACE_H_
 
-#include "movement.h"
-
 /*
  * FREQUENCY CORRECTION FACE
  *
@@ -38,6 +36,8 @@
  * register. This setting varies from -127 to +127. Press LIGHT to increment
  * or ALARM to decrement the setting.
  */
+
+#include "movement.h"
 
 typedef struct {
     uint8_t period_event_output;

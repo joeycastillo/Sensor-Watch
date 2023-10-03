@@ -25,8 +25,6 @@
 #ifndef CALCULATOR_FACE_H_
 #define CALCULATOR_FACE_H_
 
-#include "movement.h"
-
 /* 
  * RPN Calculator alternate face.
  *
@@ -60,6 +58,8 @@
  *
  * See 'functions' in "rpn_calculator_alt_face.c" for names of all operations.
  */
+
+#include "movement.h"
 
 #define CALC_MAX_STACK_SIZE 20
 

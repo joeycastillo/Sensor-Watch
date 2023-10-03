@@ -24,16 +24,11 @@
  * SOFTWARE.
  */
 
-//-----------------------------------------------------------------------------
-
 #ifndef SAILING_FACE_H_
 #define SAILING_FACE_H_
 
-#include "movement.h"
-
 /*
- * SAILING FACE
- *
+ * SAILING face
  * Implements a sailing timer.
  *
  * Usage:
@@ -64,6 +59,8 @@
  * - Bell+Signal: Sound at each minute, at 30s and at 10s countdown.
  * - No indicator: No sound.
  */
+
+#include "movement.h"
 
 typedef enum {
     sl_waiting,

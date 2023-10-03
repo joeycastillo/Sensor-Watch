@@ -27,10 +27,8 @@
 #ifndef ALARM_FACE_H_
 #define ALARM_FACE_H_
 
-#include "movement.h"
-
 /*
- * ALARM FACE
+ * ALARM face
  *
  * Implements up to 16 alarm slots on the sensor watch
  *
@@ -55,6 +53,8 @@
  *    - The simple watch face indicates if any alarm is set within the next 24h by showing the signal
  *      indicator.
  */
+
+#include "movement.h"
 
 #define ALARM_ALARMS 16     // no of available alarm slots (be aware: only 4 bits reserved for this value in struct below)
 #define ALARM_DAY_STATES 11 // no of different day settings
