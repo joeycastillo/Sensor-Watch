@@ -27,8 +27,15 @@
 
 #include "movement.h"
 
-// The Sunrise/Sunset face is designed to display the next sunrise or sunset for a given location.
-// TODO: It also functions as an interface for setting the location register, which other watch faces can use for various purposes.
+/* SUNRISE & SUNSET FACE
+ *
+ * The Sunrise/Sunset face is designed to display the next sunrise or sunset
+ * for a given location. It also functions as an interface for setting the
+ * location register, which other watch faces can use for various purposes.
+ *
+ * Refer to the wiki for usage instructions:
+ *  https://www.sensorwatch.net/docs/watchfaces/complication/#sunrisesunset
+ */
 
 typedef struct {
     uint8_t sign: 1;    // 0-1

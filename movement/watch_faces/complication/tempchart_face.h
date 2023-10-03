@@ -25,6 +25,13 @@
 #ifndef TEMPCHART_FACE_H_
 #define TEMPCHART_FACE_H_
 
+/*
+ * TEMPERATURE CHART
+ *
+ * Stores temperature measurements on an hourly basis.
+ * Intended to allow improvements in watch precision in future generations.
+ */
+
 #include "movement.h"
 
 void tempchart_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);

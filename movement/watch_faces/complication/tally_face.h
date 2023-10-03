@@ -27,9 +27,15 @@
 
 #include "movement.h"
 
-// Tally face is designed to act as a tally counter.
-// Based on the counter_face watch face by Shogo Okamoto.
-// To advance the counter, press the Alarm button. To reset, long press the Alarm button.
+/*
+ * TALLY FACE
+ *
+ * Tally face is designed to act as a tally counter.
+ * Based on the counter_face watch face by Shogo Okamoto.
+ *
+ * To advance the counter, press the ALARM button.
+ * To reset, long press the ALARM button.
+ */
 
 typedef struct {
     uint32_t tally_idx;

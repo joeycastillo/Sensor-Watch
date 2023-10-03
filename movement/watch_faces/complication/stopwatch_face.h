@@ -28,6 +28,17 @@
 
 #include "movement.h"
 
+/*
+ * STOPWATCH FACE
+ *
+ * The Stopwatch face provides basic stopwatch functionality: you can start
+ * and stop the stopwatch with the alarm button. Pressing the light button
+ * when the timer is stopped resets it.
+ *
+ * This face does not count sub-seconds.
+ * See also: "stock_stopwatch_face.h"
+ */
+
 typedef struct {
     bool running;
     watch_date_time start_time; // while running, show the difference between this time and now
