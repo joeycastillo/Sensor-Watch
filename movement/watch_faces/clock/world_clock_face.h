@@ -26,6 +26,28 @@
 #define WORLD_CLOCK_FACE_H_
 
 #include "movement.h"
+
+/*
+ * WORLD CLOCK FACE
+ *
+ * The World Clock watch face looks similar to the Simple Clock watch face,
+ * but you’ll notice that at first launch the day of week indicators are blank.
+ * That’s because this watch face does not display the day of the week.
+ * Instead, you may customize these letters to display the name of a time zone
+ * of your choosing.
+ *
+ * To customize this watch face, press and hold the ALARM button. The first
+ * letter in the top row will begin flashing. Press the ALARM button repeatedly
+ * to advance through the available letters in the first slot, then press the
+ * LIGHT button to move to the second letter. Finally, press LIGHT again to move
+ * to the time zone setting, and press ALARM to cycle through the available time
+ * zones. Press LIGHT one last time to return to the world clock display.
+ *
+ * Note that the second slot cannot display all letters or numbers. Also note
+ * that at this time, time zones do not automatically update for daylight saving
+ * time; you will need to manually adjust this field each spring and fall.
+ */
+
 typedef union {
     struct {
         uint8_t char_0;

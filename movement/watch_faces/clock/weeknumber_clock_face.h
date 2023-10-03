@@ -27,6 +27,14 @@
 
 #include "movement.h"
 
+/*
+ * WEEK-NUMBER WATCH FACE
+ *
+ * Same as simple clock, but has iso 8601 week number instead of seconds counter.
+ *
+ * Long-press ALARM to toggle the hourly chime.
+ */
+
 typedef struct {
     uint32_t previous_date_time;
     uint8_t last_battery_check;

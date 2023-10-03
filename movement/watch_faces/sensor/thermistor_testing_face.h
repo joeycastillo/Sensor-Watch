@@ -27,6 +27,17 @@
 
 #include "movement.h"
 
+/*
+ * THERMISTOR TESTING FACE
+ *
+ * This watch face is designed for testing temperature sensor boards.
+ * It displays temperature readings at a relatively fast rate of 8 Hz,
+ * and disables low energy mode so my testing device doesn't sleep.
+ * You more than likely want to use thermistor_readout_face instead.
+ *
+ * Press ALARM to toggle display of metric vs. imperial units.
+ */
+
 void thermistor_testing_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
 void thermistor_testing_face_activate(movement_settings_t *settings, void *context);
 bool thermistor_testing_face_loop(movement_event_t event, movement_settings_t *settings, void *context);

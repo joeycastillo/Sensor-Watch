@@ -27,6 +27,13 @@
 
 #include "movement.h"
 
+/*
+ * HELLO THERE FACE
+ *
+ * A simple demo that displays the word "Hello" and then the word "there",
+ * on an endless loop. Press ALARM to pause or resume the animation.
+ */
+
 typedef struct {
     uint8_t current_word;
     bool animating;

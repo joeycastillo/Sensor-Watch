@@ -27,6 +27,17 @@
 
 #include "movement.h"
 
+/*
+ * VOLTAGE FACE
+ *
+ * This watch face is very simple and has no controls to speak of. It displays
+ * the battery voltage as measured by the SAM L22’s ADC.
+ *
+ * Note that the Simple Clock watch face includes a low battery warning, so you
+ * don’t technically need to this watch face unless you want to track the
+ * battery level.
+ */
+
 void voltage_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
 void voltage_face_activate(movement_settings_t *settings, void *context);
 bool voltage_face_loop(movement_event_t event, movement_settings_t *settings, void *context);

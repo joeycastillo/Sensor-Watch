@@ -1,7 +1,42 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2023 Curtis J. Brown <mrbrown8@juno.com>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 #ifndef BEATS_FACE_H_
 #define BEATS_FACE_H_
 
 #include "movement.h"
+
+/*
+ * BEATS TIME FACE
+ *
+ * The Beat Time face displays the current Swatch Internet Time, or .beat time.
+ * This is a decimal time system that divides the day into 1000 beats.
+ *
+ * The three large digits in the bottom row indicate the current beat, and the
+ * two smaller digits (normally the seconds in Simple Clock) indicate the
+ * fractional beat; so for example you can read “67214” as “beat 672.14”.
+ */
 
 typedef struct {
     int8_t next_subsecond_update;

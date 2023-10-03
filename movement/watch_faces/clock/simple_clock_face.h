@@ -27,6 +27,15 @@
 
 #include "movement.h"
 
+/*
+ * SIMPLE CLOCK FACE
+ *
+ * Displays the current time, matching the original operation of the watch.
+ * This is the default display mode in most watch configurations.
+ *
+ * Long-press ALARM to toggle the hourly chime.
+ */
+
 typedef struct {
     uint32_t previous_date_time;
     uint8_t last_battery_check;

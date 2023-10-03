@@ -28,6 +28,14 @@
 #include "movement.h"
 #include "watch.h"
 
+/*
+ * LIS2DW Accelerometer Data Logger
+ *
+ * This is an experimental watch face for logging data on the “Sensor Watch
+ * Motion Express” board. I will add more documentation for this watch face
+ * once this sensor board is more widely available.
+ */
+
 #define LIS2DW_LOGGING_NUM_DATA_POINTS (96)
 
 typedef struct {

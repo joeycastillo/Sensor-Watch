@@ -27,6 +27,32 @@
 
 #include "movement.h"
 
+/*
+ * MARS TIME FACE
+ *
+ * This watch face is dedicated to Martian timekeeping.
+ * It has several modes, and can display either a time or a date.
+ *
+ * Pressing the ALARM button cycles through different time zones on Mars:
+ *   MC - Mars Coordinated Time, the time at Airy-0 Crater on the Martian prime meridian
+ *   ZH - Local mean solar time for the Zhurong rover
+ *   PE - LMST for the Perseverance rover
+ *   IN - LMST for the Insight lander
+ *   CU - LMST for the Curiosity rover
+ *
+ * Press the LIGHT button to toggle between displaying time and date:
+ *   MC S - the Mars Sol Date, Martian days since December 29, 1873
+ *   ZH Sol - Mission sol for the Zhurong rover
+ *   PE Sol - Mission sol for the Perseverance rover
+ *   IN S - Mission sol for the InSight lander
+ *   CU S - Mission sol for the Curiosity rover
+ *
+ * Note that where the mission sol is below 1000, this watch face displays
+ * the word “Sol” on the bottom line. When the mission sol is over 1000, the
+ * word “Sol” will not fit and so it displays a stylized letter S at the top
+ * right.
+ */
+
 typedef enum {
     MARS_TIME_MERIDIAN,
     MARS_TIME_ZHURONG_SITE,
