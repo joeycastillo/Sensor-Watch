@@ -27,6 +27,16 @@
 
 #include "movement.h"
 
+/*
+ * RATE METER
+ *
+ * The rate meter shows the rate per minute at which the ALARM button is
+ * being pressed. This is particularly useful in sports where cadence
+ * tracking is useful. For instance, rowing coaches often use a dedicated
+ * rate meter - clicking the rate button each time the crew puts their oars
+ * in the water to see the rate (strokes per minute) on the rate meter.
+ */
+
 typedef struct {
     int16_t rate;
     int16_t ticks;
