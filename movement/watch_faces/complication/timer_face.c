@@ -30,8 +30,36 @@
 #include "watch.h"
 #include "watch_utility.h"
 
-// default timers: 5 min, 10 min, 15 min, 30 min, 45 min, 60 min, 75 min
-static const uint16_t _default_timer_values[] = {0x500, 0xA00, 0xF00, 0x1E00, 0x2D02, 0x3C02, 0x4B02};
+// static const uint16_t _default_timer_values[] = {0x200, 0x500, 0xA00, 0x1400, 0x2D02}; // default timers: 2 min, 5 min, 10 min, 20 min, 2 h 45 min
+
+/*
+ * Timer Settings Values Explanation:
+ *
+ * The timer_setting_t union defines a structure of hours, minutes, seconds, and a repeat flag.
+ * Given the little-endian architecture, the memory layout is:
+ * [repeat + 7 bits padding][seconds][minutes][hours]
+ *
+ * To define new timer values:
+ * 1. Convert the desired hours and minutes to hexadecimal.
+ * 2. Construct the uint16_t value by placing the minutes in the higher byte and the hours in the lower byte.
+ *
+ * Example: For 1 hour 15 minutes:
+ * - Hours: 1 (0x01 in hex)
+ * - Minutes: 15 (0x0F in hex)
+ * Resulting uint16_t: 0x0F01
+ *
+ * The following default timer values represent:
+ * - 2 minutes:        0x0200
+ * - 5 minutes:        0x0500
+ * - 10 minutes:       0x0A00
+ * - 15 minutes:       0x0F00
+ * - 30 minutes:       0x1E00
+ * - 45 minutes:       0x2D00
+ * - 1 hour:           0x0001
+ * - 1 hour 15 minutes: 0x0F01
+ */
+
+static const uint16_t _default_timer_values[] = {0x0200, 0x0500, 0x0A00, 0x0F00, 0x1E00, 0x2D00, 0x0001, 0x0F01};
 
 // sound sequence for a single beeping sequence
 static const int8_t _sound_seq_beep[] = {BUZZER_NOTE_C8, 3, BUZZER_NOTE_REST, 3, -2, 2, BUZZER_NOTE_C8, 5, BUZZER_NOTE_REST, 25, 0};
