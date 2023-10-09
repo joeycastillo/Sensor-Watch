@@ -28,9 +28,10 @@
 #include "movement.h"
 
 /*
- * A DESCRIPTION OF YOUR WATCH FACE
+ * Periodic Table Face
  *
- * and a description of how use it
+ * Elements can be viewed sequentially with a short press of the alarm button,
+ * or the atomic number can be input directly after holding down the alarm button.
  *
  */
 
@@ -38,7 +39,6 @@
 #define MODE_SELECT 1
 
 typedef struct {
-    // Anything you need to keep track of, put it here!
     uint8_t atomic_num;
     uint8_t mode;
     uint8_t selection_index;

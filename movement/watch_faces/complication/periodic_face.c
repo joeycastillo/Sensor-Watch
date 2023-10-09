@@ -33,9 +33,7 @@ void periodic_face_setup(movement_settings_t *settings, uint8_t watch_face_index
     {
         *context_ptr = malloc(sizeof(periodic_state_t));
         memset(*context_ptr, 0, sizeof(periodic_state_t));
-        // Do any one-time tasks in here; the inside of this conditional happens only at boot.
     }
-    // Do any pin or peripheral setup here; this will be called whenever the watch wakes from deep sleep.
 }
 
 void periodic_face_activate(movement_settings_t *settings, void *context)
@@ -43,7 +41,6 @@ void periodic_face_activate(movement_settings_t *settings, void *context)
     (void)settings;
     periodic_state_t *state = (periodic_state_t *)context;
 
-    // Handle any tasks related to your watch face coming on screen.
     state->atomic_num = 1;
     state->mode = 0;
     state->selection_index = 0;
@@ -58,6 +55,7 @@ typedef struct
     char group[3];
 } element;
 
+// Comments on the table denote symbols that cannot be displayed
 #define MAX_ELEMENT 118
 const element table[MAX_ELEMENT] = {
     {"H ", 1, "  "},
@@ -125,7 +123,7 @@ const element table[MAX_ELEMENT] = {
     {"Eu", 152, "La"},
     {"Gd", 157, "La"},
     {"Tb", 159, "La"},
-    {"Dy", 163, "La"}, // Both
+    {"Dy", 163, "La"}, // .5 Rounded up due to space constraints
     {"Ho", 165, "La"},
     {"Er", 167, "La"},
     {"Tm", 169, "La"},
@@ -180,6 +178,7 @@ const element table[MAX_ELEMENT] = {
     {"Og", 294, " 0"}, //
 };
 
+// Warning light for symbols that can't be displayed
 static void _warning(periodic_state_t *state)
 {
     char second_char = table[state->atomic_num - 1].name[1];
@@ -193,6 +192,7 @@ static void _warning(periodic_state_t *state)
     }
 }
 
+// Regular mode display
 static void _periodic_face_update_lcd(periodic_state_t *state)
 {
     // Colon as a decimal for Cl & Cu
@@ -212,12 +212,14 @@ static void _periodic_face_update_lcd(periodic_state_t *state)
     watch_display_string(buf, 0);
 }
 
+// Selection mode logic
 static void _periodic_face_selection_increment(periodic_state_t *state)
 {
     uint8_t digit0 = (state->atomic_num / 100) % 10;
     uint8_t digit1 = (state->atomic_num / 10) % 10;
     uint8_t digit2 = (state->atomic_num) % 10;
 
+    // Increment the selected digit by 1
     switch (state->selection_index)
     {
     case 0:
@@ -237,12 +239,12 @@ static void _periodic_face_selection_increment(periodic_state_t *state)
         break;
     }
 
-// Prevent 000
+    // Prevent 000
     if (digit0 == 0 && digit1 == 0 && digit2 == 0) {
         digit2 = 1;
     }
 
-    // Prevent overflow
+    // Prevent Overflow
     if (digit0 == (MAX_ELEMENT / 100) % 10 && digit1 > (MAX_ELEMENT / 10) % 10)
     {
         digit2 = MAX_ELEMENT % 10;
@@ -252,6 +254,7 @@ static void _periodic_face_selection_increment(periodic_state_t *state)
     state->atomic_num = digit0 * 100 + digit1 * 10 + digit2;
 }
 
+// Selection mode display
 static void _periodic_face_selection(periodic_state_t *state, uint8_t subsec)
 {
     uint8_t digit0 = (state->atomic_num / 100) % 10;
@@ -285,20 +288,16 @@ bool periodic_face_loop(movement_event_t event, movement_settings_t *settings, v
     switch (event.event_type)
     {
     case EVENT_ACTIVATE:
-        // Show your initial UI here.
         _periodic_face_update_lcd(state);
         break;
     case EVENT_TICK:
-        // If needed, update your display here.
         if (state->mode != 0)
         {
             _periodic_face_selection(state, event.subsecond % 2);
         }
         break;
     case EVENT_LIGHT_BUTTON_UP:
-        // You can use the Light button for your own purposes. Note that by default, Movement will also
-        // illuminate the LED in response to EVENT_LIGHT_BUTTON_DOWN; to suppress that behavior, add an
-        // empty case for EVENT_LIGHT_BUTTON_DOWN.
+        // Only light LED when in regular mode
         if (state->mode != MODE_VIEW)
         {
             state->selection_index = (state->selection_index + 1) % 3;
@@ -310,7 +309,6 @@ bool periodic_face_loop(movement_event_t event, movement_settings_t *settings, v
             movement_illuminate_led();
         break;
     case EVENT_ALARM_BUTTON_UP:
-        // Just in case you have need for another button.
         if (state->mode == MODE_VIEW)
         {
             state->atomic_num = (state->atomic_num % MAX_ELEMENT) + 1; // Wraps back to 1
@@ -323,6 +321,7 @@ bool periodic_face_loop(movement_event_t event, movement_settings_t *settings, v
         }
         break;
     case EVENT_ALARM_LONG_PRESS:
+        // Toggle between selection mode and regular
         if (state->mode == MODE_VIEW)
         {
             state->mode = MODE_SELECT;
@@ -335,31 +334,13 @@ bool periodic_face_loop(movement_event_t event, movement_settings_t *settings, v
         }
         break;
     case EVENT_TIMEOUT:
-        // Your watch face will receive this event after a period of inactivity. If it makes sense to resign,
-        // you may uncomment this line to move back to the first watch face in the list:
-        // movement_move_to_face(0);
         break;
     case EVENT_LOW_ENERGY_UPDATE:
-        // If you did not resign in EVENT_TIMEOUT, you can use this event to update the display once a minute.
-        // Avoid displaying fast-updating values like seconds, since the display won't update again for 60 seconds.
-        // You should also consider starting the tick animation, to show the wearer that this is sleep mode:
-        // watch_start_tick_animation(500);
         break;
     default:
-        // Movement's default loop handler will step in for any cases you don't handle above:
-        // * EVENT_LIGHT_BUTTON_DOWN lights the LED
-        // * EVENT_MODE_BUTTON_UP moves to the next watch face in the list
-        // * EVENT_MODE_LONG_PRESS returns to the first watch face (or skips to the secondary watch face, if configured)
-        // You can override any of these behaviors by adding a case for these events to this switch statement.
         return movement_default_loop_handler(event, settings);
     }
 
-    // return true if the watch can enter standby mode. Generally speaking, you should always return true.
-    // Exceptions:
-    //  * If you are displaying a color using the low-level watch_set_led_color function, you should return false.
-    //  * If you are sounding the buzzer using the low-level watch_set_buzzer_on function, you should return false.
-    // Note that if you are driving the LED or buzzer using Movement functions like movement_illuminate_led or
-    // movement_play_alarm, you can still return true. This guidance only applies to the low-level watch_ functions.
     return true;
 }
 
