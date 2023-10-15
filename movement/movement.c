@@ -33,6 +33,7 @@
 #include "watch.h"
 #include "filesystem.h"
 #include "movement.h"
+#include "shell.h"
 
 #ifndef MOVEMENT_FIRMWARE
 #include "movement_config.h"
@@ -538,30 +539,9 @@ bool app_loop(void) {
         }
     }
 
-    // if we are plugged into USB, handle the file browser tasks
+    // if we are plugged into USB, handle the serial shell
     if (watch_is_usb_enabled()) {
-        char line[256] = {0};
-#if __EMSCRIPTEN__
-        // This is a terrible hack; ideally this should be handled deeper in the watch library.
-        // Alas, emscripten treats read() as something that should pop up an input box, so I
-        // wasn't able to implement this over there. I sense that this relates to read() being
-        // the wrong way to read data from USB (like we should be using fgets or something), but
-        // until I untangle that, this will have to do.
-        char *received_data = (char*)EM_ASM_INT({
-            var len = lengthBytesUTF8(tx) + 1;
-            var s = _malloc(len);
-            stringToUTF8(tx, s, len);
-            return s;
-        });
-        memcpy(line, received_data, min(255, strlen(received_data)));
-        free(received_data);
-        EM_ASM({
-            tx = "";
-        });
-#else
-        read(0, line, 256);
-#endif
-        if (strlen(line)) filesystem_process_command(line);
+        shell_task();
     }
 
     event.subsecond = 0;
@@ -633,13 +613,13 @@ void cb_fast_tick(void) {
     // Notice: is it possible that two or more buttons have an identical timestamp? In this case
     // only one of these buttons would receive the long press event. Don't bother for now...
     if (movement_state.light_down_timestamp > 0)
-        if (movement_state.fast_ticks - movement_state.light_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1) 
+        if (movement_state.fast_ticks - movement_state.light_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1)
             event.event_type = EVENT_LIGHT_LONG_PRESS;
     if (movement_state.mode_down_timestamp > 0)
-        if (movement_state.fast_ticks - movement_state.mode_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1) 
+        if (movement_state.fast_ticks - movement_state.mode_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1)
             event.event_type = EVENT_MODE_LONG_PRESS;
     if (movement_state.alarm_down_timestamp > 0)
-        if (movement_state.fast_ticks - movement_state.alarm_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1) 
+        if (movement_state.fast_ticks - movement_state.alarm_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1)
             event.event_type = EVENT_ALARM_LONG_PRESS;
     // this is just a fail-safe; fast tick should be disabled as soon as the button is up, the LED times out, and/or the alarm finishes.
     // but if for whatever reason it isn't, this forces the fast tick off after 20 seconds.

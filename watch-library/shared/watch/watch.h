@@ -88,6 +88,10 @@ bool watch_is_usb_enabled(void);
   */
 void watch_reset_to_bootloader(void);
 
+/** @brief Call periodically from app main loop to service CDC RX/TX.
+  */
+void cdc_task(void);
+
 /** @brief Reads up to len bytes from the USB serial.
   * @param file ignored, you can pass in 0
   * @param ptr pointer to a buffer of at least len bytes
