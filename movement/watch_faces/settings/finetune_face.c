@@ -39,6 +39,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 #include <math.h>
 #include "finetune_face.h"
 #include "nanosec_face.h"
@@ -197,7 +198,14 @@ bool finetune_face_loop(movement_event_t event, movement_settings_t *settings, v
                 finetune_adjust_subseconds(250);
             } else if (finetune_page == 2 && finetune_get_hours_passed() >= 6) {
                 // Applying ppm correction, only if >6 hours passed
-                nanosec_state.freq_correction += (int)round(finetune_get_correction() * 100);
+                int32_t f = nanosec_state.freq_correction + (int)round(finetune_get_correction() * 100);
+                if (f > SHRT_MAX) {
+                        nanosec_state.freq_correction = SHRT_MAX;
+                } else if (f < SHRT_MIN) {
+                        nanosec_state.freq_correction = SHRT_MIN;
+                } else {
+                        nanosec_state.freq_correction = f;
+                }
                 finetune_update_correction_time();
             }
             break;
