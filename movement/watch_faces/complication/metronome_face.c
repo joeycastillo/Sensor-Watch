@@ -224,6 +224,7 @@ bool metronome_face_loop(movement_event_t event, movement_settings_t *settings, 
             } else {
                 movement_move_to_next_face();
             }
+            break;
         case EVENT_TIMEOUT:
             if (state->mode != metRun) {
                 movement_move_to_face(0);
