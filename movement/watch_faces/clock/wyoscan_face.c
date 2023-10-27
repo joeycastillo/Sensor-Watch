@@ -102,10 +102,9 @@ void wyoscan_face_setup(movement_settings_t *settings, uint8_t watch_face_index,
 }
 
 void wyoscan_face_activate(movement_settings_t *settings, void *context) {
-    (void) settings;
     wyoscan_state_t *state = (wyoscan_state_t *)context;
-    movement_request_tick_frequency(32);
-    state->total_frames = 64;
+    state->prev_le_interval = settings->bit.le_interval;
+    settings->bit.le_interval = 0;
 }
 
 bool wyoscan_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
@@ -202,9 +201,7 @@ bool wyoscan_face_loop(movement_event_t event, movement_settings_t *settings, vo
 }
 
 void wyoscan_face_resign(movement_settings_t *settings, void *context) {
-    (void) settings;
-    (void) context;
-
-    // handle any cleanup before your watch face goes off-screen.
+    wyoscan_state_t *state = (wyoscan_state_t *)context;
+    settings->bit.le_interval = state->prev_le_interval;
 }
 
