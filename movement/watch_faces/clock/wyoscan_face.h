@@ -52,6 +52,7 @@ typedef struct {
     uint8_t position, segment;
     char *segments;
     uint8_t x, y;
+    uint8_t prev_le_interval;
     uint32_t time_digits[6];
     uint32_t illuminated_segments[MAX_ILLUMINATED_SEGMENTS][2]; 
 } wyoscan_state_t;
