@@ -36,7 +36,9 @@
 
 #define MAX_ILLUMINATED_SEGMENTS 16
 
-typedef struct {
+typedef struct wyoscan_state wyoscan_state_t;
+
+struct wyoscan_state {
     uint32_t previous_date_time;
     uint8_t last_battery_check;
     uint8_t watch_face_index;
@@ -55,7 +57,8 @@ typedef struct {
     uint8_t prev_le_interval;
     uint32_t time_digits[6];
     uint32_t illuminated_segments[MAX_ILLUMINATED_SEGMENTS][2]; 
-} wyoscan_state_t;
+    void (*convert_time)(wyoscan_state_t *, uint8_t);
+};
 
 void wyoscan_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
 void wyoscan_face_activate(movement_settings_t *settings, void *context);

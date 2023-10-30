@@ -72,6 +72,21 @@ static char *segment_map[] = {
     "AFGBXXCD"   // 9
 };
 
+static void convert_to_12h(wyoscan_state_t *state, uint8_t hour) {
+    if (hour == 0) {
+        hour = 12;
+    } else if (hour > 12) {
+        hour -= 12;
+    }
+    state->time_digits[0] = hour / 10;
+    state->time_digits[1] = hour % 10;
+}
+
+static void convert_to_24h(wyoscan_state_t *state, uint8_t hour) {
+    state->time_digits[0] = hour / 10;
+    state->time_digits[1] = hour % 10;
+}
+
 /*
 This is the mapping of input to the watch_set_pixel() function
 for each position in hhmmss it defines the 2 dimention input at each of A-F*/
@@ -107,6 +122,7 @@ void wyoscan_face_activate(movement_settings_t *settings, void *context) {
     state->total_frames = 64;
     state->prev_le_interval = settings->bit.le_interval;
     settings->bit.le_interval = 0;
+    state->convert_time = settings->bit.clock_mode_24h ? convert_to_24h : convert_to_12h;
 }
 
 bool wyoscan_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
@@ -123,8 +139,7 @@ bool wyoscan_face_loop(movement_event_t event, movement_settings_t *settings, vo
                 state->end = 0;
                 state->animation = 0;
                 state->animate = true;
-                state->time_digits[0] = date_time.unit.hour / 10;
-                state->time_digits[1] = date_time.unit.hour % 10;
+                state->convert_time(state, date_time.unit.hour);
                 state->time_digits[2] = date_time.unit.minute / 10;
                 state->time_digits[3] = date_time.unit.minute % 10;
                 state->time_digits[4] = date_time.unit.second / 10;
