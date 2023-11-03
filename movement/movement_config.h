@@ -41,13 +41,22 @@ const watch_face_t watch_faces[] = {
 
 #define MOVEMENT_NUM_FACES (sizeof(watch_faces) / sizeof(watch_face_t))
 
-/* Determines what face to go to from the first face on long press of the Mode button.
- * Also excludes these faces from the normal rotation.
- * In the default firmware, this lets you access temperature and battery voltage with a long press of Mode.
- * Some folks also like to use this to hide the preferences and time set faces from the normal rotation.
- * If you don't want any faces to be excluded, set this to 0 and a long Mode press will have no effect.
+/* This allows you to set up multiple "pages" of faces. Pressing the mode
+ * button will move through the faces in the current page, and long-pressing
+ * mode from the first face on a page will jump to the next page. Pressing mode
+ * at the end of a page or long-pressing mode on a face that isn't at the start
+ * of a page will return you to the initial page.
+ *
+ * This allows you to quickly cycle through the faces that are important to
+ * you, while hiding and organizing lesser-used faces behind long-presses of
+ * the mode button.
+ *
+ * By default, temperature and battery voltage are on the second page, but you
+ * can set this to { 0 } if you don't want to hide any faces.
  */
-#define MOVEMENT_SECONDARY_FACE_INDEX (MOVEMENT_NUM_FACES - 2) // or (0)
+const uint8_t movement_pages[] = { 0, MOVEMENT_NUM_FACES - 2 };
+
+#define MOVEMENT_NUM_PAGES (sizeof(movement_pages) / sizeof(*movement_pages))
 
 /* Custom hourly chime tune. Check movement_custom_signal_tunes.h for options */
 #define SIGNAL_TUNE_DEFAULT
