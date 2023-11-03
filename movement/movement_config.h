@@ -51,12 +51,16 @@ const watch_face_t watch_faces[] = {
  * you, while hiding and organizing lesser-used faces behind long-presses of
  * the mode button.
  *
- * By default, temperature and battery voltage are on the second page, but you
- * can set this to { 0 } if you don't want to hide any faces.
+ * By default, the second page of faces (temperature and battery voltage) are
+ * hidden using MOVEMENT_HIDDEN_FACES_INDEX. If you just want a simple list of
+ * faces instead of having some hidden, you can set movement_pages to { 0 } and
+ * MOVEMENT_HIDDEN_FACES_INDEX to 0.
  */
 const uint8_t movement_pages[] = { 0, MOVEMENT_NUM_FACES - 2 };
 
 #define MOVEMENT_NUM_PAGES (sizeof(movement_pages) / sizeof(*movement_pages))
+
+#define MOVEMENT_HIDDEN_FACES_INDEX MOVEMENT_NUM_FACES - 2
 
 /* Custom hourly chime tune. Check movement_custom_signal_tunes.h for options */
 #define SIGNAL_TUNE_DEFAULT

@@ -249,13 +249,13 @@ void movement_move_to_face(uint8_t watch_face_index) {
 }
 
 void movement_move_to_next_face(void) {
-    for (uint32_t i = 0; i < MOVEMENT_NUM_PAGES; i++) {
-        if ((movement_state.current_watch_face + 1) % MOVEMENT_NUM_FACES == movement_pages[i]) {
-            movement_move_to_face(0);
-            return;
-        }
+    uint16_t face_max;
+    if (MOVEMENT_HIDDEN_FACES_INDEX) {
+        face_max = (movement_state.current_watch_face < (int16_t)MOVEMENT_HIDDEN_FACES_INDEX) ? MOVEMENT_HIDDEN_FACES_INDEX : MOVEMENT_NUM_FACES;
+    } else {
+        face_max = MOVEMENT_NUM_FACES;
     }
-    movement_move_to_face(movement_state.current_watch_face + 1);
+    movement_move_to_face((movement_state.current_watch_face + 1) % face_max);
 }
 
 void movement_schedule_background_task(watch_date_time date_time) {
