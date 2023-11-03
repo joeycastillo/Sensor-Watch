@@ -62,6 +62,13 @@ const uint8_t movement_pages[] = { 0, MOVEMENT_NUM_FACES - 2 };
 
 #define MOVEMENT_HIDDEN_FACES_INDEX MOVEMENT_NUM_FACES - 2
 
+/* Setting this to true will make a long-press of the mode button always jump
+ * to the next page, instead of the default behaviour, which is only jumping to
+ * the next page if you are on the first face of a page. This is likely most
+ * useful if you have a large number of faces, but it has the downside that it
+ * can make returning to the first face more difficult. */
+#define MOVEMENT_MODE_LONGPRESS_ALWAYS_NEXT_PAGE false
+
 /* Custom hourly chime tune. Check movement_custom_signal_tunes.h for options */
 #define SIGNAL_TUNE_DEFAULT
 

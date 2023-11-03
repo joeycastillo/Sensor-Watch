@@ -228,9 +228,16 @@ bool movement_default_loop_handler(movement_event_t event, movement_settings_t *
             break;
         case EVENT_MODE_LONG_PRESS:
             for (uint32_t i = 0; i < MOVEMENT_NUM_PAGES; i++) {
-                if (movement_state.current_watch_face == movement_pages[i]) {
-                    movement_move_to_face(movement_pages[(i + 1) % MOVEMENT_NUM_PAGES]);
-                    return true;
+                if (MOVEMENT_MODE_LONGPRESS_ALWAYS_NEXT_PAGE) {
+                    if (movement_state.current_watch_face >= movement_pages[i] && movement_state.current_watch_face < movement_pages[(i + 1) % MOVEMENT_NUM_PAGES]) {
+                        movement_move_to_face(movement_pages[(i + 1) % MOVEMENT_NUM_PAGES]);
+                        return true;
+                    }
+                } else {
+                    if (movement_state.current_watch_face == movement_pages[i]) {
+                        movement_move_to_face(movement_pages[(i + 1) % MOVEMENT_NUM_PAGES]);
+                        return true;
+                    }
                 }
             }
 
