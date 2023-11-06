@@ -118,6 +118,7 @@ SRCS += \
   ../watch_faces/complication/flashlight_face.c \
   ../watch_faces/clock/decimal_time_face.c \
   ../watch_faces/clock/wyoscan_face.c \
+  ../watch_faces/complication/proposal_face.c \
 # New watch faces go above this line.
 
 # Leave this line at the bottom of the file; it has all the targets for making your project.
