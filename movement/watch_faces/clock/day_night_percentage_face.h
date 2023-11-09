@@ -42,7 +42,12 @@
  * location register with some other face.
  */
 
-typedef struct {} day_night_percentage_state_t;
+typedef struct {
+    int result; // -1, 0, 1: result from sun_rise_set, -2: no location set
+    double rise;
+    double set;
+    double daylen;
+} day_night_percentage_state_t;
 
 void day_night_percentage_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
 void day_night_percentage_face_activate(movement_settings_t *settings, void *context);
