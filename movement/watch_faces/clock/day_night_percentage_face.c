@@ -92,8 +92,14 @@ bool day_night_percentage_face_loop(movement_event_t event, movement_settings_t 
                 break;
             }
 
+            const char* weekday = watch_utility_get_weekday(date_time);
             if (state->result != 0) {
-                sprintf(buf, "%s%2dEtrnal", state->result == 1 ? "DA" : "NI", date_time.unit.day);
+                if (state->result == 1) {
+                    watch_clear_indicator(WATCH_INDICATOR_PM);
+                } else {
+                    watch_set_indicator(WATCH_INDICATOR_PM);
+                }
+                sprintf(buf, "%s%2dEtrnal", weekday, date_time.unit.day);
                 watch_display_string(buf, 0);
             } else {
                 double day_hours_decimal = utc_now.unit.hour + (utc_now.unit.minute + (utc_now.unit.second / 60.0)) / 60.0;
@@ -102,19 +108,18 @@ bool day_night_percentage_face_loop(movement_event_t event, movement_settings_t 
                 double night_percentage = (24.0 - better_fmod(state->set - day_hours_decimal, 24.0)) / (24 - state->daylen);
 
                 uint16_t percentage;
-                char day_night[3];
                 if (day_percentage > 0.0 && day_percentage < 1.0) {
                     percentage = day_percentage * 10000;
-                    sprintf(day_night, "%s", "DA");
+                    watch_clear_indicator(WATCH_INDICATOR_PM);
                 } else {
                     percentage = night_percentage * 10000;
-                    sprintf(day_night, "%s", "NI");
+                    watch_set_indicator(WATCH_INDICATOR_PM);
                 }
                 if (event.event_type == EVENT_LOW_ENERGY_UPDATE) {
                     if (!watch_tick_animation_is_running()) watch_start_tick_animation(500);
-                    sprintf(buf, "%s%2d  %02d", day_night, date_time.unit.day, percentage / 100);
+                    sprintf(buf, "%s%2d  %02d", weekday, date_time.unit.day, percentage / 100);
                 } else {
-                    sprintf(buf, "%s%2d  %04d", day_night, date_time.unit.day, percentage);
+                    sprintf(buf, "%s%2d  %04d", weekday, date_time.unit.day, percentage);
                 }
                 watch_display_string(buf, 0);
             }

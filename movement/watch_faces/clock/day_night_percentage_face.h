@@ -32,11 +32,11 @@
  *
  * Shows the percentage of the way through the day/night the current time is.
  *
- * The weekday digits show "DA" or "NI" depending on whether it's currently day
- * or night. The day digits show what the current day of the month is. The time
- * digits show the percentage of the way through the day/night it is, with
- * decimals in the smaller seconds digits. If the day or night will last for a
- * full 24 hours, the text "Etrnal" is displayed instead of a percentage.
+ * The time digits show the percentage of the way through the day/night it is,
+ * with decimals in the smaller seconds digits. If the day or night will last
+ * for a full 24 hours, the text "Etrnal" is displayed instead of a percentage.
+ * The "PM" indicator is set when it is currently nighttime. The weekday and
+ * day digits display the weekday and day, as one would expect.
  *
  * This face does not currently offer any configuration. You must set the
  * location register with some other face.
