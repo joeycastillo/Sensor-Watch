@@ -30,6 +30,8 @@ const char * watch_utility_get_weekday(watch_date_time date_time) {
     static const char weekdays[7][3] = {"LU", "MA", "MI", "JU", "VI", "SA", "DO"};
 #elif defined(WATCH_LANGUAGE_GERMAN)
     static const char weekdays[7][3] = {"MO", "DI", "MI", "DO", "FR", "SA", "SO"};
+#elif defined(WATCH_LANGUAGE_MAORI)
+    static const char weekdays[7][3] = {"HI", "TU", "A ", "PA", "ME", "HO", "TA"};
 #else
     static const char weekdays[7][3] = {"MO", "TU", "WE", "TH", "FR", "SA", "SU"};
 #endif
