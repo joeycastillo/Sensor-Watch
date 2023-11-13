@@ -294,25 +294,7 @@ void movement_request_wake() {
 }
 
 void movement_play_signal(void) {
-    bool buzzer_enabled = watch_is_buzzer_or_led_enabled();
-    if (!buzzer_enabled) {
-        watch_enable_buzzer();
-    }
-    watch_buzzer_play_note(BUZZER_NOTE_C8, 75);
-    watch_buzzer_play_note(BUZZER_NOTE_REST, 100);
-    watch_buzzer_play_note(BUZZER_NOTE_C8, 100);
-    if (!buzzer_enabled) {
-        watch_disable_buzzer();
-    }
-}
-
-void movement_play_tune(void) {
-    if (!watch_is_buzzer_or_led_enabled()) {
-        watch_enable_buzzer();
-        watch_buzzer_play_sequence(signal_tune, watch_disable_buzzer);
-    } else {
-        watch_buzzer_play_sequence(signal_tune, NULL);
-    }
+    watch_buzzer_play_sequence(signal_tune, NULL);
 }
 
 void movement_play_alarm(void) {
