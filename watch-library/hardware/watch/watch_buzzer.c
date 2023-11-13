@@ -90,6 +90,15 @@ void watch_buzzer_play_sequence(int8_t *note_sequence, void (*callback_on_end)(v
     _tc3_start();
 }
 
+uint16_t sequence_length(int8_t *sequence) {
+    uint16_t result = 0;
+    int i = 0;
+    while (sequence[i++]) {
+        result += sequence[i++];
+    }
+    return result;
+}
+
 void cb_watch_buzzer_seq(void) {
     // callback for reading the note sequence
     if (_tone_ticks == 0) {
