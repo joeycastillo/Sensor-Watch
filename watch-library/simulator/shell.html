@@ -37,12 +37,13 @@
     .highlight { fill: #fff !important; }
     #skinselect label {
       display: inline-block;
-      padding: 8px;
+      padding: 4px;
       background-color: black;
       color: white;
       border-radius: 8px;
       border: 2px solid #0e57a9;
       outline: 4px solid black;
+      margin: 4px;
       cursor: pointer;
     }
     #skinselect #a158wea-label {
@@ -50,13 +51,16 @@
       color: black;
       border-color: black;
       outline-color: #b68855ff;
-
+    }
+    h2 {
+      margin: 8px 0;
+      font-size: 1em;
     }
     </style>
 </head>
 <body>
 
-<div style="max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; align-items: center;">
+<div style="max-width: 800px; min-width: 400px; margin: 0 auto; padding: 0 1em; display: flex; flex-direction: column; align-items: center;">
   <h1 style="text-align: center;">Sensor Watch Emulator</h1>
   <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1271 1311" width="320">
     <defs>
@@ -882,30 +886,40 @@
       </g>
     </g>
   </svg>
-  <table cellpadding="5">
-    <tr>
-      <td id="skinselect">
-        <input type="radio" id="f91w" name="skin" value="f91w" onclick="setSkin(this.value)" checked><label for="f91w">F-91W</label>
-        <input type="radio" name="skin" id="a158wea9" value="a158wea9" onclick="setSkin(this.value)"><label id="a158wea-label" for="a158wea9">A158WEA-9</label>
-      </td>
-      <td>
-        <a href="https://github.com/alexisphilip/Casio-F-91W">Original F-91W SVG</a> is &copy; 2020 Alexis Philip,<br>used here under the terms of the MIT license.
-      </td>
-      <td>
-        <label>Volume
-          <input id="volume" name="volume" type="range" min="0" max="100" step="1" oninput="setVolume(this.value)"/>
-        </label>
-      </td>
-    </tr>
-  </table>
-</div>
 
-<button onclick="getLocation()">Set location register (will prompt for access)</button>
-<br>
-<input id="input" style="width: 500px"></input>
-<button id="submit" onclick="sendText()">Send</button>
-<br>
-<textarea id="output" rows="8" style="width: 100%"></textarea>
+  <div style="display: grid; grid-template-columns: 80px 1fr; align-items: center; margin: 8px 0">
+    <h2>Skin</h2>
+    <div id="skinselect">
+      <input type="radio" name="skin" id="f91w" value="f91w" onclick="setSkin(this.value)" checked><label
+        for="f91w">F-91W</label>
+      <input type="radio" name="skin" id="a158wea9" value="a158wea9" onclick="setSkin(this.value)"><label
+        id="a158wea-label" for="a158wea9">A158WEA-9</label>
+    </div>
+
+    <h2>Volume</h2>
+    <div>
+      <input id="volume" name="volume" type="range" min="0" max="100" step="1" oninput="setVolume(this.value)" />
+    </div>
+
+    <h2>Location</h2>
+    <div>
+      <button onclick="getLocation()">Set register (will prompt for access)</button>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; width: 100%">
+    <textarea id="output" rows="8" style="width: 100%"></textarea>
+    <div style="display: flex">
+      <input id="input" placeholder="Filesystem command (see filesystem.c)" style="flex-grow: 1"></input>
+      <button id="submit" onclick="sendText()">Send</button>
+    </div>
+  </div>
+
+  <p>
+    <a href="https://github.com/alexisphilip/Casio-F-91W">Original F-91W SVG</a> is &copy; 2020 Alexis Philip, used here
+    under the terms of the MIT license.
+  </p>
+</div>
 
 <script type='text/javascript'>
   var outputElement = document.getElementById('output');
