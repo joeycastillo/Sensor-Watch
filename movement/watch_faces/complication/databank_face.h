@@ -38,6 +38,7 @@ void databank_face_resign(movement_settings_t *settings, void *context);
     databank_face_loop, \
     databank_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // DATABANK_FACE_H_

@@ -225,6 +225,7 @@ void place_latlon_to_geohash(char *geohash, double latitude, double longitude);
     place_face_loop, \
     place_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // place_FACE_H_

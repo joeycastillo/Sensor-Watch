@@ -105,6 +105,7 @@ void TC2_Handler(void);
     dual_timer_face_loop, \
     dual_timer_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // DUAL_TIMER_FACE_H_

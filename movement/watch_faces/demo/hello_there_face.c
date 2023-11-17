@@ -84,7 +84,7 @@ bool hello_there_face_loop(movement_event_t event, movement_settings_t *settings
             // This function will return the watch to the first screen (usually a simple clock),
             // and it will do it long before the watch enters low energy mode. This ensures we
             // won't be on screen, and thus opts us out of getting the EVENT_LOW_ENERGY_UPDATE above.
-            movement_move_to_face(0);
+            movement_move_to_page(0);
             break;
         default:
             movement_default_loop_handler(event, settings);

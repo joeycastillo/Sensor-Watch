@@ -61,6 +61,7 @@ float nanosec_get_aging(void);
     nanosec_face_loop, \
     nanosec_face_resign, \
     nanosec_face_wants_background_task, \
+    NULL, \
 })
 
 #endif // NANOSEC_FACE_H_

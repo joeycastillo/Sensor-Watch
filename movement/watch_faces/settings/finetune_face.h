@@ -43,6 +43,7 @@ void finetune_face_resign(movement_settings_t *settings, void *context);
     finetune_face_loop, \
     finetune_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // FINETUNE_FACE_H_

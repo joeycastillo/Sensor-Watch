@@ -38,6 +38,7 @@ void breathing_face_resign(movement_settings_t *settings, void *context);
     breathing_face_loop, \
     breathing_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // BREATHING_FACE_H_

@@ -398,7 +398,7 @@ bool rpn_calculator_alt_face_loop(movement_event_t event, movement_settings_t *s
                 adjust_number(s, -1);
                 show_stack_top(s);
             } else {
-                movement_move_to_next_face();
+                movement_move_to_next_page();
                 return false;
             }
             break;
@@ -438,7 +438,7 @@ bool rpn_calculator_alt_face_loop(movement_event_t event, movement_settings_t *s
             }
             break;
         case EVENT_TIMEOUT:
-            movement_move_to_face(0);
+            movement_move_to_page(0);
             break;
         case EVENT_LOW_ENERGY_UPDATE:
             break;

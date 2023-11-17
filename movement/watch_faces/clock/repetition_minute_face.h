@@ -78,6 +78,7 @@ bool repetition_minute_face_wants_background_task(movement_settings_t *settings,
     repetition_minute_face_loop, \
     repetition_minute_face_resign, \
     repetition_minute_face_wants_background_task, \
+    NULL, \
 })
 
 #endif // REPETITION_MINUTE_FACE_H_

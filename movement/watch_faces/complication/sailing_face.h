@@ -66,6 +66,7 @@ void sailing_face_resign(movement_settings_t *settings, void *context);
     sailing_face_loop, \
     sailing_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // sailing_FACE_H_

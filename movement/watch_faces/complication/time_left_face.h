@@ -84,6 +84,7 @@ void time_left_face_resign(movement_settings_t *settings, void *context);
     time_left_face_loop, \
     time_left_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // TIME_LEFT_FACE_H_

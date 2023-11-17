@@ -68,6 +68,7 @@ bool wyoscan_face_wants_background_task(movement_settings_t *settings, void *con
     wyoscan_face_loop, \
     wyoscan_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // WYOSCAN_FACE_H_

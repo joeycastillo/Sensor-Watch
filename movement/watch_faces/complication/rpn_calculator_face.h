@@ -66,6 +66,7 @@ void rpn_calculator_face_resign(movement_settings_t *settings, void *context);
     rpn_calculator_face_loop, \
     rpn_calculator_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // RPN_CALCULATOR_FACE_H_

@@ -38,6 +38,7 @@ void set_time_hackwatch_face_resign(movement_settings_t *settings, void *context
     set_time_hackwatch_face_loop, \
     set_time_hackwatch_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // SET_TIME_HACKWATCH_FACE_H_

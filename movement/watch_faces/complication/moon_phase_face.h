@@ -35,6 +35,7 @@ void moon_phase_face_setup(movement_settings_t *settings, uint8_t watch_face_ind
 void moon_phase_face_activate(movement_settings_t *settings, void *context);
 bool moon_phase_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void moon_phase_face_resign(movement_settings_t *settings, void *context);
+void moon_phase_face_label(movement_settings_t *settings, void *context, char* label, uint8_t size);
 
 #define moon_phase_face ((const watch_face_t){ \
     moon_phase_face_setup, \
@@ -42,6 +43,7 @@ void moon_phase_face_resign(movement_settings_t *settings, void *context);
     moon_phase_face_loop, \
     moon_phase_face_resign, \
     NULL, \
+    moon_phase_face_label, \
 })
 
 #endif // MOON_PHASE_FACE_H_

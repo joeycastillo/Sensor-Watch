@@ -64,6 +64,7 @@ void chirpy_demo_face_resign(movement_settings_t *settings, void *context);
     chirpy_demo_face_loop, \
     chirpy_demo_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // CHIRPY_DEMO_FACE_H_

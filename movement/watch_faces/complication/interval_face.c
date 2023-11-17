@@ -665,7 +665,7 @@ bool interval_face_loop(movement_event_t event, movement_settings_t *settings, v
         }
         break;
     case EVENT_TIMEOUT:
-        if (state->face_state != interval_state_running) movement_move_to_face(0);
+        if (state->face_state != interval_state_running) movement_move_to_page(0);
         break;
     case EVENT_LIGHT_BUTTON_DOWN:
         // don't light up every time light is hit

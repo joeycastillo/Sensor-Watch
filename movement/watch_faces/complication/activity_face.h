@@ -83,6 +83,7 @@ void activity_face_resign(movement_settings_t *settings, void *context);
     activity_face_loop, \
     activity_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // ACTIVITY_FACE_H_

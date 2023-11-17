@@ -68,6 +68,7 @@ void morsecalc_input(morsecalc_state_t *mcs);
     morsecalc_face_loop, \
     morsecalc_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // MORSECALC_FACE_H_

@@ -61,6 +61,7 @@ bool lis2dw_logging_face_wants_background_task(movement_settings_t *settings, vo
     lis2dw_logging_face_loop, \
     lis2dw_logging_face_resign, \
     lis2dw_logging_face_wants_background_task, \
+    NULL, \
 })
 
 #endif // LIS2DW_LOGGING_FACE_H_

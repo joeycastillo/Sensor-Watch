@@ -442,7 +442,7 @@ bool alarm_face_loop(movement_event_t event, movement_settings_t *settings, void
         }
         break;
     case EVENT_TIMEOUT:
-        movement_move_to_face(0);
+        movement_move_to_page(0);
         break;
     case EVENT_LIGHT_BUTTON_DOWN:
         // don't light up every time light is hit
@@ -453,4 +453,11 @@ bool alarm_face_loop(movement_event_t event, movement_settings_t *settings, void
     }
 
     return true;
+}
+
+void alarm_face_label(movement_settings_t *settings, void *context, char* label, uint8_t size)
+{
+    (void) settings;
+    (void) context;
+    snprintf(label, size, "AL");
 }

@@ -175,7 +175,7 @@ bool day_one_face_loop(movement_event_t event, movement_settings_t *settings, vo
         case EVENT_TIMEOUT:
             // return home if we're on a settings page (this saves our changes when we resign).
             if (state->current_page != 0) {
-                movement_move_to_face(0);
+                movement_move_to_page(0);
             }
             break;
         default:

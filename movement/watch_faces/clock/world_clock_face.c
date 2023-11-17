@@ -128,7 +128,7 @@ static bool _world_clock_face_do_settings_mode(movement_event_t event, movement_
     switch (event.event_type) {
         case EVENT_MODE_BUTTON_UP:
             if (state->backup_register) watch_store_backup_data(state->settings.reg, state->backup_register);
-            movement_move_to_next_face();
+            movement_move_to_next_page();
             return false;
         case EVENT_LIGHT_BUTTON_DOWN:
             state->current_screen++;
@@ -161,7 +161,7 @@ static bool _world_clock_face_do_settings_mode(movement_event_t event, movement_
             }
             break;
         case EVENT_TIMEOUT:
-            movement_move_to_face(0);
+            movement_move_to_page(0);
             break;
         default:
             break;
@@ -208,4 +208,11 @@ bool world_clock_face_loop(movement_event_t event, movement_settings_t *settings
 void world_clock_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
+}
+
+void world_clock_face_label(movement_settings_t *settings, void *context, char* label, uint8_t size)
+{
+    (void) settings;
+    (void) context;
+    snprintf(label, size, "DT");
 }

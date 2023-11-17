@@ -304,7 +304,7 @@ bool stock_stopwatch_face_loop(movement_event_t event, movement_settings_t *sett
             _update_lap_indicator();
             break;
         case EVENT_TIMEOUT:
-            if (!_is_running) movement_move_to_face(0);
+            if (!_is_running) movement_move_to_page(0);
             break;
         case EVENT_LOW_ENERGY_UPDATE:
             _draw();

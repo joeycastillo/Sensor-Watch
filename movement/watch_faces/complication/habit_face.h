@@ -48,6 +48,7 @@ void habit_face_resign(movement_settings_t *settings, void *context);
     habit_face_loop, \
     habit_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // HABIT_FACE_H_

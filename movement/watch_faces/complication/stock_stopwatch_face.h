@@ -53,6 +53,7 @@ void TC2_Handler(void);
     stock_stopwatch_face_loop, \
     stock_stopwatch_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // STOCK_STOPWATCH_FACE_H_

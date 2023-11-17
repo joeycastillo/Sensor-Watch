@@ -41,6 +41,7 @@ void simple_clock_face_activate(movement_settings_t *settings, void *context);
 bool simple_clock_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void simple_clock_face_resign(movement_settings_t *settings, void *context);
 bool simple_clock_face_wants_background_task(movement_settings_t *settings, void *context);
+void simple_clock_face_label(movement_settings_t *settings, void *context, char* label, uint8_t size);
 
 #define simple_clock_face ((const watch_face_t){ \
     simple_clock_face_setup, \
@@ -48,6 +49,7 @@ bool simple_clock_face_wants_background_task(movement_settings_t *settings, void
     simple_clock_face_loop, \
     simple_clock_face_resign, \
     simple_clock_face_wants_background_task, \
+    simple_clock_face_label, \
 })
 
 #endif // SIMPLE_CLOCK_FACE_H_

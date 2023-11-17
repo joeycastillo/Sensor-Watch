@@ -90,6 +90,7 @@ void discgolf_face_resign(movement_settings_t *settings, void *context);
     discgolf_face_loop, \
     discgolf_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // DISCGOLF_FACE_H_

@@ -54,6 +54,7 @@ void orrery_face_resign(movement_settings_t *settings, void *context);
     orrery_face_loop, \
     orrery_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // ORRERY_FACE_H_

@@ -44,6 +44,7 @@ void blinky_face_resign(movement_settings_t *settings, void *context);
     blinky_face_loop, \
     blinky_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // BLINKY_FACE_H_

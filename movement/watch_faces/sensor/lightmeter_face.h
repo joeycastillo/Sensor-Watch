@@ -155,6 +155,7 @@ static const uint8_t lightmeter_addr = 0x44;
     lightmeter_face_loop, \
     lightmeter_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // LIGHTMETER_FACE_H_

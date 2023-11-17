@@ -49,6 +49,7 @@ void print_tally(tally_state_t *state);
     tally_face_loop, \
     tally_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // TALLY_FACE_H_

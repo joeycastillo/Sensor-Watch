@@ -21,6 +21,7 @@ void totp_face_lfs_resign(movement_settings_t *settings, void *context);
     totp_face_lfs_loop, \
     totp_face_lfs_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // TOTP_FACE_LFS_H_

@@ -38,6 +38,7 @@ void voltage_face_resign(movement_settings_t *settings, void *context);
     voltage_face_loop, \
     voltage_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // VOLTAGE_FACE_H_

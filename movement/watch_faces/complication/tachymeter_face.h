@@ -60,6 +60,7 @@ void tachymeter_face_resign(movement_settings_t *settings, void *context);
     tachymeter_face_loop, \
     tachymeter_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // TACHYMETER_FACE_H_

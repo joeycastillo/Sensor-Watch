@@ -76,6 +76,7 @@ void interval_face_resign(movement_settings_t *settings, void *context);
     interval_face_loop, \
     interval_face_resign, \
     NULL \
+    NULL, \
 })
 
 #endif // INTERVAL_FACE_H_

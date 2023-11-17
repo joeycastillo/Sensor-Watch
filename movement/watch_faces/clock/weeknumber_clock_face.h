@@ -48,6 +48,7 @@ bool weeknumber_clock_face_wants_background_task(movement_settings_t *settings, 
     weeknumber_clock_face_loop, \
     weeknumber_clock_face_resign, \
     weeknumber_clock_face_wants_background_task, \
+    NULL, \
 })
 
 #endif // SIMPLE_CLOCK_FACE_H_

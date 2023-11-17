@@ -62,7 +62,7 @@ bool preferences_face_loop(movement_event_t event, movement_settings_t *settings
             break;
         case EVENT_MODE_BUTTON_UP:
             watch_set_led_off();
-            movement_move_to_next_face();
+            movement_move_to_next_page();
             return false;
         case EVENT_LIGHT_BUTTON_DOWN:
             current_page = (current_page + 1) % PREFERENCES_FACE_NUM_PREFEFENCES;
@@ -94,7 +94,7 @@ bool preferences_face_loop(movement_event_t event, movement_settings_t *settings
             }
             break;
         case EVENT_TIMEOUT:
-            movement_move_to_face(0);
+            movement_move_to_page(0);
             break;
         default:
             return movement_default_loop_handler(event, settings);
@@ -194,4 +194,11 @@ void preferences_face_resign(movement_settings_t *settings, void *context) {
     (void) context;
     watch_set_led_off();
     watch_store_backup_data(settings->reg, 0);
+}
+
+void preferences_face_label(movement_settings_t *settings, void *context, char* label, uint8_t size)
+{
+    (void) settings;
+    (void) context;
+    snprintf(label, size, "PR");
 }

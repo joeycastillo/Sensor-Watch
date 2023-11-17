@@ -64,7 +64,7 @@ bool <#watch_face_name#>_face_loop(movement_event_t event, movement_settings_t *
         case EVENT_TIMEOUT:
             // Your watch face will receive this event after a period of inactivity. If it makes sense to resign,
             // you may uncomment this line to move back to the first watch face in the list:
-            // movement_move_to_face(0);
+            // movement_move_to_page(0);
             break;
         case EVENT_LOW_ENERGY_UPDATE:
             // If you did not resign in EVENT_TIMEOUT, you can use this event to update the display once a minute.
@@ -97,3 +97,11 @@ void <#watch_face_name#>_face_resign(movement_settings_t *settings, void *contex
     // handle any cleanup before your watch face goes off-screen.
 }
 
+void <#watch_face_name#>_face_label(movement_settings_t *settings, void *context, char* label, uint8_t size) {
+    // Provide a 2 letter human readable label for this face.
+    // This label will most likely be displayed in the weekday display section
+
+    (void) settings;
+    (void) context;
+    snprintf(label, size, "FA");
+}

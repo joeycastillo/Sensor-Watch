@@ -38,6 +38,7 @@ void demo_face_resign(movement_settings_t *settings, void *context);
     demo_face_loop, \
     demo_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // DEMO_FACE_H_

@@ -64,6 +64,7 @@ void countdown_face_setup(movement_settings_t *settings, uint8_t watch_face_inde
 void countdown_face_activate(movement_settings_t *settings, void *context);
 bool countdown_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void countdown_face_resign(movement_settings_t *settings, void *context);
+void countdown_face_label(movement_settings_t *settings, void *context, char* label, uint8_t size);
 
 #define countdown_face ((const watch_face_t){ \
     countdown_face_setup, \
@@ -71,6 +72,7 @@ void countdown_face_resign(movement_settings_t *settings, void *context);
     countdown_face_loop, \
     countdown_face_resign, \
     NULL, \
+    countdown_face_label, \
 })
 
 #endif // COUNTDOWN_FACE_H_

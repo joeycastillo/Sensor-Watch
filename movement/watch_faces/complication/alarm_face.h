@@ -67,6 +67,7 @@ void alarm_face_activate(movement_settings_t *settings, void *context);
 bool alarm_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void alarm_face_resign(movement_settings_t *settings, void *context);
 bool alarm_face_wants_background_task(movement_settings_t *settings, void *context);
+void alarm_face_label(movement_settings_t *settings, void *context, char* label, uint8_t size);
 
 #define alarm_face ((const watch_face_t){ \
     alarm_face_setup, \
@@ -74,6 +75,7 @@ bool alarm_face_wants_background_task(movement_settings_t *settings, void *conte
     alarm_face_loop, \
     alarm_face_resign, \
     alarm_face_wants_background_task, \
+    alarm_face_label, \
 })
 
 #endif // ALARM_FACE_H_

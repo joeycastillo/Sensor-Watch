@@ -102,6 +102,7 @@ void planetary_time_face_resign(movement_settings_t *settings, void *context);
     planetary_time_face_loop, \
     planetary_time_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // planetary_time_face_H_

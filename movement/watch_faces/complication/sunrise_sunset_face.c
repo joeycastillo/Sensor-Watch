@@ -378,7 +378,7 @@ bool sunrise_sunset_face_loop(movement_event_t event, movement_settings_t *setti
         case EVENT_TIMEOUT:
             if (watch_get_backup_data(1) == 0) {
                 // if no location set, return home
-                movement_move_to_face(0);
+                movement_move_to_page(0);
             } else if (state->page || state->rise_index) {
                 // otherwise on timeout, exit settings mode and return to the next sunrise or sunset
                 state->page = 0;

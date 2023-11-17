@@ -107,6 +107,7 @@ void randonaut_face_resign(movement_settings_t *settings, void *context);
     randonaut_face_loop, \
     randonaut_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // RANDONAUT_FACE_H_

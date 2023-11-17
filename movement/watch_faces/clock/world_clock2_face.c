@@ -330,7 +330,7 @@ static bool mode_display(movement_event_t event, movement_settings_t *settings, 
         case EVENT_MODE_BUTTON_UP:
             /* Reset frequency and move to next face */
             movement_request_tick_frequency(1);
-            movement_move_to_next_face();
+            movement_move_to_next_page();
             break;
 	default:
 	    return movement_default_loop_handler(event, settings);
@@ -422,7 +422,7 @@ static bool mode_settings(movement_event_t event, movement_settings_t *settings,
         case EVENT_MODE_BUTTON_UP:
             /* Reset frequency and move to next face */
             movement_request_tick_frequency(1);
-            movement_move_to_next_face();
+            movement_move_to_next_page();
             break;
         default:
             return movement_default_loop_handler(event, settings);
@@ -447,4 +447,11 @@ void world_clock2_face_resign(movement_settings_t *settings, void *context)
 {
     (void) settings;
     (void) context;
+}
+
+void world_clock2_face_label(movement_settings_t *settings, void *context, char* label, uint8_t size)
+{
+    (void) settings;
+    (void) context;
+    snprintf(label, size, "WT");
 }

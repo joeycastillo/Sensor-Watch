@@ -91,6 +91,7 @@ void timer_face_setup(movement_settings_t *settings, uint8_t watch_face_index, v
 void timer_face_activate(movement_settings_t *settings, void *context);
 bool timer_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void timer_face_resign(movement_settings_t *settings, void *context);
+void timer_face_label(movement_settings_t *settings, void *context, char* label, uint8_t size);
 
 #define timer_face ((const watch_face_t){ \
     timer_face_setup, \
@@ -98,6 +99,7 @@ void timer_face_resign(movement_settings_t *settings, void *context);
     timer_face_loop, \
     timer_face_resign, \
     NULL, \
+    timer_face_label, \
 })
 
 

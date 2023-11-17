@@ -102,7 +102,7 @@ bool ships_bell_face_loop(movement_event_t event, movement_settings_t *settings,
             ships_bell_draw(state);
             break;
         case EVENT_TIMEOUT:
-            movement_move_to_face(0);
+            movement_move_to_page(0);
             break;
         case EVENT_LOW_ENERGY_UPDATE:
             break;

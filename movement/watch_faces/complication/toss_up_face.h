@@ -106,6 +106,7 @@ void toss_up_face_resign(movement_settings_t *settings, void *context);
     toss_up_face_loop, \
     toss_up_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // TOSS_UP_FACE_H_

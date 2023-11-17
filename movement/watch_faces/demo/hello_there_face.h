@@ -43,6 +43,7 @@ void hello_there_face_resign(movement_settings_t *settings, void *context);
     hello_there_face_loop, \
     hello_there_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // HELLO_THERE_FACE_H_

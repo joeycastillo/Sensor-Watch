@@ -309,11 +309,11 @@ bool dual_timer_face_loop(movement_event_t event, movement_settings_t *settings,
             break;
         case EVENT_MODE_LONG_PRESS:
             // ...but do it on long press MODE!
-            movement_move_to_next_face();
+            movement_move_to_next_page();
             break;
         case EVENT_TIMEOUT:
             // go back to 
-            if (!_is_running) movement_move_to_face(0);
+            if (!_is_running) movement_move_to_page(0);
             break;
         case EVENT_LOW_ENERGY_UPDATE:
             dual_timer_display(state);

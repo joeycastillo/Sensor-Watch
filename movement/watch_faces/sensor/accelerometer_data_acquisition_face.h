@@ -106,6 +106,7 @@ void accelerometer_data_acquisition_face_resign(movement_settings_t *settings, v
     accelerometer_data_acquisition_face_loop, \
     accelerometer_data_acquisition_face_resign, \
     NULL, \
+    NULL, \
 })
 
 #endif // ACCELEROMETER_DATA_ACQUISITION_FACE_H_

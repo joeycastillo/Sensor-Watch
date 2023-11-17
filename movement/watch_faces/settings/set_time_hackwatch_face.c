@@ -73,7 +73,7 @@ bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *s
         case EVENT_MODE_BUTTON_UP:
             if (current_page == 2)
                 watch_rtc_enable(true);
-            movement_move_to_next_face();
+            movement_move_to_next_page();
             return false;
         case EVENT_LIGHT_LONG_PRESS:
             current_page = (current_page + set_time_hackwatch_face_NUM_SETTINGS - 1) % set_time_hackwatch_face_NUM_SETTINGS;
@@ -198,7 +198,7 @@ bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *s
             //TODO: Do not update whole RTC, just what we are changing
             break;
         case EVENT_TIMEOUT:
-            movement_move_to_face(0);
+            movement_move_to_page(0);
             break;
         case EVENT_LIGHT_BUTTON_DOWN:
             // don't light up every time light is hit

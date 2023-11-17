@@ -276,7 +276,7 @@ bool rpn_calculator_face_loop(movement_event_t event, movement_settings_t *setti
                 default:
                     state->mode = rpn_calculator_waiting;
                     movement_request_tick_frequency(1);
-                    movement_move_to_next_face();
+                    movement_move_to_next_page();
                 break;
             }
             break;
@@ -328,7 +328,7 @@ bool rpn_calculator_face_loop(movement_event_t event, movement_settings_t *setti
         case EVENT_TIMEOUT:
             state->mode = rpn_calculator_waiting;
             movement_request_tick_frequency(1);
-            movement_move_to_face(0);
+            movement_move_to_page(0);
             break;
         case EVENT_LOW_ENERGY_UPDATE:
             break;

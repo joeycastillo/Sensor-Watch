@@ -135,7 +135,7 @@ bool simple_clock_face_loop(movement_event_t event, movement_settings_t *setting
             break;
         case EVENT_BACKGROUND_TASK:
             // uncomment this line to snap back to the clock face when the hour signal sounds:
-            // movement_move_to_face(state->watch_face_index);
+            // movement_move_to_page(movement_face_to_page(state->watch_face_index));
             #ifdef SIGNAL_TUNE_DEFAULT
             movement_play_signal();
             #else
@@ -162,4 +162,10 @@ bool simple_clock_face_wants_background_task(movement_settings_t *settings, void
     watch_date_time date_time = watch_rtc_get_date_time();
 
     return date_time.unit.minute == 0;
+}
+
+void simple_clock_face_label(movement_settings_t *settings, void *context, char* label, uint8_t size) {
+    (void) settings;
+    (void) context;
+    snprintf(label, size, "CL");
 }
