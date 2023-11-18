@@ -907,13 +907,13 @@
     </div>
   </div>
 
-  <div style="display: flex; flex-direction: column; width: 100%">
+  <form onSubmit="sendText(); return false" style="display: flex; flex-direction: column; width: 100%">
     <textarea id="output" rows="8" style="width: 100%"></textarea>
     <div style="display: flex">
       <input id="input" placeholder="Filesystem command (see filesystem.c)" style="flex-grow: 1"></input>
-      <button id="submit" onclick="sendText()">Send</button>
+      <button type="submit">Send</button>
     </div>
-  </div>
+  </form>
 
   <p>
     <a href="https://github.com/alexisphilip/Casio-F-91W">Original F-91W SVG</a> is &copy; 2020 Alexis Philip, used here
