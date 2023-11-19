@@ -222,7 +222,7 @@ bool couch_to_5k_face_loop(movement_event_t event, movement_settings_t *settings
         case EVENT_TIMEOUT:
             // Your watch face will receive this event after a period of
             // inactivity. If it makes sense to resign,
-            // movement_move_to_face(0);
+            movement_move_to_face(0);
             break;
         case EVENT_LOW_ENERGY_UPDATE:
             // If you did not resign in EVENT_TIMEOUT, you can use this event
