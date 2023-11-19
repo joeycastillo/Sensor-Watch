@@ -68,18 +68,18 @@ typedef struct {
     uint8_t exercise;
     exercise_type_t exercise_type;
     uint16_t timer;
-} couchTo5k_state_t;
+} couch_to_5k_state_t;
 
-void couchTo5k_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
-void couchTo5k_face_activate(movement_settings_t *settings, void *context);
-bool couchTo5k_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
-void couchTo5k_face_resign(movement_settings_t *settings, void *context);
+void couch_to_5k_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
+void couch_to_5k_face_activate(movement_settings_t *settings, void *context);
+bool couch_to_5k_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void couch_to_5k_face_resign(movement_settings_t *settings, void *context);
 
-#define couchTo5k_face ((const watch_face_t){ \
-    couchTo5k_face_setup, \
-    couchTo5k_face_activate, \
-    couchTo5k_face_loop, \
-    couchTo5k_face_resign, \
+#define couch_to_5k_face ((const watch_face_t){ \
+    couch_to_5k_face_setup, \
+    couch_to_5k_face_activate, \
+    couch_to_5k_face_loop, \
+    couch_to_5k_face_resign, \
     NULL, \
 })
 

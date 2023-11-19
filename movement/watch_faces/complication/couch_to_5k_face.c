@@ -24,7 +24,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "couchTo5k_face.h"
+#include "couch_to_5k_face.h"
 
 // They go: Warmup, Run, Walk, Run, Walk, Run, Walk ... , End (0)
 // Time is defined in seconds
@@ -52,20 +52,20 @@ uint16_t C25K_WEEK_9[]   = {300, 1800, 0};
 #define C25K_SESSIONS_LENGTH 3*9
 uint16_t *C25K_SESSIONS[C25K_SESSIONS_LENGTH];
 
-static inline bool _finished(couchTo5k_state_t *state){
+static inline bool _finished(couch_to_5k_state_t *state){
     return state->exercise_type == C25K_FINISHED;
 }
-static inline bool _cleared(couchTo5k_state_t *state){
+static inline bool _cleared(couch_to_5k_state_t *state){
     return state->timer == C25K_SESSIONS[state->session][0]
         && state->exercise == 0;
 }
-static inline void _next_session(couchTo5k_state_t *state){
+static inline void _next_session(couch_to_5k_state_t *state){
     if (++state->session >= C25K_SESSIONS_LENGTH){
         state->session = 0;
     }
 }
 
-static inline void _assign_exercise_type(couchTo5k_state_t *state){
+static inline void _assign_exercise_type(couch_to_5k_state_t *state){
     if (state->exercise == 0){
         state->exercise_type = C25K_WARMUP;
     } else if (state->exercise % 2 == 1){
@@ -75,7 +75,7 @@ static inline void _assign_exercise_type(couchTo5k_state_t *state){
     }
 }
 
-static void _next_exercise(couchTo5k_state_t *state){
+static void _next_exercise(couch_to_5k_state_t *state){
     state->exercise++;
     state->timer = C25K_SESSIONS[state->session][state->exercise];
     // If the new timer starts in zero, it's finished
@@ -88,7 +88,7 @@ static void _next_exercise(couchTo5k_state_t *state){
     _assign_exercise_type(state);
 }
 
-static void _init_session(couchTo5k_state_t *state){
+static void _init_session(couch_to_5k_state_t *state){
     state->exercise = 0; // Restart exercise counter
     state->timer = C25K_SESSIONS[state->session][state->exercise];
     _assign_exercise_type(state);
@@ -108,7 +108,7 @@ static char *_exercise_type_to_str(exercise_type_t t){
             return "  ";
     }
 }
-static void _display(couchTo5k_state_t *state, char *buf){
+static void _display(couch_to_5k_state_t *state, char *buf){
     // TODO only repaint needed parts
     uint8_t seconds = state->timer % 60;
     sprintf(buf, "%s%2d%2d%02d%02d",
@@ -121,13 +121,13 @@ static void _display(couchTo5k_state_t *state, char *buf){
 }
 
 
-void couchTo5k_face_setup(movement_settings_t *settings, uint8_t
+void couch_to_5k_face_setup(movement_settings_t *settings, uint8_t
                           watch_face_index, void ** context_ptr) {
     (void) settings;
     (void) watch_face_index;
     if (*context_ptr == NULL) {
-        *context_ptr = malloc(sizeof(couchTo5k_state_t));
-        memset(*context_ptr, 0, sizeof(couchTo5k_state_t));
+        *context_ptr = malloc(sizeof(couch_to_5k_state_t));
+        memset(*context_ptr, 0, sizeof(couch_to_5k_state_t));
         // Do any one-time tasks in here; the inside of this conditional
         // happens only at boot.
         // C25K_SESSIONS[0]  = C25K_WEEK_TEST;
@@ -163,7 +163,7 @@ void couchTo5k_face_setup(movement_settings_t *settings, uint8_t
     // watch wakes from deep sleep.
 }
 
-void couchTo5k_face_activate(movement_settings_t *settings, void *context) {
+void couch_to_5k_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
     // Handle any tasks related to your watch face coming on screen.
@@ -171,9 +171,9 @@ void couchTo5k_face_activate(movement_settings_t *settings, void *context) {
 }
 
 
-bool couchTo5k_face_loop(movement_event_t event, movement_settings_t *settings,
+bool couch_to_5k_face_loop(movement_event_t event, movement_settings_t *settings,
                          void *context) {
-    couchTo5k_state_t *state = (couchTo5k_state_t *)context;
+    couch_to_5k_state_t *state = (couch_to_5k_state_t *)context;
     static char buf[11];
     static bool paused = true;
 
@@ -258,7 +258,7 @@ bool couchTo5k_face_loop(movement_event_t event, movement_settings_t *settings,
     return true;
 }
 
-void couchTo5k_face_resign(movement_settings_t *settings, void *context) {
+void couch_to_5k_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
 
