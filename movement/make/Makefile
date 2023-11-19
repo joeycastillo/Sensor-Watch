@@ -118,6 +118,7 @@ SRCS += \
   ../watch_faces/complication/flashlight_face.c \
   ../watch_faces/clock/decimal_time_face.c \
   ../watch_faces/clock/wyoscan_face.c \
+  ../watch_faces/clock/minute_repeater_decimal_face.c \
   ../watch_faces/complication/tuning_tones_face.c \
 # New watch faces go above this line.
 
