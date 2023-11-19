@@ -95,6 +95,7 @@
 #include "flashlight_face.h"
 #include "decimal_time_face.h"
 #include "wyoscan_face.h"
+#include "couch_to_5k_face.h"
 #include "minute_repeater_decimal_face.h"
 #include "tuning_tones_face.h"
 // New includes go above this line.
