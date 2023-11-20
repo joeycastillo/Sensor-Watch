@@ -65,8 +65,9 @@
  *      The first lets you choose how long the LED should stay lit when the
  *       LIGHT button is pressed. Options are 1 second, 3 seconds and 5
  *       seconds, or “No LED” to disable the LED entirely.
- *      The second screen, titled “blu”, sets the intensity of the blue LED.
- *       Values range from 0 (off) to 15 (full intensity)
+ *      The second screen, titled “blu” or “grn”, sets the intensity of the
+ *       blue or green LED depending on the target Sensor Board hardware.
+ *       Values range from 0 (off) to 15 (full intensity).
  *      The third screen, “red”, sets the intensity of the red LED, again
  *       from 0 to 15.
  *      On the last two screens, the LED remains on so that you can see the
