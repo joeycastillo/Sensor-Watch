@@ -32,6 +32,23 @@
 #include <string.h>
 #include "tarot_face.h"
 
+#define DEFAULT_MAJOR_ARCANA_ONLY true
+#define SHOW_REVERSED_CARDS true
+#define TAROT_MIN_CARDS_TO_DRAW 1
+#define TAROT_FACE_CARD_REMINDER false
+
+#define TAROT_LOOP_STYLE_NONE 0
+#define TAROT_LOOP_STYLE_ST_EN 1
+#define TAROT_LOOP_STYLE_LAP_START 2
+#define TAROT_LOOP_STYLE_LAP_END 3
+// What style of indicator to use to note when you've wrapped around to the
+// beginning of the deck.
+// * TAROT_LOOP_STYLE_NONE = No indicators
+// * TAROT_LOOP_STYLE_ST_EN = "St" and "En" in weekday display for first / last cards
+// * TAROT_LOOP_STYLE_LAP_START = Show lap indicator on first card
+// * TAROT_LOOP_STYLE_LAP_END = Show lap indicator on last card
+#define TAROT_LOOP_STYLE TAROT_LOOP_STYLE_ST_EN
+
 #define TAROT_ANIMATION_TICK_FREQUENCY 8
 #define FLIPPED_BIT_POS 7
 #define FLIPPED_MASK ((uint8_t)(1 << FLIPPED_BIT_POS))
@@ -103,12 +120,22 @@ static void tarot_display(tarot_state_t *state) {
     }
 
     // show a special status if we're looking at the first or last card in the spread
-    if (state->current_card == 0) {
-        start_end_string = "St";
-    } else if (state->current_card == state->num_cards_to_draw - 1) {
-        start_end_string = "En";
-    } else {
-        start_end_string = "  ";
+    start_end_string = "  ";
+    watch_clear_indicator(WATCH_INDICATOR_LAP);
+    if (TAROT_LOOP_STYLE != TAROT_LOOP_STYLE_NONE && state->num_cards_to_draw > 1) {
+        if (state->current_card == 0) {
+            if (TAROT_LOOP_STYLE == TAROT_LOOP_STYLE_ST_EN) {
+                start_end_string = "St";
+            } else if (TAROT_LOOP_STYLE == TAROT_LOOP_STYLE_LAP_START) {
+                watch_set_indicator(WATCH_INDICATOR_LAP);
+            }
+        } else if (state->current_card == state->num_cards_to_draw - 1) {
+            if (TAROT_LOOP_STYLE == TAROT_LOOP_STYLE_ST_EN) {
+                start_end_string = "En";
+            } else if (TAROT_LOOP_STYLE == TAROT_LOOP_STYLE_LAP_END) {
+                watch_set_indicator(WATCH_INDICATOR_LAP);
+            }
+        }
     }
 
     // figure out the card we're showing
@@ -125,13 +152,25 @@ static void tarot_display(tarot_state_t *state) {
         uint8_t suit = (card - NUM_MAJOR_ARCANA) / NUM_CARDS_PER_SUIT;
         uint8_t rank = ((card - NUM_MAJOR_ARCANA) % NUM_CARDS_PER_SUIT) + 1;
 
+        if (TAROT_FACE_CARD_REMINDER) {
+            if (rank == 11) {
+                start_end_string = "P ";
+            } else if (rank == 12) {
+                start_end_string = "Kn";
+            } else if (rank == 13) {
+                start_end_string = "q ";
+            } else if (rank == 14) {
+                start_end_string = "K ";
+            }
+        }
+
         // show start/end, rank + suit
         sprintf(buf, "%s%2d%s", start_end_string, rank, suits[suit]);
     }
 
     watch_display_string(buf, 0);
 
-    if (flipped) {
+    if (flipped && SHOW_REVERSED_CARDS) {
         watch_set_indicator(WATCH_INDICATOR_SIGNAL);
     } else {
         watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
@@ -227,8 +266,8 @@ void tarot_face_activate(movement_settings_t *settings, void *context) {
 
     watch_display_string("TA", 0);
     init_deck(state);
-    state->num_cards_to_draw = 3;
-    state->major_arcana_only = true;
+    state->num_cards_to_draw = TAROT_MIN_CARDS_TO_DRAW;
+    state->major_arcana_only = DEFAULT_MAJOR_ARCANA_ONLY;
 }
 
 bool tarot_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
@@ -252,8 +291,8 @@ bool tarot_face_loop(movement_event_t event, movement_settings_t *settings, void
             if (state->drawn_cards[0] == 0xff) {
                 // deck is inited; cycle through # cards to draw
                 state->num_cards_to_draw++;
-                if (state->num_cards_to_draw > 10) {
-                    state->num_cards_to_draw = 3;
+                if (state->num_cards_to_draw > TAROT_MAX_CARDS_TO_DRAW) {
+                    state->num_cards_to_draw = TAROT_MIN_CARDS_TO_DRAW;
                 }
             } else {
                 // cycle through the drawn cards
