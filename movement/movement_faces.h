@@ -98,6 +98,7 @@
 #include "couch_to_5k_face.h"
 #include "minute_repeater_decimal_face.h"
 #include "tuning_tones_face.h"
+#include "periodic_face.h"
 // New includes go above this line.
 
 #endif // MOVEMENT_FACES_H_

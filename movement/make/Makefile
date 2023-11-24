@@ -121,6 +121,7 @@ SRCS += \
   ../watch_faces/complication/couch_to_5k_face.c \
   ../watch_faces/clock/minute_repeater_decimal_face.c \
   ../watch_faces/complication/tuning_tones_face.c \
+  ../watch_faces/complication/periodic_face.c \
 # New watch faces go above this line.
 
 # Leave this line at the bottom of the file; it has all the targets for making your project.
