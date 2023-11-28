@@ -25,10 +25,8 @@
 #ifndef ACTIVITY_FACE_H_
 #define ACTIVITY_FACE_H_
 
-#include "movement.h"
-
 /*
- * ACTIVITY WATCH FACE
+ * ACTIVITY watch face
  *
  * The Activity face lets you record activities like you would do with a fitness watch.
  * It supports different activities like running, biking, rowing etc., and for each recorded activity
@@ -69,8 +67,9 @@
  * 
  * See the top of activity_face.c for some customization options. What you most likely want to do
  * is reduce the list of activities shown on the first screen to the ones you are regularly doing.
- * 
  */
+
+#include "movement.h"
 
 void activity_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
 void activity_face_activate(movement_settings_t *settings, void *context);

@@ -25,6 +25,33 @@
 #ifndef PULSOMETER_FACE_H_
 #define PULSOMETER_FACE_H_
 
+/*
+ * PULSOMETER face
+ *
+ * The Pulsometer is an implementation of a sort of a classic mechanical
+ * watch complication. A classic pulsometer complication involves a
+ * chronograph with a scale calibrated for counting a certain number of
+ * heartbeats (often 30). You start it and begin counting heartbeats, and
+ * stop it after counting the specified number of beats. Once stopped,
+ * the needle will point to your heart rate.
+ * 
+ * The pulsometer on Sensor Watch flashes its instructions at launch:
+ * “Hold Alarm + count 30 beats.” Using the hand on the side where you wear
+ * your watch, touch your carotid artery (in your neck) and feel for your
+ * pulse. Once you find it, use your other hand to press and hold the Alarm
+ * button, and count your heartbeats. When you reach 30 beats, release the
+ * Alarm button. The display will show a number such as “60 bpm”; this is
+ * your heart rate in beats per minute.
+ * 
+ * Two notes:
+ *  o For the first few seconds of a measurement, the display will read “Hi”.
+ *    This indicates that it’s too early for the measured value to be a valid
+ *    heart rate. Once the measurement is below 240 bpm, the display will update.
+ *  o If you hold the button down for more than 45 seconds, the display will
+ *    read “Lo”. If it took this long for you to count 30 heartbeats, this
+ *    indicates that your heart rate is below 40 beats per minute.
+ */
+
 #include "movement.h"
 
 typedef struct {

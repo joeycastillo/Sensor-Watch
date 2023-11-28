@@ -1,5 +1,57 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2022 Wesley Ellis (https://github.com/tahnok)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 #ifndef TOTP_FACE_H_
 #define TOTP_FACE_H_
+
+/*
+ * TOTP face
+ * Time-based one-time password (TOTP) generator
+ *
+ * Generate one-time passwords often used for two-factor authentication.
+ * The secret key must be set by hand, by editing "totp_face.c".
+ *
+ * Available algorithms:
+ *  o SHA1 (most TOTP codes use this)
+ *  o SHA224
+ *  o SHA256
+ *  o SHA384
+ *  o SHA512
+ *
+ * Instructions:
+ *  o Find your secret key(s) and convert them to the required format.
+ *      o Use https://cryptii.com/pipes/base32-to-hex to convert base32 to hex
+ *      o Use https://github.com/susam/mintotp to generate test codes for verification
+ *  o Edit global variables in "totp_face.c" to configure your stored keys:
+ *      o "keys", "key_sizes", "timesteps", and "algorithms" set the
+ *        cryptographic parameters for each secret key.
+ *      o "labels" sets the two-letter label for each key
+ *        (This replaces the day-of-week indicator)
+ *      o Once finished, remove the two provided examples.
+ *
+ * If you have more than one secret key, press ALARM to cycle through them.
+ */
 
 #include "movement.h"
 

@@ -25,6 +25,26 @@
 #ifndef TOMATO_FACE_H_
 #define TOMATO_FACE_H_
 
+/*
+ * TOMATO TIMER face
+ *
+ * Add a "tomato" timer watch face that alternates between 25 and 5 minute
+ * timers as in the Pomodoro Technique.
+ *  https://en.wikipedia.org/wiki/Pomodoro_Technique
+ *
+ * The top right letter shows mode (f for focus or b for break).
+ * The bottom right shows how many focus sessions you've completed.
+ * (You can reset the count with a long press of alarm)
+ *
+ * When you show up and it says 25 minutes, you can start it (alarm),
+ *  switch to 5 minute (light) mode or leave (mode).
+ *
+ * When it's running you can reset (alarm), or leave (mode).
+ *
+ * When it's done, we beep and go back to step 1, changing switching
+ *  mode from focus to break (or break to focus)
+ */
+
 #include "movement.h"
 
 typedef enum {

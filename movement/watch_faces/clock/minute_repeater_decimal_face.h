@@ -1,7 +1,8 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Jonas Termeau
+ * Copyright (c) 2023 Jonas Termeau - original repetition_minute_face
+ * Copyright (c) 2023 Brian Blakley - modified minute_repeater_decimal_face
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,12 +23,12 @@
  * SOFTWARE.
  */
 
-#ifndef REPETITION_MINUTE_FACE_H_
-#define REPETITION_MINUTE_FACE_H_
+#ifndef MINUTE_REPEATER_DECIMAL_FACE_H_
+#define MINUTE_REPEATER_DECIMAL_FACE_H_
+
+#include "movement.h"
 
 /*
- * REPETITION MINUTE face
- *
  * A hopefully useful complication for friendly neighbors in the dark
  *
  * Originating from 1676 from reverend and mechanician Edward Barlow, and
@@ -36,23 +37,23 @@
  * chimes the hours and often minutes at the press of a button. There are many
  * types of repeater, from the simple repeater which merely strikes the number
  * of hours, to the minute repeater which chimes the time down to the minute,
- * using separate tones for hours, quarter hours, and minutes. They originated
+ * using separate tones for hours, decimal hours, and minutes. They originated
  * before widespread artificial illumination, to allow the time to be determined
  * in the dark, and were also used by the visually impaired. 
+ *
  *
  * How to use it :
  * 
  * Long press the light button to get an auditive reading of the time like so :
  * 0..23 (1..12 if 24-hours format isn't enabled) low beep(s) for the hours
- * 0..3 low-high couple pitched beeps for the quarters
- * 0..14 high pitched beep(s) for the remaining minutes
+ * 0..9 low-high couple pitched beeps for the tens of minutes
+ * 0..9 high pitched beep(s) for the remaining minutes (ones of minutes)
  *
  * Prerequisite : a watch with a working buzzer
  * 
  * ~ Only in the darkness can you see the stars. - Martin Luther King ~
+ *
  */
-
-#include "movement.h"
 
 typedef struct {
     uint32_t previous_date_time;
@@ -61,23 +62,23 @@ typedef struct {
     bool signal_enabled;
     bool battery_low;
     bool alarm_enabled;
-} repetition_minute_state_t;
+} minute_repeater_decimal_state_t;
 
-void play_hour_chime(void);
-void play_quarter_chime(void);
-void play_minute_chime(void);
-void repetition_minute_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
-void repetition_minute_face_activate(movement_settings_t *settings, void *context);
-bool repetition_minute_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
-void repetition_minute_face_resign(movement_settings_t *settings, void *context);
-bool repetition_minute_face_wants_background_task(movement_settings_t *settings, void *context);
+void mrd_play_hour_chime(void);
+void mrd_play_tens_chime(void);
+void mrd_play_minute_chime(void);
+void minute_repeater_decimal_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
+void minute_repeater_decimal_face_activate(movement_settings_t *settings, void *context);
+bool minute_repeater_decimal_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void minute_repeater_decimal_face_resign(movement_settings_t *settings, void *context);
+bool minute_repeater_decimal_face_wants_background_task(movement_settings_t *settings, void *context);
 
-#define repetition_minute_face ((const watch_face_t){ \
-    repetition_minute_face_setup, \
-    repetition_minute_face_activate, \
-    repetition_minute_face_loop, \
-    repetition_minute_face_resign, \
-    repetition_minute_face_wants_background_task, \
+#define minute_repeater_decimal_face ((const watch_face_t){ \
+    minute_repeater_decimal_face_setup, \
+    minute_repeater_decimal_face_activate, \
+    minute_repeater_decimal_face_loop, \
+    minute_repeater_decimal_face_resign, \
+    minute_repeater_decimal_face_wants_background_task, \
 })
 
-#endif // REPETITION_MINUTE_FACE_H_
+#endif // MINUTE_REPEATER_DECIMAL_FACE_H_
