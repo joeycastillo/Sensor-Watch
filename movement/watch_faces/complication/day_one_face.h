@@ -28,7 +28,7 @@
 /*
  * DAY ONE face
  *
- * This watch face displays the number of days since a given date.
+ * This watch face displays the number of days since or until a given date.
  * It was originally designed to display the number of days you’ve been alive,
  * but technically it can count up from any date in the 20th century or the
  * 21st century, so far.
@@ -49,13 +49,22 @@
 
 #include "movement.h"
 
+typedef enum {
+    PAGE_DISPLAY,
+    PAGE_YEAR,
+    PAGE_MONTH,
+    PAGE_DAY,
+    PAGE_DATE
+} day_one_page_t;
+
 typedef struct {
-    uint8_t current_page;
-    uint16_t current_year;
+    day_one_page_t current_page;
     uint16_t birth_year;
     uint8_t birth_month;
     uint8_t birth_day;
     bool birthday_changed;
+    bool quick_cycle;
+    uint8_t ticks;
 } day_one_state_t;
 
 void day_one_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
