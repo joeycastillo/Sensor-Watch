@@ -25,9 +25,9 @@
 #ifndef REPETITION_MINUTE_FACE_H_
 #define REPETITION_MINUTE_FACE_H_
 
-#include "movement.h"
-
 /*
+ * REPETITION MINUTE face
+ *
  * A hopefully useful complication for friendly neighbors in the dark
  *
  * Originating from 1676 from reverend and mechanician Edward Barlow, and
@@ -40,7 +40,6 @@
  * before widespread artificial illumination, to allow the time to be determined
  * in the dark, and were also used by the visually impaired. 
  *
- *
  * How to use it :
  * 
  * Long press the light button to get an auditive reading of the time like so :
@@ -51,8 +50,9 @@
  * Prerequisite : a watch with a working buzzer
  * 
  * ~ Only in the darkness can you see the stars. - Martin Luther King ~
- *
  */
+
+#include "movement.h"
 
 typedef struct {
     uint32_t previous_date_time;

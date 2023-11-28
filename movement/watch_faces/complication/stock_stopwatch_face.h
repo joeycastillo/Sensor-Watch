@@ -25,12 +25,34 @@
 #ifndef STOCK_STOPWATCH_FACE_H_
 #define STOCK_STOPWATCH_FACE_H_
 
-#include "movement.h"
+/*
+ * STOCK STOPWATCH face
+ *
+ * The Stock Stopwatch face implements the original F-91W stopwatch
+ * functionality, including counting hundredths of seconds and lap timing.
+ *
+ * Use the ALARM button to start and stop the stopwatch.
+ * Press the LIGHT button while the stopwatch is running to view the lap time.
+ *  (The stopwatch continues running in the background, indicated by a blinking colon.)
+ * Press the LIGHT button again to switch back to the running stopwatch.
+ * Press the LIGHT button when the timekeeping is stopped to reset the stopwatch.
+ *
+ * There are two improvements compared to the original F-91W:
+ *  o When the stopwatch reaches 59:59, the counter does not simply jump back
+ *    to zero but keeps track of hours in the upper right-hand corner
+ *    (up to 24 hours).
+ *  o Long-press the light button to toggle the LED behavior.
+ *    It either turns on with each button press or remains off.
+ *
+ * NOTE:
+ * This watch face relies heavily on static vars in stock_stopwatch.c.
+ * The disadvantage is that you cannot use more than one instance of this
+ * watch face on your custom firmware - but then again, who would want that?
+ * The advantage is that accessing vars is more direct and faster, and we
+ * can save some precious cpu cycles.  :-)
+ */
 
-// This watch face relies heavily on static vars in stock_stopwatch.c.
-// The disadvantage is that you cannot use more than one instance of this watch face on
-// your custom firmware - but then again, who would want that? The advantage is that accessing
-// vars is more direct and faster, and we can save some precious cpu cycles  :-) 
+#include "movement.h"
 
 typedef struct {
     bool light_on_button;   // determines whether the light button actually triggers the led

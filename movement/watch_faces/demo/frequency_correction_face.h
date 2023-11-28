@@ -25,6 +25,18 @@
 #ifndef FREQUENCY_CORRECTION_FACE_H_
 #define FREQUENCY_CORRECTION_FACE_H_
 
+/*
+ * FREQUENCY CORRECTION FACE
+ *
+ * While active, this face generates a square-wave on pin A1 of the 9-pin
+ * connector. The output frequency is adjustable from 64 Hz to 0.5 Hz.
+ * Long-press ALARM to cycle through available frequencies.
+ *
+ * This face also displays the value of the watch's frequency-correction
+ * register. This setting varies from -127 to +127. Press LIGHT to increment
+ * or ALARM to decrement the setting.
+ */
+
 #include "movement.h"
 
 typedef struct {
