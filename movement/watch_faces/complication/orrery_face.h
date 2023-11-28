@@ -25,6 +25,48 @@
 #ifndef ORRERY_FACE_H_
 #define ORRERY_FACE_H_
 
+/*
+ * ORRERY face
+ *
+ * The Orrery watch face is similar to the Astronomy watch face in that it
+ * calculates properties of the planets, but instead of calculating their
+ * positions in the sky, this watch face calculates their absolute locations
+ * in the solar system. This is only useful if you want to plot the planets
+ * on graph paper, but hey, you never know!
+ * 
+ * The controls are identical to the Astronomy watch face: while the title
+ * screen (“Orrery”) is displayed, you can advance through the available
+ * planets with repeated short presses on the Alarm button. The available
+ * planets:
+ * 
+ *     ME - Mercury
+ *     VE - Venus
+ *     EA - Earth
+ *     LU - Luna, the Earth’s moon
+ *     MA - Mars
+ *     JU - Jupiter
+ *     SA - Saturn
+ *     UR - Uranus
+ *     NE - Neptune
+ * 
+ * Note that the sun is not available in this menu, as the sun is always at
+ * (0,0,0) in this calculation.
+ * 
+ * Long press on the Alarm button to calculate the planet’s location, and
+ * after a flashing “C” (for Calculating), you will be presented with the
+ * planet’s X coordinate in astronomical units. Short press Alarm to cycle
+ * through the X, Y and Z coordinates, and then long press Alarm to return
+ * to planet selection.
+ * 
+ * The large numbers represent the whole number part, and the two smaller
+ * numbers (in the seconds place) represent the decimal portion. So if you
+ * see “SA X 736” and “SA Y -662”, you can read that as an X coordinate of
+ * 7.36 AU and a Y coordinate of -6.62 AU. You can literally draw a dot at
+ * (0, 0) to represent the sun, and a dot at (7.36, -6.62) to represent
+ * Saturn. (The Z coordinates tend to be pretty close to zero, as the
+ * planets largely orbit on a single plane, the ecliptic.)
+ */
+
 #include "movement.h"
 
 typedef enum {

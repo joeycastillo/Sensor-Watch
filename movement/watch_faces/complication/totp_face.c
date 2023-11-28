@@ -1,18 +1,33 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2022 Wesley Ellis (https://github.com/tahnok)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 #include <stdlib.h>
 #include <string.h>
 #include "totp_face.h"
 #include "watch.h"
 #include "watch_utility.h"
 #include "TOTP.h"
-
-// Use https://cryptii.com/pipes/base32-to-hex to convert base32 to hex
-// Use https://github.com/susam/mintotp to generate test codes for verification
-// Available algorothms:
-// SHA1 (most TOTP codes use this)
-// SHA224
-// SHA256
-// SHA384
-// SHA512
 
 ////////////////////////////////////////////////////////////////////////////////
 // Enter your TOTP key data below

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Joey Castillo
+ * Copyright (c) 2023 Per Waagø
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,33 +22,36 @@
  * SOFTWARE.
  */
 
-#ifndef CHARACTER_SET_FACE_H_
-#define CHARACTER_SET_FACE_H_
-
-/*
- * CHARACTER SET FACE
- *
- * This watch face displays all of the characters in the Sensor Watch character
- * set. You can advance from one character to the next with a short press of the
- * ALARM button.
- *
- * This watch face may be useful to watch face developers, in that it can help
- * them to understand which characters will work in different positions.
- */
+#ifndef TUNING_TONES_FACE_H_
+#define TUNING_TONES_FACE_H_
 
 #include "movement.h"
 
-void character_set_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
-void character_set_face_activate(movement_settings_t *settings, void *context);
-bool character_set_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
-void character_set_face_resign(movement_settings_t *settings, void *context);
+/*
+ * A DESCRIPTION OF YOUR WATCH FACE
+ *
+ * and a description of how use it
+ *
+ */
 
-#define character_set_face ((const watch_face_t){ \
-    character_set_face_setup, \
-    character_set_face_activate, \
-    character_set_face_loop, \
-    character_set_face_resign, \
+typedef struct {
+    // Anything you need to keep track of, put it here!
+    bool playing;
+    size_t note_ind;
+} tuning_tones_state_t;
+
+void tuning_tones_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
+void tuning_tones_face_activate(movement_settings_t *settings, void *context);
+bool tuning_tones_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void tuning_tones_face_resign(movement_settings_t *settings, void *context);
+
+#define tuning_tones_face ((const watch_face_t){ \
+    tuning_tones_face_setup, \
+    tuning_tones_face_activate, \
+    tuning_tones_face_loop, \
+    tuning_tones_face_resign, \
     NULL, \
 })
 
-#endif // CHARACTER_SET_FACE_H_
+#endif // TUNING_TONES_FACE_H_
+
