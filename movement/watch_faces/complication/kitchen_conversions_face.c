@@ -34,6 +34,8 @@ typedef struct
     int16_t linear_factor; // Addition of constant (For temperatures)
 } unit;
 
+#define TICK_FREQ 4
+
 #define MEASURES_COUNT 3 // Number of different measurement 'types'
 #define WEIGHT 0
 #define TEMP 1
@@ -62,7 +64,7 @@ static const unit temps[TEMP_COUNT] = {
 };
 
 static const unit vols[VOL_COUNT] = {
-    {"  nnL", 1., 1., 0}, // BASE (ml)
+    {"  n&L", 1., 1., 0}, // BASE (ml)
     {"   L", 1000., 1000., 0},
     {" Fl Oz", 28.41306, 29.57353, 0},
     {" Tbsp", 17.75816, 14.78677, 0},
@@ -79,7 +81,7 @@ static int8_t calc_fail_seq[5] = {BUZZER_NOTE_C7, 10, BUZZER_NOTE_G6, 10, 0};
 // Resets all state variables to 0
 static void reset_state(kitchen_conversions_state_t *state, movement_settings_t *settings)
 {
-    state->pg = title;
+    state->pg = measurement;
     state->measurement_i = 0;
     state->from_i = 0;
     state->from_is_us = settings->bit.use_imperial_units; // If uses imperial, most likely to be US
@@ -87,6 +89,7 @@ static void reset_state(kitchen_conversions_state_t *state, movement_settings_t 
     state->to_is_us = settings->bit.use_imperial_units;
     state->selection_value = 0;
     state->selection_index = 0;
+    state->light_held = false;
 }
 
 void kitchen_conversions_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void **context_ptr)
@@ -108,7 +111,7 @@ void kitchen_conversions_face_activate(movement_settings_t *settings, void *cont
     kitchen_conversions_state_t *state = (kitchen_conversions_state_t *)context;
 
     // Handle any tasks related to your watch face coming on screen.
-    movement_request_tick_frequency(2);
+    movement_request_tick_frequency(TICK_FREQ);
 
     reset_state(state, settings);
 }
@@ -145,6 +148,20 @@ static unit *get_unit_list(uint8_t measurement_i)
     }
 }
 
+// Increment digit by 1 in input (wraps)
+static void increment_input(kitchen_conversions_state_t *state)
+{
+    uint8_t digit = state->selection_value / pow_10(DISPLAY_DIGITS - 1 - state->selection_index) % 10;
+    if (digit != 9)
+    {
+        state->selection_value += pow_10(DISPLAY_DIGITS - 1 - state->selection_index);
+    }
+    else
+    {
+        state->selection_value -= 9 * pow_10(DISPLAY_DIGITS - 1 - state->selection_index);
+    }
+}
+
 // Displays the list of units in the selected category
 static void display_units(uint8_t measurement_i, uint8_t list_i)
 {
@@ -157,10 +174,6 @@ static void display(kitchen_conversions_state_t *state, movement_settings_t *set
 
     switch (state->pg)
     {
-    case title:
-        watch_display_string("Kn  Convs", 0);
-        break;
-
     case measurement:
     {
         watch_display_string("Un", 0);
@@ -216,8 +229,8 @@ static void display(kitchen_conversions_state_t *state, movement_settings_t *set
             watch_display_string("  ", 8);
         }
 
-        // Blink
-        if (subsec)
+        // Blink digit (on & off) twice a second
+        if (subsec % 2)
         {
             watch_display_string(" ", 4 + state->selection_index);
         }
@@ -284,14 +297,18 @@ bool kitchen_conversions_face_loop(movement_event_t event, movement_settings_t *
     switch (event.event_type)
     {
     case EVENT_ACTIVATE:
-        // Initial UI here.
-        watch_display_string("Kn  Convs", 0);
+        // Initial UI
+        display(state, settings, event.subsecond);
         break;
     case EVENT_TICK:
         // Update for blink animation on input
         if (state->pg == input)
         {
-            display(state, settings, event.subsecond % 2);
+            display(state, settings, event.subsecond);
+
+            // Increments input twice a second when light button held
+            if (state->light_held && event.subsecond % 2)
+                increment_input(state);
         }
         break;
     case EVENT_LIGHT_BUTTON_UP:
@@ -311,16 +328,7 @@ bool kitchen_conversions_face_loop(movement_event_t event, movement_settings_t *
             break;
 
         case input:
-            // Wraps at 6 digits unless gas mark selected
-            if (state->selection_index < (DISPLAY_DIGITS - 1) - 2 * (state->measurement_i == TEMP && state->from_i == 2))
-            {
-                state->selection_index++;
-            }
-            else
-            {
-                state->pg++;
-                display(state, settings, event.subsecond % 2);
-            }
+            increment_input(state);
             break;
 
         default:
@@ -329,7 +337,9 @@ bool kitchen_conversions_face_loop(movement_event_t event, movement_settings_t *
 
         // Light button does nothing on final screen
         if (state->pg != result)
-            display(state, settings, event.subsecond % 2);
+            display(state, settings, event.subsecond);
+
+        state->light_held = false;
 
         break;
 
@@ -337,15 +347,17 @@ bool kitchen_conversions_face_loop(movement_event_t event, movement_settings_t *
         // Increments selected digit
         if (state->pg == input)
         {
-            // Increment digit by itself (wraps)
-            uint8_t digit = state->selection_value / pow_10(DISPLAY_DIGITS - 1 - state->selection_index) % 10;
-            if (digit != 9)
+
+            // Moves between digits in input
+            // Wraps at 6 digits unless gas mark selected
+            if (state->selection_index < (DISPLAY_DIGITS - 1) - 2 * (state->measurement_i == TEMP && state->from_i == 2))
             {
-                state->selection_value += pow_10(DISPLAY_DIGITS - 1 - state->selection_index);
+                state->selection_index++;
             }
             else
             {
-                state->selection_value -= 9 * pow_10(DISPLAY_DIGITS - 1 - state->selection_index);
+                state->pg++;
+                display(state, settings, event.subsecond);
             }
         }
         // Moves forward 1 page
@@ -365,13 +377,15 @@ bool kitchen_conversions_face_loop(movement_event_t event, movement_settings_t *
                 watch_buzzer_play_note(BUZZER_NOTE_C7, 50);
         }
 
-        display(state, settings, event.subsecond % 2);
+        display(state, settings, event.subsecond);
+
+        state->light_held = false;
 
         break;
 
     case EVENT_ALARM_LONG_PRESS:
         // Moves backwards through pages, resetting certain values
-        if (state->pg != title)
+        if (state->pg != measurement)
         {
             switch (state->pg)
             {
@@ -403,11 +417,13 @@ bool kitchen_conversions_face_loop(movement_event_t event, movement_settings_t *
             }
 
             state->pg--;
-            display(state, settings, event.subsecond % 2);
+            display(state, settings, event.subsecond);
 
             // Play beep
             if (settings->bit.button_should_sound)
                 watch_buzzer_play_note(BUZZER_NOTE_C8, 50);
+
+            state->light_held = false;
         }
         break;
 
@@ -426,7 +442,7 @@ bool kitchen_conversions_face_loop(movement_event_t event, movement_settings_t *
 
             if (state->pg == from || state->pg == to)
             {
-                display(state, settings, event.subsecond % 2);
+                display(state, settings, event.subsecond);
 
                 // Play bleep
                 if (settings->bit.button_should_sound)
@@ -434,29 +450,24 @@ bool kitchen_conversions_face_loop(movement_event_t event, movement_settings_t *
             }
         }
 
+        // Sets flag to increment input digit when light held
+        if (state->pg == input)
+            state->light_held = true;
+
+        break;
+
+    case EVENT_LIGHT_LONG_UP:
+        state->light_held = false;
         break;
 
     case EVENT_TIMEOUT:
-        // Your watch face will receive this event after a period of inactivity. If it makes sense to resign,
-        // you may uncomment this line to move back to the fifirst watch face in the list:
         movement_move_to_face(0);
         break;
 
     default:
-        // Movement's default loop handler will step in for any cases you don't handle above:
-        // * EVENT_LIGHT_BUTTON_DOWN lights the LED
-        // * EVENT_MODE_BUTTON_UP moves to the next watch face in the list
-        // * EVENT_MODE_LONG_PRESS returns to the first watch face (or skips to the secondary watch face, if configured)
-        // You can override any of these behaviors by adding a case for these events to this switch statement.
         return movement_default_loop_handler(event, settings);
     }
 
-    // return true if the watch can enter standby mode. Generally speaking, you should always return true.
-    // Exceptions:
-    //  * If you are displaying a color using the low-level watch_set_led_color function, you should return false.
-    //  * If you are sounding the buzzer using the low-level watch_set_buzzer_on function, you should return false.
-    // Note that if you are driving the LED or buzzer using Movement functions like movement_illuminate_led or
-    // movement_play_alarm, you can still return true. This guidance only applies to the low-level watch_ functions.
     return true;
 }
 

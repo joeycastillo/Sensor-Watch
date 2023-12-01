@@ -43,12 +43,11 @@
  *
  */
 
-#define SCREEN_NUM 6
+#define SCREEN_NUM 5
 
 // Names of each page
 typedef enum
 {
-    title,
     measurement,
     from,
     to,
@@ -69,6 +68,7 @@ typedef struct
     bool to_is_us;
     uint32_t selection_value;
     uint8_t selection_index;
+    bool light_held;
 } kitchen_conversions_state_t;
 
 void kitchen_conversions_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void **context_ptr);
