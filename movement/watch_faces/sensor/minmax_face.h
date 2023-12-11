@@ -31,10 +31,17 @@
 #define LOGGING_DATA_POINTS (24)
 
 /*
- * Log for the min. and max. temperature over the last 24h
+ * Log for the min. and max. temperature over the last 24h.
  *
- * To use...
+ * Temperature is logged once a minute, every minute. Results are
+ * stored, noting the highest and lowest temperatures observed within
+ * any given hour. The watch face then displays the minimum or maximum
+ * temperature recorded over the last 24h.
  *
+ * A long press of the light button changes units between Celsius and
+ * Fahrenheit. Pressing the alarm button switches between displaying the
+ * minimum and maximum observed temperatures. If no buttons are pressed,
+ * the watch face will eventually time out and return home.
  */
 
 typedef struct {
