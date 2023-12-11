@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 <#author_name#>
+ * Copyright (c) 2023 Mark Blyth
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -106,7 +106,6 @@ bool minmax_face_loop(movement_event_t event, movement_settings_t *settings, voi
 
     switch (event.event_type) {
 	case EVENT_ACTIVATE:
-            // Show your initial UI here.
 	    temp_c = _get_displayed_temperature_c(state);
 	    _minmax_face_update_display(temp_c, settings->bit.use_imperial_units);
             break;
