@@ -244,8 +244,8 @@ typedef struct {
     movement_settings_t settings;
 
     // transient properties
-    int16_t current_watch_face;
-    int16_t next_watch_face;
+    int16_t current_face_idx;
+    int16_t next_face_idx;
     bool watch_face_changed;
     bool fast_tick_enabled;
     int16_t fast_ticks;

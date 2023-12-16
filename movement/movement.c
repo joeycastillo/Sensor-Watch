@@ -232,7 +232,7 @@ bool movement_default_loop_handler(movement_event_t event, movement_settings_t *
             movement_illuminate_led();
             break;
         case EVENT_MODE_LONG_PRESS:
-            if (MOVEMENT_SECONDARY_FACE_INDEX && movement_state.current_watch_face == 0) {
+            if (MOVEMENT_SECONDARY_FACE_INDEX && movement_state.current_face_idx == 0) {
                 movement_move_to_face(MOVEMENT_SECONDARY_FACE_INDEX);
             } else {
                 movement_move_to_face(0);
@@ -247,25 +247,25 @@ bool movement_default_loop_handler(movement_event_t event, movement_settings_t *
 
 void movement_move_to_face(uint8_t watch_face_index) {
     movement_state.watch_face_changed = true;
-    movement_state.next_watch_face = watch_face_index;
+    movement_state.next_face_idx = watch_face_index;
 }
 
 void movement_move_to_next_face(void) {
     uint16_t face_max;
     if (MOVEMENT_SECONDARY_FACE_INDEX) {
-        face_max = (movement_state.current_watch_face < (int16_t)MOVEMENT_SECONDARY_FACE_INDEX) ? MOVEMENT_SECONDARY_FACE_INDEX : MOVEMENT_NUM_FACES;
+        face_max = (movement_state.current_face_idx < (int16_t)MOVEMENT_SECONDARY_FACE_INDEX) ? MOVEMENT_SECONDARY_FACE_INDEX : MOVEMENT_NUM_FACES;
     } else {
         face_max = MOVEMENT_NUM_FACES;
     }
-    movement_move_to_face((movement_state.current_watch_face + 1) % face_max);
+    movement_move_to_face((movement_state.current_face_idx + 1) % face_max);
 }
 
 void movement_schedule_background_task(watch_date_time date_time) {
-    movement_schedule_background_task_for_face(movement_state.current_watch_face, date_time);
+    movement_schedule_background_task_for_face(movement_state.current_face_idx, date_time);
 }
 
 void movement_cancel_background_task(void) {
-    movement_cancel_background_task_for_face(movement_state.current_watch_face);
+    movement_cancel_background_task_for_face(movement_state.current_face_idx);
 }
 
 void movement_schedule_background_task_for_face(uint8_t watch_face_index, watch_date_time date_time) {
@@ -414,7 +414,7 @@ void app_setup(void) {
             watch_faces[i].setup(&movement_state.settings, i, &watch_face_contexts[i]);
         }
 
-        watch_faces[movement_state.current_watch_face].activate(&movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
+        watch_faces[movement_state.current_face_idx].activate(&movement_state.settings, watch_face_contexts[movement_state.current_face_idx]);
         event.subsecond = 0;
         event.event_type = EVENT_ACTIVATE;
     }
@@ -434,7 +434,7 @@ static void _sleep_mode_app_loop(void) {
         if (movement_state.needs_background_tasks_handled) _movement_handle_background_tasks();
 
         event.event_type = EVENT_LOW_ENERGY_UPDATE;
-        watch_faces[movement_state.current_watch_face].loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
+        watch_faces[movement_state.current_face_idx].loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_face_idx]);
 
         // if we need to wake immediately, do it!
         if (movement_state.needs_wake) return;
@@ -447,13 +447,13 @@ bool app_loop(void) {
     if (movement_state.watch_face_changed) {
         if (movement_state.settings.bit.button_should_sound) {
             // low note for nonzero case, high note for return to watch_face 0
-            watch_buzzer_play_note(movement_state.next_watch_face ? BUZZER_NOTE_C7 : BUZZER_NOTE_C8, 50);
+            watch_buzzer_play_note(movement_state.next_face_idx ? BUZZER_NOTE_C7 : BUZZER_NOTE_C8, 50);
         }
-        watch_faces[movement_state.current_watch_face].resign(&movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
-        movement_state.current_watch_face = movement_state.next_watch_face;
+        watch_faces[movement_state.current_face_idx].resign(&movement_state.settings, watch_face_contexts[movement_state.current_face_idx]);
+        movement_state.current_face_idx = movement_state.next_face_idx;
         watch_clear_display();
         movement_request_tick_frequency(1);
-        watch_faces[movement_state.current_watch_face].activate(&movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
+        watch_faces[movement_state.current_face_idx].activate(&movement_state.settings, watch_face_contexts[movement_state.current_face_idx]);
         event.subsecond = 0;
         event.event_type = EVENT_ACTIVATE;
         movement_state.watch_face_changed = false;
@@ -498,7 +498,7 @@ bool app_loop(void) {
 
     if (event.event_type) {
         event.subsecond = movement_state.subsecond;
-        can_sleep = watch_faces[movement_state.current_watch_face].loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
+        can_sleep = watch_faces[movement_state.current_face_idx].loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_face_idx]);
         event.event_type = EVENT_NONE;
     }
 
@@ -510,9 +510,9 @@ bool app_loop(void) {
             event.event_type = EVENT_TIMEOUT;
         }
         event.subsecond = movement_state.subsecond;
-        watch_faces[movement_state.current_watch_face].loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
+        watch_faces[movement_state.current_face_idx].loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_face_idx]);
         event.event_type = EVENT_NONE;
-        if (movement_state.settings.bit.to_always && movement_state.current_watch_face != 0) {
+        if (movement_state.settings.bit.to_always && movement_state.current_face_idx != 0) {
             // ...but if the user has "timeout always" set, give it the boot.
             movement_move_to_face(0);
         }
