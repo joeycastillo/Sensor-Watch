@@ -444,16 +444,19 @@ static void _sleep_mode_app_loop(void) {
 }
 
 bool app_loop(void) {
+    const watch_face_t *wf = &watch_faces[movement_state.current_face_idx];
     if (movement_state.watch_face_changed) {
         if (movement_state.settings.bit.button_should_sound) {
             // low note for nonzero case, high note for return to watch_face 0
             watch_buzzer_play_note(movement_state.next_face_idx ? BUZZER_NOTE_C7 : BUZZER_NOTE_C8, 50);
         }
-        watch_faces[movement_state.current_face_idx].resign(&movement_state.settings, watch_face_contexts[movement_state.current_face_idx]);
+        wf->resign(&movement_state.settings, watch_face_contexts[movement_state.current_face_idx]);
         movement_state.current_face_idx = movement_state.next_face_idx;
+        // we have just updated the face idx, so we must recache the watch face pointer.
+        wf = &watch_faces[movement_state.current_face_idx];
         watch_clear_display();
         movement_request_tick_frequency(1);
-        watch_faces[movement_state.current_face_idx].activate(&movement_state.settings, watch_face_contexts[movement_state.current_face_idx]);
+        wf->activate(&movement_state.settings, watch_face_contexts[movement_state.current_face_idx]);
         event.subsecond = 0;
         event.event_type = EVENT_ACTIVATE;
         movement_state.watch_face_changed = false;
@@ -494,11 +497,13 @@ bool app_loop(void) {
         app_setup();
     }
 
+    // default to being allowed to sleep by the face.
     static bool can_sleep = true;
 
     if (event.event_type) {
         event.subsecond = movement_state.subsecond;
-        can_sleep = watch_faces[movement_state.current_face_idx].loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_face_idx]);
+        // the first trip through the loop overrides the can_sleep state
+        can_sleep = wf->loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_face_idx]);
         event.event_type = EVENT_NONE;
     }
 
@@ -510,7 +515,14 @@ bool app_loop(void) {
             event.event_type = EVENT_TIMEOUT;
         }
         event.subsecond = movement_state.subsecond;
-        watch_faces[movement_state.current_face_idx].loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_face_idx]);
+        // if we run through the loop again to time out, we need to reconsider whether or not we can sleep.
+        // if the first trip said true, but this trip said false, we need the false to override, thus
+        // we will be using boolean AND:
+        //
+        // first trip  | can sleep | cannot sleep | can sleep    | cannot sleep
+        // second trip | can sleep | cannot sleep | cannot sleep | can sleep
+        //          && | can sleep | cannot sleep | cannot sleep | cannot sleep
+        can_sleep = can_sleep && wf->loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_face_idx]);
         event.event_type = EVENT_NONE;
         if (movement_state.settings.bit.to_always && movement_state.current_face_idx != 0) {
             // ...but if the user has "timeout always" set, give it the boot.
