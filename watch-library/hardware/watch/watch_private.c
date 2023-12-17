@@ -35,6 +35,10 @@ void _watch_init(void) {
 
     // Use switching regulator for lower power consumption.
     SUPC->VREG.bit.SEL = 1;
+    // work around a silicon erratum that causes the microcontroller to lock up on leaving standby:
+    // request that the voltage regulator run in standby, and also that it switch to PL0.
+    SUPC->VREG.bit.RUNSTDBY = 1;
+    SUPC->VREG.bit.STDBYPL0 = 1;
     while(!SUPC->STATUS.bit.VREGRDY); // wait for voltage regulator to become ready
 
     // check the battery voltage...
