@@ -96,4 +96,8 @@ void watch_reset_to_bootloader(void);
   */
 int read(int file, char *ptr, int len);
 
+/** @brief Disables the TRNG, working around a silicon erratum.
+ */
+void watch_disable_TRNG(Trng* hw);
+
 #endif /* WATCH_H_ */
