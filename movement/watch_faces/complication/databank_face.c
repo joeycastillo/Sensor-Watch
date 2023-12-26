@@ -20,8 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
- * Displays some pre-defined data that you might want to remember. Math constants, birthdays, phone numbers...
  */
 
 #include <stdlib.h>
@@ -96,12 +94,8 @@ bool databank_face_loop(movement_event_t event, movement_settings_t *settings, v
         case EVENT_ACTIVATE:
              display();
         case EVENT_TICK:
-            // on activate and tick, if we are animating,
             break;
         case EVENT_LIGHT_BUTTON_UP:
-            // when the user presses 'light', we illuminate the LED. We could override this if
-            // our UI needed an additional button for input, consuming the light button press
-            // but not illuminating the LED.
             databank_state.current_word = (databank_state.current_word + max_words - 1) % max_words;
             display();
             break;
@@ -116,8 +110,6 @@ bool databank_face_loop(movement_event_t event, movement_settings_t *settings, v
             display();
             break;
         case EVENT_ALARM_BUTTON_UP:
-            // when the user presses 'alarm', we toggle the state of the animation. If animating,
-            // we stop; if stopped, we resume.
             databank_state.current_word = (databank_state.current_word + 1) % max_words;
             display();
             break;

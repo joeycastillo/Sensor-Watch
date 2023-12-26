@@ -62,6 +62,7 @@ CFLAGS += -MD -MP -MT $(BUILD)/$(*F).o -MF $(BUILD)/$(@F).d
 LDFLAGS += -mcpu=cortex-m0plus -mthumb
 LDFLAGS += -Wl,--gc-sections
 LDFLAGS += -Wl,--script=$(TOP)/watch-library/hardware/linker/saml22j18.ld
+LDFLAGS += -Wl,--print-memory-usage
 
 LIBS += -lm
 
@@ -207,8 +208,17 @@ ifeq ($(LED), BLUE)
 CFLAGS += -DWATCH_IS_BLUE_BOARD
 endif
 
-ifeq ($(LED), RED)
+ifndef COLOR
+$(error Set the COLOR variable to RED, BLUE, or GREEN depending on what board you have.)
+endif
+
+ifeq ($(COLOR), BLUE)
+CFLAGS += -DWATCH_IS_BLUE_BOARD
+endif
+
+ifeq ($(COLOR), RED)
 CFLAGS += -DWATCH_INVERT_LED_POLARITY
+CFLAGS += -DNO_FREQCORR
 endif
 
 ifdef FIRMWARE
