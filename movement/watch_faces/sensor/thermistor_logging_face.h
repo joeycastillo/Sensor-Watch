@@ -25,6 +25,34 @@
 #ifndef THERMISTOR_LOGGING_FACE_H_
 #define THERMISTOR_LOGGING_FACE_H_
 
+/*
+ * THERMISTOR LOGGING (aka Temperature Log)
+ *
+ * This watch face automatically logs the temperature once an hour, and
+ * maintains a 36-hour log of readings. This watch face is admittedly rather
+ * complex, and bears some explanation.
+ *
+ * The main display shows the letters “TL” in the top left, indicating the
+ * name of the watch face. At the top right, it displays the index of the
+ * reading; 0 represents the most recent reading taken, 1 represents one
+ * hour earlier, etc. The bottom line in this mode displays the logged
+ * temperature.
+ *
+ * A short press of the “Alarm” button advances to the next oldest reading;
+ * you will see the number at the top right advance from 0 to 1 to 2, all
+ * the way to 35, the oldest reading available.
+ *
+ * A short press of the “Light” button will briefly display the timestamp
+ * of the reading. The letters at the top left will display the word “At”,
+ * and the main line will display the timestamp of the currently displayed
+ * data point. The number in the top right will display the day of the month
+ * for the given data point; for example, you can read “At 22 3:00 PM” as
+ * ”At 3:00 PM on the 22nd”.
+ *
+ * If you need to illuminate the LED to read the data point, long press the
+ * Light button and release it.
+ */
+
 #include "movement.h"
 #include "watch.h"
 

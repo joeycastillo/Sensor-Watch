@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Joey Castillo
+ * Copyright (c) 2023 Per Waagø
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,25 +22,36 @@
  * SOFTWARE.
  */
 
-#ifndef MOVEMENT_CONFIG_H_
-#define MOVEMENT_CONFIG_H_
+#ifndef TUNING_TONES_FACE_H_
+#define TUNING_TONES_FACE_H_
 
-#include "movement_faces.h"
+#include "movement.h"
 
-const watch_face_t watch_faces[] = {
-    simple_clock_face,
-    sunrise_sunset_face,
-    moon_phase_face,
-    thermistor_readout_face,
-    thermistor_logging_face,
-    blinky_face,
+/*
+ * A DESCRIPTION OF YOUR WATCH FACE
+ *
+ * and a description of how use it
+ *
+ */
 
-    preferences_face,
-    set_time_face,
-};
+typedef struct {
+    // Anything you need to keep track of, put it here!
+    bool playing;
+    size_t note_ind;
+} tuning_tones_state_t;
 
-#define MOVEMENT_NUM_FACES (sizeof(watch_faces) / sizeof(watch_face_t))
+void tuning_tones_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
+void tuning_tones_face_activate(movement_settings_t *settings, void *context);
+bool tuning_tones_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void tuning_tones_face_resign(movement_settings_t *settings, void *context);
 
-#define SIGNAL_TUNE_DEFAULT
+#define tuning_tones_face ((const watch_face_t){ \
+    tuning_tones_face_setup, \
+    tuning_tones_face_activate, \
+    tuning_tones_face_loop, \
+    tuning_tones_face_resign, \
+    NULL, \
+})
 
-#endif // MOVEMENT_CONFIG_H_
+#endif // TUNING_TONES_FACE_H_
+

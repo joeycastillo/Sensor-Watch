@@ -25,6 +25,15 @@
 #ifndef RPN_CALCULATOR_FACE_H_
 #define RPN_CALCULATOR_FACE_H_
 
+/*
+ * RPN CALCULATOR face
+ *
+ * A calculator face using reverse polish notation (RPN).
+ *
+ * For usage instructions, please refer to the wiki:
+ * https://www.sensorwatch.net/docs/watchfaces/complication/#rpn-calculator
+ */
+
 #include "movement.h"
 
 #define RPN_CALCULATOR_STACK_SIZE 4
