@@ -391,10 +391,8 @@ void app_setup(void) {
         }
 
         // set up the 1 minute alarm (for background tasks and low power updates)
-        watch_date_time alarm_time;
-        alarm_time.reg = 0;
-        alarm_time.unit.second = 59; // after a match, the alarm fires at the next rising edge of CLK_RTC_CNT, so 59 seconds lets us update at :00
-        watch_rtc_register_alarm_callback(cb_alarm_fired, alarm_time, ALARM_MATCH_SS);
+        // TODO
+        // watch_rtc_register_regular_callback(cb_alarm_fired, alarm_time, ALARM_MATCH_SS);
     }
     if (movement_state.le_mode_ticks != -1) {
         watch_disable_extwake_interrupt(BTN_ALARM);
