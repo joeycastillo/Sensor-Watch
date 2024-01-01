@@ -33,7 +33,9 @@ static const uint32_t IndicatorSegments[] = {
     SLCD_SEGID(1, 10), // WATCH_INDICATOR_LAP
 };
 
-void watch_display_character(uint8_t character, uint8_t position) {
+static bool invert = false;
+
+uint8_t watch_convert_char_to_segdata(uint8_t character, uint8_t position) {
     // special cases for positions 4 and 6
     if (position == 4 || position == 6) {
         if (character == '7') character = '&'; // "lowercase" 7
@@ -64,63 +66,70 @@ void watch_display_character(uint8_t character, uint8_t position) {
     } else {
         if (character == 'R') character = 'r'; // R needs to be lowercase almost everywhere
     }
-    if (position == 0) {
-        watch_clear_pixel(0, 15); // clear funky ninth segment
-    } else {
+    if (position != 0) {
         if (character == 'I') character = 'l'; // uppercase I only works in position 0
     }
 
-    uint64_t segmap = Segment_Map[position];
-    uint64_t segdata = Character_Set[character - 0x20];
-
-    for (int i = 0; i < 8; i++) {
-        uint8_t com = (segmap & 0xFF) >> 6;
-        if (com > 2) {
-            // COM3 means no segment exists; skip it.
-            segmap = segmap >> 8;
-            segdata = segdata >> 1;
-            continue;
-        }
-        uint8_t seg = segmap & 0x3F;
-
-        if (segdata & 1)
-          watch_set_pixel(com, seg);
-        else
-          watch_clear_pixel(com, seg);
-
-        segmap = segmap >> 8;
-        segdata = segdata >> 1;
-    }
-
-    if (character == 'T' && position == 1) watch_set_pixel(1, 12); // add descender
-    else if (position == 0 && (character == 'B' || character == 'D' || character == '@')) watch_set_pixel(0, 15); // add funky ninth segment
-    else if (position == 1 && (character == 'B' || character == 'D' || character == '@')) watch_set_pixel(0, 12); // add funky ninth segment
+    return Character_Set[character - 0x20];
 }
 
-void watch_display_character_lp_seconds(uint8_t character, uint8_t position) {
-    // Will only work for digits and for positions  8 and 9 - but less code & checks to reduce power consumption
+uint8_t watch_convert_char_to_segdata_lp(uint8_t character) {
+    // i.e. remove any special casing cf watch_convert_char_to_segdata
+    return Character_Set[character - 0x20];
+}
 
-    uint64_t segmap = Segment_Map[position];
-    uint64_t segdata = Character_Set[character - 0x20];
+void watch_display_character(uint8_t character, uint8_t position) {
+    watch_display_segdata(watch_convert_char_to_segdata(character, position), position);
 
-    for (int i = 0; i < 8; i++) {
-        uint8_t com = (segmap & 0xFF) >> 6;
-        if (com > 2) {
-            // COM3 means no segment exists; skip it.
-            segmap = segmap >> 8;
-            segdata = segdata >> 1;
-            continue;
-        }
-        uint8_t seg = segmap & 0x3F;
+    // Handle the segments that are not in our usual map at all.
+    if (position == 0) {
+        if (character == 'B' || character == 'D' || character == '@') watch_set_pixel(0, 15); // bottom left serif
+        else watch_clear_pixel(0, 15);
 
-        if (segdata & 1)
-          watch_set_pixel(com, seg);
-        else
-          watch_clear_pixel(com, seg);
+    } else if (position == 1) {
+        if (character == 'T') watch_set_pixel(1, 12); // add descender (left hand side vertical line)
 
-        segmap = segmap >> 8;
-        segdata = segdata >> 1;
+        if (character == 'B' || character == 'D' || character == '@') watch_set_pixel(0, 12); // top left serif
+        else watch_clear_pixel(0, 12);
     }
+}
+
+// Allow us to rotate characters 180 degrees (see watch_private_display.h for bit position diagram).
+static const uint8_t vert_invert_map[8] = {
+    3, 4, 5, 0, 1, 2, 6, 7,
+};
+
+void watch_display_segment(uint8_t bit_pos, uint8_t position, bool on) {
+    uint64_t segmap = Segment_Map[position] >> (8 * bit_pos);
+    uint8_t com = (segmap & 0xFF) >> 6;
+
+    if (com > 2) {
+        // COM3 means no segment exists; skip it.
+        return;
+    }
+
+    uint8_t seg = segmap & 0x3F;
+
+    if (on) {
+        watch_set_pixel(com, seg);
+    } else {
+        watch_clear_pixel(com, seg);
+    }
+}
+
+void watch_display_segdata(uint8_t segdata, uint8_t position) {
+    for (int i = 0; i < 8; i++) {
+        uint8_t bit_pos = invert ? vert_invert_map[i] : i;
+        watch_display_segment(bit_pos, position, (1 << i) & segdata);
+    }
+}
+
+void watch_display_invert(bool inv) {
+    invert = inv;
+}
+
+void watch_display_character_lp(uint8_t character, uint8_t position) {
+    watch_display_segdata(watch_convert_char_to_segdata_lp(character), position);
 }
 
 void watch_display_string(char *string, uint8_t position) {
@@ -133,7 +142,7 @@ void watch_display_string(char *string, uint8_t position) {
     // uncomment this line to see screen output on terminal, i.e.
     //   FR  29
     // 11 50 23
-    // note that for partial displays (positon > 0) it will only show the characters that were updated.
+    // note that for partial displays (position > 0) it will only show the characters that were updated.
     // printf("________\n  %c%c  %c%c\n%c%c %c%c %c%c\n--------\n", (position > 0) ? ' ' : string[0], (position > 1) ? ' ' : string[1 - position], (position > 2) ? ' ' : string[2 - position], (position > 3) ? ' ' : string[3 - position], (position > 4) ? ' ' : string[4 - position], (position > 5) ? ' ' : string[5 - position], (position > 6) ? ' ' : string[6 - position], (position > 7) ? ' ' : string[7 - position], (position > 8) ? ' ' : string[8 - position], (position > 9) ? ' ' : string[9 - position]);
 }
 
