@@ -245,7 +245,6 @@ static void value_increase(int16_t delta) {
                     nanosec_state.correction_cadence = (delta > 0) ? 1 : 20;
                     break;
             }
-            nanosec_state.correction_profile = (nanosec_state.correction_profile + delta) % nanosec_profile_count;
             break;
         case 6: // Aging
             nanosec_state.aging_ppm_pa += delta;
