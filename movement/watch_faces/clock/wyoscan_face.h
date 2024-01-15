@@ -25,14 +25,31 @@
 #ifndef WYOSCAN_FACE_H_
 #define WYOSCAN_FACE_H_
 
-#include "movement.h"
-
 /*
- * A DESCRIPTION OF YOUR WATCH FACE
+ * WYOSCAN .5 hz watchface
  *
- * and a description of how use it
+ * This is a recreation of the Wyoscan watch, which was a $175 watch in 2014.
+ * It was an f-91w pcb replacement.
+ * 
+ * Video: https://user-images.githubusercontent.com/1795778/252550124-e07f0ed1-e328-4337-a654-fa1ee65d883f.mp4
+ * Background information: https://artmetropole.com/shop/11460
+ * Demo of what it looks like: https://www.o-r-g.com/apps/wyoscan
+ *
+ * 8 frames per number * 6 numbers + the trailing 16 frames = 64 frames
+ * at 32 frames per second, this is a 2-second cycle time or 0.5 Hz.
+ *
+ * It is giving me a stack overflow after about 2.5 cycles of the time display
+ * in the emulator, but it works fine on the watch.
+ *
+ * I'd like to make something for the low energy mode, but I haven't thought
+ * about how that might work, right now it just freezes in low energy mode
+ * until you press the 12-24HR button.
+ *
+ * There are no controls; it simply animates as long as the page is active.
  *
  */
+
+#include "movement.h"
 
 #define MAX_ILLUMINATED_SEGMENTS 16
 

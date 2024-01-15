@@ -293,25 +293,31 @@ void movement_request_wake() {
     _movement_reset_inactivity_countdown();
 }
 
-void movement_play_signal(void) {
-    bool buzzer_enabled = watch_is_buzzer_or_led_enabled();
-    if (!buzzer_enabled) {
-        watch_enable_buzzer();
-    }
-    watch_buzzer_play_note(BUZZER_NOTE_C8, 75);
-    watch_buzzer_play_note(BUZZER_NOTE_REST, 100);
-    watch_buzzer_play_note(BUZZER_NOTE_C8, 100);
-    if (!buzzer_enabled) {
-        watch_disable_buzzer();
-    }
+void end_buzzing() {
+    movement_state.is_buzzing = false;
 }
 
-void movement_play_tune(void) {
-    if (!watch_is_buzzer_or_led_enabled()) {
-        watch_enable_buzzer();
-        watch_buzzer_play_sequence(signal_tune, watch_disable_buzzer);
+void end_buzzing_and_disable_buzzer(void) {
+    end_buzzing();
+    watch_disable_buzzer();
+}
+
+void movement_play_signal(void) {
+    void *maybe_disable_buzzer = end_buzzing_and_disable_buzzer;
+    if (watch_is_buzzer_or_led_enabled()) {
+        maybe_disable_buzzer = end_buzzing;
     } else {
-        watch_buzzer_play_sequence(signal_tune, NULL);
+        watch_enable_buzzer();
+    }
+    movement_state.is_buzzing = true;
+    watch_buzzer_play_sequence(signal_tune, maybe_disable_buzzer);
+    if (movement_state.le_mode_ticks == -1) {
+        // the watch is asleep. wake it up for "1" round through the main loop.
+        // the sleep_mode_app_loop will notice the is_buzzing and note that it
+        // only woke up to beep and then it will spinlock until the callback
+        // turns off the is_buzzing flag.
+        movement_state.needs_wake = true;
+        movement_state.le_mode_ticks = 1;
     }
 }
 
@@ -444,6 +450,7 @@ static void _sleep_mode_app_loop(void) {
 }
 
 bool app_loop(void) {
+    bool woke_up_for_buzzer = false;
     if (movement_state.watch_face_changed) {
         if (movement_state.settings.bit.button_should_sound) {
             // low note for nonzero case, high note for return to watch_face 0
@@ -487,7 +494,11 @@ bool app_loop(void) {
         // _sleep_mode_app_loop takes over at this point and loops until le_mode_ticks is reset by the extwake handler,
         // or wake is requested using the movement_request_wake function.
         _sleep_mode_app_loop();
-        // as soon as _sleep_mode_app_loop returns, we reactivate ourselves.
+        // as soon as _sleep_mode_app_loop returns, we prepare to reactivate
+        // ourselves, but first, we check to see if we woke up for the buzzer:
+        if (movement_state.is_buzzing) {
+            woke_up_for_buzzer = true;
+        }
         event.event_type = EVENT_ACTIVATE;
         // this is a hack tho: waking from sleep mode, app_setup does get called, but it happens before we have reset our ticks.
         // need to figure out if there's a better heuristic for determining how we woke up.
@@ -569,8 +580,13 @@ bool app_loop(void) {
     // if the watch face changed, we can't sleep because we need to update the display.
     if (movement_state.watch_face_changed) can_sleep = false;
 
-    // if the buzzer or the LED is on, we need to stay awake to keep the TCC running.
-    if (movement_state.is_buzzing || movement_state.light_ticks != -1) can_sleep = false;
+    // if we woke up for the buzzer, stay awake until it's finished.
+    if (woke_up_for_buzzer) {
+        while(watch_is_buzzer_or_led_enabled());
+    }
+
+    // if the LED is on, we need to stay awake to keep the TCC running.
+    if (movement_state.light_ticks != -1) can_sleep = false;
 
     return can_sleep;
 }
