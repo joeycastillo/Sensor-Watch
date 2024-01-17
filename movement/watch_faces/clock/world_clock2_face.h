@@ -26,6 +26,65 @@
 #ifndef WORLD_CLOCK2_FACE_H_
 #define WORLD_CLOCK2_FACE_H_
 
+/*
+ * WORLD CLOCK 2
+ *
+ * This is an alternative world clock face that allows the user to cycle
+ * through a list of selected time zones. It extends the original
+ * implementation by Joey Castillo. The face has two modes: display mode
+ * and settings mode.
+ *
+ * Settings mode
+ *
+ * When the clock face is activated for the first time, it enters settings
+ * mode. Here, the user can select the time zones they want to display. The
+ * face shows a summary of the current time zone:
+ *  * The top of the face displays the first two letters of the time zone
+ *    abbreviation, such as "PS" for Pacific Standard Time or CE for
+ *    "Central European Time".
+ *  * The upper-right corner shows the index number of the time zone. This
+ *    helps avoid confusion when multiple time zones have the same two-letter
+ *    abbreviation.
+ *  * The main display shows the offset from UTC, with a "+" indicating a
+ *    positive offset and a "-" indicating a negative offset. For example,
+ *    the offset for Japanese Standard Time is displayed as "+9:00".
+ *
+ * The user can navigate through the time zones and select them using the
+ * following buttons:
+ *  * The ALARM button moves forward to the next time zone, while the LIGHT
+ *    button moves backward to the previous zone. This way, the user can
+ *    cycle through all 41 supported time zones.
+ *  * A long press on the LIGHT button selects the current time zone, and
+ *    the signal indicator appears at the top left. Another long press of
+ *    the LIGHT button deselects the time zone.
+ *  * A long press on the ALARM button exits settings mode and returns to
+ *    display mode.
+ *
+ * Display mode
+ *
+ * In the display mode, the face shows the time of the currently selected
+ * time zone. The face includes the following components:
+ *  * The top of the face displays the first two letters of the time zone
+ *    abbreviation, such as "PS" for Pacific Standard Time or "CE" for
+ *    Central European Time.
+ *  * The upper-right corner shows the current day of the month, which helps
+ *    indicate time zones that cross the international date line with respect
+ *    to the local time.
+ *  * The main display shows the time in the selected time zone in either
+ *    12-hour or 24-hour form. There is no timeout, allowing users to keep
+ *    the chosen time zone displayed for as long as they wish.
+ *
+ * The user can navigate through the selected time zones using the following
+ * buttons:
+ *  * The ALARM button moves to the next selected time zone, while the LIGHT
+ *    button moves to the previous zone. If no time zone is selected, the
+ *    face simply shows UTC.
+ *  * A long press on the ALARM button enters settings mode and enables the
+ *    user to re-configure the selected time zones.
+ *  * A long press on the LIGHT button activates the LED illumination of the
+ *    watch.
+ */
+
 /* Number of zones. See movement_timezone_offsets. */
 #define NUM_TIME_ZONES  41
 

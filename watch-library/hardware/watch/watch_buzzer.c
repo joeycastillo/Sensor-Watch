@@ -23,6 +23,7 @@
  */
 
 #include "watch_buzzer.h"
+#include "watch_private_buzzer.h"
 #include "../../../watch-library/hardware/include/saml22j18a.h"
 #include "../../../watch-library/hardware/include/component/tc.h"
 #include "../../../watch-library/hardware/hri/hri_tc_l22.h"

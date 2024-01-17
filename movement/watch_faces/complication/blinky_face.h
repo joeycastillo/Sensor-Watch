@@ -25,6 +25,32 @@
 #ifndef BLINKY_FACE_H_
 #define BLINKY_FACE_H_
 
+/*
+ * BLINKY LIGHT face
+ *
+ * The blinky light watch face was designed as a tutorial for making a watch
+ * face in Movement, but it actually might be useful to have a blinking light
+ * in a pinch.
+ *
+ * The screen displays the name of the watch face (”BL”), as well as an S at
+ * the top right for slow blink or an F for fast blink. The bottom line selects
+ * the color: green, red or yellow. You can change the speed of the blinking
+ * light by pressing the Alarm button, and change the color with the Light
+ * button. A long press on the Alarm button starts the blinking light, and
+ * another long press stops it.
+ *
+ * Note that this will chew through your battery! The green LED uses about
+ * 450µA at full brightness, which is 45 times the normal power consumption of
+ * the watch. The red LED is an order of magnitude less efficient (4500 µA),
+ * and the yellow setting lights both LEDs, which chews through nearly
+ * 5 milliamperes. This means that one hour of yellow blinking is likely to
+ * eat up between 2 and 3 percent of the battery’s usable life!
+ *
+ * Still, if you need to signal your location to someone in a dark forest,
+ * this watch face could come in handy. Just try to use the green LED as much
+ * as you can.
+ */
+
 #include "movement.h"
 
 typedef struct {

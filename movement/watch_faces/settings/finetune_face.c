@@ -20,21 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
- * FineTune face allows to align watch with sub-second precision in 25/250ms accuracy.
- * Counts time since previous finetune, and allows to calculate & apply ppm correction for nanosec.
- *
- * Main screen - adjust delay (light/alarm)
- * Long mode press - show hours since previous finetune
- * Long mode press - show calculated ppm correction. You can apply it with long light, or just reset finetune timer with long alarm.
- *
- * Finetune will apply crystal aging correction on every finetune save (as aging is calculated since "last finetune" timestamp) - but you should worry
- * about aging only on second/third years of watch calibration (if you are really looking at less than 10 seconds per year of error).
- *
- * Warning, do not use at the first second of a month, as you might stay at the same month and it will surprise you.
- * Just wait 1 second...We are not fully replicating RTC timer behavior when RTC is off.
- * Simulating months and years is... too much complexity.
- *
  */
 
 #include <stdlib.h>

@@ -25,6 +25,17 @@
 #ifndef BREATHING_FACE_H_
 #define BREATHING_FACE_H_
 
+/*
+ * BOXED BREATHING face
+ *
+ * Breathing is a complication for guiding boxed breathing sessions.
+ * Boxed breathing is a technique to help you stay calm and improve
+ * concentration in stressful situations.
+ *
+ * Usage: Timed messages will cycle as long as this face is active.
+ * Press ALARM to toggle sound.
+ */
+
 #include "movement.h"
 
 void breathing_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
