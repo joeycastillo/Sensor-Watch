@@ -28,6 +28,7 @@
 
 void french_revolutionary_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
+    (void) watch_face_index;
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(french_revolutionary_state_t));
         memset(*context_ptr, 0, sizeof(french_revolutionary_state_t));
@@ -64,7 +65,7 @@ bool french_revolutionary_face_loop(movement_event_t event, movement_settings_t 
             break;
         case EVENT_TICK:
         case EVENT_LOW_ENERGY_UPDATE:
-            
+
             date_time = watch_rtc_get_date_time();
 
             decimal_time = get_decimal_time(&date_time);
@@ -107,6 +108,7 @@ bool french_revolutionary_face_loop(movement_event_t event, movement_settings_t 
             state->use_am_pm = !state->use_am_pm;
             if (state->use_am_pm) {
                 watch_clear_indicator(WATCH_INDICATOR_24H);
+                date_time = watch_rtc_get_date_time();
                 if (date_time.unit.hour < 12) { watch_clear_indicator(WATCH_INDICATOR_PM); }
                 else { watch_set_indicator(WATCH_INDICATOR_PM); }
             } else {
