@@ -80,7 +80,7 @@ uint8_t nonary_digit_map[] = {
     0b01010110, // 4
 };
 
-static uint8_t previous_display[4];
+static uint8_t previous_display[10];
 
 static void display_nonary(int32_t val, int pos, int max_len) {
     int sign = val >= 0 ? 1 : -1;
@@ -122,7 +122,7 @@ void nonary_clock_face_activate(movement_settings_t *settings, void *context) {
     watch_set_colon();
 
     // this ensures that none of the timestamp fields will match, so we can re-render them all.
-    state->previous_date_time = 0xFFFFFFFF;
+    state->previous_date_time.reg = 0xFFFFFFFF;
 
     // Since our seconds aren't really seconds, we need a higher tick frequency
     // to avoid skips and jerky time changes.
@@ -137,17 +137,17 @@ bool nonary_clock_face_loop(movement_event_t event, movement_settings_t *setting
     nonary_clock_state_t *state = (nonary_clock_state_t *)context;
 
     watch_date_time date_time;
-    uint32_t previous_date_time;
+    watch_date_time previous_date_time;
     switch (event.event_type) {
-        case EVENT_TICK:
         case EVENT_ACTIVATE:
+        case EVENT_TICK:
         case EVENT_LOW_ENERGY_UPDATE:
             date_time = watch_rtc_get_date_time();
             previous_date_time = state->previous_date_time;
-            state->previous_date_time = date_time.reg;
+            state->previous_date_time = date_time;
 
             if (event.event_type == EVENT_TICK) {
-                if (previous_date_time == date_time.reg) {
+                if (previous_date_time.reg == date_time.reg) {
                     ++ticks;
                 } else {
                     ticks = 0;
@@ -172,26 +172,27 @@ bool nonary_clock_face_loop(movement_event_t event, movement_settings_t *setting
             if (state->alarm_enabled != settings->bit.alarm_enabled) _update_alarm_indicator(settings->bit.alarm_enabled, state);
 
             int32_t nonary_secs_from_hour = find_nonary_secs_from_hour(date_time, ticks);
-            if (previous_nonary_secs_from_hour != nonary_secs_from_hour) {
-                display_nonary(nonary_secs_from_hour, 9, 4);
-                previous_nonary_secs_from_hour = nonary_secs_from_hour;
-            }
-
-            if ((date_time.reg >> 12) == (previous_date_time >> 12) && event.event_type != EVENT_LOW_ENERGY_UPDATE) {
+            if (previous_nonary_secs_from_hour == nonary_secs_from_hour) {
                 break;
             }
+            previous_nonary_secs_from_hour = nonary_secs_from_hour;
+            display_nonary(nonary_secs_from_hour, 9, 4);
 
             int32_t nonary_hour = (int32_t)date_time.unit.hour - 12 + (nonary_secs_from_hour < 0);
             display_nonary(nonary_hour, 5, 2);
-            char buf[5];
-            sprintf(buf, "%s%2d", watch_utility_get_weekday(date_time), date_time.unit.day);
-            watch_display_string(buf, 0);
 
             if (event.event_type == EVENT_LOW_ENERGY_UPDATE) {
                 watch_display_character_lp(' ', 8);
                 watch_display_character_lp(' ', 9);
                 if (!watch_tick_animation_is_running()) watch_start_tick_animation(500);
             }
+
+            if (date_time.unit.day != previous_date_time.unit.day) {
+                char buf[5];
+                sprintf(buf, "%s%2d", watch_utility_get_weekday(date_time), date_time.unit.day);
+                watch_display_string(buf, 0);
+            }
+
             break;
         case EVENT_ALARM_LONG_PRESS:
             state->signal_enabled = !state->signal_enabled;
