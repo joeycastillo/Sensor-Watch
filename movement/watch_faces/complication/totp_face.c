@@ -69,6 +69,14 @@ static uint8_t keys[] = {
 
 #define NUMBER_OF_CREDENTIALS (sizeof(credentials) / sizeof(totp_parameters_t))
 
+static uint16_t key_offset(uint8_t credential_index) {
+    uint16_t offset = 0;
+    for (uint8_t i = 0; i < credential_index; ++i) {
+        offset += credentials[i].key_size;
+    }
+    return offset;
+}
+
 static void _update_display(totp_state_t *totp_state) {
     char buf[14];
     div_t result;
@@ -126,8 +134,24 @@ bool totp_face_loop(movement_event_t event, movement_settings_t *settings, void 
             TOTP(keys + totp_state->current_key_offset, credentials[totp_state->current_index].key_size, credentials[totp_state->current_index].time_step, credentials[totp_state->current_index].algorithm);
             _update_display(totp_state);
             break;
+        case EVENT_LIGHT_BUTTON_UP:
+            if (totp_state->current_index - 1 >= 0) {
+                totp_state->current_key_offset -= credentials[totp_state->current_index].key_size;
+                totp_state->current_index--;
+            } else {
+                // Wrap around to the last credential.
+                totp_state->current_index = NUMBER_OF_CREDENTIALS - 1;
+                totp_state->current_key_offset = key_offset(totp_state->current_index);
+            }
+            TOTP(keys + totp_state->current_key_offset, credentials[totp_state->current_index].key_size, credentials[totp_state->current_index].time_step, credentials[totp_state->current_index].algorithm);
+            _update_display(totp_state);
+            break;
         case EVENT_ALARM_BUTTON_DOWN:
         case EVENT_ALARM_LONG_PRESS:
+        case EVENT_LIGHT_BUTTON_DOWN:
+            break;
+        case EVENT_LIGHT_LONG_PRESS:
+            movement_illuminate_led();
             break;
         default:
             movement_default_loop_handler(event, settings);
