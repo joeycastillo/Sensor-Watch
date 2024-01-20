@@ -130,6 +130,7 @@ void totp_face_activate(movement_settings_t *settings, void *context) {
 bool totp_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     (void) settings;
     totp_state_t *totp_state = (totp_state_t *)context;
+    totp_t *totp;
 
     switch (event.event_type) {
         case EVENT_TICK:
@@ -148,12 +149,27 @@ bool totp_face_loop(movement_event_t event, movement_settings_t *settings, void 
                 // wrap around to first key
                 totp_state->current_index = 0;
             }
-            totp_t *totp = totp_current(totp_state);
+            totp = totp_current(totp_state);
+            TOTP(totp->key, totp->key_length, totp->period, totp->algorithm);
+            totp_display(totp_state);
+            break;
+        case EVENT_LIGHT_BUTTON_UP:
+            if (totp_state->current_index == 0) {
+                // Wrap around to the last credential.
+                totp_state->current_index = totp_total() - 1;
+            } else {
+                totp_state->current_index--;
+            }
+            totp = totp_current(totp_state);
             TOTP(totp->key, totp->key_length, totp->period, totp->algorithm);
             totp_display(totp_state);
             break;
         case EVENT_ALARM_BUTTON_DOWN:
         case EVENT_ALARM_LONG_PRESS:
+        case EVENT_LIGHT_BUTTON_DOWN:
+            break;
+        case EVENT_LIGHT_LONG_PRESS:
+            movement_illuminate_led();
             break;
         default:
             movement_default_loop_handler(event, settings);

@@ -47,6 +47,8 @@
  * to modify the URI.
  *
  * If you have more than one secret key, press ALARM to cycle through them.
+ * Press LIGHT to cycle in the other direction or keep it pressed longer to
+ * activate the light.
  */
 
 #include "movement.h"
