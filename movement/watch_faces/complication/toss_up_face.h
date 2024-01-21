@@ -25,10 +25,8 @@
 #ifndef TOSS_UP_FACE_H_
 #define TOSS_UP_FACE_H_
 
-#include "movement.h"
-
 /*
- * TOSS UP FACE
+ * TOSS UP face
  * ============
  *
  * Playful watch face for games of chance or divination using coins or dice.
@@ -74,6 +72,8 @@
  * ALARM to add the third dice and LONG PRESS LIGHT again a few times until it becomes a D20.
  *
  */
+
+#include "movement.h"
 
 typedef struct {
     // Anything you need to keep track of, put it here!

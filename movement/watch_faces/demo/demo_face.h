@@ -25,6 +25,17 @@
 #ifndef DEMO_FACE_H_
 #define DEMO_FACE_H_
 
+/*
+ * DEMO FACE
+ *
+ * This watch was designed for the Crowd Supply marketing team, so they could
+ * photograph the various functions of Sensor Watch. The Alarm button advances
+ * through static screens that simulate different watch faces.
+ *
+ * This watch face may only be useful to you if you need to photograph Sensor
+ * Watch, i.e. for a blog post.
+ */
+
 #include "movement.h"
 
 void demo_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);

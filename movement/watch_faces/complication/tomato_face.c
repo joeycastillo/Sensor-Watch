@@ -84,8 +84,10 @@ static void tomato_draw(tomato_state_t *state) {
             sec = 0;
             break;
     }
-    sprintf(buf, "TO %c%2d%02d%2d", kind, min, sec, state->done_count);
-    watch_display_string(buf, 0);
+    if (state->visible) {
+        sprintf(buf, "TO %c%2d%02d%2d", kind, min, sec, state->done_count);
+        watch_display_string(buf, 0);
+    }
 }
 
 static void tomato_reset(tomato_state_t *state) {
@@ -116,6 +118,7 @@ void tomato_face_setup(movement_settings_t *settings, uint8_t watch_face_index, 
         state->mode=tomato_ready;
         state->kind= tomato_focus;
         state->done_count = 0;
+        state->visible = true;
     }
 }
 
@@ -127,6 +130,7 @@ void tomato_face_activate(movement_settings_t *settings, void *context) {
         watch_set_indicator(WATCH_INDICATOR_BELL);
     }
     watch_set_colon();
+    state->visible = true;
 }
 
 bool tomato_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
@@ -184,6 +188,8 @@ bool tomato_face_loop(movement_event_t event, movement_settings_t *settings, voi
 }
 
 void tomato_face_resign(movement_settings_t *settings, void *context) {
+    tomato_state_t *state = (tomato_state_t *)context;
+    state->visible = false;
     (void) settings;
     (void) context;
 }

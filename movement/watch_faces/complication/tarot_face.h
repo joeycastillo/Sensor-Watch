@@ -25,10 +25,8 @@
 #ifndef TAROT_FACE_H_
 #define TAROT_FACE_H_
 
-#include "movement.h"
-
 /*
- * Tarot card watch face
+ * TAROT CARD watch face
  *
  * Draw from a deck of tarot cards. Can choose between major arcana only or
  * entire deck.
@@ -61,6 +59,8 @@
  * - Alarm button: shuffle and re-draw new cards
  * - Light button (long press): go back to Draw screen, for choosing different draw parameters.
  */
+
+#include "movement.h"
 
 #define MAX_CARDS_TO_DRAW 10
 
