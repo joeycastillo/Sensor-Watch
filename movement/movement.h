@@ -307,7 +307,6 @@ void movement_cancel_background_task_for_face(uint8_t watch_face_index);
 void movement_request_wake(void);
 
 void movement_play_signal(void);
-void movement_play_tune(void);
 void movement_play_alarm(void);
 void movement_play_alarm_beeps(uint8_t rounds, BuzzerNote alarm_note);
 

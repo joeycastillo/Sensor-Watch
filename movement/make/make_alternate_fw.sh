@@ -21,12 +21,12 @@ do
     for color in "${colors[@]}"
     do
         COLOR=$(echo "$color" | tr '[:lower:]' '[:upper:]')
-        make clean
+        make COLOR=$COLOR clean
         make COLOR=$COLOR FIRMWARE=$VARIANT
         mv "build/watch.uf2" "$fw_dir/$variant-$color.uf2"
     done
     rm -rf ./build-sim
-    emmake make FIRMWARE=$VARIANT
+    emmake make COLOR=GREEN FIRMWARE=$VARIANT
     mkdir "$sim_dir/$variant/"
     mv "build-sim/watch.wasm" "$sim_dir/$variant/"
     mv "build-sim/watch.js" "$sim_dir/$variant/"
