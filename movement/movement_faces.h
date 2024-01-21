@@ -95,6 +95,7 @@
 #include "flashlight_face.h"
 #include "decimal_time_face.h"
 #include "wyoscan_face.h"
+#include "save_load_face.h"
 #include "day_night_percentage_face.h"
 #include "simple_coin_flip_face.h"
 #include "solstice_face.h"

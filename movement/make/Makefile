@@ -118,6 +118,7 @@ SRCS += \
   ../watch_faces/complication/flashlight_face.c \
   ../watch_faces/clock/decimal_time_face.c \
   ../watch_faces/clock/wyoscan_face.c \
+  ../watch_faces/settings/save_load_face.c \
   ../watch_faces/clock/day_night_percentage_face.c \
   ../watch_faces/complication/simple_coin_flip_face.c \
   ../watch_faces/complication/solstice_face.c \
