@@ -24,17 +24,43 @@
  * SOFTWARE.
  */
 
-//-----------------------------------------------------------------------------
-
 #ifndef SAILING_FACE_H_
 #define SAILING_FACE_H_
 
-#include "movement.h"
-
 /*
-A sailing sailing/timer face
-*/
+ * SAILING face
+ * Implements a sailing timer.
+ *
+ * Usage:
+ *
+ * Waiting mode:
+ * LIGHT button enters settings
+ * ALARM button starts the timer (sailing mode).
+ *
+ * Sailing mode:
+ * ALARM button switches to next programmed start signal.
+ * Long press on LIGHT button resets timer and enters waiting mode.
+ * Countdown to zero, then switch to counting mode.
+ *
+ * Counting mode:
+ * After the start signal (0s), the duration of the race is counted (like a stopwatch timer).
+ * ALARM button increases the lap counter, ALARM long press resets lap counter.
+ * Long press on LIGHT button resets timer and enters waiting mode.
+ *
+ * Setting mode:
+ * ALARM button increases active (blinking) signal. Goes to 0 if upper boundary
+ * (11 or whatever the signal left to the active one is set to) is met.
+ * 10 is printed vertically (letter o plus top segment).
+ * ALARM button long press resets to default minutes (5-4-1-0).
+ * LIGHT button cycles through the signals.
+ * Long press on LIGHT button cycles through sound modes:
+ * - Bell indicator: Sound at start (0s) only.
+ * - Signal indicator: Sound at each programmed signal and at start.
+ * - Bell+Signal: Sound at each minute, at 30s and at 10s countdown.
+ * - No indicator: No sound.
+ */
 
+#include "movement.h"
 
 typedef enum {
     sl_waiting,

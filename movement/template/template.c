@@ -28,6 +28,7 @@
 
 void <#watch_face_name#>_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
+    (void) watch_face_index;
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(<#watch_face_name#>_state_t));
         memset(*context_ptr, 0, sizeof(<#watch_face_name#>_state_t));

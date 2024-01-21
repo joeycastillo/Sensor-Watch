@@ -25,6 +25,23 @@
 #ifndef DATABANK_FACE_H_
 #define DATABANK_FACE_H_
 
+/*
+ * DATABANK face
+ *
+ * Displays some pre-defined data that you might want to remember
+ * Math constants, birthdays, phone numbers...
+ *
+ * Usage: Edit the global variable `pi_data` in "databank_face.c"
+ * to the define the data that will be displayed. Each "item" contains
+ * a two-letter label (using the day-of-week display), then a longer
+ * string that will be displayed one "word" (six characters) at a time.
+ *
+ * Short-press ALARM to display the next word.
+ * Short-press LIGHT to display the previous word.
+ * Long-press ALARM to display the next item.
+ * Long-press LIGHT to display the previous item.
+ */
+
 #include "movement.h"
 
 void databank_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);

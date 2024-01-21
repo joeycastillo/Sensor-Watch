@@ -25,8 +25,6 @@
 #ifndef INVADERS_FACE_H_
 #define INVADERS_FACE_H_
 
-#include "movement.h"
-
 /*
  * Remake of the "famous" Casio Number Invaders Game
  *
@@ -59,6 +57,8 @@
  * while playing.)
  * 
  */
+
+#include "movement.h"
 
 typedef struct {
     uint16_t highscore;

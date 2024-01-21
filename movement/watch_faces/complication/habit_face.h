@@ -25,8 +25,6 @@
 #ifndef HABIT_FACE_H_
 #define HABIT_FACE_H_
 
-#include "movement.h"
-
 /*
  * Habit tracking face
  *
@@ -35,6 +33,8 @@
  * total counter.
  *
  */
+
+#include "movement.h"
 
 void habit_face_setup(movement_settings_t *settings, uint8_t watch_face_index,
                       void **context_ptr);
