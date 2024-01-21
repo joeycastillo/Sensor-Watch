@@ -6,6 +6,9 @@ on:
     branches-ignore:
       - gh-pages
 
+env:
+  COLOR: BLUE
+
 jobs: 
   build:
     container:

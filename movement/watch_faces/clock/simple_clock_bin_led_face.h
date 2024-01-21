@@ -25,9 +25,9 @@
 #ifndef SIIMPLE_CLOCK_BIN_LED_FACE_H_
 #define SIIMPLE_CLOCK_BIN_LED_FACE_H_
 
-#include "movement.h"
-
 /*
+ * BINARY LED CLOCK FACE
+ *
  * A "fork" of the simple clock face, which provides the functionality of showing 
  * the current time by flashing the LED using binary representation.
  *
@@ -48,6 +48,8 @@
  *   starting with the lowest bits. A short flash denotes 0, a longer flash 
  *   represents 1.
  */
+
+#include "movement.h"
 
 typedef struct {
     uint32_t previous_date_time;

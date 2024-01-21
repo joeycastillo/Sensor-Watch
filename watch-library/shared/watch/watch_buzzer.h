@@ -175,6 +175,8 @@ extern const uint16_t NotePeriods[108];
   */
 void watch_buzzer_play_sequence(int8_t *note_sequence, void (*callback_on_end)(void));
 
+uint16_t sequence_length(int8_t *sequence);
+
 /** @brief Aborts a playing sequence.
   */
 void watch_buzzer_abort_sequence(void);

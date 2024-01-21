@@ -25,9 +25,9 @@
 #ifndef TIME_LEFT_FACE_H_
 #define TIME_LEFT_FACE_H_
 
-#include "movement.h"
-
 /*
+ * TIME LEFT face
+ *
  * The Time Left Face helps you to visualize how far you have proceeded in a certain
  * time span. Much like the Day One Face, you can set your beginning date. In addition
  * to that, you also set your target or destination date. You can then use the face
@@ -64,6 +64,8 @@
  * see how much of your time has passed and how much is still to come.
  * 
  */
+
+#include "movement.h"
 
 typedef struct {
     uint8_t current_page;

@@ -92,13 +92,12 @@ void watch_rtc_register_periodic_callback(ext_irq_cb_t callback, uint8_t frequen
     if (__builtin_popcount(frequency) != 1) return;
 
     // this left-justifies the period in a 32-bit integer.
-    uint32_t tmp = frequency << 24;
+    uint32_t tmp = (frequency & 0xFF) << 24;
     // now we can count the leading zeroes to get the value we need.
     // 0x01 (1 Hz) will have 7 leading zeros for PER7. 0xF0 (128 Hz) will have no leading zeroes for PER0.
     uint8_t per_n = __builtin_clz(tmp);
 
-    // this also maps nicely to an index for our list of tick callbacks.
-    double interval = 1000 / frequency; // in msec
+    double interval = 1000.0 / frequency; // in msec
 
     if (tick_callbacks[per_n] != -1) emscripten_clear_interval(tick_callbacks[per_n]);
     tick_callbacks[per_n] = emscripten_set_interval(watch_invoke_periodic_callback, interval, (void *)callback);
@@ -106,7 +105,7 @@ void watch_rtc_register_periodic_callback(ext_irq_cb_t callback, uint8_t frequen
 
 void watch_rtc_disable_periodic_callback(uint8_t frequency) {
     if (__builtin_popcount(frequency) != 1) return;
-    uint8_t per_n = __builtin_clz(frequency << 24);
+    uint8_t per_n = __builtin_clz((frequency & 0xFF) << 24);
     if (tick_callbacks[per_n] != -1) {
         emscripten_clear_interval(tick_callbacks[per_n]);
         tick_callbacks[per_n] = -1;
@@ -115,7 +114,7 @@ void watch_rtc_disable_periodic_callback(uint8_t frequency) {
 
 void watch_rtc_disable_matching_periodic_callbacks(uint8_t mask) {
     for (int i = 0; i < 8; i++) {
-        if (tick_callbacks[i] != -1 && (mask & (1 << (7 - i))) != 0) {
+        if (tick_callbacks[i] != -1 && (mask & (1 << i)) != 0) {
             emscripten_clear_interval(tick_callbacks[i]);
             tick_callbacks[i] = -1;
         }
