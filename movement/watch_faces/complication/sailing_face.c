@@ -24,44 +24,11 @@
  * SOFTWARE.
  */
 
-//-----------------------------------------------------------------------------
-
 #include <stdlib.h>
 #include <string.h>
 #include "sailing_face.h"
 #include "watch.h"
 #include "watch_utility.h"
-
-/*
-
-Implements a sailing timer.
-
-Usage:
-
-Waiting mode: Light button enters settings, alarm button starts the timer (sailing mode).
-
-Sailing mode:
-Alarm button switches to next programmed start signal, long press on light button
-resets timer and enters waiting mode. Countdown to zero, then switch to counting mode.
-
-Counting mode:
-After the start signal (0s), the duration of the race is counted (like a stopwatch timer).
-Alarm button increases the lap counter, alarm long press resets lap counter.
-Long press on light button resets timer and enters waiting mode.
-
-Setting mode:
-Alarm button increases active (blinking) signal. Goes to 0 if upper boundary
-(11 or whatever the signal left to the active one is set to) is met.
-10 is printed vertically (letter o plus top segment).
-Alarm button long press resets to default minutes (5-4-1-0).
-Light button cycles through the signals.
-Long press on light button cycles through sound modes:
-- Bell indicator: Sound at start (0s) only.
-- Signal indicator: Sound at each programmed signal and at start.
-- Bell+Signal: Sound at each minute, at 30s and at 10s countdown.
-- No indicator: No sound.
-
-*/
 
 #define sl_SELECTIONS 6
 #define DEFAULT_MINUTES { 5,4,1,0,0,0 }

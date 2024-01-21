@@ -28,11 +28,6 @@
 #include "thermistor_driver.h"
 #include "watch.h"
 
-// This watch face is designed for testing temperature sensor boards.
-// It displays temperature readings at a relatively fast rate of 8 Hz,
-// and disables low energy mode so my testing device doesn't sleep.
-// You more than likely want to use thermistor_readout_face instead.
-
 static void _thermistor_testing_face_update_display(bool in_fahrenheit) {
     thermistor_driver_enable();
     float temperature_c = thermistor_driver_get_temperature();

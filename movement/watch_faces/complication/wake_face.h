@@ -22,10 +22,23 @@
  * SOFTWARE.
  */
 
-//-----------------------------------------------------------------------------
-
 #ifndef WAKE_FACE_H_
 #define WAKE_FACE_H_
+
+/*
+ * WAKE daily alarm face
+ *
+ * Basic daily alarm clock face. Seems useful if nothing else in the interest
+ * of feature parity with the F-91W’s OEM module, 593.
+ *
+ * Also experiments with caret-free UI: One button cycles hours, the other
+ * minutes, so there’s no toggling between display and adjust modes and no
+ * cycling the caret through the UI.
+ *   º LIGHT advances hour by 1
+ *   º LIGHT long press advances hour by 6
+ *   º ALARM advances minute by 10
+ *   º ALARM long press cycles through signal modes (just one at the moment)
+ */
 
 #include "movement.h"
 

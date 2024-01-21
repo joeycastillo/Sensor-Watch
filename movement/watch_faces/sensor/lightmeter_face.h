@@ -25,6 +25,37 @@
 #ifndef LIGHTMETER_FACE_H_
 #define LIGHTMETER_FACE_H_
 
+/*
+ * Aperture-priority Light Meter Face
+ *
+ * Tested with the "Q3Q-SWAB-A1-00 Temperature + Test Points + OPT3001" flexboard.
+ * This flexboard could use a revision: 
+ *
+ *  - The thermistor components should be moved west a mm or flipped to the backside
+ *    to avoid stressing the flexboard against the processor so much.
+ *  - The 'no connect' pad falls off easily.
+ *
+ * Controls:
+ *
+ *  - Trigger a measurement by long-pressing Alarm.
+ *    Sensor integration is happening when the Signal indicator is on.
+ *
+ *  - ISO setting can be cycled by long-pressing Light.
+ *    During integration the current ISO setting will be displayed. 
+ *
+ *  - EV measurement in the top right: "LAP" indicates "half stop". 
+ *    So "LAP -1" means EV = -1.5. Likewise "LAP 13" means EV = +13.5  
+ *
+ *  - Aperture in the bottom right: the last 3 main digits are the f-stop. 
+ *    Adjust this number in half-stop increments using Alarm = +1/2 and Light = -1/2. 
+ *
+ *  - Best shutter speed in the bottom left: the first 3 digits are the shutter speed. 
+ *    Some special chars are needed here: "-" = seconds, "h" = extra half second, "K" = thousands.
+ *    "HI" or "LO" if there's no shutter in the dictionary within 0.5 stops of correct exposure.
+ *
+ *  - Mode long-press changes the main digits to show raw sensor lux measurements.
+ */
+
 #include "movement.h"
 #include "opt3001.h"
 

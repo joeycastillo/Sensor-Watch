@@ -22,23 +22,11 @@
  * SOFTWARE.
  */
 
-//-----------------------------------------------------------------------------
-
 #include <stdlib.h>
 #include <string.h>
-// #include <threads.h>
-
 #include "wake_face.h"
 #include "watch.h"
 #include "watch_utility.h"
-
-/*
-    UI Notes
-    º Light advances hour by 1
-    º Light long press advances hour by 6
-    º Alarm advances minute by 10
-    º Alarm long press cycles through signal modes (just one at the moment)
-*/
 
 //
 // Private

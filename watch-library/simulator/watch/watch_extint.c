@@ -22,13 +22,15 @@
  * SOFTWARE.
  */
 
+#include <string.h>
+
 #include "watch_extint.h"
 #include "watch_main_loop.h"
 
 #include <emscripten.h>
 #include <emscripten/html5.h>
 
-static bool output_focused = false;
+static bool debug_console_focused = false;
 static bool external_interrupt_enabled = false;
 static bool button_callbacks_installed = false;
 static ext_irq_cb_t external_interrupt_mode_callback = NULL;
@@ -45,27 +47,47 @@ static const uint8_t BTN_IDS[] = { BTN_ID_ALARM, BTN_ID_LIGHT, BTN_ID_MODE };
 static EM_BOOL watch_invoke_interrupt_callback(const uint8_t button_id, watch_interrupt_trigger trigger);
 
 static EM_BOOL watch_invoke_key_callback(int eventType, const EmscriptenKeyboardEvent *keyEvent, void *userData) {
-    if (output_focused || keyEvent->repeat) return EM_FALSE;
-
-    const char *key = keyEvent->key;
-    if (key[1] != 0) return EM_FALSE;
+    if (debug_console_focused || keyEvent->repeat) return EM_FALSE;
 
     uint8_t button_id;
-    switch (key[0]) {
-        case 'A':
-        case 'a':
-            button_id = BTN_ID_ALARM;
-            break;
-        case 'L':
-        case 'l':
-            button_id = BTN_ID_LIGHT;
-            break;
-        case 'M':
-        case 'm':
-            button_id = BTN_ID_MODE;
-            break;
-        default:
-            return EM_FALSE;
+    const char *key = keyEvent->key;
+    if (key[1] == 0) {
+        // event is from a plain letter key
+        switch (key[0]) {
+            case 'A':
+            case 'a':
+                button_id = BTN_ID_ALARM;
+                break;
+            case 'L':
+            case 'l':
+                button_id = BTN_ID_LIGHT;
+                break;
+            case 'M':
+            case 'm':
+                button_id = BTN_ID_MODE;
+                break;
+            default:
+                return EM_FALSE;
+        }
+    } else if (strncmp(key, "Arrow", 5) == 0) {
+        // event is from one of the arrow keys
+        switch(key[5]) {
+            case 'U': // ArrowUp
+                button_id = BTN_ID_LIGHT;
+                break;
+            case 'D': // ArrowDown
+            case 'L': // ArrowLeft
+                button_id = BTN_ID_MODE;
+                break;
+            case 'R': // ArrowRight
+                button_id = BTN_ID_ALARM;
+                break;
+            default:
+                return EM_FALSE;
+        }
+    } else {
+        // another kind of key
+        return EM_FALSE;
     }
 
     watch_interrupt_trigger trigger = eventType == EMSCRIPTEN_EVENT_KEYDOWN ? INTERRUPT_TRIGGER_RISING : INTERRUPT_TRIGGER_FALLING;
@@ -86,7 +108,7 @@ static EM_BOOL watch_invoke_touch_callback(int eventType, const EmscriptenTouchE
 }
 
 static EM_BOOL watch_invoke_focus_callback(int eventType, const EmscriptenFocusEvent *focusEvent, void *userData) {
-    output_focused = eventType == EMSCRIPTEN_EVENT_FOCUS;
+    debug_console_focused = eventType == EMSCRIPTEN_EVENT_FOCUS;
     return EM_TRUE;
 }
 
@@ -97,6 +119,10 @@ static void watch_install_button_callbacks(void) {
     const char *target_output = "#output";
     emscripten_set_focus_callback(target_output, NULL, EM_FALSE, watch_invoke_focus_callback);
     emscripten_set_blur_callback(target_output, NULL, EM_FALSE, watch_invoke_focus_callback);
+
+    const char *target_input = "#input";
+    emscripten_set_focus_callback(target_input, NULL, EM_FALSE, watch_invoke_focus_callback);
+    emscripten_set_blur_callback(target_input, NULL, EM_FALSE, watch_invoke_focus_callback);
 
     for (int i = 0, count = sizeof(BTN_IDS) / sizeof(BTN_IDS[0]); i < count; i++) {
         char target[] = "#btn_";
