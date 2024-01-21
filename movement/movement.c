@@ -79,7 +79,6 @@ watch_date_time scheduled_tasks[MOVEMENT_NUM_FACES];
 const int32_t movement_le_inactivity_deadlines[8] = {INT_MAX, 3600, 7200, 21600, 43200, 86400, 172800, 604800};
 const int16_t movement_timeout_inactivity_deadlines[4] = {60, 120, 300, 1800};
 movement_event_t event;
-const watch_face_t *wf;
 
 const int16_t movement_timezone_offsets[] = {
     0,      //  0 :   0:00:00 (UTC)
@@ -421,7 +420,7 @@ void app_setup(void) {
             watch_faces[i].setup(&movement_state.settings, i, &watch_face_contexts[i]);
         }
 
-        wf->activate(&movement_state.settings, watch_face_contexts[movement_state.current_face_idx]);
+        watch_faces[movement_state.current_face_idx].activate(&movement_state.settings, watch_face_contexts[movement_state.current_face_idx]);
         event.subsecond = 0;
         event.event_type = EVENT_ACTIVATE;
     }
@@ -441,7 +440,7 @@ static void _sleep_mode_app_loop(void) {
         if (movement_state.needs_background_tasks_handled) _movement_handle_background_tasks();
 
         event.event_type = EVENT_LOW_ENERGY_UPDATE;
-        wf->loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_face_idx]);
+        watch_faces[movement_state.current_face_idx].loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_face_idx]);
 
         // if we need to wake immediately, do it!
         if (movement_state.needs_wake) return;
@@ -451,7 +450,7 @@ static void _sleep_mode_app_loop(void) {
 }
 
 bool app_loop(void) {
-    wf = &watch_faces[movement_state.current_face_idx];
+    const watch_face_t *wf = &watch_faces[movement_state.current_face_idx];
     bool woke_up_for_buzzer = false;
     if (movement_state.watch_face_changed) {
         if (movement_state.settings.bit.button_should_sound) {
