@@ -96,12 +96,8 @@ void watch_reset_to_bootloader(void);
   */
 int read(int file, char *ptr, int len);
 
-#ifdef __EMSCRIPTEN__
-typedef void* Trng;
-#endif
-
-/** @brief Disables the TRNG, working around a silicon erratum.
+/** @brief Disables the TRNG twice in order to work around silicon erratum 1.16.1.
  */
-void watch_disable_TRNG(Trng* hw);
+void watch_disable_TRNG();
 
 #endif /* WATCH_H_ */

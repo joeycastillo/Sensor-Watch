@@ -255,7 +255,7 @@ uint32_t get_true_entropy(void) {
 
     while (!hri_trng_get_INTFLAG_reg(TRNG, TRNG_INTFLAG_DATARDY)); // Wait for TRNG data to be ready
 
-    watch_disable_TRNG(TRNG);
+    watch_disable_TRNG();
 
     hri_mclk_clear_APBCMASK_TRNG_bit(MCLK);
     return hri_trng_read_DATA_reg(TRNG); // Read a single 32-bit word from TRNG and return it
