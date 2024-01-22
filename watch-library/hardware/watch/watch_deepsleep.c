@@ -160,7 +160,8 @@ void watch_enter_sleep_mode(void) {
     // disable brownout detector interrupt, which could inadvertently wake us up.
     SUPC->INTENCLR.bit.BOD33DET = 1;
 
-    // work around a silicon erratum by disabling the SysTick interrupt, which is
+    // per Microchip datasheet clarification DS80000782,
+    // work around silicon erratum 1.8.4 by disabling the SysTick interrupt, which is
     // enabled as part of driver init, before going to sleep.
     SysTick->CTRL = SysTick->CTRL & ~(CONF_SYSTICK_TICKINT << SysTick_CTRL_TICKINT_Pos);
 
