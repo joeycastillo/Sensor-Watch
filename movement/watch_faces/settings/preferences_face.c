@@ -84,6 +84,9 @@ bool preferences_face_loop(movement_event_t event, movement_settings_t *settings
                     break;
                 case 4:
                     settings->bit.led_duration = settings->bit.led_duration + 1;
+                    if (settings->bit.led_duration > 3) {
+                        settings->bit.led_duration = 0b111;
+                    }
                     break;
                 case 5:
                     settings->bit.led_green_color = settings->bit.led_green_color + 1;
@@ -159,11 +162,13 @@ bool preferences_face_loop(movement_event_t event, movement_settings_t *settings
                 }
                 break;
             case 4:
-                if (settings->bit.led_duration) {
+                if (settings->bit.led_duration == 0) {
+                    watch_display_string("instnt", 4);
+                } else if (settings->bit.led_duration == 0b111) {
+                    watch_display_string("no LEd", 4);
+                } else {
                     sprintf(buf, " %1d SeC", settings->bit.led_duration * 2 - 1);
                     watch_display_string(buf, 4);
-                } else {
-                    watch_display_string("no LEd", 4);
                 }
                 break;
             case 5:

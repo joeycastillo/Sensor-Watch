@@ -213,12 +213,22 @@ void movement_request_tick_frequency(uint8_t freq) {
 }
 
 void movement_illuminate_led(void) {
-    if (movement_state.settings.bit.led_duration) {
+    if (movement_state.settings.bit.led_duration != 0b111) {
         watch_set_led_color(movement_state.settings.bit.led_red_color ? (0xF | movement_state.settings.bit.led_red_color << 4) : 0,
                             movement_state.settings.bit.led_green_color ? (0xF | movement_state.settings.bit.led_green_color << 4) : 0);
-        movement_state.light_ticks = (movement_state.settings.bit.led_duration * 2 - 1) * 128;
+        if (movement_state.settings.bit.led_duration == 0) {
+            movement_state.light_ticks = 1;
+        } else {
+            movement_state.light_ticks = (movement_state.settings.bit.led_duration * 2 - 1) * 128;
+        }
         _movement_enable_fast_tick_if_needed();
     }
+}
+
+static void _movement_led_off(void) {
+    watch_set_led_off();
+    movement_state.light_ticks = -1;
+    _movement_disable_fast_tick_if_possible();
 }
 
 bool movement_default_loop_handler(movement_event_t event, movement_settings_t *settings) {
@@ -230,6 +240,11 @@ bool movement_default_loop_handler(movement_event_t event, movement_settings_t *
             break;
         case EVENT_LIGHT_BUTTON_DOWN:
             movement_illuminate_led();
+            break;
+        case EVENT_LIGHT_BUTTON_UP:
+            if (movement_state.settings.bit.led_duration == 0) {
+                _movement_led_off();
+            }
             break;
         case EVENT_MODE_LONG_PRESS:
             if (MOVEMENT_SECONDARY_FACE_INDEX && movement_state.current_face_idx == 0) {
@@ -355,7 +370,7 @@ void app_init(void) {
     movement_state.settings.bit.led_green_color = MOVEMENT_DEFAULT_GREEN_COLOR;
     movement_state.settings.bit.button_should_sound = true;
     movement_state.settings.bit.le_interval = 1;
-    movement_state.settings.bit.led_duration = 1;
+    movement_state.settings.bit.led_duration = 0;
     movement_state.light_ticks = -1;
     movement_state.alarm_ticks = -1;
     movement_state.next_available_backup_register = 4;
@@ -475,9 +490,7 @@ bool app_loop(void) {
         if (watch_get_pin_level(BTN_LIGHT)) {
             movement_state.light_ticks = 1;
         } else {
-            watch_set_led_off();
-            movement_state.light_ticks = -1;
-            _movement_disable_fast_tick_if_possible();
+            _movement_led_off();
         }
     }
 
