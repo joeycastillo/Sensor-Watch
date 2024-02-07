@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['buttons_20_26_20external_20interrupts_0',['Buttons &amp; External Interrupts',['../group__buttons.html',1,'']]],
+  ['buttons_20external_20interrupts_0',['Buttons &amp; External Interrupts',['../group__buttons.html',1,'']]],
   ['buzzer_1',['Buzzer',['../group__buzzer.html',1,'']]],
   ['buzzer_5fnote_5fa1_2',['BUZZER_NOTE_A1',['../group__buzzer.html#gga1bb9e9b72fb691b87708ed14f79491d6afb838bfe650cefe4cfb356acd995a0ab',1,'watch_buzzer.h']]],
   ['buzzer_5fnote_5fa1sharp_5fb1flat_3',['BUZZER_NOTE_A1SHARP_B1FLAT',['../group__buzzer.html#gga1bb9e9b72fb691b87708ed14f79491d6a6aa0d6d561d6ec68cf2fcdfc662e289d',1,'watch_buzzer.h']]],
@@ -90,5 +90,5 @@ var searchData=
   ['buzzer_5fnote_5fg8_87',['BUZZER_NOTE_G8',['../group__buzzer.html#gga1bb9e9b72fb691b87708ed14f79491d6a5ea3a5a1985ccdf22065c4b49b9b0d5c',1,'watch_buzzer.h']]],
   ['buzzer_5fnote_5fg8sharp_5fa8flat_88',['BUZZER_NOTE_G8SHARP_A8FLAT',['../group__buzzer.html#gga1bb9e9b72fb691b87708ed14f79491d6af85b8ab1194b403b84f7a7d99ac63436',1,'watch_buzzer.h']]],
   ['buzzer_5fnote_5frest_89',['BUZZER_NOTE_REST',['../group__buzzer.html#gga1bb9e9b72fb691b87708ed14f79491d6a38cc9db9a774f5e8f78b26a95f9020ad',1,'watch_buzzer.h']]],
-  ['buzzernote_90',['BuzzerNote',['../group__buzzer.html#ga1bb9e9b72fb691b87708ed14f79491d6',1,'BuzzerNote():&#160;watch_buzzer.h'],['../group__buzzer.html#gafa12cf05739781d774798dab6b8a3fed',1,'BuzzerNote():&#160;watch_buzzer.h']]]
+  ['buzzernote_90',['buzzernote',['../group__buzzer.html#ga1bb9e9b72fb691b87708ed14f79491d6',1,'BuzzerNote:&#160;watch_buzzer.h'],['../group__buzzer.html#gafa12cf05739781d774798dab6b8a3fed',1,'BuzzerNote:&#160;watch_buzzer.h']]]
 ];

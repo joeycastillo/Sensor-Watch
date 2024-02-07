@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['i2c_20controller_20driver_0',['I2C Controller Driver',['../group__i2c.html',1,'']]]
+  ['external_20interrupts_0',['Buttons &amp; External Interrupts',['../group__buttons.html',1,'']]]
 ];
