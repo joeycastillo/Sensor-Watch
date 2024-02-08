@@ -40,28 +40,42 @@
  *  o SHA512
  *
  * Instructions:
+ *  o Optionally edit and execute `utils/totp_face_helper.py` to
+ *    properly transform all your credentials to the expected format.
+ * OR
  *  o Find your secret key(s) and convert them to the required format.
  *      o Use https://cryptii.com/pipes/base32-to-hex to convert base32 to hex
  *      o Use https://github.com/susam/mintotp to generate test codes for verification
  *  o Edit global variables in "totp_face.c" to configure your stored keys:
- *      o "keys", "key_sizes", "timesteps", and "algorithms" set the
- *        cryptographic parameters for each secret key.
- *      o "labels" sets the two-letter label for each key
- *        (This replaces the day-of-week indicator)
- *      o Once finished, remove the two provided examples.
+ *      o "keys", and the members of "totp_parameters_t": "key_size",
+ *        "time_step", and "algorithm" set the cryptographic parameters
+ *        for each secret key.
+ *      o The member "label" of "totp_parameters_t" sets the two-letter label
+ *        for each key (This replaces the day-of-week indicator)
+ *      o Once finished, remove the five provided examples.
  *
  * If you have more than one secret key, press ALARM to cycle through them.
+ * Press LIGHT to cycle in the other direction or keep it pressed longer to
+ * activate the light.
  */
 
 #include "movement.h"
+#include "TOTP.h"
 
 typedef struct {
     uint32_t timestamp;
     uint8_t steps;
     uint32_t current_code;
     uint8_t current_index;
-    uint8_t current_key_offset;
+    uint16_t current_key_offset;
 } totp_state_t;
+
+typedef struct {
+    char label[2];
+    uint8_t key_size;
+    uint8_t time_step;
+    hmac_alg algorithm;
+} totp_parameters_t;
 
 void totp_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
 void totp_face_activate(movement_settings_t *settings, void *context);
@@ -74,6 +88,16 @@ void totp_face_resign(movement_settings_t *settings, void *context);
     totp_face_loop, \
     totp_face_resign, \
     NULL, \
+})
+
+/* A key size of 20 bytes, a time-step of 30 seconds and the algorithm
+ * SHA1 seem to be the most common parameters in the wild.
+ */
+#define CREDENTIAL(...) ((const totp_parameters_t) { \
+    .key_size = 20, \
+    .time_step = 30, \
+    .algorithm = SHA1, \
+    __VA_ARGS__ \
 })
 
 #endif // TOTP_FACE_H_
