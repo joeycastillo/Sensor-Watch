@@ -27,6 +27,7 @@
 #include "time_left_face.h"
 #include "watch.h"
 #include "watch_private_display.h"
+#include "face_settings.h"
 
 const char _state_titles[][3] = {{'D', 'L', ' '}, {'D', 'L', ' '}, {'D', 'A', ' '}, {'D', 'A', ' '}, {'Y', 'R', 'b'}, {'M', 'O', 'b'}, {'D', 'A', 'b'},
                                  {'Y', 'R', 'd'}, {'M', 'O', 'd'}, {'D', 'A', 'd'}};
@@ -216,13 +217,23 @@ static void _abort_quick_ticks() {
     }
 }
 
+/// @brief default some data before saving to flash storage
+static void _face_save_data(void *context) {
+    time_left_state_t *state = (time_left_state_t *)context;
+    state->current_page = 0;
+}
+
 void time_left_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
     (void) watch_face_index;
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(time_left_state_t));
-        memset(*context_ptr, 0, sizeof(time_left_state_t));
         time_left_state_t *state = (time_left_state_t *)*context_ptr;
+        if (face_data_init("time_left_face", 0, *context_ptr, sizeof(time_left_state_t), _face_save_data, NULL)) {
+            watch_store_backup_data(state->birth_date.reg, 2);
+            return;
+        }
+        memset(*context_ptr, 0, sizeof(time_left_state_t));
         state->birth_date.reg = watch_get_backup_data(2);
         if (state->birth_date.reg == 0) {
             // if birth date is totally blank, set a reasonable starting date. this works well for anyone under 63, but
@@ -232,12 +243,12 @@ void time_left_face_setup(movement_settings_t *settings, uint8_t watch_face_inde
             state->birth_date.bit.month = 1;
             state->birth_date.bit.day = 1;
             watch_store_backup_data(state->birth_date.reg, 2);
-            // set target date to today + 10 years (just to have any value)
-            watch_date_time date_time = watch_rtc_get_date_time();
-            state->target_date.bit.year = date_time.unit.year + WATCH_RTC_REFERENCE_YEAR + 10;
-            state->target_date.bit.month = date_time.unit.month;
-            state->target_date.bit.day = date_time.unit.day;
         }
+        // set target date to today + 10 years (just to have any value)
+        watch_date_time date_time = watch_rtc_get_date_time();
+        state->target_date.bit.year = date_time.unit.year + WATCH_RTC_REFERENCE_YEAR + 10;
+        state->target_date.bit.month = date_time.unit.month;
+        state->target_date.bit.day = date_time.unit.day;
     }
 }
 
@@ -354,4 +365,7 @@ void time_left_face_resign(movement_settings_t *settings, void *context) {
     if (state->birth_date_when_activated.reg != state->birth_date.reg) {
         watch_store_backup_data(state->birth_date.reg, 2);
     }
+
+    // check if we need to store data
+    face_data_save(state);
 }
