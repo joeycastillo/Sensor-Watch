@@ -22,8 +22,6 @@
  * SOFTWARE.
  */
 
-//-----------------------------------------------------------------------------
-
 #include <stdlib.h>
 #include <string.h>
 
@@ -31,31 +29,6 @@
 #include "watch.h"
 #include "watch_utility.h"
 #include "watch_private_display.h"
-
-/*
-    Implements 16 alarm slots on the sensor watch
-
-    Usage:
-    - In normal mode, the alarm button cycles through all 16 alarms. 
-    - Pressing the alarm button long in normal mode toggles the corresponding alarm on or off.
-      (Whereas pressing the alarm button extra long brings you back to alarm no. 1.)
-    - Pressing the light button enters setting mode and cycles through the settings of each alarm.
-      (Long pressing the light button enters setting mode without illuminating the led.)
-    - In setting mode an alarm slot is selected by pressing the alarm button when the slot number 
-      in the upper right corner is blinking.
-    - For each alarm slot, you can select the day. These are the day modes:
-        - ED = the alarm rings every day
-        - 1t = the alarm fires only one time and is erased afterwards
-        - MF = the alarm fires Mondays to Fridays
-        - WN = the alarm fires on weekends (Sa/Su)
-        - MO to SU = the alarm fires only on the given day of week
-    - You can fast cycle through hour or minute setting via long press of the alarm button.
-    - You can select the tone in which the alarm is played. (Three pitch levels available.)
-    - You can select how many "beep rounds" are played for each alarm. 1 to 9 rounds, plus extra 
-      long ('L') and extra short ('o') alarms.
-    - The simple watch face indicates if any alarm is set within the next 24h by showing the signal
-      indicator.
-*/
 
 typedef enum {
     alarm_setting_idx_alarm,

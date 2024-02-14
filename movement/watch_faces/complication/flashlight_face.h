@@ -25,15 +25,17 @@
 #ifndef FLASHLIGHT_FACE_H_
 #define FLASHLIGHT_FACE_H_
 
-#include "movement.h"
-
 /*
+ * FLASHLIGHT face
+ *
  * A flashlight for use with the Flashlight sensor board.
  *
  * When the watch face appears, the display will show "FL" in the top two positions.
  * Pressing the Light button will toggle the flashlight on and off.
  *
  */
+
+#include "movement.h"
 
 typedef struct {
     // Anything you need to keep track of, put it here!

@@ -25,18 +25,46 @@
 #ifndef DAY_ONE_FACE_H_
 #define DAY_ONE_FACE_H_
 
+/*
+ * DAY ONE face
+ *
+ * This watch face displays the number of days since or until a given date.
+ * It was originally designed to display the number of days you’ve been alive,
+ * but technically it can count up from any date in the 20th century or the
+ * 21st century, so far.
+ *
+ * Long press on the Alarm button to enter customization mode. The text “YR”
+ * will appear, and will allow you to set the year starting from 1959. Press
+ * Alarm repeatedly to advance the year. If your birthday is before 1959,
+ * advance beyond the current year and it will wrap around to 1900.
+ *
+ * Once you have set the year, press Light to set the month (“MO”) and
+ * day (“DA”), advancing the value by pressing Alarm repeatedly.
+ *
+ * Note that at this time, the Day One face does not display the sleep
+ * indicator in sleep mode, which may make the watch appear to be
+ * unresponsive in sleep mode. You can still press the Alarm button to
+ * wake the watch. This UI quirk will be addressed in a future update.
+ */
+
 #include "movement.h"
 
-// The Day One face is designed to count upwards from the wearer's date of birth. It also functions as an
-// interface for setting the birth date register, which other watch faces can use for various purposes.
+typedef enum {
+    PAGE_DISPLAY,
+    PAGE_YEAR,
+    PAGE_MONTH,
+    PAGE_DAY,
+    PAGE_DATE
+} day_one_page_t;
 
 typedef struct {
-    uint8_t current_page;
-    uint16_t current_year;
+    day_one_page_t current_page;
     uint16_t birth_year;
     uint8_t birth_month;
     uint8_t birth_day;
     bool birthday_changed;
+    bool quick_cycle;
+    uint8_t ticks;
 } day_one_state_t;
 
 void day_one_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);

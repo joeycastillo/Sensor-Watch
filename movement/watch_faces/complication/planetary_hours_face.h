@@ -26,12 +26,11 @@
 #ifndef planetary_hours_face_H_
 #define planetary_hours_face_H_
 
-#include "movement.h"
-#include "sunrise_sunset_face.h"
-
 /*
- * BACKGROUND
-
+ * PLANETARY HOURS face
+ * 
+ * Background
+ *
  * Both the 24 hour day and the order of our weekdays have quite esoteric roots.
  * The ancient Egyptians divided the day up into 12 hours of sunlight and 12 hours
  * of night time. Obviously the length of these hours varied throughout the year.
@@ -73,6 +72,9 @@
  * (IMPORTANT: Make sure the watch's time, timezone and location are set correctly for this
  * watch face to work properly!)
  */
+
+#include "movement.h"
+#include "sunrise_sunset_face.h"
 
 typedef struct {
     // Anything you need to keep track of, put it here!

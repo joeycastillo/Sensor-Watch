@@ -25,6 +25,12 @@
 #ifndef ACCELEROMETER_DATA_ACQUISITION_FACE_H_
 #define ACCELEROMETER_DATA_ACQUISITION_FACE_H_
 
+/*
+ * ACCELEROMETER DATA ACQUISITION
+ *
+ * TODO: Add description here, including controls.
+ */
+
 #include "movement.h"
 
 #define ACCELEROMETER_DATA_ACQUISITION_INVALID ((uint64_t)(0b11))   // all bits are 1 when the flash is erased

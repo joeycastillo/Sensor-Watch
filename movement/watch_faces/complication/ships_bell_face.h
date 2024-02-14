@@ -25,9 +25,8 @@
 #ifndef SHIPS_BELL_FACE_H_
 #define SHIPS_BELL_FACE_H_
 
-#include "movement.h"
-
 /*
+ * SHIP'S BELL face
  * A ship's bell complication.
  *
  * See: https://en.wikipedia.org/wiki/Ship%27s_bell#Simpler_system
@@ -44,6 +43,8 @@
  *   - short press Alarm button: Turn on/off bell
  *   - long press Alarm button: Cycle through the watches (All/1/2/3)
  */
+
+#include "movement.h"
 
 typedef struct {
     bool bell_enabled;
