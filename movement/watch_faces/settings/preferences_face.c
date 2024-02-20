@@ -27,6 +27,7 @@
 #include "watch.h"
 
 #define PREFERENCES_FACE_NUM_PREFEFENCES (7)
+#define PREFERENCES_FACE_PAGE_CL 0
 const char preferences_face_titles[PREFERENCES_FACE_NUM_PREFEFENCES][11] = {
     "CL        ",   // Clock: 12 or 24 hour
     "BT  Beep  ",   // Buttons: should they beep?
@@ -43,6 +44,12 @@ const char preferences_face_titles[PREFERENCES_FACE_NUM_PREFEFENCES][11] = {
 
 static void _preferences_face_next_page(uint8_t *current_page) {
     *current_page = (*current_page + 1) % PREFERENCES_FACE_NUM_PREFEFENCES;
+}
+
+static void _preferences_face_skip_CL_page_if_forced_24h(uint8_t *current_page) {
+#if MOVEMENT_FORCE_24H
+    if (*current_page == PREFERENCES_FACE_PAGE_CL) { _preferences_face_next_page(current_page); }
+#endif
 }
 
 void preferences_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
