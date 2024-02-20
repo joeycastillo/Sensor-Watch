@@ -139,6 +139,12 @@ static inline void _movement_force_24h(void) {
     movement_state.settings.bit.clock_mode_24h = true;
 }
 
+static inline void _movement_force_24h_if_configured(void) {
+#if MOVEMENT_FORCE_24H
+    _movement_force_24h();
+#endif
+}
+
 static inline void _movement_reset_inactivity_countdown(void) {
     movement_state.le_mode_ticks = movement_le_inactivity_deadlines[movement_state.settings.bit.le_interval];
     movement_state.timeout_ticks = movement_timeout_inactivity_deadlines[movement_state.settings.bit.to_interval];
