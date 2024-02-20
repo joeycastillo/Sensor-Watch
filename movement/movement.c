@@ -384,13 +384,17 @@ void app_init(void) {
         }
     }
 #endif
+
+    _movement_force_24h_if_configured();
 }
 
 void app_wake_from_backup(void) {
     movement_state.settings.reg = watch_get_backup_data(0);
+    _movement_force_24h_if_configured();
 }
 
 void app_setup(void) {
+    _movement_force_24h_if_configured();
     watch_store_backup_data(movement_state.settings.reg, 0);
 
     static bool is_first_launch = true;
