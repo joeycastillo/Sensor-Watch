@@ -41,6 +41,10 @@ const char preferences_face_titles[PREFERENCES_FACE_NUM_PREFEFENCES][11] = {
     "LT   red  ",   // Light: red component
 };
 
+static void _preferences_face_next_page(uint8_t *current_page) {
+    *current_page = (*current_page + 1) % PREFERENCES_FACE_NUM_PREFEFENCES;
+}
+
 void preferences_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
     (void) watch_face_index;
@@ -65,7 +69,7 @@ bool preferences_face_loop(movement_event_t event, movement_settings_t *settings
             movement_move_to_next_face();
             return false;
         case EVENT_LIGHT_BUTTON_DOWN:
-            current_page = (current_page + 1) % PREFERENCES_FACE_NUM_PREFEFENCES;
+            _preferences_face_next_page(&current_page);
             *((uint8_t *)context) = current_page;
             break;
         case EVENT_ALARM_BUTTON_UP:
