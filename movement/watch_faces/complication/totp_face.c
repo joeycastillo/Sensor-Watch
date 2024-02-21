@@ -37,6 +37,15 @@ typedef struct {
     uint8_t *key;
 } totp_t;
 
+#define TOTP_INITIALIZER(label_1, label_2, key_array, algo, timestep) \
+    (const totp_t) { \
+        .key = (key_array), \
+        .key_length = sizeof(key_array), \
+        .period = (timestep), \
+        .labels = { (label_1), (label_2) }, \
+        .algorithm = (algo), \
+    }
+
 ////////////////////////////////////////////////////////////////////////////////
 // Enter your TOTP key data below
 static const uint8_t num_keys = 2;
