@@ -1,7 +1,11 @@
+/* SPDX-License-Identifier: MIT */
+
 /*
  * MIT License
  *
- * Copyright (c) 2022 Joey Castillo
+ * Copyright © 2021-2023 Joey Castillo <joeycastillo@utexas.edu> <jose.castillo@gmail.com>
+ * Copyright © 2024 Max Zettlmeißl <max@zettlmeissl.de>
+ * Copyright © 2024 Matheus Afonso Martins Moreira <matheus.a.m.moreira@gmail.com> (https://www.matheusmoreira.com/)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +31,7 @@
 #include "watch.h"
 
 #define PREFERENCES_FACE_NUM_PREFEFENCES (7)
+#define PREFERENCES_FACE_PAGE_CL 0
 const char preferences_face_titles[PREFERENCES_FACE_NUM_PREFEFENCES][11] = {
     "CL        ",   // Clock: 12 or 24 hour
     "BT  Beep  ",   // Buttons: should they beep?
@@ -41,6 +46,16 @@ const char preferences_face_titles[PREFERENCES_FACE_NUM_PREFEFENCES][11] = {
     "LT   red  ",   // Light: red component
 };
 
+static void _preferences_face_next_page(uint8_t *current_page) {
+    *current_page = (*current_page + 1) % PREFERENCES_FACE_NUM_PREFEFENCES;
+}
+
+static void _preferences_face_skip_CL_page_if_forced_24h(uint8_t *current_page) {
+#if MOVEMENT_FORCE_24H
+    if (*current_page == PREFERENCES_FACE_PAGE_CL) { _preferences_face_next_page(current_page); }
+#endif
+}
+
 void preferences_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
     (void) watch_face_index;
@@ -49,7 +64,9 @@ void preferences_face_setup(movement_settings_t *settings, uint8_t watch_face_in
 
 void preferences_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
-    *((uint8_t *)context) = 0;
+    uint8_t *current_page = context;
+    *current_page = 0;
+    _preferences_face_skip_CL_page_if_forced_24h(current_page);
     movement_request_tick_frequency(4); // we need to manually blink some pixels
 }
 
@@ -65,7 +82,8 @@ bool preferences_face_loop(movement_event_t event, movement_settings_t *settings
             movement_move_to_next_face();
             return false;
         case EVENT_LIGHT_BUTTON_DOWN:
-            current_page = (current_page + 1) % PREFERENCES_FACE_NUM_PREFEFENCES;
+            _preferences_face_next_page(&current_page);
+            _preferences_face_skip_CL_page_if_forced_24h(&current_page);
             *((uint8_t *)context) = current_page;
             break;
         case EVENT_ALARM_BUTTON_UP:

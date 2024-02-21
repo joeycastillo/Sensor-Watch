@@ -1,7 +1,23 @@
+/* SPDX-License-Identifier: MIT */
+
 /*
  * MIT License
  *
- * Copyright (c) 2022 Joey Castillo
+ * Copyright © 2021-2023 Joey Castillo <jose.castillo@gmail.com> <joeycastillo@utexas.edu>
+ * Copyright © 2022-2023 TheOnePerson <a.nebinger@web.de>
+ * Copyright © 2022 Alexsander Akers <me@a2.io>
+ * Copyright © 2022 James Haggerty <james@gruemail.com>
+ * Copyright © 2022 Niclas Hoyer <info@niclashoyer.de>
+ * Copyright © 2022 Wesley Ellis <tahnok@gmail.com>
+ * Copyright © 2023 Wesley Aptekar-Cassels <me@wesleyac.com>
+ * Copyright © 2023 Alex Maestas <git@se30.xyz>
+ * Copyright © 2023 Jeremy O'Brien <neutral@fastmail.com>
+ * Copyright © 2023 Mikhail Svarichevsky <3@14.by>
+ * Copyright © 2024 Alex Maestas <git@se30.xyz>
+ * Copyright © 2024 Christian Buschau <cbuschau@d00t.de>
+ * Copyright © 2024 Max Zettlmeißl <max@zettlmeissl.de>
+ * Copyright © 2024 Wesley Aptekar-Cassels <me@wesleyac.com>
+ * Copyright © 2024 Matheus Afonso Martins Moreira <matheus.a.m.moreira@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -135,6 +151,16 @@ void cb_alarm_fired(void);
 void cb_fast_tick(void);
 void cb_tick(void);
 
+static inline void _movement_force_24h(void) {
+    movement_state.settings.bit.clock_mode_24h = true;
+}
+
+static inline void _movement_force_24h_if_configured(void) {
+#if MOVEMENT_FORCE_24H
+    _movement_force_24h();
+#endif
+}
+
 static inline void _movement_reset_inactivity_countdown(void) {
     movement_state.le_mode_ticks = movement_le_inactivity_deadlines[movement_state.settings.bit.le_interval];
     movement_state.timeout_ticks = movement_timeout_inactivity_deadlines[movement_state.settings.bit.to_interval];
@@ -160,9 +186,11 @@ static inline void _movement_disable_fast_tick_if_possible(void) {
 static void _movement_handle_background_tasks(void) {
     for(uint8_t i = 0; i < MOVEMENT_NUM_FACES; i++) {
         // For each face, if the watch face wants a background task...
+        _movement_force_24h_if_configured();
         if (watch_faces[i].wants_background_task != NULL && watch_faces[i].wants_background_task(&movement_state.settings, watch_face_contexts[i])) {
             // ...we give it one. pretty straightforward!
             movement_event_t background_event = { EVENT_BACKGROUND_TASK, 0 };
+            _movement_force_24h_if_configured();
             watch_faces[i].loop(background_event, &movement_state.settings, watch_face_contexts[i]);
         }
     }
@@ -178,6 +206,7 @@ static void _movement_handle_scheduled_tasks(void) {
             if (scheduled_tasks[i].reg == date_time.reg) {
                 scheduled_tasks[i].reg = 0;
                 movement_event_t background_event = { EVENT_BACKGROUND_TASK, 0 };
+                _movement_force_24h_if_configured();
                 watch_faces[i].loop(background_event, &movement_state.settings, watch_face_contexts[i]);
                 // check if loop scheduled a new task
                 if (scheduled_tasks[i].reg) {
@@ -374,13 +403,17 @@ void app_init(void) {
         }
     }
 #endif
+
+    _movement_force_24h_if_configured();
 }
 
 void app_wake_from_backup(void) {
     movement_state.settings.reg = watch_get_backup_data(0);
+    _movement_force_24h_if_configured();
 }
 
 void app_setup(void) {
+    _movement_force_24h_if_configured();
     watch_store_backup_data(movement_state.settings.reg, 0);
 
     static bool is_first_launch = true;
@@ -417,9 +450,11 @@ void app_setup(void) {
         movement_request_tick_frequency(1);
 
         for(uint8_t i = 0; i < MOVEMENT_NUM_FACES; i++) {
+            _movement_force_24h_if_configured();
             watch_faces[i].setup(&movement_state.settings, i, &watch_face_contexts[i]);
         }
 
+        _movement_force_24h_if_configured();
         watch_faces[movement_state.current_face_idx].activate(&movement_state.settings, watch_face_contexts[movement_state.current_face_idx]);
         event.subsecond = 0;
         event.event_type = EVENT_ACTIVATE;
@@ -440,6 +475,7 @@ static void _sleep_mode_app_loop(void) {
         if (movement_state.needs_background_tasks_handled) _movement_handle_background_tasks();
 
         event.event_type = EVENT_LOW_ENERGY_UPDATE;
+        _movement_force_24h_if_configured();
         watch_faces[movement_state.current_face_idx].loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_face_idx]);
 
         // if we need to wake immediately, do it!
@@ -457,12 +493,14 @@ bool app_loop(void) {
             // low note for nonzero case, high note for return to watch_face 0
             watch_buzzer_play_note(movement_state.next_face_idx ? BUZZER_NOTE_C7 : BUZZER_NOTE_C8, 50);
         }
+        _movement_force_24h_if_configured();
         wf->resign(&movement_state.settings, watch_face_contexts[movement_state.current_face_idx]);
         movement_state.current_face_idx = movement_state.next_face_idx;
         // we have just updated the face idx, so we must recache the watch face pointer.
         wf = &watch_faces[movement_state.current_face_idx];
         watch_clear_display();
         movement_request_tick_frequency(1);
+        _movement_force_24h_if_configured();
         wf->activate(&movement_state.settings, watch_face_contexts[movement_state.current_face_idx]);
         event.subsecond = 0;
         event.event_type = EVENT_ACTIVATE;
@@ -514,6 +552,7 @@ bool app_loop(void) {
     if (event.event_type) {
         event.subsecond = movement_state.subsecond;
         // the first trip through the loop overrides the can_sleep state
+        _movement_force_24h_if_configured();
         can_sleep = wf->loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_face_idx]);
         event.event_type = EVENT_NONE;
     }
@@ -533,6 +572,7 @@ bool app_loop(void) {
         // first trip  | can sleep | cannot sleep | can sleep    | cannot sleep
         // second trip | can sleep | cannot sleep | cannot sleep | can sleep
         //          && | can sleep | cannot sleep | cannot sleep | cannot sleep
+        _movement_force_24h_if_configured();
         can_sleep = can_sleep && wf->loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_face_idx]);
         event.event_type = EVENT_NONE;
         if (movement_state.settings.bit.to_always && movement_state.current_face_idx != 0) {

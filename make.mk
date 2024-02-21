@@ -229,3 +229,7 @@ endif
 ifeq ($(BOARD), OSO-FEAL-A1-00)
 CFLAGS += -DCRYSTALLESS
 endif
+
+ifdef FORCE_24H
+CFLAGS += -DMOVEMENT_FORCE_24H
+endif
