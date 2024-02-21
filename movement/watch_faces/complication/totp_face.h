@@ -1,7 +1,14 @@
+/* SPDX-License-Identifier: MIT */
+
 /*
  * MIT License
  *
- * Copyright (c) 2022 Wesley Ellis (https://github.com/tahnok)
+ * Copyright © 2021 Wesley Ellis (https://github.com/tahnok)
+ * Copyright © 2021-2022 Joey Castillo <joeycastillo@utexas.edu>
+ * Copyright © 2022 Alexsander Akers <me@a2.io>
+ * Copyright © 2022 Jack Bond-Preston <jackbondpreston@outlook.com>
+ * Copyright © 2023 Alex Utter <ooterness@gmail.com>
+ * Copyright © 2024 Matheus Afonso Martins Moreira <matheus.a.m.moreira@gmail.com> (https://www.matheusmoreira.com/)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
