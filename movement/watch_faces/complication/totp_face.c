@@ -65,6 +65,10 @@ static totp_t totp_data[] = {
 // END OF KEY DATA.
 ////////////////////////////////////////////////////////////////////////////////
 
+static inline size_t _totp_num(void) {
+    return sizeof(totp_data) / sizeof(*totp_data);
+}
+
 static void _update_display(totp_state_t *totp_state) {
     char buf[14];
     div_t result;
