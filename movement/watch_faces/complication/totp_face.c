@@ -48,27 +48,20 @@ typedef struct {
 
 ////////////////////////////////////////////////////////////////////////////////
 // Enter your TOTP key data below
-static const uint8_t num_keys = 2;
-static uint8_t keys[] = {
+
+static uint8_t key_1[] = {
     0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x21, 0xde, 0xad, 0xbe, 0xef, // 1 - JBSWY3DPEHPK3PXP
+};
+
+static uint8_t key_2[] = {
     0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x21, 0xde, 0xad, 0xbe, 0xef, // 2 - JBSWY3DPEHPK3PXP
 };
-static const uint8_t key_sizes[] = {
-    10,
-    10,
+
+static totp_t totp_data[] = {
+    TOTP_INITIALIZER('2', 'F', key_1, SHA1, 30),
+    TOTP_INITIALIZER('A', 'C', key_2, SHA1, 30),
 };
-static const uint32_t timesteps[] = {
-    30,
-    30,
-};
-static const char labels[][2] = {
-    { '2', 'F' },
-    { 'A', 'C' },
-};
-static const hmac_alg algorithms[] = {
-    SHA1,
-    SHA1,
-};
+
 // END OF KEY DATA.
 ////////////////////////////////////////////////////////////////////////////////
 
