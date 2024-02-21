@@ -29,6 +29,14 @@
 #include "watch_utility.h"
 #include "TOTP.h"
 
+typedef struct {
+    unsigned char labels[2];
+    hmac_alg algorithm;
+    uint32_t period;
+    size_t key_length;
+    uint8_t *key;
+} totp_t;
+
 ////////////////////////////////////////////////////////////////////////////////
 // Enter your TOTP key data below
 static const uint8_t num_keys = 2;
