@@ -65,6 +65,10 @@ static totp_t totp_data[] = {
 // END OF KEY DATA.
 ////////////////////////////////////////////////////////////////////////////////
 
+static inline totp_t *_totp_current(totp_state_t *totp_state) {
+    return &totp_data[totp_state->current_index];
+}
+
 static inline size_t _totp_num(void) {
     return sizeof(totp_data) / sizeof(*totp_data);
 }
