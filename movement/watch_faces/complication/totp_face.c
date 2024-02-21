@@ -77,14 +77,15 @@ static void _update_display(totp_state_t *totp_state) {
     char buf[14];
     div_t result;
     uint8_t valid_for;
+    totp_t *totp = _totp_current(totp_state);
 
-    result = div(totp_state->timestamp, timesteps[totp_state->current_index]);
+    result = div(totp_state->timestamp, totp->period);
     if (result.quot != totp_state->steps) {
         totp_state->current_code = getCodeFromTimestamp(totp_state->timestamp);
         totp_state->steps = result.quot;
     }
-    valid_for = timesteps[totp_state->current_index] - result.rem;
-    sprintf(buf, "%c%c%2d%06lu", labels[totp_state->current_index][0], labels[totp_state->current_index][1], valid_for, totp_state->current_code);
+    valid_for = totp->period - result.rem;
+    sprintf(buf, "%c%c%2d%06lu", totp->labels[0], totp->labels[1], valid_for, totp_state->current_code);
 
     watch_display_string(buf, 0);
 }
@@ -99,7 +100,8 @@ void totp_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
     memset(context, 0, sizeof(totp_state_t));
     totp_state_t *totp_state = (totp_state_t *)context;
-    TOTP(keys, key_sizes[0], timesteps[0], algorithms[0]);
+    totp_t *totp = _totp_current(totp_state);
+    TOTP(totp->key, totp->key_length, totp->period, totp->algorithm);
     totp_state->timestamp = watch_utility_date_time_to_unix_time(watch_rtc_get_date_time(), movement_timezone_offsets[settings->bit.time_zone] * 60);
     totp_state->current_code = getCodeFromTimestamp(totp_state->timestamp);
 }
@@ -119,15 +121,14 @@ bool totp_face_loop(movement_event_t event, movement_settings_t *settings, void 
             movement_move_to_face(0);
             break;
         case EVENT_ALARM_BUTTON_UP:
-            if (totp_state->current_index + 1 < num_keys) {
-                totp_state->current_key_offset += key_sizes[totp_state->current_index];
+            if (totp_state->current_index + 1 < _totp_num()) {
                 totp_state->current_index++;
             } else {
                 // wrap around to first key
-                totp_state->current_key_offset = 0;
                 totp_state->current_index = 0;
             }
-            TOTP(keys + totp_state->current_key_offset, key_sizes[totp_state->current_index], timesteps[totp_state->current_index], algorithms[totp_state->current_index]);
+            totp_t *totp = _totp_current(totp_state);
+            TOTP(totp->key, totp->key_length, totp->period, totp->algorithm);
             _update_display(totp_state);
             break;
         case EVENT_ALARM_BUTTON_DOWN:
