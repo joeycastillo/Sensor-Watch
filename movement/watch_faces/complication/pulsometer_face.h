@@ -56,8 +56,9 @@
 
 typedef struct {
     bool measuring;
-    int16_t pulse;
+    int16_t pulses;
     int16_t ticks;
+    int8_t calibration;
 } pulsometer_state_t;
 
 void pulsometer_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
