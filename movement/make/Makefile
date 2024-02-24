@@ -50,6 +50,7 @@ SRCS += \
   ../movement.c \
   ../filesystem.c \
   ../watch_faces/clock/simple_clock_face.c \
+  ../watch_faces/clock/clock_face.c \
   ../watch_faces/clock/world_clock_face.c \
   ../watch_faces/clock/beats_face.c \
   ../watch_faces/clock/weeknumber_clock_face.c \
