@@ -37,6 +37,14 @@ typedef struct {
     bool alarm_enabled;
 } clock_state_t;
 
+static void clock_indicate(WatchIndicatorSegment indicator, bool on) {
+    if (on) {
+        watch_set_indicator(indicator);
+    } else {
+        watch_clear_indicator(indicator);
+    }
+}
+
 static void _update_alarm_indicator(bool settings_alarm_enabled, clock_state_t *state) {
     state->alarm_enabled = settings_alarm_enabled;
     if (state->alarm_enabled) watch_set_indicator(WATCH_INDICATOR_SIGNAL);
