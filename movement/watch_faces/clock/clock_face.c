@@ -32,7 +32,7 @@ typedef struct {
     uint32_t previous_date_time;
     uint8_t last_battery_check;
     uint8_t watch_face_index;
-    bool signal_enabled;
+    bool time_signal_enabled;
     bool battery_low;
 } clock_state_t;
 
@@ -48,6 +48,10 @@ static void clock_indicate_alarm(movement_settings_t *settings) {
     clock_indicate(WATCH_INDICATOR_BELL, settings->bit.alarm_enabled);
 }
 
+static void clock_indicate_time_signal(clock_state_t *clock) {
+    clock_indicate(WATCH_INDICATOR_SIGNAL, clock->time_signal_enabled);
+}
+
 void clock_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
     (void) watch_face_index;
@@ -55,7 +59,7 @@ void clock_face_setup(movement_settings_t *settings, uint8_t watch_face_index, v
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(clock_state_t));
         clock_state_t *state = (clock_state_t *) *context_ptr;
-        state->signal_enabled = false;
+        state->time_signal_enabled = false;
         state->watch_face_index = watch_face_index;
     }
 }
@@ -67,10 +71,7 @@ void clock_face_activate(movement_settings_t *settings, void *context) {
 
     if (settings->bit.clock_mode_24h) watch_set_indicator(WATCH_INDICATOR_24H);
 
-    // handle chime indicator
-    if (state->signal_enabled) watch_set_indicator(WATCH_INDICATOR_BELL);
-    else watch_clear_indicator(WATCH_INDICATOR_BELL);
-
+    clock_indicate_time_signal(clock);
     clock_indicate_alarm(settings);
 
     watch_set_colon();
@@ -144,9 +145,8 @@ bool clock_face_loop(movement_event_t event, movement_settings_t *settings, void
 
             break;
         case EVENT_ALARM_LONG_PRESS:
-            state->signal_enabled = !state->signal_enabled;
-            if (state->signal_enabled) watch_set_indicator(WATCH_INDICATOR_BELL);
-            else watch_clear_indicator(WATCH_INDICATOR_BELL);
+            state->time_signal_enabled = !state->time_signal_enabled;
+            clock_indicate_time_signal(state);
             break;
         case EVENT_BACKGROUND_TASK:
             // uncomment this line to snap back to the clock face when the hour signal sounds:
@@ -168,7 +168,7 @@ void clock_face_resign(movement_settings_t *settings, void *context) {
 bool clock_face_wants_background_task(movement_settings_t *settings, void *context) {
     (void) settings;
     clock_state_t *state = (clock_state_t *) context;
-    if (!state->signal_enabled) return false;
+    if (!state->time_signal_enabled) return false;
 
     watch_date_time date_time = watch_rtc_get_date_time();
 
