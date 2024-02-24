@@ -52,6 +52,10 @@ static void clock_indicate_time_signal(clock_state_t *clock) {
     clock_indicate(WATCH_INDICATOR_SIGNAL, clock->time_signal_enabled);
 }
 
+static void clock_indicate_24h(movement_settings_t *settings) {
+    clock_indicate(WATCH_INDICATOR_24H, settings->bit.clock_mode_24h);
+}
+
 void clock_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
     (void) watch_face_index;
@@ -69,10 +73,9 @@ void clock_face_activate(movement_settings_t *settings, void *context) {
 
     if (watch_tick_animation_is_running()) watch_stop_tick_animation();
 
-    if (settings->bit.clock_mode_24h) watch_set_indicator(WATCH_INDICATOR_24H);
-
     clock_indicate_time_signal(clock);
     clock_indicate_alarm(settings);
+    clock_indicate_24h(settings);
 
     watch_set_colon();
 
