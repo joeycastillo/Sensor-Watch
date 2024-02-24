@@ -28,6 +28,15 @@
 #include "watch_utility.h"
 #include "watch_private_display.h"
 
+typedef struct {
+    uint32_t previous_date_time;
+    uint8_t last_battery_check;
+    uint8_t watch_face_index;
+    bool signal_enabled;
+    bool battery_low;
+    bool alarm_enabled;
+} clock_state_t;
+
 static void _update_alarm_indicator(bool settings_alarm_enabled, clock_state_t *state) {
     state->alarm_enabled = settings_alarm_enabled;
     if (state->alarm_enabled) watch_set_indicator(WATCH_INDICATOR_SIGNAL);
