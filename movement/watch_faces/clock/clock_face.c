@@ -56,6 +56,25 @@ static void clock_indicate_24h(movement_settings_t *settings) {
     clock_indicate(WATCH_INDICATOR_24H, settings->bit.clock_mode_24h);
 }
 
+static bool clock_is_pm(watch_date_time date_time) {
+    return date_time.unit.hour >= 12;
+}
+
+static void clock_indicate_pm(movement_settings_t *settings, watch_date_time date_time) {
+    if (settings->bit.clock_mode_24h) { return; }
+    clock_indicate(WATCH_INDICATOR_PM, clock_is_pm(date_time));
+}
+
+static watch_date_time clock_24h_to_12h(watch_date_time date_time) {
+    date_time.unit.hour %= 12;
+
+    if (date_time.unit.hour == 0) {
+        date_time.unit.hour = 12;
+    }
+
+    return date_time;
+}
+
 void clock_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
     (void) watch_face_index;
@@ -125,13 +144,8 @@ bool clock_face_loop(movement_event_t event, movement_settings_t *settings, void
                 // other stuff changed; let's do it all.
                 if (!settings->bit.clock_mode_24h) {
                     // if we are in 12 hour mode, do some cleanup.
-                    if (date_time.unit.hour < 12) {
-                        watch_clear_indicator(WATCH_INDICATOR_PM);
-                    } else {
-                        watch_set_indicator(WATCH_INDICATOR_PM);
-                    }
-                    date_time.unit.hour %= 12;
-                    if (date_time.unit.hour == 0) date_time.unit.hour = 12;
+                    clock_indicate_pm(settings, date_time);
+                    date_time = clock_24h_to_12h(date_time);
                 }
                 pos = 0;
                 if (event.event_type == EVENT_LOW_ENERGY_UPDATE) {
