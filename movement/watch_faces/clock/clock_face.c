@@ -34,7 +34,6 @@ typedef struct {
     uint8_t watch_face_index;
     bool signal_enabled;
     bool battery_low;
-    bool alarm_enabled;
 } clock_state_t;
 
 static void clock_indicate(WatchIndicatorSegment indicator, bool on) {
@@ -45,10 +44,8 @@ static void clock_indicate(WatchIndicatorSegment indicator, bool on) {
     }
 }
 
-static void _update_alarm_indicator(bool settings_alarm_enabled, clock_state_t *state) {
-    state->alarm_enabled = settings_alarm_enabled;
-    if (state->alarm_enabled) watch_set_indicator(WATCH_INDICATOR_SIGNAL);
-    else watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
+static void clock_indicate_alarm(movement_settings_t *settings) {
+    clock_indicate(WATCH_INDICATOR_BELL, settings->bit.alarm_enabled);
 }
 
 void clock_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
@@ -64,7 +61,7 @@ void clock_face_setup(movement_settings_t *settings, uint8_t watch_face_index, v
 }
 
 void clock_face_activate(movement_settings_t *settings, void *context) {
-    clock_state_t *state = (clock_state_t *) context;
+    clock_state_t *clock = (clock_state_t *) context;
 
     if (watch_tick_animation_is_running()) watch_stop_tick_animation();
 
@@ -74,13 +71,12 @@ void clock_face_activate(movement_settings_t *settings, void *context) {
     if (state->signal_enabled) watch_set_indicator(WATCH_INDICATOR_BELL);
     else watch_clear_indicator(WATCH_INDICATOR_BELL);
 
-    // show alarm indicator if there is an active alarm
-    _update_alarm_indicator(settings->bit.alarm_enabled, state);
+    clock_indicate_alarm(settings);
 
     watch_set_colon();
 
     // this ensures that none of the timestamp fields will match, so we can re-render them all.
-    state->previous_date_time = 0xFFFFFFFF;
+    clock->previous_date_time = 0xFFFFFFFF;
 }
 
 bool clock_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
@@ -142,8 +138,10 @@ bool clock_face_loop(movement_event_t event, movement_settings_t *settings, void
                 }
             }
             watch_display_string(buf, pos);
+
             // handle alarm indicator
-            if (state->alarm_enabled != settings->bit.alarm_enabled) _update_alarm_indicator(settings->bit.alarm_enabled, state);
+            clock_indicate_alarm(settings);
+
             break;
         case EVENT_ALARM_LONG_PRESS:
             state->signal_enabled = !state->signal_enabled;
