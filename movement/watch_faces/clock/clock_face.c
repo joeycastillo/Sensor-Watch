@@ -23,31 +23,31 @@
  */
 
 #include <stdlib.h>
-#include "simple_clock_face.h"
+#include "clock_face.h"
 #include "watch.h"
 #include "watch_utility.h"
 #include "watch_private_display.h"
 
-static void _update_alarm_indicator(bool settings_alarm_enabled, simple_clock_state_t *state) {
+static void _update_alarm_indicator(bool settings_alarm_enabled, clock_state_t *state) {
     state->alarm_enabled = settings_alarm_enabled;
     if (state->alarm_enabled) watch_set_indicator(WATCH_INDICATOR_SIGNAL);
     else watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
 }
 
-void simple_clock_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
+void clock_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
     (void) watch_face_index;
 
     if (*context_ptr == NULL) {
-        *context_ptr = malloc(sizeof(simple_clock_state_t));
-        simple_clock_state_t *state = (simple_clock_state_t *)*context_ptr;
+        *context_ptr = malloc(sizeof(clock_state_t));
+        clock_state_t *state = (clock_state_t *) *context_ptr;
         state->signal_enabled = false;
         state->watch_face_index = watch_face_index;
     }
 }
 
-void simple_clock_face_activate(movement_settings_t *settings, void *context) {
-    simple_clock_state_t *state = (simple_clock_state_t *)context;
+void clock_face_activate(movement_settings_t *settings, void *context) {
+    clock_state_t *state = (clock_state_t *) context;
 
     if (watch_tick_animation_is_running()) watch_stop_tick_animation();
 
@@ -66,8 +66,8 @@ void simple_clock_face_activate(movement_settings_t *settings, void *context) {
     state->previous_date_time = 0xFFFFFFFF;
 }
 
-bool simple_clock_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
-    simple_clock_state_t *state = (simple_clock_state_t *)context;
+bool clock_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
+    clock_state_t *state = (clock_state_t *) context;
     char buf[11];
     uint8_t pos;
 
@@ -145,14 +145,14 @@ bool simple_clock_face_loop(movement_event_t event, movement_settings_t *setting
     return true;
 }
 
-void simple_clock_face_resign(movement_settings_t *settings, void *context) {
+void clock_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
 }
 
-bool simple_clock_face_wants_background_task(movement_settings_t *settings, void *context) {
+bool clock_face_wants_background_task(movement_settings_t *settings, void *context) {
     (void) settings;
-    simple_clock_state_t *state = (simple_clock_state_t *)context;
+    clock_state_t *state = (clock_state_t *) context;
     if (!state->signal_enabled) return false;
 
     watch_date_time date_time = watch_rtc_get_date_time();
