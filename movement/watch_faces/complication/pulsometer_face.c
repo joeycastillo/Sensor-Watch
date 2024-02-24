@@ -51,6 +51,13 @@
 
 #define PULSOMETER_FACE_FREQUENCY (1 << PULSOMETER_FACE_FREQUENCY_FACTOR)
 
+typedef struct {
+    bool measuring;
+    int16_t pulses;
+    int16_t ticks;
+    int8_t calibration;
+} pulsometer_state_t;
+
 static void pulsometer_display_title(pulsometer_state_t *pulsometer) {
     watch_display_string(PULSOMETER_FACE_TITLE, 0);
 }
