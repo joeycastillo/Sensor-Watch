@@ -218,9 +218,6 @@ bool clock_face_loop(movement_event_t event, movement_settings_t *settings, void
             previous.reg = state->previous_date_time;
             state->previous_date_time = current.reg;
 
-            clock_check_battery_periodically(state, date_time);
-            clock_indicate_low_available_power(state);
-
             if (!clock_display_some(current, previous)) {
                 if (!settings->bit.clock_mode_24h) {
                     // if we are in 12 hour mode, do some cleanup.
@@ -230,8 +227,10 @@ bool clock_face_loop(movement_event_t event, movement_settings_t *settings, void
                 clock_display_all(current);
             }
 
+            clock_check_battery_periodically(state, current);
 
             clock_indicate_alarm(settings);
+            clock_indicate_low_available_power(state);
 
             break;
         case EVENT_ALARM_LONG_PRESS:
