@@ -35,7 +35,9 @@
 #endif
 
 typedef struct {
-    uint32_t previous_date_time;
+    struct {
+        watch_date_time previous;
+    } date_time;
     uint8_t last_battery_check;
     uint8_t watch_face_index;
     bool time_signal_enabled;
@@ -148,6 +150,17 @@ static bool clock_display_some(watch_date_time current, watch_date_time previous
     }
 }
 
+static void clock_display_clock(movement_settings_t *settings, clock_state_t *clock, watch_date_time current) {
+    if (!clock_display_some(current, clock->date_time.previous)) {
+        if (!settings->bit.clock_mode_24h) {
+            // if we are in 12 hour mode, do some cleanup.
+            clock_indicate_pm(settings, current);
+            current = clock_24h_to_12h(current);
+        }
+        clock_display_all(current);
+    }
+}
+
 static void clock_display_low_energy(watch_date_time date_time) {
     char buf[10 + 1];
 
@@ -200,12 +213,12 @@ void clock_face_activate(movement_settings_t *settings, void *context) {
     watch_set_colon();
 
     // this ensures that none of the timestamp fields will match, so we can re-render them all.
-    clock->previous_date_time = 0xFFFFFFFF;
+    clock->date_time.previous.reg = 0xFFFFFFFF;
 }
 
 bool clock_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     clock_state_t *state = (clock_state_t *) context;
-    watch_date_time current, previous;
+    watch_date_time current;
 
     switch (event.event_type) {
         case EVENT_LOW_ENERGY_UPDATE:
@@ -215,22 +228,15 @@ bool clock_face_loop(movement_event_t event, movement_settings_t *settings, void
         case EVENT_TICK:
         case EVENT_ACTIVATE:
             current = watch_rtc_get_date_time();
-            previous.reg = state->previous_date_time;
-            state->previous_date_time = current.reg;
 
-            if (!clock_display_some(current, previous)) {
-                if (!settings->bit.clock_mode_24h) {
-                    // if we are in 12 hour mode, do some cleanup.
-                    clock_indicate_pm(settings, current);
-                    current = clock_24h_to_12h(current);
-                }
-                clock_display_all(current);
-            }
+            clock_display_clock(settings, state, current);
 
             clock_check_battery_periodically(state, current);
 
             clock_indicate_alarm(settings);
             clock_indicate_low_available_power(state);
+
+            state->date_time.previous = current;
 
             break;
         case EVENT_ALARM_LONG_PRESS:
