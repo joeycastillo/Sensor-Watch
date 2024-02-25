@@ -101,6 +101,11 @@ static void clock_indicate_low_available_power(clock_state_t *clock) {
     clock_indicate(WATCH_INDICATOR_LAP, clock->battery_low);
 }
 
+static void clock_toggle_time_signal(clock_state_t *clock) {
+    clock->time_signal_enabled = !clock->time_signal_enabled;
+    clock_indicate_time_signal(clock);
+}
+
 static void clock_display_all(watch_date_time date_time) {
     char buf[10 + 1];
 
@@ -240,8 +245,7 @@ bool clock_face_loop(movement_event_t event, movement_settings_t *settings, void
 
             break;
         case EVENT_ALARM_LONG_PRESS:
-            state->time_signal_enabled = !state->time_signal_enabled;
-            clock_indicate_time_signal(state);
+            clock_toggle_time_signal(state);
             break;
         case EVENT_BACKGROUND_TASK:
             // uncomment this line to snap back to the clock face when the hour signal sounds:
