@@ -28,6 +28,12 @@
 #include "watch_utility.h"
 #include "watch_private_display.h"
 
+// 2.2 volts will happen when the battery has maybe 5-10% remaining?
+// we can refine this later.
+#ifndef CLOCK_FACE_LOW_BATTERY_VOLTAGE_THRESHOLD
+#define CLOCK_FACE_LOW_BATTERY_VOLTAGE_THRESHOLD 2200
+#endif
+
 typedef struct {
     uint32_t previous_date_time;
     uint8_t last_battery_check;
@@ -75,6 +81,19 @@ static watch_date_time clock_24h_to_12h(watch_date_time date_time) {
     return date_time;
 }
 
+static void clock_check_battery_periodically(clock_state_t *clock, watch_date_time date_time) {
+    // check the battery voltage once a day
+    if (date_time.unit.day == clock->last_battery_check) { return; }
+
+    clock->last_battery_check = date_time.unit.day;
+
+    watch_enable_adc();
+    uint16_t voltage = watch_get_vcc_voltage();
+    watch_disable_adc();
+
+    clock->battery_low = voltage < CLOCK_FACE_LOW_BATTERY_VOLTAGE_THRESHOLD;
+}
+
 void clock_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
     (void) watch_face_index;
@@ -117,18 +136,9 @@ bool clock_face_loop(movement_event_t event, movement_settings_t *settings, void
             previous_date_time = state->previous_date_time;
             state->previous_date_time = date_time.reg;
 
-            // check the battery voltage once a day...
-            if (date_time.unit.day != state->last_battery_check) {
-                state->last_battery_check = date_time.unit.day;
-                watch_enable_adc();
-                uint16_t voltage = watch_get_vcc_voltage();
-                watch_disable_adc();
-                // 2.2 volts will happen when the battery has maybe 5-10% remaining?
-                // we can refine this later.
-                state->battery_low = (voltage < 2200);
-            }
+            clock_check_battery_periodically(state, date_time);
 
-            // ...and set the LAP indicator if low.
+            // Set the LAP indicator if battery power is low
             if (state->battery_low) watch_set_indicator(WATCH_INDICATOR_LAP);
 
             if ((date_time.reg >> 6) == (previous_date_time >> 6) && event.event_type != EVENT_LOW_ENERGY_UPDATE) {
