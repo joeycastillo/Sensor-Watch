@@ -237,8 +237,6 @@ bool clock_face_loop(movement_event_t event, movement_settings_t *settings, void
             clock_display_clock(settings, state, current);
 
             clock_check_battery_periodically(state, current);
-
-            clock_indicate_alarm(settings);
             clock_indicate_low_available_power(state);
 
             state->date_time.previous = current;
