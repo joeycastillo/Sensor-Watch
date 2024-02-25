@@ -99,6 +99,23 @@ static void clock_indicate_low_available_power(clock_state_t *clock) {
     clock_indicate(WATCH_INDICATOR_LAP, clock->battery_low);
 }
 
+static void clock_display_all(watch_date_time date_time) {
+    char buf[10 + 1];
+
+    snprintf(
+        buf,
+        sizeof(buf),
+        "%s%2d%2d%02d%02d",
+        watch_utility_get_weekday(date_time),
+        date_time.unit.day,
+        date_time.unit.hour,
+        date_time.unit.minute,
+        date_time.unit.second
+    );
+
+    watch_display_string(buf, 0);
+}
+
 static void clock_display_low_energy(watch_date_time date_time) {
     char buf[10 + 1];
 
@@ -191,7 +208,8 @@ bool clock_face_loop(movement_event_t event, movement_settings_t *settings, void
                     clock_indicate_pm(settings, date_time);
                     date_time = clock_24h_to_12h(date_time);
                 }
-                sprintf(buf, "%s%2d%2d%02d%02d", watch_utility_get_weekday(date_time), date_time.unit.day, date_time.unit.hour, date_time.unit.minute, date_time.unit.second);
+                clock_display_all(date_time);
+                break;
             }
 
             watch_display_string(buf, 0);
