@@ -100,7 +100,7 @@ static void clock_indicate_low_available_power(clock_state_t *clock) {
 }
 
 static void clock_display_low_energy(watch_date_time date_time) {
-    char buf[11];
+    char buf[10 + 1];
 
     snprintf(
         buf,
@@ -113,6 +113,18 @@ static void clock_display_low_energy(watch_date_time date_time) {
     );
 
     watch_display_string(buf, 0);
+}
+
+static void clock_start_tick_tock_animation(void) {
+    if (!watch_tick_animation_is_running()) {
+        watch_start_tick_animation(500);
+    }
+}
+
+static void clock_stop_tick_tock_animation(void) {
+    if (watch_tick_animation_is_running()) {
+        watch_stop_tick_animation();
+    }
 }
 
 void clock_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
@@ -130,7 +142,7 @@ void clock_face_setup(movement_settings_t *settings, uint8_t watch_face_index, v
 void clock_face_activate(movement_settings_t *settings, void *context) {
     clock_state_t *clock = (clock_state_t *) context;
 
-    if (watch_tick_animation_is_running()) watch_stop_tick_animation();
+    clock_stop_tick_tock_animation();
 
     clock_indicate_time_signal(clock);
     clock_indicate_alarm(settings);
@@ -151,7 +163,7 @@ bool clock_face_loop(movement_event_t event, movement_settings_t *settings, void
     uint32_t previous_date_time;
     switch (event.event_type) {
         case EVENT_LOW_ENERGY_UPDATE:
-            if (!watch_tick_animation_is_running()) watch_start_tick_animation(500);
+            clock_start_tick_tock_animation();
             clock_display_low_energy(watch_rtc_get_date_time());
             break;
         case EVENT_TICK:
