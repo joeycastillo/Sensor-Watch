@@ -116,6 +116,38 @@ static void clock_display_all(watch_date_time date_time) {
     watch_display_string(buf, 0);
 }
 
+static bool clock_display_some(watch_date_time current, watch_date_time previous) {
+    if ((current.reg >> 6) == (previous.reg >> 6)) {
+        // everything before seconds is the same, don't waste cycles setting those segments.
+
+        watch_display_character_lp_seconds('0' + current.unit.second / 10, 8);
+        watch_display_character_lp_seconds('0' + current.unit.second % 10, 9);
+
+        return true;
+
+    } else if ((current.reg >> 12) == (previous.reg >> 12)) {
+        // everything before minutes is the same.
+
+        char buf[4 + 1];
+
+        snprintf(
+            buf,
+            sizeof(buf),
+            "%02d%02d",
+            current.unit.minute,
+            current.unit.second
+        );
+
+        watch_display_string(buf, 6);
+
+        return true;
+
+    } else {
+        // other stuff changed; let's do it all.
+        return false;
+    }
+}
+
 static void clock_display_low_energy(watch_date_time date_time) {
     char buf[10 + 1];
 
@@ -173,11 +205,8 @@ void clock_face_activate(movement_settings_t *settings, void *context) {
 
 bool clock_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     clock_state_t *state = (clock_state_t *) context;
-    char buf[11];
-    uint8_t pos;
+    watch_date_time current, previous;
 
-    watch_date_time date_time;
-    uint32_t previous_date_time;
     switch (event.event_type) {
         case EVENT_LOW_ENERGY_UPDATE:
             clock_start_tick_tock_animation();
@@ -185,36 +214,23 @@ bool clock_face_loop(movement_event_t event, movement_settings_t *settings, void
             break;
         case EVENT_TICK:
         case EVENT_ACTIVATE:
-            date_time = watch_rtc_get_date_time();
-            previous_date_time = state->previous_date_time;
-            state->previous_date_time = date_time.reg;
+            current = watch_rtc_get_date_time();
+            previous.reg = state->previous_date_time;
+            state->previous_date_time = current.reg;
 
             clock_check_battery_periodically(state, date_time);
             clock_indicate_low_available_power(state);
 
-            if ((date_time.reg >> 6) == (previous_date_time >> 6)) {
-                // everything before seconds is the same, don't waste cycles setting those segments.
-                watch_display_character_lp_seconds('0' + date_time.unit.second / 10, 8);
-                watch_display_character_lp_seconds('0' + date_time.unit.second % 10, 9);
-                break;
-            } else if ((date_time.reg >> 12) == (previous_date_time >> 12)) {
-                // everything before minutes is the same.
-                pos = 6;
-                sprintf(buf, "%02d%02d", date_time.unit.minute, date_time.unit.second);
-            } else {
-                // other stuff changed; let's do it all.
+            if (!clock_display_some(current, previous)) {
                 if (!settings->bit.clock_mode_24h) {
                     // if we are in 12 hour mode, do some cleanup.
-                    clock_indicate_pm(settings, date_time);
-                    date_time = clock_24h_to_12h(date_time);
+                    clock_indicate_pm(settings, current);
+                    current = clock_24h_to_12h(current);
                 }
-                clock_display_all(date_time);
-                break;
+                clock_display_all(current);
             }
 
-            watch_display_string(buf, 0);
 
-            // handle alarm indicator
             clock_indicate_alarm(settings);
 
             break;
