@@ -42,6 +42,10 @@
 #define CLOCK_FACE_LOW_BATTERY_VOLTAGE_THRESHOLD 2200
 #endif
 
+#ifndef CLOCK_FACE_24H_ONLY
+#define CLOCK_FACE_24H_ONLY 0
+#endif
+
 typedef struct {
     struct {
         watch_date_time previous;
@@ -51,6 +55,11 @@ typedef struct {
     bool time_signal_enabled;
     bool battery_low;
 } clock_state_t;
+
+static bool clock_is_in_24h_mode(movement_settings_t *settings) {
+    if (CLOCK_FACE_24H_ONLY) { return true; }
+    return settings->bit.clock_mode_24h;
+}
 
 static void clock_indicate(WatchIndicatorSegment indicator, bool on) {
     if (on) {
@@ -69,7 +78,7 @@ static void clock_indicate_time_signal(clock_state_t *clock) {
 }
 
 static void clock_indicate_24h(movement_settings_t *settings) {
-    clock_indicate(WATCH_INDICATOR_24H, settings->bit.clock_mode_24h);
+    clock_indicate(WATCH_INDICATOR_24H, clock_is_in_24h_mode(settings));
 }
 
 static bool clock_is_pm(watch_date_time date_time) {
@@ -167,7 +176,7 @@ static bool clock_display_some(watch_date_time current, watch_date_time previous
 
 static void clock_display_clock(movement_settings_t *settings, clock_state_t *clock, watch_date_time current) {
     if (!clock_display_some(current, clock->date_time.previous)) {
-        if (!settings->bit.clock_mode_24h) {
+        if (!clock_is_in_24h_mode(settings)) {
             // if we are in 12 hour mode, do some cleanup.
             clock_indicate_pm(settings, current);
             current = clock_24h_to_12h(current);

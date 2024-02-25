@@ -229,3 +229,9 @@ endif
 ifeq ($(BOARD), OSO-FEAL-A1-00)
 CFLAGS += -DCRYSTALLESS
 endif
+
+# Build options to customize movement and faces
+
+ifdef CLOCK_FACE_24H_ONLY
+CFLAGS += -DCLOCK_FACE_24H_ONLY
+endif
