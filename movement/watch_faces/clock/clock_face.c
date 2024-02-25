@@ -73,6 +73,11 @@ static void clock_indicate_pm(movement_settings_t *settings, watch_date_time dat
     clock_indicate(WATCH_INDICATOR_PM, clock_is_pm(date_time));
 }
 
+static void clock_indicate_low_available_power(clock_state_t *clock) {
+    // Set the LAP indicator if battery power is low
+    clock_indicate(WATCH_INDICATOR_LAP, clock->battery_low);
+}
+
 static watch_date_time clock_24h_to_12h(watch_date_time date_time) {
     date_time.unit.hour %= 12;
 
@@ -94,11 +99,8 @@ static void clock_check_battery_periodically(clock_state_t *clock, watch_date_ti
     watch_disable_adc();
 
     clock->battery_low = voltage < CLOCK_FACE_LOW_BATTERY_VOLTAGE_THRESHOLD;
-}
 
-static void clock_indicate_low_available_power(clock_state_t *clock) {
-    // Set the LAP indicator if battery power is low
-    clock_indicate(WATCH_INDICATOR_LAP, clock->battery_low);
+    clock_indicate_low_available_power(clock);
 }
 
 static void clock_toggle_time_signal(clock_state_t *clock) {
@@ -237,7 +239,6 @@ bool clock_face_loop(movement_event_t event, movement_settings_t *settings, void
             clock_display_clock(settings, state, current);
 
             clock_check_battery_periodically(state, current);
-            clock_indicate_low_available_power(state);
 
             state->date_time.previous = current;
 
