@@ -94,6 +94,11 @@ static void clock_check_battery_periodically(clock_state_t *clock, watch_date_ti
     clock->battery_low = voltage < CLOCK_FACE_LOW_BATTERY_VOLTAGE_THRESHOLD;
 }
 
+static void clock_indicate_low_available_power(clock_state_t *clock) {
+    // Set the LAP indicator if battery power is low
+    clock_indicate(WATCH_INDICATOR_LAP, clock->battery_low);
+}
+
 void clock_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
     (void) watch_face_index;
@@ -137,9 +142,7 @@ bool clock_face_loop(movement_event_t event, movement_settings_t *settings, void
             state->previous_date_time = date_time.reg;
 
             clock_check_battery_periodically(state, date_time);
-
-            // Set the LAP indicator if battery power is low
-            if (state->battery_low) watch_set_indicator(WATCH_INDICATOR_LAP);
+            clock_indicate_low_available_power(state);
 
             if ((date_time.reg >> 6) == (previous_date_time >> 6) && event.event_type != EVENT_LOW_ENERGY_UPDATE) {
                 // everything before seconds is the same, don't waste cycles setting those segments.
