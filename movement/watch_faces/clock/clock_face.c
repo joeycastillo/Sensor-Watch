@@ -99,6 +99,22 @@ static void clock_indicate_low_available_power(clock_state_t *clock) {
     clock_indicate(WATCH_INDICATOR_LAP, clock->battery_low);
 }
 
+static void clock_display_low_energy(watch_date_time date_time) {
+    char buf[11];
+
+    snprintf(
+        buf,
+        sizeof(buf),
+        "%s%2d%2d%02d  ",
+        watch_utility_get_weekday(date_time),
+        date_time.unit.day,
+        date_time.unit.hour,
+        date_time.unit.minute
+    );
+
+    watch_display_string(buf, 0);
+}
+
 void clock_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
     (void) watch_face_index;
@@ -134,9 +150,12 @@ bool clock_face_loop(movement_event_t event, movement_settings_t *settings, void
     watch_date_time date_time;
     uint32_t previous_date_time;
     switch (event.event_type) {
-        case EVENT_ACTIVATE:
-        case EVENT_TICK:
         case EVENT_LOW_ENERGY_UPDATE:
+            if (!watch_tick_animation_is_running()) watch_start_tick_animation(500);
+            clock_display_low_energy(watch_rtc_get_date_time());
+            break;
+        case EVENT_TICK:
+        case EVENT_ACTIVATE:
             date_time = watch_rtc_get_date_time();
             previous_date_time = state->previous_date_time;
             state->previous_date_time = date_time.reg;
@@ -144,12 +163,12 @@ bool clock_face_loop(movement_event_t event, movement_settings_t *settings, void
             clock_check_battery_periodically(state, date_time);
             clock_indicate_low_available_power(state);
 
-            if ((date_time.reg >> 6) == (previous_date_time >> 6) && event.event_type != EVENT_LOW_ENERGY_UPDATE) {
+            if ((date_time.reg >> 6) == (previous_date_time >> 6)) {
                 // everything before seconds is the same, don't waste cycles setting those segments.
                 watch_display_character_lp_seconds('0' + date_time.unit.second / 10, 8);
                 watch_display_character_lp_seconds('0' + date_time.unit.second % 10, 9);
                 break;
-            } else if ((date_time.reg >> 12) == (previous_date_time >> 12) && event.event_type != EVENT_LOW_ENERGY_UPDATE) {
+            } else if ((date_time.reg >> 12) == (previous_date_time >> 12)) {
                 // everything before minutes is the same.
                 pos = 6;
                 sprintf(buf, "%02d%02d", date_time.unit.minute, date_time.unit.second);
@@ -160,15 +179,10 @@ bool clock_face_loop(movement_event_t event, movement_settings_t *settings, void
                     clock_indicate_pm(settings, date_time);
                     date_time = clock_24h_to_12h(date_time);
                 }
-                pos = 0;
-                if (event.event_type == EVENT_LOW_ENERGY_UPDATE) {
-                    if (!watch_tick_animation_is_running()) watch_start_tick_animation(500);
-                    sprintf(buf, "%s%2d%2d%02d  ", watch_utility_get_weekday(date_time), date_time.unit.day, date_time.unit.hour, date_time.unit.minute);
-                } else {
-                    sprintf(buf, "%s%2d%2d%02d%02d", watch_utility_get_weekday(date_time), date_time.unit.day, date_time.unit.hour, date_time.unit.minute, date_time.unit.second);
-                }
+                sprintf(buf, "%s%2d%2d%02d%02d", watch_utility_get_weekday(date_time), date_time.unit.day, date_time.unit.hour, date_time.unit.minute, date_time.unit.second);
             }
-            watch_display_string(buf, pos);
+
+            watch_display_string(buf, 0);
 
             // handle alarm indicator
             clock_indicate_alarm(settings);
