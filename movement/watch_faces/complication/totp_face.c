@@ -66,7 +66,7 @@ static totp_t credentials[] = {
 // END OF KEY DATA.
 ////////////////////////////////////////////////////////////////////////////////
 
-static inline totp_t *_totp_current(totp_state_t *totp_state) {
+static inline totp_t *totp_current(totp_state_t *totp_state) {
     return &credentials[totp_state->current_index];
 }
 
@@ -74,11 +74,11 @@ static inline size_t totp_total(void) {
     return sizeof(credentials) / sizeof(*credentials);
 }
 
-static void _update_display(totp_state_t *totp_state) {
+static void totp_display(totp_state_t *totp_state) {
     char buf[14];
     div_t result;
     uint8_t valid_for;
-    totp_t *totp = _totp_current(totp_state);
+    totp_t *totp = totp_current(totp_state);
 
     result = div(totp_state->timestamp, totp->period);
     if (result.quot != totp_state->steps) {
@@ -121,7 +121,7 @@ void totp_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
     memset(context, 0, sizeof(totp_state_t));
     totp_state_t *totp_state = (totp_state_t *)context;
-    totp_t *totp = _totp_current(totp_state);
+    totp_t *totp = totp_current(totp_state);
     TOTP(totp->key, totp->key_length, totp->period, totp->algorithm);
     totp_state->timestamp = watch_utility_date_time_to_unix_time(watch_rtc_get_date_time(), movement_timezone_offsets[settings->bit.time_zone] * 60);
     totp_state->current_code = getCodeFromTimestamp(totp_state->timestamp);
@@ -136,7 +136,7 @@ bool totp_face_loop(movement_event_t event, movement_settings_t *settings, void 
             totp_state->timestamp++;
             // fall through
         case EVENT_ACTIVATE:
-            _update_display(totp_state);
+            totp_display(totp_state);
             break;
         case EVENT_TIMEOUT:
             movement_move_to_face(0);
@@ -148,9 +148,9 @@ bool totp_face_loop(movement_event_t event, movement_settings_t *settings, void 
                 // wrap around to first key
                 totp_state->current_index = 0;
             }
-            totp_t *totp = _totp_current(totp_state);
+            totp_t *totp = totp_current(totp_state);
             TOTP(totp->key, totp->key_length, totp->period, totp->algorithm);
-            _update_display(totp_state);
+            totp_display(totp_state);
             break;
         case EVENT_ALARM_BUTTON_DOWN:
         case EVENT_ALARM_LONG_PRESS:
