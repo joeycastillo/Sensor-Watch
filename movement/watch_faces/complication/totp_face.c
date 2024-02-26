@@ -46,12 +46,12 @@ typedef struct {
     unsigned char *key;
 } totp_t;
 
-#define TOTP_INITIALIZER(label_1, label_2, key_array, algo, timestep) \
+#define TOTP_INITIALIZER(label, key_array, algo, timestep) \
     (const totp_t) { \
         .key = ((unsigned char *) key_array), \
         .key_length = sizeof(key_array) - 1, \
         .period = (timestep), \
-        .labels = { (label_1), (label_2) }, \
+        .labels = (#label), \
         .algorithm = (algo), \
     }
 
@@ -59,8 +59,8 @@ typedef struct {
 // Enter your TOTP key data below
 
 static totp_t credentials[] = {
-    TOTP_INITIALIZER('2', 'F', "JBSWY3DPEHPK3PXP", SHA1, 30),
-    TOTP_INITIALIZER('A', 'C', "JBSWY3DPEHPK3PXP", SHA1, 30),
+    TOTP_INITIALIZER(2F, "JBSWY3DPEHPK3PXP", SHA1, 30),
+    TOTP_INITIALIZER(AC, "JBSWY3DPEHPK3PXP", SHA1, 30),
 };
 
 // END OF KEY DATA.
