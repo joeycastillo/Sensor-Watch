@@ -36,19 +36,20 @@
 #include "watch.h"
 #include "watch_utility.h"
 #include "TOTP.h"
+#include "base32.h"
 
 typedef struct {
     unsigned char labels[2];
     hmac_alg algorithm;
     uint32_t period;
     size_t key_length;
-    uint8_t *key;
+    unsigned char *key;
 } totp_t;
 
 #define TOTP_INITIALIZER(label_1, label_2, key_array, algo, timestep) \
     (const totp_t) { \
-        .key = (key_array), \
-        .key_length = sizeof(key_array), \
+        .key = ((unsigned char *) key_array), \
+        .key_length = sizeof(key_array) - 1, \
         .period = (timestep), \
         .labels = { (label_1), (label_2) }, \
         .algorithm = (algo), \
@@ -57,28 +58,20 @@ typedef struct {
 ////////////////////////////////////////////////////////////////////////////////
 // Enter your TOTP key data below
 
-static uint8_t key_1[] = {
-    0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x21, 0xde, 0xad, 0xbe, 0xef, // 1 - JBSWY3DPEHPK3PXP
-};
-
-static uint8_t key_2[] = {
-    0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x21, 0xde, 0xad, 0xbe, 0xef, // 2 - JBSWY3DPEHPK3PXP
-};
-
-static totp_t totp_data[] = {
-    TOTP_INITIALIZER('2', 'F', key_1, SHA1, 30),
-    TOTP_INITIALIZER('A', 'C', key_2, SHA1, 30),
+static totp_t credentials[] = {
+    TOTP_INITIALIZER('2', 'F', "JBSWY3DPEHPK3PXP", SHA1, 30),
+    TOTP_INITIALIZER('A', 'C', "JBSWY3DPEHPK3PXP", SHA1, 30),
 };
 
 // END OF KEY DATA.
 ////////////////////////////////////////////////////////////////////////////////
 
 static inline totp_t *_totp_current(totp_state_t *totp_state) {
-    return &totp_data[totp_state->current_index];
+    return &credentials[totp_state->current_index];
 }
 
-static inline size_t _totp_num(void) {
-    return sizeof(totp_data) / sizeof(*totp_data);
+static inline size_t totp_total(void) {
+    return sizeof(credentials) / sizeof(*credentials);
 }
 
 static void _update_display(totp_state_t *totp_state) {
@@ -98,10 +91,30 @@ static void _update_display(totp_state_t *totp_state) {
     watch_display_string(buf, 0);
 }
 
+static void totp_face_decode_secrets(void) {
+    for (size_t n = totp_total(), i = 0; i < n; ++i) {
+        totp_t *totp = &credentials[i];
+        unsigned char *key = totp->key;
+
+        totp->key = malloc(UNBASE32_LEN(totp->key_length));
+        totp->key_length = base32_decode(key, totp->key);
+
+        if (totp->key_length == 0) {
+            free(totp->key);
+            continue;
+        }
+    }
+}
+
 void totp_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
     (void) watch_face_index;
-    if (*context_ptr == NULL) *context_ptr = malloc(sizeof(totp_state_t));
+
+    if (*context_ptr == NULL) {
+        totp_state_t *totp = malloc(sizeof(totp_state_t));
+        totp_face_decode_secrets();
+        *context_ptr = totp;
+    }
 }
 
 void totp_face_activate(movement_settings_t *settings, void *context) {
@@ -129,7 +142,7 @@ bool totp_face_loop(movement_event_t event, movement_settings_t *settings, void 
             movement_move_to_face(0);
             break;
         case EVENT_ALARM_BUTTON_UP:
-            if (totp_state->current_index + 1 < _totp_num()) {
+            if (totp_state->current_index + 1 < totp_total()) {
                 totp_state->current_index++;
             } else {
                 // wrap around to first key
