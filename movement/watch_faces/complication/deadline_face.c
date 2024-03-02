@@ -100,8 +100,6 @@
 #define SETTINGS_NUM (5)
 const char settings_titles[SETTINGS_NUM][3] = { "YR", "MO", "DA", "HR", "M1" };
 
-static uint8_t tick_freq;
-
 /* Local functions */
 static void _running_init(movement_settings_t *settings, deadline_state_t * state);
 static bool _running_loop(movement_event_t event, movement_settings_t *settings, void *context);
@@ -113,7 +111,7 @@ static void _setting_display(movement_event_t event, movement_settings_t *settin
 /* Utility functions */
 static void _increment_date(movement_settings_t *settings, deadline_state_t * state, watch_date_time date_time);
 static inline int32_t _get_tz_offset(movement_settings_t *settings);
-static inline void _change_tick_freq(uint8_t freq);
+static inline void _change_tick_freq(uint8_t freq, deadline_state_t * state);
 static inline bool _is_leap(int16_t y);
 static inline int _days_in_month(int16_t mpnth, int16_t y);
 static inline unsigned int _mod(int a, int b);
@@ -188,11 +186,11 @@ static inline void _beep_disable(movement_settings_t *settings)
 }
 
 /* Change tick frequency */
-static inline void _change_tick_freq(uint8_t freq)
+static inline void _change_tick_freq(uint8_t freq, deadline_state_t *state)
 {
-    if (tick_freq != freq) {
+    if (state->tick_freq != freq) {
         movement_request_tick_frequency(freq);
-        tick_freq = freq;
+        state->tick_freq = freq;
     }
 }
 
@@ -416,7 +414,7 @@ static bool _running_loop(movement_event_t event, movement_settings_t *settings,
     }
 
     /* Slow down frequency after first loop for snappiness */
-    _change_tick_freq(1);
+    _change_tick_freq(1, state);
     return true;
 }
 
@@ -469,7 +467,7 @@ static void _setting_display(movement_event_t event, movement_settings_t *settin
 /* Init setting mode */
 static void _setting_init(movement_settings_t *settings, deadline_state_t *state)
 {
-    _change_tick_freq(4);
+    _change_tick_freq(4, state);
     state->current_page = 0;
 
     /* Init fresh deadline to next day */
@@ -489,20 +487,20 @@ static bool _setting_loop(movement_event_t event, movement_settings_t *settings,
 
     switch (event.event_type) {
         case EVENT_TICK:
-            if (tick_freq == 8) {
+            if (state->tick_freq == 8) {
                 if (watch_get_pin_level(BTN_ALARM)) {
                     _increment_date(settings, state, date_time);
                     _setting_display(event, settings, state, date_time);
                 } else {
-                    _change_tick_freq(4);
+                    _change_tick_freq(4, state);
                 }
             }
             break;
         case EVENT_ALARM_LONG_PRESS:
-            _change_tick_freq(8);
+            _change_tick_freq(8, state);
             break;
         case EVENT_ALARM_LONG_UP:
-            _change_tick_freq(4);
+            _change_tick_freq(4, state);
             break;
         case EVENT_LIGHT_LONG_PRESS:
             _beep_button(settings);
@@ -515,14 +513,14 @@ static bool _setting_loop(movement_event_t event, movement_settings_t *settings,
             _setting_display(event, settings, state, date_time);
             break;
         case EVENT_ALARM_BUTTON_UP:
-            _change_tick_freq(4);
+            _change_tick_freq(4, state);
             _increment_date(settings, state, date_time);
             _setting_display(event, settings, state, date_time);
             break;
         case EVENT_TIMEOUT:
             _beep_button(settings);
             _schedule_alarm(settings, state);
-            _change_tick_freq(1);
+            _change_tick_freq(1, state);
             movement_move_to_face(0);
             break;
         case EVENT_MODE_BUTTON_UP:
