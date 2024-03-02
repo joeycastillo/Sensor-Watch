@@ -413,8 +413,6 @@ static bool _running_loop(movement_event_t event, movement_settings_t *settings,
             return movement_default_loop_handler(event, settings);
     }
 
-    /* Slow down frequency after first loop for snappiness */
-    _change_tick_freq(1, state);
     return true;
 }
 
@@ -467,7 +465,7 @@ static void _setting_display(movement_event_t event, movement_settings_t *settin
 /* Init setting mode */
 static void _setting_init(movement_settings_t *settings, deadline_state_t *state)
 {
-    _change_tick_freq(4, state);
+    _change_tick_freq(1, state);
     state->current_page = 0;
 
     /* Init fresh deadline to next day */
