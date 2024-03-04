@@ -1,7 +1,23 @@
+/* SPDX-License-Identifier: MIT */
+
 /*
  * MIT License
  *
- * Copyright (c) 2022 Joey Castillo
+ * Copyright © 2021-2023 Joey Castillo <jose.castillo@gmail.com> <joeycastillo@utexas.edu>
+ * Copyright © 2022-2023 TheOnePerson <a.nebinger@web.de>
+ * Copyright © 2022 Alexsander Akers <me@a2.io>
+ * Copyright © 2022 James Haggerty <james@gruemail.com>
+ * Copyright © 2022 Niclas Hoyer <info@niclashoyer.de>
+ * Copyright © 2022 Wesley Ellis <tahnok@gmail.com>
+ * Copyright © 2023 Wesley Aptekar-Cassels <me@wesleyac.com>
+ * Copyright © 2023 Alex Maestas <git@se30.xyz>
+ * Copyright © 2023 Jeremy O'Brien <neutral@fastmail.com>
+ * Copyright © 2023 Mikhail Svarichevsky <3@14.by>
+ * Copyright © 2024 Alex Maestas <git@se30.xyz>
+ * Copyright © 2024 Christian Buschau <cbuschau@d00t.de>
+ * Copyright © 2024 Max Zettlmeißl <max@zettlmeissl.de>
+ * Copyright © 2024 Wesley Aptekar-Cassels <me@wesleyac.com>
+ * Copyright © 2024 Matheus Afonso Martins Moreira <matheus.a.m.moreira@gmail.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
