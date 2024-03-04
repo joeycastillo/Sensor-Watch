@@ -61,6 +61,11 @@
 #define MOVEMENT_SECONDARY_FACE_INDEX 0
 #endif
 
+// Default to 12h clock mode unless configured otherwise.
+#ifndef MOVEMENT_CLOCK_MODE_DEFAULT_24H
+#define MOVEMENT_CLOCK_MODE_DEFAULT_24H 0
+#endif
+
 // Set default LED colors if not set
 #ifndef MOVEMENT_DEFAULT_RED_COLOR
 #define MOVEMENT_DEFAULT_RED_COLOR 0x0
@@ -134,6 +139,12 @@ void cb_alarm_btn_extwake(void);
 void cb_alarm_fired(void);
 void cb_fast_tick(void);
 void cb_tick(void);
+
+static inline void movement_default_to_24h_mode_if_configured(void) {
+    if (MOVEMENT_CLOCK_MODE_DEFAULT_24H) {
+        movement_state.settings.bit.clock_mode_24h = true;
+    }
+}
 
 static inline void _movement_reset_inactivity_countdown(void) {
     movement_state.le_mode_ticks = movement_le_inactivity_deadlines[movement_state.settings.bit.le_interval];
@@ -360,6 +371,8 @@ void app_init(void) {
     movement_state.alarm_ticks = -1;
     movement_state.next_available_backup_register = 4;
     _movement_reset_inactivity_countdown();
+
+    movement_default_to_24h_mode_if_configured();
 
     filesystem_init();
 
