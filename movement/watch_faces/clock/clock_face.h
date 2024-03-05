@@ -1,7 +1,13 @@
+/* SPDX-License-Identifier: MIT */
+
 /*
  * MIT License
  *
- * Copyright (c) 2022 Joey Castillo
+ * Copyright © 2021-2022 Joey Castillo <joeycastillo@utexas.edu> <jose.castillo@gmail.com>
+ * Copyright © 2022 Alexsander Akers <me@a2.io>
+ * Copyright © 2022 TheOnePerson <a.nebinger@web.de>
+ * Copyright © 2023 Alex Utter <ooterness@gmail.com>
+ * Copyright © 2024 Matheus Afonso Martins Moreira <matheus.a.m.moreira@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,41 +28,33 @@
  * SOFTWARE.
  */
 
-#ifndef SIMPLE_CLOCK_FACE_H_
-#define SIMPLE_CLOCK_FACE_H_
+#ifndef CLOCK_FACE_H_
+#define CLOCK_FACE_H_
 
 /*
- * SIMPLE CLOCK FACE
+ * CLOCK FACE
  *
- * Displays the current time, matching the original operation of the watch.
+ * Displays the current local time, just like the original watch.
  * This is the default display mode in most watch configurations.
  *
  * Long-press ALARM to toggle the hourly chime.
+ *
  */
 
 #include "movement.h"
 
-typedef struct {
-    uint32_t previous_date_time;
-    uint8_t last_battery_check;
-    uint8_t watch_face_index;
-    bool signal_enabled;
-    bool battery_low;
-    bool alarm_enabled;
-} simple_clock_state_t;
+void clock_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
+void clock_face_activate(movement_settings_t *settings, void *context);
+bool clock_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void clock_face_resign(movement_settings_t *settings, void *context);
+bool clock_face_wants_background_task(movement_settings_t *settings, void *context);
 
-void simple_clock_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
-void simple_clock_face_activate(movement_settings_t *settings, void *context);
-bool simple_clock_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
-void simple_clock_face_resign(movement_settings_t *settings, void *context);
-bool simple_clock_face_wants_background_task(movement_settings_t *settings, void *context);
-
-#define simple_clock_face ((const watch_face_t){ \
-    simple_clock_face_setup, \
-    simple_clock_face_activate, \
-    simple_clock_face_loop, \
-    simple_clock_face_resign, \
-    simple_clock_face_wants_background_task, \
+#define clock_face ((const watch_face_t) { \
+    clock_face_setup, \
+    clock_face_activate, \
+    clock_face_loop, \
+    clock_face_resign, \
+    clock_face_wants_background_task, \
 })
 
-#endif // SIMPLE_CLOCK_FACE_H_
+#endif // CLOCK_FACE_H_

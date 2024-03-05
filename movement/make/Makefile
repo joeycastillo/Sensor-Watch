@@ -51,7 +51,7 @@ SRCS += \
   ../filesystem.c \
   ../shell.c \
   ../shell_cmd_list.c \
-  ../watch_faces/clock/simple_clock_face.c \
+  ../watch_faces/clock/clock_face.c \
   ../watch_faces/clock/world_clock_face.c \
   ../watch_faces/clock/beats_face.c \
   ../watch_faces/clock/weeknumber_clock_face.c \
