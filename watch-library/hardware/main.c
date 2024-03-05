@@ -79,7 +79,6 @@ int main(void) {
     while (1) {
         bool usb_enabled = hri_usbdevice_get_CTRLA_ENABLE_bit(USB);
         bool can_sleep = app_loop();
-
         if (can_sleep && !usb_enabled) {
             app_prepare_for_standby();
             sleep(4);

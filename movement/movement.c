@@ -33,6 +33,7 @@
 #include "watch.h"
 #include "filesystem.h"
 #include "movement.h"
+#include "shell.h"
 
 #ifndef MOVEMENT_FIRMWARE
 #include "movement_config.h"
@@ -561,30 +562,9 @@ bool app_loop(void) {
         }
     }
 
-    // if we are plugged into USB, handle the file browser tasks
+    // if we are plugged into USB, handle the serial shell
     if (watch_is_usb_enabled()) {
-        char line[256] = {0};
-#if __EMSCRIPTEN__
-        // This is a terrible hack; ideally this should be handled deeper in the watch library.
-        // Alas, emscripten treats read() as something that should pop up an input box, so I
-        // wasn't able to implement this over there. I sense that this relates to read() being
-        // the wrong way to read data from USB (like we should be using fgets or something), but
-        // until I untangle that, this will have to do.
-        char *received_data = (char*)EM_ASM_INT({
-            var len = lengthBytesUTF8(tx) + 1;
-            var s = _malloc(len);
-            stringToUTF8(tx, s, len);
-            return s;
-        });
-        memcpy(line, received_data, min(255, strlen(received_data)));
-        free(received_data);
-        EM_ASM({
-            tx = "";
-        });
-#else
-        read(0, line, 256);
-#endif
-        if (strlen(line)) filesystem_process_command(line);
+        shell_task();
     }
 
     event.subsecond = 0;
