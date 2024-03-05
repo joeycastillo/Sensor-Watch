@@ -71,6 +71,16 @@ extern "C" {
 int32_t _set_sleep_mode(const uint8_t mode);
 
 /**
+ * \brief Get the sleep mode for the device
+ *
+ * This function gets the sleep mode for the device.
+ *
+ * \return the current value of the sleep mode configuration bits
+ */
+int32_t _get_sleep_mode(void);
+
+
+/**
  * \brief Reset MCU
  */
 void _reset_mcu(void);

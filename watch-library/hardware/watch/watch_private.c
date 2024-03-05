@@ -35,6 +35,12 @@ void _watch_init(void) {
 
     // Use switching regulator for lower power consumption.
     SUPC->VREG.bit.SEL = 1;
+
+    // per Microchip datasheet clarification DS80000782,
+    // work around silicon erratum 1.7.2, which causes the microcontroller to lock up on leaving standby:
+    // request that the voltage regulator run in standby, and also that it switch to PL0.
+    SUPC->VREG.bit.RUNSTDBY = 1;
+    SUPC->VREG.bit.STDBYPL0 = 1;
     while(!SUPC->STATUS.bit.VREGRDY); // wait for voltage regulator to become ready
 
     // check the battery voltage...
@@ -106,11 +112,20 @@ int getentropy(void *buf, size_t buflen) {
         }
     }
 
-    hri_trng_clear_CTRLA_ENABLE_bit(TRNG);
+    watch_disable_TRNG();
     hri_mclk_clear_APBCMASK_TRNG_bit(MCLK);
 
     return 0;
 }
+
+void watch_disable_TRNG() {
+    // per Microchip datasheet clarification DS80000782,
+    // silicon erratum 1.16.1 indicates that the TRNG may leave internal components powered after being disabled.
+    // the workaround is to disable the TRNG by clearing the control register, twice.
+    hri_trng_write_CTRLA_reg(TRNG, 0);
+    hri_trng_write_CTRLA_reg(TRNG, 0);
+}
+
 
 void _watch_enable_tcc(void) {
     // clock TCC0 with the main clock (8 MHz) and enable the peripheral clock.
