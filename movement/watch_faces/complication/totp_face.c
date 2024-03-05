@@ -10,6 +10,7 @@
  * Copyright © 2023 Emilien Court <emilien.court@telecomnancy.net>
  * Copyright © 2023 Jeremy O'Brien <neutral@fastmail.com>
  * Copyright © 2024 Matheus Afonso Martins Moreira <matheus.a.m.moreira@gmail.com> (https://www.matheusmoreira.com/)
+ * Copyright © 2024 Max Zettlmeißl <max@zettlmeissl.de>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
