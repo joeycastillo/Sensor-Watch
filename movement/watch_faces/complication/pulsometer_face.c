@@ -139,7 +139,11 @@ void pulsometer_face_setup(movement_settings_t *settings, uint8_t watch_face_ind
 
     if (*context_ptr == NULL) {
         pulsometer_state_t *pulsometer = malloc(sizeof(pulsometer_state_t));
+
         pulsometer->calibration = PULSOMETER_FACE_CALIBRATION_DEFAULT;
+        pulsometer->pulses = 0;
+        pulsometer->ticks = 0;
+
         *context_ptr = pulsometer;
     }
 }
@@ -150,8 +154,6 @@ void pulsometer_face_activate(movement_settings_t *settings, void *context) {
     pulsometer_state_t *pulsometer = context;
 
     pulsometer->measuring = false;
-    pulsometer->pulses = 0;
-    pulsometer->ticks = 0;
 
     pulsometer_display_title(pulsometer);
     pulsometer_display_calibration(pulsometer);
