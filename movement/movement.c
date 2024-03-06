@@ -537,7 +537,7 @@ bool app_loop(void) {
     }
 
     // default to being allowed to sleep by the face.
-    static bool can_sleep = true;
+    bool can_sleep = true;
 
     if (event.event_type) {
         event.subsecond = movement_state.subsecond;
@@ -561,7 +561,8 @@ bool app_loop(void) {
         // first trip  | can sleep | cannot sleep | can sleep    | cannot sleep
         // second trip | can sleep | cannot sleep | cannot sleep | can sleep
         //          && | can sleep | cannot sleep | cannot sleep | cannot sleep
-        can_sleep = can_sleep && wf->loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_face_idx]);
+        bool can_sleep2 = wf->loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_face_idx]);
+        can_sleep = can_sleep && can_sleep2;
         event.event_type = EVENT_NONE;
         if (movement_state.settings.bit.to_always && movement_state.current_face_idx != 0) {
             // ...but if the user has "timeout always" set, give it the boot.
