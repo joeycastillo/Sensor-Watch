@@ -509,7 +509,7 @@ bool app_loop(void) {
     }
 
     // default to being allowed to sleep by the face.
-    static bool can_sleep = true;
+    bool can_sleep = true;
 
     if (event.event_type) {
         event.subsecond = movement_state.subsecond;
