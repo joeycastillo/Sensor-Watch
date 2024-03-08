@@ -151,6 +151,8 @@ bool repetition_minute_face_loop(movement_event_t event, movement_settings_t *se
             else watch_clear_indicator(WATCH_INDICATOR_BELL);
             break;
         case EVENT_BACKGROUND_TASK:
+            // uncomment this line to snap back to the clock face when the hour signal sounds:
+            // movement_move_to_face(state->watch_face_index);
             movement_play_signal();
             break;
         case EVENT_LIGHT_LONG_UP:
