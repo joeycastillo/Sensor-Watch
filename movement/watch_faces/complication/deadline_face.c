@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2023 Konrad Rieck
+ * Copyright (c) 2023-2024 Konrad Rieck
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the
@@ -65,6 +65,12 @@
  *
  * - A *long press* on the *alarm button* activates settings mode and
  *   enables configuring the currently selected deadline.
+ * 
+ * - A *long press* on the *light button* activates a deadline alarm.  The 
+ *   bell icon is displayed, and the alarm will ring upon reaching any of
+ *   the deadlines set.  It is important to note that the watch will not 
+ *   enter low-energy sleep mode while the alarm is enabled.
+ *
  *
  * ## Settings Mode
  * 
@@ -101,24 +107,24 @@
 const char settings_titles[SETTINGS_NUM][3] = { "YR", "MO", "DA", "HR", "M1" };
 
 /* Local functions */
-static void _running_init(movement_settings_t *settings, deadline_state_t * state);
+static void _running_init(movement_settings_t *settings, deadline_state_t *state);
 static bool _running_loop(movement_event_t event, movement_settings_t *settings, void *context);
-static void _running_display(movement_event_t event, movement_settings_t *settings, deadline_state_t * state);
-static void _setting_init(movement_settings_t *settings, deadline_state_t * state);
+static void _running_display(movement_event_t event, movement_settings_t *settings, deadline_state_t *state);
+static void _setting_init(movement_settings_t *settings, deadline_state_t *state);
 static bool _setting_loop(movement_event_t event, movement_settings_t *settings, void *context);
-static void _setting_display(movement_event_t event, movement_settings_t *settings, deadline_state_t * state, watch_date_time date);
+static void _setting_display(movement_event_t event, movement_settings_t *settings, deadline_state_t *state, watch_date_time date);
 
 /* Utility functions */
-static void _increment_date(movement_settings_t *settings, deadline_state_t * state, watch_date_time date_time);
+static void _increment_date(movement_settings_t *settings, deadline_state_t *state, watch_date_time date_time);
 static inline int32_t _get_tz_offset(movement_settings_t *settings);
-static inline void _change_tick_freq(uint8_t freq, deadline_state_t * state);
+static inline void _change_tick_freq(uint8_t freq, deadline_state_t *state);
 static inline bool _is_leap(int16_t y);
 static inline int _days_in_month(int16_t mpnth, int16_t y);
 static inline unsigned int _mod(int a, int b);
 static inline void _beep_button(movement_settings_t *settings);
 static inline void _beep_enable(movement_settings_t *settings);
 static inline void _beep_disable(movement_settings_t *settings);
-static inline void _reset_deadline(movement_settings_t *settings, deadline_state_t * state);
+static inline void _reset_deadline(movement_settings_t *settings, deadline_state_t *state);
 
 /* Check for leap year */
 static inline bool _is_leap(int16_t y)
@@ -147,7 +153,7 @@ static inline int _days_in_month(int16_t month, int16_t year)
     }
 }
 
-/* Calculate time zone offset */
+/* Return time zone offset */
 static inline int32_t _get_tz_offset(movement_settings_t *settings)
 {
     return movement_timezone_offsets[settings->bit.time_zone] * 60;
@@ -156,7 +162,7 @@ static inline int32_t _get_tz_offset(movement_settings_t *settings)
 /* Beep for a button press*/
 static inline void _beep_button(movement_settings_t *settings)
 {
-    // play a beep as confirmation for a button press (if applicable)
+    // Play a beep as confirmation for a button press (if applicable)
     if (!settings->bit.button_should_sound)
         return;
 
@@ -289,7 +295,7 @@ static void _running_display(movement_event_t event, movement_settings_t *settin
     (void) event;
     (void) settings;
 
-    /* seconds, minutes, hours, days, months, years */
+    /* Seconds, minutes, hours, days, months, years */
     int16_t unit[] = { 0, 0, 0, 0, 0, 0 };
     uint8_t i, range[] = { 60, 60, 24, 30, 12, 0 };
     char buf[16];
@@ -370,6 +376,9 @@ static void _running_init(movement_settings_t *settings, deadline_state_t *state
     watch_clear_indicator(WATCH_INDICATOR_24H);
     watch_clear_indicator(WATCH_INDICATOR_PM);
     watch_set_colon();
+
+    /* Ensure 1Hz updates only */
+    _change_tick_freq(1, state);
 }
 
 /* Loop of running mode */
@@ -397,15 +406,21 @@ static bool _running_loop(movement_event_t event, movement_settings_t *settings,
         case EVENT_LIGHT_LONG_PRESS:
             _beep_button(settings);
             state->alarm_enabled = !state->alarm_enabled;
+            if (state->alarm_enabled) {
+                _schedule_alarm(settings, state);
+            } else {
+                movement_cancel_background_task();
+            }
             _running_display(event, settings, state);
             break;
         case EVENT_TIMEOUT:
             movement_move_to_face(0);
             break;
         case EVENT_BACKGROUND_TASK:
-            if (state->alarm_enabled)
+            if (state->alarm_enabled) {
                 movement_play_alarm();
-            _schedule_alarm(settings, state);
+                _schedule_alarm(settings, state);
+            }
             break;
         case EVENT_LOW_ENERGY_UPDATE:
             break;
@@ -465,13 +480,15 @@ static void _setting_display(movement_event_t event, movement_settings_t *settin
 /* Init setting mode */
 static void _setting_init(movement_settings_t *settings, deadline_state_t *state)
 {
-    _change_tick_freq(1, state);
     state->current_page = 0;
 
     /* Init fresh deadline to next day */
     if (state->deadlines[state->current_index] == 0) {
         _reset_deadline(settings, state);
     }
+
+    /* Ensure 1Hz updates only */
+    _change_tick_freq(1, state);
 }
 
 /* Loop of setting mode */
@@ -517,20 +534,30 @@ static bool _setting_loop(movement_event_t event, movement_settings_t *settings,
             break;
         case EVENT_TIMEOUT:
             _beep_button(settings);
-            _schedule_alarm(settings, state);
             _change_tick_freq(1, state);
+
+            /* Update alarm as deadlines may have changed */
+            if (state->alarm_enabled) {
+                _schedule_alarm(settings, state);
+            }
             movement_move_to_face(0);
             break;
         case EVENT_MODE_BUTTON_UP:
             _beep_disable(settings);
-            _schedule_alarm(settings, state);
             _running_init(settings, state);
+            _running_display(event, settings, state);
+
+            /* Update alarm as deadlines may have changed */
+            if (state->alarm_enabled) {
+                _schedule_alarm(settings, state);
+            }
             state->mode = DEADLINE_FACE_RUNNING;
             break;
         case EVENT_BACKGROUND_TASK:
-            if (state->alarm_enabled)
+            if (state->alarm_enabled) {
                 movement_play_alarm();
-            _schedule_alarm(settings, state);
+                _schedule_alarm(settings, state);
+            }
             break;
         default:
             return movement_default_loop_handler(event, settings);
