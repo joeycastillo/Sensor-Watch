@@ -115,6 +115,9 @@ static bool _setting_loop(movement_event_t event, movement_settings_t *settings,
 static void _setting_display(movement_event_t event, movement_settings_t *settings, deadline_state_t *state, watch_date_time date);
 
 /* Utility functions */
+static void _background_alarm_play(movement_settings_t *settings, deadline_state_t *state);
+static void _background_alarm_schedule(movement_settings_t *settings, deadline_state_t *state);
+static void _background_alarm_cancel(movement_settings_t *settings, deadline_state_t *state);
 static void _increment_date(movement_settings_t *settings, deadline_state_t *state, watch_date_time date_time);
 static inline int32_t _get_tz_offset(movement_settings_t *settings);
 static inline void _change_tick_freq(uint8_t freq, deadline_state_t *state);
@@ -218,23 +221,29 @@ static uint8_t _closest_deadline(movement_settings_t *settings, deadline_state_t
     return min_index;
 }
 
-/* Schedule alarm for next deadline */
-static void _schedule_alarm(movement_settings_t *settings, deadline_state_t *state)
+/* Play background alarm */
+static void _background_alarm_play(movement_settings_t *settings, deadline_state_t *state)
 {
-    /* Cancel current alarm */
-    movement_cancel_background_task();
+    (void) settings;
 
-    /* Determine closest deadline */
-    watch_date_time now = watch_rtc_get_date_time();
-    uint32_t now_ts = watch_utility_date_time_to_unix_time(now, _get_tz_offset(settings));
-    uint32_t next_ts = state->deadlines[_closest_deadline(settings, state)];
-    watch_date_time next = watch_utility_date_time_from_unix_time(next_ts, _get_tz_offset(settings));
+    /* Use the default alarm from movement */
+    if (state->alarm_enabled)
+        movement_play_alarm();
+}
 
-    /* No suitable deadline */
-    if (next_ts < now_ts)
-        return;
+/* Schedule background alarm */
+static void _background_alarm_schedule(movement_settings_t *settings, deadline_state_t *state)
+{
+    /* We simply re-use the scheduling in the background task */
+    deadline_face_wants_background_task(settings, state);
+}
 
-    movement_schedule_background_task(next);
+/* Cancel background alarm */
+static void _background_alarm_cancel(movement_settings_t *settings, deadline_state_t *state)
+{
+    (void) settings;
+
+    movement_cancel_background_task_for_face(state->face_idx);
 }
 
 /* Reset deadline to tomorrow */
@@ -322,9 +331,8 @@ static void _running_display(movement_event_t event, movement_settings_t *settin
     }
 
     /* Get date time structs */
-    watch_date_time deadline = watch_utility_date_time_from_unix_time(
-        state->deadlines[state->current_index], _get_tz_offset(settings)
-    );
+    watch_date_time deadline = watch_utility_date_time_from_unix_time(state->deadlines[state->current_index], _get_tz_offset(settings)
+        );
 
     /* Calculate naive difference of dates */
     unit[0] = deadline.unit.second - now.unit.second;
@@ -385,7 +393,9 @@ static void _running_init(movement_settings_t *settings, deadline_state_t *state
 static bool _running_loop(movement_event_t event, movement_settings_t *settings, void *context)
 {
     deadline_state_t *state = (deadline_state_t *) context;
-    _running_display(event, settings, state);
+
+    if (event.event_type != EVENT_BACKGROUND_TASK)
+        _running_display(event, settings, state);
 
     switch (event.event_type) {
         case EVENT_ALARM_BUTTON_UP:
@@ -407,9 +417,9 @@ static bool _running_loop(movement_event_t event, movement_settings_t *settings,
             _beep_button(settings);
             state->alarm_enabled = !state->alarm_enabled;
             if (state->alarm_enabled) {
-                _schedule_alarm(settings, state);
+                _background_alarm_schedule(settings, context);
             } else {
-                movement_cancel_background_task();
+                _background_alarm_cancel(settings, context);
             }
             _running_display(event, settings, state);
             break;
@@ -417,10 +427,7 @@ static bool _running_loop(movement_event_t event, movement_settings_t *settings,
             movement_move_to_face(0);
             break;
         case EVENT_BACKGROUND_TASK:
-            if (state->alarm_enabled) {
-                movement_play_alarm();
-                _schedule_alarm(settings, state);
-            }
+            _background_alarm_play(settings, state);
             break;
         case EVENT_LOW_ENERGY_UPDATE:
             break;
@@ -498,7 +505,8 @@ static bool _setting_loop(movement_event_t event, movement_settings_t *settings,
     watch_date_time date_time;
     date_time = watch_utility_date_time_from_unix_time(state->deadlines[state->current_index], _get_tz_offset(settings));
 
-    _setting_display(event, settings, state, date_time);
+    if (event.event_type != EVENT_BACKGROUND_TASK)
+        _setting_display(event, settings, state, date_time);
 
     switch (event.event_type) {
         case EVENT_TICK:
@@ -534,30 +542,20 @@ static bool _setting_loop(movement_event_t event, movement_settings_t *settings,
             break;
         case EVENT_TIMEOUT:
             _beep_button(settings);
+            _background_alarm_schedule(settings, context);
             _change_tick_freq(1, state);
-
-            /* Update alarm as deadlines may have changed */
-            if (state->alarm_enabled) {
-                _schedule_alarm(settings, state);
-            }
+            state->mode = DEADLINE_FACE_RUNNING;
             movement_move_to_face(0);
             break;
         case EVENT_MODE_BUTTON_UP:
             _beep_disable(settings);
+            _background_alarm_schedule(settings, context);
             _running_init(settings, state);
             _running_display(event, settings, state);
-
-            /* Update alarm as deadlines may have changed */
-            if (state->alarm_enabled) {
-                _schedule_alarm(settings, state);
-            }
             state->mode = DEADLINE_FACE_RUNNING;
             break;
         case EVENT_BACKGROUND_TASK:
-            if (state->alarm_enabled) {
-                movement_play_alarm();
-                _schedule_alarm(settings, state);
-            }
+            _background_alarm_play(settings, state);
             break;
         default:
             return movement_default_loop_handler(event, settings);
@@ -574,8 +572,13 @@ void deadline_face_setup(movement_settings_t *settings, uint8_t watch_face_index
     if (*context_ptr != NULL)
         return; /* Skip setup if context available */
 
+    /* Allocate state */
     *context_ptr = malloc(sizeof(deadline_state_t));
     memset(*context_ptr, 0, sizeof(deadline_state_t));
+
+    /* Store face index for background tasks */
+    deadline_state_t *state = (deadline_state_t *) *context_ptr;
+    state->face_idx = watch_face_index;
 }
 
 /* Activate face */
@@ -613,4 +616,32 @@ void deadline_face_resign(movement_settings_t *settings, void *context)
 {
     (void) settings;
     (void) context;
+}
+
+/* Want background task */
+bool deadline_face_wants_background_task(movement_settings_t *settings, void *context)
+{
+    deadline_state_t *state = (deadline_state_t *) context;
+
+    if (!state->alarm_enabled)
+        return false;
+
+    /* Determine closest deadline */
+    watch_date_time now = watch_rtc_get_date_time();
+    uint32_t now_ts = watch_utility_date_time_to_unix_time(now, _get_tz_offset(settings));
+    uint32_t next_ts = state->deadlines[_closest_deadline(settings, state)];
+
+    /* No active deadline */
+    if (next_ts < now_ts)
+        return false;
+
+    /* No deadline within next 60 seconds */
+    if (next_ts >= now_ts + 60)
+        return false;
+
+    /* Deadline within next minute. Let's set up an alarm */
+    watch_date_time next = watch_utility_date_time_from_unix_time(next_ts, _get_tz_offset(settings));
+    movement_request_wake();
+    movement_schedule_background_task_for_face(state->face_idx, next);
+    return false;
 }
