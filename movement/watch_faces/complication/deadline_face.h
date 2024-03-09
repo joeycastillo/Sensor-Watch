@@ -44,6 +44,7 @@ typedef struct {
     uint8_t current_index:2;
     uint8_t alarm_enabled:1;
     uint8_t tick_freq;
+    uint8_t face_idx;
     uint32_t deadlines[DEADLINE_FACE_DATES];
 } deadline_state_t;
 
@@ -51,13 +52,14 @@ void deadline_face_setup(movement_settings_t *settings, uint8_t watch_face_index
 void deadline_face_activate(movement_settings_t *settings, void *context);
 bool deadline_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void deadline_face_resign(movement_settings_t *settings, void *context);
+bool deadline_face_wants_background_task(movement_settings_t *settings, void *context);
 
 #define deadline_face ((const watch_face_t){ \
     deadline_face_setup, \
     deadline_face_activate, \
     deadline_face_loop, \
     deadline_face_resign, \
-    NULL, \
+    deadline_face_wants_background_task \
 })
 
 #endif                          // DEADLINE_FACE_H_
