@@ -32,7 +32,7 @@ const char * watch_utility_get_weekday(watch_date_time date_time) {
 
     //static const char weekdays[7][3] = {"MO", "TU", "WE", "TH", "FR", "SA", "SU"};
     static char weekdays_dict[4][7][3] = { {"MO", "TU", "WE", "TH", "FR", "SA", "SU"} ,   // EN
-                                           {"MO", "DI", "MI", "DO", "FR", "SA", "DO"} ,   // DE
+                                           {"MO", "DI", "MI", "DO", "FR", "SA", "SO"} ,   // DE
                                            {"LU", "ME", "MI", "JU", "VI", "SA", "DO"} ,   // ES
                                            {"LU", "MA", "ME", "JE", "VE", "SA", "DI"} };  // FR
     char (*p_dict_row)[7][3] = weekdays_dict;  // point to the first row; default is English, esp. if there's no config face
