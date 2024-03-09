@@ -226,9 +226,11 @@ static void _background_alarm_play(movement_settings_t *settings, deadline_state
 {
     (void) settings;
 
-    /* Use the default alarm from movement */
-    if (state->alarm_enabled)
+    /* Use the default alarm from movement and move to foreground */
+    if (state->alarm_enabled) {
         movement_play_alarm();
+        movement_move_to_face(state->face_idx);
+    }
 }
 
 /* Schedule background alarm */
