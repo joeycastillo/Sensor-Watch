@@ -26,7 +26,7 @@
 #include "preferences_face.h"
 #include "watch.h"
 
-#define PREFERENCES_FACE_NUM_PREFEFENCES (7)
+#define PREFERENCES_FACE_NUM_PREFEFENCES (8)
 const char preferences_face_titles[PREFERENCES_FACE_NUM_PREFEFENCES][11] = {
     "CL        ",   // Clock: 12 or 24 hour
     "BT  Beep  ",   // Buttons: should they beep?
