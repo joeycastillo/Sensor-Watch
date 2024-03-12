@@ -31,6 +31,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "watch.h"
+#include "watch_utility.h"
+#include "watch_hpt.h"
 #include "filesystem.h"
 #include "movement.h"
 
@@ -76,6 +78,15 @@
 movement_state_t movement_state;
 void * watch_face_contexts[MOVEMENT_NUM_FACES];
 watch_date_time scheduled_tasks[MOVEMENT_NUM_FACES];
+
+// bit flags indicating which watch face wants the HPT enabled.
+// make sure this number width is larger than the number of faces
+#define HPT_REQUESTS_T uint16_t
+HPT_REQUESTS_T hpt_enable_requests;
+
+// timestamps at which watch faces should have a HPT event triggered. UINT32_MAX for no callback
+uint32_t hpt_scheduled_events[MOVEMENT_NUM_FACES];
+
 const int32_t movement_le_inactivity_deadlines[8] = {INT_MAX, 600, 3600, 7200, 21600, 43200, 86400, 604800};
 const int16_t movement_timeout_inactivity_deadlines[4] = {60, 120, 300, 1800};
 movement_event_t event;
@@ -393,8 +404,10 @@ void app_setup(void) {
         for(uint8_t i = 0; i < MOVEMENT_NUM_FACES; i++) {
             watch_face_contexts[i] = NULL;
             scheduled_tasks[i].reg = 0;
-            is_first_launch = false;
+            hpt_scheduled_events[i] = UINT32_MAX;
         }
+        hpt_enable_requests = 0;
+        is_first_launch = false;
 
         // set up the 1 minute alarm (for background tasks and low power updates)
         watch_date_time alarm_time;
@@ -690,4 +703,77 @@ void cb_tick(void) {
     } else {
         movement_state.subsecond++;
     }
+}
+
+void movement_hpt_request() {
+    movement_hpt_request_face(movement_state.current_face_idx);
+}
+void movement_hpt_request_face(uint8_t face_idx) {
+    HPT_REQUESTS_T old_hpt_requests = hpt_enable_requests;
+    hpt_enable_requests |= (1 << face_idx);
+    if(old_hpt_requests != hpt_enable_requests) {
+        watch_hpt_enable();
+    }
+}
+
+void movement_hpt_relenquish() {
+    movement_hpt_relenquish_face(movement_state.current_face_idx);
+}
+void movement_hpt_relenquish_face(uint8_t face_idx) {
+    // cancel this face's background task if one was scheduled
+    hpt_scheduled_events[face_idx] = UINT32_MAX;
+    hpt_enable_requests = ~(~hpt_enable_requests | (1 << face_idx));
+    if(hpt_enable_requests == 0) {
+        watch_hpt_disable();
+    }
+}
+
+void cb_hpt() {
+    // execute callbacks for any faces that have background tasks scheduled
+
+    bool task_triggered = false;
+    // loop through faces like this because it may be possible for a face to schedule *another* background task for itself to call, or it may be possible that by the time a face has finished handling its own background task, another face's task is ready to be triggered.
+    uint32_t next_scheduled_event;
+    do {
+        next_scheduled_event = UINT32_MAX;
+    for(uint8_t face_idx = 0; face_idx < MOVEMENT_NUM_FACES; ++face_idx) {
+        uint32_t face_scheduled_timestamp = hpt_scheduled_events[face_idx];
+        if(face_scheduled_timestamp <= watch_hpt_get()) {
+            hpt_scheduled_events[face_idx] = UINT32_MAX;
+            // TODO trigger face with EVENT_HPT
+            task_triggered = true;
+        } else {
+            if(face_scheduled_timestamp < next_scheduled_event) {
+                next_scheduled_event = face_scheduled_timestamp;
+            }
+        }
+    }
+    } while(task_triggered);
+
+    if(next_scheduled_event != UINT32_MAX) {
+        // another face has a task scheduled.
+        watch_hpt_register_callback(next_scheduled_event, &cb_hpt);
+    }
+}
+
+void movement_hpt_schedule(uint32_t timestamp) {
+    movement_hpt_schedule_face(timestamp, movement_state.current_face_idx);
+}
+void movement_hpt_schedule_face(uint32_t timestamp, uint8_t face_idx) {
+    hpt_scheduled_events[face_idx] = timestamp;
+    uint32_t min_cb_timestamp = UINT32_MAX;
+    for(uint8_t idx = 0; idx < MOVEMENT_NUM_FACES; ++idx) {
+        uint32_t face_timestamp = hpt_scheduled_events[idx];
+        if(min_cb_timestamp > face_timestamp) {
+            min_cb_timestamp = face_timestamp;
+        }
+    }
+
+    if(min_cb_timestamp < UINT32_MAX) {
+        watch_hpt_register_callback(min_cb_timestamp, &cb_hpt);
+    }
+}
+
+inline uint32_t movement_hpt_get() {
+    return watch_hpt_get();
 }
