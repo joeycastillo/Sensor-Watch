@@ -121,6 +121,7 @@ SRCS += \
   $(TOP)/watch-library/hardware/watch/watch_storage.c \
   $(TOP)/watch-library/hardware/watch/watch_deepsleep.c \
   $(TOP)/watch-library/hardware/watch/watch_private.c \
+  $(TOP)/watch-library/hardware/watch/watch_hpt.c \
   $(TOP)/watch-library/hardware/watch/watch.c \
   $(TOP)/watch-library/hardware/hal/src/hal_atomic.c \
   $(TOP)/watch-library/hardware/hal/src/hal_delay.c \

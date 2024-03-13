@@ -350,7 +350,7 @@ uint8_t movement_claim_backup_register(void);
  * "movement_hpt_get" or "movement_hpt_schedule". The HPT will remain running
  * in the background until it is released using "movement_hpt_relenquish"
 */
-void movement_hpt_request();
+void movement_hpt_request(void);
 /**
  * A variant of "movement_hpt_request" that can be used when your face is not
  * running in the foreground.
@@ -363,7 +363,7 @@ void movement_hpt_request_face(uint8_t face_idx);
  * "movement_hpt_get" or has no scheduled background tasks, in order to save
  * power.
 */
-void movement_hpt_relenquish();
+void movement_hpt_relenquish(void);
 /**
  * A variant of "movement_hpt_relenquish" that can be used when your face is
  * not running in the foreground.
@@ -393,6 +393,6 @@ void movement_hpt_schedule_face(uint32_t timestamp, uint8_t face_idx);
  * Before using this timestamp, your face must request that the HPT be
  * activated using "movement_hpt_request".
 */
-uint32_t movement_hpt_get();
+uint32_t movement_hpt_get(void);
 
 #endif // MOVEMENT_H_

@@ -182,7 +182,7 @@ static void stopButton(hpt_lapsplit_chrono_state_t *state)
     }
 }
 
-void lapsplit_chrono_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void **context_ptr)
+void hpt_lapsplit_chrono_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void **context_ptr)
 {
     (void)settings;
     (void)watch_face_index;
@@ -195,7 +195,7 @@ void lapsplit_chrono_face_setup(movement_settings_t *settings, uint8_t watch_fac
     // Do any pin or peripheral setup here; this will be called whenever the watch wakes from deep sleep.
 }
 
-void lapsplit_chrono_face_activate(movement_settings_t *settings, void *context)
+void hpt_lapsplit_chrono_face_activate(movement_settings_t *settings, void *context)
 {
     (void)settings;
     hpt_lapsplit_chrono_state_t *state = (hpt_lapsplit_chrono_state_t *)context;
@@ -208,7 +208,7 @@ void lapsplit_chrono_face_activate(movement_settings_t *settings, void *context)
     watch_display_string("CH", 0);
 }
 
-bool lapsplit_chrono_face_loop(movement_event_t event, movement_settings_t *settings, void *context)
+bool hpt_lapsplit_chrono_face_loop(movement_event_t event, movement_settings_t *settings, void *context)
 {
 
     hpt_lapsplit_chrono_state_t *state = (hpt_lapsplit_chrono_state_t *)context;
@@ -267,7 +267,7 @@ bool lapsplit_chrono_face_loop(movement_event_t event, movement_settings_t *sett
     return true;
 }
 
-void lapsplit_chrono_face_resign(movement_settings_t *settings, void *context)
+void hpt_lapsplit_chrono_face_resign(movement_settings_t *settings, void *context)
 {
     (void)settings;
     (void)context;

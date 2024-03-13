@@ -705,7 +705,7 @@ void cb_tick(void) {
     }
 }
 
-void movement_hpt_request() {
+void movement_hpt_request(void) {
     movement_hpt_request_face(movement_state.current_face_idx);
 }
 void movement_hpt_request_face(uint8_t face_idx) {
@@ -716,7 +716,7 @@ void movement_hpt_request_face(uint8_t face_idx) {
     }
 }
 
-void movement_hpt_relenquish() {
+void movement_hpt_relenquish(void) {
     movement_hpt_relenquish_face(movement_state.current_face_idx);
 }
 void movement_hpt_relenquish_face(uint8_t face_idx) {
@@ -728,31 +728,44 @@ void movement_hpt_relenquish_face(uint8_t face_idx) {
     }
 }
 
-void cb_hpt() {
+const HPT_CALLBACK_CAUSE M_HPT_TRIGGERS = { false, true, false, 0};
+
+void cb_hpt(HPT_CALLBACK_CAUSE cause)
+{
     // execute callbacks for any faces that have background tasks scheduled
 
     bool task_triggered = false;
     // loop through faces like this because it may be possible for a face to schedule *another* background task for itself to call, or it may be possible that by the time a face has finished handling its own background task, another face's task is ready to be triggered.
     uint32_t next_scheduled_event;
-    do {
+    do
+    {
         next_scheduled_event = UINT32_MAX;
-    for(uint8_t face_idx = 0; face_idx < MOVEMENT_NUM_FACES; ++face_idx) {
-        uint32_t face_scheduled_timestamp = hpt_scheduled_events[face_idx];
-        if(face_scheduled_timestamp <= watch_hpt_get()) {
-            hpt_scheduled_events[face_idx] = UINT32_MAX;
-            // TODO trigger face with EVENT_HPT
-            task_triggered = true;
-        } else {
-            if(face_scheduled_timestamp < next_scheduled_event) {
-                next_scheduled_event = face_scheduled_timestamp;
+        for (uint8_t face_idx = 0; face_idx < MOVEMENT_NUM_FACES; ++face_idx)
+        {
+            uint32_t face_scheduled_timestamp = hpt_scheduled_events[face_idx];
+            if (face_scheduled_timestamp <= watch_hpt_get())
+            {
+                hpt_scheduled_events[face_idx] = UINT32_MAX;
+                // TODO trigger face with EVENT_HPT
+                task_triggered = true;
+            }
+            else
+            {
+                if (face_scheduled_timestamp < next_scheduled_event)
+                {
+                    next_scheduled_event = face_scheduled_timestamp;
+                }
             }
         }
-    }
-    } while(task_triggered);
+    } while (task_triggered);
 
-    if(next_scheduled_event != UINT32_MAX) {
+    if (next_scheduled_event != UINT32_MAX)
+    {
         // another face has a task scheduled.
-        watch_hpt_register_callback(next_scheduled_event, &cb_hpt);
+        watch_hpt_register_callback(next_scheduled_event, &cb_hpt, M_HPT_TRIGGERS);
+    } else {
+        // disable callback
+        watch_hpt_register_callback(0,0,M_HPT_TRIGGERS);
     }
 }
 
@@ -770,7 +783,7 @@ void movement_hpt_schedule_face(uint32_t timestamp, uint8_t face_idx) {
     }
 
     if(min_cb_timestamp < UINT32_MAX) {
-        watch_hpt_register_callback(min_cb_timestamp, &cb_hpt);
+        watch_hpt_register_callback(min_cb_timestamp, &cb_hpt, M_HPT_TRIGGERS);
     }
 }
 
