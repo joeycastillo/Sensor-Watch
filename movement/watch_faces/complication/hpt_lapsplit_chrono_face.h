@@ -30,7 +30,7 @@
 // #include <inttypes.h>
 
 /*
- * A lap/split chronograph accurate to approximately hundreths of a second (technically 1/64 of a second).
+ * A lap/split chronograph accurate to thousandths of a second (though only hundreths are displayed).
  *
  * Display:
  * The chronograph face will display CH in the day-of-week digits to indicate the mode.
@@ -58,14 +58,6 @@
  * again to reset the chronograph, or [ALARM] to start the timer again.
  *
  * If the chronograph is stopped, the display will time out after the configured time and return to the main screen
- *
- * Caveats:
- * - The chronograph makes frequent use of "unix time" to store timestamps. As this build uses a 32-bit number
- *   for unix timestamps, it may not work correctly after 2038.
- * - As far as I can tell, this watch does not handle leap seconds, but if it did, that could also mess with the
- *   behavior of the chronograph
- * - The display shows hundreths of a second, but the actual resolution is only 1/64ths of a second. If Movement
- *   let me use the full 128hz tick rate, then we could actually get accuracy down to the hundreths.
  */
 
 #define LCF_MODE_LAP 1
@@ -98,15 +90,13 @@ typedef struct
     uint8_t _padding2 :2;
 
     // when running, start timestamp is the zero index from which the timer is running from
-    uint32_t startTs;
+    uint64_t startTs;
 
-    // duration recorded time when chronograph is paused, in 1/128ths of a second
-    uint32_t pausedTs : 32;
-
+    // duration recorded time when chronograph is paused, in 1/1024ths of a second
+    uint64_t pausedTs;
 
     // duration of lap/split time
-    // no actual reason for this to be :31 other than it matches pausedTs being :31.
-    uint32_t splitTs : 32;
+    uint64_t splitTs;
 } hpt_lapsplit_chrono_state_t;
 
 void hpt_lapsplit_chrono_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void **context_ptr);

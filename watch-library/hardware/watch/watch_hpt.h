@@ -34,12 +34,14 @@ typedef struct {
 /**
  * Performs one-time setup of the peripherals used by the high-precision timer.
  * 
+ * - callback_function: a function that should be invoked when the timer overflows or reaches a scheduled event.
+ * 
  * Does not enable the timer.
 */
-void watch_hpt_init();
+void watch_hpt_init(void (*callback_function)(HPT_CALLBACK_CAUSE cause));
 
 /**
- * Enables the high-precision timer and resets its value to zero
+ * Enables the high-precision timer
 */
 void watch_hpt_enable();
 
@@ -54,14 +56,13 @@ void watch_hpt_disable();
 uint32_t watch_hpt_get();
 
 /**
- * Registers the given callback function to be invoked at the given timestamp value.
- * 
- * - timestamp: the counter value at which the callback should be triggered.
- * - callback_function: a pointer to a callback function that should be invoked when a HPT event occurs. Pass null (0) to disable callbacks
- * - enabled_triggers: a set of flags indicating which counter events should trigger the callback
- * 
- * Replaces any previously registered callback function.
+ * Sets the timestamp at which the previously registered callback should be invoked. Note that this will be called every time the counter value reaches this value, including after an overflow occurs. 
 */
-void watch_hpt_register_callback(uint32_t timestamp, void (*callback_function)(HPT_CALLBACK_CAUSE cause), HPT_CALLBACK_CAUSE enabled_triggers);
+void watch_hpt_schedule_callback(uint32_t timestamp);
+
+/**
+ * Disables the scheduled callback.
+*/
+void watch_hpt_disable_scheduled_callback();
 
 #endif

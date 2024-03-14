@@ -120,6 +120,7 @@ typedef enum {
     EVENT_ALARM_BUTTON_UP,      // The alarm button was pressed for less than half a second, and released.
     EVENT_ALARM_LONG_PRESS,     // The alarm button was held for over half a second, but not yet released.
     EVENT_ALARM_LONG_UP,        // The alarm button was held for over half a second, and released.
+    EVENT_HPT,                  // The high-precision timer has reached or surpassed the timestamp requested by your face using movement_hpt_schedule. Your face may not be in the foreground. 
 } movement_event_type_t;
 
 typedef struct {
@@ -313,7 +314,7 @@ void movement_play_alarm_beeps(uint8_t rounds, BuzzerNote alarm_note);
 uint8_t movement_claim_backup_register(void);
 
 /**
- * The High Precision Timer (HPT) is a 32-bit counter ticking upward at 128hz.
+ * The High Precision Timer (HPT) is an on-demand timer running at 1024hz.
  * It runs independently of the real time clock and can be used to measure
  * durations and schedule future tasks. The HPT is not affected by changes to 
  * the RTC clock time. While enabled, it continues to run in standby mode and 
@@ -333,7 +334,7 @@ uint8_t movement_claim_backup_register(void);
  * guarantee to be made about the HPT timestamp is that between the time your
  * face calls "movement_hpt_request" until the moment it calls
  * "movement_hpt_relenquish", the value returned from "movement_hpt_get" will
- * increment upwards at 128 hz. Outside of that window, the timestamp value may
+ * increment upwards at 1024hz. Outside of that window, the timestamp value may
  * change unpredictably.
  * 
  * Faces may schedule an EVENT_HPT event to occur by calling 
@@ -375,24 +376,22 @@ void movement_hpt_relenquish_face(uint8_t face_idx);
  * The Movement framework will do its best to trigger the event as close to the
  * timestamp as possible, but it may be delayed if multiple faces or events are
  * scheduled to occur on the same timestamp.
- * 
- * Faces should avoid scheduling background events too close to or before the
- * current timestamp, or the event may be missed.
 */
-void movement_hpt_schedule(uint32_t timestamp);
+void movement_hpt_schedule(uint64_t timestamp);
+
 /** 
  * A variant of "movement_hpt_schedule" that can be used when your face is not
  * running in the foreground.
 */
-void movement_hpt_schedule_face(uint32_t timestamp, uint8_t face_idx);
+void movement_hpt_schedule_face(uint64_t timestamp, uint8_t face_idx);
 
 /**
- * Returns the current timestamp of the high-precision timer, in 1/128ths of a
+ * Returns the current timestamp of the high-precision timer, in 1/1024ths of a
  * second.
  * 
  * Before using this timestamp, your face must request that the HPT be
  * activated using "movement_hpt_request".
 */
-uint32_t movement_hpt_get(void);
+uint64_t movement_hpt_get(void);
 
 #endif // MOVEMENT_H_

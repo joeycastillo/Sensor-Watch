@@ -27,7 +27,7 @@
 #include "hpt_lapsplit_chrono_face.h"
 
 // frequency rate of underlying timer (high precision timer)
-#define LCF_SUBSECOND_RATE 128
+#define LCF_SUBSECOND_RATE 1024
 #define LCF_DISPLAY_UPDATE_RATE 16
 
 static void render(hpt_lapsplit_chrono_state_t *context, bool lowEnergyUpdate)
@@ -37,7 +37,7 @@ static void render(hpt_lapsplit_chrono_state_t *context, bool lowEnergyUpdate)
     // show LAP if in lap mode, not if in split mode
     // rest is pretty obvious
 
-    uint32_t runningTime;
+    uint64_t runningTime;
     if (context->running == LCF_RUN_RUNNING)
     {
         runningTime = movement_hpt_get() - context->startTs;
@@ -46,7 +46,7 @@ static void render(hpt_lapsplit_chrono_state_t *context, bool lowEnergyUpdate)
     {
         runningTime = context->pausedTs;
     }
-    uint32_t showTime = context->display == LCF_DISPLAY_SPLIT ? context->splitTs : runningTime;
+    uint64_t showTime = context->display == LCF_DISPLAY_SPLIT ? context->splitTs : runningTime;
 
     uint8_t time_hundreths = (((uint16_t)(showTime % LCF_SUBSECOND_RATE)) * 100) / LCF_SUBSECOND_RATE;
 
@@ -142,7 +142,7 @@ static void startButton(hpt_lapsplit_chrono_state_t *state)
     else
     {
         // record duration and show
-        uint32_t now = movement_hpt_get();
+        uint64_t now = movement_hpt_get();
         state->splitTs = now - state->startTs;
         state->display = LCF_DISPLAY_SPLIT;
 
@@ -167,7 +167,7 @@ static void stopButton(hpt_lapsplit_chrono_state_t *state)
     if (state->running == LCF_RUN_RUNNING)
     {
         // if running stop the timer and record its duration
-        uint32_t now = movement_hpt_get();
+        uint64_t now = movement_hpt_get();
         state->running = LCF_RUN_STOPPED;
         state->pausedTs = now - state->startTs;
         movement_hpt_relenquish();
@@ -176,7 +176,7 @@ static void stopButton(hpt_lapsplit_chrono_state_t *state)
     {
         // restart the timer
         movement_hpt_request();
-        uint32_t now = movement_hpt_get();
+        uint64_t now = movement_hpt_get();
         state->running = LCF_RUN_RUNNING;
         state->startTs = now - state->pausedTs;
     }
@@ -210,15 +210,7 @@ void hpt_lapsplit_chrono_face_activate(movement_settings_t *settings, void *cont
 
 bool hpt_lapsplit_chrono_face_loop(movement_event_t event, movement_settings_t *settings, void *context)
 {
-
     hpt_lapsplit_chrono_state_t *state = (hpt_lapsplit_chrono_state_t *)context;
-
-    // handle_button_lights(event, settings, wdt_now);
-
-    // only use the subsecond info from "tick" events. Subseconds from buttons or other event types seem unreliable
-    // (Maybe they're actually 128hz subseconds?)
-
-    uint32_t now = movement_hpt_get();
 
     switch (event.event_type)
     {
