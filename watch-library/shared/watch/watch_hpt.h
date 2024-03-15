@@ -2,15 +2,13 @@
 #define WATCH_HPT_H__
 
 #include <inttypes.h>
+#include <stdbool.h>
 
 /**
  * Defines the reasons the HPT callback is being invoked. More than one flag may be set.
 */
 typedef struct {
-    /**
-     * The callback is being invoked because of an error in the comparison (?)
-    */
-    bool cmp_error :1;
+
     /**
      * The callback is being invoked because the count is equal to the scheduled timestamp
     */
@@ -21,7 +19,7 @@ typedef struct {
     bool overflow :1;
 
     // not used
-    uint8_t _padding :5;
+    uint8_t _padding :6;
 } HPT_CALLBACK_CAUSE;
 
 /**
@@ -43,17 +41,17 @@ void watch_hpt_init(void (*callback_function)(HPT_CALLBACK_CAUSE cause));
 /**
  * Enables the high-precision timer
 */
-void watch_hpt_enable();
+void watch_hpt_enable(void);
 
 /**
  * Stops the high-precision timer and powers it down.
 */
-void watch_hpt_disable();
+void watch_hpt_disable(void);
 
 /**
  * Returns the current timetamp of the high-precision timer.
 */
-uint32_t watch_hpt_get();
+uint32_t watch_hpt_get(void);
 
 /**
  * Sets the timestamp at which the previously registered callback should be invoked. Note that this will be called every time the counter value reaches this value, including after an overflow occurs. 
@@ -63,6 +61,6 @@ void watch_hpt_schedule_callback(uint32_t timestamp);
 /**
  * Disables the scheduled callback.
 */
-void watch_hpt_disable_scheduled_callback();
+void watch_hpt_disable_scheduled_callback(void);
 
 #endif
