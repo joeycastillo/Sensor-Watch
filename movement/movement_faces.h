@@ -25,6 +25,7 @@
 #ifndef MOVEMENT_FACES_H_
 #define MOVEMENT_FACES_H_
 
+#include "simple_clock_face.h"
 #include "clock_face.h"
 #include "world_clock_face.h"
 #include "preferences_face.h"
