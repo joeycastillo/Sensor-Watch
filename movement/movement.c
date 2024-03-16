@@ -88,13 +88,13 @@ watch_date_time scheduled_tasks[MOVEMENT_NUM_FACES];
 // bit flags indicating which watch face wants the HPT enabled.
 // TODO make sure this number width is larger than the number of faces
 #define HPT_REQUESTS_T uint16_t
-HPT_REQUESTS_T hpt_enable_requests;
+volatile HPT_REQUESTS_T hpt_enable_requests;
 
 // timestamps at which watch faces should have a HPT event triggered. UINT64_MAX for no callback
-uint64_t hpt_scheduled_events[MOVEMENT_NUM_FACES];
+volatile uint64_t hpt_scheduled_events[MOVEMENT_NUM_FACES];
 
 // the number of times the high-precision timer has overflowed
-uint8_t hpt_overflows = 0;
+volatile uint8_t hpt_overflows = 0;
 
 const int32_t movement_le_inactivity_deadlines[8] = {INT_MAX, 600, 3600, 7200, 21600, 43200, 86400, 604800};
 const int16_t movement_timeout_inactivity_deadlines[4] = {60, 120, 300, 1800};
@@ -154,6 +154,7 @@ void cb_alarm_btn_extwake(void);
 void cb_alarm_fired(void);
 void cb_fast_tick(void);
 void cb_tick(void);
+void cb_hpt(HPT_CALLBACK_CAUSE cause);
 
 static inline void _movement_reset_inactivity_countdown(void) {
     movement_state.le_mode_ticks = movement_le_inactivity_deadlines[movement_state.settings.bit.le_interval];
@@ -197,13 +198,16 @@ static void _movement_handle_scheduled_tasks(void) {
         if (scheduled_tasks[i].reg) {
             if (scheduled_tasks[i].reg == date_time.reg) {
                 scheduled_tasks[i].reg = 0;
-                movement_event_t background_event = { EVENT_BACKGROUND_TASK, 0 };
+                movement_event_t background_event = {EVENT_BACKGROUND_TASK, 0};
                 watch_faces[i].loop(background_event, &movement_state.settings, watch_face_contexts[i]);
                 // check if loop scheduled a new task
-                if (scheduled_tasks[i].reg) {
+                if (scheduled_tasks[i].reg)
+                {
                     num_active_tasks++;
                 }
-            } else {
+            }
+            else
+            {
                 num_active_tasks++;
             }
         }
@@ -416,7 +420,9 @@ void app_setup(void) {
             hpt_scheduled_events[i] = UINT64_MAX;
         }
         hpt_enable_requests = 0;
+        hpt_overflows = 0;
         is_first_launch = false;
+        watch_hpt_init(&cb_hpt);
 
         // set up the 1 minute alarm (for background tasks and low power updates)
         watch_date_time alarm_time;
@@ -729,14 +735,15 @@ static void _movement_hpt_schedule_next_event()
         uint64_t event = hpt_scheduled_events[req_idx];
         if (event < next)
         {
-            event = next;
+            next = event;
         }
     }
 
     // if an event is scheduled and the timer is currently tracking this overflow cycle
-    if (next != UINT64_MAX && (next >> 32) == hpt_overflows)
+    if ((next != UINT64_MAX) && ((next >> 32) == hpt_overflows))
     {
-        watch_hpt_schedule_callback((uint32_t)(next & UINT32_MAX));
+        uint32_t low_part = next;
+        watch_hpt_schedule_callback(low_part);
     }
     else
     {
@@ -752,6 +759,7 @@ void movement_hpt_request_face(uint8_t face_idx)
 {
     HPT_REQUESTS_T old_hpt_requests = hpt_enable_requests;
     SET_BIT(hpt_enable_requests, face_idx);
+
     if (old_hpt_requests == 0)
     {
         watch_hpt_enable();
@@ -781,26 +789,30 @@ void cb_hpt(HPT_CALLBACK_CAUSE cause)
     if (cause.overflow)
     {
         hpt_overflows++;
-        // exit early if this is just an overflow
-        if (!(cause.compare_match))
-            return;
     }
 
     // We must also take great care here, as the timer will continue ticking in the background if we take too long to service a request
 
     // Execute this in a loop because it's possible for a face to schedule a new background event while handling its current one
     // And it's possible that they schedule it in the past for some reason.
-    bool eventTriggered = false;
     bool canSleep = true;
-    do
+
+    while (true)
     {
+        bool eventTriggered = false;
+
+        // TODO: What happens if an overflow occurs while we're inside this ISR?
+
         uint64_t now = movement_hpt_get();
 
         // iterate over faces and execute any callbacks for faces that have scheduled them
         for (uint8_t face_idx = 0; face_idx < MOVEMENT_NUM_FACES; ++face_idx)
         {
-            if (hpt_scheduled_events[face_idx] <= now)
+            uint64_t face_time = hpt_scheduled_events[face_idx];
+            //printf("face: %d, ts: %" PRIu64 "\r\n", face_idx, face_time);
+            if (face_time <= now)
             {
+                watch_set_led_yellow();
                 // clear the scheduled event and allow the face to schedule a new one
                 hpt_scheduled_events[face_idx] = UINT64_MAX;
 
@@ -817,7 +829,11 @@ void cb_hpt(HPT_CALLBACK_CAUSE cause)
             }
         }
         // keep doing this until no more scheduled events need to be processed
-    } while (eventTriggered);
+        if (!eventTriggered)
+        {
+            break;
+        }
+    }
 
     _movement_hpt_schedule_next_event();
     if (canSleep)
@@ -836,10 +852,8 @@ void movement_hpt_schedule_face(uint64_t timestamp, uint8_t face_idx)
     _movement_hpt_schedule_next_event();
 }
 
-inline uint64_t movement_hpt_get()
+uint64_t movement_hpt_get()
 {
-    // TODO: take care when combining this count - hpt may overflow in the middle here.
-
     uint64_t time;
     while (true)
     {

@@ -63,4 +63,6 @@ void watch_hpt_schedule_callback(uint32_t timestamp);
 */
 void watch_hpt_disable_scheduled_callback(void);
 
+void TC2_Handler(void);
+
 #endif

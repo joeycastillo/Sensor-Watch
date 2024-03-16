@@ -87,7 +87,6 @@ SRCS += \
   ../watch_faces/complication/ratemeter_face.c \
   ../watch_faces/complication/interval_face.c \
   ../watch_faces/complication/rpn_calculator_alt_face.c \
-  ../watch_faces/complication/stock_stopwatch_face.c \
   ../watch_faces/complication/tachymeter_face.c \
   ../watch_faces/settings/nanosec_face.c \
   ../watch_faces/settings/finetune_face.c \
@@ -127,6 +126,7 @@ SRCS += \
   ../watch_faces/complication/tuning_tones_face.c \
   ../watch_faces/complication/kitchen_conversions_face.c \
   ../watch_faces/complication/hpt_lapsplit_chrono_face.c \
+  ../watch_faces/clock/hpt_led_test_face.c \
 # New watch faces go above this line.
 
 # Leave this line at the bottom of the file; it has all the targets for making your project.

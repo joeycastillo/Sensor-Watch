@@ -62,7 +62,6 @@
 #include "ratemeter_face.h"
 #include "rpn_calculator_alt_face.h"
 #include "weeknumber_clock_face.h"
-#include "stock_stopwatch_face.h"
 #include "tachymeter_face.h"
 #include "nanosec_face.h"
 #include "finetune_face.h"
@@ -104,6 +103,7 @@
 #include "tuning_tones_face.h"
 #include "kitchen_conversions_face.h"
 #include "hpt_lapsplit_chrono_face.h"
+#include "hpt_led_test_face.h"
 // New includes go above this line.
 
 #endif // MOVEMENT_FACES_H_
