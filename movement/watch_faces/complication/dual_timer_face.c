@@ -109,11 +109,11 @@ static void _dual_timer_cb_initialize() {
 
 // you need to take stock_stopwatch.c out of the Makefile or this will create a conflict
 // you have to choose between one of the stopwatches
- void TC2_Handler(void) {
-    // interrupt handler for TC2 (globally!)
-    _ticks++;
-    TC2->COUNT8.INTFLAG.reg |= TC_INTFLAG_OVF;
-}
+//  void TC2_Handler(void) {
+//     // interrupt handler for TC2 (globally!)
+//     _ticks++;
+//     TC2->COUNT8.INTFLAG.reg |= TC_INTFLAG_OVF;
+// }
 
 #endif
 

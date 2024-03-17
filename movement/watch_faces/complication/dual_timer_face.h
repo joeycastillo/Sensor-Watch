@@ -93,7 +93,7 @@ void dual_timer_face_resign(movement_settings_t *settings, void *context);
 #if __EMSCRIPTEN__
 void em_dual_timer_cb_handler(void *userData);
 #else
-void TC2_Handler(void);
+//void TC2_Handler(void);
 #endif
 
 #define dual_timer_face ((const watch_face_t){ \

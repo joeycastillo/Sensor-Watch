@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Joey Castillo
+ * Copyright (c) 2024 <#author_name#>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,31 +22,36 @@
  * SOFTWARE.
  */
 
-#ifndef MOVEMENT_CONFIG_H_
-#define MOVEMENT_CONFIG_H_
+#ifndef HPT_LED_TEST_FACE_H_
+#define HPT_LED_TEST_FACE_H_
 
-#include "movement_faces.h"
+#include "movement.h"
 
-const watch_face_t watch_faces[] = {
-    hpt_led_test_face,
-    hpt_lapsplit_chrono_face,
-    preferences_face,
-    set_time_face,
-    thermistor_readout_face,
-    voltage_face
-};
-
-#define MOVEMENT_NUM_FACES (sizeof(watch_faces) / sizeof(watch_face_t))
-
-/* Determines what face to go to from the first face on long press of the Mode button.
- * Also excludes these faces from the normal rotation.
- * In the default firmware, this lets you access temperature and battery voltage with a long press of Mode.
- * Some folks also like to use this to hide the preferences and time set faces from the normal rotation.
- * If you don't want any faces to be excluded, set this to 0 and a long Mode press will have no effect.
+/*
+ * A DESCRIPTION OF YOUR WATCH FACE
+ *
+ * and a description of how use it
+ *
  */
-#define MOVEMENT_SECONDARY_FACE_INDEX (MOVEMENT_NUM_FACES - 2) // or (0)
 
-/* Custom hourly chime tune. Check movement_custom_signal_tunes.h for options. */
-#define SIGNAL_TUNE_DEFAULT
+typedef struct {
+    // Anything you need to keep track of, put it here!
+    uint8_t face_idx;
+    bool leds_off;
+} hpt_led_test_state_t;
 
-#endif // MOVEMENT_CONFIG_H_
+void hpt_led_test_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
+void hpt_led_test_face_activate(movement_settings_t *settings, void *context);
+bool hpt_led_test_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void hpt_led_test_face_resign(movement_settings_t *settings, void *context);
+
+#define hpt_led_test_face ((const watch_face_t){ \
+    hpt_led_test_face_setup, \
+    hpt_led_test_face_activate, \
+    hpt_led_test_face_loop, \
+    hpt_led_test_face_resign, \
+    NULL, \
+})
+
+#endif // HPT_LED_TEST_FACE_H_
+
