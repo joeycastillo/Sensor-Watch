@@ -26,122 +26,36 @@
 #include <stdlib.h>
 #include <string.h>
 #include "dual_timer_face.h"
-#include "watch.h"
-#include "watch_utility.h"
-#include "watch_rtc.h"
-
-/*
- * IMPORTANT: This watch face uses the same TC2 callback counter as the Stock Stopwatch
- * watch-face. It works through calling a global handler function. The two watch-faces
- * therefore can't coexist within the same firmware. If you want to compile this watch-face
- * then you need to remove the line <../watch_faces/complication/stock_stopwatch_face.c \>
- * from the Makefile.
- */
+#include "movement.h"
 
 // FROM stock_stopwatch_face.c ////////////////////////////////////////////////
 // Copyright (c) 2022 Andreas Nebinger
 
-#if __EMSCRIPTEN__
-#include <emscripten.h>
-#include <emscripten/html5.h>
-#else
-#include "../../../watch-library/hardware/include/saml22j18a.h"
-#include "../../../watch-library/hardware/include/component/tc.h"
-#include "../../../watch-library/hardware/hri/hri_tc_l22.h"
-#endif
-
-static const watch_date_time distant_future = {.unit = {0, 0, 0, 1, 1, 63}};
-static bool _is_running;
-static uint32_t _ticks;
-
-#if __EMSCRIPTEN__
-
-static long _em_interval_id = 0;
-
-void em_dual_timer_cb_handler(void *userData) {
-    // interrupt handler for emscripten 128 Hz callbacks
-    (void) userData;
-    _ticks++;
-}
-
-static void _dual_timer_cb_initialize() { }
-
-static inline void _dual_timer_cb_stop() {
-    emscripten_clear_interval(_em_interval_id);
-    _em_interval_id = 0;
-    _is_running = false;
-}
-
-static inline void _dual_timer_cb_start() {
-    // initiate 128 hz callback
-    _em_interval_id = emscripten_set_interval(em_dual_timer_cb_handler, (double)(1000/128), (void *)NULL);
-}
-
-#else
-
-static inline void _dual_timer_cb_start() {
-    // start the TC2 timer
-    hri_tc_set_CTRLA_ENABLE_bit(TC2);
-    _is_running = true;
-}
-
-static inline void _dual_timer_cb_stop() {
-    // stop the TC2 timer
-    hri_tc_clear_CTRLA_ENABLE_bit(TC2);
-    _is_running = false;
-}
-
-static void _dual_timer_cb_initialize() {
-    // setup and initialize TC2 for a 64 Hz interrupt
-    hri_mclk_set_APBCMASK_TC2_bit(MCLK);
-    hri_gclk_write_PCHCTRL_reg(GCLK, TC2_GCLK_ID, GCLK_PCHCTRL_GEN_GCLK3 | GCLK_PCHCTRL_CHEN);
-    _dual_timer_cb_stop();
-    hri_tc_write_CTRLA_reg(TC2, TC_CTRLA_SWRST);
-    hri_tc_wait_for_sync(TC2, TC_SYNCBUSY_SWRST);
-    hri_tc_write_CTRLA_reg(TC2, TC_CTRLA_PRESCALER_DIV64 | // 32 Khz divided by 64 divided by 4 results in a 128 Hz interrupt
-                           TC_CTRLA_MODE_COUNT8 | 
-                           TC_CTRLA_RUNSTDBY);
-    hri_tccount8_write_PER_reg(TC2, 3);
-    hri_tc_set_INTEN_OVF_bit(TC2);
-    NVIC_ClearPendingIRQ(TC2_IRQn);
-    NVIC_EnableIRQ (TC2_IRQn);
-}
-
-// you need to take stock_stopwatch.c out of the Makefile or this will create a conflict
-// you have to choose between one of the stopwatches
-//  void TC2_Handler(void) {
-//     // interrupt handler for TC2 (globally!)
-//     _ticks++;
-//     TC2->COUNT8.INTFLAG.reg |= TC_INTFLAG_OVF;
-// }
-
-#endif
+// max time displayed is 99 days, 23 hours, 59 minutes, 59 seconds, 99 centiseconds
+const uint64_t MAX_TIME = (9900LL/1024LL) + 1024LL * (59LL + 59LL*60LL + 23LL*60LL*60LL + 99LL*24LL*60LL*60LL);
 
 // STATIC FUNCTIONS ///////////////////////////////////////////////////////////
 
 /** @brief converts tick counts to duration struct for time display 
+ * 
+ * ticks = 1/1024ths of a second
  */
-static dual_timer_duration_t ticks_to_duration(uint32_t ticks) {
+static dual_timer_duration_t ticks_to_duration(uint64_t ticks) {
     dual_timer_duration_t duration;
-    uint8_t hours = 0;
-    uint8_t days = 0;
 
-    // count hours and days
-    while (ticks >= (128 * 60 * 60)) {
-        ticks -= (128 * 60 * 60);
-        hours++;
-        if (hours >= 24) {
-            hours -= 24;
-            days++;
-        }
-    }
+    // limit timers to 99d23h59m59d99c
+    if(ticks > MAX_TIME) ticks = MAX_TIME;
 
-    // convert minutes, seconds, centiseconds
-    duration.centiseconds = (ticks & 0x7F) * 100 / 128;
-    duration.seconds = (ticks >> 7) % 60;
-    duration.minutes = (ticks >> 7) / 60;
-    duration.hours = hours;
-    duration.days = days;
+    uint16_t thousandths = ticks % 1024;
+    ticks /= 1024; // ticks = seconds now
+    duration.centiseconds = (thousandths * 100) / 1024;
+    duration.seconds = ticks % 60;
+    ticks /= 60; // ticks = minutes now
+    duration.minutes = ticks % 60;
+    ticks /= 60; // ticks = hours now
+    duration.hours = ticks % 24;
+    ticks /= 24; // ticks = days now
+    duration.days = ticks % 100;
 
     return duration;
 }
@@ -152,19 +66,9 @@ static dual_timer_duration_t ticks_to_duration(uint32_t ticks) {
  */
 static void start_timer(dual_timer_state_t *state, bool timer) {
     // if it is not running yet, run it
-    if ( !_is_running ) {
-        _is_running = true;
-        movement_request_tick_frequency(16);
-        state->start_ticks[timer] = 0;
-        state->stop_ticks[timer] = 0;
-        _ticks = 0;
-        _dual_timer_cb_start();
-        movement_schedule_background_task(distant_future);
-    } else {
-        // if another timer is already running save the current tick
-        state->start_ticks[timer] = _ticks;
-        state->stop_ticks[timer] = _ticks;
-    }
+    movement_hpt_request();
+    movement_request_tick_frequency(16);
+    state->start_ticks[timer] = movement_hpt_get();
     state->running[timer] = true;
 }
 
@@ -174,15 +78,14 @@ static void start_timer(dual_timer_state_t *state, bool timer) {
  */
 static void stop_timer(dual_timer_state_t *state, bool timer) {
     // stop timer and save duration
-    state->stop_ticks[timer] = _ticks;
+    state->stop_ticks[timer] = movement_hpt_get();
     state->duration[timer] = ticks_to_duration(state->stop_ticks[timer] - state->start_ticks[timer]);
     state->running[timer] = false;
-    // if the other timer is not running, stop callback
-    if ( state->running[!timer] == false ) {
-        _is_running = false;
-        _dual_timer_cb_stop();
+
+    // if neither timer is running, release hpt
+    if(!(state->running[0] || state->running[1])) {
         movement_request_tick_frequency(1);
-        movement_cancel_background_task();
+        movement_hpt_release();
     }
 }
 
@@ -197,9 +100,10 @@ static void dual_timer_display(dual_timer_state_t *state) {
     char buf[11];
     char oi[3];
     // get the current time count of the selected counter
-    dual_timer_duration_t timer = state->running[state->show] ? ticks_to_duration(state->stop_ticks[state->show] - state->start_ticks[state->show]) : state->duration[state->show];
-    // get the current time count of the other counter
-    dual_timer_duration_t other = ticks_to_duration(state->stop_ticks[!state->show] - state->start_ticks[!state->show]);
+    uint64_t now = movement_hpt_get();
+
+    dual_timer_duration_t timer = state->running[state->show] ? ticks_to_duration(now - state->start_ticks[state->show]) : state->duration[state->show];
+    dual_timer_duration_t other = state->running[!state->show] ? ticks_to_duration(now - state->start_ticks[!state->show]) : state->duration[!state->show];
     
     if ( timer.days > 0 )
         sprintf(buf, "%02u%02u%02u", timer.days, timer.hours, timer.minutes);
@@ -213,11 +117,11 @@ static void dual_timer_display(dual_timer_state_t *state) {
     watch_display_string(state->show ? "B" : "A", 0);
     
     // indicate whether other counter is running
-    watch_display_string(state->running[!state->show] && (_ticks % 100) < 50 ? "+" : " ", 1);
+    watch_display_string(state->running[!state->show] && (now % 1024) < 512 ? "+" : " ", 1);
     
     // indicate for how long the other counter has been running
     sprintf(oi, "%2u", other.days > 0 ? other.days : (other.hours > 0 ? other.hours : (other.minutes > 0 ? other.minutes : (other.seconds > 0 ? other.seconds : other.centiseconds))));
-    watch_display_string( (state->stop_ticks[!state->show] - state->start_ticks[!state->show]) > 0 ? oi : "  ", 2);
+    watch_display_string( state->running[!state->show] ? oi : "  ", 2);
     
     // blink colon when running
     if ( timer.centiseconds > 50 || !state->running[state->show] ) watch_set_colon();
@@ -232,35 +136,23 @@ void dual_timer_face_setup(movement_settings_t *settings, uint8_t watch_face_ind
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(dual_timer_state_t));
         memset(*context_ptr, 0, sizeof(dual_timer_state_t));
-        _ticks = 0;
-    }
-    if (!_is_running) {
-        _dual_timer_cb_initialize();
     }
 }
 
 void dual_timer_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
-    if (_is_running) {
-        movement_schedule_background_task(distant_future);
-    }
 }
 
 bool dual_timer_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     dual_timer_state_t *state = (dual_timer_state_t *)context;
 
-    // timers stop at 99:23:59:59:99
-    if ( (_ticks - state->start_ticks[0]) >= 1105919999 )
-        stop_timer(state, 0);
-
-    if ( (_ticks - state->start_ticks[1]) >= 1105919999 )
-        stop_timer(state, 1);
+    bool is_running = (state->running[0] || state->running[1]);
 
     switch (event.event_type) {
         case EVENT_ACTIVATE:
             watch_set_colon();
-            if (_is_running) {
+            if (is_running) {
                 movement_request_tick_frequency(16);
                 if ( state->running[0] )
                     state->show = 0;
@@ -272,12 +164,7 @@ bool dual_timer_face_loop(movement_event_t event, movement_settings_t *settings,
             }
             break;
         case EVENT_TICK:
-            if ( _is_running ) {
-                // update stop ticks
-                if ( state->running[0] )
-                    state->stop_ticks[0] = _ticks;
-                if ( state->running[1] )
-                    state->stop_ticks[1] = _ticks;
+            if ( is_running ) {
                 dual_timer_display(state);
             }
             break;
@@ -313,7 +200,7 @@ bool dual_timer_face_loop(movement_event_t event, movement_settings_t *settings,
             break;
         case EVENT_TIMEOUT:
             // go back to 
-            if (!_is_running) movement_move_to_face(0);
+            if (!is_running) movement_move_to_face(0);
             break;
         case EVENT_LOW_ENERGY_UPDATE:
             dual_timer_display(state);
@@ -330,5 +217,6 @@ void dual_timer_face_resign(movement_settings_t *settings, void *context) {
     (void) context;
     movement_cancel_background_task();
     // handle any cleanup before your watch face goes off-screen.
+    movement_request_tick_frequency(1);
 }
 

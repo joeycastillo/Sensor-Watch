@@ -59,12 +59,6 @@
  * button to move to the next watch face is disabled to be able to use it to toggle between
  * the timers. In this case LONG PRESSING MODE will move to the next face instead of moving
  * back to the default watch face.
- *
- * IMPORTANT: This watch face uses the same TC2 callback counter as the Stock Stopwatch
- * watch-face. It works through calling a global handler function. The two watch-faces
- * therefore can't coexist within the same firmware. If you want to compile this watch-face
- * then you need to remove the line <../watch_faces/complication/stock_stopwatch_face.c \>
- * from the Makefile.
  */
 
 #include "movement.h"
@@ -78,8 +72,8 @@ typedef struct {
 } dual_timer_duration_t;
 
 typedef struct {
-    uint32_t start_ticks[2];
-    uint32_t stop_ticks[2];
+    uint64_t start_ticks[2];
+    uint64_t stop_ticks[2];
     dual_timer_duration_t duration[2];
     bool running[2];
     bool show;
@@ -89,12 +83,6 @@ void dual_timer_face_setup(movement_settings_t *settings, uint8_t watch_face_ind
 void dual_timer_face_activate(movement_settings_t *settings, void *context);
 bool dual_timer_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void dual_timer_face_resign(movement_settings_t *settings, void *context);
-
-#if __EMSCRIPTEN__
-void em_dual_timer_cb_handler(void *userData);
-#else
-//void TC2_Handler(void);
-#endif
 
 #define dual_timer_face ((const watch_face_t){ \
     dual_timer_face_setup, \

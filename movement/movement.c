@@ -24,7 +24,7 @@
 
 #define MOVEMENT_LONG_PRESS_TICKS 64
 
-#define HPT_DEBUG
+//#define HPT_DEBUG
 
 #include <stdio.h>
 #include <string.h>

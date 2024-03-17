@@ -28,8 +28,9 @@
 #include "movement_faces.h"
 
 const watch_face_t watch_faces[] = {
-    hpt_led_test_face,
+    //hpt_led_test_face,
     hpt_lapsplit_chrono_face,
+    dual_timer_face,
     preferences_face,
     set_time_face,
     thermistor_readout_face,

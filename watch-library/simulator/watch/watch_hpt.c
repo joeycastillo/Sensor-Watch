@@ -19,10 +19,13 @@ long simhpt_compare_timeout_handle = 0;
 
 const double OVERFLOW_MSECS = (double)(UINT32_MAX) * (1024.0 / 1000.0); // this might be backwards, but it's close enough who cares
 
+#define HPT_DEBUG
+
 static void cb_overflow(void *_unused)
 {
-    printf("hpt-isr-overflow cause=%s\r\n", (char*)_unused);
-
+#ifdef HPT_DEBUG
+    printf("hpt-isr-overflow cause=%s\r\n", (char *)_unused);
+#endif
     // fire off an interrupt
     if (simhpt_callback_function)
     {
@@ -40,7 +43,9 @@ volatile bool cb_compare_updated_timeout = false;
 
 static void cb_compare(void *_unused)
 {
-       printf("hpt-isr-compare\r\n");
+#ifdef HPT_DEBUG
+    printf("hpt-isr-compare\r\n");
+#endif
 
     // keep track of whether the callback function set a new callback time or cleared it
     // if they did not, we need to automatically trigger another one when the timer overflows
@@ -78,12 +83,16 @@ void watch_hpt_enable(void)
 {
     if (!simhpt_running)
     {
+#ifdef HPT_DEBUG
         printf("enabling hpt\r\n");
+#endif
         simhpt_enabled_timestamp = emscripten_performance_now();
         simhpt_running = true;
 
         uint32_t timer_value = simhpt_paused_count;
+#ifdef HPT_DEBUG
         printf("stored ticks: %d\r\n", timer_value);
+#endif
 
         // I am at my wits end here. I cannot figure out why emscripten invokes this callback method almost immediately
         // if I use a fake value for msec_until_next_overflow of "UINT32_MAX", it seems to work
@@ -97,7 +106,7 @@ void watch_hpt_enable(void)
         //
         // uint32_t ticks_until_next_overflow = UINT32_MAX - timer_value;
         // double msec_until_next_overflow_actual = ((double)ticks_until_next_overflow) / 1.024;
-        // double msec_until_next_overflow = OVERFLOW_MSECS / 2.0; 
+        // double msec_until_next_overflow = OVERFLOW_MSECS / 2.0;
         // // always set an overflow timeout
         // // double msec_until_overflow = (double)(UINT32_MAX - timer_value) / 1.024;
         //  printf("msec until overflow fake: %f\r\n", msec_until_next_overflow);
@@ -121,7 +130,9 @@ void watch_hpt_disable(void)
 {
     if (simhpt_running)
     {
+#ifdef HPT_DEBUG
         printf("hpt disabled\r\n");
+#endif
         if (simhpt_overflow_timeout_handle)
         {
             emscripten_clear_timeout(simhpt_overflow_timeout_handle);
@@ -142,17 +153,19 @@ uint32_t watch_hpt_get(void)
 {
     if (simhpt_running)
     {
-       double msec = emscripten_performance_now() - simhpt_enabled_timestamp;
-       double ticks = msec * 1.024;
-       uint64_t accumulated_ticks = ((uint64_t)ticks) + simhpt_paused_count;
-
-       printf("hpt-get-running: %d\r\n", accumulated_ticks);
-       return accumulated_ticks;
+        double msec = emscripten_performance_now() - simhpt_enabled_timestamp;
+        double ticks = msec * 1.024;
+        uint64_t accumulated_ticks = ((uint64_t)ticks) + simhpt_paused_count;
+#ifdef HPT_DEBUG
+        printf("hpt-get-running: %d\r\n", accumulated_ticks);
+#endif
+        return accumulated_ticks;
     }
     else
     {
-        
-       printf("hpt-get-paused: %d\r\n", simhpt_paused_count);
+#ifdef HPT_DEBUG
+        printf("hpt-get-paused: %d\r\n", simhpt_paused_count);
+#endif
         return simhpt_paused_count;
     }
 }

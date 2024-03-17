@@ -6,8 +6,7 @@
 // user HPT callback
 void (*hpt_isr_callback)(HPT_CALLBACK_CAUSE) = 0;
 
-
-// actual HPT callback
+// actual HPT ISR
 void TC2_Handler(void)
 {
     // check flags
@@ -133,8 +132,7 @@ void watch_hpt_disable(void)
     // TC2.ENABLE = 0
     TC_CRITICAL_SECTION_ENTER();
     TC2->COUNT32.CTRLA.bit.ENABLE = 0;
-    while (TC2->COUNT32.SYNCBUSY.bit.ENABLE != 0)
-        asm("");
+    while (TC2->COUNT32.SYNCBUSY.bit.ENABLE != 0);
     TC_CRITICAL_SECTION_LEAVE();
 }
 
@@ -147,8 +145,7 @@ void watch_hpt_schedule_callback(uint32_t timestamp)
 
     TC_CRITICAL_SECTION_ENTER();
     TC2->COUNT32.CC[0].reg = timestamp;
-    while(TC2->COUNT32.SYNCBUSY.bit.CC0)
-        asm("");
+    while(TC2->COUNT32.SYNCBUSY.bit.CC0);
     TC2->COUNT32.INTFLAG.reg = 0xFF;
 
     TC2->COUNT32.INTENSET.bit.MC0 = 1;
