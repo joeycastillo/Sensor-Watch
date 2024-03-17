@@ -43,14 +43,14 @@ typedef struct {
     unsigned char labels[2];
     hmac_alg algorithm;
     uint32_t period;
-    size_t key_length;
-    unsigned char *key;
+    size_t encoded_key_length;
+    unsigned char *encoded_key;
 } totp_t;
 
 #define CREDENTIAL(label, key_array, algo, timestep) \
     (const totp_t) { \
-        .key = ((unsigned char *) key_array), \
-        .key_length = sizeof(key_array) - 1, \
+        .encoded_key = ((unsigned char *) key_array), \
+        .encoded_key_length = sizeof(key_array) - 1, \
         .period = (timestep), \
         .labels = (#label), \
         .algorithm = (algo), \
@@ -75,6 +75,46 @@ static inline size_t totp_total(void) {
     return sizeof(credentials) / sizeof(*credentials);
 }
 
+static void totp_face_free_current_secret(totp_state_t *totp_state) {
+    if (totp_state->current_decoded_key) {
+        free(totp_state->current_decoded_key);
+        totp_state->current_decoded_key = 0;
+    }
+}
+
+static void totp_face_decode_current_secret(totp_state_t *totp_state) {
+    totp_t *totp = totp_current(totp_state);
+
+    totp_state->current_decoded_key = malloc(UNBASE32_LEN(totp->encoded_key_length));
+    totp_state->current_decoded_key_length = base32_decode(totp->encoded_key, totp_state->current_decoded_key);
+
+    if (totp_state->current_decoded_key_length == 0) {
+        totp_face_free_current_secret(totp_state);
+    }
+}
+
+static bool totp_generate(totp_state_t *totp_state) {
+    if (!totp_state->current_decoded_key) {
+        totp_face_decode_current_secret(totp_state);
+    }
+
+    if (!totp_state->current_decoded_key) {
+        watch_display_string("ERROR", 4);
+        return false;
+    }
+
+    totp_t *totp = totp_current(totp_state);
+
+    TOTP(
+        totp_state->current_decoded_key,
+        totp_state->current_decoded_key_length,
+        totp->period,
+        totp->algorithm
+    );
+
+    return true;
+}
+
 static void totp_display(totp_state_t *totp_state) {
     char buf[14];
     div_t result;
@@ -92,46 +132,33 @@ static void totp_display(totp_state_t *totp_state) {
     watch_display_string(buf, 0);
 }
 
-static void totp_face_decode_secrets(void) {
-    for (size_t n = totp_total(), i = 0; i < n; ++i) {
-        totp_t *totp = &credentials[i];
-        unsigned char *key = totp->key;
-
-        totp->key = malloc(UNBASE32_LEN(totp->key_length));
-        totp->key_length = base32_decode(key, totp->key);
-
-        if (totp->key_length == 0) {
-            free(totp->key);
-            continue;
-        }
-    }
-}
-
 void totp_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
     (void) watch_face_index;
 
     if (*context_ptr == NULL) {
         totp_state_t *totp = malloc(sizeof(totp_state_t));
-        totp_face_decode_secrets();
         *context_ptr = totp;
     }
 }
 
 void totp_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
-    memset(context, 0, sizeof(totp_state_t));
-    totp_state_t *totp_state = (totp_state_t *)context;
-    totp_t *totp = totp_current(totp_state);
-    TOTP(totp->key, totp->key_length, totp->period, totp->algorithm);
+
+    totp_state_t *totp_state = (totp_state_t *) context;
+    memset(totp_state, 0, sizeof(*totp_state));
+
     totp_state->timestamp = watch_utility_date_time_to_unix_time(watch_rtc_get_date_time(), movement_timezone_offsets[settings->bit.time_zone] * 60);
-    totp_state->current_code = getCodeFromTimestamp(totp_state->timestamp);
+
+    if (totp_generate(totp_state)) {
+        totp_display(totp_state);
+    }
 }
 
 bool totp_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     (void) settings;
-    totp_state_t *totp_state = (totp_state_t *)context;
-    totp_t *totp;
+
+    totp_state_t *totp_state = (totp_state_t *) context;
 
     switch (event.event_type) {
         case EVENT_TICK:
@@ -144,26 +171,34 @@ bool totp_face_loop(movement_event_t event, movement_settings_t *settings, void 
             movement_move_to_face(0);
             break;
         case EVENT_ALARM_BUTTON_UP:
+            totp_face_free_current_secret(totp_state);
+
             if (totp_state->current_index + 1 < totp_total()) {
                 totp_state->current_index++;
             } else {
                 // wrap around to first key
                 totp_state->current_index = 0;
             }
-            totp = totp_current(totp_state);
-            TOTP(totp->key, totp->key_length, totp->period, totp->algorithm);
-            totp_display(totp_state);
+
+            if (totp_generate(totp_state)) {
+                totp_display(totp_state);
+            }
+
             break;
         case EVENT_LIGHT_BUTTON_UP:
+            totp_face_free_current_secret(totp_state);
+
             if (totp_state->current_index == 0) {
                 // Wrap around to the last credential.
                 totp_state->current_index = totp_total() - 1;
             } else {
                 totp_state->current_index--;
             }
-            totp = totp_current(totp_state);
-            TOTP(totp->key, totp->key_length, totp->period, totp->algorithm);
-            totp_display(totp_state);
+
+            if (totp_generate(totp_state)) {
+                totp_display(totp_state);
+            }
+
             break;
         case EVENT_ALARM_BUTTON_DOWN:
         case EVENT_ALARM_LONG_PRESS:
@@ -182,5 +217,7 @@ bool totp_face_loop(movement_event_t event, movement_settings_t *settings, void 
 
 void totp_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
-    (void) context;
+
+    totp_state_t *totp_state = (totp_state_t *) context;
+    totp_face_free_current_secret(totp_state);
 }
