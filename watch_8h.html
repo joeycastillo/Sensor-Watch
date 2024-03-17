@@ -113,9 +113,17 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>watch_is_usb_enabled<
 void&#160;</td><td class="memItemRight" valign="bottom"><b>watch_reset_to_bootloader</b> (void)</td></tr>
 <tr class="memdesc:a4b79c545e0876aefdbd405d469ce27f4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets in the UF2 bootloader mode. <br /></td></tr>
 <tr class="separator:a4b79c545e0876aefdbd405d469ce27f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a15fb1a0b0834fa71d213d4228d94a849" id="r_a15fb1a0b0834fa71d213d4228d94a849"><td class="memItemLeft" align="right" valign="top"><a id="a15fb1a0b0834fa71d213d4228d94a849" name="a15fb1a0b0834fa71d213d4228d94a849"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>cdc_task</b> (void)</td></tr>
+<tr class="memdesc:a15fb1a0b0834fa71d213d4228d94a849"><td class="mdescLeft">&#160;</td><td class="mdescRight">Call periodically from app main loop to service CDC RX/TX. <br /></td></tr>
+<tr class="separator:a15fb1a0b0834fa71d213d4228d94a849"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa0c5d610f8b61891a7cf5fca2671b6f9" id="r_aa0c5d610f8b61891a7cf5fca2671b6f9"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="watch_8h.html#aa0c5d610f8b61891a7cf5fca2671b6f9">read</a> (int file, char *ptr, int len)</td></tr>
 <tr class="memdesc:aa0c5d610f8b61891a7cf5fca2671b6f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads up to len bytes from the USB serial.  <br /></td></tr>
 <tr class="separator:aa0c5d610f8b61891a7cf5fca2671b6f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0563dd257b275d2ebb89a54f578b1ac1" id="r_a0563dd257b275d2ebb89a54f578b1ac1"><td class="memItemLeft" align="right" valign="top"><a id="a0563dd257b275d2ebb89a54f578b1ac1" name="a0563dd257b275d2ebb89a54f578b1ac1"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>watch_disable_TRNG</b> ()</td></tr>
+<tr class="memdesc:a0563dd257b275d2ebb89a54f578b1ac1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Disables the TRNG twice in order to work around silicon erratum 1.16.1. <br /></td></tr>
+<tr class="separator:a0563dd257b275d2ebb89a54f578b1ac1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
 <a id="aa0c5d610f8b61891a7cf5fca2671b6f9" name="aa0c5d610f8b61891a7cf5fca2671b6f9"></a>

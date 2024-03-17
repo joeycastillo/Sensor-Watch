@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['is_5fleap_0',['is_leap',['../group__utility.html#gafa27a35234148d4f9d0216e21ddaabec',1,'is_leap(uint16_t y):&#160;watch_utility.c'],['../group__utility.html#gafa27a35234148d4f9d0216e21ddaabec',1,'is_leap(uint16_t year):&#160;watch_utility.c']]]
+  ['cdc_5ftask_0',['cdc_task',['../watch_8h.html#a15fb1a0b0834fa71d213d4228d94a849',1,'watch.h']]]
 ];
