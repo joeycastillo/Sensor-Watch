@@ -326,21 +326,21 @@ uint8_t movement_claim_backup_register(void);
  * timer is enabled, the face may retrieve the current timestamp using
  * "movement_hpt_get", or schedule a background event using
  * "movement_hpt_schedule". When a face no longer needs to use the timestamp or
- * scheduled event provided by the HPT it MUST call "movement_hpt_relenquish".
+ * scheduled event provided by the HPT it MUST call "movement_hpt_release".
  * If no other face has an outstanding request for the HPT, it will be disabled
  * to conserve power.
  * 
  * Watch faces may not modify the value of the HPT counter in any way. The only
  * guarantee to be made about the HPT timestamp is that between the time your
  * face calls "movement_hpt_request" until the moment it calls
- * "movement_hpt_relenquish", the value returned from "movement_hpt_get" will
+ * "movement_hpt_release", the value returned from "movement_hpt_get" will
  * increment upwards at 1024hz. Outside of that window, the timestamp value may
  * change unpredictably.
  * 
  * Faces may schedule an EVENT_HPT event to occur by calling 
  * "movement_hpt_schedule" and passing in a timestamp for the event to occur.
  * The face must call "movement_hpt_request" before scheduling the event, and
- * must not call "movement_hpt_relenquish" until after the event has occurred.
+ * must not call "movement_hpt_release" until after the event has occurred.
  * Note that when your face receives the EVENT_HPT event, it may be running in
  * the background. In this case, you will need to use the "_face" variant of
  * the HPT methods to specify that it is your face being called.
@@ -349,7 +349,7 @@ uint8_t movement_claim_backup_register(void);
 /**
  * Enables the HPT for the active face. This method must be called before using
  * "movement_hpt_get" or "movement_hpt_schedule". The HPT will remain running
- * in the background until it is released using "movement_hpt_relenquish"
+ * in the background until it is released using "movement_hpt_release"
 */
 void movement_hpt_request(void);
 /**
@@ -364,12 +364,12 @@ void movement_hpt_request_face(uint8_t face_idx);
  * "movement_hpt_get" or has no scheduled background tasks, in order to save
  * power.
 */
-void movement_hpt_relenquish(void);
+void movement_hpt_release(void);
 /**
- * A variant of "movement_hpt_relenquish" that can be used when your face is
+ * A variant of "movement_hpt_release" that can be used when your face is
  * not running in the foreground.
 */
-void movement_hpt_relenquish_face(uint8_t face_idx);
+void movement_hpt_release_face(uint8_t face_idx);
 
 /**
  * Schedules a future EVENT_HPT event to occur on or after the given timestamp.

@@ -25,6 +25,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "hpt_lapsplit_chrono_face.h"
+#include <stdio.h>
+#include <inttypes.h>
 
 // frequency rate of underlying timer (high precision timer)
 #define LCF_SUBSECOND_RATE 1024
@@ -110,7 +112,7 @@ static void render(hpt_lapsplit_chrono_state_t *context, bool lowEnergyUpdate)
     }
 }
 
-static void startButton(hpt_lapsplit_chrono_state_t *state)
+static void splitButton(hpt_lapsplit_chrono_state_t *state)
 {
     if (state->display == LCF_DISPLAY_SPLIT)
     {
@@ -162,7 +164,7 @@ static void startButton(hpt_lapsplit_chrono_state_t *state)
     }
 }
 
-static void stopButton(hpt_lapsplit_chrono_state_t *state)
+static void startStopButton(hpt_lapsplit_chrono_state_t *state)
 {
     if (state->running == LCF_RUN_RUNNING)
     {
@@ -170,7 +172,9 @@ static void stopButton(hpt_lapsplit_chrono_state_t *state)
         uint64_t now = movement_hpt_get();
         state->running = LCF_RUN_STOPPED;
         state->pausedTs = now - state->startTs;
-        movement_hpt_relenquish();
+        movement_hpt_release();
+
+        //printf("ch-stopped: now=%" PRIu64 " pausedTs=%" PRIu64 " startTs=%" PRIu64 "\r\n", now, state->pausedTs, state->startTs);
     }
     else
     {
@@ -179,6 +183,8 @@ static void stopButton(hpt_lapsplit_chrono_state_t *state)
         uint64_t now = movement_hpt_get();
         state->running = LCF_RUN_RUNNING;
         state->startTs = now - state->pausedTs;
+
+        //printf("ch-started: now=%" PRIu64 " pausedTs=%" PRIu64 " startTs=%" PRIu64 "\r\n", now, state->pausedTs, state->startTs);
     }
 }
 
@@ -215,14 +221,14 @@ bool hpt_lapsplit_chrono_face_loop(movement_event_t event, movement_settings_t *
     switch (event.event_type)
     {
     case EVENT_LIGHT_BUTTON_DOWN:
-        startButton(state);
+        splitButton(state);
         render(state, false);
         break;
     // swallow the long press to avoid toggling light settings here in a confusing way
     case EVENT_LIGHT_LONG_PRESS:
         break;
     case EVENT_ALARM_BUTTON_DOWN:
-        stopButton(state);
+        startStopButton(state);
         render(state, false);
         break;
 
@@ -262,7 +268,7 @@ bool hpt_lapsplit_chrono_face_loop(movement_event_t event, movement_settings_t *
 void hpt_lapsplit_chrono_face_resign(movement_settings_t *settings, void *context)
 {
     (void)settings;
-    (void)context;
+    (void)context;    
 
     // handle any cleanup before your watch face goes off-screen.
     // reset tick frequency

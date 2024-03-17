@@ -24,6 +24,8 @@
 
 #define MOVEMENT_LONG_PRESS_TICKS 64
 
+#define HPT_DEBUG
+
 #include <stdio.h>
 #include <string.h>
 #include <limits.h>
@@ -83,7 +85,7 @@ movement_state_t movement_state;
 void * watch_face_contexts[MOVEMENT_NUM_FACES];
 watch_date_time scheduled_tasks[MOVEMENT_NUM_FACES];
 
-// HPT stuff
+// high-precision timer stuff
 
 // bit flags indicating which watch face wants the HPT enabled.
 // TODO make sure this number width is larger than the number of faces
@@ -766,11 +768,11 @@ void movement_hpt_request_face(uint8_t face_idx)
     }
 }
 
-void movement_hpt_relenquish(void)
+void movement_hpt_release(void)
 {
-    movement_hpt_relenquish_face(movement_state.current_face_idx);
+    movement_hpt_release_face(movement_state.current_face_idx);
 }
-void movement_hpt_relenquish_face(uint8_t face_idx)
+void movement_hpt_release_face(uint8_t face_idx)
 {
     // cancel this face's background task if one was scheduled
     hpt_scheduled_events[face_idx] = UINT64_MAX;
@@ -862,6 +864,10 @@ uint64_t movement_hpt_get()
 
         // create a timestamp by combining overflow count
         time = (((uint64_t)hpt_overflows) << 32) | start;
+
+        #ifdef HPT_DEBUG
+        printf("movement-hpt-get: start=%d hpt_overflows=%d time=%" PRIu64, start, hpt_overflows, time);
+        #endif
 
         // check to see if an overflow occurred while we were doing all that
         uint32_t end = watch_hpt_get();

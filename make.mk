@@ -196,6 +196,7 @@ SRCS += \
   $(TOP)/watch-library/simulator/watch/watch_storage.c \
   $(TOP)/watch-library/simulator/watch/watch_deepsleep.c \
   $(TOP)/watch-library/simulator/watch/watch_private.c \
+  $(TOP)/watch-library/simulator/watch/watch_hpt.c \
   $(TOP)/watch-library/simulator/watch/watch.c \
   $(TOP)/watch-library/shared/driver/thermistor_driver.c \
   $(TOP)/watch-library/shared/driver/opt3001.c \

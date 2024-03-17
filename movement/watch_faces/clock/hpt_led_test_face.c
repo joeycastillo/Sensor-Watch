@@ -51,11 +51,22 @@ void hpt_led_test_face_activate(movement_settings_t *settings, void *context)
     watch_enable_leds();
     movement_hpt_request_face(state->face_idx);
 
-    movement_request_tick_frequency(2);
+    movement_request_tick_frequency(8);
     //movement_hpt_schedule_face(movement_hpt_get() + 2048, state->face_idx);
 
 
     // Handle any tasks related to your watch face coming on screen.
+}
+
+void render_hpt_time(uint32_t timestamp) {
+    uint8_t high_high_nibble = timestamp >> 28;
+    uint8_t high_low_nibble = (timestamp >> 24) & 0xF;
+
+    uint32_t lower_value = timestamp & 0xFFFFFF;
+
+    char buf[11];
+    sprintf(buf, "%x  %x%06x", high_high_nibble, high_low_nibble, lower_value);
+    watch_display_string(buf,0);
 }
 
 bool hpt_led_test_face_loop(movement_event_t event, movement_settings_t *settings, void *context)
@@ -76,7 +87,7 @@ bool hpt_led_test_face_loop(movement_event_t event, movement_settings_t *setting
         break;
     case EVENT_TICK:
         //If needed, update your display here.
-        printf("ft:%" PRIu64 "\r\n", movement_hpt_get());
+        render_hpt_time(movement_hpt_get());
 
         if (state->leds_off == true)
         {
@@ -96,7 +107,7 @@ bool hpt_led_test_face_loop(movement_event_t event, movement_settings_t *setting
         break;
     case EVENT_HPT:
         state->leds_off = false;
-        printf("fe:%" PRIu64 "\r\n", movement_hpt_get());
+        //printf("fe:%" PRIu64 "\r\n", movement_hpt_get());
         break;
     case EVENT_ALARM_BUTTON_UP:
         // Just in case you have need for another button.
@@ -136,5 +147,5 @@ void hpt_led_test_face_resign(movement_settings_t *settings, void *context)
         hpt_led_test_state_t *state = (hpt_led_test_state_t *)context;
 
     // handle any cleanup before your watch face goes off-screen.
-    movement_hpt_relenquish_face(state->face_idx);
+    movement_hpt_release_face(state->face_idx);
 }
