@@ -104,6 +104,7 @@
 #include "kitchen_conversions_face.h"
 #include "hpt_lapsplit_chrono_face.h"
 #include "hpt_led_test_face.h"
+#include "hpt_countdown_face.h"
 // New includes go above this line.
 
 #endif // MOVEMENT_FACES_H_

@@ -54,8 +54,8 @@ static void cb_compare(void *_unused)
     if (simhpt_callback_function)
     {
         HPT_CALLBACK_CAUSE cause;
-        cause.compare_match = false;
-        cause.overflow = true;
+        cause.compare_match = true;
+        cause.overflow = false;
         cause._padding = 0;
         (*simhpt_callback_function)(cause);
     }

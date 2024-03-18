@@ -814,7 +814,7 @@ void cb_hpt(HPT_CALLBACK_CAUSE cause)
             //printf("face: %d, ts: %" PRIu64 "\r\n", face_idx, face_time);
             if (face_time <= now)
             {
-                watch_set_led_yellow();
+                //watch_set_led_yellow();
                 // clear the scheduled event and allow the face to schedule a new one
                 hpt_scheduled_events[face_idx] = UINT64_MAX;
 
@@ -852,6 +852,14 @@ void movement_hpt_schedule_face(uint64_t timestamp, uint8_t face_idx)
 {
     hpt_scheduled_events[face_idx] = timestamp;
     _movement_hpt_schedule_next_event();
+}
+
+void movement_hpt_cancel(void) {
+    movement_hpt_cancel_face(movement_state.current_face_idx);
+}
+
+void movement_hpt_cancel_face(uint8_t face_idx) {
+    movement_hpt_schedule_face(UINT64_MAX, face_idx);
 }
 
 uint64_t movement_hpt_get()

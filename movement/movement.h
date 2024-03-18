@@ -386,6 +386,15 @@ void movement_hpt_schedule(uint64_t timestamp);
 void movement_hpt_schedule_face(uint64_t timestamp, uint8_t face_idx);
 
 /**
+ * Cancels any upcoming HPT events for the current face, if any.
+*/
+void movement_hpt_cancel(void);
+/**
+ * Cancels any upcoming HPT events for the specified face
+*/
+void movement_hpt_cancel_face(uint8_t face_idx);
+
+/**
  * Returns the current timestamp of the high-precision timer, in 1/1024ths of a
  * second.
  * 

@@ -128,6 +128,7 @@ SRCS += \
   ../watch_faces/complication/hpt_lapsplit_chrono_face.c \
   ../watch_faces/clock/hpt_led_test_face.c \
   ../watch_faces/complication/dual_timer_face.c \
+  ../watch_faces/complication/hpt_countdown_face.c \
 # New watch faces go above this line.
 
 # Leave this line at the bottom of the file; it has all the targets for making your project.
