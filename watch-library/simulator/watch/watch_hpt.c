@@ -169,6 +169,11 @@ uint32_t watch_hpt_get(void)
         return simhpt_paused_count;
     }
 }
+
+uint32_t watch_hpt_get_fast(void)
+{
+    return watch_hpt_get();
+}
 void watch_hpt_schedule_callback(uint32_t timestamp)
 {
     cb_compare_updated_timeout = true;

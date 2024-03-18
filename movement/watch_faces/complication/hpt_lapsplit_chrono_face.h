@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 <#author_name#>
+ * Copyright (c) 2024 Zach Miller
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,8 +26,6 @@
 #define HPT_LAPSPLIT_CHRONO_FACE_H_
 
 #include "movement.h"
-
-// #include <inttypes.h>
 
 /*
  * A lap/split chronograph accurate to thousandths of a second (though only hundreths are displayed).
@@ -66,7 +64,7 @@
 #define LCF_RUN_RUNNING 1
 #define LCF_RUN_STOPPED 0
 
-// show the time based on "duration"
+// show the time based on "splitTs"
 #define LCF_DISPLAY_SPLIT 1
 // show the time based on the time elapsed since "startTs"
 #define LCF_DISPLAY_TIME 0

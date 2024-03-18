@@ -54,6 +54,13 @@ void watch_hpt_disable(void);
 uint32_t watch_hpt_get(void);
 
 /**
+ * Returns the current timestamp of the high-precision timer, without synchronization.
+ * 
+ * The timestamp returned by this method is not suitable for scheduling purposes or other complex logic, but it may be good enough for non-critical purposes, such as showing the current time of a running stopwatch.
+*/
+uint32_t watch_hpt_get_fast(void);
+
+/**
  * Sets the timestamp at which the previously registered callback should be invoked. Note that this will be called every time the counter value reaches this value, including after an overflow occurs. 
 */
 void watch_hpt_schedule_callback(uint32_t timestamp);

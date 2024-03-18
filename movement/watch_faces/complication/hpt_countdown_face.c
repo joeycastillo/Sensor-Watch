@@ -27,9 +27,10 @@
 #include <inttypes.h>
 #include "hpt_countdown_face.h"
 
+#define LCD_UPDATE_RATE_WHILE_RUNNING 8
+
 static void render(hpt_countdown_state_t *state, bool blink)
 {
-
     // always draw auto-repeat indicator, but not count
     if (state->auto_repeat)
     {
@@ -39,13 +40,6 @@ static void render(hpt_countdown_state_t *state, bool blink)
     {
         watch_clear_indicator(WATCH_INDICATOR_LAP);
     }
-
-    // for debugging
-    // if(state->last_subsecond == 1) {
-    //     watch_set_indicator(WATCH_INDICATOR_PM);
-    // } else {
-    //     watch_clear_indicator(WATCH_INDICATOR_PM);
-    // }
 
     char buf[9];
     if (state->setting_mode != 0)
@@ -81,17 +75,20 @@ static void render(hpt_countdown_state_t *state, bool blink)
         if (state->running)
         {
             // calculate time left until target time
-            int64_t now = movement_hpt_get();
+            int64_t now = movement_hpt_get_fast();
             int64_t signed_target = state->target;
             timeLeft = signed_target - now;
-            printf("t: now=%" PRId64 " target=%" PRId64 " left=%" PRId64 "\r\n", now, signed_target, timeLeft);
         }
         else
         {
             timeLeft = state->paused_ms_left;
-            printf("t: paused left=%" PRId64 "\r\n", timeLeft);
         }
 
+        // TODO: need to do better with the division here
+        // - it looks bad when you start the timer and it immediately shows the time-1
+        // - it sits on the number zero for a full second before it triggers the beeps
+        // - and in "normal" mode, it sits on the zero for a second before it starts showing negative numbers
+        // Would rather it stay on the configured time for a full second when you start it and start beeping immediately when the timer hits zero
 
         bool negative = timeLeft < 0;
         if (negative)
@@ -101,6 +98,7 @@ static void render(hpt_countdown_state_t *state, bool blink)
             timeLeft = (30 * 60 * 60 * 1024 - 1);
 
         // throw away ms part
+
         timeLeft /= 1024;
 
         uint8_t seconds = timeLeft % 60;
@@ -142,25 +140,32 @@ static void render(hpt_countdown_state_t *state, bool blink)
 
 static void reset_timer(hpt_countdown_state_t *state)
 {
-    // make sure to call pause_timer first!
+    // make sure time is always paused first!
 
     state->paused_ms_left = ((state->set_hours * 60 * 60) +
-                                 (state->set_minutes * 60) +
-                                 (state->set_seconds)) * 1024;
-    state->running = false;
+                             (state->set_minutes * 60) +
+                             (state->set_seconds)) *
+                            1024;
     state->repeat_count = 0;
-    state->setting_mode = 0;
 }
 
-// starts or restarts a paused timer
+// starts a paused timer
 static void start_timer(hpt_countdown_state_t *state)
 {
     movement_hpt_request_face(state->watch_face_index);
     uint64_t now = movement_hpt_get();
     state->running = true;
+
+    movement_request_tick_frequency(LCD_UPDATE_RATE_WHILE_RUNNING);
+
     // reset the target based on the number of seconds left when the timer was paused
     state->target = now + state->paused_ms_left;
-    movement_hpt_schedule_face(state->target, state->watch_face_index);
+
+    // if the target was in the past, don't schedule a new reset, the time has already expired.
+    if (state->target >= now)
+    {
+        movement_hpt_schedule_face(state->target, state->watch_face_index);
+    }
 }
 
 // restarts a currently running timer for another lap
@@ -168,8 +173,9 @@ static void restart_timer(hpt_countdown_state_t *state)
 {
     state->repeat_count = (state->repeat_count + 1) % 40;
     uint64_t duration = ((state->set_hours * 60 * 60) +
-                                 (state->set_minutes * 60) +
-                                 (state->set_seconds)) * 1024;
+                         (state->set_minutes * 60) +
+                         (state->set_seconds)) *
+                        1024;
     state->target += duration;
     movement_hpt_schedule_face(state->target, state->watch_face_index);
 }
@@ -181,11 +187,11 @@ static void trigger_timer(hpt_countdown_state_t *state)
     // timer will start counting up, so we can cancel the alarm but leave the HPT running
     movement_hpt_cancel_face(state->watch_face_index);
 
+    // if auto repeat is enabled, restart_timer will schedule another event for us.
     if (state->auto_repeat)
     {
         restart_timer(state);
     }
-
 }
 
 static void pause_timer(hpt_countdown_state_t *state)
@@ -193,6 +199,8 @@ static void pause_timer(hpt_countdown_state_t *state)
     state->running = false;
     // record time left between now and the target
     state->paused_ms_left = state->target - movement_hpt_get();
+
+    movement_request_tick_frequency(1);
 
     // can cancel the scheduled event and stop HPT
     movement_hpt_cancel_face(state->watch_face_index);
@@ -205,7 +213,7 @@ void hpt_countdown_face_setup(movement_settings_t *settings, uint8_t watch_face_
     (void)watch_face_index;
     if (*context_ptr == NULL)
     {
-        *context_ptr = malloc(sizeof(hpt_countdown_face));
+        *context_ptr = malloc(sizeof(hpt_countdown_state_t));
         memset(*context_ptr, 0, sizeof(hpt_countdown_state_t));
         // Do any one-time tasks in here; the inside of this conditional happens only at boot.
 
@@ -216,6 +224,7 @@ void hpt_countdown_face_setup(movement_settings_t *settings, uint8_t watch_face_
         state->set_seconds = 10;
         state->repeat_count = 0;
         state->watch_face_index = watch_face_index;
+        state->setting_mode = 0;
 
         reset_timer(state);
     }
@@ -232,8 +241,9 @@ void hpt_countdown_face_activate(movement_settings_t *settings, void *context)
     watch_display_string("TR", 0);
 
     // if the timer is running, use a higher tick rate to update the display more responsively, even though the background timer is not tied to the tick rate anymore
-    if(state->running) {
-        movement_request_tick_frequency(8);
+    if (state->running)
+    {
+        movement_request_tick_frequency(LCD_UPDATE_RATE_WHILE_RUNNING);
     }
 }
 
@@ -289,7 +299,7 @@ bool hpt_countdown_face_loop(movement_event_t event, movement_settings_t *settin
 {
     hpt_countdown_state_t *state = (hpt_countdown_state_t *)context;
 
-    bool blink = event.subsecond == 1;
+    bool blink = !!(event.subsecond & 1);
 
     switch (event.event_type)
     {
@@ -314,9 +324,10 @@ bool hpt_countdown_face_loop(movement_event_t event, movement_settings_t *settin
         {
             // if the timer is already reset, enter setting mode
             int64_t expected_ticks_left = ((state->set_hours * 60 * 60) +
-                                        (state->set_minutes * 60) +
-                                        (state->set_seconds)) * 1024;
-         
+                                           (state->set_minutes * 60) +
+                                           (state->set_seconds)) *
+                                          1024;
+
             if (state->paused_ms_left == expected_ticks_left)
             {
                 // timer is already reset, enter settings mode

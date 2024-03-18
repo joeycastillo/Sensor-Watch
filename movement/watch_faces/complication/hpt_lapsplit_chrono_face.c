@@ -30,6 +30,7 @@
 
 // frequency rate of underlying timer (high precision timer)
 #define LCF_SUBSECOND_RATE 1024
+
 #define LCF_DISPLAY_UPDATE_RATE 16
 
 static void render(hpt_lapsplit_chrono_state_t *context, bool lowEnergyUpdate)
@@ -42,7 +43,8 @@ static void render(hpt_lapsplit_chrono_state_t *context, bool lowEnergyUpdate)
     uint64_t runningTime;
     if (context->running == LCF_RUN_RUNNING)
     {
-        runningTime = movement_hpt_get() - context->startTs;
+        // use "fast" get here because we don't need a truly accurate timestamp while the timer is running.
+        runningTime = movement_hpt_get_fast() - context->startTs;
     }
     else
     {
@@ -123,13 +125,7 @@ static void splitButton(hpt_lapsplit_chrono_state_t *state)
 
     if (state->running == LCF_RUN_STOPPED)
     {
-        // // reset timestamp based on held duration and start timer
-        // state->running = LCF_RUN_RUNNING;
-        // state->startTs = resetBackwards(now, state->duration);
-        // state->duration = 0;
-        // state->display = LCF_DISPLAY_TIME;
-
-        // reset timer to zero
+        // If the timer is paused, but it is showing a non-zero time, reset the time back to zero
         if (state->pausedTs != 0 || state->laps != 0)
         {
             state->pausedTs = 0;
@@ -137,15 +133,17 @@ static void splitButton(hpt_lapsplit_chrono_state_t *state)
         }
         else
         {
-            // if already reset, toggle lap/split mode
+            // if already reset to zero, toggle lap/split mode
             state->mode = state->mode == LCF_MODE_LAP ? LCF_MODE_SPLIT : LCF_MODE_LAP;
         }
     }
     else
     {
-        // record duration and show
+        // record split duration
         uint64_t now = movement_hpt_get();
         state->splitTs = now - state->startTs;
+
+        // display split instead of current time
         state->display = LCF_DISPLAY_SPLIT;
 
         if (state->mode == LCF_MODE_LAP)
@@ -168,13 +166,14 @@ static void startStopButton(hpt_lapsplit_chrono_state_t *state)
 {
     if (state->running == LCF_RUN_RUNNING)
     {
-        // if running stop the timer and record its duration
+        // if running, stop the timer and record its duration
         uint64_t now = movement_hpt_get();
         state->running = LCF_RUN_STOPPED;
         state->pausedTs = now - state->startTs;
         movement_hpt_release();
 
-        //printf("ch-stopped: now=%" PRIu64 " pausedTs=%" PRIu64 " startTs=%" PRIu64 "\r\n", now, state->pausedTs, state->startTs);
+        // slow display back down because the time is paused
+        movement_request_tick_frequency(1);
     }
     else
     {
@@ -184,7 +183,8 @@ static void startStopButton(hpt_lapsplit_chrono_state_t *state)
         state->running = LCF_RUN_RUNNING;
         state->startTs = now - state->pausedTs;
 
-        //printf("ch-started: now=%" PRIu64 " pausedTs=%" PRIu64 " startTs=%" PRIu64 "\r\n", now, state->pausedTs, state->startTs);
+        // increase display rate so it looks like the timer is running
+        movement_request_tick_frequency(LCF_DISPLAY_UPDATE_RATE);
     }
 }
 
@@ -196,9 +196,7 @@ void hpt_lapsplit_chrono_face_setup(movement_settings_t *settings, uint8_t watch
     {
         *context_ptr = malloc(sizeof(hpt_lapsplit_chrono_state_t));
         memset(*context_ptr, 0, sizeof(hpt_lapsplit_chrono_state_t));
-        // Do any one-time tasks in here; the inside of this conditional happens only at boot.
     }
-    // Do any pin or peripheral setup here; this will be called whenever the watch wakes from deep sleep.
 }
 
 void hpt_lapsplit_chrono_face_activate(movement_settings_t *settings, void *context)
@@ -208,8 +206,12 @@ void hpt_lapsplit_chrono_face_activate(movement_settings_t *settings, void *cont
     // always show the running time when switching to this face
     state->display = LCF_DISPLAY_TIME;
 
-    // always run this face at a high tick frequency so we can capture sub-second button presses for more accurate time
-    movement_request_tick_frequency(LCF_DISPLAY_UPDATE_RATE);
+    // if the timer is running, show a higher update rate
+    if(state->running == LCF_RUN_RUNNING) {
+        movement_request_tick_frequency(LCF_DISPLAY_UPDATE_RATE);
+    } else {
+        movement_request_tick_frequency(1);
+    }
 
     watch_display_string("CH", 0);
 }
@@ -231,15 +233,12 @@ bool hpt_lapsplit_chrono_face_loop(movement_event_t event, movement_settings_t *
         startStopButton(state);
         render(state, false);
         break;
-
     case EVENT_LOW_ENERGY_UPDATE:
         render(state, true);
         break;
     case EVENT_ACTIVATE:
     case EVENT_TICK:
-
         render(state, false);
-
         break;
     case EVENT_TIMEOUT:
         if (state->running == LCF_RUN_STOPPED)

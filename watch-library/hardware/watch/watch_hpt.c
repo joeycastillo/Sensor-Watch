@@ -81,7 +81,8 @@ void watch_hpt_init(void (*callback_function)(HPT_CALLBACK_CAUSE))
 
     // reset counter
     TC2->COUNT32.CTRLA.bit.SWRST = 1;
-    while(TC2->COUNT32.SYNCBUSY.bit.SWRST != 0);
+    while (TC2->COUNT32.SYNCBUSY.bit.SWRST)
+        ;
 
     TC2->COUNT32.CTRLA.reg =
         TC_CTRLA_ONDEMAND |
@@ -91,28 +92,27 @@ void watch_hpt_init(void (*callback_function)(HPT_CALLBACK_CAUSE))
     // TC2.COUNT = 0 // just clear it to be safe
     // TC2.CC0 = 0
     TC2->COUNT32.COUNT.bit.COUNT = 0;
-    while(TC2->COUNT32.SYNCBUSY.bit.COUNT != 0);
-  //  TC2->COUNT32.CC[0].bit.CC = UINT32_MAX -1;
-  //  while(TC2->COUNT32.SYNCBUSY.bit.CC0 != 0);
+    while (TC2->COUNT32.SYNCBUSY.bit.COUNT)
+        ;
+    //  TC2->COUNT32.CC[0].bit.CC = UINT32_MAX -1;
+    //  while(TC2->COUNT32.SYNCBUSY.bit.CC0 != 0);
 
     // enable TC2 interrupt
 
     NVIC_DisableIRQ(TC2_IRQn);
-
 
     // TC2.INTENSET: enabling interrupts
     // OVF = 1 - always enable overflow interrupt
     // disable compare match interrupt to start
     TC2->COUNT32.INTENCLR.bit.MC0 = 1;
     TC2->COUNT32.INTENSET.bit.OVF = 1;
-    
+
     TC2->COUNT32.INTFLAG.reg = 0xFF;
 
     NVIC_ClearPendingIRQ(TC2_IRQn);
     NVIC_EnableIRQ(TC2_IRQn);
 
     TC_CRITICAL_SECTION_LEAVE();
-
 }
 
 void watch_hpt_enable(void)
@@ -121,7 +121,7 @@ void watch_hpt_enable(void)
     // TC2.ENABLE = 1
     TC_CRITICAL_SECTION_ENTER();
     TC2->COUNT32.CTRLA.bit.ENABLE = 1;
-    while (TC2->COUNT32.SYNCBUSY.bit.ENABLE != 0)
+    while (TC2->COUNT32.SYNCBUSY.bit.ENABLE)
         ;
     TC_CRITICAL_SECTION_LEAVE();
 }
@@ -132,7 +132,8 @@ void watch_hpt_disable(void)
     // TC2.ENABLE = 0
     TC_CRITICAL_SECTION_ENTER();
     TC2->COUNT32.CTRLA.bit.ENABLE = 0;
-    while (TC2->COUNT32.SYNCBUSY.bit.ENABLE != 0);
+    while (TC2->COUNT32.SYNCBUSY.bit.ENABLE)
+        ;
     TC_CRITICAL_SECTION_LEAVE();
 }
 
@@ -145,7 +146,8 @@ void watch_hpt_schedule_callback(uint32_t timestamp)
 
     TC_CRITICAL_SECTION_ENTER();
     TC2->COUNT32.CC[0].reg = timestamp;
-    while(TC2->COUNT32.SYNCBUSY.bit.CC0);
+    while (TC2->COUNT32.SYNCBUSY.bit.CC0)
+        ;
     TC2->COUNT32.INTFLAG.reg = 0xFF;
 
     TC2->COUNT32.INTENSET.bit.MC0 = 1;
@@ -171,7 +173,7 @@ void watch_hpt_disable_scheduled_callback(void)
 // the ISR, I would get some lower value like t=996.
 
 // After adding the appropriate busy-wait checks for synchronization, it started coming back correct. If I scheduled a
-// callback at T=1000, I could call watch_hpt_get() inside the ISR and it would return T=1005. A later timestamp is 
+// callback at T=1000, I could call watch_hpt_get() inside the ISR and it would return T=1005. A later timestamp is
 // fine, but does this mean that the CPU was just spinning for 5 milliseconds waiting for the timer?
 
 // There's gotta be a faster technique for synchronizing the timer and CPU.
@@ -184,16 +186,28 @@ uint32_t watch_hpt_get(void)
     TC2->COUNT32.CTRLBSET.reg = TC_CTRLBSET_CMD_READSYNC;
 
     // wait for command to be executed
-    while(TC2->COUNT32.CTRLBSET.bit.CMD);
+    while (TC2->COUNT32.CTRLBSET.bit.CMD)
+        ;
 
     // wait for sync to occur?
-    while (TC2->COUNT32.SYNCBUSY.bit.CTRLB);
-      // this might not be necessary?
+    while (TC2->COUNT32.SYNCBUSY.bit.CTRLB)
+        ;
+    // this might not be necessary?
 
     // wait for count to be synchronized
-    while (TC2->COUNT32.SYNCBUSY.bit.COUNT);
+    while (TC2->COUNT32.SYNCBUSY.bit.COUNT)
+        ;
 
     // finally safe to read count
+    uint32_t count = TC2->COUNT32.COUNT.bit.COUNT;
+    TC_CRITICAL_SECTION_LEAVE();
+    return count;
+}
+
+uint32_t watch_hpt_get_fast(void)
+{
+    // quick and dirty timer read, not suitable for scheduling
+    TC_CRITICAL_SECTION_ENTER();
     uint32_t count = TC2->COUNT32.COUNT.bit.COUNT;
     TC_CRITICAL_SECTION_LEAVE();
     return count;

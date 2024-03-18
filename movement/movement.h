@@ -403,4 +403,19 @@ void movement_hpt_cancel_face(uint8_t face_idx);
 */
 uint64_t movement_hpt_get(void);
 
+/**
+ * Returns the current timestamp of the high-precision timer, in 1/1024ths of a
+ * second.
+ * 
+ * The timestamp returned from this method is not suitable for control purposes;
+ * it is not properly synchronized with the timer peripheral, and it does not
+ * perform double-checking for timer overflows. However, it may be suitable for
+ * non-critical timestamp purposes, such as showing the current time of a
+ * running stopwatch.
+ * 
+ * Before using this timestamp, your face must request that the HPT be
+ * activated using "movement_hpt_request".
+*/
+uint64_t movement_hpt_get_fast(void);
+
 #endif // MOVEMENT_H_

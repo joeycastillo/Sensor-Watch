@@ -24,8 +24,6 @@
 
 #define MOVEMENT_LONG_PRESS_TICKS 64
 
-//#define HPT_DEBUG
-
 #include <stdio.h>
 #include <string.h>
 #include <limits.h>
@@ -60,10 +58,6 @@
 
 #include "movement_custom_signal_tunes.h"
 
-// macros that are not width-dependent
-#define SET_BIT(value, bit) value |= (1 << bit)
-#define CLR_BIT(value, bit) value = (~(~(value) | (1 << bit)))
-
 // Default to no secondary face behaviour.
 #ifndef MOVEMENT_SECONDARY_FACE_INDEX
 #define MOVEMENT_SECONDARY_FACE_INDEX 0
@@ -85,18 +79,56 @@ movement_state_t movement_state;
 void * watch_face_contexts[MOVEMENT_NUM_FACES];
 watch_date_time scheduled_tasks[MOVEMENT_NUM_FACES];
 
-// high-precision timer stuff
 
-// bit flags indicating which watch face wants the HPT enabled.
-// TODO make sure this number width is larger than the number of faces
-#define HPT_REQUESTS_T uint16_t
-volatile HPT_REQUESTS_T hpt_enable_requests;
+// --- High-Precision Timer stuff ---
+
+// the number of available HPT request lines
+// (things other than faces can use the HPT)
+#define HPT_NUM_REQUESTS MOVEMENT_NUM_FACES
+
+// the number of bytes used to store the active HPT requests
+#define HPT_REQUESTS_SIZE (1 + ((HPT_NUM_REQUESTS-1)/8))
+
+// Bit-field used to keep track of faces that have requested the use of the HPT
+volatile uint8_t hpt_requests[HPT_REQUESTS_SIZE];
+
+/**
+ * Sets the bit indicating that the given face wants to keep the HPT enabled.
+*/
+static inline void hpt_set_request(uint8_t face_idx) {
+    uint8_t request_flag_idx = face_idx / 8;
+    uint8_t request_flag_bit = face_idx % 8;
+
+    hpt_requests[request_flag_idx] |= (1 << request_flag_bit);
+}
+
+/**
+ * Clears the bit indicating that the given face wants to keep the HPT enabled.
+*/
+static inline void hpt_clr_request(uint8_t face_idx) {
+    uint8_t request_flag_idx = face_idx / 8;
+    uint8_t request_flag_bit = face_idx % 8;
+
+    hpt_requests[request_flag_idx] &= ~(1 << request_flag_bit);
+}
+
+/**
+ * Returns true if there are any open HPT enable requests.
+*/
+static inline bool hpt_any_requests(void) {
+    for(uint8_t request_idx = 0; request_idx < HPT_REQUESTS_SIZE; ++request_idx) {
+        if(hpt_requests[request_idx] != 0) return true;
+    }
+    return false;
+}
 
 // timestamps at which watch faces should have a HPT event triggered. UINT64_MAX for no callback
-volatile uint64_t hpt_scheduled_events[MOVEMENT_NUM_FACES];
+volatile uint64_t hpt_scheduled_events[HPT_NUM_REQUESTS];
 
 // the number of times the high-precision timer has overflowed
 volatile uint8_t hpt_overflows = 0;
+
+// --- End HPT stuff ---
 
 const int32_t movement_le_inactivity_deadlines[8] = {INT_MAX, 600, 3600, 7200, 21600, 43200, 86400, 604800};
 const int16_t movement_timeout_inactivity_deadlines[4] = {60, 120, 300, 1800};
@@ -412,6 +444,8 @@ void app_setup(void) {
     static bool is_first_launch = true;
 
     if (is_first_launch) {
+        is_first_launch = false;
+
         #ifdef MOVEMENT_CUSTOM_BOOT_COMMANDS
         MOVEMENT_CUSTOM_BOOT_COMMANDS()
         #endif
@@ -421,9 +455,12 @@ void app_setup(void) {
             scheduled_tasks[i].reg = 0;
             hpt_scheduled_events[i] = UINT64_MAX;
         }
-        hpt_enable_requests = 0;
+        
+        for(uint8_t i=0; i < HPT_REQUESTS_SIZE; ++i) {
+            hpt_requests[i] = 0;
+        }
+
         hpt_overflows = 0;
-        is_first_launch = false;
         watch_hpt_init(&cb_hpt);
 
         // set up the 1 minute alarm (for background tasks and low power updates)
@@ -759,10 +796,10 @@ void movement_hpt_request(void)
 }
 void movement_hpt_request_face(uint8_t face_idx)
 {
-    HPT_REQUESTS_T old_hpt_requests = hpt_enable_requests;
-    SET_BIT(hpt_enable_requests, face_idx);
+    bool hpt_was_enabled = hpt_any_requests();
+    hpt_set_request(face_idx);
 
-    if (old_hpt_requests == 0)
+    if (!hpt_was_enabled)
     {
         watch_hpt_enable();
     }
@@ -778,13 +815,13 @@ void movement_hpt_release_face(uint8_t face_idx)
     hpt_scheduled_events[face_idx] = UINT64_MAX;
 
     // release the request this face had on the HPT
-    CLR_BIT(hpt_enable_requests, face_idx);
-    if (hpt_enable_requests == 0)
-    {
+    hpt_clr_request(face_idx);
+    if (!hpt_any_requests()) {
         watch_hpt_disable();
     }
 }
 
+// Default callback handler for HPT interrupts
 void cb_hpt(HPT_CALLBACK_CAUSE cause)
 {
     // This single interrupt vector must handle the overflow case and the match compare case
@@ -811,16 +848,13 @@ void cb_hpt(HPT_CALLBACK_CAUSE cause)
         for (uint8_t face_idx = 0; face_idx < MOVEMENT_NUM_FACES; ++face_idx)
         {
             uint64_t face_time = hpt_scheduled_events[face_idx];
-            //printf("face: %d, ts: %" PRIu64 "\r\n", face_idx, face_time);
             if (face_time <= now)
             {
-                //watch_set_led_yellow();
                 // clear the scheduled event and allow the face to schedule a new one
                 hpt_scheduled_events[face_idx] = UINT64_MAX;
 
                 // invoke the face
                 watch_face_t face = watch_faces[face_idx];
-
                 movement_event_t event;
                 event.event_type = EVENT_HPT;
                 event.subsecond = 0;
@@ -873,10 +907,6 @@ uint64_t movement_hpt_get()
         // create a timestamp by combining overflow count
         time = (((uint64_t)hpt_overflows) << 32) | start;
 
-        #ifdef HPT_DEBUG
-        printf("movement-hpt-get: start=%d hpt_overflows=%d time=%" PRIu64, start, hpt_overflows, time);
-        #endif
-
         // check to see if an overflow occurred while we were doing all that
         uint32_t end = watch_hpt_get();
         if (end >= start)
@@ -891,4 +921,9 @@ uint64_t movement_hpt_get()
     }
 
     return time;
+}
+
+uint64_t movement_hpt_get_fast() {
+    // don't bother checking for overflows or synchronizing the timer
+    return (((uint64_t)hpt_overflows) << 32) | watch_hpt_get_fast();
 }
