@@ -50,16 +50,10 @@ typedef struct {
 
     // 17 bits
 
-    // while paused, the number of milliseconds (really, 1024hz time ticks) remaining in the countdown
-    // signed in case the timer was paused after it has expired.
-    int64_t paused_ms_left :18;
-
-    // 35 bits
-
     bool auto_repeat :1;
     bool running :1;
 
-    // 37 bits
+    // 19 bits
 
     /**
      * 0 = not setting anything
@@ -74,15 +68,20 @@ typedef struct {
     uint8_t setting_mode :3;
     uint8_t repeat_count :5;
     
+    // 27 bits
 
-    // 43 bits
-    uint8_t padding :5;
+    uint8_t _padding :5;
 
-    // 48 bits
+    // 32 bits (aligned)
 
     // the target timestamp we are counting down to
     uint64_t target;
+
+    // while paused, the number of milliseconds (really, 1024hz time ticks) remaining in the countdown
+    // signed in case the timer was paused after it has expired.
+    int64_t paused_ms_left;
     
+    // the ID of this face, for background task management
     uint8_t watch_face_index;
 
 } hpt_countdown_state_t;
