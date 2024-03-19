@@ -69,16 +69,19 @@ static void render(hpt_lapsplit_chrono_state_t *context, bool lowEnergyUpdate)
     }
     else
     {
+        // since we only update once a minute in LE mode, only display the minutes
         sprintf(buf, "%02d--LE", time_minutes);
     }
     watch_display_string(buf, 4);
 
+    // always show the colon if we're paused
     if (context->running == LCF_RUN_STOPPED)
     {
         watch_set_colon();
     }
     else
     {
+        // otherwise, blink the colon once every second
         if ((runningTime % LCF_SUBSECOND_RATE) < (LCF_SUBSECOND_RATE / 2))
         {
             watch_set_colon();
@@ -91,12 +94,15 @@ static void render(hpt_lapsplit_chrono_state_t *context, bool lowEnergyUpdate)
 
     if (context->mode == LCF_MODE_LAP)
     {
+        // display lap count in lap mode
         watch_set_indicator(WATCH_INDICATOR_LAP);
         sprintf(buf, "%2d", context->laps);
         watch_display_string(buf, 2);
     }
     else
     {
+        // display hour count in date digits for as long as possible
+
         watch_clear_indicator(WATCH_INDICATOR_LAP);
         if (time_hours == 0)
         {
@@ -104,6 +110,7 @@ static void render(hpt_lapsplit_chrono_state_t *context, bool lowEnergyUpdate)
         }
         else if (time_hours > 39)
         {
+            // keep timing, but I guess show an error up here.
             watch_display_string(" E", 2);
         }
         else
@@ -118,7 +125,7 @@ static void splitButton(hpt_lapsplit_chrono_state_t *state)
 {
     if (state->display == LCF_DISPLAY_SPLIT)
     {
-        // if the duration is being displayed, clear it when you press "light" again
+        // if the split duration is being displayed, clear it when you press "light" again, but don't change anything else
         state->display = LCF_DISPLAY_TIME;
         return;
     }
@@ -241,6 +248,7 @@ bool hpt_lapsplit_chrono_face_loop(movement_event_t event, movement_settings_t *
         render(state, false);
         break;
     case EVENT_TIMEOUT:
+        // only timeout if the chrono is not running
         if (state->running == LCF_RUN_STOPPED)
         {
             movement_move_to_face(0);

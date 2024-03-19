@@ -159,7 +159,7 @@ typedef enum BuzzerNote {
 void watch_buzzer_play_note(BuzzerNote note, uint16_t duration_ms);
 
 /// @brief An array of periods for all the notes on a piano, corresponding to the names in BuzzerNote.
-extern const uint16_t NotePeriods[108];
+extern const uint16_t NotePeriods[87];
 
 /** @brief Plays the given sequence of notes in a non-blocking way.
   * @param note_sequence A pointer to the sequence of buzzer note & duration tuples, ending with a zero. A simple

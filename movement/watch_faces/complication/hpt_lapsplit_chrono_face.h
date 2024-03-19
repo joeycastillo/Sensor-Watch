@@ -31,8 +31,8 @@
  * A lap/split chronograph accurate to thousandths of a second (though only hundreths are displayed).
  *
  * Display:
- * The chronograph face will display CH in the day-of-week digits to indicate the mode.
- * The chronograph time will be displayed in the primary digits in MM:SS HH format. If the time exceeds 1 hour,
+ * The chronograph face will display CH in the day-of-week digits to indicate the mode. ("CHronograph")
+ * The chronograph time will be displayed in the primary digits in MM:SS CC format. If the time exceeds 1 hour,
  * the number of hours will be displayed in the top right corner (up to 24 hours). The colon in the time display will flash while
  * the chronograph is running. If the chronograph is in "lap" mode, the word "LAP" will be displayed, otherwise,
  * the chronograph is in "split" mode.
@@ -58,6 +58,10 @@
  * If the chronograph is stopped, the display will time out after the configured time and return to the main screen
  */
 
+// For some reason, when I wrote these, I thought that in C, zero was true and nonzero was false (probably because of bash scripts)
+// So I did a lot of explicit checking for zero and nonzero instead of using bools
+// Probably should have just used bools.
+
 #define LCF_MODE_LAP 1
 #define LCF_MODE_SPLIT 0
 
@@ -80,7 +84,7 @@ typedef struct
     /** LCF_RUN */
     uint8_t running : 1;
 
-    uint8_t _padding1 :5;
+    uint8_t _padding1 : 5; // align to byte boundaries
 
     // up to 39 laps, then reset
     uint8_t laps : 6;

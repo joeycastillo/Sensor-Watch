@@ -348,7 +348,7 @@ bool hpt_countdown_face_loop(movement_event_t event, movement_settings_t *settin
     case EVENT_LIGHT_LONG_PRESS:
         // toggle auto-repeat mode
         state->auto_repeat = !(state->auto_repeat);
-        // TODO: if timer is currently in overflow mode, restart a new lap immediately
+        // if timer is currently in overflow mode, restart a new lap immediately
         if (state->running && (state->target <= movement_hpt_get()))
         {
             restart_timer(state);

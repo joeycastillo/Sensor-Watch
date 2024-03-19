@@ -5,24 +5,6 @@
 #include <stdbool.h>
 
 /**
- * Defines the reasons the HPT callback is being invoked. More than one flag may be set.
-*/
-typedef struct {
-
-    /**
-     * The callback is being invoked because the count is equal to the scheduled timestamp
-    */
-    bool compare_match :1;
-    /**
-     * The callbac is being invoked because the counter overflowed and reset to zero.
-    */
-    bool overflow :1;
-
-    // not used
-    uint8_t _padding :6;
-} HPT_CALLBACK_CAUSE;
-
-/**
  * watch_hpt provides low-level access to the high-precision timer.
  * 
  * These methods are not intended to be used by watch faces. See the 
@@ -30,27 +12,48 @@ typedef struct {
 */
 
 /**
+ * Describes the reasons the HPT callback is being invoked. More than one flag may be set.
+*/
+typedef struct {
+
+    /**
+     * The callback is being invoked because the count is greater than or equal to to the scheduled timestamp
+     */
+    bool compare_match :1;
+
+    /**
+     * The callback is being invoked because the counter overflowed and reset to zero.
+     */
+    bool overflow :1;
+
+    // not used
+    uint8_t _padding :6;
+} HPT_CALLBACK_CAUSE;
+
+
+
+/**
  * Performs one-time setup of the peripherals used by the high-precision timer.
  * 
- * - callback_function: a function that should be invoked when the timer overflows or reaches a scheduled event.
+ * Does not start the timer.
  * 
- * Does not enable the timer.
+ * @param callback_function an interrupt handler that will be invoked when the timer hits a scheduled timestamp or overflows.
 */
 void watch_hpt_init(void (*callback_function)(HPT_CALLBACK_CAUSE cause));
 
 /**
- * Enables the high-precision timer
-*/
+ * Enables and starts the high-precision timer. The timestamp *may* be reset to zero if the timer was not already running.
+ */
 void watch_hpt_enable(void);
 
 /**
  * Stops the high-precision timer and powers it down.
-*/
+ */
 void watch_hpt_disable(void);
 
 /**
- * Returns the current timetamp of the high-precision timer.
-*/
+ * Returns the current counter value of the high-precision timer.
+ */
 uint32_t watch_hpt_get(void);
 
 /**
@@ -66,10 +69,11 @@ uint32_t watch_hpt_get_fast(void);
 void watch_hpt_schedule_callback(uint32_t timestamp);
 
 /**
- * Disables the scheduled callback.
+ * Disables any previously scheduled callback.
 */
 void watch_hpt_disable_scheduled_callback(void);
 
+// TC2 Interrupt Handler (internal)
 void TC2_Handler(void);
 
 #endif

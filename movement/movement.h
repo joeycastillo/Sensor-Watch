@@ -175,16 +175,16 @@ typedef void (*watch_face_activate)(movement_settings_t *settings, void *context
   *          to override this behavior (e.g. your user interface requires all three buttons), your watch face MUST
   *          call the movement_move_to_next_face function in response to the EVENT_MODE_LONG_PRESS event. If you
   *          fail to do this, the user will become stuck on your watch face.
-  * @param event A struct containing information about the event, including its type. @see movement_event_type_t
+  * @param event A struct containing information about the event, including its type. `movement_event_type_t`
   *              for a list of all possible event types.
-  * @param settings A pointer to the global Movement settings. @see watch_face_setup.
-  * @param context A pointer to your application's context. @see watch_face_setup.
+  * @param settings A pointer to the global Movement settings. See `watch_face_setup`.
+  * @param context A pointer to your application's context. See `watch_face_setup`.
   * @return true if your watch face is prepared for the system to enter STANDBY mode; false to keep the system awake.
   *         You should almost always return true.
   *         Note that this return value has no effect if your loop function has called movement_move_to_next_face
   *         or movement_move_to_face; in that case, your watch face will resign immediately, and the next watch
   *         face will make the decision on entering standby mode.
-  * @note There are two event types that require some extra thought:
+  * @note There are three event types that require some extra thought:
           The EVENT_LOW_ENERGY_UPDATE event type is a special case. If you are in the foreground when the watch
           goes into low energy mode, you will receive this tick once a minute (at the top of the minute) so that
           you can update the screen. Great! But! When you receive this event, all pins and peripherals other than
@@ -195,7 +195,9 @@ typedef void (*watch_face_activate)(movement_settings_t *settings, void *context
           **Your watch face MUST NOT wake up peripherals in response to a low power tick.** The purpose of this
           mode is to consume as little energy as possible during the (potentially long) intervals when it's
           unlikely the user is wearing or looking at the watch.
-          EVENT_BACKGROUND_TASK is also a special case. @see watch_face_wants_background_task for details.
+          EVENT_BACKGROUND_TASK is also a special case. watch_face_wants_background_task for details.
+          EVENT_HPT is similar to EVENT_BACKGROUND_TASK, but it is triggered by the HPT system, rather than the
+          RTC. See `movement_hpt_schedule` for details.
   */
 typedef bool (*watch_face_loop)(movement_event_t event, movement_settings_t *settings, void *context);
 
@@ -302,53 +304,83 @@ void movement_cancel_background_task_for_face(uint8_t watch_face_index);
 
 void movement_request_wake(void);
 
-// Buzzer operation, now handled by the HPT
+// Buzzer operations, now handled by the HPT
 
 /**
- * Plays the hourly signal chime
-*/
+ * Plays the hourly signal chime.
+ */
 void movement_play_signal(void);
+
 /**
  * Plays the default alarm signal
-*/
+ */
 void movement_play_alarm(void);
 
 /**
- * Plays an alarm signal consisting of two short beeps at the given tone for the given number of rounds
+ * Plays an alarm signal consisting of two short beeps once a second at
+ *        the given tone for the given number of rounds.
+ * @param rounds the number of times to repeat the alarm beeps
+ * @param alarm_note the frequence of beep to play
 */
 void movement_play_alarm_beeps(uint8_t rounds, BuzzerNote alarm_note);
 
 /**
- * Plays the given note for the given number of milliseconds.
+ * Plays the given note for the given number of milliseconds
  * 
- * Note that this does *not* block the face while running. To play a sequence of notes, use "movement_play_sequence"
-*/
+ * Note that unlike `watch_buzzer_play_note`, this function does *not* block the CPU while playing. To play a sequence of notes, use `movement_play_sequence`.
+ *
+ * @param note the freqency of the note to play
+ * @param duration_ms the number of milliseconds to hold the note for
+ */
 void movement_play_note(BuzzerNote note, uint16_t duration_ms);
 
 /**
  * Plays a melody on the buzzer. The note sequence must follow the pattern described below:
  * 
- * Each element in the sequence is a pair of bytes.
- * - If the first byte is a BuzzerNote, the second byte is interpreted as the duration of the note
- * - If the first byte is negative, it is interpreted as a "jump marker", and indicates the number of notes in the sequence to jump over. 
- *   If the second byte is positive, the jump marker is interpreted as a "repeat" command, and the second byte indicates the number of times the previous section should be repeated
- *   If the second byte is negative, the jump marker is interpreted as a "skip" command, and indicates the number of notes in the sequence that should be skipped
- *   If the second byte is zero, the jump marker is ignored.
- *   For example, to repeat the last four notes 3 additional times, the values of the two bytes would be -4, 3.
+ * Each note in the sequence is represented using a pair of bytes.
+ * 
+ * If the first byte is a BuzzerNote, the second byte is interpreted as the number of durations to hold the note for. If the duration is zero, the note is skipped. If the duration is negative, this is considered an error and the sequence is aborted
+ * 
+ * If the first byte is negative, it is interpreted as a "jump marker", and indicates the number of notes in the sequence to jump over.
+ * - If the second byte is positive, the jump marker is interpreted as a "repeat" command, and the second byte indicates the number of times the previous section should be repeated.
+ * - If the second byte is negative, the jump marker is interpreted as a "skip" command, and the first byte indicates the number of following notes to skip. (I.e., a value of -4 would skip the next four elements in the sequence)
+ * - If the second byte is zero, the jump marker is ignored.
+ * 
+ * It is critical that repeated sections do not include other repeat markers, or the sequence will never stop playing.
+ * 
+ * Jump examples:
+ * - (-2, 3) => repeat the previous two notes three times
+ * - (-4, -1) => skip over the next four notes
+ * - (-3, 0) => ignore this marker and play the next element in the sequence
  * 
  * The sequence MUST end with a null terminator (NULL, 0 or BUZZER_NOTE_END).
- * See `movement_signal_tunes.h` for some example sequences.
  * 
- * If non-null, the given callback function will be invoked when the sequence is finished playing.
+ * See `movement_custom_signal_tunes.h` for some example sequences.
  * 
- * The default "length" of a note is 1/64th of a second, or about 16 milliseconds. To use a different note length, use `movement_play_sequence_speed`.
+ * If non-null, the given callback function will be invoked when the sequence
+ * is finished playing.
+ * 
+ * The default duration of a note is 1/64th of a second, or about 16
+ * milliseconds. To use a different note length, use
+ * `movement_play_sequence_speed`.
+ * 
+ * @param note_sequence a pointer to the first note in the sequence. See detailed description for an explanation of the expected structure of a sequence
+ * @param callback_on_end a pointer to a method that should be invoked when the sequence finishes playing. May be null if no callback is required
 */
 void movement_play_sequence(int8_t *note_sequence, void (*callback_on_end)(void));
+
+/**
+ * Like `movement_play_sequence` except you may specify the length of a note.
+ * 
+ * @param note_sequence a pointer to the first note in the sequence. See `movement_play_sequence` for more details
+ * @param callback_on_end a pointer to a method that should be invoked when the sequence finishes playing. May be null if no callback is required
+ * @param note_duration the standard length of a note, in 1/1024ths of a second. The minimum note_duration is 16 ticks.
+*/
 void movement_play_sequence_speed(int8_t *note_sequence, void (*callback_on_end)(void), uint16_t note_duration);
 
 /**
- * Silences any note sequences playing on the buzzer
-*/
+ * Silences any notes or sequences playing on the buzzer.
+ */
 void movement_silence_buzzer(void);
 
 uint8_t movement_claim_backup_register(void);
@@ -358,65 +390,84 @@ uint8_t movement_claim_backup_register(void);
  * It runs independently of the real time clock and can be used to measure
  * durations and schedule future tasks. The HPT is not affected by changes to 
  * the RTC clock time. While enabled, it continues to run in standby mode and 
- * may be used to wake the watch up from sleep.
+ * may be used to trigger events while the watch is asleep.
  * 
- * The HPT is disabled by default to conserve power. Before using it to get a
- * timestamp, a watch face must activate it using "movement_hpt_request". If
+ * The HPT is disabled when not needed to conserve power. Before using it to get a
+ * timestamp, a watch face must activate it using `movement_hpt_request`. If
  * not already running, this will enable and start the timer module. While the
  * timer is enabled, the face may retrieve the current timestamp using
- * "movement_hpt_get", or schedule a background event using
- * "movement_hpt_schedule". When a face no longer needs to use the timestamp or
- * scheduled event provided by the HPT it MUST call "movement_hpt_release".
- * If no other face has an outstanding request for the HPT, it will be disabled
- * to conserve power.
+ * `movement_hpt_get`, or schedule a background event using
+ * `movement_hpt_schedule`. When a face no longer needs to use the timestamp or
+ * scheduled event provided by the HPT it MUST call `movement_hpt_release`.
+ * If no other face has an outstanding request for the HPT, the peripheral may
+ * be disabled.
  * 
- * Watch faces may not modify the value of the HPT counter in any way. The only
+ * Unlike the timestamp provided by the RTC, the HPT timestamp may not be
+ * modified by the user. However, as it is not running all the time, the only
  * guarantee to be made about the HPT timestamp is that between the time your
- * face calls "movement_hpt_request" until the moment it calls
- * "movement_hpt_release", the value returned from "movement_hpt_get" will
- * increment upwards at 1024hz. Outside of that window, the timestamp value may
- * change unpredictably.
+ * face calls `movement_hpt_request` until it calls `movement_hpt_release`, 
+ * the value returned from `movement_hpt_get` will increment upwards at 1024hz.
+ * Outside of the request/release window, the timestamp value may change
+ * unpredictably.
  * 
  * Faces may schedule an EVENT_HPT event to occur by calling 
- * "movement_hpt_schedule" and passing in a timestamp for the event to occur.
- * The face must call "movement_hpt_request" before scheduling the event, and
- * must not call "movement_hpt_release" until after the event has occurred.
+ * `movement_hpt_schedule` and passing in a timestamp for the event to occur.
+ * The face must call `movement_hpt_request` before scheduling the event, and
+ * must not call `movement_hpt_release` until after the event has occurred.
  * Note that when your face receives the EVENT_HPT event, it may be running in
- * the background. In this case, you will need to use the "_face" variant of
- * the HPT methods to specify that it is your face being called.
-*/
+ * the background. In this case, you may need to use the "_face" variant of
+ * the HPT methods to specify that it is your face being called. Remember to
+ * call `movement_hpt_release` after receiving your EVENT_HPT event if you do
+ * not need the HPT anymore.
+ */
 
 /**
  * Enables the HPT for the active face. This method must be called before using
- * "movement_hpt_get" or "movement_hpt_schedule". The HPT will remain running
- * in the background until it is released using "movement_hpt_release"
-*/
+ * `movement_hpt_get` or `movement_hpt_schedule`. The HPT will remain running
+ * in the background until it is released using `movement_hpt_release`
+ */
 void movement_hpt_request(void);
+
 /**
  * A variant of "movement_hpt_request" that can be used when your face is not
  * running in the foreground.
-*/
+ * 
+ * The index number of your face is provided in the setup method when your face is first invoked.
+ * 
+ * @param face_idx the index number of the face to request use of the HPT for
+ */
 void movement_hpt_request_face(uint8_t face_idx);
 
 /**
- * Disables the HPT if no other faces are using it. This method must be called
- * when your face no longer needs the timestamp provided by 
- * "movement_hpt_get" or has no scheduled background tasks, in order to save
- * power.
-*/
+ * Disables the HPT if no other faces are using it. 
+ * 
+ * This method should be called when your face no longer needs to use the reference timestamp provided by the HPT.
+ * 
+ * Any future events scheduled using `movement_hpt_schedule` will be cancelled.
+ */
 void movement_hpt_release(void);
+
 /**
  * A variant of "movement_hpt_release" that can be used when your face is
  * not running in the foreground.
-*/
+ * 
+ * The index number of your face is provided in the setup method when your face is first invoked.
+ * 
+ * @param face_idx the number of the face to release the HPT request for
+ */
 void movement_hpt_release_face(uint8_t face_idx);
 
 /**
- * Schedules a future EVENT_HPT event to occur on or after the given timestamp.
+ * Schedules a future EVENT_HPT event to occur on or after the given HPT timestamp.
+ * 
  * The Movement framework will do its best to trigger the event as close to the
- * timestamp as possible, but it may be delayed if multiple faces or events are
+ * timestamp as possible, but it may be delayed slightly if multiple faces or events are
  * scheduled to occur on the same timestamp.
-*/
+ * 
+ * Try to avoid scheduling an event for a timestamp less than or equal to the current HPT time. In theory, the event would be invoked immediately, but this has not been exhaustively tested.
+ * 
+ * @param timestamp the future timestamp at which an EVENT_HPT event should be generated for this face
+ */
 void movement_hpt_schedule(uint64_t timestamp);
 
 /** 
@@ -426,12 +477,12 @@ void movement_hpt_schedule(uint64_t timestamp);
 void movement_hpt_schedule_face(uint64_t timestamp, uint8_t face_idx);
 
 /**
- * Cancels any upcoming HPT events for the current face, if any.
-*/
+ * Cancels any upcoming EVENT_HPT events for the current face, if any.
+ */
 void movement_hpt_cancel(void);
 /**
- * Cancels any upcoming HPT events for the specified face
-*/
+ * Cancels any upcoming EVENT_HPT events for the specified face
+ */
 void movement_hpt_cancel_face(uint8_t face_idx);
 
 /**
@@ -440,24 +491,24 @@ void movement_hpt_cancel_face(uint8_t face_idx);
  * 
  * Before using this timestamp, your face must request that the HPT be
  * activated using "movement_hpt_request".
-*/
+ * 
+ * This method synchronizes state between the CPU and timer peripheral used to maintain the HPT timestamp, and may take a few milliseconds of active CPU time to execute. If you do not need an exact HPT timestamp, consider using `movement_hpt_get_fast`.
+ */
 uint64_t movement_hpt_get(void);
 
 /**
  * Returns the current timestamp of the high-precision timer, in 1/1024ths of a
  * second.
  * 
- * The timestamp returned from this method is not suitable for control purposes;
- * it is not properly synchronized with the timer peripheral, and it does not
+ * The timestamp returned from this method is not suitable for control or scheduling purposes;
+ * it is not properly synchronized with the timer peripheral and it does not
  * perform double-checking for timer overflows. However, it may be suitable for
  * non-critical timestamp purposes, such as showing the current time of a
  * running stopwatch.
  * 
  * Before using this timestamp, your face must request that the HPT be
  * activated using "movement_hpt_request".
-*/
+ */
 uint64_t movement_hpt_get_fast(void);
-
-
 
 #endif // MOVEMENT_H_
