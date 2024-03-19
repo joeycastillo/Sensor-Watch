@@ -932,8 +932,6 @@ void movement_silence_buzzer(void) {
 }
 
 void _movement_play_next_buzzer_note(void) {
-    printf("bc\r\n");
-
     // if the buzzer sequence is null, stop
     if(buzzer_sequence == 0) {
         movement_silence_buzzer();
@@ -952,8 +950,6 @@ void _movement_play_next_buzzer_note(void) {
         movement_silence_buzzer();
         return;
     }
-
-    printf("bz: %d %d\r\n", nextNote, duration);
 
     // check for jumps
     if(nextNote < 0) {
@@ -1017,7 +1013,6 @@ void _movement_play_next_buzzer_note(void) {
 
             // schedule the next note change
             buzzer_note_end_ts += ((uint64_t)buzzer_note_length) * duration;
-            printf("bt: %" PRIu64 "\r\n", buzzer_note_end_ts);
 
             movement_hpt_schedule_face(buzzer_note_end_ts, MOVEMENT_BUZZER_HPT);
         }
