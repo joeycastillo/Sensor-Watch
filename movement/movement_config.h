@@ -28,6 +28,7 @@
 #include "movement_faces.h"
 
 const watch_face_t watch_faces[] = {
+    stock_stopwatch_face,
     hpt_led_test_face,
     hpt_lapsplit_chrono_face,
     hpt_countdown_face,

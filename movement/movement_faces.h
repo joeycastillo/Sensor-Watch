@@ -105,6 +105,7 @@
 #include "hpt_lapsplit_chrono_face.h"
 #include "hpt_led_test_face.h"
 #include "hpt_countdown_face.h"
+#include "stock_stopwatch_face.h"
 // New includes go above this line.
 
 #endif // MOVEMENT_FACES_H_
