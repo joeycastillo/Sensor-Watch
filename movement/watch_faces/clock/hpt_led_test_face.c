@@ -27,6 +27,36 @@
 #include "hpt_led_test_face.h"
 #include <inttypes.h>
 
+const int8_t METROID_SIGNAL[] = {
+    BUZZER_NOTE_F6,
+    1,
+    BUZZER_NOTE_A6SHARP_B6FLAT,
+    1,
+    BUZZER_NOTE_C7,
+    1,
+    BUZZER_NOTE_D7,
+    1,
+    BUZZER_NOTE_E7,
+    1,
+    BUZZER_NOTE_C7,
+    1,
+    BUZZER_NOTE_G6,
+    1,
+    BUZZER_NOTE_C7,
+    1,
+    BUZZER_NOTE_F7,
+    1,
+    BUZZER_NOTE_D7,
+    1,
+    BUZZER_NOTE_A6SHARP_B6FLAT,
+    1,
+    BUZZER_NOTE_G6,
+    1,
+    BUZZER_NOTE_A6,
+    4,
+    BUZZER_NOTE_END,
+};
+
 void hpt_led_test_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void **context_ptr)
 {
     (void)settings;
@@ -38,7 +68,7 @@ void hpt_led_test_face_setup(movement_settings_t *settings, uint8_t watch_face_i
         // Do any one-time tasks in here; the inside of this conditional happens only at boot.
         hpt_led_test_state_t *state = (hpt_led_test_state_t *)context_ptr;
         state->face_idx = watch_face_index;
-        state->leds_off = false;
+        state->running = false;
     }
     // Do any pin or peripheral setup here; this will be called whenever the watch wakes from deep sleep.
 }
@@ -49,16 +79,15 @@ void hpt_led_test_face_activate(movement_settings_t *settings, void *context)
     hpt_led_test_state_t *state = (hpt_led_test_state_t *)context;
 
     watch_enable_leds();
-    movement_hpt_request_face(state->face_idx);
 
     movement_request_tick_frequency(8);
-    //movement_hpt_schedule_face(movement_hpt_get() + 2048, state->face_idx);
-
+    // movement_hpt_schedule_face(movement_hpt_get() + 2048, state->face_idx);
 
     // Handle any tasks related to your watch face coming on screen.
 }
 
-void render_hpt_time(uint32_t timestamp) {
+void render_hpt_time(uint32_t timestamp)
+{
     uint8_t high_high_nibble = timestamp >> 28;
     uint8_t high_low_nibble = (timestamp >> 24) & 0xF;
 
@@ -66,7 +95,7 @@ void render_hpt_time(uint32_t timestamp) {
 
     char buf[11];
     sprintf(buf, "%x  %x%06x", high_high_nibble, high_low_nibble, lower_value);
-    watch_display_string(buf,0);
+    watch_display_string(buf, 0);
 }
 
 bool hpt_led_test_face_loop(movement_event_t event, movement_settings_t *settings, void *context)
@@ -80,37 +109,35 @@ bool hpt_led_test_face_loop(movement_event_t event, movement_settings_t *setting
     case EVENT_ACTIVATE:
         // Show your initial UI here.
         break;
-    case EVENT_LIGHT_BUTTON_DOWN:
-        state->leds_off = true;
-        
-        movement_hpt_schedule(movement_hpt_get() + 2048);
+    case EVENT_LIGHT_BUTTON_UP:
+        //movement_play_sequence_speed(METROID_SIGNAL, NULL, 100);
+        movement_play_alarm_beeps(10, BUZZER_NOTE_C8);
         break;
     case EVENT_TICK:
-        //If needed, update your display here.
-        render_hpt_time(movement_hpt_get());
+        // If needed, update your display here.
+        render_hpt_time(movement_hpt_get_fast());
 
-        if (state->leds_off == true)
+        if (((movement_hpt_get_fast() / 512) % 2) == 0)
         {
-            watch_set_led_off();
+            watch_set_led_green();
         }
         else
         {
-            if (((movement_hpt_get() / 512) % 2) == 0)
-            {
-                watch_set_led_green();
-            }
-            else
-            {
-                watch_set_led_red();
-            }
+            watch_set_led_red();
         }
-        break;
-    case EVENT_HPT:
-        state->leds_off = false;
-        //printf("fe:%" PRIu64 "\r\n", movement_hpt_get());
+
         break;
     case EVENT_ALARM_BUTTON_UP:
-        // Just in case you have need for another button.
+        if (state->running)
+        {
+            state->running = false;
+            movement_hpt_release();
+        }
+        else
+        {
+            state->running = true;
+            movement_hpt_request();
+        }
         break;
     case EVENT_TIMEOUT:
         // Your watch face will receive this event after a period of inactivity. If it makes sense to resign,
@@ -144,8 +171,5 @@ bool hpt_led_test_face_loop(movement_event_t event, movement_settings_t *setting
 void hpt_led_test_face_resign(movement_settings_t *settings, void *context)
 {
     (void)settings;
-        hpt_led_test_state_t *state = (hpt_led_test_state_t *)context;
-
-    // handle any cleanup before your watch face goes off-screen.
-    movement_hpt_release_face(state->face_idx);
+    hpt_led_test_state_t *state = (hpt_led_test_state_t *)context;
 }

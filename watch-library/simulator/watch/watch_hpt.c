@@ -19,7 +19,7 @@ long simhpt_compare_timeout_handle = 0;
 
 const double OVERFLOW_MSECS = (double)(UINT32_MAX) * (1024.0 / 1000.0); // this might be backwards, but it's close enough who cares
 
-#define HPT_DEBUG
+//#define HPT_DEBUG
 
 static void cb_overflow(void *_unused)
 {
@@ -176,6 +176,10 @@ uint32_t watch_hpt_get_fast(void)
 }
 void watch_hpt_schedule_callback(uint32_t timestamp)
 {
+    #ifdef HPT_DEBUG
+    printf("hpt-schedule: %" PRIu32 "\r\n", timestamp);
+    #endif
+
     cb_compare_updated_timeout = true;
 
     uint32_t current_time = watch_hpt_get();

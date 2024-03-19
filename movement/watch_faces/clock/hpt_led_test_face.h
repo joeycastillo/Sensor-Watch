@@ -37,7 +37,7 @@
 typedef struct {
     // Anything you need to keep track of, put it here!
     uint8_t face_idx;
-    bool leds_off;
+    bool running;
 } hpt_led_test_state_t;
 
 void hpt_led_test_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);

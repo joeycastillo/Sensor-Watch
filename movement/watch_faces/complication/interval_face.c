@@ -334,7 +334,7 @@ static void _set_next_timestamp(interval_face_state_t *state) {
     watch_date_time target_dt = watch_utility_date_time_from_unix_time(_target_ts, 0);
     movement_schedule_background_task_for_face(state->face_idx, target_dt);
     // play sound
-    watch_buzzer_play_sequence(sound_seq, NULL);
+    movement_play_sequence(sound_seq, NULL);
 }
 
 static inline bool _is_timer_empty(interval_timer_setting_t *timer) {
@@ -608,7 +608,7 @@ bool interval_face_loop(movement_event_t event, movement_settings_t *settings, v
             state->face_state = interval_state_waiting;
             _init_timer_info(state);
             _face_draw(state, event.subsecond);
-            watch_buzzer_play_sequence((int8_t *)_sound_seq_finish, NULL);
+            movement_play_sequence((int8_t *)_sound_seq_finish, NULL);
         }
         break;
     case EVENT_TIMEOUT:

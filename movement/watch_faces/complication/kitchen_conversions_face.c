@@ -258,7 +258,7 @@ static void display(kitchen_conversions_state_t *state, movement_settings_t *set
             watch_display_string("Err", 5);
 
             if (settings->bit.button_should_sound)
-                watch_buzzer_play_sequence(calc_fail_seq, NULL);
+                movement_play_sequence(calc_fail_seq, NULL);
         }
         else
         {
@@ -278,7 +278,7 @@ static void display(kitchen_conversions_state_t *state, movement_settings_t *set
             }
 
             if (settings->bit.button_should_sound)
-                watch_buzzer_play_sequence(calc_success_seq, NULL);
+                movement_play_sequence(calc_success_seq, NULL);
         }
         watch_display_string("=", 1);
     }

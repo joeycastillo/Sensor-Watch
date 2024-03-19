@@ -98,7 +98,7 @@ static inline void _resume_buttons() {
 
 /// @brief play a sound sequence if the game is in beepy mode
 static inline void _play_sequence(invaders_state_t *state, int8_t *sequence) {
-    if (state->sound_on) watch_buzzer_play_sequence((int8_t *)sequence, NULL);
+    if (state->sound_on) movement_play_sequence((int8_t *)sequence, NULL);
 }
 
 /// @brief draw the remaining defense lines
@@ -140,7 +140,7 @@ static void _game_over(invaders_state_t *state) {
     _current_state = invaders_state_game_over;
     movement_request_tick_frequency(1);
     _signals.suspend_buttons = true;
-    if (state->sound_on) watch_buzzer_play_sequence((int8_t *)_sound_seq_game_over, _resume_buttons);
+    if (state->sound_on) movement_play_sequence((int8_t *)_sound_seq_game_over, _resume_buttons);
     // save current score to highscore, if applicable
     if (_score > state->highscore) state->highscore = _score;
 }

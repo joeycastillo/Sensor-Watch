@@ -59,6 +59,7 @@ void watch_set_buzzer_off(void);
 
 /// @brief 87 notes for use with watch_buzzer_play_note
 typedef enum BuzzerNote {
+    BUZZER_NOTE_END = 0,
     BUZZER_NOTE_A1,              ///< 55.00 Hz
     BUZZER_NOTE_A1SHARP_B1FLAT,  ///< 58.27 Hz
     BUZZER_NOTE_B1,              ///< 61.74 Hz
@@ -173,13 +174,13 @@ extern const uint16_t NotePeriods[108];
   *       zero byte, which is used here as the end-of-sequence marker. But hey, a frequency that low cannot be
   *       played properly by the watch's buzzer, anyway.
   */
-void watch_buzzer_play_sequence(int8_t *note_sequence, void (*callback_on_end)(void));
+//void watch_buzzer_play_sequence(int8_t *note_sequence, void (*callback_on_end)(void));
 
 uint16_t sequence_length(int8_t *sequence);
 
 /** @brief Aborts a playing sequence.
   */
-void watch_buzzer_abort_sequence(void);
+//void watch_buzzer_abort_sequence(void);
 
 #ifndef __EMSCRIPTEN__
 void TC3_Handler(void);

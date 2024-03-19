@@ -158,7 +158,7 @@ static void ring(sailing_state_t *state, movement_settings_t *settings) {
     movement_cancel_background_task();
     if (beepflag + 1 == beepseconds_size) { //equivalent to (beepflag + 1 == sizeof(beepseconds) / sizeof(int)) but without needing to divide here => quicker
         if (alarmflag != 0){
-            watch_buzzer_play_sequence(long_beep, NULL);
+            movement_play_sequence(long_beep, NULL);
         }
         movement_cancel_background_task();
         counting(state);
@@ -171,14 +171,14 @@ static void ring(sailing_state_t *state, movement_settings_t *settings) {
     for (int i = 0; i < 5; i++) {
         if (beepseconds[beepflag] == 60 * state->minutes[i]) {
             if (alarmflag > 1) {
-                watch_buzzer_play_sequence((int8_t *)double_beep, NULL);
+                movement_play_sequence((int8_t *)double_beep, NULL);
             }   
             ringflag = true;           
         }
     }
     if (!ringflag) {
         if (alarmflag == 3) {
-            watch_buzzer_play_sequence((int8_t *)single_beep, NULL);
+            movement_play_sequence((int8_t *)single_beep, NULL);
         }
     }
     ringflag = false;
@@ -197,7 +197,7 @@ static void start(sailing_state_t *state, movement_settings_t *settings) {//gets
         state->now_ts = watch_utility_date_time_to_unix_time(now, get_tz_offset(settings));
         state->target_ts = state->now_ts;
         if (alarmflag != 0){
-            watch_buzzer_play_sequence(long_beep, NULL);
+            movement_play_sequence(long_beep, NULL);
         }
         counting(state);
         return;

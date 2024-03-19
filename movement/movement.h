@@ -254,11 +254,6 @@ typedef struct {
     // LED stuff
     int16_t light_ticks;
 
-    // alarm stuff
-    int16_t alarm_ticks;
-    bool is_buzzing;
-    BuzzerNote alarm_note;
-
     // button tracking for long press
     uint16_t light_down_timestamp;
     uint16_t mode_down_timestamp;
@@ -307,9 +302,54 @@ void movement_cancel_background_task_for_face(uint8_t watch_face_index);
 
 void movement_request_wake(void);
 
+// Buzzer operation, now handled by the HPT
+
+/**
+ * Plays the hourly signal chime
+*/
 void movement_play_signal(void);
+/**
+ * Plays the default alarm signal
+*/
 void movement_play_alarm(void);
+
+/**
+ * Plays an alarm signal consisting of two short beeps at the given tone for the given number of rounds
+*/
 void movement_play_alarm_beeps(uint8_t rounds, BuzzerNote alarm_note);
+
+/**
+ * Plays the given note for the given number of milliseconds.
+ * 
+ * Note that this does *not* block the face while running. To play a sequence of notes, use "movement_play_sequence"
+*/
+void movement_play_note(BuzzerNote note, uint16_t duration_ms);
+
+/**
+ * Plays a melody on the buzzer. The note sequence must follow the pattern described below:
+ * 
+ * Each element in the sequence is a pair of bytes.
+ * - If the first byte is a BuzzerNote, the second byte is interpreted as the duration of the note
+ * - If the first byte is negative, it is interpreted as a "jump marker", and indicates the number of notes in the sequence to jump over. 
+ *   If the second byte is positive, the jump marker is interpreted as a "repeat" command, and the second byte indicates the number of times the previous section should be repeated
+ *   If the second byte is negative, the jump marker is interpreted as a "skip" command, and indicates the number of notes in the sequence that should be skipped
+ *   If the second byte is zero, the jump marker is ignored.
+ *   For example, to repeat the last four notes 3 additional times, the values of the two bytes would be -4, 3.
+ * 
+ * The sequence MUST end with a null terminator (NULL, 0 or BUZZER_NOTE_END).
+ * See `movement_signal_tunes.h` for some example sequences.
+ * 
+ * If non-null, the given callback function will be invoked when the sequence is finished playing.
+ * 
+ * The default "length" of a note is 1/64th of a second, or about 16 milliseconds. To use a different note length, use `movement_play_sequence_speed`.
+*/
+void movement_play_sequence(int8_t *note_sequence, void (*callback_on_end)(void));
+void movement_play_sequence_speed(int8_t *note_sequence, void (*callback_on_end)(void), uint16_t note_duration);
+
+/**
+ * Silences any note sequences playing on the buzzer
+*/
+void movement_silence_buzzer(void);
 
 uint8_t movement_claim_backup_register(void);
 
@@ -417,5 +457,7 @@ uint64_t movement_hpt_get(void);
  * activated using "movement_hpt_request".
 */
 uint64_t movement_hpt_get_fast(void);
+
+
 
 #endif // MOVEMENT_H_

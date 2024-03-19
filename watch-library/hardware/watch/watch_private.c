@@ -147,6 +147,10 @@ void _watch_enable_tcc(void) {
     hri_tcc_write_CC_reg(TCC0, WATCH_BUZZER_TCC_CHANNEL, 0);
     hri_tcc_write_CC_reg(TCC0, WATCH_RED_TCC_CHANNEL, 0);
     hri_tcc_write_CC_reg(TCC0, WATCH_GREEN_TCC_CHANNEL, 0);
+    
+    // Always run TCC in standby
+    hri_tcc_write_CTRLA_RUNSTDBY_bit(TCC0, true);
+    
     // Enable the TCC
     hri_tcc_set_CTRLA_ENABLE_bit(TCC0);
     hri_tcc_wait_for_sync(TCC0, TCC_SYNCBUSY_ENABLE);

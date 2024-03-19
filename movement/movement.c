@@ -84,7 +84,11 @@ watch_date_time scheduled_tasks[MOVEMENT_NUM_FACES];
 
 // the number of available HPT request lines
 // (things other than faces can use the HPT)
-#define HPT_NUM_REQUESTS MOVEMENT_NUM_FACES
+#define HPT_NUM_REQUESTS (MOVEMENT_NUM_FACES +1)
+
+// buzzer implementation using HPT
+#define MOVEMENT_BUZZER_HPT (MOVEMENT_NUM_FACES)
+void _movement_play_next_buzzer_note(void);
 
 // the number of bytes used to store the active HPT requests
 #define HPT_REQUESTS_SIZE (1 + ((HPT_NUM_REQUESTS-1)/8))
@@ -205,7 +209,6 @@ static inline void _movement_enable_fast_tick_if_needed(void) {
 
 static inline void _movement_disable_fast_tick_if_possible(void) {
     if ((movement_state.light_ticks == -1) &&
-        (movement_state.alarm_ticks == -1) &&
         ((movement_state.light_down_timestamp + movement_state.mode_down_timestamp + movement_state.alarm_down_timestamp) == 0)) {
         movement_state.fast_tick_enabled = false;
         watch_rtc_disable_periodic_callback(128);
@@ -351,33 +354,19 @@ void movement_request_wake() {
     _movement_reset_inactivity_countdown();
 }
 
-void end_buzzing() {
-    movement_state.is_buzzing = false;
-}
-
-void end_buzzing_and_disable_buzzer(void) {
-    end_buzzing();
-    watch_disable_buzzer();
-}
-
 void movement_play_signal(void) {
-    void *maybe_disable_buzzer = end_buzzing_and_disable_buzzer;
-    if (watch_is_buzzer_or_led_enabled()) {
-        maybe_disable_buzzer = end_buzzing;
-    } else {
-        watch_enable_buzzer();
-    }
-    movement_state.is_buzzing = true;
-    watch_buzzer_play_sequence(signal_tune, maybe_disable_buzzer);
-    if (movement_state.le_mode_ticks == -1) {
-        // the watch is asleep. wake it up for "1" round through the main loop.
-        // the sleep_mode_app_loop will notice the is_buzzing and note that it
-        // only woke up to beep and then it will spinlock until the callback
-        // turns off the is_buzzing flag.
-        movement_state.needs_wake = true;
-        movement_state.le_mode_ticks = 1;
-    }
+    movement_play_sequence(signal_tune, NULL);
 }
+
+// Default alarm signal. Two beeps.
+int8_t alarm_sequence[] = {
+    BUZZER_NOTE_C8, 1,
+    BUZZER_NOTE_REST, 1,
+    BUZZER_NOTE_C8, 1,
+    BUZZER_NOTE_REST, 5,
+    -4, 1, // <- loops_idx
+    0,
+};
 
 void movement_play_alarm(void) {
     movement_play_alarm_beeps(5, BUZZER_NOTE_C8);
@@ -386,11 +375,14 @@ void movement_play_alarm(void) {
 void movement_play_alarm_beeps(uint8_t rounds, BuzzerNote alarm_note) {
     if (rounds == 0) rounds = 1;
     if (rounds > 20) rounds = 20;
-    movement_request_wake();
-    movement_state.alarm_note = alarm_note;
-    // our tone is 0.375 seconds of beep and 0.625 of silence, repeated as given.
-    movement_state.alarm_ticks = 128 * rounds - 75;
-    _movement_enable_fast_tick_if_needed();
+
+    // modify alarm sequence to match desired note and repeats
+    alarm_sequence[0] = alarm_note; // first tone
+    alarm_sequence[4] = alarm_note; // second tone
+    alarm_sequence[9] = (rounds-1); // repeat count
+
+    // play sequence, each note is 1/8 of a second long
+    movement_play_sequence_speed(alarm_sequence, NULL, 1024/8);
 }
 
 uint8_t movement_claim_backup_register(void) {
@@ -415,7 +407,6 @@ void app_init(void) {
     movement_state.settings.bit.le_interval = 2;
     movement_state.settings.bit.led_duration = 1;
     movement_state.light_ticks = -1;
-    movement_state.alarm_ticks = -1;
     movement_state.next_available_backup_register = 4;
     _movement_reset_inactivity_countdown();
 
@@ -518,11 +509,10 @@ static void _sleep_mode_app_loop(void) {
 
 bool app_loop(void) {
     const watch_face_t *wf = &watch_faces[movement_state.current_face_idx];
-    bool woke_up_for_buzzer = false;
     if (movement_state.watch_face_changed) {
         if (movement_state.settings.bit.button_should_sound) {
             // low note for nonzero case, high note for return to watch_face 0
-            watch_buzzer_play_note(movement_state.next_face_idx ? BUZZER_NOTE_C7 : BUZZER_NOTE_C8, 50);
+            movement_play_note(movement_state.next_face_idx ? BUZZER_NOTE_C7 : BUZZER_NOTE_C8, 50);
         }
         wf->resign(&movement_state.settings, watch_face_contexts[movement_state.current_face_idx]);
         movement_state.current_face_idx = movement_state.next_face_idx;
@@ -565,10 +555,7 @@ bool app_loop(void) {
         // or wake is requested using the movement_request_wake function.
         _sleep_mode_app_loop();
         // as soon as _sleep_mode_app_loop returns, we prepare to reactivate
-        // ourselves, but first, we check to see if we woke up for the buzzer:
-        if (movement_state.is_buzzing) {
-            woke_up_for_buzzer = true;
-        }
+        // ourselves
         event.event_type = EVENT_ACTIVATE;
         // this is a hack tho: waking from sleep mode, app_setup does get called, but it happens before we have reset our ticks.
         // need to figure out if there's a better heuristic for determining how we woke up.
@@ -608,26 +595,6 @@ bool app_loop(void) {
         }
     }
 
-    // Now that we've handled all display update tasks, handle the alarm.
-    if (movement_state.alarm_ticks >= 0) {
-        uint8_t buzzer_phase = (movement_state.alarm_ticks + 80) % 128;
-        if(buzzer_phase == 127) {
-            // failsafe: buzzer could have been disabled in the meantime
-            if (!watch_is_buzzer_or_led_enabled()) watch_enable_buzzer();
-            // play 4 beeps plus pause
-            for(uint8_t i = 0; i < 4; i++) {
-                // TODO: This method of playing the buzzer blocks the UI while it's beeping.
-                // It might be better to time it with the fast tick.
-                watch_buzzer_play_note(movement_state.alarm_note, (i != 3) ? 50 : 75);
-                if (i != 3) watch_buzzer_play_note(BUZZER_NOTE_REST, 50);
-            }
-        }
-        if (movement_state.alarm_ticks == 0) {
-            movement_state.alarm_ticks = -1;
-            _movement_disable_fast_tick_if_possible();
-        }
-    }
-
     // if we are plugged into USB, handle the file browser tasks
     if (watch_is_usb_enabled()) {
         char line[256] = {0};
@@ -659,11 +626,6 @@ bool app_loop(void) {
     // if the watch face changed, we can't sleep because we need to update the display.
     if (movement_state.watch_face_changed) can_sleep = false;
 
-    // if we woke up for the buzzer, stay awake until it's finished.
-    if (woke_up_for_buzzer) {
-        while(watch_is_buzzer_or_led_enabled());
-    }
-
     // if the LED is on, we need to stay awake to keep the TCC running.
     if (movement_state.light_ticks != -1) can_sleep = false;
 
@@ -672,7 +634,9 @@ bool app_loop(void) {
 
 static movement_event_type_t _figure_out_button_event(bool pin_level, movement_event_type_t button_down_event_type, uint16_t *down_timestamp) {
     // force alarm off if the user pressed a button.
-    if (movement_state.alarm_ticks) movement_state.alarm_ticks = 0;
+    if(pin_level) {
+        movement_silence_buzzer();
+    }
 
     if (pin_level) {
         // handle rising edge
@@ -723,7 +687,6 @@ void cb_alarm_fired(void) {
 void cb_fast_tick(void) {
     movement_state.fast_ticks++;
     if (movement_state.light_ticks > 0) movement_state.light_ticks--;
-    if (movement_state.alarm_ticks > 0) movement_state.alarm_ticks--;
     // check timestamps and auto-fire the long-press events
     // Notice: is it possible that two or more buttons have an identical timestamp? In this case
     // only one of these buttons would receive the long press event. Don't bother for now...
@@ -769,7 +732,7 @@ void cb_tick(void) {
 static void _movement_hpt_schedule_next_event()
 {
     uint64_t next = UINT64_MAX;
-    for (uint8_t req_idx = 0; req_idx < MOVEMENT_NUM_FACES; ++req_idx)
+    for (uint8_t req_idx = 0; req_idx < HPT_NUM_REQUESTS; ++req_idx)
     {
         uint64_t event = hpt_scheduled_events[req_idx];
         if (event < next)
@@ -845,7 +808,7 @@ void cb_hpt(HPT_CALLBACK_CAUSE cause)
         uint64_t now = movement_hpt_get();
 
         // iterate over faces and execute any callbacks for faces that have scheduled them
-        for (uint8_t face_idx = 0; face_idx < MOVEMENT_NUM_FACES; ++face_idx)
+        for (uint8_t face_idx = 0; face_idx < HPT_NUM_REQUESTS; ++face_idx)
         {
             uint64_t face_time = hpt_scheduled_events[face_idx];
             if (face_time <= now)
@@ -853,13 +816,22 @@ void cb_hpt(HPT_CALLBACK_CAUSE cause)
                 // clear the scheduled event and allow the face to schedule a new one
                 hpt_scheduled_events[face_idx] = UINT64_MAX;
 
-                // invoke the face
-                watch_face_t face = watch_faces[face_idx];
-                movement_event_t event;
-                event.event_type = EVENT_HPT;
-                event.subsecond = 0;
+                if (face_idx < MOVEMENT_NUM_FACES)
+                {
+                    // invoke the face
+                    watch_face_t face = watch_faces[face_idx];
+                    movement_event_t event;
+                    event.event_type = EVENT_HPT;
+                    event.subsecond = 0;
 
-                canSleep &= face.loop(event, &(movement_state.settings), watch_face_contexts[face_idx]);
+                    canSleep &= face.loop(event, &(movement_state.settings), watch_face_contexts[face_idx]);
+                }
+                else
+                {
+                    if(face_idx == MOVEMENT_BUZZER_HPT) {
+                        _movement_play_next_buzzer_note();
+                    }
+                }
 
                 eventTriggered = true;
             }
@@ -926,4 +898,156 @@ uint64_t movement_hpt_get()
 uint64_t movement_hpt_get_fast() {
     // don't bother checking for overflows or synchronizing the timer
     return (((uint64_t)hpt_overflows) << 32) | watch_hpt_get_fast();
+}
+
+// New buzzer sequence logic implemented using HPT instead of TC3 in watch_buzzer.c
+
+// a pointer to the next note to play in the sequence
+volatile int8_t *buzzer_sequence = 0;
+// if a negative number is encountered in the buzzer sequence, this is the number of times it should be repeated
+// If this value is zero, this is the first time the loop sequence was encountered, so set it to repeat and begin repeating
+// if this value is greater than one, decrement it and repeat again
+// if this value is exactly one, decrement it and do not repeat
+volatile uint8_t buzzer_sequence_repeats = 0;
+
+// length of a single buzzer note. Default is 1/8th of a second
+volatile uint16_t buzzer_note_length = 128;
+
+// the HPT timestamp that the current note is scheduled to stop playing at.
+volatile uint64_t buzzer_note_end_ts = 0;
+
+void (*buzzer_sequence_end_callback)(void) = NULL;
+
+void movement_silence_buzzer(void) {
+    watch_set_buzzer_off();
+    buzzer_sequence = NULL;
+    buzzer_sequence_repeats = 0;
+    movement_hpt_cancel_face(MOVEMENT_BUZZER_HPT);
+    movement_hpt_release_face(MOVEMENT_BUZZER_HPT);
+
+    if(buzzer_sequence_end_callback) {
+        buzzer_sequence_end_callback();
+    }
+    buzzer_sequence_end_callback = NULL;
+}
+
+void _movement_play_next_buzzer_note(void) {
+    printf("bc\r\n");
+
+    // if the buzzer sequence is null, stop
+    if(buzzer_sequence == 0) {
+        movement_silence_buzzer();
+        return;
+    }
+
+    int8_t nextNote = buzzer_sequence[0];
+    if(nextNote == BUZZER_NOTE_END) {
+        movement_silence_buzzer();
+        return;
+    }
+    
+    int8_t duration = buzzer_sequence[1];
+    if(duration < 0) {
+        // error case, durations must always be greater than or equal to zero
+        movement_silence_buzzer();
+        return;
+    }
+
+    printf("bz: %d %d\r\n", nextNote, duration);
+
+    // check for jumps
+    if(nextNote < 0) {
+        if(duration == 0) {
+            // special case,if they do zero repeats, just ignore this one and play the next note.
+            // makes it easier for faces that want to do variable repeats
+            
+            buzzer_sequence += 2;
+
+        } else if (duration < 0) {
+            // skip over the next section entirely
+            buzzer_sequence += (-nextNote * 2);
+            buzzer_sequence_repeats = 0;
+        } else if(buzzer_sequence_repeats == 0) {
+            // first time we encountered this repeat, set it up
+            // skip backward the given number of notes
+            buzzer_sequence += (nextNote * 2);
+            // set up the number of repeats
+            buzzer_sequence_repeats = duration;
+        } else if(buzzer_sequence_repeats == 1) {
+            // last time we should repeat, continue onward
+            // skip over the repeat marker to the next note
+            buzzer_sequence += 2;
+            buzzer_sequence_repeats = 0;
+        } else {
+            // mark a repeat and continue on again
+            // skip backwards the given number of notes
+            buzzer_sequence += (nextNote * 2);
+            // mark off a repeat
+            buzzer_sequence_repeats--;
+        }
+
+        // previous conditional block should have moved to the next note by now
+        _movement_play_next_buzzer_note();
+    }
+    else
+    {
+        // note is not an end marker or a loop marker, so play it
+
+        // skip ahead to next note regardless 
+        buzzer_sequence += 2;
+    
+        if (duration == 0)
+        {
+            // special case: skip the note
+            
+            _movement_play_next_buzzer_note();
+        }
+        else
+        {
+            // set up the buzzer
+            if (nextNote == BUZZER_NOTE_REST)
+            {
+                watch_set_buzzer_off();
+            }
+            else
+            {
+                watch_set_buzzer_period(NotePeriods[nextNote - 1]);
+                watch_set_buzzer_on();
+            }
+
+            // schedule the next note change
+            buzzer_note_end_ts += ((uint64_t)buzzer_note_length) * duration;
+            printf("bt: %" PRIu64 "\r\n", buzzer_note_end_ts);
+
+            movement_hpt_schedule_face(buzzer_note_end_ts, MOVEMENT_BUZZER_HPT);
+        }
+    }
+}
+
+void movement_play_sequence_speed(int8_t *note_sequence, void (*callback_on_end)(void), uint16_t note_duration) {
+    buzzer_sequence = note_sequence;
+    buzzer_sequence_end_callback = callback_on_end;
+
+    // some reasonable minimums
+    if(note_duration < 16) note_duration = 16;
+    buzzer_note_length = note_duration;
+
+    // start up the HPT
+    movement_hpt_request_face(MOVEMENT_BUZZER_HPT);
+
+    // set the "current" note to have ended right now so the next note knows when to end
+    buzzer_note_end_ts = movement_hpt_get();
+
+    _movement_play_next_buzzer_note();
+}
+
+void movement_play_sequence(int8_t *note_sequence, void (*callback_on_end)(void)) {
+    // default note speed was in 1/64ths of a second, as far as I can tell.
+    movement_play_sequence_speed(note_sequence, callback_on_end, 1024/64);
+}
+
+int8_t buzzer_single_note_sequence[] = {0,1,0};
+void movement_play_note(BuzzerNote note, uint16_t duration_ms) {
+    buzzer_single_note_sequence[0] = note;
+    movement_play_sequence_speed(buzzer_single_note_sequence, NULL, (duration_ms * 1024) / 1000);
 }

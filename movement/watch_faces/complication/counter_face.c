@@ -53,7 +53,7 @@ bool counter_face_loop(movement_event_t event, movement_settings_t *settings, vo
 
     switch (event.event_type) {
         case EVENT_ALARM_BUTTON_UP:
-            watch_buzzer_abort_sequence(); //abort running buzzer sequence when counting fast
+            movement_silence_buzzer(); //abort running buzzer sequence when counting fast
             state->counter_idx++; // increment counter index
             if (state->counter_idx>99) { //0-99
                 state->counter_idx=0;//reset counter index
@@ -64,7 +64,7 @@ bool counter_face_loop(movement_event_t event, movement_settings_t *settings, vo
             }
             break;
         case EVENT_LIGHT_LONG_PRESS:
-            watch_buzzer_abort_sequence();
+            movement_silence_buzzer();
             state->beep_on = !state->beep_on;
             if (state->beep_on) {
                 watch_set_indicator(WATCH_INDICATOR_SIGNAL);
@@ -132,7 +132,7 @@ void beep_counter(counter_state_t *state) {
         i++;
         sound_seq[i] = high_count-1;
     }
-    watch_buzzer_play_sequence((int8_t *)sound_seq, NULL);
+    movement_play_sequence((int8_t *)sound_seq, NULL);
 }
 
 
