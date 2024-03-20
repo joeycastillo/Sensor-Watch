@@ -121,10 +121,11 @@ static bool totp_generate(totp_state_t *totp_state) {
 }
 
 static void totp_display_error(totp_state_t *totp_state) {
-    char buf[9 + 1];
+    char buf[10 + 1];
     totp_t *totp = totp_current(totp_state);
 
-    snprintf(buf, sizeof(buf), "%c%c  ERROR", totp->labels[0], totp->labels[1]);
+    snprintf(buf, sizeof(buf), "%c%c  ERROR ", totp->labels[0], totp->labels[1]);
+    watch_display_string(buf, 0);
 }
 
 static void totp_display(totp_state_t *totp_state) {
