@@ -70,6 +70,8 @@ typedef struct {
     uint8_t steps;
     uint32_t current_code;
     uint8_t current_index;
+    uint8_t *current_decoded_key;
+    size_t current_decoded_key_length;
 } totp_state_t;
 
 void totp_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
