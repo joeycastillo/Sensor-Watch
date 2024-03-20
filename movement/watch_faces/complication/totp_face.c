@@ -94,12 +94,13 @@ static void totp_validate_key_lengths(void) {
     }
 }
 
-static bool totp_generate(totp_state_t *totp_state) {
+static void totp_generate(totp_state_t *totp_state) {
     totp_t *totp = totp_current(totp_state);
 
     if (totp->encoded_key_length <= 0) {
         // Key exceeded static limits and was turned off
-        return false;
+        totp_state->current_decoded_key_length = 0;
+        return;
     }
 
     totp_state->current_decoded_key_length = base32_decode(totp->encoded_key, totp_state->current_decoded_key);
@@ -107,7 +108,7 @@ static bool totp_generate(totp_state_t *totp_state) {
     if (totp_state->current_decoded_key_length == 0) {
         // Decoding failed for some reason
         // Not a base 32 string?
-        return false;
+        return;
     }
 
     TOTP(
@@ -116,8 +117,6 @@ static bool totp_generate(totp_state_t *totp_state) {
         totp->period,
         totp->algorithm
     );
-
-    return true;
 }
 
 static void totp_display_error(totp_state_t *totp_state) {
@@ -128,7 +127,7 @@ static void totp_display_error(totp_state_t *totp_state) {
     watch_display_string(buf, 0);
 }
 
-static void totp_display(totp_state_t *totp_state) {
+static void totp_display_code(totp_state_t *totp_state) {
     char buf[14];
     div_t result;
     uint8_t valid_for;
@@ -145,12 +144,17 @@ static void totp_display(totp_state_t *totp_state) {
     watch_display_string(buf, 0);
 }
 
-static void totp_generate_and_display(totp_state_t *totp_state) {
-    if (totp_generate(totp_state)) {
-        totp_display(totp_state);
+static void totp_display(totp_state_t *totp_state) {
+    if (totp_state->current_decoded_key_length > 0) {
+        totp_display_code(totp_state);
     } else {
         totp_display_error(totp_state);
     }
+}
+
+static void totp_generate_and_display(totp_state_t *totp_state) {
+    totp_generate(totp_state);
+    totp_display(totp_state);
 }
 
 static inline uint32_t totp_compute_base_timestamp(movement_settings_t *settings) {
