@@ -28,13 +28,11 @@
 #include <emscripten.h>
 #include <emscripten/html5.h>
 
+const int CLK_RTC_CNT_HZ = 1000;
+
 static double time_offset = 0;
 static long tick_callbacks[8] = { -1, -1, -1, -1, -1, -1, -1, -1 };
 
-static long alarm_interval_id = -1;
-static long alarm_timeout_id = -1;
-static double alarm_interval;
-ext_irq_cb_t alarm_callback;
 ext_irq_cb_t btn_alarm_callback;
 ext_irq_cb_t a2_callback;
 ext_irq_cb_t a4_callback;
@@ -123,78 +121,6 @@ void watch_rtc_disable_matching_periodic_callbacks(uint8_t mask) {
 
 void watch_rtc_disable_all_periodic_callbacks(void) {
     watch_rtc_disable_matching_periodic_callbacks(0xFF);
-}
-
-static void watch_invoke_alarm_interval_callback(void *userData) {
-    if (alarm_callback) alarm_callback();
-}
-
-static void watch_invoke_alarm_callback(void *userData) {
-    if (alarm_callback) alarm_callback();
-    alarm_interval_id = emscripten_set_interval(watch_invoke_alarm_interval_callback, alarm_interval, NULL);
-}
-
-void watch_rtc_register_alarm_callback(ext_irq_cb_t callback, watch_date_time alarm_time, watch_rtc_alarm_match mask) {
-    watch_rtc_disable_alarm_callback();
-
-    switch (mask) {
-        case ALARM_MATCH_DISABLED:
-            return;
-        case ALARM_MATCH_SS:
-            alarm_interval = 60 * 1000;
-            break;
-        case ALARM_MATCH_MMSS:
-            alarm_interval = 60 * 60 * 1000;
-            break;
-        case ALARM_MATCH_HHMMSS:
-            alarm_interval = 60 * 60 * 60 * 1000;
-            break;
-    }
-
-    double timeout = EM_ASM_DOUBLE({
-        const now = Date.now();
-        const date = new Date(now + $0);
-
-        const hour = ($1 >> 12) & 0x1f;
-        const minute = ($1 >> 6) & 0x3f;
-        const second = $1 & 0x3f;
-
-        if ($2 == 1) { // SS
-            if (second < date.getSeconds()) date.setMinutes(date.getMinutes() + 1);
-            date.setSeconds(second);
-        } else if ($2 == 2) { // MMSS
-            if (second < date.getSeconds()) date.setMinutes(date.getMinutes() + 1);
-            if (minute < date.getMinutes()) date.setHours(date.getHours() + 1);
-            date.setMinutes(minute, second);
-        } else if ($2 == 3) { // HHMMSS
-            if (second < date.getSeconds()) date.setMinutes(date.getMinutes() + 1);
-            if (minute < date.getMinutes()) date.setHours(date.getHours() + 1);
-            if (hour < date.getHours()) date.setDate(date.getDate() + 1);
-            date.setHours(hour, minute, second);
-        } else {
-            throw 'Invalid alarm match mask';
-        }
-
-        return date - now;
-    }, time_offset, alarm_time.reg, mask);
-
-    alarm_callback = callback;
-    alarm_timeout_id = emscripten_set_timeout(watch_invoke_alarm_callback, timeout, NULL);
-}
-
-void watch_rtc_disable_alarm_callback(void) {
-    alarm_callback = NULL;
-    alarm_interval = 0;
-
-    if (alarm_timeout_id != -1) {
-        emscripten_clear_timeout(alarm_timeout_id);
-        alarm_timeout_id = -1;
-    }
-
-    if (alarm_interval_id != -1) {
-        emscripten_clear_interval(alarm_interval_id);
-        alarm_interval_id = -1;
-    }
 }
 
 void watch_rtc_enable(bool en)

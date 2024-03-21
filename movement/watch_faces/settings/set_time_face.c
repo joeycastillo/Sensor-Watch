@@ -183,5 +183,6 @@ void set_time_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
     watch_set_led_off();
+    watch_rtc_set_tz_offset(movement_timezone_offsets[settings->bit.time_zone]);
     watch_store_backup_data(settings->reg, 0);
 }
