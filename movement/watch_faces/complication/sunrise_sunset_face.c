@@ -197,6 +197,8 @@ static void _sunrise_sunset_face_update_settings_display(movement_event_t event,
     char buf[12];
 
     switch (state->page) {
+        case 0:
+            return;
         case 1:
             sprintf(buf, "LA  %c %04d", state->working_latitude.sign ? '-' : '+', abs(_sunrise_sunset_face_latlon_from_struct(state->working_latitude)));
             break;

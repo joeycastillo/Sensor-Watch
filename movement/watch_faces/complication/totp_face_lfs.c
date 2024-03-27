@@ -163,7 +163,7 @@ static void totp_face_lfs_read_file(char *filename) {
             continue;
         }
 
-        // If we found a probably valid TOTP record, keep it. 
+        // If we found a probably valid TOTP record, keep it.
         if (totp_records[num_totp_records].secret_size) {
             num_totp_records += 1;
         } else {
@@ -255,8 +255,21 @@ bool totp_face_lfs_loop(movement_event_t event, movement_settings_t *settings, v
             totp_face_set_record(totp_state, (totp_state->current_index + 1) % num_totp_records);
             totp_face_display(totp_state);
             break;
+        case EVENT_LIGHT_BUTTON_UP:
+            if (totp_state->current_index - 1 >= 0) {
+                totp_face_set_record(totp_state, totp_state->current_index - 1);
+            } else {
+                // Wrap around to the last record.
+                totp_face_set_record(totp_state, num_totp_records - 1);
+            }
+            totp_face_display(totp_state);
+            break;
         case EVENT_ALARM_BUTTON_DOWN:
         case EVENT_ALARM_LONG_PRESS:
+        case EVENT_LIGHT_BUTTON_DOWN:
+            break;
+        case EVENT_LIGHT_LONG_PRESS:
+            movement_illuminate_led();
             break;
         default:
             movement_default_loop_handler(event, settings);

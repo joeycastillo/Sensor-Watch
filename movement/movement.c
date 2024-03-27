@@ -33,6 +33,7 @@
 #include "watch.h"
 #include "filesystem.h"
 #include "movement.h"
+#include "shell.h"
 
 #ifndef MOVEMENT_FIRMWARE
 #include "movement_config.h"
@@ -67,6 +68,31 @@
 #endif
 #ifndef MOVEMENT_DEFAULT_GREEN_COLOR
 #define MOVEMENT_DEFAULT_GREEN_COLOR 0xF
+#endif
+
+// Default to 12h mode
+#ifndef MOVEMENT_DEFAULT_24H_MODE
+#define MOVEMENT_DEFAULT_24H_MODE false
+#endif
+
+// Default to mode button sounding on press
+#ifndef MOVEMENT_DEFAULT_BUTTON_SOUND
+#define MOVEMENT_DEFAULT_BUTTON_SOUND true
+#endif
+
+// Default to switch back to main watch face after 60 seconds
+#ifndef MOVEMENT_DEFAULT_TIMEOUT_INTERVAL
+#define MOVEMENT_DEFAULT_TIMEOUT_INTERVAL 0
+#endif
+
+// Default to switch to low energy mode after 2 hours
+#ifndef MOVEMENT_DEFAULT_LOW_ENERGY_INTERVAL
+#define MOVEMENT_DEFAULT_LOW_ENERGY_INTERVAL 2
+#endif
+
+// Default to 1 second led duration
+#ifndef MOVEMENT_DEFAULT_LED_DURATION
+#define MOVEMENT_DEFAULT_LED_DURATION 1
 #endif
 
 #if __EMSCRIPTEN__
@@ -351,11 +377,13 @@ void app_init(void) {
 
     memset(&movement_state, 0, sizeof(movement_state));
 
+    movement_state.settings.bit.clock_mode_24h = MOVEMENT_DEFAULT_24H_MODE;
     movement_state.settings.bit.led_red_color = MOVEMENT_DEFAULT_RED_COLOR;
     movement_state.settings.bit.led_green_color = MOVEMENT_DEFAULT_GREEN_COLOR;
-    movement_state.settings.bit.button_should_sound = true;
-    movement_state.settings.bit.le_interval = 2;
-    movement_state.settings.bit.led_duration = 1;
+    movement_state.settings.bit.button_should_sound = MOVEMENT_DEFAULT_BUTTON_SOUND;
+    movement_state.settings.bit.to_interval = MOVEMENT_DEFAULT_TIMEOUT_INTERVAL;
+    movement_state.settings.bit.le_interval = MOVEMENT_DEFAULT_LOW_ENERGY_INTERVAL;
+    movement_state.settings.bit.led_duration = MOVEMENT_DEFAULT_LED_DURATION;
     movement_state.light_ticks = -1;
     movement_state.alarm_ticks = -1;
     movement_state.next_available_backup_register = 4;
@@ -509,7 +537,7 @@ bool app_loop(void) {
     }
 
     // default to being allowed to sleep by the face.
-    static bool can_sleep = true;
+    bool can_sleep = true;
 
     if (event.event_type) {
         event.subsecond = movement_state.subsecond;
@@ -533,7 +561,8 @@ bool app_loop(void) {
         // first trip  | can sleep | cannot sleep | can sleep    | cannot sleep
         // second trip | can sleep | cannot sleep | cannot sleep | can sleep
         //          && | can sleep | cannot sleep | cannot sleep | cannot sleep
-        can_sleep = can_sleep && wf->loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_face_idx]);
+        bool can_sleep2 = wf->loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_face_idx]);
+        can_sleep = can_sleep && can_sleep2;
         event.event_type = EVENT_NONE;
         if (movement_state.settings.bit.to_always && movement_state.current_face_idx != 0) {
             // ...but if the user has "timeout always" set, give it the boot.
@@ -561,30 +590,9 @@ bool app_loop(void) {
         }
     }
 
-    // if we are plugged into USB, handle the file browser tasks
+    // if we are plugged into USB, handle the serial shell
     if (watch_is_usb_enabled()) {
-        char line[256] = {0};
-#if __EMSCRIPTEN__
-        // This is a terrible hack; ideally this should be handled deeper in the watch library.
-        // Alas, emscripten treats read() as something that should pop up an input box, so I
-        // wasn't able to implement this over there. I sense that this relates to read() being
-        // the wrong way to read data from USB (like we should be using fgets or something), but
-        // until I untangle that, this will have to do.
-        char *received_data = (char*)EM_ASM_INT({
-            var len = lengthBytesUTF8(tx) + 1;
-            var s = _malloc(len);
-            stringToUTF8(tx, s, len);
-            return s;
-        });
-        memcpy(line, received_data, min(255, strlen(received_data)));
-        free(received_data);
-        EM_ASM({
-            tx = "";
-        });
-#else
-        read(0, line, 256);
-#endif
-        if (strlen(line)) filesystem_process_command(line);
+        shell_task();
     }
 
     event.subsecond = 0;
