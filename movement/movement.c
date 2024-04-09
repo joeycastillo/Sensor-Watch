@@ -319,11 +319,11 @@ void movement_request_wake() {
     _movement_reset_inactivity_countdown();
 }
 
-void end_buzzing() {
+static void end_buzzing() {
     movement_state.is_buzzing = false;
 }
 
-void end_buzzing_and_disable_buzzer(void) {
+static void end_buzzing_and_disable_buzzer(void) {
     end_buzzing();
     watch_disable_buzzer();
 }
