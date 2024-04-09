@@ -107,9 +107,11 @@ bool preferences_face_loop(movement_event_t event, movement_settings_t *settings
 
     watch_display_string((char *)preferences_face_titles[current_page], 0);
     if (current_page == 7) {    // weekday language selection
-        //date_time = watch_rtc_get_date_time();
+        watch_date_time date_time = watch_rtc_get_date_time();
+        char *weekday_to_show = watch_utility_get_weekday(date_time);
+        watch_display_string( weekday_to_show, 0 ); // dynamic changing title, but shouldn't blink
         //watch_display_string( watch_utility_get_weekday(date_time), 0 ); // dynamic changing title, but shouldn't blink
-        watch_display_string( watch_utility_get_weekday(watch_rtc_get_date_time()), 0 ); // dynamic changing title, but shouldn't blink
+        //watch_display_string( watch_utility_get_weekday(watch_rtc_get_date_time()), 0 ); // dynamic changing title, but shouldn't blink
     }
 
     // blink active setting on even-numbered quarter-seconds
