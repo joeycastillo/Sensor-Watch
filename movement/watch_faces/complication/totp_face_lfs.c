@@ -41,6 +41,12 @@
 
 const char* TOTP_URI_START = "otpauth://totp/";
 
+/* The totp_record struct has two modes of operation:
+ *  - secmod = false: read from lfs (in which file_secret_offset
+ *    points to an offset in totp_uris.txt)
+ *  - secmod = true: read from memory
+ *    (in which case secret contains the decoded secret)
+ */
 struct totp_record {
     char label[2];
     hmac_alg algorithm;
@@ -232,7 +238,7 @@ static void totp_face_set_record(totp_lfs_state_t *totp_state, int i) {
     record = &totp_records[i];
 
     TOTP(
-        totp_face_lfs_get_file_secret(record),
+        (totp_state->secmod ? record->secret : totp_face_lfs_get_file_secret(record)),
         record->secret_size,
         record->period,
         record->algorithm
@@ -254,6 +260,7 @@ void totp_face_lfs_activate(movement_settings_t *settings, void *context) {
     }
 #endif
 
+    totp_state->secmod_request = false;
     totp_state->timestamp = watch_utility_date_time_to_unix_time(watch_rtc_get_date_time(), movement_timezone_offsets[settings->bit.time_zone] * 60);
     totp_face_set_record(totp_state, 0);
 }
@@ -279,6 +286,26 @@ static void totp_face_display(totp_lfs_state_t *totp_state) {
     watch_display_string(buf, 0);
 }
 
+static void totp_face_lfs_switch_to_secmod(totp_lfs_state_t *totp_state) {
+    int i;
+
+    for (i = 0; i < num_totp_records; ++i) {
+        totp_face_lfs_get_file_secret(&totp_records[i]);
+        totp_records[i].secret = malloc(totp_records[i].secret_size);
+        if (totp_records[i].secret == NULL) {
+            num_totp_records = i - 1;
+            // We can't easily undo at this point, because we destroyed
+            // the offset info (secret is in a union). So let's just junk
+            // the remaining records.
+            break;
+        }
+        memcpy(totp_records[i].secret, current_secret, totp_records[i].secret_size);
+    }
+
+    filesystem_rm(TOTP_FILE);
+    totp_state->secmod = true;
+}
+
 bool totp_face_lfs_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     (void) settings;
 
@@ -286,8 +313,10 @@ bool totp_face_lfs_loop(movement_event_t event, movement_settings_t *settings, v
 
     switch (event.event_type) {
         case EVENT_TICK:
-            totp_state->timestamp++;
-            totp_face_display(totp_state);
+            if (!totp_state->secmod_request) {
+                totp_state->timestamp++;
+                totp_face_display(totp_state);
+            }
             break;
         case EVENT_ACTIVATE:
             totp_face_display(totp_state);
@@ -296,19 +325,40 @@ bool totp_face_lfs_loop(movement_event_t event, movement_settings_t *settings, v
             movement_move_to_face(0);
             break;
         case EVENT_ALARM_BUTTON_UP:
+            totp_state->secmod_request = false;
             totp_face_set_record(totp_state, (totp_state->current_index + 1) % num_totp_records);
             totp_face_display(totp_state);
             break;
         case EVENT_LIGHT_BUTTON_UP:
+            totp_state->secmod_request = false;
             totp_face_set_record(totp_state, (totp_state->current_index + num_totp_records - 1) % num_totp_records);
             totp_face_display(totp_state);
             break;
-        case EVENT_ALARM_BUTTON_DOWN:
         case EVENT_ALARM_LONG_PRESS:
+            if (totp_state->secmod || num_totp_records < 1) {
+                break;
+            }
+
+            /* now long press 'Light' if you want secmod */
+            totp_state->secmod_request = true;
+            watch_display_string("LIIFSecmod", 0);
+            break;
+        case EVENT_ALARM_BUTTON_DOWN:
         case EVENT_LIGHT_BUTTON_DOWN:
             break;
         case EVENT_LIGHT_LONG_PRESS:
-            movement_illuminate_led();
+            if (totp_state->secmod_request) {
+                totp_face_lfs_switch_to_secmod(totp_state);
+                totp_face_set_record(totp_state, 0);
+                totp_face_display(totp_state);
+            } else {
+                movement_illuminate_led();
+            }
+            totp_state->secmod_request = false;
+            break;
+        case EVENT_MODE_BUTTON_UP:
+            totp_state->secmod_request = false;
+            movement_default_loop_handler(event, settings);
             break;
         default:
             movement_default_loop_handler(event, settings);
