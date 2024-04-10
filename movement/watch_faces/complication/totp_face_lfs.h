@@ -35,7 +35,8 @@
  *   otpauth://totp/ACME%20Co:john.doe@email.com?secret=HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ&issuer=ACME%20Co&algorithm=SHA1&digits=6&period=30
  *
  * This is also the same as what Aegis exports in plain-text format.
- * This face performs minimal sanitisation of input, however.
+ * This face performs minimal sanitisation of input, however, and you
+ * will only see errors if you use the simulator or view the serial console.
  *
  * At the moment, to get the records onto the filesystem, start a serial connection and do:
  *   echo otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example > totp_uris.txt
@@ -49,6 +50,16 @@
  * If you have more than one secret key, press ALARM to cycle through them.
  * Press LIGHT to cycle in the other direction or keep it pressed longer to
  * activate the light.
+ *
+ * Finally, if you're especially paranoid, doing a long-hold of ALARM will bring
+ * up the option to move to 'secure mode' (LI IF SECMOD). To enable secure
+ * mode, do a long press of the LIGHT button. Secure mode removes totp_uris.txt
+ * from the filesystem, which means the codes will disappear when your
+ * watch loses power (i.e. when the battery runs out or you next disassemble it).
+ * HOWEVER, it will also use more memory. If you have a large number of TOTP
+ * codes, or many other faces loaded which allocate memory, this will drop any
+ * codes it can't allocate space for, and potentially cause other failures
+ * if other code requires memory.
  */
 
 #include "movement.h"
@@ -58,6 +69,8 @@ typedef struct {
     uint8_t steps;
     uint32_t current_code;
     uint8_t current_index;
+    bool secmod;
+    bool secmod_request;
 } totp_lfs_state_t;
 
 void totp_face_lfs_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
