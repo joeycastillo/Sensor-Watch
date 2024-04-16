@@ -24,6 +24,7 @@
 
 #include <stdlib.h>
 #include "preferences_face.h"
+#include "watch_utility.h"
 #include "watch.h"
 
 #define PREFERENCES_FACE_NUM_PREFEFENCES (8)
