@@ -206,7 +206,7 @@ bool preferences_face_loop(movement_event_t event, movement_settings_t *settings
     }
 
     // on LED color select screns, preview the color.
-    if (current_page >= 5) {
+    if (current_page == 5 || current_page == 6) {
         watch_set_led_color(settings->bit.led_red_color ? (0xF | settings->bit.led_red_color << 4) : 0,
                             settings->bit.led_green_color ? (0xF | settings->bit.led_green_color << 4) : 0);
         // return false so the watch stays awake (needed for the PWM driver to function).
