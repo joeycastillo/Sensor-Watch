@@ -543,6 +543,17 @@ bool app_loop(void) {
         event.subsecond = movement_state.subsecond;
         // the first trip through the loop overrides the can_sleep state
         can_sleep = wf->loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_face_idx]);
+
+        // Keep light on if user is still interacting with the watch.
+        if (movement_state.light_ticks > 0) {
+            switch (event.event_type) {
+                case EVENT_LIGHT_BUTTON_DOWN:
+                case EVENT_MODE_BUTTON_DOWN:
+                case EVENT_ALARM_BUTTON_DOWN:
+                    movement_illuminate_led();
+            }
+        }
+
         event.event_type = EVENT_NONE;
     }
 
