@@ -89,6 +89,7 @@ void main_loop_sleep(uint32_t ms) {
     main_loop_set_sleeping(true);
     emscripten_sleep(ms);
     main_loop_set_sleeping(false);
+    animation_frame_id = ANIMATION_FRAME_ID_INVALID;
 }
 
 bool main_loop_is_sleeping(void) {
