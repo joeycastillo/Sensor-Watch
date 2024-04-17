@@ -74,7 +74,7 @@ bool preferences_face_loop(movement_event_t event, movement_settings_t *settings
                     settings->bit.clock_mode_24h = !(settings->bit.clock_mode_24h);
                     break;
                 case 1:
-                    settings->bit.button_should_sound = !(settings->bit.button_should_sound);
+                    settings->bit.button_should_sound = settings->bit.button_should_sound + 1;
                     break;
                 case 2:
                     settings->bit.to_interval = settings->bit.to_interval + 1;
@@ -111,9 +111,27 @@ bool preferences_face_loop(movement_event_t event, movement_settings_t *settings
                 else watch_display_string("12h", 4);
                 break;
             case 1:
-                if (settings->bit.button_should_sound) watch_display_string("y", 9);
-                else watch_display_string("n", 9);
-                break;
+
+            switch (settings->bit.button_should_sound){
+
+                case 0:
+                    watch_display_string("n", 9);
+                    break;
+                case 1:
+                    watch_display_string("y", 9);
+                    break;
+                case 2:
+                    watch_display_string("c1", 8);
+                    break;
+                case 3:
+                    watch_display_string("c2", 8);
+                    break;
+                     }
+
+      if (settings->bit.button_should_sound > 0b11){
+	settings->bit.button_should_sound = 0;}
+            break;
+
             case 2:
                 switch (settings->bit.to_interval) {
                     case 0:
