@@ -49,7 +49,7 @@ typedef struct {
   *        in positions 0-1 of the watch face
   * @param date_time The watch_date_time whose weekday you want.
   */
-const char * watch_utility_get_weekday(watch_date_time date_time);
+char * watch_utility_get_weekday(watch_date_time date_time);
 
 /** @brief Returns a number between 1-7 representing the weekday according to ISO8601 : week starts on Monday and has index 1, Sunday has index 7
  * @param year The year of the date
