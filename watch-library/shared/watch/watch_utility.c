@@ -40,8 +40,8 @@ const char * watch_utility_get_weekday(watch_date_time date_time) {
     weekday_index = watch_utility_get_iso8601_weekday_number(date_time.unit.year + WATCH_RTC_REFERENCE_YEAR, date_time.unit.month, date_time.unit.day) - 1 ;
 
     //return weekdays[watch_utility_get_iso8601_weekday_number(date_time.unit.year + WATCH_RTC_REFERENCE_YEAR, date_time.unit.month, date_time.unit.day) - 1];
-    //return  *( *(p_dict_row + (uint8_t)movement_settings.bit.lang_preference) + weekday_index );
-    return  *( *(p_dict_row +                                               3) + weekday_index );   // debug
+    return  *( *(p_dict_row + (uint8_t)movement_settings.bit.lang_preference) + weekday_index );
+    //return  *( *(p_dict_row +                                               3) + weekday_index );   // debug
 
 }
 
