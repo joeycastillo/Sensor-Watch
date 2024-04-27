@@ -25,8 +25,6 @@
 #ifndef CHIRPY_DEMO_FACE_H_
 #define CHIRPY_DEMO_FACE_H_
 
-#include "movement.h"
-
 /*
  * CHIRPY DEMO FACE
  * 
@@ -50,8 +48,9 @@
  * 
  * To record and decode a chirpy transmission on your computer, you can use the web app here:
  * https://jealousmarkup.xyz/off/chirpy/rx/
- * 
  */
+
+#include "movement.h"
 
 void chirpy_demo_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
 void chirpy_demo_face_activate(movement_settings_t *settings, void *context);

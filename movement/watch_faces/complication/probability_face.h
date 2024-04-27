@@ -25,6 +25,18 @@
 #ifndef PROBABILITY_FACE_H_
 #define PROBABILITY_FACE_H_
 
+/*
+ * PROBABILITY face
+ *
+ * This face is a dice-rolling random number generator.
+ * Supports dice with 2, 4, 6, 8, 10, 12, 20, or 100 sides.
+ *
+ * Press LIGHT to cycle through die type.
+ * The current die size is indicated on the left ("C" for 100)
+ *
+ * Press ALARM to roll the selected die.
+ */
+
 #include "movement.h"
 
 typedef struct {

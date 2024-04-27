@@ -38,14 +38,19 @@ void _watch_enable_tcc(void);
 /// Called by buzzer and LED teardown functions. You should not call this from your app.
 void _watch_disable_tcc(void);
 
+/// Enable USB task timer. Called by USB enable routine in main(). You should not call this from your app.
+void _watch_enable_tc0(void);
+
+/// Disable USB task timer. You should not call this from your app.
+void _watch_disable_tc0(void);
+
+/// Enable CDC task timer. Called by USB enable routine in main(). You should not call this from your app.
+void _watch_enable_tc1(void);
+
+/// Disable CDC task timer. You should not call this from your app.
+void _watch_disable_tc1(void);
+
 /// Called by main.c if plugged in to USB. You should not call this from your app.
 void _watch_enable_usb(void);
-
-// this function ends up getting called by printf to log stuff to the USB console.
-int _write(int file, char *ptr, int len);
-
-// i thought this would be called by gets but it doesn't? anyway it does get called by read()
-// so that's our mechanism for reading data from the USB serial console.
-int _read(int file, char *ptr, int len);
 
 #endif

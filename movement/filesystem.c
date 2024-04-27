@@ -100,7 +100,7 @@ static int filesystem_ls(lfs_t *lfs, const char *path) {
 
         printf("%4ld bytes ", info.size);
 
-        printf("%s\n", info.name);
+        printf("%s\r\n", info.name);
     }
 
     err = lfs_dir_close(lfs, &dir);
@@ -117,11 +117,11 @@ bool filesystem_init(void) {
     // reformat if we can't mount the filesystem
     // this should only happen on the first boot
     if (err < 0) {
-        printf("Ignore that error! Formatting filesystem...\n");
+        printf("Ignore that error! Formatting filesystem...\r\n");
         err = lfs_format(&lfs, &cfg);
         if (err < 0) return false;
         err = lfs_mount(&lfs, &cfg) == LFS_ERR_OK;
-        printf("Filesystem mounted with %ld bytes free.\n", filesystem_get_free_space());
+        printf("Filesystem mounted with %ld bytes free.\r\n", filesystem_get_free_space());
     }
 
     return err == LFS_ERR_OK;
@@ -139,7 +139,7 @@ bool filesystem_rm(char *filename) {
     if (filesystem_file_exists(filename)) {
         return lfs_remove(&lfs, filename) == LFS_ERR_OK;
     } else {
-        printf("rm: %s: No such file\n", filename);
+        printf("rm: %s: No such file\r\n", filename);
         return false;
     }
 }
@@ -197,13 +197,13 @@ static void filesystem_cat(char *filename) {
             char *buf = malloc(info.size + 1);
             filesystem_read_file(filename, buf, info.size);
             buf[info.size] = '\0';
-            printf("%s\n", buf);
+            printf("%s\r\n", buf);
             free(buf);
         } else {
-            printf("\n");
+            printf("\r\n");
         }
     } else {
-        printf("cat: %s: No such file\n", filename);
+        printf("cat: %s: No such file\r\n", filename);
     }
 }
 
@@ -223,59 +223,60 @@ bool filesystem_append_file(char *filename, char *text, int32_t length) {
     return lfs_file_close(&lfs, &file) == LFS_ERR_OK;
 }
 
-void filesystem_process_command(char *line) {
-    printf("$ %s", line);
-    char *command = strtok(line, " \n");
-    
-    if (strcmp(command, "ls") == 0) {
-        char *directory = strtok(NULL, " \n");
-        if (directory == NULL) {
-            filesystem_ls(&lfs, "/");
-        } else {
-            printf("usage: ls\n");
-        }
-    } else if (strcmp(command, "cat") == 0) {
-        char *filename = strtok(NULL, " \n");
-        if (filename == NULL) {
-            printf("usage: cat file\n");
-        } else {
-            filesystem_cat(filename);
-        }
-    } else if (strcmp(command, "df") == 0) {
-        printf("free space: %ld bytes\n", filesystem_get_free_space());
-    } else if (strcmp(command, "rm") == 0) {
-        char *filename = strtok(NULL, " \n");
-        if (filename == NULL) {
-            printf("usage: rm file\n");
-        } else {
-            filesystem_rm(filename);
-        } 
-    } else if (strcmp(command, "echo") == 0) {
-        char *text = malloc(248);
-        memset(text, 0, 248);
-        size_t pos = 0;
-        char *word = strtok(NULL, " \n");
-        while (strcmp(word, ">") && strcmp(word, ">>")) {
-            sprintf(text + pos, "%s ", word);
-            pos += strlen(word) + 1;
-            word = strtok(NULL, " \n");
-            if (word == NULL) break;
-        }
-        text[strlen(text) - 1] = 0;
-        char *filename = strtok(NULL, " \n");
-        if (filename == NULL) {
-            printf("usage: echo text > file\n");
-        } else if (strchr(filename, '/') || strchr(filename, '\\')) {
-            printf("subdirectories are not supported\n");
-        } else if (!strcmp(word, ">")) {
-            filesystem_write_file(filename, text, strlen(text));
-            filesystem_append_file(filename, "\n", 1);
-        } else if (!strcmp(word, ">>")) {
-            filesystem_append_file(filename, text, strlen(text));
-            filesystem_append_file(filename, "\n", 1);
-        }
-        free(text);
+int filesystem_cmd_ls(int argc, char *argv[]) {
+    if (argc >= 2) {
+        filesystem_ls(&lfs, argv[1]);
     } else {
-        printf("%s: command not found\n", command);
+        filesystem_ls(&lfs, "/");
     }
+    return 0;
 }
+
+int filesystem_cmd_cat(int argc, char *argv[]) {
+    (void) argc;
+    filesystem_cat(argv[1]);
+    return 0;
+}
+
+int filesystem_cmd_df(int argc, char *argv[]) {
+    (void) argc;
+    (void) argv;
+    printf("free space: %ld bytes\r\n", filesystem_get_free_space());
+    return 0;
+}
+
+int filesystem_cmd_rm(int argc, char *argv[]) {
+    (void) argc;
+    filesystem_rm(argv[1]);
+    return 0;
+}
+
+int filesystem_cmd_echo(int argc, char *argv[]) {
+    (void) argc;
+
+    char *line = argv[1];
+    size_t line_len = strlen(line);
+    if (line[0] == '"' || line[0] == '\'') {
+        line++;
+        line_len -= 2;
+        line[line_len] = '\0';
+    }
+
+    if (strchr(argv[3], '/')) {
+        printf("subdirectories are not supported\r\n");
+        return -2;
+    }
+
+    if (!strcmp(argv[2], ">")) {
+        filesystem_write_file(argv[3], line, line_len);
+        filesystem_append_file(argv[3], "\n", 1);
+    } else if (!strcmp(argv[2], ">>")) {
+        filesystem_append_file(argv[3], line, line_len);
+        filesystem_append_file(argv[3], "\n", 1);
+    } else {
+        return -2;
+    }
+
+    return 0;
+}
+

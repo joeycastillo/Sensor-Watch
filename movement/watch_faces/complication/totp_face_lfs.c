@@ -1,3 +1,27 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2022 Wesley Ellis (https://github.com/tahnok)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
@@ -10,24 +34,6 @@
 #include "filesystem.h"
 
 #include "totp_face_lfs.h"
-
-/* Reads from a file totp_uris.txt where each line is what's in a QR code:
- * e.g.
- *   otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example
- *   otpauth://totp/ACME%20Co:john.doe@email.com?secret=HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ&issuer=ACME%20Co&algorithm=SHA1&digits=6&period=30
- * This is also the same as what Aegis exports in plain-text format.
- *
- * Minimal sanitisation of input, however.
- *
- * At the moment, to get the records onto the filesystem, start a serial connection and do:
- *   echo otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example > totp_uris.txt
- *   echo otpauth://totp/ACME%20Co:john.doe@email.com?secret=HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ&issuer=ACME%20Co&algorithm=SHA1&digits=6&period=30 >> totp_uris.txt
- * (note the double >> in the second one)
- *
- * You may want to customise the characters that appear to identify the 2FA code. These are just the first two characters of the issuer,
- * and it's fine to modify the URI.
- */
-
 
 #define MAX_TOTP_RECORDS 20
 #define MAX_TOTP_SECRET_SIZE 48
@@ -157,7 +163,7 @@ static void totp_face_lfs_read_file(char *filename) {
             continue;
         }
 
-        // If we found a probably valid TOTP record, keep it. 
+        // If we found a probably valid TOTP record, keep it.
         if (totp_records[num_totp_records].secret_size) {
             num_totp_records += 1;
         } else {
@@ -249,8 +255,21 @@ bool totp_face_lfs_loop(movement_event_t event, movement_settings_t *settings, v
             totp_face_set_record(totp_state, (totp_state->current_index + 1) % num_totp_records);
             totp_face_display(totp_state);
             break;
+        case EVENT_LIGHT_BUTTON_UP:
+            if (totp_state->current_index - 1 >= 0) {
+                totp_face_set_record(totp_state, totp_state->current_index - 1);
+            } else {
+                // Wrap around to the last record.
+                totp_face_set_record(totp_state, num_totp_records - 1);
+            }
+            totp_face_display(totp_state);
+            break;
         case EVENT_ALARM_BUTTON_DOWN:
         case EVENT_ALARM_LONG_PRESS:
+        case EVENT_LIGHT_BUTTON_DOWN:
+            break;
+        case EVENT_LIGHT_LONG_PRESS:
+            movement_illuminate_led();
             break;
         default:
             movement_default_loop_handler(event, settings);

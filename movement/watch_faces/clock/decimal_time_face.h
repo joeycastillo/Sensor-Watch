@@ -25,10 +25,8 @@
 #ifndef DECIMAL_TIME_FACE_H_
 #define DECIMAL_TIME_FACE_H_
 
-#include "movement.h"
-
 /*
- * DECIMAL TIME FACE
+ * DECIMAL TIME face
  * 
  * This face presents the current time as hours and hundredths of an hour. Every hundreth of an hour, or "centihour", 
  * occurs every 36 seconds. Because they range from 0 to 99, centihours, in the seventies range, will be displayed with a lowercase 7.
@@ -46,8 +44,9 @@
  * https://hr.colostate.edu/minute-to-decimal-conversion-chart/
  * 
  * Many thanks go to Joey Castillo for making this project happen.
- * 
  */
+
+#include "movement.h"
 
 typedef struct {
     bool chime_enabled;            // did the user enable hourly chime for this face? 
