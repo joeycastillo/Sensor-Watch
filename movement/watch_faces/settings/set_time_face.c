@@ -185,6 +185,9 @@ bool set_time_face_loop(movement_event_t event, movement_settings_t *settings, v
             case 5:
                 buf[8] = buf[9] = ' ';
                 break;
+            case 7:
+                buf[9] = ' ';
+                break;
         }
     }
 
