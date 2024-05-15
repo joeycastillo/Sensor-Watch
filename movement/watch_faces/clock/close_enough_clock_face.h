@@ -40,6 +40,7 @@
 
 typedef struct {
     int prev_five_minute_period;
+    int prev_min_checked;
     uint8_t last_battery_check;
     bool battery_low;
     bool alarm_enabled;
