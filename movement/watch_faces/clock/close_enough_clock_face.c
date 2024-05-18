@@ -49,9 +49,9 @@ static const int hour_switch_index = 9;
 static void _update_alarm_indicator(bool settings_alarm_enabled, close_enough_clock_state_t *state) {
     state->alarm_enabled = settings_alarm_enabled;
     if (state->alarm_enabled) {
-        watch_set_indicator(WATCH_INDICATOR_SIGNAL);
+        watch_set_indicator(WATCH_INDICATOR_BELL);
     } else {
-        watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
+        watch_clear_indicator(WATCH_INDICATOR_BELL);
     };
 }
 
