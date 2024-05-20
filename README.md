@@ -68,7 +68,7 @@ You may want to test out changes in the emulator first. To do this, you'll need 
 
 ```
 cd movement/make
-emmake make
+emmake make COLOR=RED
 python3 -m http.server -d build-sim
 ```
 
@@ -77,3 +77,47 @@ Finally, visit [watch.html](http://localhost:8000/watch.html) to see your work.
 License
 -------
 Different components of the project are licensed differently, see [LICENSE.md](https://github.com/joeycastillo/Sensor-Watch/blob/main/LICENSE.md).
+
+-----
+
+RC MODS
+-------
+
+cd code/Sensor-Watch/movement/make
+make COLOR=RED
+emmake make COLOR=RED
+python3 -m http.server -d build-sim
+
+2024-05-11
+* movement_config.h declaring the list of faces:
+    simple_clock_face,
+    world_clock_face,
+    stock_stopwatch_face,
+    alarm_face,
+    timer_face,
+    sunrise_sunset_face,
+    moon_phase_face,
+    databank_face,
+    preferences_face,
+    set_time_face,
+    thermistor_readout_face,
+    voltage_face,
+    hello_there_face 
+* movement_config.h declaring some presets (ie location latitude longitude value for Tianjin)
+* Changes on databank_face to host personal data
+* Changes on timer_face for a better (for me) selection of predifined durations
+* Changes on hello_thereèface for writing personal message
+
+2024-05-15
+* Added a predefined list of DAYS in different languages
+    watch-library/shared/watch
+    watch_utility.c modifying this function const char * watch_utility_get_weekday(watch_date_time date_time) {
+    watch_utility.h add #define use_language 3
+
+2024-05-16
+
+
+* to select accross the preferences faces
+  preferences_face.c write the preferences on the screen
+
+  

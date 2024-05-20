@@ -26,7 +26,7 @@
 #include "preferences_face.h"
 #include "watch.h"
 
-#define PREFERENCES_FACE_NUM_PREFEFENCES (7)
+#define PREFERENCES_FACE_NUM_PREFEFENCES (8) // Now it is 8 with LANG
 const char preferences_face_titles[PREFERENCES_FACE_NUM_PREFEFENCES][11] = {
     "CL        ",   // Clock: 12 or 24 hour
     "BT  Beep  ",   // Buttons: should they beep?
@@ -39,6 +39,7 @@ const char preferences_face_titles[PREFERENCES_FACE_NUM_PREFEFENCES][11] = {
     "LT   grn  ",   // Light: green component
 #endif
     "LT   red  ",   // Light: red component
+    "LANG      "    // Language: select the display language
 };
 
 void preferences_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
@@ -77,19 +78,26 @@ bool preferences_face_loop(movement_event_t event, movement_settings_t *settings
                     settings->bit.button_should_sound = !(settings->bit.button_should_sound);
                     break;
                 case 2:
-                    settings->bit.to_interval = settings->bit.to_interval + 1;
+                    settings->bit.to_interval = (settings->bit.to_interval + 1) % 4;
                     break;
                 case 3:
-                    settings->bit.le_interval = settings->bit.le_interval + 1;
+                    settings->bit.le_interval = (settings->bit.le_interval + 1) % 8;
                     break;
                 case 4:
-                    settings->bit.led_duration = settings->bit.led_duration + 1;
+                    settings->bit.led_duration = (settings->bit.led_duration + 1) % 4;
                     break;
                 case 5:
-                    settings->bit.led_green_color = settings->bit.led_green_color + 1;
+#ifdef WATCH_IS_BLUE_BOARD
+                    settings->bit.led_blue_color = (settings->bit.led_blue_color + 1) % 16;
+#else
+                    settings->bit.led_green_color = (settings->bit.led_green_color + 1) % 16;
+#endif
                     break;
                 case 6:
-                    settings->bit.led_red_color = settings->bit.led_red_color + 1;
+                    settings->bit.led_red_color = (settings->bit.led_red_color + 1) % 16;
+                    break;
+                case 7:
+                    settings->bit.language = (settings->bit.language + 1) % 13; // Max depending on the number of languages
                     break;
             }
             break;
@@ -107,55 +115,29 @@ bool preferences_face_loop(movement_event_t event, movement_settings_t *settings
         char buf[8];
         switch (current_page) {
             case 0:
-                if (settings->bit.clock_mode_24h) watch_display_string("24h", 4);
-                else watch_display_string("12h", 4);
+                watch_display_string(settings->bit.clock_mode_24h ? "24h" : "12h", 4);
                 break;
             case 1:
-                if (settings->bit.button_should_sound) watch_display_string("y", 9);
-                else watch_display_string("n", 9);
+                watch_display_string(settings->bit.button_should_sound ? "y" : "n", 9);
                 break;
             case 2:
                 switch (settings->bit.to_interval) {
-                    case 0:
-                        watch_display_string("60 SeC", 4);
-                        break;
-                    case 1:
-                        watch_display_string("2 n&in", 4);
-                        break;
-                    case 2:
-                        watch_display_string("5 n&in", 4);
-                        break;
-                    case 3:
-                        watch_display_string("30n&in", 4);
-                        break;
+                    case 0: watch_display_string("60 SeC", 4); break;
+                    case 1: watch_display_string("2 n&in", 4); break;
+                    case 2: watch_display_string("5 n&in", 4); break;
+                    case 3: watch_display_string("30n&in", 4); break;
                 }
                 break;
             case 3:
                 switch (settings->bit.le_interval) {
-                    case 0:
-                        watch_display_string(" Never", 4);
-                        break;
-                    case 1:
-                        watch_display_string("10n&in", 4);
-                        break;
-                    case 2:
-                        watch_display_string("1 hour", 4);
-                        break;
-                    case 3:
-                        watch_display_string("2 hour", 4);
-                        break;
-                    case 4:
-                        watch_display_string("6 hour", 4);
-                        break;
-                    case 5:
-                        watch_display_string("12 hr", 4);
-                        break;
-                    case 6:
-                        watch_display_string(" 1 day", 4);
-                        break;
-                    case 7:
-                        watch_display_string(" 7 day", 4);
-                        break;
+                    case 0: watch_display_string(" Never", 4); break;
+                    case 1: watch_display_string("10n&in", 4); break;
+                    case 2: watch_display_string("1 hour", 4); break;
+                    case 3: watch_display_string("2 hour", 4); break;
+                    case 4: watch_display_string("6 hour", 4); break;
+                    case 5: watch_display_string("12 hr", 4); break;
+                    case 6: watch_display_string(" 1 day", 4); break;
+                    case 7: watch_display_string(" 7 day", 4); break;
                 }
                 break;
             case 4:
@@ -174,11 +156,28 @@ bool preferences_face_loop(movement_event_t event, movement_settings_t *settings
                 sprintf(buf, "%2d", settings->bit.led_red_color);
                 watch_display_string(buf, 8);
                 break;
+            case 7:
+                switch (settings->bit.language) {
+                    case 0:  watch_display_string("ENGLIS", 4); break;
+                    case 1:  watch_display_string("SPANIS", 4); break;
+                    case 2:  watch_display_string("FRENCH", 4); break;
+                    case 3:  watch_display_string("GERMAN", 4); break;
+                    case 4:  watch_display_string("ITALIA", 4); break;
+                    case 5:  watch_display_string("PORTUG", 4); break;
+                    case 6:  watch_display_string("DUTCH", 4); break;
+                    case 7:  watch_display_string("DANISH", 4); break;
+                    case 8:  watch_display_string("SWEDIS", 4); break;
+                    case 9:  watch_display_string("POLISH", 4); break;
+                    case 10: watch_display_string("FINNIS", 4); break;
+                    case 11: watch_display_string("NORWAY", 4); break;
+                    case 12: watch_display_string("FRIDAY", 4); break;
+                }
+                break;
         }
     }
 
-    // on LED color select screns, preview the color.
-    if (current_page >= 5) {
+    // on LED color select screens, preview the color.
+    if (current_page >= 5 && current_page <= 6) {
         watch_set_led_color(settings->bit.led_red_color ? (0xF | settings->bit.led_red_color << 4) : 0,
                             settings->bit.led_green_color ? (0xF | settings->bit.led_green_color << 4) : 0);
         // return false so the watch stays awake (needed for the PWM driver to function).
@@ -188,7 +187,6 @@ bool preferences_face_loop(movement_event_t event, movement_settings_t *settings
     watch_set_led_off();
     return true;
 }
-
 void preferences_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;

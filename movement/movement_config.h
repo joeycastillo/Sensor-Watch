@@ -96,3 +96,5 @@ const watch_face_t watch_faces[] = {
 #define MOVEMENT_DEFAULT_LED_DURATION 1
 
 #endif // MOVEMENT_CONFIG_H_
+
+

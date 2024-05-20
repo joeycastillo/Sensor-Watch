@@ -174,7 +174,7 @@ static void show_date_time(movement_settings_t *settings, solstice_state_t *stat
         date_time.unit.hour %= 12;
         if (date_time.unit.hour == 0) date_time.unit.hour = 12;
     }
-    sprintf(buf, "%s%2d%2d%02d%02d", watch_utility_get_weekday(date_time), date_time.unit.day, date_time.unit.hour, date_time.unit.minute, date_time.unit.second);
+    sprintf(buf, "%s%2d%2d%02d%02d", watch_utility_get_weekday(date_time, settings->bit.language), date_time.unit.day, date_time.unit.hour, date_time.unit.minute, date_time.unit.second);
     watch_set_colon();
     watch_display_string(buf, 0);
 }

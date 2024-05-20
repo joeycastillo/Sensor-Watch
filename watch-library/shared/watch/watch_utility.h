@@ -31,6 +31,28 @@
  */
 #define use_iso_8601_weeknumber 0
 
+
+/*
+* Define LANGUAGE
+ * Valid values for MOVEMENT_LANGUAGE are:
+ * 1 - English (EN) - United Kingdom, United States, etc.
+ * 2 - Spanish (ES) - Spain, Mexico, etc.
+ * 3 - French (FR) - France, Canada, etc.
+ * 4 - German (DE) - Germany, Austria, etc.
+ * 5 - Italian (IT) - Italy, Switzerland, etc.
+ * 6 - Portuguese (PT) - Portugal, Brazil, etc.
+ * 7 - Dutch (NL) - Netherlands, Belgium, etc.
+ * 8 - Danish (DA) - Denmark
+ * 9 - Swedish (SV) - Sweden
+ * 10 - Polish (PL) - Poland
+ * 11 - Finnish (FI) - Finland
+ * 12 - Norwegian (NO) - Norway
+ * 13 - Friday (FD) - Friday language (for fun, 13th Friday language, every day is Friday)
+ */
+
+#define use_language 1  // EN by default 
+
+
 #include "watch.h"
 
 /** @addtogroup utility Utility Functions
@@ -49,7 +71,7 @@ typedef struct {
   *        in positions 0-1 of the watch face
   * @param date_time The watch_date_time whose weekday you want.
   */
-const char * watch_utility_get_weekday(watch_date_time date_time);
+const char * watch_utility_get_weekday(watch_date_time date_time, uint8_t language);
 
 /** @brief Returns a number between 1-7 representing the weekday according to ISO8601 : week starts on Monday and has index 1, Sunday has index 7
  * @param year The year of the date

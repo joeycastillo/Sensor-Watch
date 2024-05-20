@@ -136,9 +136,9 @@ bool repetition_minute_face_loop(movement_event_t event, movement_settings_t *se
                 pos = 0;
                 if (event.event_type == EVENT_LOW_ENERGY_UPDATE) {
                     if (!watch_tick_animation_is_running()) watch_start_tick_animation(500);
-                    sprintf(buf, "%s%2d%2d%02d  ", watch_utility_get_weekday(date_time), date_time.unit.day, date_time.unit.hour, date_time.unit.minute);
+                    sprintf(buf, "%s%2d%2d%02d  ", watch_utility_get_weekday(date_time, settings->bit.language), date_time.unit.day, date_time.unit.hour, date_time.unit.minute);
                 } else {
-                    sprintf(buf, "%s%2d%2d%02d%02d", watch_utility_get_weekday(date_time), date_time.unit.day, date_time.unit.hour, date_time.unit.minute, date_time.unit.second);
+                    sprintf(buf, "%s%2d%2d%02d%02d", watch_utility_get_weekday(date_time, settings->bit.language), date_time.unit.day, date_time.unit.hour, date_time.unit.minute, date_time.unit.second);
                 }
             }
             watch_display_string(buf, pos);

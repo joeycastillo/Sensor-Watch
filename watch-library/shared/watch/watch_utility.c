@@ -25,8 +25,70 @@
 #include <math.h>
 #include "watch_utility.h"
 
-const char * watch_utility_get_weekday(watch_date_time date_time) {
-    static const char weekdays[7][3] = {"MO", "TU", "WE", "TH", "FR", "SA", "SU"};
+const char *watch_utility_get_weekday(watch_date_time date_time, uint8_t language) {
+    static const char weekdays_en[7][3] = {"MO", "TU", "WE", "TH", "FR", "SA", "SU"};
+    static const char weekdays_es[7][3] = {"LU", "MA", "MI", "JU", "VI", "SA", "DO"};
+    static const char weekdays_fr[7][3] = {"LU", "MA", "ME", "JE", "VE", "SA", "DI"};
+    static const char weekdays_de[7][3] = {"MO", "DI", "MI", "DO", "FR", "SA", "SO"};
+    static const char weekdays_it[7][3] = {"LU", "MA", "ME", "GI", "VE", "SA", "DO"};
+    static const char weekdays_pt[7][3] = {"SE", "TE", "QA", "QI", "SE", "SA", "DO"};
+    static const char weekdays_nl[7][3] = {"MA", "DI", "WO", "DO", "VR", "ZA", "ZO"};
+    static const char weekdays_da[7][3] = {"MA", "TI", "ON", "TO", "FR", "LO", "SO"};
+    static const char weekdays_sv[7][3] = {"MA", "TI", "ON", "TO", "FR", "LO", "SO"};
+    static const char weekdays_pl[7][3] = {"PO", "WT", "SR", "CZ", "PT", "SO", "ND"};
+    static const char weekdays_fi[7][3] = {"MA", "TI", "KE", "TO", "PE", "LA", "SU"};
+    static const char weekdays_no[7][3] = {"MA", "TI", "ON", "TO", "FR", "LO", "SO"};
+    static const char weekdays_fd[7][3] = {"FR", "FR", "FR", "FR", "FR", "FR", "FR"};
+
+    const char (*weekdays)[3];
+    /*use_language = movement_state.settings.bit.language */
+    
+    switch (language) {
+        case 0:
+            weekdays = weekdays_en;
+            break;
+        case 1:
+            weekdays = weekdays_es;
+            break;
+        case 2:
+            weekdays = weekdays_fr;
+            break;
+        case 3:
+            weekdays = weekdays_de;
+            break;
+        case 4:
+            weekdays = weekdays_it;
+            break;
+        case 5:
+            weekdays = weekdays_pt;
+            break;
+        case 6:
+            weekdays = weekdays_nl;
+            break;
+        case 7:
+            weekdays = weekdays_da;
+            break;
+        case 8:
+            weekdays = weekdays_sv;
+            break;
+        case 9:
+            weekdays = weekdays_pl;
+            break;
+        case 10:
+            weekdays = weekdays_fi;
+            break;
+        case 11:
+            weekdays = weekdays_no;
+            break;
+        case 12:
+            weekdays = weekdays_fd;
+            break;
+
+        default:
+            weekdays = weekdays_en;  // EN by default
+            break;
+    }
+
     return weekdays[watch_utility_get_iso8601_weekday_number(date_time.unit.year + WATCH_RTC_REFERENCE_YEAR, date_time.unit.month, date_time.unit.day) - 1];
 }
 

@@ -95,6 +95,11 @@
 #define MOVEMENT_DEFAULT_LED_DURATION 1
 #endif
 
+// Default language days
+#ifndef MOVEMENT_LANGUAGE
+#define MOVEMENT_LANGUAGE 0 /* EN by default */
+#endif
+
 #if __EMSCRIPTEN__
 #include <emscripten.h>
 #endif
@@ -387,6 +392,7 @@ void app_init(void) {
     movement_state.light_ticks = -1;
     movement_state.alarm_ticks = -1;
     movement_state.next_available_backup_register = 4;
+    movement_state.settings.bit.language = 0; //MOVEMENT_LANGUAGE;  // EN by default
     _movement_reset_inactivity_countdown();
 
     filesystem_init();

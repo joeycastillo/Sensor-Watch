@@ -61,6 +61,7 @@ static bool clock_is_in_24h_mode(movement_settings_t *settings) {
     return settings->bit.clock_mode_24h;
 }
 
+
 static void clock_indicate(WatchIndicatorSegment indicator, bool on) {
     if (on) {
         watch_set_indicator(indicator);
@@ -89,6 +90,8 @@ static void clock_indicate_pm(movement_settings_t *settings, watch_date_time dat
     if (settings->bit.clock_mode_24h) { return; }
     clock_indicate(WATCH_INDICATOR_PM, clock_is_pm(date_time));
 }
+
+
 
 static void clock_indicate_low_available_power(clock_state_t *clock) {
     // Set the LAP indicator if battery power is low
@@ -125,14 +128,14 @@ static void clock_toggle_time_signal(clock_state_t *clock) {
     clock_indicate_time_signal(clock);
 }
 
-static void clock_display_all(watch_date_time date_time) {
+static void clock_display_all(watch_date_time date_time, movement_settings_t *settings) {
     char buf[10 + 1];
 
     snprintf(
         buf,
         sizeof(buf),
         "%s%2d%2d%02d%02d",
-        watch_utility_get_weekday(date_time),
+        watch_utility_get_weekday(date_time, settings->bit.language),
         date_time.unit.day,
         date_time.unit.hour,
         date_time.unit.minute,
@@ -181,18 +184,18 @@ static void clock_display_clock(movement_settings_t *settings, clock_state_t *cl
             clock_indicate_pm(settings, current);
             current = clock_24h_to_12h(current);
         }
-        clock_display_all(current);
+        clock_display_all(current, settings);
     }
 }
 
-static void clock_display_low_energy(watch_date_time date_time) {
+static void clock_display_low_energy(watch_date_time date_time, movement_settings_t *settings) {
     char buf[10 + 1];
 
     snprintf(
         buf,
         sizeof(buf),
         "%s%2d%2d%02d  ",
-        watch_utility_get_weekday(date_time),
+        watch_utility_get_weekday(date_time, settings->bit.language),
         date_time.unit.day,
         date_time.unit.hour,
         date_time.unit.minute
@@ -247,7 +250,7 @@ bool clock_face_loop(movement_event_t event, movement_settings_t *settings, void
     switch (event.event_type) {
         case EVENT_LOW_ENERGY_UPDATE:
             clock_start_tick_tock_animation();
-            clock_display_low_energy(watch_rtc_get_date_time());
+            clock_display_low_energy(watch_rtc_get_date_time(), settings);
             break;
         case EVENT_TICK:
         case EVENT_ACTIVATE:

@@ -74,6 +74,11 @@
  *      effect of mixing the two LED colors. On the Special Edition boards,
  *      you’ll have red, blue and a variety of shades of pink and purple to
  *      experiment with!
+ * 
+ *  LANG - Language.
+ *     This setting allows you to select the display language. 
+ *     Now firmware supports English, Spanish, French, German, Italian, Dutch,  
+ *     Portuguese... and more.
  */
 
 #include "movement.h"

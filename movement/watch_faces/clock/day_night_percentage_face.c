@@ -92,7 +92,7 @@ bool day_night_percentage_face_loop(movement_event_t event, movement_settings_t 
                 break;
             }
 
-            const char* weekday = watch_utility_get_weekday(date_time);
+            const char* weekday = watch_utility_get_weekday(date_time, settings->bit.language);
             if (state->result != 0) {
                 if (state->result == 1) {
                     watch_clear_indicator(WATCH_INDICATOR_PM);
