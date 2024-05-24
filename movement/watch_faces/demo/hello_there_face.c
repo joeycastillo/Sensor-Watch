@@ -58,10 +58,26 @@ bool hello_there_face_loop(movement_event_t event, movement_settings_t *settings
         case EVENT_ACTIVATE:
         case EVENT_TICK:
             // on activate and tick, if we are animating,
+            // if (state->animating) {
+            //     // we display the current word,
+            //     if (state->current_word == 0) watch_display_string("Hello ", 4);
+            //     else watch_display_string(" there", 4);
+            //     // and increment it so that it will update on the next tick.
+            //     state->current_word = (state->current_word + 1) % 2;
+            // }
+            // break;
             if (state->animating) {
                 // we display the current word,
-                if (state->current_word == 0) watch_display_string("Hello ", 4);
-                else watch_display_string(" there", 4);
+                if (state->current_word == 0){
+                    // watch_display_string("FU", 0);
+                    // watch_display_string("CK u", 6);
+                    watch_display_string("CATH", 0);
+                    watch_display_string("RENO", 6);
+                    }
+                else {
+                    watch_display_string("RENO", 0);
+                    watch_display_string("CATH", 6);
+                } 
                 // and increment it so that it will update on the next tick.
                 state->current_word = (state->current_word + 1) % 2;
             }
