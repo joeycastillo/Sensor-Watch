@@ -29,22 +29,28 @@
 #include "watch.h"
 #include "watch_utility.h"
 
-const char *words[12][2] = {
-    {"  ", "OC"}, // "HH  OC",
-    {" 5", " P"}, // " 5 past HH",
-    {"10", " P"}, // "10 past HH",
-    {"15", " P"}, // "15 past HH",
-    {"20", " P"}, // "20 past HH",
-    {"25", " P"}, // "25 past HH",
-    {"30", " P"}, // "30 past HH",
-    {"35", " P"}, // "35 past HH",
-    {"40", " P"}, // "40 past HH",
-    {"15", " 2"}, // "15 two HH+1",
-    {"10", " 2"}, // "10 two HH+1",
-    {" 5", " 2"}, // " 5 two HH+1",
+const char *words[12] = {
+    "  ",
+    " 5",
+    "10",
+    "15",
+    "20",
+    "25",
+    "30",
+    "35",
+    "40",
+    "45",
+    "50",
+    "55",
 };
 
-static const int hour_switch_index = 9;
+static const char *past_word = " P";
+static const char *to_word = " 2";
+static const char *oclock_word = "OC";
+
+// sets when in the five minute period we switch
+// from "X past HH" to  "X to HH+1"
+static const int hour_switch_index = 8;
 
 static void _update_alarm_indicator(bool settings_alarm_enabled, close_enough_clock_state_t *state) {
     state->alarm_enabled = settings_alarm_enabled;
@@ -173,11 +179,24 @@ bool close_enough_clock_face_loop(movement_event_t event, movement_settings_t *s
             char third_word[3];
             if (five_minute_period == 0) { // "HH  OC",
                 sprintf(first_word, "%2d", close_enough_hour);
-                strncpy(second_word, words[five_minute_period][0], 3);
-                strncpy(third_word, words[five_minute_period][1], 3);
+                strncpy(second_word, words[five_minute_period], 3);
+                strncpy(third_word, oclock_word, 3);
             } else {
-                strncpy(first_word, words[five_minute_period][0], 3);
-                strncpy(second_word, words[five_minute_period][1], 3);
+                int words_length = sizeof(words) / sizeof(words[0]);
+
+                strncpy(
+                    first_word,
+                    five_minute_period >= hour_switch_index ?
+                        words[words_length - five_minute_period] :
+                        words[five_minute_period],
+                    3
+                );
+                strncpy(
+                    second_word,
+                    five_minute_period >= hour_switch_index ?
+                        to_word : past_word,
+                    3
+                );
                 sprintf(third_word, "%2d", close_enough_hour);
             }
 
