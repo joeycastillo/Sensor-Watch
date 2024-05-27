@@ -111,4 +111,29 @@ const watch_face_t watch_faces[] = {
 #define MOVEMENT_DEFAULT_BIRTHDATE_MONTH 0
 #define MOVEMENT_DEFAULT_BIRTHDATE_DAY 0
 
+/* Set if the watch will chime every hour and ignorethe start and end chimes
+ * Valid values are:
+ * 0: Use the Start and End values
+ * 1: Chime every hour
+ */
+#define MOVEMENT_DEFAULT_HOURLY_CHIME_ALWAYS 0
+
+/* When hourly chiming should begin (MOVEMENT_DEFAULT_HOURLY_CHIME_ALWAYS must be 0)
+ * Valid values are:
+ * 0: 6am
+ * 1: 7am
+ * 2: 10am
+ * 3: 12pm
+ */
+#define MOVEMENT_DEFAULT_HOURLY_CHIME_START 1
+
+/* When hourly chiming should end (MOVEMENT_DEFAULT_HOURLY_CHIME_ALWAYS must be 0)
+ * Valid values are:
+ * 0: 8pm
+ * 1: 9pm
+ * 2: 10pm
+ * 3: 12am
+ */
+#define MOVEMENT_DEFAULT_HOURLY_CHIME_END 1
+
 #endif // MOVEMENT_CONFIG_H_
