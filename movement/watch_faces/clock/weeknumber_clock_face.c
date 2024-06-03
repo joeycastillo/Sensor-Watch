@@ -151,6 +151,10 @@ bool weeknumber_clock_face_wants_background_task(movement_settings_t *settings, 
     if (!state->signal_enabled) return false;
 
     watch_date_time date_time = watch_rtc_get_date_time();
+    uint8_t chime_start = Hourly_Chime_Start[settings->bit.hourly_chime_start];
+    uint8_t chime_end = Hourly_Chime_End[settings->bit.hourly_chime_end];
+    if (chime_end == 0) chime_end = 24;
+    if (!settings->bit.hourly_chime_always && (date_time.unit.hour < chime_start || date_time.unit.hour >= chime_end)) return false;
 
     return date_time.unit.minute == 0;
 }
