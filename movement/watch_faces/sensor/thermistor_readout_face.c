@@ -45,6 +45,7 @@ void thermistor_readout_face_setup(movement_settings_t *settings, uint8_t watch_
     (void) settings;
     (void) watch_face_index;
     (void) context_ptr;
+    settings->bit.use_imperial_units = !settings->bit.use_imperial_units;
 }
 
 void thermistor_readout_face_activate(movement_settings_t *settings, void *context) {

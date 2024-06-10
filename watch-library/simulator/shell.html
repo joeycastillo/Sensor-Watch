@@ -900,20 +900,7 @@
     <div>
       <input id="volume" name="volume" type="range" min="0" max="100" step="1" oninput="setVolume(this.value)" />
     </div>
-
-    <h2>Location</h2>
-    <div>
-      <button onclick="getLocation()">Set register (will prompt for access)</button>
-    </div>
   </div>
-
-  <form onSubmit="sendText(); return false" style="display: flex; flex-direction: column; width: 100%">
-    <textarea id="output" rows="8" style="width: 100%"></textarea>
-    <div style="display: flex">
-      <input id="input" placeholder="Filesystem command (see filesystem.c)" style="flex-grow: 1"></input>
-      <button type="submit">Send</button>
-    </div>
-  </form>
 
   <p>
     <a href="https://github.com/alexisphilip/Casio-F-91W">Original F-91W SVG</a> is &copy; 2020 Alexis Philip, used here

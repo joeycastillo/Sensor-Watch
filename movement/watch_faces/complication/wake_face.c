@@ -69,7 +69,7 @@ void wake_face_setup(movement_settings_t *settings, uint8_t watch_face_index, vo
         wake_face_state_t *state = (wake_face_state_t *)*context_ptr;
         memset(*context_ptr, 0, sizeof(wake_face_state_t));
 
-        state->hour = 5;
+        state->hour = 6;
         state->minute = 0;
         state->mode = 0;
     }
@@ -121,7 +121,7 @@ bool wake_face_loop(movement_event_t event, movement_settings_t *settings, void 
         _wake_face_update_display(settings, state);
         break;
     case EVENT_ALARM_BUTTON_UP:
-        state->minute = (state->minute + 10) % 60;
+        state->minute = (state->minute + 5) % 60;
         _wake_face_update_display(settings, state);
         break;
     case EVENT_ALARM_LONG_PRESS:

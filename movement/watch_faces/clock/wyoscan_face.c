@@ -60,7 +60,7 @@ a line you've already drawn. It is vaguely top to bottom and counter,
 clockwise when possible.
 */
 static char *segment_map[] = {
-    "AXFBDEXC",  // 0
+    "AXFEDCXB",  // 0
     "BXXXCXXX",  // 1
     "ABGEXXXD",  // 2
     "ABGXXXCD",  // 3
@@ -68,7 +68,7 @@ static char *segment_map[] = {
     "AXFXGXCD",  // 5
     "AXFEDCXG",  // 6
     "AXXBXXCX",  // 7
-    "AFGCDEXB",  // 8
+    "AFGBEDXC",  // 8
     "AFGBXXCD"   // 9
 };
 

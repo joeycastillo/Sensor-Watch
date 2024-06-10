@@ -28,15 +28,92 @@
 #include "movement_faces.h"
 
 const watch_face_t watch_faces[] = {
-    simple_clock_face,
-    world_clock_face,
-    sunrise_sunset_face,
-    moon_phase_face,
-    stopwatch_face,
-    preferences_face,
-    set_time_face,
-    thermistor_readout_face,
-    voltage_face
+    //CLOCKS
+	beats_face,
+	clock_face,
+	day_night_percentage_face,
+	decimal_time_face,
+	mars_time_face,
+	minute_repeater_decimal_face,
+	repetition_minute_face,
+	simple_clock_bin_led_face,
+	simple_clock_face,
+	weeknumber_clock_face,
+	world_clock2_face,
+	world_clock_face,
+	wyoscan_face,
+    //COMPLICATION
+	activity_face,
+	alarm_face,
+	astronomy_face,
+	blink_face,
+	blinky_face,
+	breathing_face,
+	couch_to_5k_face,
+	countdown_face,
+	counter_face,
+	databank_face,
+	day_one_face,
+	discgolf_face,
+	dmvwc_face,
+//	dual_timer_face,
+	flashlight_face,
+	geomancy_face,
+	habit_face,
+	interval_face,
+	invaders_face,
+	kitchen_conversions_face,
+	moon_phase_face,
+	morsecalc_face,
+	orrery_face,
+	planetary_hours_face,
+	planetary_time_face,
+	probability_face,
+	pulsometer_face,
+	randonaut_face,
+	ratemeter_face,
+	rpn_calculator_alt_face,
+	rpn_calculator_face,
+	sailing_face,
+	ships_bell_face,
+	simple_coin_flip_face,
+	solstice_face,
+	stock_stopwatch_face,
+	stopwatch_face,
+	sunrise_sunset_face,
+	tachymeter_face,
+	tally_face,
+	tarot_face,
+	tempchart_face,
+	time_left_face,
+	timer_face,
+	tomato_face,
+	toss_up_face,
+	totp_face,
+	totp_face_lfs,
+	tuning_tones_face,
+	wake_face,
+    //DEMO
+	character_set_face,
+	chirpy_demo_face,
+	demo_face,
+	frequency_correction_face,
+	hello_there_face,
+//	lis2dw_logging_face,
+	voltage_face,
+    //SENSOR
+//	accelerometer_data_acquisition_face,
+	lightmeter_face,
+	thermistor_logging_face,
+	thermistor_readout_face,
+	thermistor_testing_face,
+    //SETTINGS
+	finetune_face,
+	nanosec_face,
+	preferences_face,
+	save_load_face,
+	set_time_face,
+	set_time_hackwatch_face,
 };
 
 #define MOVEMENT_NUM_FACES (sizeof(watch_faces) / sizeof(watch_face_t))
@@ -47,7 +124,7 @@ const watch_face_t watch_faces[] = {
  * Some folks also like to use this to hide the preferences and time set faces from the normal rotation.
  * If you don't want any faces to be excluded, set this to 0 and a long Mode press will have no effect.
  */
-#define MOVEMENT_SECONDARY_FACE_INDEX (MOVEMENT_NUM_FACES - 2) // or (0)
+#define MOVEMENT_SECONDARY_FACE_INDEX (MOVEMENT_NUM_FACES - 4) // or (0)
 
 /* Custom hourly chime tune. Check movement_custom_signal_tunes.h for options. */
 #define SIGNAL_TUNE_DEFAULT
