@@ -26,6 +26,7 @@
 #define MOVEMENT_FACES_H_
 
 #include "simple_clock_face.h"
+#include "clock_face.h"
 #include "world_clock_face.h"
 #include "preferences_face.h"
 #include "set_time_face.h"
@@ -93,6 +94,18 @@
 #include "dual_timer_face.h"
 #include "place_face.h"
 #include "places_face.h"
+#include "simple_clock_bin_led_face.h"
+#include "flashlight_face.h"
+#include "decimal_time_face.h"
+#include "wyoscan_face.h"
+#include "save_load_face.h"
+#include "day_night_percentage_face.h"
+#include "simple_coin_flip_face.h"
+#include "solstice_face.h"
+#include "couch_to_5k_face.h"
+#include "minute_repeater_decimal_face.h"
+#include "tuning_tones_face.h"
+#include "kitchen_conversions_face.h"
 // New includes go above this line.
 
 #endif // MOVEMENT_FACES_H_

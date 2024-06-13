@@ -33,6 +33,7 @@
 #include "watch.h"
 #include "filesystem.h"
 #include "movement.h"
+#include "shell.h"
 
 #ifndef MOVEMENT_FIRMWARE
 #include "movement_config.h"
@@ -54,6 +55,8 @@
 #include "alt_fw/deep_space_now.h"
 #endif
 
+#include "movement_custom_signal_tunes.h"
+
 // Default to no secondary face behaviour.
 #ifndef MOVEMENT_SECONDARY_FACE_INDEX
 #define MOVEMENT_SECONDARY_FACE_INDEX 0
@@ -67,6 +70,31 @@
 #define MOVEMENT_DEFAULT_GREEN_COLOR 0xF
 #endif
 
+// Default to 12h mode
+#ifndef MOVEMENT_DEFAULT_24H_MODE
+#define MOVEMENT_DEFAULT_24H_MODE false
+#endif
+
+// Default to mode button sounding on press
+#ifndef MOVEMENT_DEFAULT_BUTTON_SOUND
+#define MOVEMENT_DEFAULT_BUTTON_SOUND true
+#endif
+
+// Default to switch back to main watch face after 60 seconds
+#ifndef MOVEMENT_DEFAULT_TIMEOUT_INTERVAL
+#define MOVEMENT_DEFAULT_TIMEOUT_INTERVAL 0
+#endif
+
+// Default to switch to low energy mode after 2 hours
+#ifndef MOVEMENT_DEFAULT_LOW_ENERGY_INTERVAL
+#define MOVEMENT_DEFAULT_LOW_ENERGY_INTERVAL 2
+#endif
+
+// Default to 1 second led duration
+#ifndef MOVEMENT_DEFAULT_LED_DURATION
+#define MOVEMENT_DEFAULT_LED_DURATION 1
+#endif
+
 #if __EMSCRIPTEN__
 #include <emscripten.h>
 #endif
@@ -74,7 +102,7 @@
 movement_state_t movement_state;
 void * watch_face_contexts[MOVEMENT_NUM_FACES];
 watch_date_time scheduled_tasks[MOVEMENT_NUM_FACES];
-const int32_t movement_le_inactivity_deadlines[8] = {INT_MAX, 3600, 7200, 21600, 43200, 86400, 172800, 604800};
+const int32_t movement_le_inactivity_deadlines[8] = {INT_MAX, 600, 3600, 7200, 21600, 43200, 86400, 604800};
 const int16_t movement_timeout_inactivity_deadlines[4] = {60, 120, 300, 1800};
 movement_event_t event;
 
@@ -230,7 +258,7 @@ bool movement_default_loop_handler(movement_event_t event, movement_settings_t *
             movement_illuminate_led();
             break;
         case EVENT_MODE_LONG_PRESS:
-            if (MOVEMENT_SECONDARY_FACE_INDEX && movement_state.current_watch_face == 0) {
+            if (MOVEMENT_SECONDARY_FACE_INDEX && movement_state.current_face_idx == 0) {
                 movement_move_to_face(MOVEMENT_SECONDARY_FACE_INDEX);
             } else {
                 movement_move_to_face(0);
@@ -245,25 +273,25 @@ bool movement_default_loop_handler(movement_event_t event, movement_settings_t *
 
 void movement_move_to_face(uint8_t watch_face_index) {
     movement_state.watch_face_changed = true;
-    movement_state.next_watch_face = watch_face_index;
+    movement_state.next_face_idx = watch_face_index;
 }
 
 void movement_move_to_next_face(void) {
     uint16_t face_max;
     if (MOVEMENT_SECONDARY_FACE_INDEX) {
-        face_max = (movement_state.current_watch_face < (int16_t)MOVEMENT_SECONDARY_FACE_INDEX) ? MOVEMENT_SECONDARY_FACE_INDEX : MOVEMENT_NUM_FACES;
+        face_max = (movement_state.current_face_idx < (int16_t)MOVEMENT_SECONDARY_FACE_INDEX) ? MOVEMENT_SECONDARY_FACE_INDEX : MOVEMENT_NUM_FACES;
     } else {
         face_max = MOVEMENT_NUM_FACES;
     }
-    movement_move_to_face((movement_state.current_watch_face + 1) % face_max);
+    movement_move_to_face((movement_state.current_face_idx + 1) % face_max);
 }
 
 void movement_schedule_background_task(watch_date_time date_time) {
-    movement_schedule_background_task_for_face(movement_state.current_watch_face, date_time);
+    movement_schedule_background_task_for_face(movement_state.current_face_idx, date_time);
 }
 
 void movement_cancel_background_task(void) {
-    movement_cancel_background_task_for_face(movement_state.current_watch_face);
+    movement_cancel_background_task_for_face(movement_state.current_face_idx);
 }
 
 void movement_schedule_background_task_for_face(uint8_t watch_face_index, watch_date_time date_time) {
@@ -291,10 +319,32 @@ void movement_request_wake() {
     _movement_reset_inactivity_countdown();
 }
 
+static void end_buzzing() {
+    movement_state.is_buzzing = false;
+}
+
+static void end_buzzing_and_disable_buzzer(void) {
+    end_buzzing();
+    watch_disable_buzzer();
+}
+
 void movement_play_signal(void) {
-    watch_buzzer_play_note(BUZZER_NOTE_C8, 75);
-    watch_buzzer_play_note(BUZZER_NOTE_REST, 100);
-    watch_buzzer_play_note(BUZZER_NOTE_C8, 100);
+    void *maybe_disable_buzzer = end_buzzing_and_disable_buzzer;
+    if (watch_is_buzzer_or_led_enabled()) {
+        maybe_disable_buzzer = end_buzzing;
+    } else {
+        watch_enable_buzzer();
+    }
+    movement_state.is_buzzing = true;
+    watch_buzzer_play_sequence(signal_tune, maybe_disable_buzzer);
+    if (movement_state.le_mode_ticks == -1) {
+        // the watch is asleep. wake it up for "1" round through the main loop.
+        // the sleep_mode_app_loop will notice the is_buzzing and note that it
+        // only woke up to beep and then it will spinlock until the callback
+        // turns off the is_buzzing flag.
+        movement_state.needs_wake = true;
+        movement_state.le_mode_ticks = 1;
+    }
 }
 
 void movement_play_alarm(void) {
@@ -317,7 +367,9 @@ uint8_t movement_claim_backup_register(void) {
 }
 
 void app_init(void) {
-#ifdef WATCH_IS_BLUE_BOARD
+#if defined(NO_FREQCORR)
+    watch_rtc_freqcorr_write(0, 0);
+#elif defined(WATCH_IS_BLUE_BOARD)
     watch_rtc_freqcorr_write(11, 0);
 #else
     watch_rtc_freqcorr_write(22, 0);
@@ -325,11 +377,13 @@ void app_init(void) {
 
     memset(&movement_state, 0, sizeof(movement_state));
 
+    movement_state.settings.bit.clock_mode_24h = MOVEMENT_DEFAULT_24H_MODE;
     movement_state.settings.bit.led_red_color = MOVEMENT_DEFAULT_RED_COLOR;
     movement_state.settings.bit.led_green_color = MOVEMENT_DEFAULT_GREEN_COLOR;
-    movement_state.settings.bit.button_should_sound = true;
-    movement_state.settings.bit.le_interval = 1;
-    movement_state.settings.bit.led_duration = 1;
+    movement_state.settings.bit.button_should_sound = MOVEMENT_DEFAULT_BUTTON_SOUND;
+    movement_state.settings.bit.to_interval = MOVEMENT_DEFAULT_TIMEOUT_INTERVAL;
+    movement_state.settings.bit.le_interval = MOVEMENT_DEFAULT_LOW_ENERGY_INTERVAL;
+    movement_state.settings.bit.led_duration = MOVEMENT_DEFAULT_LED_DURATION;
     movement_state.light_ticks = -1;
     movement_state.alarm_ticks = -1;
     movement_state.next_available_backup_register = 4;
@@ -394,7 +448,7 @@ void app_setup(void) {
             watch_faces[i].setup(&movement_state.settings, i, &watch_face_contexts[i]);
         }
 
-        watch_faces[movement_state.current_watch_face].activate(&movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
+        watch_faces[movement_state.current_face_idx].activate(&movement_state.settings, watch_face_contexts[movement_state.current_face_idx]);
         event.subsecond = 0;
         event.event_type = EVENT_ACTIVATE;
     }
@@ -414,7 +468,7 @@ static void _sleep_mode_app_loop(void) {
         if (movement_state.needs_background_tasks_handled) _movement_handle_background_tasks();
 
         event.event_type = EVENT_LOW_ENERGY_UPDATE;
-        watch_faces[movement_state.current_watch_face].loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
+        watch_faces[movement_state.current_face_idx].loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_face_idx]);
 
         // if we need to wake immediately, do it!
         if (movement_state.needs_wake) return;
@@ -424,16 +478,20 @@ static void _sleep_mode_app_loop(void) {
 }
 
 bool app_loop(void) {
+    const watch_face_t *wf = &watch_faces[movement_state.current_face_idx];
+    bool woke_up_for_buzzer = false;
     if (movement_state.watch_face_changed) {
         if (movement_state.settings.bit.button_should_sound) {
             // low note for nonzero case, high note for return to watch_face 0
-            watch_buzzer_play_note(movement_state.next_watch_face ? BUZZER_NOTE_C7 : BUZZER_NOTE_C8, 50);
+            watch_buzzer_play_note(movement_state.next_face_idx ? BUZZER_NOTE_C7 : BUZZER_NOTE_C8, 50);
         }
-        watch_faces[movement_state.current_watch_face].resign(&movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
-        movement_state.current_watch_face = movement_state.next_watch_face;
+        wf->resign(&movement_state.settings, watch_face_contexts[movement_state.current_face_idx]);
+        movement_state.current_face_idx = movement_state.next_face_idx;
+        // we have just updated the face idx, so we must recache the watch face pointer.
+        wf = &watch_faces[movement_state.current_face_idx];
         watch_clear_display();
         movement_request_tick_frequency(1);
-        watch_faces[movement_state.current_watch_face].activate(&movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
+        wf->activate(&movement_state.settings, watch_face_contexts[movement_state.current_face_idx]);
         event.subsecond = 0;
         event.event_type = EVENT_ACTIVATE;
         movement_state.watch_face_changed = false;
@@ -467,18 +525,24 @@ bool app_loop(void) {
         // _sleep_mode_app_loop takes over at this point and loops until le_mode_ticks is reset by the extwake handler,
         // or wake is requested using the movement_request_wake function.
         _sleep_mode_app_loop();
-        // as soon as _sleep_mode_app_loop returns, we reactivate ourselves.
+        // as soon as _sleep_mode_app_loop returns, we prepare to reactivate
+        // ourselves, but first, we check to see if we woke up for the buzzer:
+        if (movement_state.is_buzzing) {
+            woke_up_for_buzzer = true;
+        }
         event.event_type = EVENT_ACTIVATE;
         // this is a hack tho: waking from sleep mode, app_setup does get called, but it happens before we have reset our ticks.
         // need to figure out if there's a better heuristic for determining how we woke up.
         app_setup();
     }
 
-    static bool can_sleep = true;
+    // default to being allowed to sleep by the face.
+    bool can_sleep = true;
 
     if (event.event_type) {
         event.subsecond = movement_state.subsecond;
-        can_sleep = watch_faces[movement_state.current_watch_face].loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
+        // the first trip through the loop overrides the can_sleep state
+        can_sleep = wf->loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_face_idx]);
         event.event_type = EVENT_NONE;
     }
 
@@ -490,9 +554,17 @@ bool app_loop(void) {
             event.event_type = EVENT_TIMEOUT;
         }
         event.subsecond = movement_state.subsecond;
-        watch_faces[movement_state.current_watch_face].loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_watch_face]);
+        // if we run through the loop again to time out, we need to reconsider whether or not we can sleep.
+        // if the first trip said true, but this trip said false, we need the false to override, thus
+        // we will be using boolean AND:
+        //
+        // first trip  | can sleep | cannot sleep | can sleep    | cannot sleep
+        // second trip | can sleep | cannot sleep | cannot sleep | can sleep
+        //          && | can sleep | cannot sleep | cannot sleep | cannot sleep
+        bool can_sleep2 = wf->loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_face_idx]);
+        can_sleep = can_sleep && can_sleep2;
         event.event_type = EVENT_NONE;
-        if (movement_state.settings.bit.to_always && movement_state.current_watch_face != 0) {
+        if (movement_state.settings.bit.to_always && movement_state.current_face_idx != 0) {
             // ...but if the user has "timeout always" set, give it the boot.
             movement_move_to_face(0);
         }
@@ -518,30 +590,9 @@ bool app_loop(void) {
         }
     }
 
-    // if we are plugged into USB, handle the file browser tasks
+    // if we are plugged into USB, handle the serial shell
     if (watch_is_usb_enabled()) {
-        char line[256] = {0};
-#if __EMSCRIPTEN__
-        // This is a terrible hack; ideally this should be handled deeper in the watch library.
-        // Alas, emscripten treats read() as something that should pop up an input box, so I
-        // wasn't able to implement this over there. I sense that this relates to read() being
-        // the wrong way to read data from USB (like we should be using fgets or something), but
-        // until I untangle that, this will have to do.
-        char *received_data = (char*)EM_ASM_INT({
-            var len = lengthBytesUTF8(tx) + 1;
-            var s = _malloc(len);
-            stringToUTF8(tx, s, len);
-            return s;
-        });
-        memcpy(line, received_data, min(255, strlen(received_data)));
-        free(received_data);
-        EM_ASM({
-            tx = "";
-        });
-#else
-        read(0, line, 256);
-#endif
-        if (strlen(line)) filesystem_process_command(line);
+        shell_task();
     }
 
     event.subsecond = 0;
@@ -549,8 +600,13 @@ bool app_loop(void) {
     // if the watch face changed, we can't sleep because we need to update the display.
     if (movement_state.watch_face_changed) can_sleep = false;
 
-    // if the buzzer or the LED is on, we need to stay awake to keep the TCC running.
-    if (movement_state.is_buzzing || movement_state.light_ticks != -1) can_sleep = false;
+    // if we woke up for the buzzer, stay awake until it's finished.
+    if (woke_up_for_buzzer) {
+        while(watch_is_buzzer_or_led_enabled());
+    }
+
+    // if the LED is on, we need to stay awake to keep the TCC running.
+    if (movement_state.light_ticks != -1) can_sleep = false;
 
     return can_sleep;
 }
@@ -613,13 +669,13 @@ void cb_fast_tick(void) {
     // Notice: is it possible that two or more buttons have an identical timestamp? In this case
     // only one of these buttons would receive the long press event. Don't bother for now...
     if (movement_state.light_down_timestamp > 0)
-        if (movement_state.fast_ticks - movement_state.light_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1) 
+        if (movement_state.fast_ticks - movement_state.light_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1)
             event.event_type = EVENT_LIGHT_LONG_PRESS;
     if (movement_state.mode_down_timestamp > 0)
-        if (movement_state.fast_ticks - movement_state.mode_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1) 
+        if (movement_state.fast_ticks - movement_state.mode_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1)
             event.event_type = EVENT_MODE_LONG_PRESS;
     if (movement_state.alarm_down_timestamp > 0)
-        if (movement_state.fast_ticks - movement_state.alarm_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1) 
+        if (movement_state.fast_ticks - movement_state.alarm_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1)
             event.event_type = EVENT_ALARM_LONG_PRESS;
     // this is just a fail-safe; fast tick should be disabled as soon as the button is up, the LED times out, and/or the alarm finishes.
     // but if for whatever reason it isn't, this forces the fast tick off after 20 seconds.

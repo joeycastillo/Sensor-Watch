@@ -25,11 +25,22 @@
 #ifndef COUNTER_FACE_H_
 #define COUNTER_FACE_H_
 
+/*
+ * COUNTER face
+ *
+ * Counter face is designed to count the number of running laps during exercises.
+ *
+ * Usage:
+ * Short-press ALARM to increment the counter (loops at 99)
+ * Long-press ALARM to reset the counter.
+ * Long-press LIGHT to toggle sound.
+ */
+
 #include "movement.h"
 
-// Counter face is designed to count the number of running laps during excercises.
 typedef struct {
     uint8_t counter_idx;
+    bool beep_on;
 } counter_state_t;
 
 

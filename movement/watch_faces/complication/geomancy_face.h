@@ -25,10 +25,8 @@
 #ifndef GEOMANCY_FACE_H_
 #define GEOMANCY_FACE_H_
 
-#include "movement.h"
-
 /*
- * GEOMANCY WATCH FACE
+ * GEOMANCY watch face
  *
  * A simple and straightforward watch face for the ancient Eastern geomantic divination system
  * of I Ching and the western system of "Geomancy". It is an optional addition to the Toss Up
@@ -64,6 +62,8 @@
  * TD - Tail of the Dragon (Cauda Draconis)
  * 
  */
+
+#include "movement.h"
 
 typedef struct {
     uint8_t bits : 4;

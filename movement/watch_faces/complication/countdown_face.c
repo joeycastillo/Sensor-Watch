@@ -23,26 +23,11 @@
  * SOFTWARE.
  */
 
-//-----------------------------------------------------------------------------
-
 #include <stdlib.h>
 #include <string.h>
 #include "countdown_face.h"
 #include "watch.h"
 #include "watch_utility.h"
-
-/*
-    Slight extension of the original countdown face by Wesley Ellis.
-
-    - Press the light button to enter setting mode and adjust the
-      countdown timer.
-
-    - Start and pause the countdown using the alarm button, similar to the
-      stopwatch face.
-
-    - When paused or terminated, press the light button to restore the
-      last entered countdown.
-*/
 
 #define CD_SELECTIONS 3
 #define DEFAULT_MINUTES 3

@@ -66,10 +66,10 @@ int main(void) {
     // Watch library code. Set initial parameters for the device and enable the RTC.
     _watch_init();
 
-    // if date/time register is 0 (power on reset state), default year to 2022.
+    // if date/time register is 0 (power on reset state), default year to 2023.
     watch_date_time date_time = watch_rtc_get_date_time();
     if (date_time.reg == 0) {
-        date_time.unit.year = 2;
+        date_time.unit.year = 3;
         watch_rtc_set_date_time(date_time);
     }
 
@@ -79,7 +79,6 @@ int main(void) {
     while (1) {
         bool usb_enabled = hri_usbdevice_get_CTRLA_ENABLE_bit(USB);
         bool can_sleep = app_loop();
-
         if (can_sleep && !usb_enabled) {
             app_prepare_for_standby();
             sleep(4);

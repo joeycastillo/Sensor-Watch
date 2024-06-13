@@ -22,15 +22,13 @@
  * SOFTWARE.
  */
 
-//-----------------------------------------------------------------------------
-
 #include <stdlib.h>
 #include <string.h>
 #include "timer_face.h"
 #include "watch.h"
 #include "watch_utility.h"
 
-static const uint16_t _default_timer_values[] = {0x200, 0x500, 0xA00, 0x1400, 0x2D02}; // default timers: 2 min, 5 min, 10 min, 20 min, 2 h 45 min
+static const uint32_t _default_timer_values[] = {0x000200, 0x000500, 0x000A00, 0x001400, 0x002D02}; // default timers: 2 min, 5 min, 10 min, 20 min, 2 h 45 min
 
 // sound sequence for a single beeping sequence
 static const int8_t _sound_seq_beep[] = {BUZZER_NOTE_C8, 3, BUZZER_NOTE_REST, 3, -2, 2, BUZZER_NOTE_C8, 5, BUZZER_NOTE_REST, 25, 0};
@@ -62,9 +60,9 @@ static void _start(timer_state_t *state, movement_settings_t *settings, bool wit
                                                           state->timers[state->current_timer].unit.seconds);
     watch_date_time target_dt = watch_utility_date_time_from_unix_time(state->target_ts, _get_tz_offset(settings));
     state->mode = running;
-    movement_schedule_background_task(target_dt);
+    movement_schedule_background_task_for_face(state->watch_face_index, target_dt);
     watch_set_indicator(WATCH_INDICATOR_BELL);
-    if (settings->bit.button_should_sound && with_beep) watch_buzzer_play_sequence((int8_t *)_sound_seq_start, NULL);
+    if (with_beep) watch_buzzer_play_sequence((int8_t *)_sound_seq_start, NULL);
 }
 
 static void _draw(timer_state_t *state, uint8_t subsecond) {
@@ -128,7 +126,7 @@ static void _draw(timer_state_t *state, uint8_t subsecond) {
 
 static void _reset(timer_state_t *state) {
     state->mode = waiting;
-    movement_cancel_background_task();
+    movement_cancel_background_task_for_face(state->watch_face_index);
     watch_clear_indicator(WATCH_INDICATOR_BELL);
 }
 
@@ -193,13 +191,13 @@ static inline bool _check_for_signal() {
 
 void timer_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
-    (void) watch_face_index;
 
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(timer_state_t));
         timer_state_t *state = (timer_state_t *)*context_ptr;
         memset(*context_ptr, 0, sizeof(timer_state_t));
-        for (uint8_t i = 0; i < sizeof(_default_timer_values) / sizeof(uint16_t); i++) {
+        state->watch_face_index = watch_face_index;
+        for (uint8_t i = 0; i < sizeof(_default_timer_values) / sizeof(uint32_t); i++) {
             state->timers[i].value = _default_timer_values[i];
         }
     }

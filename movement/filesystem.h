@@ -96,9 +96,10 @@ bool filesystem_write_file(char *filename, char *text, int32_t length);
   */
 bool filesystem_append_file(char *filename, char *text, int32_t length);
 
-/** @brief Handles the interactive file browser when Movement is plugged in to USB.
-  * @param line The command that the user typed into the serial console.
-  */
-void filesystem_process_command(char *line);
+int filesystem_cmd_ls(int argc, char *argv[]);
+int filesystem_cmd_cat(int argc, char *argv[]);
+int filesystem_cmd_df(int argc, char *argv[]);
+int filesystem_cmd_rm(int argc, char *argv[]);
+int filesystem_cmd_echo(int argc, char *argv[]);
 
 #endif // FILESYSTEM_H_

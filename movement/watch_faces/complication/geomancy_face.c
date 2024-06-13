@@ -60,10 +60,10 @@ static const char figures[16][2] = {
 
 // DECLARATIONS ///////////////////////////////////////////////////////////////
 
-static void geomancy_face_display();
-static nibble_t _geomancy_pick_figure();
-static tribble_t _iching_pick_trigram();
-static uint8_t _iching_form_hexagram();
+static void geomancy_face_display(geomancy_state_t *state);
+static nibble_t _geomancy_pick_figure(void);
+static tribble_t _iching_pick_trigram(void);
+static uint8_t _iching_form_hexagram(void);
 static void _geomancy_display(nibble_t code);
 static void _display_hexagram(uint8_t hexagram, char* str);
 static void _fix_broken_line(uint8_t hexagram);
@@ -150,7 +150,6 @@ void geomancy_face_resign(movement_settings_t *settings, void *context) {
 // STATIC FUNCTIONS ///////////////////////////////////////////////////////////
 
 /** @brief display handler */
-static void geomancy_face_display(geomancy_state_t *state);
 static void geomancy_face_display(geomancy_state_t *state) {
     char token[7] = {0};
     nibble_t figure = *((nibble_t*) &state->geomantic_figure);

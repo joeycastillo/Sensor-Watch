@@ -26,16 +26,6 @@
 #ifndef DUAL_TIMER_FACE_H_
 #define DUAL_TIMER_FACE_H_
 
-#include "movement.h"
-
-/*
- * IMPORTANT: This watch face uses the same TC2 callback counter as the Stock Stopwatch
- * watch-face. It works through calling a global handler function. The two watch-faces
- * therefore can't coexist within the same firmware. If you want to compile this watch-face
- * then you need to remove the line <../watch_faces/complication/stock_stopwatch_face.c \>
- * from the Makefile.
- */
-
 /*
  * DUAL TIMER
  * ==========
@@ -70,7 +60,14 @@
  * the timers. In this case LONG PRESSING MODE will move to the next face instead of moving
  * back to the default watch face.
  *
+ * IMPORTANT: This watch face uses the same TC2 callback counter as the Stock Stopwatch
+ * watch-face. It works through calling a global handler function. The two watch-faces
+ * therefore can't coexist within the same firmware. If you want to compile this watch-face
+ * then you need to remove the line <../watch_faces/complication/stock_stopwatch_face.c \>
+ * from the Makefile.
  */
+
+#include "movement.h"
 
 typedef struct {
     uint8_t centiseconds : 7;  // 0-59

@@ -278,14 +278,14 @@ static void _randonaut_face_display(randonaut_state_t *state) {
                     sprintf(buf, "BE # %d", state->point.bearing );
                     break;
                 case 3: // latitude DD._____
-                    sprintf(state->scratchpad, "%07d", abs(state->point.latitude));
+                    sprintf(state->scratchpad, "%07d", abs((int32_t)(state->point.latitude)));
                     sprintf(buf, "LA #%c %c%c  ", state->point.latitude < 0 ? '-' : '+', state->scratchpad[0], state->scratchpad[1]);
                     break;
                 case 4: // latitude __.DDDDD
                     sprintf(buf, "LA , %c%c%c%c%c", state->scratchpad[2], state->scratchpad[3],state->scratchpad[4], state->scratchpad[5],state->scratchpad[6]);
                     break;
                 case 5: // longitude DD._____
-                    sprintf(state->scratchpad, "%08d", abs(state->point.longitude));
+                    sprintf(state->scratchpad, "%08d", abs((int32_t)(state->point.longitude)));
                     sprintf(buf, "LO #%c%c%c%c  ", state->point.longitude < 0 ? '-' : '+',state->scratchpad[0], state->scratchpad[1], state->scratchpad[2]);
                     break;
                 case 6: // longitude __.DDDDD
@@ -357,7 +357,7 @@ static uint32_t _get_true_entropy(void) {
 
     while (!hri_trng_get_INTFLAG_reg(TRNG, TRNG_INTFLAG_DATARDY)); // Wait for TRNG data to be ready
 
-    hri_trng_clear_CTRLA_ENABLE_bit(TRNG);
+    watch_disable_TRNG();
     hri_mclk_clear_APBCMASK_TRNG_bit(MCLK);
     return hri_trng_read_DATA_reg(TRNG); // Read a single 32-bit word from TRNG and return it
     #endif
