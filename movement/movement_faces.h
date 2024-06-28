@@ -104,6 +104,7 @@
 #include "minute_repeater_decimal_face.h"
 #include "tuning_tones_face.h"
 #include "kitchen_conversions_face.h"
+#include "medical_thermometer_face.h"
 // New includes go above this line.
 
 #endif // MOVEMENT_FACES_H_
