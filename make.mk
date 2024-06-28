@@ -154,6 +154,7 @@ SRCS += \
   $(TOP)/watch-library/shared/driver/lis2dw.c \
   $(TOP)/watch-library/shared/driver/opt3001.c \
   $(TOP)/watch-library/shared/driver/spiflash.c \
+  $(TOP)/watch-library/shared/driver/si1133.c \
   $(TOP)/watch-library/shared/watch/watch_private_buzzer.c \
   $(TOP)/watch-library/shared/watch/watch_private_display.c \
   $(TOP)/watch-library/shared/watch/watch_utility.c \
@@ -242,3 +243,5 @@ endif
 ifdef CLOCK_FACE_24H_ONLY
 CFLAGS += -DCLOCK_FACE_24H_ONLY
 endif
+
+CFLAGS += -g

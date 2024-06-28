@@ -1,0 +1,4 @@
+(sym_lib_table
+  (lib (name "OSO-MISC-21-002 Sensor Watch Environment-eagle-import")(type "KiCad")(uri "${KIPRJMOD}/OSO-MISC-21-002 Sensor Watch Environment-eagle-import.kicad_sym")(options "")(descr ""))
+  (lib (name "2022-04-23_15-51-12")(type "KiCad")(uri "C:/Users/danie/Downloads/ul_SI1133-AA00-GMR/KiCAD/2022-04-23_15-51-12/2022-04-23_15-51-12.kicad_sym")(options "")(descr ""))
+)
