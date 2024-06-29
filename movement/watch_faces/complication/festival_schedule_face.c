@@ -338,8 +338,8 @@ static void start_quick_cyc(void){
     movement_request_tick_frequency(8);
 }
 
-static bool _light_held;
 static void handle_ts_ticks(festival_schedule_state_t *state, bool clock_mode_24h){
+    static bool _light_held;
     if (_light_held){
         if (!watch_get_pin_level(BTN_LIGHT)) _light_held = false;
         else return;
