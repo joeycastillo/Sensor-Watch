@@ -1,0 +1,4 @@
+beautifulsoup4==4.9.3
+pytz==2020.1
+spotipy==2.24.0
+Unidecode==1.2.0

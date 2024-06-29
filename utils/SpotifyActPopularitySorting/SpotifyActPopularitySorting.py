@@ -10,7 +10,7 @@ import pytz
 
 TZ = pytz.timezone('US/Central')  # Clashfinder is in Central time
 
-MAKE_ARR_FILE = 1
+MAKE_ARR_FILE = 1 # 0 = Don't make the file; 1= Make the file; 2 = Make the file and print it to the console
 PRINT_RANKINGs = 1
 USE_TEST_ARR = 0
 PRINT_SEARCH_RESULTS = 1
@@ -292,10 +292,9 @@ def get_client_credentials(file_path="creds.json"):
             client_id = data['client_id']
             client_secret = data['client_secret']
             return client_id, client_secret
-    except FileNotFoundError:
-        raise FileNotFoundError(f"The file at {file_path} was not found.")
-    except KeyError as e:
-        raise KeyError(f"The key {e} was not found in the JSON file.")
+    except (KeyError, FileNotFoundError, json.decoder.JSONDecodeError) as e:
+        print(f"No Spotify credentials found. {e}. Setting all acts to a popularity of 0.")
+        return None, None
 
 def get_artist(artist_name, client_id, client_secret):
     first_match = False
@@ -433,6 +432,10 @@ def getFullArray(listActs):
     listActsPop = []
     listActsInListDuos = []
     client_id, client_secret = get_client_credentials()
+    if client_id is None and client_secret is None:  # If there aren't any Spotify credentials, just set the popularity of all acts to zero
+        for act in listActs:
+            listActsPop.append({'name':act, 'followers' : 0, "popularity" : 0})
+        return listActsPop
     for act in listActs:
         act_spot = duoActs.get(act, act)
         if isinstance(act_spot,list):
@@ -557,7 +560,8 @@ def get_name_to_display(act, i=0):
 
 def writeAndPrint(file, text):
     file.write(f"{text}\n")
-    print(text)
+    if MAKE_ARR_FILE == 2:
+        print(text)
 
 def print_array_for_watch(listActs, sorted_listing, day_info, filename, genre_list):
     with open(f'{filename}.txt', 'w') as f:
@@ -667,6 +671,6 @@ if __name__ == "__main__":
             print_md_lst(sorted_listing_missing, not_in_genre_list)
         
     if MAKE_ARR_FILE:
-        print_array_for_watch(listActs, sorted_listing, day_info ,"in_dict", in_genre_list)
+        print_array_for_watch(listActs, sorted_listing, day_info ,"festival_schedule_arr", in_genre_list)
         if sorted_listing_missing:
-            print_array_for_watch(not_in_genre_list, sorted_listing_missing, day_info, "missing", not_in_genre_list)
+            print_array_for_watch(not_in_genre_list, sorted_listing_missing, day_info, "missing_festival_schedule_arr", not_in_genre_list)

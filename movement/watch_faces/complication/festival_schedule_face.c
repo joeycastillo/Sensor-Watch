@@ -482,7 +482,7 @@ bool festival_schedule_face_loop(movement_event_t event, movement_settings_t *se
             break;
         case EVENT_MODE_BUTTON_UP:
             if (state->showing_title) movement_move_to_next_face();
-            else{
+            else if (state->curr_act != NUM_ACTS){
                 state->curr_screen = (state->curr_screen + 1) % SCREENS_COUNT;
                 _display_screen(state, settings->bit.clock_mode_24h);
             }
