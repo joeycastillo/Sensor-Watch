@@ -25,3 +25,7 @@ _autosave*
 fp-info-cache
 .~*
 *.plan
+utils/SpotifyActPopularitySorting/creds.json
+utils/SpotifyActPopularitySorting/*.txt
+utils/SpotifyActPopularitySorting/.cache
+utils/SpotifyActPopularitySorting/venv
