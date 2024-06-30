@@ -30,6 +30,9 @@
 #include "driver_init.h"
 #include "pins.h"
 
+#define SWCLK GPIO(GPIO_PORTA, 30)
+#define SWDIO GPIO(GPIO_PORTA, 31)
+
 #ifdef __EMSCRIPTEN__
 #include "watch_main_loop.h"
 #endif // __EMSCRIPTEN__

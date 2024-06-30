@@ -35,10 +35,24 @@ void watch_disable_leds(void) {
 }
 
 void watch_set_led_color(uint8_t red, uint8_t green) {
+#ifdef WATCH_BLUE_TCC_CHANNEL
+    watch_set_led_color_rgb(red, green, 0);
+#else
+    watch_set_led_color_rgb(red, green, green);
+#endif
+}
+
+void watch_set_led_color_rgb(uint8_t red, uint8_t green, uint8_t blue) {
+#ifndef WATCH_BLUE_TCC_CHANNEL
+    (void) blue; // silence warning
+#endif
     if (hri_tcc_get_CTRLA_reg(TCC0, TCC_CTRLA_ENABLE)) {
         uint32_t period = hri_tcc_get_PER_reg(TCC0, TCC_PER_MASK);
         hri_tcc_write_CCBUF_reg(TCC0, WATCH_RED_TCC_CHANNEL, ((period * red * 1000ull) / 255000ull));
         hri_tcc_write_CCBUF_reg(TCC0, WATCH_GREEN_TCC_CHANNEL, ((period * green * 1000ull) / 255000ull));
+#ifdef WATCH_BLUE_TCC_CHANNEL
+        hri_tcc_write_CCBUF_reg(TCC0, WATCH_BLUE_TCC_CHANNEL, ((period * blue * 1000ull) / 255000ull));
+#endif
     }
 }
 

@@ -44,6 +44,11 @@ void watch_set_led_color(uint8_t red, uint8_t green) {
     }, red, green);
 }
 
+void watch_set_led_color_rgb(uint8_t red, uint8_t green, uint8_t blue) {
+    (void) blue;
+    watch_set_led_color(red, green);
+}
+
 void watch_set_led_red(void) {
     watch_set_led_color(255, 0);
 }
