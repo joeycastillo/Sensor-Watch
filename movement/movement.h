@@ -242,6 +242,8 @@ typedef struct {
 typedef struct {
     // properties stored in BACKUP register
     movement_settings_t settings;
+    movement_location_t location;
+    movement_birthdate_t birthdate;
 
     // transient properties
     int16_t current_face_idx;
