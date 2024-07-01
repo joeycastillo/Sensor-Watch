@@ -4,7 +4,7 @@
 #include <inttypes.h>
 #include "time.h"
 
-typedef enum {
+typedef enum __attribute__ ((__packed__)) {
     SHA1,
     SHA224,
     SHA256,
