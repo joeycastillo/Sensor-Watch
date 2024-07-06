@@ -113,39 +113,42 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span><span class="preprocessor">#include &quot;driver_init.h&quot;</span></div>
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span><span class="preprocessor">#include &quot;pins.h&quot;</span></div>
 <div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span> </div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span><span class="preprocessor">#ifdef __EMSCRIPTEN__</span></div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span><span class="preprocessor">#include &quot;watch_main_loop.h&quot;</span></div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span><span class="preprocessor">#endif </span><span class="comment">// __EMSCRIPTEN__</span></div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span> </div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span><span class="preprocessor">#include &quot;watch_app.h&quot;</span></div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span><span class="preprocessor">#include &quot;watch_rtc.h&quot;</span></div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span><span class="preprocessor">#include &quot;watch_slcd.h&quot;</span></div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span><span class="preprocessor">#include &quot;watch_extint.h&quot;</span></div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span><span class="preprocessor">#include &quot;watch_led.h&quot;</span></div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span><span class="preprocessor">#include &quot;watch_buzzer.h&quot;</span></div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span><span class="preprocessor">#include &quot;watch_adc.h&quot;</span></div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span><span class="preprocessor">#include &quot;watch_gpio.h&quot;</span></div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span><span class="preprocessor">#include &quot;watch_i2c.h&quot;</span></div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span><span class="preprocessor">#include &quot;watch_spi.h&quot;</span></div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span><span class="preprocessor">#include &quot;watch_uart.h&quot;</span></div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span><span class="preprocessor">#include &quot;watch_storage.h&quot;</span></div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span><span class="preprocessor">#include &quot;watch_deepsleep.h&quot;</span></div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span> </div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span><span class="preprocessor">#include &quot;watch_private.h&quot;</span></div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span> </div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno"><a class="line" href="watch_8h.html#a6df21baf06b4a5392d95dd3cdde75d94">   81</a></span><span class="keywordtype">bool</span> <a class="code hl_function" href="watch_8h.html#a6df21baf06b4a5392d95dd3cdde75d94">watch_is_buzzer_or_led_enabled</a>(<span class="keywordtype">void</span>);</div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span> </div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno"><a class="line" href="watch_8h.html#a1324426e2c366033abbb1b2e78b61305">   85</a></span><span class="keywordtype">bool</span> <a class="code hl_function" href="watch_8h.html#a1324426e2c366033abbb1b2e78b61305">watch_is_usb_enabled</a>(<span class="keywordtype">void</span>);</div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span> </div>
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno"><a class="line" href="watch_8h.html#a4b79c545e0876aefdbd405d469ce27f4">   89</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="watch_8h.html#a4b79c545e0876aefdbd405d469ce27f4">watch_reset_to_bootloader</a>(<span class="keywordtype">void</span>);</div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span> </div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno"><a class="line" href="watch_8h.html#a15fb1a0b0834fa71d213d4228d94a849">   93</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="watch_8h.html#a15fb1a0b0834fa71d213d4228d94a849">cdc_task</a>(<span class="keywordtype">void</span>);</div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span> </div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno"><a class="line" href="watch_8h.html#aa0c5d610f8b61891a7cf5fca2671b6f9">  101</a></span><span class="keywordtype">int</span> <a class="code hl_function" href="watch_8h.html#aa0c5d610f8b61891a7cf5fca2671b6f9">read</a>(<span class="keywordtype">int</span> file, <span class="keywordtype">char</span> *ptr, <span class="keywordtype">int</span> len);</div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span> </div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno"><a class="line" href="watch_8h.html#a0563dd257b275d2ebb89a54f578b1ac1">  105</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="watch_8h.html#a0563dd257b275d2ebb89a54f578b1ac1">watch_disable_TRNG</a>();</div>
-<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span> </div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span><span class="preprocessor">#endif </span><span class="comment">/* WATCH_H_ */</span><span class="preprocessor"></span></div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span><span class="preprocessor">#define SWCLK GPIO(GPIO_PORTA, 30)</span></div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span><span class="preprocessor">#define SWDIO GPIO(GPIO_PORTA, 31)</span></div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span> </div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span><span class="preprocessor">#ifdef __EMSCRIPTEN__</span></div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span><span class="preprocessor">#include &quot;watch_main_loop.h&quot;</span></div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span><span class="preprocessor">#endif </span><span class="comment">// __EMSCRIPTEN__</span></div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span> </div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span><span class="preprocessor">#include &quot;watch_app.h&quot;</span></div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span><span class="preprocessor">#include &quot;watch_rtc.h&quot;</span></div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span><span class="preprocessor">#include &quot;watch_slcd.h&quot;</span></div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span><span class="preprocessor">#include &quot;watch_extint.h&quot;</span></div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span><span class="preprocessor">#include &quot;watch_led.h&quot;</span></div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span><span class="preprocessor">#include &quot;watch_buzzer.h&quot;</span></div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span><span class="preprocessor">#include &quot;watch_adc.h&quot;</span></div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span><span class="preprocessor">#include &quot;watch_gpio.h&quot;</span></div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span><span class="preprocessor">#include &quot;watch_i2c.h&quot;</span></div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span><span class="preprocessor">#include &quot;watch_spi.h&quot;</span></div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span><span class="preprocessor">#include &quot;watch_uart.h&quot;</span></div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span><span class="preprocessor">#include &quot;watch_storage.h&quot;</span></div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span><span class="preprocessor">#include &quot;watch_deepsleep.h&quot;</span></div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span> </div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span><span class="preprocessor">#include &quot;watch_private.h&quot;</span></div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span> </div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno"><a class="line" href="watch_8h.html#a6df21baf06b4a5392d95dd3cdde75d94">   84</a></span><span class="keywordtype">bool</span> <a class="code hl_function" href="watch_8h.html#a6df21baf06b4a5392d95dd3cdde75d94">watch_is_buzzer_or_led_enabled</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span> </div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno"><a class="line" href="watch_8h.html#a1324426e2c366033abbb1b2e78b61305">   88</a></span><span class="keywordtype">bool</span> <a class="code hl_function" href="watch_8h.html#a1324426e2c366033abbb1b2e78b61305">watch_is_usb_enabled</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span> </div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno"><a class="line" href="watch_8h.html#a4b79c545e0876aefdbd405d469ce27f4">   92</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="watch_8h.html#a4b79c545e0876aefdbd405d469ce27f4">watch_reset_to_bootloader</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span> </div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno"><a class="line" href="watch_8h.html#a15fb1a0b0834fa71d213d4228d94a849">   96</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="watch_8h.html#a15fb1a0b0834fa71d213d4228d94a849">cdc_task</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span> </div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno"><a class="line" href="watch_8h.html#aa0c5d610f8b61891a7cf5fca2671b6f9">  104</a></span><span class="keywordtype">int</span> <a class="code hl_function" href="watch_8h.html#aa0c5d610f8b61891a7cf5fca2671b6f9">read</a>(<span class="keywordtype">int</span> file, <span class="keywordtype">char</span> *ptr, <span class="keywordtype">int</span> len);</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span> </div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno"><a class="line" href="watch_8h.html#a0563dd257b275d2ebb89a54f578b1ac1">  108</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="watch_8h.html#a0563dd257b275d2ebb89a54f578b1ac1">watch_disable_TRNG</a>();</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span> </div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span><span class="preprocessor">#endif </span><span class="comment">/* WATCH_H_ */</span><span class="preprocessor"></span></div>
 <div class="ttc" id="awatch_8h_html_a0563dd257b275d2ebb89a54f578b1ac1"><div class="ttname"><a href="watch_8h.html#a0563dd257b275d2ebb89a54f578b1ac1">watch_disable_TRNG</a></div><div class="ttdeci">void watch_disable_TRNG()</div><div class="ttdoc">Disables the TRNG twice in order to work around silicon erratum 1.16.1.</div></div>
 <div class="ttc" id="awatch_8h_html_a1324426e2c366033abbb1b2e78b61305"><div class="ttname"><a href="watch_8h.html#a1324426e2c366033abbb1b2e78b61305">watch_is_usb_enabled</a></div><div class="ttdeci">bool watch_is_usb_enabled(void)</div><div class="ttdoc">Returns true if USB is enabled.</div></div>
 <div class="ttc" id="awatch_8h_html_a15fb1a0b0834fa71d213d4228d94a849"><div class="ttname"><a href="watch_8h.html#a15fb1a0b0834fa71d213d4228d94a849">cdc_task</a></div><div class="ttdeci">void cdc_task(void)</div><div class="ttdoc">Call periodically from app main loop to service CDC RX/TX.</div></div>
