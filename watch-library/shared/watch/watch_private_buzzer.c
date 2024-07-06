@@ -23,6 +23,7 @@
  */
 #include "driver_init.h"
 
+uint16_t sequence_length(int8_t *sequence);
 uint16_t sequence_length(int8_t *sequence) {
     uint16_t result = 0;
 
