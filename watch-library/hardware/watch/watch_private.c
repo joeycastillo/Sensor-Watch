@@ -31,6 +31,11 @@ void _watch_init(void) {
     // disable the LED pin (it may have been enabled by the bootloader)
     watch_disable_digital_output(GPIO(GPIO_PORTA, 20));
 
+    // disable debugger hot-plugging
+    gpio_set_pin_function(SWCLK, GPIO_PIN_FUNCTION_OFF);
+    gpio_set_pin_direction(SWCLK, GPIO_DIRECTION_OFF);
+    gpio_set_pin_pull_mode(SWCLK, GPIO_PULL_OFF);
+
     // RAM should be back-biased in STANDBY
     PM->STDBYCFG.bit.BBIASHS = 1;
 
@@ -152,11 +157,14 @@ void _watch_enable_tcc(void) {
     //    period (i.e. a square wave with a 50% duty cycle).
     //  * LEDs on CC[2] and CC[3] can be set to any value from 0 (off) to PER (fully on).
     hri_tcc_write_WAVE_reg(TCC0, TCC_WAVE_WAVEGEN_NPWM);
-    #ifdef WATCH_INVERT_LED_POLARITY
-    // This is here for the dev board, which uses a common anode LED (instead of common cathode like the actual watch).
+#ifdef WATCH_INVERT_LED_POLARITY
+    // This is here for the dev board and Pro, which use a common anode LED (instead of common cathode like the actual watch).
     hri_tcc_set_WAVE_reg(TCC0, (1 << (TCC_WAVE_POL0_Pos + WATCH_RED_TCC_CHANNEL)) |
+#ifdef WATCH_BLUE_TCC_CHANNEL
+                               (1 << (TCC_WAVE_POL0_Pos + WATCH_BLUE_TCC_CHANNEL)) |
+#endif // WATCH_BLUE_TCC_CHANNEL
                                (1 << (TCC_WAVE_POL0_Pos + WATCH_GREEN_TCC_CHANNEL)));
-    #endif
+#endif // WATCH_INVERT_LED_POLARITY
     // The buzzer will set the period depending on the tone it wants to play, but we have to set some period here to
     // get the LED working. Almost any period will do, tho it should be below 20000 (i.e. 50 Hz) to avoid flickering.
     hri_tcc_write_PER_reg(TCC0, 1024);
@@ -164,6 +172,9 @@ void _watch_enable_tcc(void) {
     hri_tcc_write_CC_reg(TCC0, WATCH_BUZZER_TCC_CHANNEL, 0);
     hri_tcc_write_CC_reg(TCC0, WATCH_RED_TCC_CHANNEL, 0);
     hri_tcc_write_CC_reg(TCC0, WATCH_GREEN_TCC_CHANNEL, 0);
+#ifdef WATCH_BLUE_TCC_CHANNEL
+    hri_tcc_write_CC_reg(TCC0, WATCH_BLUE_TCC_CHANNEL, 0);
+#endif
     // Enable the TCC
     hri_tcc_set_CTRLA_ENABLE_bit(TCC0);
     hri_tcc_wait_for_sync(TCC0, TCC_SYNCBUSY_ENABLE);
@@ -173,6 +184,10 @@ void _watch_enable_tcc(void) {
     gpio_set_pin_function(RED, WATCH_RED_TCC_PINMUX);
     gpio_set_pin_direction(GREEN, GPIO_DIRECTION_OUT);
     gpio_set_pin_function(GREEN, WATCH_GREEN_TCC_PINMUX);
+#ifdef WATCH_BLUE_TCC_CHANNEL
+    gpio_set_pin_direction(BLUE, GPIO_DIRECTION_OUT);
+    gpio_set_pin_function(BLUE, WATCH_BLUE_TCC_PINMUX);
+#endif
 }
 
 void _watch_disable_tcc(void) {
@@ -183,6 +198,10 @@ void _watch_disable_tcc(void) {
     gpio_set_pin_function(RED, GPIO_PIN_FUNCTION_OFF);
     gpio_set_pin_direction(GREEN, GPIO_DIRECTION_OFF);
     gpio_set_pin_function(GREEN, GPIO_PIN_FUNCTION_OFF);
+#ifdef WATCH_BLUE_TCC_CHANNEL
+    gpio_set_pin_direction(BLUE, GPIO_DIRECTION_OFF);
+    gpio_set_pin_function(BLUE, GPIO_PIN_FUNCTION_OFF);
+#endif
 
     // disable the TCC
     hri_tcc_clear_CTRLA_ENABLE_bit(TCC0);
