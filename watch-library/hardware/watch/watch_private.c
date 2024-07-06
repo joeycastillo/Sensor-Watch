@@ -124,7 +124,8 @@ int getentropy(void *buf, size_t buflen) {
     return 0;
 }
 
-void watch_disable_TRNG() {
+void watch_disable_TRNG(void);
+void watch_disable_TRNG(void) {
     // per Microchip datasheet clarification DS80000782,
     // silicon erratum 1.16.1 indicates that the TRNG may leave internal components powered after being disabled.
     // the workaround is to disable the TRNG by clearing the control register, twice.
