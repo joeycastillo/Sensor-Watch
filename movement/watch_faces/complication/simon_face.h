@@ -71,12 +71,22 @@ typedef enum SimonPlayingState {
     SIMON_READY_FOR_NEXT_NOTE
 } SimonPlayingState;
 
+typedef enum SimonMode {
+    SIMON_MODE_NORMAL = 0,  // 5 Second timeout if nothing is input
+    SIMON_MODE_EASY,  // There is no timeout in this mode
+    SIMON_MODE_HARD,  // The speed of the teaching is doubled and th etimeout is halved
+    SIMON_MODE_TOTAL
+} SimonMode;
+
 typedef struct {
     uint8_t best_score;
     SimonNote sequence[MAX_SEQUENCE];
     uint8_t sequence_length;
     uint8_t teaching_index;
     uint8_t listen_index;
+    bool soundOff;
+    bool lightOff;
+    uint8_t mode:6;
     SimonPlayingState playing_state;
 } simon_state_t;
 
@@ -93,5 +103,9 @@ void simon_face_resign(movement_settings_t *settings, void *context);
      simon_face_resign,                                                       \
      NULL,                                                                    \
      })
+
+#define TIMER_MAX 5
+#define SIMON_FACE_FREQUENCY 8
+#define DELAY_FOR_TONE_MS 300
 
 #endif // SIMON_FACE_H_
