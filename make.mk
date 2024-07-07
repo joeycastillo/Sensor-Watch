@@ -240,9 +240,9 @@ CFLAGS += -DCLOCK_FACE_24H_ONLY
 endif
 
 # DATE = X
-#  0 = Sets the year and timezone to the PC's
-#  1 = Sets the date (year, month, day, timezone)
-#  2 = Sets the time and date  (year, month, day, timezone, hour, minute)
+#  YEAR = Sets the year and timezone to the PC's
+#  DAY = Sets the default time down to the day (year, month, day, timezone)
+#  MIN = Sets the default time down to the minute (year, month, day, timezone, hour, minute)
 TIMEZONE := $(shell date +%z | awk '{print substr($$0, 1, 3) * 60 + substr($$0, 4, 2)}')
 CURRENT_YEAR := $(shell echo $$(($(shell date +"%Y") - 2020)))
 CURRENT_MONTH := $(shell date +"%m")
@@ -250,17 +250,17 @@ CURRENT_DAY := $(shell date +"%d")
 CURRENT_HOUR := $(shell date +"%H")
 CURRENT_MINUTE := $(shell date +"%M")
 ifdef DATE  # If 1: Set the default day to the current day; if 2: Also set the time to the current time
-ifeq ($(DATE), 0)
+ifeq ($(DATE), YEAR)
 CFLAGS += -DMAKEFILE_TIMEZONE=$(TIMEZONE)
 CFLAGS += -DMAKEFILE_CURR_YEAR=$(CURRENT_YEAR)
 $(info Default year and timezone are set to $(shell date +"%Y") $(shell date +%Z))
-else ifeq ($(DATE), 1)
+else ifeq ($(DATE), DAY)
 CFLAGS += -DMAKEFILE_TIMEZONE=$(TIMEZONE)
 CFLAGS += -DMAKEFILE_CURR_YEAR=$(CURRENT_YEAR)
 CFLAGS += -DMAKEFILE_CURR_MONTH=$(CURRENT_MONTH)
 CFLAGS += -DMAKEFILE_CURR_DAY=$(CURRENT_DAY)
 $(info Default date set to $(shell date +"%b") $(CURRENT_DAY) $(shell date +"%Y") $(shell date +%Z))
-else ifeq ($(DATE), 2)
+else ifeq ($(DATE), MIN)
 CFLAGS += -DMAKEFILE_TIMEZONE=$(TIMEZONE)
 CFLAGS += -DMAKEFILE_CURR_YEAR=$(CURRENT_YEAR)
 CFLAGS += -DMAKEFILE_CURR_MONTH=$(CURRENT_MONTH)
@@ -268,5 +268,7 @@ CFLAGS += -DMAKEFILE_CURR_DAY=$(CURRENT_DAY)
 CFLAGS += -DMAKEFILE_CURR_HOUR=$(CURRENT_HOUR)
 CFLAGS += -DMAKEFILE_CURR_MINUTE=$(CURRENT_MINUTE)
 $(info Default time set to $(CURRENT_HOUR):$(CURRENT_MINUTE) on $(shell date +"%b") $(CURRENT_DAY) $(shell date +"%Y") $(shell date +%Z))
+else
+$(error DATE must be YEAR, DAY, or MIN if used.)
 endif
 endif
