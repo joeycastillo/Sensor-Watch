@@ -69,7 +69,23 @@ int main(void) {
     // if date/time register is 0 (power on reset state), default year to 2023.
     watch_date_time date_time = watch_rtc_get_date_time();
     if (date_time.reg == 0) {
+#ifdef MAKEFILE_CURR_YEAR
+        date_time.unit.year = MAKEFILE_CURR_YEAR;
+#else
         date_time.unit.year = 3;
+#endif
+#ifdef MAKEFILE_CURR_MONTH
+        date_time.unit.month = MAKEFILE_CURR_MONTH;
+#endif
+#ifdef MAKEFILE_CURR_DAY
+        date_time.unit.day = MAKEFILE_CURR_DAY;
+#endif
+#ifdef MAKEFILE_CURR_HOUR
+        date_time.unit.hour = MAKEFILE_CURR_HOUR;
+#endif
+#ifdef MAKEFILE_CURR_MINUTE
+        date_time.unit.minute = MAKEFILE_CURR_MINUTE;
+#endif
         watch_rtc_set_date_time(date_time);
     }
 
