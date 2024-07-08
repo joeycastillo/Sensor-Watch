@@ -99,7 +99,9 @@ bool preferences_face_loop(movement_event_t event, movement_settings_t *settings
         default:
             return movement_default_loop_handler(event, settings);
     }
-
+#ifdef CLOCK_FACE_24H_ONLY
+    if (current_page == 0) current_page++;  // Skips past 12/24HR mode
+#endif
     watch_display_string((char *)preferences_face_titles[current_page], 0);
 
     // blink active setting on even-numbered quarter-seconds
