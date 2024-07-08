@@ -134,6 +134,7 @@ bool simple_clock_face_loop(movement_event_t event, movement_settings_t *setting
             else watch_clear_indicator(WATCH_INDICATOR_BELL);
             break;
         case EVENT_ALARM_BUTTON_UP:
+#ifndef CLOCK_FACE_24H_ONLY
             settings->bit.clock_mode_24h = !settings->bit.clock_mode_24h;
             date_time = watch_rtc_get_date_time();
             if (settings->bit.clock_mode_24h) {
@@ -148,6 +149,7 @@ bool simple_clock_face_loop(movement_event_t event, movement_settings_t *setting
             } 
             sprintf(buf, "%2d", date_time.unit.hour);
             watch_display_string(buf, 4);
+#endif
             break;
         case EVENT_BACKGROUND_TASK:
             // uncomment this line to snap back to the clock face when the hour signal sounds:
