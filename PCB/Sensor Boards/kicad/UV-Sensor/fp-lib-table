@@ -1,0 +1,5 @@
+(fp_lib_table
+  (lib (name "eagle import")(type "KiCad")(uri "$(KIPRJMOD)/UV-Sensor.pretty")(options "")(descr "")(disabled))
+  (lib (name "footprints")(type "KiCad")(uri "C:/Users/danie/Downloads/ul_SI1133-AA00-GMR/KiCAD/2022-04-23_15-51-12/footprints.pretty")(options "")(descr ""))
+  (lib (name "UV-Sensor")(type "KiCad")(uri "${KIPRJMOD}/UV-Sensor.pretty")(options "")(descr ""))
+)

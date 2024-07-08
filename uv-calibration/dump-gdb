@@ -1,0 +1,16 @@
+set pagination off
+
+target remote :2331
+monitor halt
+monitor reset 2
+file build/watch.elf
+#load
+
+break ../watch_faces/sensor/si1133_uv_face.c:186
+command 1
+p new_reading
+append value raw/trace_log new_reading
+continue
+end
+
+continue
