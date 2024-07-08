@@ -133,6 +133,22 @@ bool simple_clock_face_loop(movement_event_t event, movement_settings_t *setting
             if (state->signal_enabled) watch_set_indicator(WATCH_INDICATOR_BELL);
             else watch_clear_indicator(WATCH_INDICATOR_BELL);
             break;
+        case EVENT_ALARM_BUTTON_UP:
+            settings->bit.clock_mode_24h = !settings->bit.clock_mode_24h;
+            date_time = watch_rtc_get_date_time();
+            if (settings->bit.clock_mode_24h) {
+                watch_set_indicator(WATCH_INDICATOR_24H);
+                watch_clear_indicator(WATCH_INDICATOR_PM);
+            }
+            else {
+                watch_clear_indicator(WATCH_INDICATOR_24H);
+                if (date_time.unit.hour >= 12) watch_set_indicator(WATCH_INDICATOR_PM);
+                date_time.unit.hour %= 12;
+                if (date_time.unit.hour == 0) date_time.unit.hour = 12;
+            } 
+            sprintf(buf, "%2d", date_time.unit.hour);
+            watch_display_string(buf, 4);
+            break;
         case EVENT_BACKGROUND_TASK:
             // uncomment this line to snap back to the clock face when the hour signal sounds:
             // movement_move_to_face(state->watch_face_index);
