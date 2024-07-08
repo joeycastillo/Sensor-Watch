@@ -26,8 +26,8 @@
 #include "preferences_face.h"
 #include "watch.h"
 
-#define PREFERENCES_FACE_NUM_PREFEFENCES (7)
-const char preferences_face_titles[PREFERENCES_FACE_NUM_PREFEFENCES][11] = {
+#define PREFERENCES_FACE_NUM_PREFERENCES (7)
+const char preferences_face_titles[PREFERENCES_FACE_NUM_PREFERENCES][11] = {
     "CL        ",   // Clock: 12 or 24 hour
     "BT  Beep  ",   // Buttons: should they beep?
     "TO        ",   // Timeout: how long before we snap back to the clock face?
@@ -65,7 +65,7 @@ bool preferences_face_loop(movement_event_t event, movement_settings_t *settings
             movement_move_to_next_face();
             return false;
         case EVENT_LIGHT_BUTTON_DOWN:
-            current_page = (current_page + 1) % PREFERENCES_FACE_NUM_PREFEFENCES;
+            current_page = (current_page + 1) % PREFERENCES_FACE_NUM_PREFERENCES;
             *((uint8_t *)context) = current_page;
             break;
         case EVENT_ALARM_BUTTON_UP:
