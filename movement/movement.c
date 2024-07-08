@@ -377,7 +377,11 @@ void app_init(void) {
 
     memset(&movement_state, 0, sizeof(movement_state));
 
+#ifdef CLOCK_FACE_24H_ONLY
+    movement_state.settings.bit.clock_mode_24h = true;
+#else
     movement_state.settings.bit.clock_mode_24h = MOVEMENT_DEFAULT_24H_MODE;
+#endif
     movement_state.settings.bit.led_red_color = MOVEMENT_DEFAULT_RED_COLOR;
     movement_state.settings.bit.led_green_color = MOVEMENT_DEFAULT_GREEN_COLOR;
     movement_state.settings.bit.button_should_sound = MOVEMENT_DEFAULT_BUTTON_SOUND;
