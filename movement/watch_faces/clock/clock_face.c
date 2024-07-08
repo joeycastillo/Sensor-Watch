@@ -105,6 +105,21 @@ static watch_date_time clock_24h_to_12h(watch_date_time date_time) {
     return date_time;
 }
 
+static void clock_toggle_24h_mode(movement_settings_t *settings, watch_date_time current) {
+    char buf[2 + 1];
+    settings->bit.clock_mode_24h = !settings->bit.clock_mode_24h;
+    if (clock_is_in_24h_mode(settings)) {
+        clock_indicate(WATCH_INDICATOR_PM, false);
+    }
+    else {
+        clock_indicate_pm(settings, current);
+        current = clock_24h_to_12h(current);
+    }
+    clock_indicate_24h(settings);
+    sprintf(buf, "%2d", current.unit.hour);
+    watch_display_string(buf, 4);
+}
+
 static void clock_check_battery_periodically(clock_state_t *clock, watch_date_time date_time) {
     // check the battery voltage once a day
     if (date_time.unit.day == clock->last_battery_check) { return; }
@@ -262,6 +277,12 @@ bool clock_face_loop(movement_event_t event, movement_settings_t *settings, void
             break;
         case EVENT_ALARM_LONG_PRESS:
             clock_toggle_time_signal(state);
+            break;
+        case EVENT_ALARM_BUTTON_UP:
+            if (CLOCK_FACE_24H_ONLY) { break; }
+            current = watch_rtc_get_date_time();
+            clock_toggle_24h_mode(settings, current);
+            state->date_time.previous = current;
             break;
         case EVENT_BACKGROUND_TASK:
             // uncomment this line to snap back to the clock face when the hour signal sounds:
