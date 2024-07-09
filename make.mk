@@ -249,7 +249,7 @@ CURRENT_MONTH := $(shell date +"%-m")
 CURRENT_DAY := $(shell date +"%-d")
 CURRENT_HOUR := $(shell date +"%-H")
 CURRENT_MINUTE := $(shell date +"%-M")
-ifdef DATE  # If 1: Set the default day to the current day; if 2: Also set the time to the current time
+ifdef DATE
 ifeq ($(DATE), YEAR)
 CFLAGS += -DMAKEFILE_TIMEZONE=$(TIMEZONE)
 CFLAGS += -DMAKEFILE_CURR_YEAR=$(CURRENT_YEAR)
