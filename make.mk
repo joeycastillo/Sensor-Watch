@@ -166,7 +166,6 @@ SRCS += \
   $(TOP)/watch-library/shared/driver/lis2dw.c \
   $(TOP)/watch-library/shared/driver/opt3001.c \
   $(TOP)/watch-library/shared/driver/spiflash.c \
-  $(TOP)/watch-library/shared/watch/watch_private_buzzer.c \
   $(TOP)/watch-library/shared/watch/watch_private_display.c \
   $(TOP)/watch-library/shared/watch/watch_utility.c \
 
@@ -211,7 +210,6 @@ SRCS += \
   $(TOP)/watch-library/simulator/watch/watch.c \
   $(TOP)/watch-library/shared/driver/thermistor_driver.c \
   $(TOP)/watch-library/shared/driver/opt3001.c \
-  $(TOP)/watch-library/shared/watch/watch_private_buzzer.c \
   $(TOP)/watch-library/shared/watch/watch_private_display.c \
   $(TOP)/watch-library/shared/watch/watch_utility.c \
 
