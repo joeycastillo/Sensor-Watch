@@ -36,7 +36,7 @@
   * @note Some watches use a red/blue LED instead of a red/green LED. You will be able to determine this
   *       easily when you double tap the reset button: if the pulsing bootloader LED is red, you have a
   *       red/green edition; if it is blue, you have a red/blue edition. For red/blue watches, build your
-  *       project with the command `make LED=BLUE`, and the watch library will automatically swap the pins
+  *       project with the command `make COLOR=BLUE`, and the watch library will automatically swap the pins
   *       so that watch_set_led_red sets the red LED, and watch_set_led_green sets the blue one.
   */
 /// @{
