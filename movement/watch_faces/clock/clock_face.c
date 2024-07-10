@@ -53,7 +53,11 @@ typedef struct {
 } clock_state_t;
 
 static bool clock_is_in_24h_mode(movement_settings_t *settings) {
+#ifdef CLOCK_FACE_24H_ONLY
+    return true;
+#else
     return settings->bit.clock_mode_24h;
+#endif
 }
 
 static void clock_indicate(WatchIndicatorSegment indicator, bool on) {
