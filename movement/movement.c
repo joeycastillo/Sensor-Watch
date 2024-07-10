@@ -370,6 +370,14 @@ static void end_buzzing_and_disable_buzzer(void) {
     watch_disable_buzzer();
 }
 
+static void set_initial_clock_mode(void) {
+#ifdef CLOCK_FACE_24H_ONLY
+    movement_state.settings.bit.clock_mode_24h = true;
+#else
+    movement_state.settings.bit.clock_mode_24h = MOVEMENT_DEFAULT_24H_MODE;
+#endif
+}
+
 void movement_play_signal(void) {
     void *maybe_disable_buzzer = end_buzzing_and_disable_buzzer;
     if (watch_is_buzzer_or_led_enabled()) {
@@ -418,12 +426,7 @@ void app_init(void) {
 #endif
 
     memset(&movement_state, 0, sizeof(movement_state));
-
-#ifdef CLOCK_FACE_24H_ONLY
-    movement_state.settings.bit.clock_mode_24h = true;
-#else
-    movement_state.settings.bit.clock_mode_24h = MOVEMENT_DEFAULT_24H_MODE;
-#endif
+    set_initial_clock_mode();
     movement_state.settings.bit.led_red_color = MOVEMENT_DEFAULT_RED_COLOR;
     movement_state.settings.bit.led_green_color = MOVEMENT_DEFAULT_GREEN_COLOR;
     movement_state.settings.bit.button_should_sound = MOVEMENT_DEFAULT_BUTTON_SOUND;
