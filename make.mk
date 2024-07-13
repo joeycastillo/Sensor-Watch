@@ -243,13 +243,13 @@ endif
 #  YEAR = Sets the year and timezone to the PC's
 #  DAY = Sets the default time down to the day (year, month, day, timezone)
 #  MIN = Sets the default time down to the minute (year, month, day, timezone, hour, minute)
+ifdef DATE
 TIMEZONE := $(shell date +%z | awk '{print substr($$0, 1, 3) * 60 + substr($$0, 4, 2)}')
 CURRENT_YEAR := $(shell echo $$(($(shell date +"%Y") - 2020)))
 CURRENT_MONTH := $(shell date +"%-m")
 CURRENT_DAY := $(shell date +"%-d")
 CURRENT_HOUR := $(shell date +"%-H")
 CURRENT_MINUTE := $(shell date +"%-M")
-ifdef DATE
 ifeq ($(DATE), YEAR)
 CFLAGS += -DMAKEFILE_TIMEZONE=$(TIMEZONE)
 CFLAGS += -DMAKEFILE_CURR_YEAR=$(CURRENT_YEAR)
