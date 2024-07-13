@@ -323,9 +323,7 @@ static void _show_title(festival_schedule_state_t *state){
     state->showing_title = true;
     state->curr_act = NUM_ACTS;
     watch_clear_colon();
-    watch_clear_indicator(WATCH_INDICATOR_24H);
-    watch_clear_indicator(WATCH_INDICATOR_PM);
-    watch_clear_indicator(WATCH_INDICATOR_LAP);
+    watch_clear_all_indicators();
     state->cyc_through_all_acts = false;
     watch_date_time curr_time = watch_rtc_get_date_time();
     state -> prev_day = (curr_time.reg >> 17);
