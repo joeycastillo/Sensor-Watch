@@ -55,9 +55,9 @@ typedef enum {
 
 typedef struct {
     uint32_t obst_pattern;
-    int16_t obst_indx : 8;
-    int16_t jump_state : 3;
-    int16_t sec_before_moves : 3;
+    uint16_t obst_indx : 8;
+    uint16_t jump_state : 3;
+    uint16_t sec_before_moves : 3;
     bool loc_2_on;
     bool loc_3_on;
 } game_state_t;
@@ -287,10 +287,8 @@ bool endless_runner_face_loop(movement_event_t event, movement_settings_t *setti
 
     switch (event.event_type) {
         case EVENT_ACTIVATE:
-            state -> curr_screen = SCREEN_TITLE;
             if (state -> soundOn) watch_set_indicator(WATCH_INDICATOR_BELL);
             display_title(state);
-            state -> curr_score = 0;
             break;
         case EVENT_TICK:
             switch (state -> curr_screen)
@@ -299,10 +297,11 @@ bool endless_runner_face_loop(movement_event_t event, movement_settings_t *setti
             case SCREEN_LOSE:
                 break;
             default:
-                if (game_state.sec_before_moves == 0)
-                    success_jump = display_obstacles(state);
-                else if (event.subsecond == 0)
-                    if(--game_state.sec_before_moves == 0) game_state.obst_pattern = get_random_legal(0, state -> difficulty);
+                if (game_state.sec_before_moves != 0) {
+                    if (event.subsecond == 0) --game_state.sec_before_moves;
+                    break;
+                }
+                success_jump = display_obstacles(state);
                 switch (game_state.jump_state)
                 {
                 case JUMP:
@@ -336,6 +335,10 @@ bool endless_runner_face_loop(movement_event_t event, movement_settings_t *setti
                 movement_request_tick_frequency(state -> difficulty == DIFF_EASY ? FREQ_EASY : FREQ);
                 watch_display_string("      ", 4);
                 display_ball(false);
+                do  // Avoid the first array of obstacles being a boring line of 0s 
+                {
+                    game_state.obst_pattern = get_random_legal(0, state -> difficulty);
+                } while (game_state.obst_pattern == 0);
                 display_score(state -> curr_score);
                 if (state -> soundOn){
                     watch_buzzer_play_note(BUZZER_NOTE_C5, 200);
