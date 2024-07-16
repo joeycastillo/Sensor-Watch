@@ -65,18 +65,6 @@ typedef struct {
 static game_state_t game_state;
 static const uint8_t _num_bits_obst_pattern = sizeof(game_state.obst_pattern) * 8;
 
-static void print_binary(uint32_t value, int bits) {
-    for (int i = bits - 1; i >= 0; i--) {
-        // Print each bit
-        printf("%d", (value >> i) & 1);
-        // Optional: add a space every 4 bits for readability
-        if (i % 4 == 0 && i != 0) {
-            printf(" ");
-        }
-    }
-    printf("\r\n");
-}
-
 static uint32_t get_random(uint32_t max) {
     #if __EMSCRIPTEN__
     return rand() % max;
@@ -116,7 +104,6 @@ static uint32_t get_random_legal(uint32_t prev_val, uint16_t difficulty) {
         }
     }
     rand_legal = prev_val | rand_legal;
-    print_binary(rand_legal, _num_bits_obst_pattern);
     return rand_legal;
 }
 
