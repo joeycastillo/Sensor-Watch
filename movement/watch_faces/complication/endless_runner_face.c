@@ -30,23 +30,24 @@ typedef enum {
     NOT_JUMPING = 0,
     JUMP,
     JUMPING_1,
-    JUMPING_2, 
+    JUMPING_2,
+    JUMPING_3,
     JUMP_COUNT
-} ScrollingJumpState;
+} RunnerJumpState;
 
 typedef enum {
     SCREEN_TITLE = 0,
     SCREEN_PLAYING,
     SCREEN_LOSE,
     SCREEN_COUNT
-} ScrollingCurrScreen;
+} RunnerCurrScreen;
 
 typedef enum {
-    DIFF_NORM = 0,   // 8x speed; 4 0's min;
-    DIFF_HARD,       // 8x speed; 3 0's min; 2 - Easy 4x speed; 4 0's min
-    DIFF_EASY,       // 4x speed; 4 0's min
+    DIFF_NORM = 0,   // 8x speed; 4 0's min; jump is 3 frames
+    DIFF_HARD,       // 8x speed; 3 0's min; jump is 2 frames
+    DIFF_EASY,       // 4x speed; 4 0's min; jump is 3 frames
     DIFF_COUNT
-} ScrollingDifficulty;
+} RunnerDifficulty;
 
 #define NUM_GRID 12
 #define FREQ 8
@@ -158,7 +159,7 @@ static void display_title(endless_runner_state_t *state) {
     memset(&game_state, 0, sizeof(game_state));
     game_state.sec_before_moves = 1; // The first obstacles will all be 0s, which is about an extra second of delay.
     if (state -> soundOn) game_state.sec_before_moves--; // Start chime is about 1 second
-    watch_display_string("SC   SEL  ", 0);
+    watch_display_string("ER   SEL  ", 0);
     display_score(state -> hi_score);
     display_difficulty(state -> difficulty);
 }
@@ -167,7 +168,7 @@ static void display_lose_screen(endless_runner_state_t *state) {
     movement_request_tick_frequency(1);
     state -> curr_screen = SCREEN_LOSE;
     state -> curr_score = 0;
-    watch_display_string(" LOSEr", 4);
+    watch_display_string(" U   LOSE ", 0);
     if (state -> soundOn)
         watch_buzzer_play_note(BUZZER_NOTE_A1, 600);
     else
@@ -195,16 +196,19 @@ static bool display_obstacle(bool obstacle, int grid_loc, endless_runner_state_t
     
     case 1:
         if (obstacle) {  // If an obstacle is here, it means the ball cleared it
-            success_jump = true;
-            if (state -> curr_score < MAX_DISP_SCORE) {
-                state -> curr_score++;
-                if (state -> curr_score > state -> hi_score)
-                    state -> hi_score = state -> curr_score;
-                display_score(state -> curr_score);
-            }
+            // Counter will continuously roll over, but high score will max out on the first roll-over
+            state -> curr_score = (state -> curr_score + 1) % (MAX_DISP_SCORE + 1);
+            if (state -> curr_score == 0)  // This means the counter rolled over
+                state -> hi_score = MAX_DISP_SCORE + 1;
+            else if (state -> curr_score > state -> hi_score)
+                state -> hi_score = state -> curr_score;
+            display_score(state -> curr_score);
         }
         //fall through
     case 0:
+        if (obstacle)  // If an obstacle is here, it means the ball cleared it
+            success_jump = true;
+        //fall through
     case 5:
         if (obstacle)
             watch_set_pixel(0, 18 + grid_loc);
@@ -308,9 +312,12 @@ bool endless_runner_face_loop(movement_event_t event, movement_settings_t *setti
                     game_state.jump_state = JUMPING_1;
                     break;
                 case JUMPING_1:
-                    game_state.jump_state = JUMPING_2;
+                    game_state.jump_state = (state -> difficulty == DIFF_HARD) ? JUMPING_3 : JUMPING_2;
                     break;
                 case JUMPING_2:
+                    game_state.jump_state = JUMPING_3;
+                    break;
+                case JUMPING_3:
                     game_state.jump_state = NOT_JUMPING;
                     display_ball(game_state.jump_state);
                     if (state -> soundOn){
@@ -323,8 +330,10 @@ bool endless_runner_face_loop(movement_event_t event, movement_settings_t *setti
                 default:
                     break;
                 }
-                if (game_state.jump_state == NOT_JUMPING && (game_state.loc_2_on || game_state.loc_3_on))
+                if (game_state.jump_state == NOT_JUMPING && (game_state.loc_2_on || game_state.loc_3_on)) {
+                    delay_ms(200);  // To show the player jumping onto the obstacle before displaying the lose screen.
                     display_lose_screen(state);
+                }
                 break;
             }
             break;
@@ -332,7 +341,7 @@ bool endless_runner_face_loop(movement_event_t event, movement_settings_t *setti
         case EVENT_ALARM_BUTTON_UP:
             if (state -> curr_screen == SCREEN_TITLE) {
                 state -> curr_screen = SCREEN_PLAYING;
-                movement_request_tick_frequency(state -> difficulty == DIFF_EASY ? FREQ_EASY : FREQ);
+                movement_request_tick_frequency((state -> difficulty == DIFF_EASY) ? FREQ_EASY : FREQ);
                 watch_display_string("      ", 4);
                 display_ball(false);
                 do  // Avoid the first array of obstacles being a boring line of 0s 
