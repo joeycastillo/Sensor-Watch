@@ -43,15 +43,16 @@ typedef enum {
 } RunnerCurrScreen;
 
 typedef enum {
-    DIFF_NORM = 0,   // 8x speed; 4 0's min; jump is 3 frames
-    DIFF_HARD,       // 8x speed; 3 0's min; jump is 2 frames
-    DIFF_EASY,       // 4x speed; 4 0's min; jump is 3 frames
+    DIFF_BABY = 0,  // 0.5x speed; 4 0's min; jump is 3 frames
+    DIFF_EASY,      //   1x speed; 4 0's min; jump is 3 frames
+    DIFF_NORM,      //   1x speed; 4 0's min; jump is 2 frames
+    DIFF_HARD,      //   1x speed; 3 0's min; jump is 2 frames
     DIFF_COUNT
 } RunnerDifficulty;
 
 #define NUM_GRID 12
 #define FREQ 8
-#define FREQ_EASY 4
+#define FREQ_SLOW 4
 #define MAX_DISP_SCORE 39  // The top-right digits can't properly display above 39
 
 typedef struct {
@@ -80,7 +81,7 @@ static uint32_t get_random_legal(uint32_t prev_val, uint16_t difficulty) {
   * @param difficulty To dictate how spread apart the obsticles must be
   * @return the new random value, where it's first NUM_GRID MSBs are the same as prev_val
   */
-    uint8_t min_zeros = difficulty == DIFF_HARD ? 3 : 4;
+    uint8_t min_zeros = (difficulty == DIFF_HARD) ? 3 : 4;
     uint32_t max = (1 << (_num_bits_obst_pattern - NUM_GRID)) - 1;
     uint32_t rand = get_random(max);
     uint32_t rand_legal = 0;
@@ -141,6 +142,9 @@ static void display_score(uint8_t score) {
 static void display_difficulty(uint16_t difficulty) {
     switch (difficulty)
     {
+    case DIFF_BABY:
+        watch_display_string("b", 9);
+        break;
     case DIFF_EASY:
         watch_display_string("E", 9);
         break;
@@ -277,6 +281,8 @@ void endless_runner_face_setup(movement_settings_t *settings, uint8_t watch_face
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(endless_runner_state_t));
         memset(*context_ptr, 0, sizeof(endless_runner_state_t));
+        endless_runner_state_t *state = (endless_runner_state_t *)*context_ptr;
+        state->difficulty = DIFF_NORM;
     }
 }
 
@@ -312,7 +318,7 @@ bool endless_runner_face_loop(movement_event_t event, movement_settings_t *setti
                     game_state.jump_state = JUMPING_1;
                     break;
                 case JUMPING_1:
-                    game_state.jump_state = (state -> difficulty == DIFF_HARD) ? JUMPING_3 : JUMPING_2;
+                    game_state.jump_state = (state -> difficulty >= DIFF_NORM) ? JUMPING_3 : JUMPING_2;
                     break;
                 case JUMPING_2:
                     game_state.jump_state = JUMPING_3;
@@ -341,7 +347,7 @@ bool endless_runner_face_loop(movement_event_t event, movement_settings_t *setti
         case EVENT_ALARM_BUTTON_UP:
             if (state -> curr_screen == SCREEN_TITLE) {
                 state -> curr_screen = SCREEN_PLAYING;
-                movement_request_tick_frequency((state -> difficulty == DIFF_EASY) ? FREQ_EASY : FREQ);
+                movement_request_tick_frequency((state -> difficulty == DIFF_BABY) ? FREQ_SLOW : FREQ);
                 watch_display_string("      ", 4);
                 display_ball(false);
                 do  // Avoid the first array of obstacles being a boring line of 0s 
@@ -364,7 +370,7 @@ bool endless_runner_face_loop(movement_event_t event, movement_settings_t *setti
                 state -> difficulty = (state -> difficulty + 1) % DIFF_COUNT;
                 display_difficulty(state -> difficulty);
                 if (state -> soundOn) {
-                    if (state -> difficulty == DIFF_EASY) watch_buzzer_play_note(BUZZER_NOTE_B4, 30);
+                    if (state -> difficulty == 0) watch_buzzer_play_note(BUZZER_NOTE_B4, 30);
                     else  watch_buzzer_play_note(BUZZER_NOTE_C5, 30);
                 }
             }
