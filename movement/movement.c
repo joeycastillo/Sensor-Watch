@@ -435,9 +435,9 @@ void app_init(void) {
     movement_state.birthdate.bit.year = MOVEMENT_DEFAULT_BIRTHDATE_YEAR;
     movement_state.birthdate.bit.month = MOVEMENT_DEFAULT_BIRTHDATE_MONTH;
     movement_state.birthdate.bit.day = MOVEMENT_DEFAULT_BIRTHDATE_DAY;
-#ifdef MAKEFILE_TIMEZONE
+#ifdef INITIAL_TIMEZONE
     for (int i = 0, count = sizeof(movement_timezone_offsets) / sizeof(movement_timezone_offsets[0]); i < count; i++) {
-        if (movement_timezone_offsets[i] == MAKEFILE_TIMEZONE) {
+        if (movement_timezone_offsets[i] == INITIAL_TIMEZONE) {
             movement_state.settings.bit.time_zone = i;
             break;
         }
