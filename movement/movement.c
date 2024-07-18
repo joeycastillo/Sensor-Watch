@@ -384,9 +384,9 @@ void app_init(void) {
     movement_state.settings.bit.to_interval = MOVEMENT_DEFAULT_TIMEOUT_INTERVAL;
     movement_state.settings.bit.le_interval = MOVEMENT_DEFAULT_LOW_ENERGY_INTERVAL;
     movement_state.settings.bit.led_duration = MOVEMENT_DEFAULT_LED_DURATION;
-#ifdef MAKEFILE_TIMEZONE
+#ifdef INITIAL_TIMEZONE
     for (int i = 0, count = sizeof(movement_timezone_offsets) / sizeof(movement_timezone_offsets[0]); i < count; i++) {
-        if (movement_timezone_offsets[i] == MAKEFILE_TIMEZONE) {
+        if (movement_timezone_offsets[i] == INITIAL_TIMEZONE) {
             movement_state.settings.bit.time_zone = i;
             break;
         }
