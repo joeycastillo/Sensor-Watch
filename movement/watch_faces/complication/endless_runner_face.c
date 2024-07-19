@@ -27,12 +27,9 @@
 #include "endless_runner_face.h"
 
 typedef enum {
-    NOT_JUMPING = 0,
-    JUMP,
-    JUMPING_1,
-    JUMPING_2,
-    JUMPING_3,
-    JUMP_COUNT
+    JUMPING_FINAL_FRAME = 0,
+    NOT_JUMPING,
+    JUMPING_START,
 } RunnerJumpState;
 
 typedef enum {
@@ -53,12 +50,16 @@ typedef enum {
 #define NUM_GRID 12
 #define FREQ 8
 #define FREQ_SLOW 4
+#define JUMP_FRAMES 2
+#define JUMP_FRAMES_EASY 20
+#define MIN_ZEROES 4
+#define MIN_ZEROES_HARD 3
 #define MAX_DISP_SCORE 39  // The top-right digits can't properly display above 39
 
 typedef struct {
     uint32_t obst_pattern;
     uint16_t obst_indx : 8;
-    uint16_t jump_state : 3;
+    uint16_t jump_state : 5;
     uint16_t sec_before_moves : 3;
     bool loc_2_on;
     bool loc_3_on;
@@ -81,7 +82,7 @@ static uint32_t get_random_legal(uint32_t prev_val, uint16_t difficulty) {
   * @param difficulty To dictate how spread apart the obsticles must be
   * @return the new random value, where it's first NUM_GRID MSBs are the same as prev_val
   */
-    uint8_t min_zeros = (difficulty == DIFF_HARD) ? 3 : 4;
+    uint8_t min_zeros = (difficulty == DIFF_HARD) ? MIN_ZEROES_HARD : MIN_ZEROES;
     uint32_t max = (1 << (_num_bits_obst_pattern - NUM_GRID)) - 1;
     uint32_t rand = get_random(max);
     uint32_t rand_legal = 0;
@@ -110,7 +111,7 @@ static uint32_t get_random_legal(uint32_t prev_val, uint16_t difficulty) {
 }
 
 static void display_ball(bool jumping) {
-    if (jumping == NOT_JUMPING) {
+    if (!jumping) {
         watch_set_pixel(0, 21);
         watch_set_pixel(1, 21);
         watch_set_pixel(0, 20);
@@ -166,6 +167,24 @@ static void display_title(endless_runner_state_t *state) {
     watch_display_string("ER   SEL  ", 0);
     display_score(state -> hi_score);
     display_difficulty(state -> difficulty);
+}
+
+static void begin_playing(endless_runner_state_t *state) {
+    state -> curr_screen = SCREEN_PLAYING;
+    movement_request_tick_frequency((state -> difficulty == DIFF_BABY) ? FREQ_SLOW : FREQ);
+    watch_display_string("ER         ", 0);
+    game_state.jump_state = NOT_JUMPING;
+    display_ball(game_state.jump_state != NOT_JUMPING);
+    do  // Avoid the first array of obstacles being a boring line of 0s 
+    {
+        game_state.obst_pattern = get_random_legal(0, state -> difficulty);
+    } while (game_state.obst_pattern == 0);
+    display_score(state -> curr_score);
+    if (state -> soundOn){
+        watch_buzzer_play_note(BUZZER_NOTE_C5, 200);
+        watch_buzzer_play_note(BUZZER_NOTE_E5, 200);
+        watch_buzzer_play_note(BUZZER_NOTE_G5, 200);
+    }
 }
 
 static void display_lose_screen(endless_runner_state_t *state) {
@@ -294,6 +313,7 @@ void endless_runner_face_activate(movement_settings_t *settings, void *context) 
 bool endless_runner_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     endless_runner_state_t *state = (endless_runner_state_t *)context;
     bool success_jump = false;
+    uint8_t curr_jump_frame = 0;
 
     switch (event.event_type) {
         case EVENT_ACTIVATE:
@@ -314,26 +334,25 @@ bool endless_runner_face_loop(movement_event_t event, movement_settings_t *setti
                 success_jump = display_obstacles(state);
                 switch (game_state.jump_state)
                 {
-                case JUMP:
-                    game_state.jump_state = JUMPING_1;
+                case NOT_JUMPING:
                     break;
-                case JUMPING_1:
-                    game_state.jump_state = (state -> difficulty >= DIFF_NORM) ? JUMPING_3 : JUMPING_2;
-                    break;
-                case JUMPING_2:
-                    game_state.jump_state = JUMPING_3;
-                    break;
-                case JUMPING_3:
+                case JUMPING_FINAL_FRAME:
                     game_state.jump_state = NOT_JUMPING;
-                    display_ball(game_state.jump_state);
+                    display_ball(game_state.jump_state != NOT_JUMPING);
                     if (state -> soundOn){
                         if (success_jump)
                             watch_buzzer_play_note(BUZZER_NOTE_C5, 60);
                         else
                             watch_buzzer_play_note(BUZZER_NOTE_C3, 60);
                     }
-                    break; 
+                    break;
                 default:
+                    curr_jump_frame = game_state.jump_state - NOT_JUMPING;
+                    if (curr_jump_frame >= JUMP_FRAMES_EASY || (state -> difficulty >= DIFF_NORM && curr_jump_frame >= JUMP_FRAMES))
+                        game_state.jump_state = JUMPING_FINAL_FRAME;
+                    else
+                        game_state.jump_state++;
+                    //if (!watch_get_pin_level(BTN_ALARM) && !watch_get_pin_level(BTN_LIGHT)) game_state.jump_state = JUMPING_FINAL_FRAME;  // Uncomment to have depressing the buttons cause the ball to drop regardless of its current frame.
                     break;
                 }
                 if (game_state.jump_state == NOT_JUMPING && (game_state.loc_2_on || game_state.loc_3_on)) {
@@ -345,25 +364,10 @@ bool endless_runner_face_loop(movement_event_t event, movement_settings_t *setti
             break;
         case EVENT_LIGHT_BUTTON_UP:
         case EVENT_ALARM_BUTTON_UP:
-            if (state -> curr_screen == SCREEN_TITLE) {
-                state -> curr_screen = SCREEN_PLAYING;
-                movement_request_tick_frequency((state -> difficulty == DIFF_BABY) ? FREQ_SLOW : FREQ);
-                watch_display_string("      ", 4);
-                display_ball(false);
-                do  // Avoid the first array of obstacles being a boring line of 0s 
-                {
-                    game_state.obst_pattern = get_random_legal(0, state -> difficulty);
-                } while (game_state.obst_pattern == 0);
-                display_score(state -> curr_score);
-                if (state -> soundOn){
-                    watch_buzzer_play_note(BUZZER_NOTE_C5, 200);
-                    watch_buzzer_play_note(BUZZER_NOTE_E5, 200);
-                    watch_buzzer_play_note(BUZZER_NOTE_G5, 200);
-                }
-            }
-            else if (state -> curr_screen == SCREEN_LOSE) {
+            if (state -> curr_screen == SCREEN_TITLE)
+                begin_playing(state);
+            else if (state -> curr_screen == SCREEN_LOSE)
                 display_title(state);
-            }
             break;
         case EVENT_LIGHT_LONG_PRESS:
             if (state -> curr_screen == SCREEN_TITLE) {
@@ -378,8 +382,8 @@ bool endless_runner_face_loop(movement_event_t event, movement_settings_t *setti
         case EVENT_LIGHT_BUTTON_DOWN:
         case EVENT_ALARM_BUTTON_DOWN:
             if (state -> curr_screen == SCREEN_PLAYING && game_state.jump_state == NOT_JUMPING){
-                game_state.jump_state = JUMP;
-                display_ball(game_state.jump_state);
+                game_state.jump_state = JUMPING_START;
+                display_ball(game_state.jump_state != NOT_JUMPING);
             }
             break;
         case EVENT_ALARM_LONG_PRESS:
