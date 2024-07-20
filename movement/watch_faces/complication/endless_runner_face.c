@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "endless_runner_face.h"
+#include "watch_utility.h"
 
 typedef enum {
     JUMPING_FINAL_FRAME = 0,
@@ -314,9 +315,21 @@ bool endless_runner_face_loop(movement_event_t event, movement_settings_t *setti
     endless_runner_state_t *state = (endless_runner_state_t *)context;
     bool success_jump = false;
     uint8_t curr_jump_frame = 0;
+    watch_date_time date_time;
+    uint32_t weeknumber;
 
     switch (event.event_type) {
         case EVENT_ACTIVATE:
+            date_time = watch_rtc_get_date_time();
+            weeknumber = watch_utility_get_weeknumber(date_time.unit.year, date_time.unit.month, date_time.unit.day);
+            if ((state -> weeknumber_prev_hi_score != weeknumber) || 
+                (state -> year_prev_hi_score != date_time.unit.year))
+            {
+                // The high score resets itself every new week.
+                state -> hi_score = 0;
+                state -> weeknumber_prev_hi_score = weeknumber;
+                state -> year_prev_hi_score = date_time.unit.year;
+            }
             if (state -> soundOn) watch_set_indicator(WATCH_INDICATOR_BELL);
             display_title(state);
             break;

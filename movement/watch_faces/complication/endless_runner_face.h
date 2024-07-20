@@ -44,6 +44,8 @@ typedef struct {
     uint16_t difficulty : 2;
     bool soundOn;
     bool unused;
+    uint8_t weeknumber_prev_hi_score;
+    uint8_t year_prev_hi_score;
 } endless_runner_state_t;
 
 void endless_runner_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
