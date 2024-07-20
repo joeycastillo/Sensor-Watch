@@ -40,21 +40,21 @@ typedef enum {
 } RunnerCurrScreen;
 
 typedef enum {
-    DIFF_BABY = 0,  // 0.5x speed; 4 0's min; jump is 3 frames
-    DIFF_EASY,      //   1x speed; 4 0's min; jump is 3 frames
-    DIFF_NORM,      //   1x speed; 4 0's min; jump is 2 frames
-    DIFF_HARD,      //   1x speed; 3 0's min; jump is 2 frames
+    DIFF_BABY = 0,  // FREQ_SLOW FPS;       MIN_ZEROES 0's min;  Jump is JUMP_FRAMES_EASY frames
+    DIFF_EASY,      //      FREQ FPS;       MIN_ZEROES 0's min;  Jump is JUMP_FRAMES_EASY frames
+    DIFF_NORM,      //      FREQ FPS;       MIN_ZEROES 0's min;  Jump is JUMP_FRAMES frames
+    DIFF_HARD,      //      FREQ FPS;  MIN_ZEROES_HARD 0's min;  jump is JUMP_FRAMES frames
     DIFF_COUNT
 } RunnerDifficulty;
 
-#define NUM_GRID 12
-#define FREQ 8
-#define FREQ_SLOW 4
-#define JUMP_FRAMES 2
-#define JUMP_FRAMES_EASY 3
-#define MIN_ZEROES 4
-#define MIN_ZEROES_HARD 3
-#define MAX_HI_SCORE 999
+#define NUM_GRID 12  // This the length that the obstacle track can be on
+#define FREQ 8  // Frequency request for the game
+#define FREQ_SLOW 4  // Frequency request for baby mode
+#define JUMP_FRAMES 2  // Wait this many frames on difficulties above EASY before coming down from the jump button pressed
+#define JUMP_FRAMES_EASY 3 // Wait this many frames on difficulties at or below EASY before coming down from the jump button pressed
+#define MIN_ZEROES 4  // At minimum, we'll have this many spaces between obstacles
+#define MIN_ZEROES_HARD 3 // At minimum, we'll have this many spaces between obstacles on hard mode
+#define MAX_HI_SCORE 999  // Max hi score to store and display on the title screen.
 #define MAX_DISP_SCORE 39  // The top-right digits can't properly display above 39
 
 typedef struct {
@@ -141,6 +141,19 @@ static void display_score(uint8_t score) {
     watch_display_string(buf, 2);
 }
 
+static void check_and_reset_hi_score(endless_runner_state_t *state) {
+    // Resets the hi scroe at the beginning of each month.
+    watch_date_time date_time = watch_rtc_get_date_time();
+    if ((state -> year_last_hi_score != date_time.unit.year) || 
+        (state -> month_last_hi_score != date_time.unit.month))
+    {
+        // The high score resets itself every new month.
+        state -> hi_score = 0;
+        state -> year_last_hi_score = date_time.unit.year;
+        state -> month_last_hi_score = date_time.unit.month;
+    }
+}
+
 static void display_difficulty(uint16_t difficulty) {
     switch (difficulty)
     {
@@ -160,8 +173,27 @@ static void display_difficulty(uint16_t difficulty) {
     }
 }
 
+static void change_difficulty(endless_runner_state_t *state) {
+    state -> difficulty = (state -> difficulty + 1) % DIFF_COUNT;
+    display_difficulty(state -> difficulty);
+    if (state -> soundOn) {
+        if (state -> difficulty == 0) watch_buzzer_play_note(BUZZER_NOTE_B4, 30);
+        else  watch_buzzer_play_note(BUZZER_NOTE_C5, 30);
+    }
+}
+
+static void toggle_sound(endless_runner_state_t *state) {
+    state -> soundOn = !state -> soundOn;
+    if (state -> soundOn){
+        watch_buzzer_play_note(BUZZER_NOTE_C5, 30);
+        watch_set_indicator(WATCH_INDICATOR_BELL);
+    }
+    else {
+        watch_clear_indicator(WATCH_INDICATOR_BELL);
+    }
+}
+
 static void display_title(endless_runner_state_t *state) {
-    char buf[10];
     uint16_t hi_score = state -> hi_score;
     uint8_t difficulty = state -> difficulty;
     bool sound_on = state -> soundOn;
@@ -169,13 +201,17 @@ static void display_title(endless_runner_state_t *state) {
     game_state.sec_before_moves = 1; // The first obstacles will all be 0s, which is about an extra second of delay.
     if (sound_on) game_state.sec_before_moves--; // Start chime is about 1 second
     watch_set_colon();
-    if (hi_score <= 99)
-        sprintf(buf, "ER  HS%2d  ", hi_score);
-    else if (hi_score <= MAX_HI_SCORE)
-        sprintf(buf, "ER  HS%3d ", hi_score);
-    else
-        sprintf(buf, "ER  HS--  ", hi_score);
-    watch_display_string(buf, 0);
+    if (hi_score > MAX_HI_SCORE) {
+        watch_display_string("ER  HS--  ", 0);
+    }
+    else {
+        char buf[14];
+        if (hi_score <= 99)
+            sprintf(buf, "ER  HS%2d  ", hi_score);
+        else if (hi_score <= MAX_HI_SCORE)
+            sprintf(buf, "ER  HS%3d ", hi_score);
+        watch_display_string(buf, 0);
+    }
     display_difficulty(difficulty);
 }
 
@@ -303,6 +339,43 @@ static bool display_obstacles(endless_runner_state_t *state) {
     return success_jump;
 }
 
+static void update_game(endless_runner_state_t *state, uint8_t subsecond) {
+    bool success_jump = false;
+    uint8_t curr_jump_frame = 0;
+    if (game_state.sec_before_moves != 0) {
+        if (subsecond == 0) --game_state.sec_before_moves;
+        return;
+    }
+    success_jump = display_obstacles(state);
+    switch (game_state.jump_state)
+    {
+    case NOT_JUMPING:
+        break;
+    case JUMPING_FINAL_FRAME:
+        game_state.jump_state = NOT_JUMPING;
+        display_ball(game_state.jump_state != NOT_JUMPING);
+        if (state -> soundOn){
+            if (success_jump)
+                watch_buzzer_play_note(BUZZER_NOTE_C5, 60);
+            else
+                watch_buzzer_play_note(BUZZER_NOTE_C3, 60);
+        }
+        break;
+    default:
+        curr_jump_frame = game_state.jump_state - NOT_JUMPING;
+        if (curr_jump_frame >= JUMP_FRAMES_EASY || (state -> difficulty >= DIFF_NORM && curr_jump_frame >= JUMP_FRAMES))
+            game_state.jump_state = JUMPING_FINAL_FRAME;
+        else
+            game_state.jump_state++;
+        //if (!watch_get_pin_level(BTN_ALARM) && !watch_get_pin_level(BTN_LIGHT)) game_state.jump_state = JUMPING_FINAL_FRAME;  // Uncomment to have depressing the buttons cause the ball to drop regardless of its current frame.
+        break;
+    }
+    if (game_state.jump_state == NOT_JUMPING && (game_state.loc_2_on || game_state.loc_3_on)) {
+        delay_ms(200);  // To show the player jumping onto the obstacle before displaying the lose screen.
+        display_lose_screen(state);
+    }
+}
+
 void endless_runner_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
     (void) watch_face_index;
@@ -321,21 +394,9 @@ void endless_runner_face_activate(movement_settings_t *settings, void *context) 
 
 bool endless_runner_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     endless_runner_state_t *state = (endless_runner_state_t *)context;
-    bool success_jump = false;
-    uint8_t curr_jump_frame = 0;
-    watch_date_time date_time;
-
     switch (event.event_type) {
         case EVENT_ACTIVATE:
-            date_time = watch_rtc_get_date_time();
-            if ((state -> year_last_hi_score != date_time.unit.year) || 
-                (state -> month_last_hi_score != date_time.unit.month))
-            {
-                // The high score resets itself every new month.
-                state -> hi_score = 0;
-                state -> year_last_hi_score = date_time.unit.year;
-                state -> month_last_hi_score = date_time.unit.month;
-            }
+            check_and_reset_hi_score(state);
             if (state -> soundOn) watch_set_indicator(WATCH_INDICATOR_BELL);
             display_title(state);
             break;
@@ -346,38 +407,7 @@ bool endless_runner_face_loop(movement_event_t event, movement_settings_t *setti
             case SCREEN_LOSE:
                 break;
             default:
-                if (game_state.sec_before_moves != 0) {
-                    if (event.subsecond == 0) --game_state.sec_before_moves;
-                    break;
-                }
-                success_jump = display_obstacles(state);
-                switch (game_state.jump_state)
-                {
-                case NOT_JUMPING:
-                    break;
-                case JUMPING_FINAL_FRAME:
-                    game_state.jump_state = NOT_JUMPING;
-                    display_ball(game_state.jump_state != NOT_JUMPING);
-                    if (state -> soundOn){
-                        if (success_jump)
-                            watch_buzzer_play_note(BUZZER_NOTE_C5, 60);
-                        else
-                            watch_buzzer_play_note(BUZZER_NOTE_C3, 60);
-                    }
-                    break;
-                default:
-                    curr_jump_frame = game_state.jump_state - NOT_JUMPING;
-                    if (curr_jump_frame >= JUMP_FRAMES_EASY || (state -> difficulty >= DIFF_NORM && curr_jump_frame >= JUMP_FRAMES))
-                        game_state.jump_state = JUMPING_FINAL_FRAME;
-                    else
-                        game_state.jump_state++;
-                    //if (!watch_get_pin_level(BTN_ALARM) && !watch_get_pin_level(BTN_LIGHT)) game_state.jump_state = JUMPING_FINAL_FRAME;  // Uncomment to have depressing the buttons cause the ball to drop regardless of its current frame.
-                    break;
-                }
-                if (game_state.jump_state == NOT_JUMPING && (game_state.loc_2_on || game_state.loc_3_on)) {
-                    delay_ms(200);  // To show the player jumping onto the obstacle before displaying the lose screen.
-                    display_lose_screen(state);
-                }
+                update_game(state, event.subsecond);
                 break;
             }
             break;
@@ -389,14 +419,8 @@ bool endless_runner_face_loop(movement_event_t event, movement_settings_t *setti
                 display_title(state);
             break;
         case EVENT_LIGHT_LONG_PRESS:
-            if (game_state.curr_screen == SCREEN_TITLE) {
-                state -> difficulty = (state -> difficulty + 1) % DIFF_COUNT;
-                display_difficulty(state -> difficulty);
-                if (state -> soundOn) {
-                    if (state -> difficulty == 0) watch_buzzer_play_note(BUZZER_NOTE_B4, 30);
-                    else  watch_buzzer_play_note(BUZZER_NOTE_C5, 30);
-                }
-            }
+            if (game_state.curr_screen == SCREEN_TITLE)
+                change_difficulty(state);
             break;
         case EVENT_LIGHT_BUTTON_DOWN:
         case EVENT_ALARM_BUTTON_DOWN:
@@ -407,16 +431,7 @@ bool endless_runner_face_loop(movement_event_t event, movement_settings_t *setti
             break;
         case EVENT_ALARM_LONG_PRESS:
             if (game_state.curr_screen != SCREEN_PLAYING)
-            {
-                state -> soundOn = !state -> soundOn;
-                if (state -> soundOn){
-                    watch_buzzer_play_note(BUZZER_NOTE_C5, 30);
-                    watch_set_indicator(WATCH_INDICATOR_BELL);
-                }
-                else {
-                    watch_clear_indicator(WATCH_INDICATOR_BELL);
-                }
-            }
+                toggle_sound(state);
             break;
         case EVENT_TIMEOUT:
             movement_move_to_face(0);
