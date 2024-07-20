@@ -216,7 +216,7 @@ static uint8_t *totp_face_lfs_get_file_secret(struct totp_record *record) {
         return current_secret;
     }
     if (base32_decode((unsigned char *)buffer, current_secret) != record->secret_size) {
-        printf("TOTP can't properly decode secret from totp_uris.txt; failed at offset %d; read to %d\n", buffer, record->file_secret_offset, file_secret_offset);
+        printf("TOTP can't properly decode secret '%s' from totp_uris.txt; failed at offset %d; read to %ld\n", buffer, record->file_secret_offset, file_secret_offset);
     }
     return current_secret;
 }
