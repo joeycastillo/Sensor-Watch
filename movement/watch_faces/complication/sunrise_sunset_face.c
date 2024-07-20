@@ -372,7 +372,7 @@ bool sunrise_sunset_face_loop(movement_event_t event, movement_settings_t *setti
             else if (!state->page) movement_illuminate_led();
             break;
         case EVENT_LIGHT_BUTTON_UP:
-            if (state->page == 0) {
+            if (state->page == 0 && _location_count > 1) {
                 state->longLatToUse = (state->longLatToUse + 1) % _location_count;
                 _sunrise_sunset_face_update(settings, state);
             }
@@ -387,7 +387,12 @@ bool sunrise_sunset_face_loop(movement_event_t event, movement_settings_t *setti
             }
             break;
         case EVENT_ALARM_LONG_PRESS:
-            if (state->page == 0 && state->longLatToUse == 0) {
+            if (state->page == 0) {
+            if (state->longLatToUse != 0) {
+                state->longLatToUse = 0;
+                _sunrise_sunset_face_update(settings, state);
+                break;
+            }
                 state->page++;
                 state->active_digit = 0;
                 watch_clear_display();
