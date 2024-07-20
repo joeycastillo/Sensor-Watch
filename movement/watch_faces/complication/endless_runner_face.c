@@ -25,7 +25,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "endless_runner_face.h"
-#include "watch_utility.h"
 
 typedef enum {
     JUMPING_FINAL_FRAME = 0,
@@ -52,9 +51,10 @@ typedef enum {
 #define FREQ 8
 #define FREQ_SLOW 4
 #define JUMP_FRAMES 2
-#define JUMP_FRAMES_EASY 20
+#define JUMP_FRAMES_EASY 3
 #define MIN_ZEROES 4
 #define MIN_ZEROES_HARD 3
+#define MAX_HI_SCORE 999
 #define MAX_DISP_SCORE 39  // The top-right digits can't properly display above 39
 
 typedef struct {
@@ -62,6 +62,8 @@ typedef struct {
     uint16_t obst_indx : 8;
     uint16_t jump_state : 5;
     uint16_t sec_before_moves : 3;
+    uint16_t curr_score : 10;
+    uint16_t curr_screen : 4;
     bool loc_2_on;
     bool loc_3_on;
 } game_state_t;
@@ -134,44 +136,52 @@ static void display_ball(bool jumping) {
 
 static void display_score(uint8_t score) {
     char buf[3];
-    if (score > MAX_DISP_SCORE) watch_display_string(" -", 2);
-    else{
-        sprintf(buf, "%2d", score);
-        watch_display_string(buf, 2);
-    }
+    score %= (MAX_DISP_SCORE + 1);
+    sprintf(buf, "%2d", score);
+    watch_display_string(buf, 2);
 }
 
 static void display_difficulty(uint16_t difficulty) {
     switch (difficulty)
     {
     case DIFF_BABY:
-        watch_display_string("b", 9);
+        watch_display_string("b", 3);
         break;
     case DIFF_EASY:
-        watch_display_string("E", 9);
+        watch_display_string("E", 3);
         break;
     case DIFF_HARD:
-        watch_display_string("H", 9);
+        watch_display_string("H", 3);
         break;
     case DIFF_NORM:
     default:
-        watch_display_string("n", 9);
+        watch_display_string("N", 3);
         break;
     }
 }
 
 static void display_title(endless_runner_state_t *state) {
-    state -> curr_screen = SCREEN_TITLE;
+    char buf[10];
+    uint16_t hi_score = state -> hi_score;
+    uint8_t difficulty = state -> difficulty;
+    bool sound_on = state -> soundOn;
     memset(&game_state, 0, sizeof(game_state));
     game_state.sec_before_moves = 1; // The first obstacles will all be 0s, which is about an extra second of delay.
-    if (state -> soundOn) game_state.sec_before_moves--; // Start chime is about 1 second
-    watch_display_string("ER   SEL  ", 0);
-    display_score(state -> hi_score);
-    display_difficulty(state -> difficulty);
+    if (sound_on) game_state.sec_before_moves--; // Start chime is about 1 second
+    watch_set_colon();
+    if (hi_score <= 99)
+        sprintf(buf, "ER  HS%2d  ", hi_score);
+    else if (hi_score <= MAX_HI_SCORE)
+        sprintf(buf, "ER  HS%3d ", hi_score);
+    else
+        sprintf(buf, "ER  HS--  ", hi_score);
+    watch_display_string(buf, 0);
+    display_difficulty(difficulty);
 }
 
 static void begin_playing(endless_runner_state_t *state) {
-    state -> curr_screen = SCREEN_PLAYING;
+    game_state.curr_screen = SCREEN_PLAYING;
+    watch_clear_colon();
     movement_request_tick_frequency((state -> difficulty == DIFF_BABY) ? FREQ_SLOW : FREQ);
     watch_display_string("ER         ", 0);
     game_state.jump_state = NOT_JUMPING;
@@ -180,7 +190,7 @@ static void begin_playing(endless_runner_state_t *state) {
     {
         game_state.obst_pattern = get_random_legal(0, state -> difficulty);
     } while (game_state.obst_pattern == 0);
-    display_score(state -> curr_score);
+    display_score( game_state.curr_score);
     if (state -> soundOn){
         watch_buzzer_play_note(BUZZER_NOTE_C5, 200);
         watch_buzzer_play_note(BUZZER_NOTE_E5, 200);
@@ -189,9 +199,8 @@ static void begin_playing(endless_runner_state_t *state) {
 }
 
 static void display_lose_screen(endless_runner_state_t *state) {
-    movement_request_tick_frequency(1);
-    state -> curr_screen = SCREEN_LOSE;
-    state -> curr_score = 0;
+    game_state.curr_screen = SCREEN_LOSE;
+    game_state.curr_score = 0;
     watch_display_string(" U   LOSE ", 0);
     if (state -> soundOn)
         watch_buzzer_play_note(BUZZER_NOTE_A1, 600);
@@ -220,13 +229,12 @@ static bool display_obstacle(bool obstacle, int grid_loc, endless_runner_state_t
     
     case 1:
         if (obstacle) {  // If an obstacle is here, it means the ball cleared it
-            // Counter will continuously roll over, but high score will max out on the first roll-over
-            state -> curr_score = (state -> curr_score + 1) % (MAX_DISP_SCORE + 1);
-            if (state -> curr_score == 0)  // This means the counter rolled over
-                state -> hi_score = MAX_DISP_SCORE + 1;
-            else if (state -> curr_score > state -> hi_score)
-                state -> hi_score = state -> curr_score;
-            display_score(state -> curr_score);
+            if (game_state.curr_score <= MAX_HI_SCORE) {
+                game_state.curr_score++;
+                if (game_state.curr_score > state -> hi_score)
+                    state -> hi_score = game_state.curr_score;
+            }
+            display_score(game_state.curr_score);
         }
         //fall through
     case 0:
@@ -316,25 +324,23 @@ bool endless_runner_face_loop(movement_event_t event, movement_settings_t *setti
     bool success_jump = false;
     uint8_t curr_jump_frame = 0;
     watch_date_time date_time;
-    uint32_t weeknumber;
 
     switch (event.event_type) {
         case EVENT_ACTIVATE:
             date_time = watch_rtc_get_date_time();
-            weeknumber = watch_utility_get_weeknumber(date_time.unit.year, date_time.unit.month, date_time.unit.day);
-            if ((state -> weeknumber_prev_hi_score != weeknumber) || 
-                (state -> year_prev_hi_score != date_time.unit.year))
+            if ((state -> year_last_hi_score != date_time.unit.year) || 
+                (state -> month_last_hi_score != date_time.unit.month))
             {
-                // The high score resets itself every new week.
+                // The high score resets itself every new month.
                 state -> hi_score = 0;
-                state -> weeknumber_prev_hi_score = weeknumber;
-                state -> year_prev_hi_score = date_time.unit.year;
+                state -> year_last_hi_score = date_time.unit.year;
+                state -> month_last_hi_score = date_time.unit.month;
             }
             if (state -> soundOn) watch_set_indicator(WATCH_INDICATOR_BELL);
             display_title(state);
             break;
         case EVENT_TICK:
-            switch (state -> curr_screen)
+            switch (game_state.curr_screen)
             {
             case SCREEN_TITLE:
             case SCREEN_LOSE:
@@ -377,13 +383,13 @@ bool endless_runner_face_loop(movement_event_t event, movement_settings_t *setti
             break;
         case EVENT_LIGHT_BUTTON_UP:
         case EVENT_ALARM_BUTTON_UP:
-            if (state -> curr_screen == SCREEN_TITLE)
+            if (game_state.curr_screen == SCREEN_TITLE)
                 begin_playing(state);
-            else if (state -> curr_screen == SCREEN_LOSE)
+            else if (game_state.curr_screen == SCREEN_LOSE)
                 display_title(state);
             break;
         case EVENT_LIGHT_LONG_PRESS:
-            if (state -> curr_screen == SCREEN_TITLE) {
+            if (game_state.curr_screen == SCREEN_TITLE) {
                 state -> difficulty = (state -> difficulty + 1) % DIFF_COUNT;
                 display_difficulty(state -> difficulty);
                 if (state -> soundOn) {
@@ -394,13 +400,13 @@ bool endless_runner_face_loop(movement_event_t event, movement_settings_t *setti
             break;
         case EVENT_LIGHT_BUTTON_DOWN:
         case EVENT_ALARM_BUTTON_DOWN:
-            if (state -> curr_screen == SCREEN_PLAYING && game_state.jump_state == NOT_JUMPING){
+            if (game_state.curr_screen == SCREEN_PLAYING && game_state.jump_state == NOT_JUMPING){
                 game_state.jump_state = JUMPING_START;
                 display_ball(game_state.jump_state != NOT_JUMPING);
             }
             break;
         case EVENT_ALARM_LONG_PRESS:
-            if (state -> curr_screen != SCREEN_PLAYING)
+            if (game_state.curr_screen != SCREEN_PLAYING)
             {
                 state -> soundOn = !state -> soundOn;
                 if (state -> soundOn){
