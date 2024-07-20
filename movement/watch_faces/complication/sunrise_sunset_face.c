@@ -399,7 +399,7 @@ bool sunrise_sunset_face_loop(movement_event_t event, movement_settings_t *setti
                 movement_request_tick_frequency(4);
                 _sunrise_sunset_face_update_settings_display(event, context);
             }
-            else{
+            else {
                 state->active_digit = 0;
                 state->page = 0;
                 _sunrise_sunset_face_update_location_register(state);
