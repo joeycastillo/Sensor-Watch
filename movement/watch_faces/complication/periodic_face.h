@@ -29,9 +29,34 @@
 
 /*
  * Periodic Table Face
+ * Allows for viewing data of the Periodic Table on your wrist.
+ * When looking at an element, it'll show you the atomic number on the center of the screen,
+ * symbol on the right, and it's group on the top-right.
+ * Pressing the mode button will cycle through the pages.
+ *   Page 1: Atomic Mass
+ *   Page 2: Year Discovered
+ *   Page 3: Electronegativity
+ *   Page 4: Full Name of the Element
+ * 
+ * Controls:
+ *    Mode Press
+ *        On Title: Next Screen
+ *        Else: Cycle through info of an element
+ *    Mode Hold
+ *        On Title: First Screen
+ *        On Element Symbol Screen: Go to Title Screen
+ *        Else: Go to Symbol Screen of current element
+ *    If you are in a subscreen and just keep holding MODE, you will go through all of these menus without needing to depress.
+ * 
+ *    Light Press
+ *        Previous Element
+ *    Light Hold
+ *        Fast Cycle through Previous Elements
  *
- * Elements can be viewed sequentially with a short press of the alarm button,
- * or the atomic number can be input directly after holding down the alarm button.
+ *    Alarm Press
+ *        Next Element
+ *    Alarm Hold
+ *        Fast Cycle through Next Elements
  *
  */
 
