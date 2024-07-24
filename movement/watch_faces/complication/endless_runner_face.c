@@ -54,16 +54,17 @@ typedef enum {
 #define JUMP_FRAMES_EASY 3 // Wait this many frames on difficulties at or below EASY before coming down from the jump button pressed
 #define MIN_ZEROES 4  // At minimum, we'll have this many spaces between obstacles
 #define MIN_ZEROES_HARD 3 // At minimum, we'll have this many spaces between obstacles on hard mode
-#define MAX_HI_SCORE 999  // Max hi score to store and display on the title screen.
+#define MAX_HI_SCORE 9999  // Max hi score to store and display on the title screen.
 #define MAX_DISP_SCORE 39  // The top-right digits can't properly display above 39
 
 typedef struct {
     uint32_t obst_pattern;
+    uint16_t curr_score;
     uint16_t obst_indx : 8;
     uint16_t jump_state : 5;
     uint16_t sec_before_moves : 3;
-    uint16_t curr_score : 10;
-    uint16_t curr_screen : 4;
+    uint8_t curr_screen : 4;
+    bool success_jump;  // Flag used for making a successful jumping sound.
     bool loc_2_on;
     bool loc_3_on;
 } game_state_t;
@@ -141,6 +142,16 @@ static void display_score(uint8_t score) {
     watch_display_string(buf, 2);
 }
 
+static void add_to_score(endless_runner_state_t *state) {
+    if (game_state.curr_score <= MAX_HI_SCORE) {
+        game_state.curr_score++;
+        if (game_state.curr_score > state -> hi_score)
+            state -> hi_score = game_state.curr_score;
+    }
+    game_state.success_jump = true;
+    display_score(game_state.curr_score);
+}
+
 static void check_and_reset_hi_score(endless_runner_state_t *state) {
     // Resets the hi scroe at the beginning of each month.
     watch_date_time date_time = watch_rtc_get_date_time();
@@ -202,14 +213,11 @@ static void display_title(endless_runner_state_t *state) {
     if (sound_on) game_state.sec_before_moves--; // Start chime is about 1 second
     watch_set_colon();
     if (hi_score > MAX_HI_SCORE) {
-        watch_display_string("ER  HS--  ", 0);
+        watch_display_string("ER  HS  --", 0);
     }
     else {
         char buf[14];
-        if (hi_score <= 99)
-            sprintf(buf, "ER  HS%2d  ", hi_score);
-        else if (hi_score <= MAX_HI_SCORE)
-            sprintf(buf, "ER  HS%3d ", hi_score);
+        sprintf(buf, "ER  HS%4d ", hi_score);
         watch_display_string(buf, 0);
     }
     display_difficulty(difficulty);
@@ -244,8 +252,19 @@ static void display_lose_screen(endless_runner_state_t *state) {
         delay_ms(600);
 }
 
-static bool display_obstacle(bool obstacle, int grid_loc, endless_runner_state_t *state) {
-    bool success_jump = false;
+static void stop_jumping(endless_runner_state_t *state) {
+    game_state.jump_state = NOT_JUMPING;
+    display_ball(game_state.jump_state != NOT_JUMPING);
+    if (state -> soundOn){
+        if (game_state.success_jump)
+            watch_buzzer_play_note(BUZZER_NOTE_C5, 60);
+        else
+            watch_buzzer_play_note(BUZZER_NOTE_C3, 60);
+    }
+    game_state.success_jump = false;
+}
+
+static void display_obstacle(bool obstacle, int grid_loc, endless_runner_state_t *state) {
     switch (grid_loc)
     {
     case 2:
@@ -265,18 +284,10 @@ static bool display_obstacle(bool obstacle, int grid_loc, endless_runner_state_t
     
     case 1:
         if (obstacle) {  // If an obstacle is here, it means the ball cleared it
-            if (game_state.curr_score <= MAX_HI_SCORE) {
-                game_state.curr_score++;
-                if (game_state.curr_score > state -> hi_score)
-                    state -> hi_score = game_state.curr_score;
-            }
-            display_score(game_state.curr_score);
+            add_to_score(state);
         }
         //fall through
     case 0:
-        if (obstacle)  // If an obstacle is here, it means the ball cleared it
-            success_jump = true;
-        //fall through
     case 5:
         if (obstacle)
             watch_set_pixel(0, 18 + grid_loc);
@@ -318,16 +329,14 @@ static bool display_obstacle(bool obstacle, int grid_loc, endless_runner_state_t
     default:
         break;
     }
-    return success_jump;
 }
 
-static bool display_obstacles(endless_runner_state_t *state) {
-    bool success_jump = false;
+static void display_obstacles(endless_runner_state_t *state) {
     for (int i = 0; i < NUM_GRID; i++) {
         // Use a bitmask to isolate each bit and shift it to the least significant position
         uint32_t mask = 1 << ((_num_bits_obst_pattern - 1) - i);
         bool obstacle = (game_state.obst_pattern & mask) >> ((_num_bits_obst_pattern - 1) - i);
-        if (display_obstacle(obstacle, i, state)) success_jump = true;
+        display_obstacle(obstacle, i, state);
 
     }
     game_state.obst_pattern = game_state.obst_pattern << 1;
@@ -336,30 +345,21 @@ static bool display_obstacles(endless_runner_state_t *state) {
         game_state.obst_indx = 0;
         game_state.obst_pattern = get_random_legal(game_state.obst_pattern, state -> difficulty);
     }
-    return success_jump;
 }
 
 static void update_game(endless_runner_state_t *state, uint8_t subsecond) {
-    bool success_jump = false;
     uint8_t curr_jump_frame = 0;
     if (game_state.sec_before_moves != 0) {
         if (subsecond == 0) --game_state.sec_before_moves;
         return;
     }
-    success_jump = display_obstacles(state);
+    display_obstacles(state);
     switch (game_state.jump_state)
     {
     case NOT_JUMPING:
         break;
     case JUMPING_FINAL_FRAME:
-        game_state.jump_state = NOT_JUMPING;
-        display_ball(game_state.jump_state != NOT_JUMPING);
-        if (state -> soundOn){
-            if (success_jump)
-                watch_buzzer_play_note(BUZZER_NOTE_C5, 60);
-            else
-                watch_buzzer_play_note(BUZZER_NOTE_C3, 60);
-        }
+        stop_jumping(state);
         break;
     default:
         curr_jump_frame = game_state.jump_state - NOT_JUMPING;
@@ -434,7 +434,8 @@ bool endless_runner_face_loop(movement_event_t event, movement_settings_t *setti
                 toggle_sound(state);
             break;
         case EVENT_TIMEOUT:
-            movement_move_to_face(0);
+            if (game_state.curr_screen != SCREEN_TITLE)
+                display_title(state);
             break;
         case EVENT_LOW_ENERGY_UPDATE:
             break;
