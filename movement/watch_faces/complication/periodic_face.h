@@ -2,6 +2,7 @@
  * MIT License
  *
  * Copyright (c) 2023 PrimmR
+ * Copyright (c) 2024 David Volovskiy
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -57,6 +58,9 @@
  *        Next Element
  *    Alarm Hold
  *        Fast Cycle through Next Elements
+ *
+ *    Light & Alarm Hold
+ *        Activate LED backlight
  *
  */
 
