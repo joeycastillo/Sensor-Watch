@@ -39,11 +39,11 @@
 typedef struct {
     // These are values that need saving between uses
     uint32_t hi_score : 10;
-    uint32_t difficulty : 2;
+    uint32_t difficulty : 3;
     bool soundOn;
     uint32_t month_last_hi_score : 4;
     uint32_t year_last_hi_score : 6;
-    uint32_t unused : 9;
+    uint32_t unused : 8;
 } endless_runner_state_t;
 
 void endless_runner_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
