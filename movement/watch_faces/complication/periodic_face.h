@@ -50,18 +50,17 @@
  *    If you are in a subscreen and just keep holding MODE, you will go through all of these menus without needing to depress.
  * 
  *    Light Press
- *        Previous Element
+ *        On Title or Element Symbol Screen: Previous Element
+ *                                     Else: Display currenlt-selected element symbol page
  *    Light Hold
- *        Fast Cycle through Previous Elements
+ *        On Title Screen or Element Symbol: Fast Cycle through Previous Elements
+ *                                     Else: Activate LED backlight
  *
  *    Alarm Press
- *        Next Element
+ *        On Title or Element Symbol Screen: Next Element
+ *                                     Else: Display currenlt-selected element symbol page
  *    Alarm Hold
- *        Fast Cycle through Next Elements
- *
- *    Light & Alarm Hold
- *        Activate LED backlight
- *
+ *        On Title Screen or Element Symbol: Fast Cycle through Next Elements
  */
 
 #define MODE_VIEW 0

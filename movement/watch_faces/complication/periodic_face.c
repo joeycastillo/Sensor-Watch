@@ -35,7 +35,6 @@ static uint8_t _ts_ticks = 0;
 static int16_t _text_pos;
 static const char* _text_looping;
 static const char title_text[] = "Periodic Table";
-static bool _led_on = false;
 
 void periodic_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void **context_ptr)
 {
@@ -412,38 +411,39 @@ bool periodic_face_loop(movement_event_t event, movement_settings_t *settings, v
         _handle_mode_still_pressed(state, settings->bit.button_should_sound);
         break;
     case EVENT_LIGHT_BUTTON_UP:
-        if (!_led_on) _handle_backward(state, settings->bit.button_should_sound);
-        if (!watch_get_pin_level(BTN_ALARM)) _led_on = false;
+        if (state->mode <= SCREEN_ELEMENT) {
+            _handle_backward(state, settings->bit.button_should_sound);
+        }
+        else {
+            state->mode = SCREEN_ELEMENT;
+            _display_screen(state, settings->bit.button_should_sound);
+        }
+        break;
+    case EVENT_LIGHT_BUTTON_DOWN:
         break;
     case EVENT_ALARM_BUTTON_UP:
-        if (!_led_on) _handle_forward(state, settings->bit.button_should_sound);
-        if (!watch_get_pin_level(BTN_LIGHT)) _led_on = false;
+        if (state->mode <= SCREEN_ELEMENT) {
+            _handle_forward(state, settings->bit.button_should_sound);
+        }
+        else {
+            state->mode = SCREEN_ELEMENT;
+            _display_screen(state, settings->bit.button_should_sound);
+        }
         break;
     case EVENT_ALARM_LONG_PRESS:
-        if (!_led_on) {
+        if (state->mode <= SCREEN_ELEMENT) {
             start_quick_cyc();
             _handle_forward(state, settings->bit.button_should_sound);
         }
         break;
     case EVENT_LIGHT_LONG_PRESS:
-        if (!_led_on) {
+        if (state->mode <= SCREEN_ELEMENT) {
             start_quick_cyc();
             _handle_backward(state, settings->bit.button_should_sound);
         }
-        break;    
-    case EVENT_LIGHT_BUTTON_DOWN:
-        if (watch_get_pin_level(BTN_ALARM)) _led_on = true;
-        stop_quick_cyc();
-        break;
-    case EVENT_ALARM_BUTTON_DOWN:
-        if (watch_get_pin_level(BTN_LIGHT)) _led_on = true;
-        stop_quick_cyc();
-        break;
-    case EVENT_LIGHT_LONG_UP:
-        _led_on = false;
-        break;
-    case EVENT_ALARM_LONG_UP:
-        _led_on = false;
+        else {
+            movement_illuminate_led();
+        }
         break;
     case EVENT_MODE_BUTTON_UP:
         if (state->mode == SCREEN_TITLE) movement_move_to_next_face();
@@ -487,8 +487,6 @@ bool periodic_face_loop(movement_event_t event, movement_settings_t *settings, v
     default:
         return movement_default_loop_handler(event, settings);
     }
-
-    if (_led_on) movement_illuminate_led();
 
     return true;
 }
