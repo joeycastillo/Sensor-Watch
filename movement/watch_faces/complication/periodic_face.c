@@ -477,12 +477,15 @@ bool periodic_face_loop(movement_event_t event, movement_settings_t *settings, v
         _ts_ticks = 2;
         break;
     case EVENT_TIMEOUT:
-        break;
-    case EVENT_LOW_ENERGY_UPDATE:
-        // Display title in LE mode.
+        // Display title after timeout
         if (state->mode == SCREEN_TITLE) break;
         state->mode = SCREEN_TITLE;
         _display_screen(state, false);
+        break;
+    case EVENT_LOW_ENERGY_UPDATE:
+        // Display static title and tick animation during LE
+        watch_display_string("Pd   Table", 0);
+        watch_start_tick_animation(500);
         break;
     default:
         return movement_default_loop_handler(event, settings);
