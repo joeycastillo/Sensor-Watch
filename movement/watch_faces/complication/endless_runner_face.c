@@ -46,6 +46,7 @@ typedef enum {
     DIFF_NORM,      //      FREQ FPS;       MIN_ZEROES 0's min;  Jump is JUMP_FRAMES frames
     DIFF_HARD,      //      FREQ FPS;  MIN_ZEROES_HARD 0's min;  jump is JUMP_FRAMES frames
     DIFF_FUEL,      // Mode where the top-right displays the amoount of fuel that you can be above the ground for, dodging obstacles. When on the ground, your fuel recharges.
+    DIFF_FUEL_1,    // Same as DIFF_FUEL, but if your fuel is 0, then you won't recharge
     DIFF_COUNT
 } RunnerDifficulty;
 
@@ -232,6 +233,10 @@ static void add_to_score(endless_runner_state_t *state) {
 
 static void display_fuel(uint8_t subsecond, uint8_t difficulty) {
     char buf[4];
+    if (difficulty == DIFF_FUEL_1 && game_state.fuel == 0 && subsecond % 4 == 0) {
+        watch_display_string("  ", 2);  // Blink the 0 fuel to show it cannot be refilled.
+        return;
+    }
     sprintf(buf, "%2d", game_state.fuel);
     watch_display_string(buf, 2);
 }
@@ -264,12 +269,15 @@ static void display_difficulty(uint16_t difficulty) {
     case DIFF_FUEL:
         watch_display_string(" F", 2);
         break;
+    case DIFF_FUEL_1:
+        watch_display_string("1F", 2);
+        break;
     case DIFF_NORM:
     default:
         watch_display_string(" N", 2);
         break;
     }
-    game_state.fuel_mode = difficulty == DIFF_FUEL;
+    game_state.fuel_mode = difficulty >= DIFF_FUEL && difficulty <= DIFF_FUEL_1;
 }
 
 static void change_difficulty(endless_runner_state_t *state) {
@@ -464,7 +472,7 @@ static void update_game(endless_runner_state_t *state, uint8_t subsecond) {
         if (game_state.fuel_mode) {
             for (int i = 0; i < JUMP_FRAMES_FUEL_RECHARGE; i++)
             {
-                if(game_state.fuel >= JUMP_FRAMES_FUEL)
+                if(game_state.fuel >= JUMP_FRAMES_FUEL || (state -> difficulty == DIFF_FUEL_1 && !game_state.fuel))
                     break;
                 game_state.fuel++;
             }
