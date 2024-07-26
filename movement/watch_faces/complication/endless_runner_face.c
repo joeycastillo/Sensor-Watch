@@ -304,6 +304,7 @@ static void display_title(endless_runner_state_t *state) {
     uint16_t hi_score = state -> hi_score;
     uint8_t difficulty = state -> difficulty;
     bool sound_on = state -> soundOn;
+    game_state.curr_screen = SCREEN_TITLE;
     memset(&game_state, 0, sizeof(game_state));
     game_state.sec_before_moves = 1; // The first obstacles will all be 0s, which is about an extra second of delay.
     if (sound_on) game_state.sec_before_moves--; // Start chime is about 1 second
@@ -323,9 +324,10 @@ static void display_time(watch_date_time date_time, bool clock_mode_24h) {
     static watch_date_time previous_date_time;
     char buf[6 + 1];
 
-    // If the hour needs updating
-    if (date_time.unit.hour != previous_date_time.unit.hour) {
+    // If the hour needs updating or it's the first time displaying the time
+    if ((game_state.curr_screen != SCREEN_TIME) || (date_time.unit.hour != previous_date_time.unit.hour)) {
         uint8_t hour = date_time.unit.hour;
+        game_state.curr_screen = SCREEN_TIME;
 
         if (clock_mode_24h) watch_set_indicator(WATCH_INDICATOR_24H);
         else {
