@@ -248,28 +248,16 @@ static void _movement_handle_scheduled_tasks(void) {
     }
 }
 
-static uint8_t swap_endian(uint8_t num) {
-    uint8_t result = 0;
-    int i;
-    for (i = 0; i < 8; i++) {
-        result <<= 1;
-        result |= (num & 1);
-        num >>= 1;
-    }
-    return result;
-}
-
 void movement_request_tick_frequency(uint8_t freq) {
     // Movement uses the 128 Hz tick internally
-    if (freq == 128 || freq == DEBOUNCE_FREQ ) return;
+    if (freq == 128) return;
 
     // Movement requires at least a 1 Hz tick.
     // If we are asked for an invalid frequency, default back to 1 Hz.
     if (freq == 0 || __builtin_popcount(freq) != 1) freq = 1;
 
     // disable all callbacks except the 128 Hz one
-    int disable_mask = 0xFE ^ swap_endian(DEBOUNCE_FREQ);
-    watch_rtc_disable_matching_periodic_callbacks(disable_mask);
+    watch_rtc_disable_matching_periodic_callbacks(0xFE);
 
     movement_state.subsecond = 0;
     movement_state.tick_frequency = freq;
