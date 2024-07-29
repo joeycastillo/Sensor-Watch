@@ -209,6 +209,17 @@ static inline void _movement_disable_fast_tick_if_possible(void) {
     }
 }
 
+#define DEBOUNCE_FREQ 64 // 64 HZ is 15.625ms
+static void cb_debounce(void) {
+    movement_state.debounce_occurring = false;
+    watch_rtc_disable_periodic_callback(DEBOUNCE_FREQ);
+}
+
+static inline void _movement_enable_debounce_tick(void) {
+    movement_state.debounce_occurring = true;
+    watch_rtc_register_periodic_callback(cb_debounce, DEBOUNCE_FREQ);
+}
+
 static void _movement_handle_background_tasks(void) {
     for(uint8_t i = 0; i < MOVEMENT_NUM_FACES; i++) {
         // For each face, if the watch face wants a background task...
@@ -248,16 +259,28 @@ static void _movement_handle_scheduled_tasks(void) {
     }
 }
 
+static uint8_t swap_endian(uint8_t num) {
+    uint8_t result = 0;
+    int i;
+    for (i = 0; i < 8; i++) {
+        result <<= 1;
+        result |= (num & 1);
+        num >>= 1;
+    }
+    return result;
+}
+
 void movement_request_tick_frequency(uint8_t freq) {
     // Movement uses the 128 Hz tick internally
-    if (freq == 128) return;
+    if (freq == 128 || freq == DEBOUNCE_FREQ ) return;
 
     // Movement requires at least a 1 Hz tick.
     // If we are asked for an invalid frequency, default back to 1 Hz.
     if (freq == 0 || __builtin_popcount(freq) != 1) freq = 1;
 
     // disable all callbacks except the 128 Hz one
-    watch_rtc_disable_matching_periodic_callbacks(0xFE);
+    int disable_mask = 0xFE ^ swap_endian(DEBOUNCE_FREQ);
+    watch_rtc_disable_matching_periodic_callbacks(disable_mask);
 
     movement_state.subsecond = 0;
     movement_state.tick_frequency = freq;
@@ -649,6 +672,8 @@ bool app_loop(void) {
 static movement_event_type_t _figure_out_button_event(bool pin_level, movement_event_type_t button_down_event_type, uint16_t *down_timestamp) {
     // force alarm off if the user pressed a button.
     if (movement_state.alarm_ticks) movement_state.alarm_ticks = 0;
+    if ( movement_state.debounce_occurring)
+        return EVENT_NONE;
 
     if (pin_level) {
         // handle rising edge
@@ -663,6 +688,7 @@ static movement_event_type_t _figure_out_button_event(bool pin_level, movement_e
         uint16_t diff = movement_state.fast_ticks - *down_timestamp;
         *down_timestamp = 0;
         _movement_disable_fast_tick_if_possible();
+        _movement_enable_debounce_tick();
         // any press over a half second is considered a long press. Fire the long-up event
         if (diff < MOVEMENT_REALLY_LONG_PRESS_TICKS && diff > MOVEMENT_LONG_PRESS_TICKS) {
             return button_down_event_type + 3; 
@@ -701,37 +727,21 @@ void cb_alarm_fired(void) {
 
 void cb_fast_tick(void) {
     movement_state.fast_ticks++;
-    if (movement_state.light_ticks > 0) movement_state.light_ticks--;
-    if (movement_state.alarm_ticks > 0) movement_state.alarm_ticks--;
-    // check timestamps and auto-fire the long-press events
-    // Notice: is it possible that two or more buttons have an identical timestamp? In this case
-    // only one of these buttons would receive the long press event. Don't bother for now...
-    //if (movement_state.light_down_timestamp > 0)
-    //    if (movement_state.fast_ticks - movement_state.light_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1)
-    //        event.event_type = EVENT_LIGHT_LONG_PRESS;
-    //if (movement_state.mode_down_timestamp > 0)
-    //    if (movement_state.fast_ticks - movement_state.mode_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1)
-    //        event.event_type = EVENT_MODE_LONG_PRESS;
-    if (movement_state.light_down_timestamp > 0) {
-        if (movement_state.fast_ticks - movement_state.light_down_timestamp == MOVEMENT_REALLY_LONG_PRESS_TICKS + 1) {
-            event.event_type = EVENT_LIGHT_REALLY_LONG_PRESS;
-        } else if (movement_state.fast_ticks - movement_state.light_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1) {
-            event.event_type = EVENT_LIGHT_LONG_PRESS;
-        }
-    }
-    if (movement_state.mode_down_timestamp > 0) {
-        if (movement_state.fast_ticks - movement_state.mode_down_timestamp == MOVEMENT_REALLY_LONG_PRESS_TICKS + 1) {
-            event.event_type = EVENT_MODE_REALLY_LONG_PRESS;
-        } else if (movement_state.fast_ticks - movement_state.mode_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1) {
-            event.event_type = EVENT_MODE_LONG_PRESS;
-        }
-    }
-    if (movement_state.alarm_down_timestamp > 0) {
-        if (movement_state.fast_ticks - movement_state.alarm_down_timestamp == MOVEMENT_REALLY_LONG_PRESS_TICKS + 1) {
-            event.event_type = EVENT_ALARM_REALLY_LONG_PRESS;
-        } else if (movement_state.fast_ticks - movement_state.alarm_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1) {
-            event.event_type = EVENT_ALARM_LONG_PRESS;
-        }
+    if (!movement_state.debounce_occurring) {
+        if (movement_state.light_ticks > 0) movement_state.light_ticks--;
+        if (movement_state.alarm_ticks > 0) movement_state.alarm_ticks--;
+        // check timestamps and auto-fire the long-press events
+        // Notice: is it possible that two or more buttons have an identical timestamp? In this case
+        // only one of these buttons would receive the long press event. Don't bother for now...
+        if (movement_state.light_down_timestamp > 0)
+            if (movement_state.fast_ticks - movement_state.light_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1)
+                event.event_type = EVENT_LIGHT_LONG_PRESS;
+        if (movement_state.mode_down_timestamp > 0)
+            if (movement_state.fast_ticks - movement_state.mode_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1)
+                event.event_type = EVENT_MODE_LONG_PRESS;
+        if (movement_state.alarm_down_timestamp > 0)
+            if (movement_state.fast_ticks - movement_state.alarm_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1)
+                event.event_type = EVENT_ALARM_LONG_PRESS;
     }
     // this is just a fail-safe; fast tick should be disabled as soon as the button is up, the LED times out, and/or the alarm finishes.
     // but if for whatever reason it isn't, this forces the fast tick off after 20 seconds.

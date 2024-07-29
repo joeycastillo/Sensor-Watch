@@ -275,6 +275,7 @@ typedef struct {
     bool needs_background_tasks_handled;
     bool has_scheduled_background_task;
     bool needs_wake;
+    bool debounce_occurring;
 
     // low energy mode countdown
     int32_t le_mode_ticks;
