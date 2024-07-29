@@ -490,6 +490,7 @@ static void _sleep_mode_app_loop(void) {
         // we also have to handle background tasks here in the mini-runloop
         if (movement_state.needs_background_tasks_handled) _movement_handle_background_tasks();
 
+        movement_state.ignore_alarm_after_sleep = true;
         event.event_type = EVENT_LOW_ENERGY_UPDATE;
         watch_faces[movement_state.current_face_idx].loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_face_idx]);
 
@@ -675,8 +676,14 @@ void cb_mode_btn_interrupt(void) {
 void cb_alarm_btn_interrupt(void) {
     bool pin_level = watch_get_pin_level(BTN_ALARM);
     _movement_reset_inactivity_countdown();
-    event.event_type = _figure_out_button_event(pin_level, EVENT_ALARM_BUTTON_DOWN, &movement_state.alarm_down_timestamp);
+    uint8_t event_type = _figure_out_button_event(pin_level, EVENT_ALARM_BUTTON_DOWN, &movement_state.alarm_down_timestamp);
+    if  (movement_state.ignore_alarm_after_sleep){
+        if (event_type == EVENT_ALARM_BUTTON_UP) movement_state.ignore_alarm_after_sleep = false;
+        return;
+    }
+    event.event_type = event_type;
 }
+
 
 void cb_alarm_btn_extwake(void) {
     // wake up!
