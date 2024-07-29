@@ -267,11 +267,16 @@ typedef struct {
     bool needs_background_tasks_handled;
     bool has_scheduled_background_task;
     bool needs_wake;
-    bool debounce_occurring;
 
     // low energy mode countdown
     int32_t le_mode_ticks;
-    bool ignore_alarm_after_sleep;
+    int8_t debounce_ticks_light;
+    int8_t debounce_ticks_alarm;
+    int8_t debounce_ticks_mode;
+    bool debounce_prev_pin_light;
+    bool debounce_prev_pin_alarm;
+    bool debounce_prev_pin_mode;
+    bool ignore_alarm_btn_after_sleep;
 
     // app resignation countdown (TODO: consolidate with LE countdown?)
     int16_t timeout_ticks;
