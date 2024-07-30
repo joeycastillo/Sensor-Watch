@@ -668,21 +668,19 @@ static void debounce_btn_press(uint8_t pin, uint8_t *debounce_ticks, uint16_t *d
     }
     else
         *down_timestamp = 0;
+    _movement_enable_fast_tick_if_needed();
 }
 
 void cb_light_btn_interrupt(void) {
     debounce_btn_press(BTN_LIGHT, &movement_state.debounce_ticks_light, &movement_state.light_down_timestamp, light_btn_action);
-    _movement_enable_fast_tick_if_needed();
 }
 
 void cb_mode_btn_interrupt(void) {
     debounce_btn_press(BTN_MODE, &movement_state.debounce_ticks_mode, &movement_state.mode_down_timestamp, mode_btn_action);
-    _movement_enable_fast_tick_if_needed();
 }
 
 void cb_alarm_btn_interrupt(void) {
     debounce_btn_press(BTN_ALARM, &movement_state.debounce_ticks_alarm, &movement_state.alarm_down_timestamp, alarm_btn_action);
-    _movement_enable_fast_tick_if_needed();
 }
 
 void cb_alarm_btn_extwake(void) {
@@ -695,9 +693,9 @@ void cb_alarm_fired(void) {
 }
 
 void cb_fast_tick(void) {
-    if (movement_state.debounce_ticks_light > 0){{if (--movement_state.debounce_ticks_light == 0) {_movement_disable_fast_tick_if_possible();}}}
-    if (movement_state.debounce_ticks_alarm > 0){{if (--movement_state.debounce_ticks_alarm == 0) {_movement_disable_fast_tick_if_possible();}}}
-    if (movement_state.debounce_ticks_mode > 0){{if (--movement_state.debounce_ticks_mode == 0) {_movement_disable_fast_tick_if_possible();}}}
+    if (movement_state.debounce_ticks_light > 0 && --movement_state.debounce_ticks_light == 0) _movement_disable_fast_tick_if_possible();
+    if (movement_state.debounce_ticks_alarm > 0 && --movement_state.debounce_ticks_alarm == 0) _movement_disable_fast_tick_if_possible();
+    if (movement_state.debounce_ticks_mode > 0 && --movement_state.debounce_ticks_mode == 0) _movement_disable_fast_tick_if_possible();
     if (movement_state.debounce_ticks_light + movement_state.debounce_ticks_mode + movement_state.debounce_ticks_alarm  == 0)
         movement_state.fast_ticks++;
     if (movement_state.light_ticks > 0) movement_state.light_ticks--;
