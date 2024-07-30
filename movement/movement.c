@@ -125,7 +125,7 @@
 #include <emscripten.h>
 #endif
 
-#define DEBOUNCE_TICKS 20  // In terms of *7.8125ms
+#define DEBOUNCE_TICKS 2  // In terms of *7.8125ms
 
 movement_state_t movement_state;
 void * watch_face_contexts[MOVEMENT_NUM_FACES];
@@ -668,7 +668,6 @@ static movement_event_type_t _figure_out_button_event(bool pin_level, movement_e
         // now that that's out of the way, handle falling edge
         uint16_t diff = movement_state.fast_ticks - *down_timestamp;
         *down_timestamp = 0;
-        _movement_disable_fast_tick_if_possible();
         // any press over a half second is considered a long press. Fire the long-up event
         if (diff < MOVEMENT_REALLY_LONG_PRESS_TICKS && diff > MOVEMENT_LONG_PRESS_TICKS) {
             return button_down_event_type + 3; 
@@ -723,21 +722,20 @@ void cb_alarm_fired(void) {
 }
 
 static void debounce_btn_press(uint8_t pin, uint8_t *debounce_ticks, bool *debounce_btn_trig, uint16_t *down_timestamp, void (*function)(bool)) {
-    if (*debounce_ticks > 0) (*debounce_ticks)--;
+    if (*debounce_ticks > 0)
+    {
+        if (--(*debounce_ticks) == 0)
+            _movement_disable_fast_tick_if_possible();
+    }
     if (*debounce_btn_trig) {
         bool pin_level = watch_get_pin_level(pin);
         *debounce_btn_trig = false;
-        if (pin_level) {
-            function(pin_level);
-        }
-        else if (*debounce_ticks == 0) {
+        if (*debounce_ticks == 0) {
             function(pin_level);
             *debounce_ticks = DEBOUNCE_TICKS;
         }
-        else {
+        else
             *down_timestamp = 0;
-            _movement_disable_fast_tick_if_possible();
-        }
     }
 }
 
