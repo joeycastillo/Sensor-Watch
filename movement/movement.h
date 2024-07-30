@@ -270,12 +270,12 @@ typedef struct {
 
     // low energy mode countdown
     int32_t le_mode_ticks;
-    int8_t debounce_ticks_light;
-    int8_t debounce_ticks_alarm;
-    int8_t debounce_ticks_mode;
-    bool debounce_prev_pin_light;
-    bool debounce_prev_pin_alarm;
-    bool debounce_prev_pin_mode;
+    uint8_t debounce_ticks_light;
+    uint8_t debounce_ticks_alarm;
+    uint8_t debounce_ticks_mode;
+    bool debounce_btn_trig_light;
+    bool debounce_btn_trig_alarm;
+    bool debounce_btn_trig_mode;
     bool ignore_alarm_btn_after_sleep;
 
     // app resignation countdown (TODO: consolidate with LE countdown?)
