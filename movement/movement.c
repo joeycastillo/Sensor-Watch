@@ -684,55 +684,29 @@ void cb_alarm_fired(void) {
     movement_state.needs_background_tasks_handled = true;
 }
 
+static void debounce_btn_press(uint8_t pin, uint8_t *debounce_ticks, bool *debounce_btn_trig, uint16_t *down_timestamp, void (*function)(bool)) {
+    if (*debounce_ticks > 0) (*debounce_ticks)--;
+    if (*debounce_btn_trig) {
+        bool pin_level = watch_get_pin_level(pin);
+        *debounce_btn_trig = false;
+        if (pin_level) {
+            function(pin_level);
+        }
+        else if (*debounce_ticks == 0) {
+            function(pin_level);
+            *debounce_ticks = DEBOUNCE_TICKS;
+        }
+        else {
+            *down_timestamp = 0;
+            _movement_disable_fast_tick_if_possible();
+        }
+    }
+}
+
 void cb_fast_tick(void) {
-    if (movement_state.debounce_ticks_light > 0) movement_state.debounce_ticks_light--;
-    if (movement_state.debounce_ticks_alarm > 0) movement_state.debounce_ticks_alarm--;
-    if (movement_state.debounce_ticks_mode > 0) movement_state.debounce_ticks_mode--;
-    if (movement_state.debounce_btn_trig_light) {
-        bool pin_level = watch_get_pin_level(BTN_LIGHT);
-        movement_state.debounce_btn_trig_light = false;
-        if (pin_level) {
-            light_btn_action(pin_level);
-        }
-        else if (movement_state.debounce_ticks_light == 0) {
-            light_btn_action(pin_level);
-            movement_state.debounce_ticks_light = DEBOUNCE_TICKS;
-        }
-        else {
-            movement_state.light_down_timestamp = 0;
-            _movement_disable_fast_tick_if_possible();
-        }
-    }
-    if (movement_state.debounce_btn_trig_alarm) {
-        bool pin_level = watch_get_pin_level(BTN_ALARM);
-        movement_state.debounce_btn_trig_alarm = false;
-        if (pin_level) {
-            alarm_btn_action(pin_level);
-        }
-        else if (movement_state.debounce_ticks_alarm == 0) {
-            alarm_btn_action(pin_level);
-            movement_state.debounce_ticks_alarm = DEBOUNCE_TICKS;
-        }
-        else {
-            movement_state.alarm_down_timestamp = 0;
-            _movement_disable_fast_tick_if_possible();
-        }
-    }
-    if (movement_state.debounce_btn_trig_mode) {
-        bool pin_level = watch_get_pin_level(BTN_MODE);
-        movement_state.debounce_btn_trig_mode = false;
-        if (pin_level) {
-            mode_btn_action(pin_level);
-        }
-        else if (movement_state.debounce_ticks_mode == 0) {
-            mode_btn_action(pin_level);
-            movement_state.debounce_ticks_mode = DEBOUNCE_TICKS;
-        }
-        else {
-            movement_state.mode_down_timestamp = 0;
-            _movement_disable_fast_tick_if_possible();
-        }
-    }
+    debounce_btn_press(BTN_LIGHT, &movement_state.debounce_ticks_light, &movement_state.debounce_btn_trig_light, &movement_state.light_down_timestamp, light_btn_action);
+    debounce_btn_press(BTN_ALARM, &movement_state.debounce_ticks_alarm, &movement_state.debounce_btn_trig_alarm, &movement_state.alarm_down_timestamp, alarm_btn_action);
+    debounce_btn_press(BTN_MODE, &movement_state.debounce_ticks_mode, &movement_state.debounce_btn_trig_mode, &movement_state.mode_down_timestamp, mode_btn_action);
     if (movement_state.debounce_ticks_light + movement_state.debounce_ticks_mode + movement_state.debounce_ticks_alarm  == 0)
         movement_state.fast_ticks++;
     if (movement_state.light_ticks > 0) movement_state.light_ticks--;
