@@ -273,9 +273,6 @@ typedef struct {
     uint8_t debounce_ticks_light;
     uint8_t debounce_ticks_alarm;
     uint8_t debounce_ticks_mode;
-    bool debounce_btn_trig_light;
-    bool debounce_btn_trig_alarm;
-    bool debounce_btn_trig_mode;
     bool ignore_alarm_btn_after_sleep;
 
     // app resignation countdown (TODO: consolidate with LE countdown?)
