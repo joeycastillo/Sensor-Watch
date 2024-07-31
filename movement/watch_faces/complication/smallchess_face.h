@@ -31,7 +31,7 @@
  * Chess watchface
  *
  * Implements a (very) simple chess engine.
- * Uses smallchesslib for the engine: https://git.sr.ht/~drummyfish/smallchesslib
+ * Uses smallchesslib for the engine: https://codeberg.org/drummyfish/smallchesslib
  *
  * When moving a piece, only valid pieces and moves are presented.
  *

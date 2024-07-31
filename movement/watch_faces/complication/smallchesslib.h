@@ -308,6 +308,12 @@ void SCL_boardSetPosition(SCL_Board board, const char *pieces,
 uint8_t SCL_boardsDiffer(SCL_Board b1, SCL_Board b2);
 
 /**
+  Function that prints out a single character. This is passed to printing
+  functions.
+*/
+typedef void (*SCL_PutCharFunction)(char);
+
+/**
   Gets a random move on given board for the player whose move it is.
 */
 void SCL_boardRandomMove(SCL_Board board, SCL_RandomFunction randFunc,
@@ -440,6 +446,13 @@ void SCL_boardGetMoves(
   SCL_Board board,
   uint8_t pieceSquare,
   SCL_SquareSet result);
+
+void _SCL_board960RememberRookPositions(SCL_Board board);
+void _SCL_boardPlaceOnNthAvailable(SCL_Board board, uint8_t pos, char piece);
+void _SCL_handleRookActivity(SCL_Board board, uint8_t rookSquare);
+void SCL_printSquareSet(SCL_SquareSet set, SCL_PutCharFunction putCharFunc);
+int16_t _SCL_rateKingEndgamePosition(uint8_t position);
+int16_t _SCL_boardEvaluateDynamic(SCL_Board board, int8_t depth, int16_t alphaBeta, int8_t takenSquare);
 
 static inline uint8_t SCL_boardWhitesTurn(SCL_Board board);
 
@@ -652,12 +665,6 @@ int16_t SCL_getAIMove(
   uint8_t *resultFrom,
   uint8_t *resultTo,
   char *resultProm);
-
-/**
-  Function that prints out a single character. This is passed to printing
-  functions.
-*/
-typedef void (*SCL_PutCharFunction)(char);
 
 /**
   Prints given chessboard using given format and an abstract printing function.
@@ -1717,6 +1724,7 @@ void SCL_boardGetPseudoMoves(
   {
     case 'P':
       pawnOffset = 8;
+      // intentional fallthrough
     case 'p':
     {
       uint8_t square = pieceSquare + pawnOffset;
@@ -2446,6 +2454,7 @@ int16_t SCL_boardEvaluateStatic(SCL_Board board)
 
     case SCL_POSITION_CHECK:
       total += SCL_boardWhitesTurn(board) ? -1 * CHECK_BONUS : CHECK_BONUS;
+      // intentional fallthrough
     case SCL_POSITION_NORMAL:
     default:
     {
