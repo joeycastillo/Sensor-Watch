@@ -680,21 +680,21 @@ static movement_event_type_t _figure_out_button_event(bool pin_level, movement_e
 }
 
 static void light_btn_action(void) {
-    _movement_reset_inactivity_countdown();
     bool pin_level = watch_get_pin_level(BTN_LIGHT);
+    _movement_reset_inactivity_countdown();
     event.event_type = _figure_out_button_event(pin_level, EVENT_LIGHT_BUTTON_DOWN, &movement_state.light_down_timestamp);
 }
 
 static void mode_btn_action(void) {
-    _movement_reset_inactivity_countdown();
     bool pin_level = watch_get_pin_level(BTN_MODE);
+    _movement_reset_inactivity_countdown();
     event.event_type = _figure_out_button_event(pin_level, EVENT_MODE_BUTTON_DOWN, &movement_state.mode_down_timestamp);
 }
 
 static void alarm_btn_action(void) {
-    _movement_reset_inactivity_countdown();
     bool pin_level = watch_get_pin_level(BTN_ALARM);
     uint8_t event_type = _figure_out_button_event(pin_level, EVENT_ALARM_BUTTON_DOWN, &movement_state.alarm_down_timestamp);
+    _movement_reset_inactivity_countdown();
     if  (movement_state.ignore_alarm_btn_after_sleep){
         if (event_type == EVENT_ALARM_BUTTON_UP || event_type == EVENT_ALARM_LONG_UP) movement_state.ignore_alarm_btn_after_sleep = false;
         return;
