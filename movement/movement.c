@@ -24,6 +24,7 @@
 
 #define MOVEMENT_LONG_PRESS_TICKS 64
 #define MOVEMENT_REALLY_LONG_PRESS_TICKS 384
+#define DEBOUNCE_TICKS 1  // In terms of *7.8125ms
 
 #include <stdio.h>
 #include <string.h>
@@ -124,8 +125,6 @@
 #if __EMSCRIPTEN__
 #include <emscripten.h>
 #endif
-
-#define DEBOUNCE_TICKS 2  // In terms of *7.8125ms
 
 movement_state_t movement_state;
 void * watch_face_contexts[MOVEMENT_NUM_FACES];
