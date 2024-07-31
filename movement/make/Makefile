@@ -24,6 +24,7 @@ INCLUDES += \
   -I../lib/vsop87/ \
   -I../lib/astrolib/ \
   -I../lib/morsecalc/ \
+  -I../lib/smallchesslib/ \
 
 # If you add any other source files you wish to compile, add them after ../app.c
 # Note that you will need to add a backslash at the end of any line you wish to continue, i.e.
