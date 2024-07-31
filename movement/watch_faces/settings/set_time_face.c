@@ -33,7 +33,7 @@ static bool _quick_ticks_running;
 
 static void _handle_alarm_button(movement_settings_t *settings, watch_date_time date_time, uint8_t current_page) {
     // handles short or long pressing of the alarm button
-    const uint8_t days_in_month[12] = {31, 28, 31, 30, 31, 30, 30, 31, 30, 31, 30, 31};
+    const uint8_t days_in_month[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
     switch (current_page) {
         case 0: // hour
