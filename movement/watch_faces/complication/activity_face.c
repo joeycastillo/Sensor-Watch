@@ -293,6 +293,7 @@ static void _activity_update_logging_screen(movement_settings_t *settings, activ
     }
     // Briefly, show time without seconds
     else {
+        bool set_leading_zero = false;
         watch_clear_indicator(WATCH_INDICATOR_LAP);
         watch_date_time now = watch_rtc_get_date_time();
         uint8_t hour = now.unit.hour;
@@ -304,14 +305,18 @@ static void _activity_update_logging_screen(movement_settings_t *settings, activ
                 watch_set_indicator(WATCH_INDICATOR_PM);
             hour %= 12;
             if (hour == 0) hour = 12;
-        }
-        else {
-            watch_set_indicator(WATCH_INDICATOR_24H);
+        } else {
             watch_clear_indicator(WATCH_INDICATOR_PM);
+            if (!settings->bit.clock_24h_leading_zero)
+                watch_set_indicator(WATCH_INDICATOR_24H);
+            else if (hour < 10)
+                set_leading_zero = true;
         }
         sprintf(activity_buf, "%2d%02d  ", hour, now.unit.minute);
         watch_set_colon();
         watch_display_string(activity_buf, 4);
+        if (set_leading_zero)
+            watch_display_string("0", 4);
     }
 }
 
