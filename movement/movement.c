@@ -208,50 +208,6 @@ const uint8_t movement_dst_jump_table[] = {
     0   // 40 AST  + 1 = UTC
 };
 
-const uint8_t movement_dst_inverse_jump_table[] = {
-    40, // 0
-    0,  // 1
-    1,  // 2
-    2,  // 3
-    4,  // 4
-    3,  // 5
-    4,  // 6
-    5,  // 7
-    6,  // 8
-    9,  // 9
-    7,  // 10
-    8,  // 11
-    10, // 12
-    12, // 13
-    14, // 14
-    13, // 15
-    16, // 16
-    15, // 17
-    16, // 18
-    17, // 19
-    19, // 20
-    21, // 21
-    20, // 22
-    21, // 23
-    24, // 24
-    25, // 25
-    25, // 26
-    26, // 27
-    28, // 28
-    27, // 29
-    29, // 30
-    30, // 31
-    31, // 32
-    32, // 33
-    34, // 34
-    33, // 35
-    34, // 36
-    35, // 37
-    36, // 38
-    37, // 39
-    39  // 40
-};
-
 const char movement_valid_position_0_chars[] = " AaBbCcDdEeFGgHhIiJKLMNnOoPQrSTtUuWXYZ-='+\\/0123456789";
 const char movement_valid_position_1_chars[] = " ABCDEFHlJLNORTtUX-='01378";
 

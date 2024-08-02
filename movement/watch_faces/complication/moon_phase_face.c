@@ -59,8 +59,9 @@ static void _update(movement_settings_t *settings, moon_phase_state_t *state, ui
     (void)state;
     char buf[11];
     watch_date_time date_time = watch_rtc_get_date_time();
-    uint32_t now = watch_utility_date_time_to_unix_time(date_time, movement_timezone_offsets[settings->bit.time_zone] * 60) + offset;
-    date_time = watch_utility_date_time_from_unix_time(now, movement_timezone_offsets[settings->bit.time_zone] * 60);
+    int16_t tz = get_timezone_offset(settings->bit.time_zone, date_time);
+    uint32_t now = watch_utility_date_time_to_unix_time(date_time, tz * 60) + offset;
+    date_time = watch_utility_date_time_from_unix_time(now, tz * 60);
     double currentfrac = fmod(now - FIRST_MOON, LUNAR_SECONDS) / LUNAR_SECONDS;
     double currentday = currentfrac * LUNAR_DAYS;
     uint8_t phase_index = 0;

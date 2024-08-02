@@ -123,9 +123,10 @@ static watch_date_time jde_to_date_time(double JDE) {
 }
 
 static void calculate_datetimes(solstice_state_t *state, movement_settings_t *settings) {
+    watch_date_time date_time = watch_rtc_get_date_time();
     for (int i = 0; i < 4; i++) {
         // TODO: handle DST changes
-        state->datetimes[i] = jde_to_date_time(calculate_solstice_equinox(2020 + state->year, i) + (movement_timezone_offsets[settings->bit.time_zone] / (60.0*24.0)));
+        state->datetimes[i] = jde_to_date_time(calculate_solstice_equinox(2020 + state->year, i) + (get_timezone_offset(settings->bit.time_zone, date_time) / (60.0*24.0)));
     }
 }
 

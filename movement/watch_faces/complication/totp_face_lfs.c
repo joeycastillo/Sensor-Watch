@@ -210,7 +210,8 @@ void totp_face_lfs_activate(movement_settings_t *settings, void *context) {
     }
 #endif
 
-    totp_state->timestamp = watch_utility_date_time_to_unix_time(watch_rtc_get_date_time(), movement_timezone_offsets[settings->bit.time_zone] * 60);
+    watch_date_time date_time = watch_rtc_get_date_time();
+    totp_state->timestamp = watch_utility_date_time_to_unix_time(date_time, get_timezone_offset(settings->bit.time_zone, date_time) * 60);
     totp_face_set_record(totp_state, 0);
 }
 

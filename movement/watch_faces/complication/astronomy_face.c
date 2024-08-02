@@ -80,7 +80,7 @@ static void _astronomy_face_recalculate(movement_settings_t *settings, astronomy
 #endif
 
     watch_date_time date_time = watch_rtc_get_date_time();
-    uint32_t timestamp = watch_utility_date_time_to_unix_time(date_time, movement_timezone_offsets[settings->bit.time_zone] * 60);
+    uint32_t timestamp = watch_utility_date_time_to_unix_time(date_time, get_timezone_offset(settings->bit.time_zone, date_time) * 60);
     date_time = watch_utility_date_time_from_unix_time(timestamp, 0);
     double jd = astro_convert_date_to_julian_date(date_time.unit.year + WATCH_RTC_REFERENCE_YEAR, date_time.unit.month, date_time.unit.day, date_time.unit.hour, date_time.unit.minute, date_time.unit.second);
 

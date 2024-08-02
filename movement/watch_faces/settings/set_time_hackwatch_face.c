@@ -232,12 +232,13 @@ bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *s
             watch_clear_colon();
             sprintf(buf, "%s        ", set_time_hackwatch_face_titles[current_page]);
         } else {
+            int16_t tz = get_timezone_offset(settings->bit.time_zone, date_time_settings);
             watch_set_colon();
             sprintf(buf,
                     "%s %3d%02d  ",
                     set_time_hackwatch_face_titles[current_page],
-                    (int8_t)(movement_timezone_offsets[settings->bit.time_zone] / 60),
-                    (int8_t)(movement_timezone_offsets[settings->bit.time_zone] % 60) * (movement_timezone_offsets[settings->bit.time_zone] < 0 ? -1 : 1));
+                    (int8_t)(tz / 60),
+                    (int8_t)(tz % 60) * (tz < 0 ? -1 : 1));
         }
     }
 

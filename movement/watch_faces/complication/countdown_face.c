@@ -44,8 +44,8 @@ static void abort_quick_ticks(countdown_state_t *state) {
     }
 }
 
-static inline int32_t get_tz_offset(movement_settings_t *settings) {
-    return movement_timezone_offsets[settings->bit.time_zone] * 60;
+static inline int32_t get_tz_offset(movement_settings_t *settings, watch_date_time date_time) {
+    return get_timezone_offset(settings->bit.time_zone, date_time) * 60;
 }
 
 static inline void store_countdown(countdown_state_t *state) {
@@ -70,11 +70,12 @@ static inline void button_beep(movement_settings_t *settings) {
 
 static void start(countdown_state_t *state, movement_settings_t *settings) {
     watch_date_time now = watch_rtc_get_date_time();
+    int16_t tz = get_tz_offset(settings, now);
 
     state->mode = cd_running;
-    state->now_ts = watch_utility_date_time_to_unix_time(now, get_tz_offset(settings));
+    state->now_ts = watch_utility_date_time_to_unix_time(now, tz);
     state->target_ts = watch_utility_offset_timestamp(state->now_ts, state->hours, state->minutes, state->seconds);
-    watch_date_time target_dt = watch_utility_date_time_from_unix_time(state->target_ts, get_tz_offset(settings));
+    watch_date_time target_dt = watch_utility_date_time_from_unix_time(state->target_ts, tz);
     movement_schedule_background_task(target_dt);
     watch_set_indicator(WATCH_INDICATOR_BELL);
 }
@@ -176,7 +177,7 @@ void countdown_face_activate(movement_settings_t *settings, void *context) {
     countdown_state_t *state = (countdown_state_t *)context;
     if(state->mode == cd_running) {
         watch_date_time now = watch_rtc_get_date_time();
-        state->now_ts = watch_utility_date_time_to_unix_time(now, get_tz_offset(settings));
+        state->now_ts = watch_utility_date_time_to_unix_time(now, get_tz_offset(settings, now));
         watch_set_indicator(WATCH_INDICATOR_BELL);
     }
     watch_set_colon();

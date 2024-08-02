@@ -36,8 +36,8 @@ static const int8_t _sound_seq_start[] = {BUZZER_NOTE_C8, 2, 0};
 
 static uint8_t _beeps_to_play;    // temporary counter for ring signals playing
 
-static inline int32_t _get_tz_offset(movement_settings_t *settings) {
-    return movement_timezone_offsets[settings->bit.time_zone] * 60;
+static inline int32_t _get_tz_offset(movement_settings_t *settings, watch_date_time date_time) {
+    return get_timezone_offset(settings->bit.time_zone, date_time) * 60;
 }
 
 static void _signal_callback() {
@@ -50,7 +50,8 @@ static void _signal_callback() {
 static void _start(timer_state_t *state, movement_settings_t *settings, bool with_beep) {
     if (state->timers[state->current_timer].value == 0) return;
     watch_date_time now = watch_rtc_get_date_time();
-    state->now_ts = watch_utility_date_time_to_unix_time(now, _get_tz_offset(settings));
+    int32_t tz = _get_tz_offset(settings, now);
+    state->now_ts = watch_utility_date_time_to_unix_time(now, tz);
     if (state->mode == pausing)
         state->target_ts = state->now_ts + state->paused_left;
     else
@@ -58,7 +59,7 @@ static void _start(timer_state_t *state, movement_settings_t *settings, bool wit
                                                           state->timers[state->current_timer].unit.hours, 
                                                           state->timers[state->current_timer].unit.minutes, 
                                                           state->timers[state->current_timer].unit.seconds);
-    watch_date_time target_dt = watch_utility_date_time_from_unix_time(state->target_ts, _get_tz_offset(settings));
+    watch_date_time target_dt = watch_utility_date_time_from_unix_time(state->target_ts, tz);
     state->mode = running;
     movement_schedule_background_task_for_face(state->watch_face_index, target_dt);
     watch_set_indicator(WATCH_INDICATOR_BELL);
@@ -210,7 +211,7 @@ void timer_face_activate(movement_settings_t *settings, void *context) {
     watch_set_colon();
     if(state->mode == running) {
         watch_date_time now = watch_rtc_get_date_time();
-        state->now_ts = watch_utility_date_time_to_unix_time(now, _get_tz_offset(settings));
+        state->now_ts = watch_utility_date_time_to_unix_time(now, _get_tz_offset(settings, now));
         watch_set_indicator(WATCH_INDICATOR_BELL);
     } else {
         state->pausing_seconds = 1;

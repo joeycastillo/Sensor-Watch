@@ -129,7 +129,8 @@ static void _planetary_solar_phase(movement_settings_t *settings, planetary_time
     state->no_location = false;
 
     watch_date_time date_time = watch_rtc_get_date_time(); // the current local date / time
-    watch_date_time utc_now = watch_utility_date_time_convert_zone(date_time, movement_timezone_offsets[settings->bit.time_zone] * 60, 0); // the current date / time in UTC
+    int16_t tz = get_timezone_offset(settings->bit.time_zone, date_time);
+    watch_date_time utc_now = watch_utility_date_time_convert_zone(date_time, tz * 60, 0); // the current date / time in UTC
     watch_date_time scratch_time; // scratchpad, contains different values at different times
     watch_date_time midnight;
     scratch_time.reg = midnight.reg = utc_now.reg;
@@ -142,7 +143,7 @@ static void _planetary_solar_phase(movement_settings_t *settings, planetary_time
     double lon = (double)lon_centi / 100.0;
 
     // save UTC offset
-    state->utc_offset = ((double)movement_timezone_offsets[settings->bit.time_zone]) / 60.0;
+    state->utc_offset = ((double)tz) / 60.0;
 
     // get UNIX epoch time
     now_epoch = watch_utility_date_time_to_unix_time(utc_now, 0);
@@ -206,11 +207,12 @@ static void _planetary_time(movement_event_t event, movement_settings_t *setting
     double night_hour_count = 0.0;
     uint8_t weekday, planet, planetary_hour;
     double hour_duration, current_hour, current_minute, current_second;
+    watch_date_time date_time = watch_rtc_get_date_time();
 
         watch_set_colon();
 
     // get current time and convert to UTC
-    state->scratch = watch_utility_date_time_convert_zone(watch_rtc_get_date_time(), movement_timezone_offsets[settings->bit.time_zone] * 60, 0); 
+    state->scratch = watch_utility_date_time_convert_zone(date_time, get_timezone_offset(settings->bit.time_zone, date_time) * 60, 0); 
 
     // when current phase ends calculate the next phase
     if ( watch_utility_date_time_to_unix_time(state->scratch, 0) >= state->phase_end ) {

@@ -130,7 +130,6 @@ typedef struct {
 
 extern const int16_t movement_timezone_offsets[];
 extern const uint8_t movement_dst_jump_table[];
-extern const uint8_t movement_dst_inverse_jump_table[];
 extern const char movement_valid_position_0_chars[];
 extern const char movement_valid_position_1_chars[];
 
