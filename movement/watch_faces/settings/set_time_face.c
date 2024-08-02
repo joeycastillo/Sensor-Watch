@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include "set_time_face.h"
 #include "watch.h"
+#include "watch_utility.h"
 
 #define SET_TIME_FACE_NUM_SETTINGS (8)
 const char set_time_face_titles[SET_TIME_FACE_NUM_SETTINGS][3] = {"HR", "M1", "SE", "YR", "MO", "DA", "ZO", "DS"};
@@ -150,18 +151,18 @@ bool set_time_face_loop(movement_event_t event, movement_settings_t *settings, v
         watch_clear_indicator(WATCH_INDICATOR_PM);
         sprintf(buf, "%s  %2d%02d%02d", set_time_face_titles[current_page], date_time.unit.year + 20, date_time.unit.month, date_time.unit.day);
     } else if (current_page < 7) {  // zone
+        char dst_char = (settings->bit.dst_active && dst_occurring(watch_rtc_get_date_time())) ? 'd' : ' ';
         if (event.subsecond % 2) {
             watch_clear_colon();
-            sprintf(buf, "%s        ", set_time_face_titles[current_page]);
+            sprintf(buf, "%s       %c", set_time_face_titles[current_page], dst_char);
         } else {
             int16_t tz = get_timezone_offset(settings->bit.time_zone, date_time);
             watch_set_colon();
-            sprintf(buf, "%s %3d%02d  ", set_time_face_titles[current_page], (int8_t) (tz / 60), (int8_t) (tz % 60) * (tz < 0 ? -1 : 1));
+            sprintf(buf, "%s %3d%02d %c", set_time_face_titles[current_page], (int8_t) (tz / 60), (int8_t) (tz % 60) * (tz < 0 ? -1 : 1), dst_char);
         }
     } else { // daylight savings
         watch_clear_colon();
-        if (settings->bit.dst_active) sprintf(buf, "%s   dsT y", set_time_face_titles[current_page]);
-        else sprintf(buf, "%s   dsT n", set_time_face_titles[current_page]);
+        sprintf(buf, "%s   dsT %c", set_time_face_titles[current_page], settings->bit.dst_active ? 'y' : 'n');
     }
 
     // blink up the parameter we're setting

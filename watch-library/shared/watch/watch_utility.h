@@ -46,7 +46,7 @@ typedef struct {
 } watch_duration_t;
 
 typedef enum {
-    DST_STARTED,
+    DST_STARTING,
     DST_OCCURRING,
     DST_ENDING,
     DST_ENDED
@@ -89,7 +89,12 @@ uint8_t is_leap(uint16_t year);
  * @param date_time The watch_date_time that you wish to convert.
  * @return DST_OCCURRING, DST_HAPPENING, DST_ENDING, DST_ENDED
  */
-uint8_t is_dst(watch_date_time date_time);
+uint8_t get_dst_status(watch_date_time date_time);
+
+/** @brief Returns true if it's DST and false otherwise.
+ * @param date_time The watch_date_time that you wish to convert.
+ */
+bool dst_occurring(watch_date_time date_time);
 
 /** @brief Returns the UNIX time (seconds since 1970) for a given date/time in UTC.
   * @param date_time The watch_date_time that you wish to convert.

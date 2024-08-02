@@ -96,6 +96,11 @@
 #define MOVEMENT_DEFAULT_LED_DURATION 1
 #endif
 
+// Default to having DST get set
+#ifndef MOVEMENT_DEFAULT_DST_ACTIVE
+#define MOVEMENT_DEFAULT_DST_ACTIVE true
+#endif
+
 #if __EMSCRIPTEN__
 #include <emscripten.h>
 #endif
@@ -107,7 +112,8 @@ const int32_t movement_le_inactivity_deadlines[8] = {INT_MAX, 600, 3600, 7200, 2
 const int16_t movement_timeout_inactivity_deadlines[4] = {60, 120, 300, 1800};
 movement_event_t event;
 
-const int16_t movement_timezone_offsets[] = {
+#define NUM_TIME_ZONES 41
+const int16_t movement_timezone_offsets[NUM_TIME_ZONES] = {
     0,      //  0 :   0:00:00 (UTC)
     60,     //  1 :   1:00:00 (Central European Time)
     120,    //  2 :   2:00:00 (South African Standard Time)
@@ -164,47 +170,47 @@ const int16_t movement_timezone_offsets[] = {
  * having to separately change the hour and timezone info
  * in the time set face.
  */
-const uint8_t movement_dst_jump_table[] = {
-    1,  // 0  UTC  + 1 = CET
-    2,  // 1  CET  + 1 = SAST
-    3,  // 2  SAST + 1 = AST
-    5,  // 3  AST  + 1 = GST
-    6,  // 4  IST  + 1 = AT
-    7,  // 5  GST  + 1 = PST
-    8,  // 6  AT   + 1 = IST
-    10, // 7  PST  + 1 = KT
-    11, // 8  IST  + 1 = MT
-    9,  // 9  Nepal has no equivalent DST timezone, but they don't observe DST anyway
-    12, // 10 KT   + 1 = TST
-    11, // 11 Myanmar has no equivalent DST timezone, but they don't observe DST anyway
-    13, // 12 TST  + 1 = CST
-    15, // 13 CST  + 1 = JST
-    14, // 14 ACWST has no equivalent DST timezone, but they don't observe DST anyway
-    17, // 15 JST  + 1 = AEST
-    18, // 16 ACST + 1 = LHST
-    19, // 17 AEST + 1 = SIT
-    18, // 18 LHST has no equivalent DST timezone, but they don't observe DST anyway
-    20, // 19 SIT  + 1 = NZST
-    22, // 20 NZST + 1 = TT
-    23, // 21 CST  + 1 = CDT
-    24, // 22 TT   + 1 = LIT
-    23, // 23 CDT is already a daylight timezone
-    24, // 24 LIT has no equivalent DST timezone, but they don't observe DST anyway
-    26, // 25 BIT  + 1 = NT
-    27, // 26 NT   + 1 = HAST
-    29, // 27 HAST + 1 = AST
-    28, // 28 MIT has no equivalent DST timezone, but they don't observe DST anyway
-    30, // 29 AST  + 1 = PST
-    31, // 30 PST  + 1 = MST
-    32, // 31 MST  + 1 = CST
-    33, // 32 CST  + 1 = EST
-    35, // 33 EST  + 1 = AST
-    36, // 34 VST  + 1 = NST
-    37, // 35 AST  + 1 = BT
-    38, // 36 NST  + 1 = NDT
-    39, // 37 BT   + 1 = 39
-    38, // 38 NDT is already a daylight timezone
-    40, // 39 FNT  + 1 = AST
+const int16_t movement_timezone_dst_offsets[NUM_TIME_ZONES] = {
+    60,  // 0  UTC  + 1 = CET
+    120,  // 1  CET  + 1 = SAST
+    189,  // 2  SAST + 1 = AST
+    240,  // 3  AST  + 1 = GST
+    270,  // 4  IST  + 1 = AT
+    300,  // 5  GST  + 1 = PST
+    330,  // 6  AT   + 1 = IST
+    360, // 7  PST  + 1 = KT
+    390, // 8  IST  + 1 = MT
+    345,  // 9  Nepal has no equivalent DST timezone, but they don't observe DST anyway
+    420, // 10 KT   + 1 = TST
+    390, // 11 Myanmar has no equivalent DST timezone, but they don't observe DST anyway
+    480, // 12 TST  + 1 = CST
+    540, // 13 CST  + 1 = JST
+    525, // 14 ACWST has no equivalent DST timezone, but they don't observe DST anyway
+    600, // 15 JST  + 1 = AEST
+    630, // 16 ACST + 1 = LHST
+    660, // 17 AEST + 1 = SIT
+    630, // 18 LHST has no equivalent DST timezone, but they don't observe DST anyway
+    720, // 19 SIT  + 1 = NZST
+    780, // 20 NZST + 1 = TT
+    825, // 21 CST  + 1 = CDT
+    840, // 22 TT   + 1 = LIT
+    825, // 23 CDT is already a daylight timezone
+    840, // 24 LIT has no equivalent DST timezone, but they don't observe DST anyway
+    -660, // 25 BIT  + 1 = NT
+    -600, // 26 NT   + 1 = HAST
+    -540, // 27 HAST + 1 = AST
+    -570, // 28 MIT has no equivalent DST timezone, but they don't observe DST anyway
+    -480, // 29 AST  + 1 = PST
+    -420, // 30 PST  + 1 = MST
+    -360, // 31 MST  + 1 = CST
+    -300, // 32 CST  + 1 = EST
+    -240, // 33 EST  + 1 = AST
+    -210, // 34 VST  + 1 = NST
+    -180, // 35 AST  + 1 = BT
+    -150, // 36 NST  + 1 = NDT
+    -120, // 37 BT   + 1 = 39
+    -150, // 38 NDT is already a daylight timezone
+    -60, // 39 FNT  + 1 = AST
     0   // 40 AST  + 1 = UTC
 };
 
@@ -426,20 +432,13 @@ uint8_t movement_claim_backup_register(void) {
 
 int16_t get_timezone_offset(uint8_t timezone_idx, watch_date_time date_time) {
     if (!movement_state.settings.bit.dst_active) return movement_timezone_offsets[timezone_idx];
-    uint8_t dst_result = is_dst(date_time);
-    switch (dst_result)
-    {
-    case DST_STARTED:
-    case DST_OCCURRING:
-        return movement_timezone_offsets[movement_dst_jump_table[timezone_idx]];
-    case DST_ENDING:
-    case DST_ENDED:
-    default:
-        return movement_timezone_offsets[timezone_idx];
-    }
+    if (dst_occurring(date_time))
+        return movement_timezone_dst_offsets[timezone_idx];
+    return movement_timezone_offsets[timezone_idx];
 }
 
 void app_init(void) {
+    const int16_t* timezone_offsets;
 #if defined(NO_FREQCORR)
     watch_rtc_freqcorr_write(0, 0);
 #elif defined(WATCH_IS_BLUE_BOARD)
@@ -457,6 +456,7 @@ void app_init(void) {
     movement_state.settings.bit.to_interval = MOVEMENT_DEFAULT_TIMEOUT_INTERVAL;
     movement_state.settings.bit.le_interval = MOVEMENT_DEFAULT_LOW_ENERGY_INTERVAL;
     movement_state.settings.bit.led_duration = MOVEMENT_DEFAULT_LED_DURATION;
+    movement_state.settings.bit.dst_active = MOVEMENT_DEFAULT_DST_ACTIVE;
     movement_state.light_ticks = -1;
     movement_state.alarm_ticks = -1;
     movement_state.next_available_backup_register = 4;
@@ -468,8 +468,9 @@ void app_init(void) {
     int32_t time_zone_offset = EM_ASM_INT({
         return -new Date().getTimezoneOffset();
     });
-    for (int i = 0, count = sizeof(movement_timezone_offsets) / sizeof(movement_timezone_offsets[0]); i < count; i++) {
-        if (movement_timezone_offsets[i] == time_zone_offset) {
+    timezone_offsets = dst_occurring(watch_rtc_get_date_time()) ? movement_timezone_dst_offsets : movement_timezone_offsets;
+    for (int i = 0; i < NUM_TIME_ZONES; i++) {
+        if (timezone_offsets[i] == time_zone_offset) {
             movement_state.settings.bit.time_zone = i;
             break;
         }
