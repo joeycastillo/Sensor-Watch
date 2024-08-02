@@ -34,6 +34,7 @@
 #include "filesystem.h"
 #include "movement.h"
 #include "shell.h"
+#include "watch_utility.h"
 
 #ifndef MOVEMENT_FIRMWARE
 #include "movement_config.h"
@@ -465,6 +466,21 @@ void movement_play_alarm_beeps(uint8_t rounds, BuzzerNote alarm_note) {
 uint8_t movement_claim_backup_register(void) {
     if (movement_state.next_available_backup_register >= 8) return 0;
     return movement_state.next_available_backup_register++;
+}
+
+int16_t get_timezone_offset(uint8_t timezone_idx, watch_date_time date_time) {
+    if (!movement_state.settings.bit.dst_active) return movement_timezone_offsets[timezone_idx];
+    uint8_t dst_result = is_dst(date_time);
+    switch (dst_result)
+    {
+    case DST_STARTED:
+    case DST_OCCURRING:
+        return movement_timezone_offsets[movement_dst_jump_table[timezone_idx]];
+    case DST_ENDING:
+    case DST_ENDED:
+    default:
+        return movement_timezone_offsets[timezone_idx];
+    }
 }
 
 void app_init(void) {

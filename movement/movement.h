@@ -314,5 +314,6 @@ void movement_play_alarm(void);
 void movement_play_alarm_beeps(uint8_t rounds, BuzzerNote alarm_note);
 
 uint8_t movement_claim_backup_register(void);
+int16_t get_timezone_offset(uint8_t timezone_idx, watch_date_time date_time);
 
 #endif // MOVEMENT_H_
