@@ -139,6 +139,7 @@ bool moon_phase_face_loop(movement_event_t event, movement_settings_t *settings,
 
     switch (event.event_type) {
         case EVENT_ACTIVATE:
+        
             _update(settings, state, state->offset);
             break;
         case EVENT_TICK:

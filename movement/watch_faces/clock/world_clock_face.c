@@ -54,13 +54,13 @@ void world_clock_face_activate(movement_settings_t *settings, void *context) {
 static bool world_clock_face_do_display_mode(movement_event_t event, movement_settings_t *settings, world_clock_state_t *state) {
     char buf[11];
     uint8_t pos;
-    int16_t tz;
 
     uint32_t timestamp;
     uint32_t previous_date_time;
     watch_date_time date_time;
     switch (event.event_type) {
         case EVENT_ACTIVATE:
+            state->tz = get_timezone_offset(settings->bit.time_zone, watch_rtc_get_date_time());
             if (settings->bit.clock_mode_24h) watch_set_indicator(WATCH_INDICATOR_24H);
             watch_set_colon();
             state->previous_date_time = 0xFFFFFFFF;
@@ -68,9 +68,8 @@ static bool world_clock_face_do_display_mode(movement_event_t event, movement_se
         case EVENT_TICK:
         case EVENT_LOW_ENERGY_UPDATE:
             date_time = watch_rtc_get_date_time();
-            tz = get_timezone_offset(settings->bit.time_zone, date_time);
-            timestamp = watch_utility_date_time_to_unix_time(date_time, tz * 60);
-            date_time = watch_utility_date_time_from_unix_time(timestamp, tz * 60);
+            timestamp = watch_utility_date_time_to_unix_time(date_time, state->tz * 60);
+            date_time = watch_utility_date_time_from_unix_time(timestamp, state->tz * 60);
             previous_date_time = state->previous_date_time;
             state->previous_date_time = date_time.reg;
 
@@ -127,8 +126,6 @@ static bool world_clock_face_do_display_mode(movement_event_t event, movement_se
 }
 
 static bool _world_clock_face_do_settings_mode(movement_event_t event, movement_settings_t *settings, world_clock_state_t *state) {
-    watch_date_time date_time;
-    int16_t tz;
     switch (event.event_type) {
         case EVENT_MODE_BUTTON_UP:
             if (state->backup_register) watch_store_backup_data(state->settings.reg, state->backup_register);
@@ -172,13 +169,11 @@ static bool _world_clock_face_do_settings_mode(movement_event_t event, movement_
     }
 
     char buf[13];
-    date_time = watch_rtc_get_date_time();
-    tz = get_timezone_offset(settings->bit.time_zone, date_time);
     sprintf(buf, "%c%c %3d%02d  ",
         movement_valid_position_0_chars[state->settings.bit.char_0],
         movement_valid_position_1_chars[state->settings.bit.char_1],
-        (int8_t) (tz / 60),
-        (int8_t) (tz % 60) * (tz < 0 ? -1 : 1));
+        (int8_t) (state->tz / 60),
+        (int8_t) (state->tz % 60) * (state->tz < 0 ? -1 : 1));
     watch_set_colon();
     watch_clear_indicator(WATCH_INDICATOR_PM);
 
