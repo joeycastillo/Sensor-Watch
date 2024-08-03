@@ -359,7 +359,7 @@ bool sunrise_sunset_face_loop(movement_event_t event, movement_settings_t *setti
                     _sunrise_sunset_face_update_location_register(state);
                 }
                 _sunrise_sunset_face_update_settings_display(event, context);
-            } else if (_location_count == 1) {
+            } else if (_location_count <= 1) {
                 movement_illuminate_led();
             }
             if (state->page == 0) {
@@ -368,7 +368,7 @@ bool sunrise_sunset_face_loop(movement_event_t event, movement_settings_t *setti
             }
             break;
         case EVENT_LIGHT_LONG_PRESS:
-            if (_location_count == 1) break;
+            if (_location_count <= 1) break;
             else if (!state->page) movement_illuminate_led();
             break;
         case EVENT_LIGHT_BUTTON_UP:
