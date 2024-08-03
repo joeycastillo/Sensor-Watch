@@ -49,7 +49,7 @@ static void _sunrise_sunset_face_update(movement_settings_t *settings, sunrise_s
     double rise, set, minutes, seconds;
     bool show_next_match = false;
     movement_location_t movement_location;
-    if (state->longLatToUse == 0)
+    if (state->longLatToUse == 0 || _location_count <= 1)
         movement_location = (movement_location_t) watch_get_backup_data(1);
     else{
         movement_location.bit.latitude = longLatPresets[state->longLatToUse].latitude;
