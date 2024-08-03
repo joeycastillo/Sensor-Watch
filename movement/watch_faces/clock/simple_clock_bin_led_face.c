@@ -214,9 +214,9 @@ void simple_clock_bin_led_face_resign(movement_settings_t *settings, void *conte
 bool simple_clock_bin_led_face_wants_background_task(movement_settings_t *settings, void *context) {
     (void) settings;
     simple_clock_bin_led_state_t *state = (simple_clock_bin_led_state_t *)context;
-    if (!state->signal_enabled) return false;
-
     watch_date_time date_time = watch_rtc_get_date_time();
+    check_and_act_on_daylight_savings(date_time);
+    if (!state->signal_enabled) return false;
 
     return date_time.unit.minute == 0;
 }

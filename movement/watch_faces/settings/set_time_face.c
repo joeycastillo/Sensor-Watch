@@ -72,7 +72,6 @@ static void _handle_alarm_button(movement_settings_t *settings, watch_date_time 
             break;
     }
     watch_rtc_set_date_time(date_time);
-    settings->bit.dst_skip_rolling_back = false;
 }
 
 static void _abort_quick_ticks() {

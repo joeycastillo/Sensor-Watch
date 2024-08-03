@@ -157,5 +157,11 @@ void watch_rtc_enable(bool en);
   */
 void watch_rtc_freqcorr_write(int16_t value, int16_t sign);
 
+/** @brief Returns if we're currently at a point where the we rolled back for DST and need to ignore the next DST segment
+  */
+bool get_dst_skip_rolling_back(void);
+void set_dst_skip_rolling_back(void);
+void clear_dst_skip_rolling_back(void);
+
 /// @}
 #endif

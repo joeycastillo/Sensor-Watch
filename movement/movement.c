@@ -430,6 +430,26 @@ uint8_t movement_claim_backup_register(void) {
     return movement_state.next_available_backup_register++;
 }
 
+uint8_t check_and_act_on_daylight_savings(watch_date_time date_time) {
+    if (movement_state.settings.bit.dst_active) return date_time.unit.hour;
+    uint8_t dst_result = get_dst_status(date_time);
+    bool dst_skip_rolling_back = get_dst_skip_rolling_back();
+
+    if (dst_skip_rolling_back && (dst_result == DST_ENDED)) {
+        clear_dst_skip_rolling_back();
+    }
+    else if (dst_result == DST_ENDING && !dst_skip_rolling_back) {
+        set_dst_skip_rolling_back();
+        date_time.unit.hour = (date_time.unit.hour + 24 - 1) % 24;
+        watch_rtc_set_date_time(date_time);
+    }
+    else if (dst_result == DST_STARTING) {
+        date_time.unit.hour = (date_time.unit.hour + 1) % 24;
+        watch_rtc_set_date_time(date_time);  
+    }
+    return date_time.unit.hour;
+}
+
 int16_t get_timezone_offset(uint8_t timezone_idx, watch_date_time date_time) {
     if (!movement_state.settings.bit.dst_active) return movement_timezone_offsets[timezone_idx];
     if (dst_occurring(date_time))

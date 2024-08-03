@@ -94,7 +94,6 @@ bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *s
                 }
                 date_time_settings.unit.second = 0;
                 watch_rtc_set_date_time(date_time_settings);
-                settings->bit.dst_skip_rolling_back = false;
             }
             break;
         case EVENT_ALARM_BUTTON_DOWN:
@@ -137,7 +136,6 @@ bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *s
             }
             if (current_page != 2) { // Do not set time when we are at seconds, it was already set previously
                 watch_rtc_set_date_time(date_time_settings);
-                settings->bit.dst_skip_rolling_back = false;
             }
             break;
         
@@ -183,7 +181,6 @@ bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *s
             }
             if (current_page != 2) { // Do not set time when we are at seconds, it was already set previously
                 watch_rtc_set_date_time(date_time_settings);
-                settings->bit.dst_skip_rolling_back = false;
             }
             //TODO: Do not update whole RTC, just what we are changing
             break;
