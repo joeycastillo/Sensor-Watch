@@ -458,7 +458,6 @@ int16_t get_timezone_offset(uint8_t timezone_idx, watch_date_time date_time) {
 }
 
 void app_init(void) {
-    const int16_t* timezone_offsets;
 #if defined(NO_FREQCORR)
     watch_rtc_freqcorr_write(0, 0);
 #elif defined(WATCH_IS_BLUE_BOARD)
@@ -485,6 +484,7 @@ void app_init(void) {
     filesystem_init();
 
 #if __EMSCRIPTEN__
+    const int16_t* timezone_offsets;
     int32_t time_zone_offset = EM_ASM_INT({
         return -new Date().getTimezoneOffset();
     });

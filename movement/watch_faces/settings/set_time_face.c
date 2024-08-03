@@ -134,7 +134,7 @@ bool set_time_face_loop(movement_event_t event, movement_settings_t *settings, v
             return movement_default_loop_handler(event, settings);
     }
 
-    char buf[11];
+    char buf[13];
     if (current_page < 3) {
         watch_set_colon();
         if (settings->bit.clock_mode_24h) {

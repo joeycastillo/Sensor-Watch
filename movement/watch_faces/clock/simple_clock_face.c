@@ -151,6 +151,7 @@ void simple_clock_face_resign(movement_settings_t *settings, void *context) {
 }
 
 bool simple_clock_face_wants_background_task(movement_settings_t *settings, void *context) {
+    (void) settings;
     simple_clock_state_t *state = (simple_clock_state_t *)context;
     watch_date_time date_time = watch_rtc_get_date_time();
     uint8_t hour_dst = check_and_act_on_daylight_savings(date_time);
