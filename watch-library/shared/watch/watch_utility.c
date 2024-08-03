@@ -83,38 +83,43 @@ uint8_t is_leap(uint16_t y)
 	return !(y%4) && ((y%100) || !(y%400));
 }
 
-uint8_t is_dst(watch_date_time date_time) {
-    uint8_t weekday_first_of_month;
+uint8_t get_dst_status(watch_date_time date_time) {
     watch_date_time dst_start_time;
     watch_date_time dst_end_time;
     uint32_t unix_dst_start_time;
     uint32_t unix_dst_end_time;
     uint32_t unix_curr_time;
 
+    dst_start_time.unit.year = date_time.unit.year;
     dst_start_time.unit.month = 3;
     dst_start_time.unit.hour = 2;
     dst_start_time.unit.minute = 0;
     dst_start_time.unit.second = 0;
-    weekday_first_of_month = watch_utility_get_iso8601_weekday_number(date_time.unit.year, dst_start_time.unit.month, 1);
-    dst_start_time.unit.day = 15 - weekday_first_of_month;
+    dst_start_time.unit.day = 15 - watch_utility_get_iso8601_weekday_number(dst_start_time.unit.year + WATCH_RTC_REFERENCE_YEAR, dst_start_time.unit.month, 1);
     unix_dst_start_time = watch_utility_date_time_to_unix_time(dst_start_time, 0);
 
+    dst_end_time.unit.year = date_time.unit.year;
     dst_end_time.unit.month = 11;
     dst_end_time.unit.hour = 2;
     dst_end_time.unit.minute = 0;
     dst_end_time.unit.second = 0;
-    weekday_first_of_month = watch_utility_get_iso8601_weekday_number(date_time.unit.year, dst_end_time.unit.month, 1);
-    dst_end_time.unit.day = 15 - weekday_first_of_month;
+    dst_end_time.unit.day = 15 - watch_utility_get_iso8601_weekday_number(dst_end_time.unit.year + WATCH_RTC_REFERENCE_YEAR, dst_end_time.unit.month, 1);
     unix_dst_end_time = watch_utility_date_time_to_unix_time(dst_end_time, 0);
 
+    if (date_time.unit.second > 45)  // In emu, it's been seen that we may trigger at 59sec rather than exactly 0 each time
+        date_time.unit.minute = (date_time.unit.minute + 1) % 60;
     date_time.unit.second = 0;
     unix_curr_time = watch_utility_date_time_to_unix_time(date_time, 0);
 
-    if (unix_curr_time == unix_dst_start_time) return DST_STARTED;
+    if (unix_curr_time == unix_dst_start_time) return DST_STARTING;
     if (unix_curr_time == unix_dst_end_time) return DST_ENDING;
     if (unix_curr_time > unix_dst_end_time || unix_curr_time < unix_dst_start_time) return DST_ENDED;
     return DST_OCCURRING;
-} 
+}
+
+bool dst_occurring(watch_date_time date_time) {
+    return get_dst_status(date_time) <= DST_OCCURRING;
+}
 
 uint16_t watch_utility_days_since_new_year(uint16_t year, uint8_t month, uint8_t day) {
     uint16_t DAYS_SO_FAR[] = {

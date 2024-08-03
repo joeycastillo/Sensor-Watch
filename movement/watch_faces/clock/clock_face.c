@@ -280,27 +280,31 @@ void clock_face_resign(movement_settings_t *settings, void *context) {
     (void) context;
 }
 
-static void check_and_act_on_daylight_savings(bool dst_active, watch_date_time date_time) {
-    if (!dst_active) return;
-    uint8_t dst_result = is_dst(date_time);
-    switch (dst_result)
-    {
-    case DST_STARTED:
-        date_time.unit.hour = (date_time.unit.hour + 1) % 24;
-        break;
-    case DST_ENDING:
-        date_time.unit.hour = (date_time.unit.hour + 24 - 1) % 24;
-        break;
-    default:
+static void check_and_act_on_daylight_savings(movement_settings_t *settings, watch_date_time date_time) {
+    if (!settings ->bit.dst_active) return;
+    uint8_t dst_result = get_dst_status(date_time);
+
+    if (settings ->bit.dst_skip_rolling_back && dst_result == DST_ENDED) {
+        settings ->bit.dst_skip_rolling_back = false;
         return;
     }
-    watch_rtc_set_date_time(date_time);
+    else if (dst_result == DST_ENDING && !settings ->bit.dst_skip_rolling_back) {
+        settings ->bit.dst_skip_rolling_back = true;
+        date_time.unit.hour = (date_time.unit.hour + 24 - 1) % 24;
+        watch_rtc_set_date_time(date_time);
+        return;
+    }
+    else if (dst_result == DST_STARTING) {
+        date_time.unit.hour = (date_time.unit.hour + 1) % 24;
+        watch_rtc_set_date_time(date_time);
+        return;    
+    }
 }
 
 bool clock_face_wants_background_task(movement_settings_t *settings, void *context) {
     clock_state_t *state = (clock_state_t *) context;
     watch_date_time date_time = watch_rtc_get_date_time();
-    check_and_act_on_daylight_savings(settings->bit.dst_active, date_time);
+    check_and_act_on_daylight_savings(settings, date_time);
     if (!state->time_signal_enabled) return false;
 
     return date_time.unit.minute == 0;
