@@ -230,9 +230,9 @@ void minute_repeater_decimal_face_resign(movement_settings_t *settings, void *co
 bool minute_repeater_decimal_face_wants_background_task(movement_settings_t *settings, void *context) {
     (void) settings;
     minute_repeater_decimal_state_t *state = (minute_repeater_decimal_state_t *)context;
-    watch_date_time date_time = watch_rtc_get_date_time();
-    check_and_act_on_daylight_savings(date_time);
     if (!state->signal_enabled) return false;
+
+    watch_date_time date_time = watch_rtc_get_date_time();
 
     return date_time.unit.minute == 0;
 }

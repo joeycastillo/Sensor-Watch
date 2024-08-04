@@ -283,9 +283,9 @@ void clock_face_resign(movement_settings_t *settings, void *context) {
 bool clock_face_wants_background_task(movement_settings_t *settings, void *context) {
     (void) settings;
     clock_state_t *state = (clock_state_t *) context;
-    watch_date_time date_time = watch_rtc_get_date_time();
-    check_and_act_on_daylight_savings(date_time);
     if (!state->time_signal_enabled) return false;
+
+    watch_date_time date_time = watch_rtc_get_date_time();
 
     return date_time.unit.minute == 0;
 }

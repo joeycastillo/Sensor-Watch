@@ -247,6 +247,31 @@ static inline void _movement_disable_fast_tick_if_possible(void) {
     }
 }
 
+static bool _check_and_act_on_daylight_savings(void) {
+    if (!movement_state.settings.bit.dst_active) return false;
+    watch_date_time date_time = watch_rtc_get_date_time();
+    // No need for all of the unix time calculations for times not at the beginning or end of the hour
+    if (date_time.unit.minute > 1 && date_time.unit.minute < 59) return false; 
+    uint8_t dst_result = get_dst_status(date_time);
+    bool dst_skip_rolling_back = get_dst_skip_rolling_back();
+
+    if (dst_skip_rolling_back && (dst_result == DST_ENDED)) {
+        clear_dst_skip_rolling_back();
+    }
+    else if (dst_result == DST_ENDING && !dst_skip_rolling_back) {
+        date_time.unit.hour = (date_time.unit.hour + 24 - 1) % 24;
+        watch_rtc_set_date_time(date_time);
+        set_dst_skip_rolling_back();
+        return true;
+    }
+    else if (dst_result == DST_STARTING) {
+        date_time.unit.hour = (date_time.unit.hour + 1) % 24;
+        watch_rtc_set_date_time(date_time);  
+        return true;
+    }
+    return false;
+}
+
 static void _movement_handle_background_tasks(void) {
     for(uint8_t i = 0; i < MOVEMENT_NUM_FACES; i++) {
         // For each face, if the watch face wants a background task...
@@ -256,6 +281,7 @@ static void _movement_handle_background_tasks(void) {
             watch_faces[i].loop(background_event, &movement_state.settings, watch_face_contexts[i]);
         }
     }
+    _check_and_act_on_daylight_savings();
     movement_state.needs_background_tasks_handled = false;
 }
 
@@ -428,28 +454,6 @@ void movement_play_alarm_beeps(uint8_t rounds, BuzzerNote alarm_note) {
 uint8_t movement_claim_backup_register(void) {
     if (movement_state.next_available_backup_register >= 8) return 0;
     return movement_state.next_available_backup_register++;
-}
-
-bool check_and_act_on_daylight_savings(watch_date_time date_time) {
-    if (!movement_state.settings.bit.dst_active) return false;
-    uint8_t dst_result = get_dst_status(date_time);
-    bool dst_skip_rolling_back = get_dst_skip_rolling_back();
-
-    if (dst_skip_rolling_back && (dst_result == DST_ENDED)) {
-        clear_dst_skip_rolling_back();
-    }
-    else if (dst_result == DST_ENDING && !dst_skip_rolling_back) {
-        date_time.unit.hour = (date_time.unit.hour + 24 - 1) % 24;
-        watch_rtc_set_date_time(date_time);
-        set_dst_skip_rolling_back();
-        return true;
-    }
-    else if (dst_result == DST_STARTING) {
-        date_time.unit.hour = (date_time.unit.hour + 1) % 24;
-        watch_rtc_set_date_time(date_time);  
-        return true;
-    }
-    return false;
 }
 
 int16_t get_timezone_offset(uint8_t timezone_idx, watch_date_time date_time) {
