@@ -106,10 +106,10 @@ uint8_t get_dst_status(watch_date_time date_time) {
     dst_end_time.unit.day = 15 - watch_utility_get_iso8601_weekday_number(dst_end_time.unit.year + WATCH_RTC_REFERENCE_YEAR, dst_end_time.unit.month, 1);
     unix_dst_end_time = watch_utility_date_time_to_unix_time(dst_end_time, 0);
 
-    if (date_time.unit.second > 45)  // In emu, it's been seen that we may trigger at 59sec rather than exactly 0 each time
-        date_time.unit.minute = (date_time.unit.minute + 1) % 60;
-    date_time.unit.second = 0;
     unix_curr_time = watch_utility_date_time_to_unix_time(date_time, 0);
+    unix_curr_time -= date_time.unit.second;
+    if (date_time.unit.second > 45)  // In emu, it's been seen that we may trigger at 59sec rather than exactly 0 each time
+        unix_curr_time += 60;
 
     if (unix_curr_time == unix_dst_start_time) return DST_STARTING;
     if (unix_curr_time == unix_dst_end_time) return DST_ENDING;

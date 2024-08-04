@@ -430,8 +430,8 @@ uint8_t movement_claim_backup_register(void) {
     return movement_state.next_available_backup_register++;
 }
 
-uint8_t check_and_act_on_daylight_savings(watch_date_time date_time) {
-    if (movement_state.settings.bit.dst_active) return date_time.unit.hour;
+bool check_and_act_on_daylight_savings(watch_date_time date_time) {
+    if (!movement_state.settings.bit.dst_active) return false;
     uint8_t dst_result = get_dst_status(date_time);
     bool dst_skip_rolling_back = get_dst_skip_rolling_back();
 
@@ -439,15 +439,17 @@ uint8_t check_and_act_on_daylight_savings(watch_date_time date_time) {
         clear_dst_skip_rolling_back();
     }
     else if (dst_result == DST_ENDING && !dst_skip_rolling_back) {
-        set_dst_skip_rolling_back();
         date_time.unit.hour = (date_time.unit.hour + 24 - 1) % 24;
         watch_rtc_set_date_time(date_time);
+        set_dst_skip_rolling_back();
+        return true;
     }
     else if (dst_result == DST_STARTING) {
         date_time.unit.hour = (date_time.unit.hour + 1) % 24;
         watch_rtc_set_date_time(date_time);  
+        return true;
     }
-    return date_time.unit.hour;
+    return false;
 }
 
 int16_t get_timezone_offset(uint8_t timezone_idx, watch_date_time date_time) {
@@ -476,6 +478,18 @@ void app_init(void) {
     movement_state.settings.bit.le_interval = MOVEMENT_DEFAULT_LOW_ENERGY_INTERVAL;
     movement_state.settings.bit.led_duration = MOVEMENT_DEFAULT_LED_DURATION;
     movement_state.settings.bit.dst_active = MOVEMENT_DEFAULT_DST_ACTIVE;
+
+#ifdef MAKEFILE_TIMEZONE
+    timezone_offsets = dst_occurring(watch_rtc_get_date_time()) ? movement_timezone_dst_offsets : movement_timezone_offsets;
+    for (int i = 0; i < NUM_TIME_ZONES; i++) {
+        if (timezone_offsets[i] == MAKEFILE_TIMEZONE) {
+            movement_state.settings.bit.time_zone = i;
+            break;
+        }
+    }
+#else
+    movement_state.settings.bit.time_zone = 35;  // Atlantic Time as default
+#endif
     movement_state.light_ticks = -1;
     movement_state.alarm_ticks = -1;
     movement_state.next_available_backup_register = 4;
