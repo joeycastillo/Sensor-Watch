@@ -120,7 +120,7 @@ bool filesystem_init(void) {
         printf("Ignore that error! Formatting filesystem...\r\n");
         err = lfs_format(&lfs, &cfg);
         if (err < 0) return false;
-        err = lfs_mount(&lfs, &cfg) == LFS_ERR_OK;
+        err = lfs_mount(&lfs, &cfg);
         printf("Filesystem mounted with %ld bytes free.\r\n", filesystem_get_free_space());
     }
 
