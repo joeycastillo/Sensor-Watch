@@ -127,6 +127,22 @@ bool filesystem_init(void) {
     return err == LFS_ERR_OK;
 }
 
+int _filesystem_format(void);
+int _filesystem_format(void) {
+    int err = lfs_unmount(&lfs);
+    if (err < 0) {
+        printf("Couldn't unmount - continuing to format, but you should reboot afterwards!\r\n");
+    }
+
+    err = lfs_format(&lfs, &cfg);
+    if (err < 0) return err;
+
+    err = lfs_mount(&lfs, &cfg);
+    if (err < 0) return err;
+    printf("Filesystem re-mounted with %ld bytes free.\r\n", filesystem_get_free_space());
+    return 0;
+}
+
 bool filesystem_file_exists(char *filename) {
     info.type = 0;
     lfs_stat(&lfs, filename, &info);
@@ -251,6 +267,15 @@ int filesystem_cmd_rm(int argc, char *argv[]) {
     return 0;
 }
 
+int filesystem_cmd_format(int argc, char *argv[]) {
+    (void) argc;
+    if(strcmp(argv[1], "YES") == 0) {
+        return _filesystem_format();
+    }
+    return 1;
+}
+
+
 int filesystem_cmd_echo(int argc, char *argv[]) {
     (void) argc;
 
@@ -279,4 +304,3 @@ int filesystem_cmd_echo(int argc, char *argv[]) {
 
     return 0;
 }
-
