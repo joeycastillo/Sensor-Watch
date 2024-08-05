@@ -272,6 +272,7 @@ int filesystem_cmd_format(int argc, char *argv[]) {
     if(strcmp(argv[1], "YES") == 0) {
         return _filesystem_format();
     }
+    printf("usage: format YES\r\n");
     return 1;
 }
 
