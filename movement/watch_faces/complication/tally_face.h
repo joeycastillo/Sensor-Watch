@@ -29,16 +29,29 @@
  * TALLY face
  *
  * Tally face is designed to act as a tally counter.
- * Based on the counter_face watch face by Shogo Okamoto.
  *
- * To advance the counter, press the ALARM button.
- * To reset, long press the ALARM button.
+ * Alarm
+ *    Press: Decrement
+ *    Hold : On initial value: Toggle Sound
+ *                       Else: Fast Decrement
+ *
+ * Light
+ *    Press: Increment
+ *    Hold : On initial value: Cycles through other initial values.
+ *                       Else: Fast Increment
+ *
+ * Mode
+ *    Press: Next face
+ *    Hold : On initial value: Go to first face.
+ *                       Else: Resets counter
  */
 
 #include "movement.h"
 
 typedef struct {
-    uint32_t tally_idx;
+    int16_t tally_idx;
+    uint8_t tally_default_idx : 7;
+    bool soundOff;
 } tally_state_t;
 
 
