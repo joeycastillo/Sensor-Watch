@@ -27,7 +27,7 @@
 #include "day_one_face.h"
 #include "watch.h"
 
-static const uint8_t days_in_month[12] = {31, 29, 31, 30, 31, 30, 30, 31, 30, 31, 30, 31};
+static const uint8_t days_in_month[12] = {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
 static uint32_t _day_one_face_juliandaynum(uint16_t year, uint16_t month, uint16_t day) {
     // from here: https://en.wikipedia.org/wiki/Julian_day#Julian_day_number_calculation

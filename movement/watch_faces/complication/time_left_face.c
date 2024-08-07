@@ -158,7 +158,7 @@ static void _draw(time_left_state_t *state, uint8_t subsecond) {
 /// @brief handle short or long pressing the alarm button
 static void _handle_alarm_button(time_left_state_t *state) {
     
-    const uint8_t days_in_month[12] = {31, 28, 31, 30, 31, 30, 30, 31, 30, 31, 30, 31};
+    const uint8_t days_in_month[12] = {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
     uint32_t tmp_day;
     switch (state->current_page) {
         case TIME_LEFT_FACE_SETTINGS_STATE: // birth year

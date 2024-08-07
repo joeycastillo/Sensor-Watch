@@ -47,7 +47,7 @@ void set_time_hackwatch_face_activate(movement_settings_t *settings, void *conte
 
 bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     uint8_t current_page = *((uint8_t *)context);
-    const uint8_t days_in_month[12] = {31, 28, 31, 30, 31, 30, 30, 31, 30, 31, 30, 31};
+    const uint8_t days_in_month[12] = {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
     if (event.subsecond == 15) // Delay displayed time update by ~0.5 seconds, to align phase exactly to main clock at 1Hz
         date_time_settings = watch_rtc_get_date_time();
