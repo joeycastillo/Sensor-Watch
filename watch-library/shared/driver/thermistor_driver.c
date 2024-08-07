@@ -45,7 +45,15 @@ void thermistor_driver_disable(void) {
     // Disable the enable pin's output circuitry.
     watch_disable_digital_output(THERMISTOR_ENABLE_PIN);
 }
-
+#if __EMSCRIPTEN__
+#include <emscripten.h>
+float thermistor_driver_get_temperature(void)
+{
+    return EM_ASM_DOUBLE({
+        return temp_c || 25.0;
+    });
+}
+#else
 float thermistor_driver_get_temperature(void) {
     // set the enable pin to the level that powers the thermistor circuit.
     watch_set_pin_level(THERMISTOR_ENABLE_PIN, THERMISTOR_ENABLE_VALUE);
@@ -56,3 +64,4 @@ float thermistor_driver_get_temperature(void) {
 
     return watch_utility_thermistor_temperature(value, THERMISTOR_HIGH_SIDE, THERMISTOR_B_COEFFICIENT, THERMISTOR_NOMINAL_TEMPERATURE, THERMISTOR_NOMINAL_RESISTANCE, THERMISTOR_SERIES_RESISTANCE);
 }
+#endif
