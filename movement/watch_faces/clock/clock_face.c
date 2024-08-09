@@ -42,10 +42,6 @@
 #define CLOCK_FACE_LOW_BATTERY_VOLTAGE_THRESHOLD 2200
 #endif
 
-#ifndef CLOCK_FACE_24H_ONLY
-#define CLOCK_FACE_24H_ONLY 0
-#endif
-
 typedef struct {
     struct {
         watch_date_time previous;
@@ -57,8 +53,11 @@ typedef struct {
 } clock_state_t;
 
 static bool clock_is_in_24h_mode(movement_settings_t *settings) {
-    if (CLOCK_FACE_24H_ONLY) { return true; }
+#ifdef CLOCK_FACE_24H_ONLY
+    return true;
+#else
     return settings->bit.clock_mode_24h;
+#endif
 }
 
 static void clock_indicate(WatchIndicatorSegment indicator, bool on) {
