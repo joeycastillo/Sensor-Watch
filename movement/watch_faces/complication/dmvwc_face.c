@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 #include <stdlib.h>
 #include <string.h>
 #include "dmvwc_face.h"
@@ -39,17 +38,16 @@ void dmvwc_face_setup(movement_settings_t *settings, uint8_t watch_face_index, v
 
 void dmvwc_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
-    dmvwc_state_t *state = (dmvwc_state_t *)context;
 
-    // Handle any tasks related to your watch face coming on screen.
+    // Display the initial string "DMVWC"
+    watch_display_string("WC   dm&V", 0);
 }
 
 bool dmvwc_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
-    dmvwc_state_t *state = (dmvwc_state_t *)context;
-
     switch (event.event_type) {
         case EVENT_ACTIVATE:
             // Show your initial UI here.
+            watch_display_string("WC   dm&V", 0);
             break;
         case EVENT_TICK:
             // If needed, update your display here.
@@ -97,4 +95,3 @@ void dmvwc_face_resign(movement_settings_t *settings, void *context) {
 
     // handle any cleanup before your watch face goes off-screen.
 }
-
