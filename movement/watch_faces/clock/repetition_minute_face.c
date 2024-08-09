@@ -60,6 +60,7 @@ void repetition_minute_face_setup(movement_settings_t *settings, uint8_t watch_f
         repetition_minute_state_t *state = (repetition_minute_state_t *)*context_ptr;
         state->signal_enabled = false;
         state->watch_face_index = watch_face_index;
+        state->easter_egg = false;
     }
 }
 
@@ -94,7 +95,7 @@ bool repetition_minute_face_loop(movement_event_t event, movement_settings_t *se
         case EVENT_ACTIVATE:
         case EVENT_TICK:
         case EVENT_LOW_ENERGY_UPDATE:
-            if (event.event_type != EVENT_ALARM_LONG_PRESS && !watch_get_pin_level(BTN_ALARM)) {
+            if (state->easter_egg == false) {
                 date_time = watch_rtc_get_date_time();
                 previous_date_time = state->previous_date_time;
                 state->previous_date_time = date_time.reg;
@@ -147,16 +148,18 @@ bool repetition_minute_face_loop(movement_event_t event, movement_settings_t *se
                 if (state->alarm_enabled != settings->bit.alarm_enabled) _update_alarm_indicator(settings->bit.alarm_enabled, state);
             }
             break;
-        case EVENT_ALARM_BUTTON_UP:
+        case EVENT_ALARM_LONG_UP:
             state->signal_enabled = !state->signal_enabled;
             if (state->signal_enabled) watch_set_indicator(WATCH_INDICATOR_BELL);
             else watch_clear_indicator(WATCH_INDICATOR_BELL);
             break;
-        case EVENT_ALARM_LONG_PRESS:
+        case EVENT_ALARM_REALLY_LONG_PRESS:
+            state->easter_egg = true;
             watch_clear_display();
             watch_display_string("WC   dm&V", 0);
             break;
-        case EVENT_ALARM_LONG_UP:
+        case EVENT_ALARM_REALLY_LONG_UP:
+            state->easter_egg = false;
             state->previous_date_time = 0xFFFFFFFF;
             movement_move_to_face(state->watch_face_index);
             break;

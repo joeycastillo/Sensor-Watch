@@ -61,6 +61,7 @@ typedef struct {
     bool signal_enabled;
     bool battery_low;
     bool alarm_enabled;
+    bool easter_egg;
 } repetition_minute_state_t;
 
 void play_hour_chime(void);

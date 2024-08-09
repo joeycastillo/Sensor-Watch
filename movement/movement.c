@@ -23,6 +23,7 @@
  */
 
 #define MOVEMENT_LONG_PRESS_TICKS 64
+#define MOVEMENT_REALLY_LONG_PRESS_TICKS 640
 
 #include <stdio.h>
 #include <string.h>
@@ -252,12 +253,15 @@ bool movement_default_loop_handler(movement_event_t event, movement_settings_t *
 
     switch (event.event_type) {
         case EVENT_MODE_BUTTON_UP:
+            movement_request_wake();
             movement_move_to_next_face();
             break;
         case EVENT_LIGHT_BUTTON_DOWN:
+            movement_request_wake();
             movement_illuminate_led();
             break;
         case EVENT_MODE_LONG_PRESS:
+            movement_request_wake();
             if (MOVEMENT_SECONDARY_FACE_INDEX && movement_state.current_face_idx == 0) {
                 movement_move_to_face(MOVEMENT_SECONDARY_FACE_INDEX);
             } else {
@@ -629,8 +633,11 @@ static movement_event_type_t _figure_out_button_event(bool pin_level, movement_e
         *down_timestamp = 0;
         _movement_disable_fast_tick_if_possible();
         // any press over a half second is considered a long press. Fire the long-up event
-        if (diff > MOVEMENT_LONG_PRESS_TICKS) return button_down_event_type + 3;
-        else return button_down_event_type + 1;
+        if (diff < MOVEMENT_REALLY_LONG_PRESS_TICKS && diff > MOVEMENT_LONG_PRESS_TICKS) {
+            return button_down_event_type + 3; 
+        } else if (diff > MOVEMENT_REALLY_LONG_PRESS_TICKS) {
+            return button_down_event_type + 5; 
+        } else return button_down_event_type + 1;
     }
 }
 
@@ -674,9 +681,13 @@ void cb_fast_tick(void) {
     if (movement_state.mode_down_timestamp > 0)
         if (movement_state.fast_ticks - movement_state.mode_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1)
             event.event_type = EVENT_MODE_LONG_PRESS;
-    if (movement_state.alarm_down_timestamp > 0)
-        if (movement_state.fast_ticks - movement_state.alarm_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1)
+    if (movement_state.alarm_down_timestamp > 0) {
+        if (movement_state.fast_ticks - movement_state.alarm_down_timestamp == MOVEMENT_REALLY_LONG_PRESS_TICKS + 1) {
+            event.event_type = EVENT_ALARM_REALLY_LONG_PRESS;
+        } else if (movement_state.fast_ticks - movement_state.alarm_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1) {
             event.event_type = EVENT_ALARM_LONG_PRESS;
+        }
+    }
     // this is just a fail-safe; fast tick should be disabled as soon as the button is up, the LED times out, and/or the alarm finishes.
     // but if for whatever reason it isn't, this forces the fast tick off after 20 seconds.
     if (movement_state.fast_ticks >= 128 * 20) {
