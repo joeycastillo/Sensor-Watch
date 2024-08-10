@@ -164,4 +164,10 @@ float watch_utility_thermistor_temperature(uint16_t value, bool highside, float 
  */
 uint32_t watch_utility_offset_timestamp(uint32_t now, int8_t hours, int8_t minutes, int8_t seconds);
 
+/** @brief Returns the number of days in a month. It also handles Leap Years for February.
+ * @param month The month of the date (1-12)
+ * @param year The year of the date (ex. 2022)
+ */
+uint8_t days_in_month(uint8_t month, uint16_t year);
+
 #endif

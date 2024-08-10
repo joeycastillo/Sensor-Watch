@@ -204,7 +204,6 @@ void set_time_mode_handle_primary_button(void) {
 
 void set_time_mode_handle_secondary_button(void) {
     watch_date_time date_time = watch_rtc_get_date_time();
-    const uint8_t days_in_month[12] = {31, 28, 31, 30, 31, 30, 30, 31, 30, 31, 30, 31};
 
     switch (application_state.page) {
         case 0: // hour
@@ -227,7 +226,7 @@ void set_time_mode_handle_secondary_button(void) {
             date_time.unit.day = date_time.unit.day + 1;
             break;
     }
-    if (date_time.unit.day > days_in_month[date_time.unit.month - 1] + (is_leap(date_time.unit.year) && date_time.unit.month == 2))
+    if (date_time.unit.day > days_in_month(date_time.unit.month, date_time.unit.year + WATCH_RTC_REFERENCE_YEAR))
         date_time.unit.day = 1;
     watch_rtc_set_date_time(date_time);
 }

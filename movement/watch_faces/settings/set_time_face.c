@@ -34,7 +34,6 @@ static bool _quick_ticks_running;
 
 static void _handle_alarm_button(movement_settings_t *settings, watch_date_time date_time, uint8_t current_page) {
     // handles short or long pressing of the alarm button
-    const uint8_t days_in_month[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
     switch (current_page) {
         case 0: // hour
@@ -61,7 +60,7 @@ static void _handle_alarm_button(movement_settings_t *settings, watch_date_time 
             if (settings->bit.time_zone > 40) settings->bit.time_zone = 0;
             break;
     }
-    if (date_time.unit.day > (days_in_month[date_time.unit.month - 1] + (is_leap(date_time.unit.year) &&date_time.unit.month == 2)))
+    if (date_time.unit.day > days_in_month(date_time.unit.month, date_time.unit.year + WATCH_RTC_REFERENCE_YEAR))
         date_time.unit.day = 1;
     watch_rtc_set_date_time(date_time);
 }
