@@ -70,11 +70,11 @@ static void clock_indicate(WatchIndicatorSegment indicator, bool on) {
 }
 
 static void clock_indicate_alarm(movement_settings_t *settings) {
-    clock_indicate(WATCH_INDICATOR_BELL, settings->bit.alarm_enabled);
+    clock_indicate(WATCH_INDICATOR_SIGNAL, settings->bit.alarm_enabled);
 }
 
 static void clock_indicate_time_signal(clock_state_t *clock) {
-    clock_indicate(WATCH_INDICATOR_SIGNAL, clock->time_signal_enabled);
+    clock_indicate(WATCH_INDICATOR_BELL, clock->time_signal_enabled);
 }
 
 static void clock_indicate_24h(movement_settings_t *settings) {
