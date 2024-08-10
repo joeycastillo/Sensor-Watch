@@ -23,7 +23,7 @@
  */
 
 #define MOVEMENT_LONG_PRESS_TICKS 64
-#define MOVEMENT_REALLY_LONG_PRESS_TICKS 640
+#define MOVEMENT_REALLY_LONG_PRESS_TICKS 512
 
 #include <stdio.h>
 #include <string.h>

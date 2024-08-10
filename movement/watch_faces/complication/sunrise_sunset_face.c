@@ -57,6 +57,7 @@ static void _sunrise_sunset_face_update(movement_settings_t *settings, sunrise_s
     }
 
     if (movement_location.reg == 0) {
+        watch_clear_colon();
         watch_display_string("RI  no Loc", 0);
         return;
     }
