@@ -28,8 +28,6 @@
 #include "watch.h"
 #include "watch_utility.h"
 
-static const uint8_t days_in_month[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-
 static uint32_t _day_one_face_juliandaynum(uint16_t year, uint16_t month, uint16_t day) {
     // from here: https://en.wikipedia.org/wiki/Julian_day#Julian_day_number_calculation
     return (1461 * (year + 4800 + (month - 14) / 12)) / 4 + (367 * (month - 2 - 12 * ((month - 14) / 12))) / 12 - (3 * ((year + 4900 + (month - 14) / 12) / 100))/4 + day - 32075;
@@ -71,7 +69,7 @@ static void _day_one_face_increment(day_one_state_t *state) {
         default:
             break;
     }
-    if (state->birth_day == 0 || state->birth_day > (days_in_month[state->birth_month - 1] + (is_leap(state->birth_year) && state->birth_month == 2)))
+    if (state->birth_day == 0 || state->birth_day > days_in_month(state->birth_month, state->birth_year))
         state->birth_day = 1;
 }
 

@@ -48,7 +48,6 @@ void set_time_hackwatch_face_activate(movement_settings_t *settings, void *conte
 
 bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     uint8_t current_page = *((uint8_t *)context);
-    const uint8_t days_in_month[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
     if (event.subsecond == 15) // Delay displayed time update by ~0.5 seconds, to align phase exactly to main clock at 1Hz
         date_time_settings = watch_rtc_get_date_time();
@@ -121,7 +120,7 @@ bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *s
                 case 5: // day
                     date_time_settings.unit.day = date_time_settings.unit.day - 2;
                     if (date_time_settings.unit.day == 0) {
-                        date_time_settings.unit.day = days_in_month[date_time_settings.unit.month - 1] + (is_leap(date_time_settings.unit.year) && date_time_settings.unit.month == 2);
+                        date_time_settings.unit.day = days_in_month(date_time_settings.unit.month, date_time_settings.unit.year + WATCH_RTC_REFERENCE_YEAR);
                     } else
                         date_time_settings.unit.day++;
                     break;
@@ -172,7 +171,7 @@ bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *s
                     if (settings->bit.time_zone > 40) settings->bit.time_zone = 0;
                     break;
             }
-            if (date_time_settings.unit.day > (days_in_month[date_time_settings.unit.month - 1] + (is_leap(date_time_settings.unit.year) && date_time_settings.unit.month == 2)))
+            if (date_time_settings.unit.day > days_in_month(date_time_settings.unit.month, date_time_settings.unit.year + WATCH_RTC_REFERENCE_YEAR))
                 date_time_settings.unit.day = 1;
             if (current_page != 2) // Do not set time when we are at seconds, it was already set previously
                 watch_rtc_set_date_time(date_time_settings);

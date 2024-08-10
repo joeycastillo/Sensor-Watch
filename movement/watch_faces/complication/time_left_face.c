@@ -159,7 +159,6 @@ static void _draw(time_left_state_t *state, uint8_t subsecond) {
 /// @brief handle short or long pressing the alarm button
 static void _handle_alarm_button(time_left_state_t *state) {
     
-    const uint8_t days_in_month[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
     switch (state->current_page) {
         case TIME_LEFT_FACE_SETTINGS_STATE: // birth year
             state->birth_date.bit.year++;
@@ -182,9 +181,9 @@ static void _handle_alarm_button(time_left_state_t *state) {
             state->target_date.bit.day++;
             break;
     }
-    if (state->birth_date.bit.day > (days_in_month[state->birth_date.bit.month - 1] + (is_leap(state->birth_date.bit.year) && state->birth_date.bit.month == 2)))
+    if (state->birth_date.bit.day > days_in_month(state->birth_date.bit.month, state->birth_date.bit.year))
         state->birth_date.bit.day = 1;
-    if (state->target_date.bit.day > (days_in_month[state->target_date.bit.month - 1] + (is_leap(state->target_date.bit.year) && state->target_date.bit.month == 2)))
+    if (state->target_date.bit.day > days_in_month(state->target_date.bit.month, state->birth_date.bit.year))
         state->target_date.bit.day = 1;
 }
 
