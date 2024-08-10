@@ -37,6 +37,8 @@
 #include <emscripten.h>
 #endif
 
+static const uint8_t _location_count = sizeof(longLatPresets) / sizeof(long_lat_presets_t);
+
 static void _sunrise_sunset_set_expiration(sunrise_sunset_state_t *state, watch_date_time next_rise_set) {
     uint32_t timestamp = watch_utility_date_time_to_unix_time(next_rise_set, 0);
     state->rise_set_expires = watch_utility_date_time_from_unix_time(timestamp + 60, 0);
@@ -46,7 +48,13 @@ static void _sunrise_sunset_face_update(movement_settings_t *settings, sunrise_s
     char buf[14];
     double rise, set, minutes, seconds;
     bool show_next_match = false;
-    movement_location_t movement_location = (movement_location_t) watch_get_backup_data(1);
+    movement_location_t movement_location;
+    if (state->longLatToUse == 0)
+        movement_location = (movement_location_t) watch_get_backup_data(1);
+    else{
+        movement_location.bit.latitude = longLatPresets[state->longLatToUse].latitude;
+        movement_location.bit.longitude = longLatPresets[state->longLatToUse].longitude;
+    }
 
     if (movement_location.reg == 0) {
         watch_display_string("RI  no Loc", 0);
@@ -109,7 +117,7 @@ static void _sunrise_sunset_face_update(movement_settings_t *settings, sunrise_s
                     if (watch_utility_convert_to_12_hour(&scratch_time)) watch_set_indicator(WATCH_INDICATOR_PM);
                     else watch_clear_indicator(WATCH_INDICATOR_PM);
                 }
-                sprintf(buf, "rI%2d%2d%02d  ", scratch_time.unit.day, scratch_time.unit.hour, scratch_time.unit.minute);
+                sprintf(buf, "rI%2d%2d%02d%s", scratch_time.unit.day, scratch_time.unit.hour, scratch_time.unit.minute,longLatPresets[state->longLatToUse].name);
                 watch_display_string(buf, 0);
                 return;
             } else {
@@ -136,7 +144,7 @@ static void _sunrise_sunset_face_update(movement_settings_t *settings, sunrise_s
                     if (watch_utility_convert_to_12_hour(&scratch_time)) watch_set_indicator(WATCH_INDICATOR_PM);
                     else watch_clear_indicator(WATCH_INDICATOR_PM);
                 }
-                sprintf(buf, "SE%2d%2d%02d  ", scratch_time.unit.day, scratch_time.unit.hour, scratch_time.unit.minute);
+                sprintf(buf, "SE%2d%2d%02d%s", scratch_time.unit.day, scratch_time.unit.hour, scratch_time.unit.minute, longLatPresets[state->longLatToUse].name);
                 watch_display_string(buf, 0);
                 return;
             } else {
@@ -351,11 +359,21 @@ bool sunrise_sunset_face_loop(movement_event_t event, movement_settings_t *setti
                     _sunrise_sunset_face_update_location_register(state);
                 }
                 _sunrise_sunset_face_update_settings_display(event, context);
-            } else {
+            } else if (_location_count == 1) {
                 movement_illuminate_led();
             }
             if (state->page == 0) {
                 movement_request_tick_frequency(1);
+                _sunrise_sunset_face_update(settings, state);
+            }
+            break;
+        case EVENT_LIGHT_LONG_PRESS:
+            if (_location_count == 1) break;
+            else if (!state->page) movement_illuminate_led();
+            break;
+        case EVENT_LIGHT_BUTTON_UP:
+            if (state->page == 0 && _location_count > 1) {
+                state->longLatToUse = (state->longLatToUse + 1) % _location_count;
                 _sunrise_sunset_face_update(settings, state);
             }
             break;
@@ -370,11 +388,22 @@ bool sunrise_sunset_face_loop(movement_event_t event, movement_settings_t *setti
             break;
         case EVENT_ALARM_LONG_PRESS:
             if (state->page == 0) {
+            if (state->longLatToUse != 0) {
+                state->longLatToUse = 0;
+                _sunrise_sunset_face_update(settings, state);
+                break;
+            }
                 state->page++;
                 state->active_digit = 0;
                 watch_clear_display();
                 movement_request_tick_frequency(4);
                 _sunrise_sunset_face_update_settings_display(event, context);
+            }
+            else {
+                state->active_digit = 0;
+                state->page = 0;
+                _sunrise_sunset_face_update_location_register(state);
+                _sunrise_sunset_face_update(settings, state);
             }
             break;
         case EVENT_TIMEOUT:

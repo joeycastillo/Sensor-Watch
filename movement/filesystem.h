@@ -100,6 +100,7 @@ int filesystem_cmd_ls(int argc, char *argv[]);
 int filesystem_cmd_cat(int argc, char *argv[]);
 int filesystem_cmd_df(int argc, char *argv[]);
 int filesystem_cmd_rm(int argc, char *argv[]);
+int filesystem_cmd_format(int argc, char *argv[]);
 int filesystem_cmd_echo(int argc, char *argv[]);
 
 #endif // FILESYSTEM_H_

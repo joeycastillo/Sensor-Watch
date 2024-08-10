@@ -205,7 +205,7 @@ bool totp_face_loop(movement_event_t event, movement_settings_t *settings, void 
             movement_move_to_face(0);
             break;
         case EVENT_ALARM_BUTTON_UP:
-            if (totp_state->current_index + 1 < totp_total()) {
+            if ((size_t)totp_state->current_index + 1 < totp_total()) {
                 totp_state->current_index++;
             } else {
                 // wrap around to first key
