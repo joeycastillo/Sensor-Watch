@@ -99,6 +99,10 @@ bool repetition_minute_face_loop(movement_event_t event, movement_settings_t *se
                 date_time = watch_rtc_get_date_time();
                 previous_date_time = state->previous_date_time;
                 state->previous_date_time = date_time.reg;
+                if (settings->bit.clock_mode_24h) {
+                    watch_set_indicator(WATCH_INDICATOR_24H);
+                    watch_clear_indicator(WATCH_INDICATOR_PM);
+                } else watch_clear_indicator(WATCH_INDICATOR_24H);
 
                 // check the battery voltage once a day...
                 if (date_time.unit.day != state->last_battery_check) {
@@ -146,7 +150,15 @@ bool repetition_minute_face_loop(movement_event_t event, movement_settings_t *se
                 watch_display_string(buf, pos);
                 // handle alarm indicator
                 if (state->alarm_enabled != settings->bit.alarm_enabled) _update_alarm_indicator(settings->bit.alarm_enabled, state);
+                movement_request_tick_frequency(1);
             }
+            break;
+        case EVENT_ALARM_BUTTON_DOWN:
+            movement_request_tick_frequency(4);
+            break;
+        case EVENT_ALARM_BUTTON_UP:
+            settings->bit.clock_mode_24h = !(settings->bit.clock_mode_24h);                                                                                     
+            state->previous_date_time = 0xFFFFFFFF;
             break;
         case EVENT_ALARM_LONG_UP:
             state->signal_enabled = !state->signal_enabled;
