@@ -25,6 +25,8 @@
 #define MOVEMENT_LONG_PRESS_TICKS 64
 #define MOVEMENT_REALLY_LONG_PRESS_TICKS 384
 #define DEBOUNCE_TICKS 1  // In terms of *7.8125ms
+#define DEBOUNCE_TICKS_DOWN 2  // In terms of *7.8125ms
+#define DEBOUNCE_TICKS_UP   2  // In terms of *7.8125ms
 
 #include <stdio.h>
 #include <string.h>
@@ -196,6 +198,9 @@ static inline void _movement_reset_inactivity_countdown(void) {
 static inline void _movement_enable_fast_tick_if_needed(void) {
     if (!movement_state.fast_tick_enabled) {
         movement_state.fast_ticks = 0;
+        movement_state.debounce_ticks_light = 0;
+        movement_state.debounce_ticks_alarm = 0;
+        movement_state.debounce_ticks_mode = 0;
         watch_rtc_register_periodic_callback(cb_fast_tick, 128);
         movement_state.fast_tick_enabled = true;
     }
@@ -419,9 +424,6 @@ void app_init(void) {
     movement_state.birthdate.bit.day = MOVEMENT_DEFAULT_BIRTHDATE_DAY;
     movement_state.light_ticks = -1;
     movement_state.alarm_ticks = -1;
-    movement_state.debounce_ticks_light = 0;
-    movement_state.debounce_ticks_alarm = 0;
-    movement_state.debounce_ticks_mode = 0;
     movement_state.next_available_backup_register = 4;
     _movement_reset_inactivity_countdown();
 
@@ -668,7 +670,6 @@ static movement_event_type_t _figure_out_button_event(bool pin_level, movement_e
         // now that that's out of the way, handle falling edge
         uint16_t diff = movement_state.fast_ticks - *down_timestamp;
         *down_timestamp = 0;
-        _movement_disable_fast_tick_if_possible();
         // any press over a half second is considered a long press. Fire the long-up event
         if (diff < MOVEMENT_REALLY_LONG_PRESS_TICKS && diff > MOVEMENT_LONG_PRESS_TICKS) {
             return button_down_event_type + 3; 
@@ -678,22 +679,19 @@ static movement_event_type_t _figure_out_button_event(bool pin_level, movement_e
     }
 }
 
-static void light_btn_action(void) {
-    bool pin_level = watch_get_pin_level(BTN_LIGHT);
+static void light_btn_action(bool pin_level) {
     _movement_reset_inactivity_countdown();
     event.event_type = _figure_out_button_event(pin_level, EVENT_LIGHT_BUTTON_DOWN, &movement_state.light_down_timestamp);
 }
 
-static void mode_btn_action(void) {
-    bool pin_level = watch_get_pin_level(BTN_MODE);
+static void mode_btn_action(bool pin_level) { 
     _movement_reset_inactivity_countdown();
     event.event_type = _figure_out_button_event(pin_level, EVENT_MODE_BUTTON_DOWN, &movement_state.mode_down_timestamp);
 }
 
-static void alarm_btn_action(void) {
-    bool pin_level = watch_get_pin_level(BTN_ALARM);
-    uint8_t event_type = _figure_out_button_event(pin_level, EVENT_ALARM_BUTTON_DOWN, &movement_state.alarm_down_timestamp);
+static void alarm_btn_action(bool pin_level) {
     _movement_reset_inactivity_countdown();
+    uint8_t event_type = _figure_out_button_event(pin_level, EVENT_ALARM_BUTTON_DOWN, &movement_state.alarm_down_timestamp);
     if  (movement_state.ignore_alarm_btn_after_sleep){
         if (event_type == EVENT_ALARM_BUTTON_UP || event_type == EVENT_ALARM_LONG_UP) movement_state.ignore_alarm_btn_after_sleep = false;
         return;
@@ -701,19 +699,27 @@ static void alarm_btn_action(void) {
     event.event_type = event_type;
 }
 
-void cb_light_btn_interrupt(void) {
-    movement_state.debounce_ticks_light = DEBOUNCE_TICKS;
+static void debounce_btn_press(uint8_t pin, uint8_t *debounce_ticks, uint16_t *down_timestamp, void (*function)(bool)) {
+    if (*debounce_ticks <= 1) {
+        bool pin_level = watch_get_pin_level(pin);
+        function(pin_level);
+        *debounce_ticks = pin_level ? DEBOUNCE_TICKS_DOWN : DEBOUNCE_TICKS_UP;
+    }
+    else
+        *down_timestamp = 0;
     _movement_enable_fast_tick_if_needed();
+}
+
+void cb_light_btn_interrupt(void) {
+    debounce_btn_press(BTN_LIGHT, &movement_state.debounce_ticks_light, &movement_state.light_down_timestamp, light_btn_action);
 }
 
 void cb_mode_btn_interrupt(void) {
-    movement_state.debounce_ticks_mode = DEBOUNCE_TICKS;
-    _movement_enable_fast_tick_if_needed();
+    debounce_btn_press(BTN_MODE, &movement_state.debounce_ticks_mode, &movement_state.mode_down_timestamp, mode_btn_action);
 }
 
 void cb_alarm_btn_interrupt(void) {
-    movement_state.debounce_ticks_alarm = DEBOUNCE_TICKS;
-    _movement_enable_fast_tick_if_needed();
+    debounce_btn_press(BTN_ALARM, &movement_state.debounce_ticks_alarm, &movement_state.alarm_down_timestamp, alarm_btn_action);
 }
 
 void cb_alarm_btn_extwake(void) {
@@ -726,12 +732,9 @@ void cb_alarm_fired(void) {
 }
 
 void cb_fast_tick(void) {
-    if (movement_state.debounce_ticks_light > 0 && --movement_state.debounce_ticks_light == 0)
-        light_btn_action();
-    if (movement_state.debounce_ticks_alarm > 0 && --movement_state.debounce_ticks_alarm == 0)
-        alarm_btn_action();
-    if (movement_state.debounce_ticks_mode > 0 && --movement_state.debounce_ticks_mode == 0)
-        mode_btn_action();
+    if (movement_state.debounce_ticks_light > 0 && --movement_state.debounce_ticks_light == 0) _movement_disable_fast_tick_if_possible();
+    if (movement_state.debounce_ticks_alarm > 0 && --movement_state.debounce_ticks_alarm == 0) _movement_disable_fast_tick_if_possible();
+    if (movement_state.debounce_ticks_mode > 0 && --movement_state.debounce_ticks_mode == 0) _movement_disable_fast_tick_if_possible();
     if (movement_state.debounce_ticks_light + movement_state.debounce_ticks_mode + movement_state.debounce_ticks_alarm  == 0)
         movement_state.fast_ticks++;
     if (movement_state.light_ticks > 0) movement_state.light_ticks--;
