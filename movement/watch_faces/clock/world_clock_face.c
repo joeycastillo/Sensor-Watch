@@ -114,7 +114,7 @@ static bool world_clock_face_do_display_mode(movement_event_t event, movement_se
             watch_display_string(buf, pos);
             break;
         case EVENT_ALARM_LONG_PRESS:
-            movement_request_tick_frequency(4);
+            movement_request_tick_frequency(1);
             state->current_screen = 1;
             break;
         default:
@@ -133,7 +133,7 @@ static bool _world_clock_face_do_settings_mode(movement_event_t event, movement_
         case EVENT_LIGHT_BUTTON_DOWN:
             state->current_screen++;
             if (state->current_screen > 3) {
-                movement_request_tick_frequency(1);
+                movement_request_tick_frequency(4);
                 state->current_screen = 0;
                 if (state->backup_register) watch_store_backup_data(state->settings.reg, state->backup_register);
                 event.event_type = EVENT_ACTIVATE;
