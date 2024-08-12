@@ -249,7 +249,6 @@ static bool mode_display(movement_event_t event, movement_settings_t *settings, 
 	    /* Switch to settings mode */
 	    state->current_mode = WORLD_CLOCK2_MODE_SETTINGS;
 	    refresh_face = true;
-            movement_request_tick_frequency(1);
 
             if (settings->bit.button_should_sound)
                 watch_buzzer_play_note(BUZZER_NOTE_C8, 50);
