@@ -253,15 +253,12 @@ bool movement_default_loop_handler(movement_event_t event, movement_settings_t *
 
     switch (event.event_type) {
         case EVENT_MODE_BUTTON_UP:
-            movement_request_wake();
             movement_move_to_next_face();
             break;
         case EVENT_LIGHT_BUTTON_DOWN:
-            movement_request_wake();
             movement_illuminate_led();
             break;
         case EVENT_MODE_LONG_PRESS:
-            movement_request_wake();
             if (MOVEMENT_SECONDARY_FACE_INDEX && movement_state.current_face_idx == 0) {
                 movement_move_to_face(MOVEMENT_SECONDARY_FACE_INDEX);
             } else {
