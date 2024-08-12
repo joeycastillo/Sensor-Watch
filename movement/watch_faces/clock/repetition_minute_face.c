@@ -180,7 +180,7 @@ bool repetition_minute_face_loop(movement_event_t event, movement_settings_t *se
             // movement_move_to_face(state->watch_face_index);
             movement_play_signal();
             break;
-        case EVENT_LIGHT_LONG_UP:
+        case EVENT_LIGHT_LONG_PRESS:
             /*
              * Howdy neighbors, this is the actual complication. Like an actual
              * (very expensive) watch with a repetition minute complication it's
