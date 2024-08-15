@@ -36,77 +36,60 @@ TODO:
 */
 
 
-// From: https://github.com/charlesreid1/five-letter-words/blob/master/sgb-words.txt
+// From: https://gist.github.com/shmookey/b28e342e1b1756c4700f42f17102c2ff
 
 /*
-Letter | Usage in sgb-words.txt
-S      | 2674
-E      | 2658
-A      | 2181
-R      | 1799
-O      | 1683
-I      | 1539
-T      | 1462   But looks bad across all positions
-L      | 1434
-N      | 1219
-D      | 1100  lowercase d looks like a in certain positions
-U      | 1068  C has more words with the other letters here (457 total vs 390)
-C      | 920 
-P      | 895
+Letter | Usage
+E      | 1519
+S      | 1490
+A      | 1213
+R      | 1026
+O      | 852
+L      | 850
+I      | 843
+T      | 819  But looks bad across all positions
+N      | 681
+D      | 619  lowercase d looks like a in certain positions
+C      | 525
+U      | 514  P has more words with the other letters here (281 vs 198)
+P      | 448
 */
-static const char _valid_letters[] = {'A', 'C', 'E', 'I', 'L', 'N', 'O', 'P', 'R', 'S'};
+static const char _valid_letters[] = {'E', 'S', 'A', 'R', 'O', 'L', 'I', 'N', 'C', 'P'};
 
+// Number of words found: 281
 static const char _legal_words[][WORDLE_LENGTH + 1] = {
-    "PLACE", "SINCE", "PAPER", "LINES", "LEARN", "SPACE", "CLOSE", "CLASS", "PIECE",
-    "COLOR", "ALONE", "PLANE", "SPELL", "CLEAR", "AREAS", "SENSE", "OCEAN", "SCALE",
-    "CELLS", "SLEEP", "LOCAL", "CLEAN", "PEACE", "CROSS", "CASES", "CROPS", "PLAIN",
-    "PAIRS", "SCORE", "NOISE", "PIANO", "PLANS", "PRICE", "RAISE", "SCENE", "PRESS",
-    "APPLE", "CALLS", "POLES", "LOOSE", "OPERA", "INNER", "SOLAR", "RISES", "SALES",
-    "ACRES", "ERROR", "NAILS", "COINS", "SLOPE", "CANOE", "CANAL", "LIONS", "AROSE",
-    "RACES", "SPARE", "PIPES", "RAINS", "ROLLS", "SAILS", "ARISE", "ROPES", "CRIES",
-    "OPENS", "APRON", "SPEAR", "SLICE", "SPOON", "ROSES", "LINEN", "POLAR", "PEARL",
-    "LOSES", "CORAL", "SPOIL", "PANEL", "SELLS", "COOLS", "SOILS", "POOLS", "RISEN",
-    "PILES", "SLAIN", "PANIC", "CRISP", "RAILS", "SCOPE", "CONES", "COCOA", "REINS",
-    "NOSES", "SCARE", "CEASE", "PRIOR", "POLIO", "SEALS", "COALS", "LOANS", "SPINS",
-    "PAINS", "ONION", "SCRAP", "ROLES", "SNAIL", "LOOPS", "CREEP", "CARES", "ALIEN",
-    "CRANE", "SLIPS", "SPINE", "LEAPS", "PROSE", "SNARE", "PINES", "SCALP", "LEASE",
-    "COILS", "ARENA", "PEARS", "CLIPS", "LANES", "RESIN", "SONAR", "CORPS", "NIECE",
-    "CELLO", "REPEL", "SPICE", "OASIS", "PACES", "COLON", "CACAO", "RINSE", "SPOOL",
-    "SPILL", "SNAPS", "EERIE", "EARNS", "PERIL", "LINER", "SCARS", "SOLES", "PAILS",
-    "CAROL", "CANON", "POLLS", "NASAL", "SCORN", "OASES", "ASSES", "PILLS", "SPORE",
-    "SPIES", "ERASE", "AISLE", "LOINS", "LEANS", "LANCE", "PANES", "PORES", "POISE",
-    "IRONS", "ROARS", "SCOOP", "LASSO", "PRONE", "NICER", "SNARL", "CORES", "RIPEN",
-    "PEERS", "EASEL", "LACES", "SOAPS", "SNIPS", "PIERS", "LASER", "LILAC", "SIREN",
-    "CLASP", "POSSE", "POSES", "SLOOP", "SLAPS", "SOLOS", "SISAL", "SEEPS", "SPANS",
-    "CLAPS", "ACORN", "LOSER", "LAPSE", "ASPEN", "SNORE", "PROPS", "PESOS", "SONIC",
-    "SPARS", "SORES", "RELIC", "NOOSE", "NEARS", "CAPES", "CANES", "SPIRE", "ISLES",
-    "SNEER", "RARER", "NINES", "PECAN", "PENCE", "SILLS", "COPRA", "POPES", "SPREE",
-    "SCANS", "REELS", "LIARS", "LEPER", "SOARS", "PLEAS", "PALER", "EPICS", "CAPER",
-    "CONIC", "OPALS", "EASES", "ARSON", "CLANS", "PLIES", "CROON", "PREEN", "SEERS",
-    "COCCI", "SILOS", "SNIPE", "SANER", "RILLS", "CORNS", "PRIES", "LOONS", "EARLS",
-    "PEONS", "PALES", "LAIRS", "PEELS", "PEALS", "CRONE", "ENROL", "COOPS", "LAPEL",
-    "RASPS", "ASPIC", "PENIS", "INANE", "SLOPS", "COCOS", "LEERS", "LOPES", "ALIAS",
-    "RACER", "COPSE", "PALLS", "COPES", "ICONS", "REAPS", "SNOOP", "LORES", "REARS",
-    "COLIC", "PLOPS", "SIRES", "CARPS", "LISPS", "PEEPS", "SORER", "LOLLS", "PARES",
-    "ACNES", "NEONS", "NOONS", "PAPAS", "RIPER", "ELOPE", "CRESS", "NAPES", "ICIER",
-    "CILIA", "SEARS", "SARIS", "PAPAL", "ROSIN", "CREPE", "RISER", "PACER", "SALON",
-    "CRIER", "LOESS", "PIPER", "COONS", "SEINE", "IONIC", "SCRIP", "PENAL", "ALOES",
-    "APACE", "SIREE", "ROPER", "ANION", "LONER", "CIRCA", "CARNE", "ANISE", "SPECS",
-    "ANNAS", "PICAS", "REALS", "AERIE", "ORLON", "CRASS", "SPIEL", "LAPIS", "ARIAS",
-    "PAEAN", "SINES", "SCION", "RAPES", "SCARP", "SEPIA", "POSER", "LIENS", "RILES",
-    "APSES", "NONCE", "ANOLE", "RECAP", "CARON", "PORNO", "CREEL", "CAPOS", "OPINE",
-    "NISEI", "RERAN", "NARCO", "CLOPS", "ESSES", "SCONE", "SALSA", "ROANS", "RAPER",
-    "CORER", "COLAS", "CAIRN", "CRAPS", "CLONE", "NOELS", "ORCAS", "PARSE", "EPEES",
-    "LANAI", "SEPAL", "CAPON", "PREPS", "NARCS", "REPRO", "ORALS", "ROILS", "ILIAC",
-    "CILLS", "LOCOS", "RENAL", "CROCS", "PARAS", "SECCO", "PIONS", "PARER", "PLEIN",
-    "AREAL", "SOLON", "PSOAS", "SCOPS", "SLOES", "NOIRE", "POLIS", "PASSE", "NONES",
-    "SARAN", "POLOS", "APERS", "ARRAS", "PRISE", "SPIER", "AIRER", "APIAN", "CASAS",
-    "CARER", "POOPS", "SPINA", "PENES", "RILLE", "CANER", "LIRAS", "PRIER", "LOPER",
-    "CALLA", "PONES", "COCAS", "OILER", "ASSAI", "LAPIN", "ASANA", "OLEOS", "LIERS",
-    "ANILE", "PLENA", "AIOLI", "SLIER", "CANNA", "PEASE", "LASES", "RASAE", "PAREN",
-    "SOCLE", "RICER", "RICES", "ELANS", "CEILS", "LISLE", "OLIOS", "APSOS", "RIALS",
-    "ICERS", "COPER", "PEENS", "POLER", "LACER", "ARSES", "SPOOR", "CIRRI", "APNEA",
-    "NARES", "OSIER",
+    "SPIES", "SOLAR", "RAISE", "RARES", "PAEAN", "PLIES", "CRASS", "PEARS", "SNORE", 
+    "POLES", "ROLLS", "ALOES", "LOSES", "SLICE", "PEACE", "POLLS", "POSES", "LANES", 
+    "COPRA", "SPANS", "CANAL", "LOSER", "PAPER", "PILES", "CLASS", "RACER", "POOLS", 
+    "PLAIN", "SPEAR", "SPARE", "INNER", "ALIEN", "NOSES", "EARLS", "SEALS", "LEARN", 
+    "COLIC", "OPERA", "LOOSE", "SPOOR", "SCALE", "SOARS", "PAILS", "PRONE", "OPALS", 
+    "PIPER", "RILLS", "CAIRN", "POISE", "LEAPS", "ELOPE", "NICER", "SLOOP", "PANES", 
+    "SOLES", "CROSS", "NIECE", "LAIRS", "LEASE", "SALES", "SCENE", "SORES", "SNARL", 
+    "SPIRE", "LASSO", "CLOSE", "OSIER", "SPOOL", "PRICE", "LOANS", "POSSE", "PENAL", 
+    "SLAPS", "RELIC", "SINCE", "CIRCA", "LIARS", "RISES", "OPENS", "ROARS", "PACES", 
+    "ARISE", "RISEN", "PENIS", "LAPEL", "CROPS", "CANON", "LAPSE", "SCION", "ARSON", 
+    "AREAS", "SLAIN", "CANOE", "EERIE", "NOOSE", "PIANO", "PLANE", "CLASP", "SCARE", 
+    "COCOA", "CRESS", "NASAL", "LOCAL", "RINSE", "SCARS", "PROPS", "OASES", "SLEEP", 
+    "SNAPS", "SIRES", "CANES", "RAILS", "RESIN", "COLON", "PEASE", "POPES", "PENCE", 
+    "AROSE", "REELS", "SALSA", "OCEAN", "PESOS", "OPINE", "RACES", "RAINS", "PRIES", 
+    "CRIES", "CALLS", "PIERS", "CELLS", "SCRAP", "EARNS", "IRONS", "SPACE", "LOONS", 
+    "SILLS", "COALS", "PIECE", "PALER", "REINS", "APACE", "SLOPE", "CREPE", "CONES", 
+    "CAPER", "SEERS", "CAPES", "OASIS", "REAPS", "PALES", "CLAPS", "PLEAS", "INANE", 
+    "COINS", "SNAIL", "CLEAR", "ROSIN", "LILAC", "SPARS", "SPINE", "NONCE", "CRISP", 
+    "CRAPE", "AISLE", "CRONE", "SPOIL", "SPOON", "ARENA", "PARSE", "CASES", "SPICE", 
+    "RIPER", "PILLS", "SOLOS", "SPINS", "PEERS", "RARER", "CONIC", "REARS", "CACAO", 
+    "PAPAS", "ACRES", "ROPES", "CORAL", "CLEAN", "EASES", "SPILL", "SENSE", "PIPES", 
+    "CLANS", "PRESS", "LOINS", "PAPAL", "APPLE", "PAIRS", "SCORN", "ALONE", "PEEPS", 
+    "SPREE", "SNARE", "CLIPS", "EASEL", "CAROL", "ASPEN", "SALON", "LOOPS", "PEALS", 
+    "SNEER", "PLACE", "SELLS", "LINEN", "CRIER", "ACORN", "SLIPS", "ERASE", "LIONS", 
+    "NAILS", "REPEL", "CORES", "LEPER", "APPAL", "ROSES", "SCORE", "RISER", "CREEP", 
+    "CAPON", "ERROR", "NOISE", "CARES", "APRON", "SOILS", "SLOPS", "PAINS", "EPICS", 
+    "SANER", "SAILS", "PRIOR", "ASSES", "COILS", "SCOOP", "LACES", "SCALP", "CRANE", 
+    "PLANS", "ISLES", "SPORE", "PANIC", "COOLS", "SPELL", "ALIAS", "PORES", "SCRIP", 
+    "PEARL", "PANEL", "ENROL", "LANCE", "CORPS", "LINES", "COPSE", "ONION", "NEARS", 
+    "RIPEN", "LINER", "SCOPE", "SCANS", "SNIPE", "CEASE", "LEANS", "AEONS", "PINES", 
+    "POPPA", "ROLES", "REALS", "PERIL", "POSER", "PROSE", "POLAR", "CORNS", "LIENS", 
+    "SIREN", "PEONS", 
 };
 
 static const uint32_t _num_words = (sizeof(_legal_words) / sizeof(_legal_words[0]));
