@@ -35,7 +35,7 @@
  */
 
 #define WORDLE_LENGTH 5
-#define WORDLE_MAX_ATTEMPTS 5
+#define WORDLE_MAX_ATTEMPTS 6
 #define USE_DAILY_STREAK true
 
 typedef enum {
@@ -55,6 +55,7 @@ typedef enum {
 #endif
     SCREEN_WIN,
     SCREEN_LOSE,
+    SCREEN_NO_DICT,
     SCREEN_COUNT
 } WordleScreen;
 
@@ -64,12 +65,14 @@ typedef struct {
     WordleLetterResult word_elements_result[WORDLE_LENGTH];
     uint8_t attempt : 3;
     uint8_t position : 3;
-    uint8_t unused : 2;
+    bool playing : 1;
+    bool unused : 1;
     uint16_t curr_answer;
     uint8_t streak;
     WordleScreen curr_screen;
 #if USE_DAILY_STREAK
     uint32_t prev_day;
+    uint32_t curr_day;
 #endif
 } wordle_state_t;
 
