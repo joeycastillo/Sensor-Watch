@@ -29,6 +29,9 @@
 #include "watch_utility.h"
 #endif
 
+#define FREQ_FAST 4
+#define FREQ 2
+
 /*
 TODO:
 * Add quick iteration (8x freq to get to the letter we want)
@@ -104,6 +107,17 @@ static uint32_t get_random(uint32_t max) {
     #endif
 }
 
+static bool _quick_ticks_running;
+static void start_quick_cyc(void){
+    _quick_ticks_running = true;
+    movement_request_tick_frequency(FREQ_FAST);
+}
+
+static void stop_quick_cyc(void){
+    _quick_ticks_running = false;
+    movement_request_tick_frequency(FREQ);
+}
+
 static void display_letter(wordle_state_t *state, bool display_dash) {
     char buf[1 + 1];
     if (state->word_elements[state->position] >= _num_valid_letters) {
@@ -145,19 +159,11 @@ static bool check_word(wordle_state_t *state) {
         for (size_t j = 0; j < WORDLE_LENGTH; j++) {
             if (checked_letter_in_answer[j] != WORDLE_LETTER_WRONG) continue;
             if (_valid_letters[state->word_elements[i]] == _legal_words[state->curr_answer][j]) {
-                printf("me: %c them: %c\r\n", _valid_letters[state->word_elements[i]], _legal_words[state->curr_answer][j]);
                 state->word_elements_result[i] = checked_letter_in_answer[j] = WORDLE_LETTER_WRONG_LOC;
                 break;
             }
         }
     }
-
-    for (size_t i = 0; i < WORDLE_LENGTH; i++) {
-        printf("%d : %d\r\n", i, state->word_elements_result[i]);
-    }
-
-
-
     return is_exact_match;
 }
 
@@ -181,7 +187,9 @@ static void reset_board(wordle_state_t *state) {
     display_attempt(state->attempt);
     display_all_letters(state);
     watch_display_string("-", 5);
-    printf("rand: %s\r\n", _legal_words[state->curr_answer]);
+#if __EMSCRIPTEN__
+    printf("ANSWER: %s\r\n", _legal_words[state->curr_answer]);
+#endif
 }
 
 static void display_title(wordle_state_t *state) {
@@ -251,6 +259,16 @@ static uint8_t get_prev_pos(uint8_t curr_pos, WordleLetterResult *word_elements_
             return pos;
     }
     return curr_pos;
+}
+
+static void get_next_letter(uint8_t curr_pos, uint8_t *word_elements) {
+    if (word_elements[curr_pos] >= _num_valid_letters) word_elements[curr_pos] = 0;
+    else word_elements[curr_pos] = (word_elements[curr_pos] + 1) % _num_valid_letters;
+}
+
+static void get_prev_letter(uint8_t curr_pos, uint8_t *word_elements) {
+    if (word_elements[curr_pos] >= _num_valid_letters) word_elements[curr_pos] = _num_valid_letters - 1;
+    else word_elements[curr_pos] = (word_elements[curr_pos] + _num_valid_letters - 1) % _num_valid_letters;
 }
 
 #if USE_DAILY_STREAK
@@ -340,7 +358,7 @@ void wordle_face_setup(movement_settings_t *settings, uint8_t watch_face_index, 
 void wordle_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
     wordle_state_t *state = (wordle_state_t *)context;
-    movement_request_tick_frequency(2);
+    movement_request_tick_frequency(FREQ);
 #if USE_DAILY_STREAK
     if (state->prev_day <= (get_day_unix_time() + (60 *60 * 24))) state->streak = 0;
 #endif
@@ -360,10 +378,19 @@ bool wordle_face_loop(movement_event_t event, movement_settings_t *settings, voi
             switch (state->curr_screen)
             {
             case SCREEN_PLAYING:
-                if (event.subsecond % 2) {
-                    display_letter(state, true);
-                } else {
-                    watch_display_string(" ", state->position + 5);
+                if (_quick_ticks_running) {
+                    if (watch_get_pin_level(BTN_ALARM)){
+                        get_next_letter(state->position, state->word_elements);
+                        display_letter(state, true);
+                    }
+                    else stop_quick_cyc();
+                }
+                else {
+                    if (event.subsecond % 2) {
+                        display_letter(state, true);
+                    } else {
+                        watch_display_string(" ", state->position + 5);
+                    }
                 }
                 break;
             case SCREEN_RESULT:
@@ -379,18 +406,23 @@ bool wordle_face_loop(movement_event_t event, movement_settings_t *settings, voi
                 break;
             }
             break;
-        case EVENT_LIGHT_BUTTON_UP:
+        case EVENT_ALARM_BUTTON_UP:
             if (act_on_btn(state)) break;
-            if (state->word_elements[state->position] >= _num_valid_letters) state->word_elements[state->position] = 0;
-            else state->word_elements[state->position] = (state->word_elements[state->position] + 1) % _num_valid_letters;
+            get_next_letter(state->position, state->word_elements);
             display_letter(state, true);
             break;
-        case EVENT_LIGHT_LONG_PRESS:
-            if (state->word_elements[state->position] >= _num_valid_letters) state->word_elements[state->position] = _num_valid_letters - 1;
-            else state->word_elements[state->position] = (state->word_elements[state->position] + _num_valid_letters - 1) % _num_valid_letters;
+        case EVENT_ALARM_LONG_PRESS:
+            if (state->curr_screen != SCREEN_PLAYING) break;
+            get_prev_letter(state->position, state->word_elements);
             display_letter(state, true);
+            break;
+        case EVENT_ALARM_LONGER_PRESS:
+            if (state->curr_screen != SCREEN_PLAYING) break;
+            get_next_letter(state->position, state->word_elements);
+            display_letter(state, true);
+            start_quick_cyc();
             break; 
-        case EVENT_ALARM_BUTTON_UP:
+        case EVENT_LIGHT_BUTTON_UP:
             if (act_on_btn(state)) break;
             display_letter(state, true);
             if (state->word_elements[state->position] == _num_valid_letters) break;
@@ -414,7 +446,8 @@ bool wordle_face_loop(movement_event_t event, movement_settings_t *settings, voi
                 break;
             }
             break;
-        case EVENT_ALARM_LONG_PRESS:
+        case EVENT_LIGHT_LONG_PRESS:
+            if (state->curr_screen != SCREEN_PLAYING) break;
             display_letter(state, true);
             state->position = get_prev_pos(state->position, state->word_elements_result);
             break;
