@@ -29,7 +29,6 @@
 #include "watch_utility.h"
 #endif
 
-#define FREQ_FAST 4
 #define FREQ 2
 
 /*
@@ -105,17 +104,6 @@ static uint32_t get_random(uint32_t max) {
     #else
     return arc4random_uniform(max);
     #endif
-}
-
-static bool _quick_ticks_running;
-static void start_quick_cyc(void){
-    _quick_ticks_running = true;
-    movement_request_tick_frequency(FREQ_FAST);
-}
-
-static void stop_quick_cyc(void){
-    _quick_ticks_running = false;
-    movement_request_tick_frequency(FREQ);
 }
 
 static void display_letter(wordle_state_t *state, bool display_dash) {
@@ -378,19 +366,10 @@ bool wordle_face_loop(movement_event_t event, movement_settings_t *settings, voi
             switch (state->curr_screen)
             {
             case SCREEN_PLAYING:
-                if (_quick_ticks_running) {
-                    if (watch_get_pin_level(BTN_ALARM)){
-                        get_next_letter(state->position, state->word_elements);
-                        display_letter(state, true);
-                    }
-                    else stop_quick_cyc();
-                }
-                else {
-                    if (event.subsecond % 2) {
-                        display_letter(state, true);
-                    } else {
-                        watch_display_string(" ", state->position + 5);
-                    }
+                if (event.subsecond % 2) {
+                    display_letter(state, true);
+                } else {
+                    watch_display_string(" ", state->position + 5);
                 }
                 break;
             case SCREEN_RESULT:
@@ -406,23 +385,17 @@ bool wordle_face_loop(movement_event_t event, movement_settings_t *settings, voi
                 break;
             }
             break;
-        case EVENT_ALARM_BUTTON_UP:
+        case EVENT_LIGHT_BUTTON_UP:
             if (act_on_btn(state)) break;
             get_next_letter(state->position, state->word_elements);
             display_letter(state, true);
             break;
-        case EVENT_ALARM_LONG_PRESS:
+        case EVENT_LIGHT_LONG_PRESS:
             if (state->curr_screen != SCREEN_PLAYING) break;
             get_prev_letter(state->position, state->word_elements);
             display_letter(state, true);
-            break;
-        case EVENT_ALARM_LONGER_PRESS:
-            if (state->curr_screen != SCREEN_PLAYING) break;
-            get_next_letter(state->position, state->word_elements);
-            display_letter(state, true);
-            start_quick_cyc();
             break; 
-        case EVENT_LIGHT_BUTTON_UP:
+        case EVENT_ALARM_BUTTON_UP:
             if (act_on_btn(state)) break;
             display_letter(state, true);
             if (state->word_elements[state->position] == _num_valid_letters) break;
@@ -446,7 +419,7 @@ bool wordle_face_loop(movement_event_t event, movement_settings_t *settings, voi
                 break;
             }
             break;
-        case EVENT_LIGHT_LONG_PRESS:
+        case EVENT_ALARM_LONG_PRESS:
             if (state->curr_screen != SCREEN_PLAYING) break;
             display_letter(state, true);
             state->position = get_prev_pos(state->position, state->word_elements_result);
