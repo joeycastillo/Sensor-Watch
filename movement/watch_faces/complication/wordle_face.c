@@ -60,7 +60,7 @@ static const char _valid_letters[] = {'A', 'C', 'E', 'I', 'L', 'N', 'O', 'P', 'R
 
 // Number of words found: 281
 static const char _legal_words[][WORDLE_LENGTH + 1] = {
-    "AAAAA","SPIES", "SOLAR", "RAISE", "RARES", "PAEAN", "PLIES", "CRASS", "PEARS", "SNORE", 
+    "SPIES", "SOLAR", "RAISE", "RARES", "PAEAN", "PLIES", "CRASS", "PEARS", "SNORE", 
     "POLES", "ROLLS", "ALOES", "LOSES", "SLICE", "PEACE", "POLLS", "POSES", "LANES", 
     "COPRA", "SPANS", "CANAL", "LOSER", "PAPER", "PILES", "CLASS", "RACER", "POOLS", 
     "PLAIN", "SPEAR", "SPARE", "INNER", "ALIEN", "NOSES", "EARLS", "SEALS", "LEARN", 
@@ -181,9 +181,12 @@ static uint32_t check_word_in_dict(uint8_t *word_elements) {
 static bool check_word(wordle_state_t *state) {
     // Exact
     bool is_exact_match = true;
+    bool answer_already_accounted[WORDLE_LENGTH] = { false };
     for (size_t i = 0; i < WORDLE_LENGTH; i++) {
-        if (_valid_letters[state->word_elements[i]] == _legal_words[state->curr_answer][i])
+        if (_valid_letters[state->word_elements[i]] == _legal_words[state->curr_answer][i]) {
             state->word_elements_result[i] = WORDLE_LETTER_CORRECT;
+            answer_already_accounted[i] = true;
+        }
         else {
             state->word_elements_result[i] = WORDLE_LETTER_WRONG;
             is_exact_match = false;
@@ -191,14 +194,13 @@ static bool check_word(wordle_state_t *state) {
     }
     if (is_exact_match) return true;
     // Wrong Location
-    bool answer_found_wrong_loc[WORDLE_LENGTH] = { false };
     for (size_t i = 0; i < WORDLE_LENGTH; i++) {
         if (state->word_elements_result[i] != WORDLE_LETTER_WRONG) continue;
         for (size_t j = 0; j < WORDLE_LENGTH; j++) {
-            if (answer_found_wrong_loc[j]) continue;
+            if (answer_already_accounted[j]) continue;
             if (_valid_letters[state->word_elements[i]] == _legal_words[state->curr_answer][j]) {
                 state->word_elements_result[i] = WORDLE_LETTER_WRONG_LOC;
-                answer_found_wrong_loc[j] = true;
+                answer_already_accounted[j] = true;
                 break;
             }
         }
@@ -379,7 +381,6 @@ static void get_result(wordle_state_t *state) {
 
     // Check if already guessed
     for (size_t i = 0; i < WORDLE_MAX_ATTEMPTS; i++) {
-        printf("%d   %d \r\n",state->guessed_words[state->attempt], state->guessed_words[i]);
         if(in_dict == state->guessed_words[i]) {
             display_already_guessed(state);
             return;
