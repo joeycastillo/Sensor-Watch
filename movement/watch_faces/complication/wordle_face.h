@@ -49,6 +49,7 @@ typedef enum {
     SCREEN_PLAYING = 0,
     SCREEN_RESULT,
     SCREEN_TITLE,
+    SCREEN_STREAK,
     SCREEN_WIN,
     SCREEN_LOSE,
     SCREEN_COUNT
