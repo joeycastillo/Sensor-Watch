@@ -25,14 +25,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include "wordle_face.h"
+#if USE_DAILY_STREAK
+#include "watch_utility.h"
+#endif
 
 /*
 TODO:
 * Add quick iteration (8x freq to get to the letter we want)
 * Fix the word matching (if answer is AAAAA and we put in AACAA, the C blinks)
-* Verify pressing back always work when the board is G_G_G
-* Add daily streak and wait for next day
-* Add a way tpo recount previous attempts
+* Add a way to recount previous attempts
 */
 
 
@@ -54,7 +55,7 @@ C      | 525
 U      | 514  P has more words with the other letters here (281 vs 198)
 P      | 448
 */
-static const char _valid_letters[] = {'E', 'S', 'A', 'R', 'O', 'L', 'I', 'N', 'C', 'P'};
+static const char _valid_letters[] = {'A', 'C', 'E', 'I', 'L', 'N', 'O', 'P', 'R', 'S'};
 
 // Number of words found: 281
 static const char _legal_words[][WORDLE_LENGTH + 1] = {
@@ -126,12 +127,13 @@ static void display_all_letters(wordle_state_t *state) {
 }
 
 static bool check_word(wordle_state_t *state) {
-
+    WordleLetterResult checked_letter_in_answer[WORDLE_LENGTH] = {WORDLE_LETTER_WRONG};
     // Exact
     bool is_exact_match = true;
     for (size_t i = 0; i < WORDLE_LENGTH; i++) {
-        if (_valid_letters[state->word_elements[i]] == _legal_words[state->curr_answer][i])
-            state->word_elements_result[i] = WORDLE_LETTER_CORRECT;
+        if (_valid_letters[state->word_elements[i]] == _legal_words[state->curr_answer][i]) {
+            state->word_elements_result[i] = checked_letter_in_answer[i] = WORDLE_LETTER_CORRECT;
+        }
         else {
             state->word_elements_result[i] = WORDLE_LETTER_WRONG;
             is_exact_match = false;
@@ -141,10 +143,10 @@ static bool check_word(wordle_state_t *state) {
     // Wrong Location
      for (size_t i = 0; i < WORDLE_LENGTH; i++) {
         for (size_t j = 0; j < WORDLE_LENGTH; j++) {
-            if (state->word_elements_result[j] != WORDLE_LETTER_WRONG) continue;
+            if (checked_letter_in_answer[j] != WORDLE_LETTER_WRONG) continue;
             if (_valid_letters[state->word_elements[i]] == _legal_words[state->curr_answer][j]) {
                 printf("me: %c them: %c\r\n", _valid_letters[state->word_elements[i]], _legal_words[state->curr_answer][j]);
-                state->word_elements_result[j] = WORDLE_LETTER_WRONG_LOC;
+                state->word_elements_result[i] = checked_letter_in_answer[j] = WORDLE_LETTER_WRONG_LOC;
                 break;
             }
         }
@@ -190,11 +192,28 @@ static void display_title(wordle_state_t *state) {
 static void display_streak(wordle_state_t *state) {
     char buf[12];
     state->curr_screen = SCREEN_STREAK;
-    printf("streak %d \r\n", state->streak);
+#if USE_DAILY_STREAK
     sprintf(buf, "WO  St%2ddy", state->streak);
+#else
+    sprintf(buf, "WO  St%4d", state->streak);
+#endif
     watch_display_string(buf, 0);
     watch_set_colon();
 }
+
+#if USE_DAILY_STREAK
+static void display_wait(wordle_state_t *state) {
+    state->curr_screen = SCREEN_WAIT;
+    if (state->streak < 40) {
+        char buf[13];
+        sprintf(buf,"WO%2d WaIt ", state->streak);
+        watch_display_string(buf, 0);
+    }
+    else {  // Streak too long to display in top-right
+        watch_display_string("WO   WaIt ", 0);
+    }
+}
+#endif
 
 static void display_lose(wordle_state_t *state, uint8_t subsecond) {
     char buf[WORDLE_LENGTH + 6];
@@ -218,22 +237,29 @@ static uint8_t get_first_pos(WordleLetterResult *word_elements_result) {
 }
 
 static uint8_t get_next_pos(uint8_t curr_pos, WordleLetterResult *word_elements_result) {
-    uint8_t pos = curr_pos;
-    do {
-        pos++;
-        if (pos > WORDLE_LENGTH) return WORDLE_LENGTH + 1;
-    } while (word_elements_result[pos] == WORDLE_LETTER_CORRECT);
-    return pos;
+    for (size_t pos = curr_pos+1; pos < WORDLE_LENGTH; pos++) {
+        if (word_elements_result[pos] != WORDLE_LETTER_CORRECT)
+            return pos;
+    }
+    return WORDLE_LENGTH;
 }
 
 static uint8_t get_prev_pos(uint8_t curr_pos, WordleLetterResult *word_elements_result) {
-    int8_t pos = curr_pos;
-    do {
-        pos--;
-        if (pos < 0) return curr_pos;
-    } while (word_elements_result[pos] == WORDLE_LETTER_CORRECT);
-    return pos;
+    if (curr_pos == 0) return 0;
+    for (int8_t pos = curr_pos-1; pos >= 0; pos--) {
+        if (word_elements_result[pos] != WORDLE_LETTER_CORRECT)
+            return pos;
+    }
+    return curr_pos;
 }
+
+#if USE_DAILY_STREAK
+static uint32_t get_day_unix_time(void) {
+    watch_date_time now = watch_rtc_get_date_time();
+    now.unit.hour = now.unit.minute = now.unit.second = 0;
+    return watch_utility_date_time_to_unix_time(now, 0);
+}
+#endif
 
 static void display_result(wordle_state_t *state, uint8_t subsecond) {
     char buf[WORDLE_LENGTH + 1];
@@ -273,6 +299,12 @@ static bool act_on_btn(wordle_state_t *state) {
         state->curr_screen = SCREEN_PLAYING;
         return true;
     case SCREEN_TITLE:
+#if USE_DAILY_STREAK
+        if (state->prev_day == get_day_unix_time()) {
+            display_wait(state);
+            return true;
+        }
+#endif
         display_streak(state);
         return true;
     case SCREEN_STREAK:
@@ -281,7 +313,12 @@ static bool act_on_btn(wordle_state_t *state) {
     case SCREEN_WIN:
     case SCREEN_LOSE:
         display_title(state);
-        return true;   
+        return true;
+#if USE_DAILY_STREAK
+    case SCREEN_WAIT:
+        display_title(state);
+        return true;
+#endif
     default:
         return false;
     }
@@ -296,7 +333,6 @@ void wordle_face_setup(movement_settings_t *settings, uint8_t watch_face_index, 
         memset(*context_ptr, 0, sizeof(wordle_state_t));
         wordle_state_t *state = (wordle_state_t *)*context_ptr;
         state->curr_screen = SCREEN_TITLE;
-
     }
     // Do any pin or peripheral setup here; this will be called whenever the watch wakes from deep sleep.
 }
@@ -305,6 +341,9 @@ void wordle_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
     wordle_state_t *state = (wordle_state_t *)context;
     movement_request_tick_frequency(2);
+#if USE_DAILY_STREAK
+    if (state->prev_day <= (get_day_unix_time() + (60 *60 * 24))) state->streak = 0;
+#endif
     if (state->curr_screen == SCREEN_TITLE)
         display_title(state);
 }
@@ -356,11 +395,14 @@ bool wordle_face_loop(movement_event_t event, movement_settings_t *settings, voi
             display_letter(state, true);
             if (state->word_elements[state->position] == _num_valid_letters) break;
             state->position = get_next_pos(state->position, state->word_elements_result);
-            if(WORDLE_LENGTH == (state->position)) {
+            if (state->position >= WORDLE_LENGTH) {
                 bool exact_match = check_word(state);
                 if (exact_match) {
                     state->curr_screen = SCREEN_WIN;
                     state->streak++;
+#if USE_DAILY_STREAK
+                    state->prev_day = get_day_unix_time();
+#endif
                     break;
                 }
                 if (state->attempt++ >= WORDLE_MAX_ATTEMPTS) {

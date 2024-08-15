@@ -336,6 +336,7 @@ def most_used_letters():
 
 def list_of_valid_words():
     letters = ['e', 's', 'a', 'r', 'o', 'l', 'i', 'n', 'c', 'p']
+    letters = sorted(letters)
     for i, letter in enumerate(letters): # Force all letters to be capitalized
         letters[i] = letter.upper()
 

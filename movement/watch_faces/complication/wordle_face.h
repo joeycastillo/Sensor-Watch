@@ -50,6 +50,9 @@ typedef enum {
     SCREEN_RESULT,
     SCREEN_TITLE,
     SCREEN_STREAK,
+#if USE_DAILY_STREAK
+    SCREEN_WAIT,
+#endif
     SCREEN_WIN,
     SCREEN_LOSE,
     SCREEN_COUNT
@@ -66,7 +69,7 @@ typedef struct {
     uint8_t streak;
     WordleScreen curr_screen;
 #if USE_DAILY_STREAK
-    // For the day info
+    uint32_t prev_day;
 #endif
 } wordle_state_t;
 
