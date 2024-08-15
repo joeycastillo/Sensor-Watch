@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 <#author_name#>
+ * Copyright (c) 2024 <David Volovskiy>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,7 +34,6 @@
 /*
 TODO:
 * Add a way to recount previous attempts
-* Only allow dictionary attempts - Show "nodict" otherwise
 */
 
 
@@ -42,6 +41,7 @@ TODO:
 
 /*
 Letter | Usage
+_______|______
 E      | 1519
 S      | 1490
 A      | 1213
@@ -60,7 +60,7 @@ static const char _valid_letters[] = {'A', 'C', 'E', 'I', 'L', 'N', 'O', 'P', 'R
 
 // Number of words found: 281
 static const char _legal_words[][WORDLE_LENGTH + 1] = {
-    "SPIES", "SOLAR", "RAISE", "RARES", "PAEAN", "PLIES", "CRASS", "PEARS", "SNORE", 
+    "AAAAA","SPIES", "SOLAR", "RAISE", "RARES", "PAEAN", "PLIES", "CRASS", "PEARS", "SNORE", 
     "POLES", "ROLLS", "ALOES", "LOSES", "SLICE", "PEACE", "POLLS", "POSES", "LANES", 
     "COPRA", "SPANS", "CANAL", "LOSER", "PAPER", "PILES", "CLASS", "RACER", "POOLS", 
     "PLAIN", "SPEAR", "SPARE", "INNER", "ALIEN", "NOSES", "EARLS", "SEALS", "LEARN", 
@@ -94,7 +94,7 @@ static const char _legal_words[][WORDLE_LENGTH + 1] = {
     "SIREN", "PEONS", 
 };
 
-static const uint32_t _num_words = (sizeof(_legal_words) / sizeof(_legal_words[0]));
+static const uint16_t _num_words = (sizeof(_legal_words) / sizeof(_legal_words[0]));
 static const uint8_t _num_valid_letters = (sizeof(_valid_letters) / sizeof(_valid_letters[0]));
 
 static uint32_t get_random(uint32_t max) {
@@ -163,7 +163,7 @@ static void display_all_letters(wordle_state_t *state) {
     state->position = prev_pos;
 }
 
-static bool check_word_in_dict(uint8_t *word_elements) {
+static uint32_t check_word_in_dict(uint8_t *word_elements) {
     bool is_exact_match;
     for (uint16_t i = 0; i < _num_words; i++) {
         is_exact_match = true;
@@ -173,9 +173,9 @@ static bool check_word_in_dict(uint8_t *word_elements) {
                 break;  
             }
         }
-        if (is_exact_match) return true;
+        if (is_exact_match) return i;
     }
-    return false;
+    return _num_words;
 }
 
 static bool check_word(wordle_state_t *state) {
@@ -208,7 +208,7 @@ static bool check_word(wordle_state_t *state) {
 
 static void display_attempt(uint8_t attempt) {
     char buf[2];
-    sprintf(buf, "%d", attempt);
+    sprintf(buf, "%d", attempt+1);
     watch_display_string(buf, 3);
 }
 
@@ -228,8 +228,11 @@ static void reset_board(wordle_state_t *state) {
         state->word_elements[i] = _num_valid_letters;
         state->word_elements_result[i] = WORDLE_LETTER_WRONG;
     }
+    for (size_t i = 0; i < WORDLE_MAX_ATTEMPTS; i++) {
+        state->guessed_words[i] = _num_words;
+    }
     state->curr_answer = get_random(_num_words);
-    state->attempt = 1;
+    state->attempt = 0;
     watch_clear_colon();
     watch_display_string(" ", 4);
     show_start_of_attempt(state);
@@ -268,11 +271,22 @@ static void display_wait(wordle_state_t *state) {
         watch_display_string("WO   WaIt ", 0);
     }
 }
+
+static uint32_t get_day_unix_time(void) {
+    watch_date_time now = watch_rtc_get_date_time();
+    now.unit.hour = now.unit.minute = now.unit.second = 0;
+    return watch_utility_date_time_to_unix_time(now, 0);
+}
 #endif
 
 static void display_not_in_dict(wordle_state_t *state) {
     state->curr_screen = SCREEN_NO_DICT;
-    watch_display_string("WO  nodict", 0);
+    watch_display_string("nodict", 4);
+}
+
+static void display_already_guessed(wordle_state_t *state) {
+    state->curr_screen = SCREEN_ALREADY_GUESSED;
+    watch_display_string("GUESSD", 4);
 }
 
 static void display_lose(wordle_state_t *state, uint8_t subsecond) {
@@ -287,14 +301,6 @@ static void display_win(wordle_state_t *state, uint8_t subsecond) {
     sprintf(buf," W   %s  ", subsecond % 2 ? "NICE" : "JOb ");
     watch_display_string(buf, 0);
 }
-
-#if USE_DAILY_STREAK
-static uint32_t get_day_unix_time(void) {
-    watch_date_time now = watch_rtc_get_date_time();
-    now.unit.hour = now.unit.minute = now.unit.second = 0;
-    return watch_utility_date_time_to_unix_time(now, 0);
-}
-#endif
 
 static void display_result(wordle_state_t *state, uint8_t subsecond) {
     char buf[WORDLE_LENGTH + 1];
@@ -349,6 +355,7 @@ static bool act_on_btn(wordle_state_t *state) {
         display_title(state);
         return true;
     case SCREEN_NO_DICT:
+    case SCREEN_ALREADY_GUESSED:
         show_start_of_attempt(state);
         return true;
 #if USE_DAILY_STREAK
@@ -360,6 +367,44 @@ static bool act_on_btn(wordle_state_t *state) {
         return false;
     }
     return false;
+}
+
+static void get_result(wordle_state_t *state) {
+    // Check if it's in the dict
+    uint16_t in_dict = check_word_in_dict(state->word_elements);
+    if (in_dict == _num_words) {
+        display_not_in_dict(state);
+        return;
+    }
+
+    // Check if already guessed
+    for (size_t i = 0; i < WORDLE_MAX_ATTEMPTS; i++) {
+        printf("%d   %d \r\n",state->guessed_words[state->attempt], state->guessed_words[i]);
+        if(in_dict == state->guessed_words[i]) {
+            display_already_guessed(state);
+            return;
+        }
+    }
+
+    state->guessed_words[state->attempt] = in_dict;
+    bool exact_match = check_word(state);
+    if (exact_match) {
+        state->playing = false;
+        state->curr_screen = SCREEN_WIN;
+        state->streak++;
+#if USE_DAILY_STREAK
+        state->prev_day = get_day_unix_time();
+#endif
+        return;
+    }
+    if (state->attempt++ > WORDLE_MAX_ATTEMPTS) {
+        state->playing = false;
+        state->curr_screen = SCREEN_LOSE;
+        state->streak = 0;
+        return;
+    }
+    state->curr_screen = SCREEN_RESULT;
+    return;
 }
 
 void wordle_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
@@ -429,31 +474,8 @@ bool wordle_face_loop(movement_event_t event, movement_settings_t *settings, voi
             if (state->word_elements[state->position] == _num_valid_letters) break;
             state->playing = true;
             state->position = get_next_pos(state->position, state->word_elements_result);
-            if (state->position >= WORDLE_LENGTH) {
-                bool in_dict = check_word_in_dict(state->word_elements);
-                if (!in_dict) {
-                    display_not_in_dict(state);
-                    break;
-                }
-                bool exact_match = check_word(state);
-                if (exact_match) {
-                    state->playing = false;
-                    state->curr_screen = SCREEN_WIN;
-                    state->streak++;
-#if USE_DAILY_STREAK
-                    state->prev_day = get_day_unix_time();
-#endif
-                    break;
-                }
-                if (state->attempt++ >= WORDLE_MAX_ATTEMPTS) {
-                    state->playing = false;
-                    state->curr_screen = SCREEN_LOSE;
-                    state->streak = 0;
-                    break;
-                }
-                state->curr_screen = SCREEN_RESULT;
-                break;
-            }
+            if (state->position >= WORDLE_LENGTH)
+                get_result(state);
             break;
         case EVENT_ALARM_LONG_PRESS:
             if (state->curr_screen != SCREEN_PLAYING) break;

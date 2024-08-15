@@ -56,6 +56,7 @@ typedef enum {
     SCREEN_WIN,
     SCREEN_LOSE,
     SCREEN_NO_DICT,
+    SCREEN_ALREADY_GUESSED,
     SCREEN_COUNT
 } WordleScreen;
 
@@ -63,6 +64,7 @@ typedef struct {
     // Anything you need to keep track of, put it here!
     uint8_t word_elements[WORDLE_LENGTH];
     WordleLetterResult word_elements_result[WORDLE_LENGTH];
+    uint16_t guessed_words[WORDLE_MAX_ATTEMPTS];
     uint8_t attempt : 3;
     uint8_t position : 3;
     bool playing : 1;
