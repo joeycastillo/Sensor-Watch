@@ -94,10 +94,9 @@ typedef struct {
     uint8_t word_elements[WORDLE_LENGTH];
     WordleLetterResult word_elements_result[WORDLE_LENGTH];
     uint16_t guessed_words[WORDLE_MAX_ATTEMPTS];
-    uint8_t attempt : 3;
+    uint8_t attempt : 4;
     uint8_t position : 3;
     bool playing : 1;
-    bool unused : 1;
     uint16_t curr_answer;
     uint8_t streak;
     WordleScreen curr_screen;
