@@ -1,4 +1,4 @@
-import random
+import random, itertools, time, ast
 
 # From: https://gist.github.com/shmookey/b28e342e1b1756c4700f42f17102c2ff
 words = [
@@ -315,9 +315,12 @@ words = [
     "YOUTH", "ZEBRA", "ZONES",
 ]
 
-alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+alphabet = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
 
 def most_used_letters():
+    '''
+    Outputs how many times each letter is used in the words array.
+    '''
     dicto = {}
     for i in alphabet:
         count = 0
@@ -334,12 +337,13 @@ def most_used_letters():
         print(f"{k.upper()}      | {dicto[k]}")
 
 
-def list_of_valid_words():
-    letters = ['e', 's', 'a', 'r', 'o', 'l', 'i', 'n', 'c', 'p']
+def list_of_valid_words(letters):
+    '''
+    Outputs the array of valid words that can be made with the combination of letters.
+    '''
     letters = sorted(letters)
     for i, letter in enumerate(letters): # Force all letters to be capitalized
         letters[i] = letter.upper()
-
     legal_words = []
     for word in words:
         valid_word = True
@@ -349,7 +353,14 @@ def list_of_valid_words():
                 break
         if valid_word and word not in legal_words:
             legal_words.append(word)
+    return legal_words
 
+
+def print_valid_words(letters):
+    '''
+    Prints the array of valid words that the wordle_face.c can use
+    '''
+    legal_words = list_of_valid_words(letters)
     for i,word in enumerate(legal_words):
         legal_words[i] = word.upper().replace("D","d")
     random.shuffle(legal_words) 
@@ -373,7 +384,71 @@ def list_of_valid_words():
         print('')
     print("};")
 
+
+def get_sec_val_and_units(seconds):
+    if seconds < 1:
+        return f"{round(seconds * 1000)} ms"
+    hours = int(seconds // 3600)
+    minutes = int((seconds % 3600) // 60)
+    secs = int(seconds % 60)
+    if hours > 0:
+        return f"{hours} hr {minutes} min {secs} sec"
+    elif minutes > 0:
+        return f"{minutes} min {secs} sec"
+    else:
+        return f"{secs} sec"
+
+
+def txt_of_all_letter_combos(num_letters_in_set):
+    '''
+    Creates a txt file that shows every combination of letters and how many words
+    their combo can make.
+    num_letters_in_set - How many letters should be in each combination
+    '''
+    num_status_prints = 100
+    dict_combos_counts = {}
+    print_iter = 0
+    prev = time.time()
+    start = prev
+    letters_to_ignore = ['D','T']  # Don't diplay well on the watch
+    legal_letters = [item for item in alphabet if item not in letters_to_ignore]
+    print(f"Finding all {num_letters_in_set} letter combinations with the following letters: {legal_letters}")
+    all_combos = list(itertools.combinations(legal_letters, num_letters_in_set))
+    len_all_combos = len(all_combos)
+    to_print = max(1, int(len_all_combos/ num_status_prints))
+    print(f"Amount of Combos: {len_all_combos}")
+    estimated_prints = round(len_all_combos / to_print)
+    for i, letters in enumerate(all_combos):
+        letters = sorted(letters)
+        dict_combos_counts[repr(letters)] = len(list_of_valid_words(letters))
+        print_iter+=1
+        if print_iter >= to_print:
+            curr = time.time()
+            delta = curr - prev
+            time_passed = curr - start
+            total_time_estimate = delta * estimated_prints
+            time_left_estimate = (delta * estimated_prints) - time_passed
+            output = f"Time Passed: {get_sec_val_and_units(time_passed)} | "
+            output+= f"Amount of time for {to_print} items: {get_sec_val_and_units(delta)} | "
+            output+= f"Estimate for total: {get_sec_val_and_units(total_time_estimate)} | "
+            output+= f"items Left {len_all_combos - i} | "
+            output+= f"Percent Complete {round((100 * i) / len_all_combos)}% | "
+            output+= f"Estimated Time Left : {get_sec_val_and_units(time_left_estimate)}"
+            print(output)
+            prev = curr
+            print_iter = 0
+    dict_combos_counts = dict(sorted(dict_combos_counts.items(), key=lambda item: item[1], reverse=True))
+    
+    most_common_key = next(iter(dict_combos_counts))
+    print(f"The Most Common Combo is: {most_common_key}")
+    print_valid_words(ast.literal_eval(most_common_key))
+    
+    with open('output.txt', 'w') as file:
+        for key, value in dict_combos_counts.items():
+            file.write(f'{key}: {value}\n')
+
+
 if __name__ == "__main__":
     most_used_letters()
-    list_of_valid_words()
-
+    print_valid_words(['A', 'C', 'E', 'I', 'L', 'N', 'O', 'P', 'R', 'S'])
+    #txt_of_all_letter_combos(10)

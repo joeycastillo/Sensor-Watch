@@ -29,33 +29,8 @@
 #include "watch_utility.h"
 #endif
 
-#define FREQ 2
-
-/*
-TODO:
-* Add a way to recount previous attempts
-*/
-
 
 // From: https://gist.github.com/shmookey/b28e342e1b1756c4700f42f17102c2ff
-
-/*
-Letter | Usage
-_______|______
-E      | 1519
-S      | 1490
-A      | 1213
-R      | 1026
-O      | 852
-L      | 850
-I      | 843
-T      | 819  But looks bad across all positions
-N      | 681
-D      | 619  lowercase d looks like a in certain positions
-C      | 525
-U      | 514  P has more words with the other letters here (281 vs 198)
-P      | 448
-*/
 static const char _valid_letters[] = {'A', 'C', 'E', 'I', 'L', 'N', 'O', 'P', 'R', 'S'};
 
 // Number of words found: 281
@@ -253,7 +228,10 @@ static void display_streak(wordle_state_t *state) {
     char buf[12];
     state->curr_screen = SCREEN_STREAK;
 #if USE_DAILY_STREAK
-    sprintf(buf, "WO  St%2ddy", state->streak);
+    if (state->streak > 99)
+        sprintf(buf, "WO  St--dy");
+    else
+        sprintf(buf, "WO  St%2ddy", state->streak);
 #else
     sprintf(buf, "WO  St%4d", state->streak);
 #endif
@@ -392,7 +370,8 @@ static void get_result(wordle_state_t *state) {
     if (exact_match) {
         state->playing = false;
         state->curr_screen = SCREEN_WIN;
-        state->streak++;
+        if (state->streak < 0x7F)
+            state->streak++;
 #if USE_DAILY_STREAK
         state->prev_day = get_day_unix_time();
 #endif
@@ -428,7 +407,7 @@ void wordle_face_activate(movement_settings_t *settings, void *context) {
     if (state->prev_day <= (now + (60 *60 * 24))) state->streak = 0;
     if (state->curr_day != now) state->playing = false;
 #endif
-    movement_request_tick_frequency(FREQ);
+    movement_request_tick_frequency(2);
     display_title(state);
 }
 
@@ -485,7 +464,10 @@ bool wordle_face_loop(movement_event_t event, movement_settings_t *settings, voi
             break;
         case EVENT_LIGHT_BUTTON_DOWN:
         case EVENT_ACTIVATE:
+            break;
         case EVENT_TIMEOUT:
+            if (state->curr_screen >= SCREEN_WIN)
+                display_title(state);
             break;
         case EVENT_LOW_ENERGY_UPDATE:
             if (state->curr_screen == SCREEN_TITLE)

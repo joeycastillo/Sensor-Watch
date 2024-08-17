@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 <#author_name#>
+ * Copyright (c) 2024 <David Volovskiy>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,15 +28,37 @@
 #include "movement.h"
 
 /*
- * A DESCRIPTION OF YOUR WATCH FACE
+ * Wordle Face
+ * A port of NY Times' Wordle game (https://www.nytimes.com/games/wordle/index.html)
+ * A random 5 letter word is chosen and you have WORDLE_MAX_ATTEMPTS attempts to guess it.
+ * Each guess must be a valid 5-letter word found in _legal_words in the C file.
+ * The only letters used are _valid_letters, also found in the C file.
+ * After a guess, the letters in the correct spot will remain, 
+ * and the letters found in the word, but in the incorrect spot will blink.
+ * The screen after the title screen if a new game is started shows the streak of games won in a row.
+ * 
+ * If USE_DAILY_STREAK is set to True, then the game can only be played once per day,
+ *                  and the streak resets to 0 if a day goes by without playing the game.
+ * 
+ * Controls:
+ *    Light Press
+ *        If Playing: Next letter
+ *        Else: Next screen
+ *    Light Hold
+ *        If Playing: Previous letter
+ *        Else: None
  *
- * and a description of how use it
- *
+ *    Alarm Press
+ *        If Playing: Next position
+ *        Else: Next screen
+ *    Alarm Hold
+ *        If Playing: Previous position
+ *        Else: None
  */
 
 #define WORDLE_LENGTH 5
 #define WORDLE_MAX_ATTEMPTS 6
-#define USE_DAILY_STREAK true
+#define USE_DAILY_STREAK false
 
 typedef enum {
     WORDLE_LETTER_WRONG = 0,
