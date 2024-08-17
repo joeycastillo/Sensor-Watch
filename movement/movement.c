@@ -661,14 +661,14 @@ static void alarm_btn_action(bool pin_level) {
 }
 
 static void debounce_btn_press(uint8_t pin, uint8_t *debounce_ticks, uint16_t *down_timestamp, void (*function)(bool)) {
-    if (*debounce_ticks <= 1) {
+    if (*debounce_ticks == 0) {
         bool pin_level = watch_get_pin_level(pin);
         function(pin_level);
         *debounce_ticks = pin_level ? DEBOUNCE_TICKS_DOWN : DEBOUNCE_TICKS_UP;
+        if (*debounce_ticks != 0) _movement_enable_fast_tick_if_needed();
     }
     else
         *down_timestamp = 0;
-    _movement_enable_fast_tick_if_needed();
 }
 
 void cb_light_btn_interrupt(void) {
