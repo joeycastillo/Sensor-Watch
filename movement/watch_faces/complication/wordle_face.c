@@ -98,7 +98,7 @@ static uint8_t get_next_pos(uint8_t curr_pos, WordleLetterResult *word_elements_
 
 static uint8_t get_prev_pos(uint8_t curr_pos, WordleLetterResult *word_elements_result) {
     if (curr_pos == 0) return 0;
-    for (size_t pos = curr_pos-1; pos > 0; pos--) {
+    for (int8_t pos = curr_pos-1; pos >= 0; pos--) {
         if (word_elements_result[pos] != WORDLE_LETTER_CORRECT)
             return pos;
     }
