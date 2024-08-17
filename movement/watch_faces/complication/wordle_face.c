@@ -267,10 +267,12 @@ static void display_attempt(uint8_t attempt) {
     watch_display_string(buf, 3);
 }
 
-static void show_start_of_attempt(wordle_state_t *state) {
-    for (size_t i = 0; i < WORDLE_LENGTH; i++) {
-        if (state->word_elements_result[i] != WORDLE_LETTER_CORRECT)
-            state->word_elements[i] = _num_valid_letters;
+static void show_start_of_attempt(wordle_state_t *state, bool reset_all_letters) {
+    if (reset_all_letters) {
+        for (size_t i = 0; i < WORDLE_LENGTH; i++) {
+            if (state->word_elements_result[i] != WORDLE_LETTER_CORRECT)
+                state->word_elements[i] = _num_valid_letters;
+        }
     }
     display_attempt(state->attempt);
     display_all_letters(state);
@@ -291,7 +293,7 @@ static void reset_board(wordle_state_t *state) {
     state->attempt = 0;
     watch_clear_colon();
     watch_display_string(" ", 4);
-    show_start_of_attempt(state);
+    show_start_of_attempt(state, true);
     watch_display_string("-", 5);
 #if __EMSCRIPTEN__
     printf("ANSWER: %s\r\n", _legal_words[state->curr_answer]);
@@ -389,7 +391,7 @@ static bool act_on_btn(wordle_state_t *state) {
     switch (state->curr_screen)
     {
     case SCREEN_RESULT:
-        show_start_of_attempt(state);
+        show_start_of_attempt(state, true);
         return true;
     case SCREEN_TITLE:
 #if USE_DAILY_STREAK
@@ -399,7 +401,7 @@ static bool act_on_btn(wordle_state_t *state) {
         }
 #endif
         if (state->playing)
-            show_start_of_attempt(state);
+            show_start_of_attempt(state, true);
         else
             display_streak(state);
         return true;
@@ -415,9 +417,7 @@ static bool act_on_btn(wordle_state_t *state) {
         return true;
     case SCREEN_NO_DICT:
     case SCREEN_ALREADY_GUESSED:
-        state->position= state->position = get_first_pos(state->word_elements_result);
-        display_all_letters(state);
-        state->curr_screen = SCREEN_PLAYING;
+        show_start_of_attempt(state, false);
         return true;
 #if USE_DAILY_STREAK
     case SCREEN_WAIT:
