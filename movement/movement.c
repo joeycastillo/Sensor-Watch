@@ -23,8 +23,8 @@
  */
 
 #define MOVEMENT_LONG_PRESS_TICKS 64
-#define DEBOUNCE_TICKS_DOWN 2  // In terms of *7.8125ms
-#define DEBOUNCE_TICKS_UP   2  // In terms of *7.8125ms
+#define DEBOUNCE_TICKS_DOWN 0  // In terms of *7.8125ms
+#define DEBOUNCE_TICKS_UP   0  // In terms of *7.8125ms
 
 #include <stdio.h>
 #include <string.h>
