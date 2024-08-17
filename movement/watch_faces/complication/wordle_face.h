@@ -49,7 +49,11 @@
  *        Else: None
  *
  *    Alarm Press
- *        If Playing: Next position
+ *        If Playing: If Light btn held and 
+ *                    (on first letter or already used a random guess) 
+ *                    and first attempt: Use a random 5 letter word with all letters that are different.
+ *                    Else: Next position
+ * Next position
  *        Else: Next screen
  *    Alarm Hold
  *        If Playing: Previous position
@@ -97,7 +101,8 @@ typedef struct {
     uint8_t attempt : 4;
     uint8_t position : 3;
     bool playing : 1;
-    uint16_t curr_answer;
+    uint16_t curr_answer : 15;
+    bool using_random_guess : 1;
     uint8_t streak;
     WordleScreen curr_screen;
 #if USE_DAILY_STREAK

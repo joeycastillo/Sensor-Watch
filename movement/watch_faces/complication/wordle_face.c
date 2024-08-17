@@ -35,38 +35,38 @@ static const char _valid_letters[] = {'A', 'C', 'E', 'I', 'L', 'N', 'O', 'P', 'R
 // From: https://gist.github.com/shmookey/b28e342e1b1756c4700f42f17102c2ff
 // Number of words found: 282
 static const char _legal_words[][WORDLE_LENGTH + 1] = {
-    "CRISP", "SALSA", "PRESS", "LIONS", "SPIRE", "CAPES", "ROLLS", "LOOSE", "ALOES", 
-    "COPSE", "ENROL", "SLOPE", "CAPER", "SCORE", "SLAPS", "PLEAS", "CANOE", "REAPS", 
-    "PEASE", "SLEEP", "LEAPS", "CORAL", "PILLS", "LOCAL", "ARENA", "PROSE", "SALES", 
-    "OPENS", "REPEL", "REALS", "COLIC", "APRON", "LOINS", "COINS", "LASSO", "SIREN", 
-    "SCARS", "RISER", "CRIES", "CRESS", "POSES", "NEARS", "CAIRN", "PARSE", "SCENE", 
-    "SCOOP", "SPINS", "CORNS", "NOSES", "CLEAR", "LANES", "LOSES", "PIERS", "SLAIN", 
-    "ROPES", "ALIEN", "LINER", "PRIES", "PROPS", "CRANE", "SCARE", "PEONS", "POLLS", 
-    "LINEN", "SLIPS", "CAROL", "PEEPS", "SPANS", "ARISE", "POLES", "SCRAP", "OASIS", 
-    "PAPAS", "PAINS", "SPOOL", "RELIC", "ALONE", "SLOPS", "PIANO", "PERIL", "SPICE", 
-    "SPIES", "SPORE", "CLEAN", "SOLOS", "CREEP", "NONCE", "POISE", "COALS", "LEASE", 
-    "SEALS", "COILS", "PILES", "RARES", "APPAL", "OASES", "RINSE", "POPES", "CONIC", 
-    "SLICE", "SPACE", "ACRES", "ACORN", "ROLES", "CASES", "RESIN", "CREPE", "SOILS", 
-    "PANEL", "SNEER", "INANE", "SCANS", "APACE", "EASEL", "CORES", "SOLAR", "PALES", 
-    "SCOPE", "SCRIP", "LOANS", "ASSES", "EARNS", "CANON", "PLAIN", "POPPA", "SPOIL", 
-    "APPLE", "ROSIN", "PANIC", "RISES", "AISLE", "CAPON", "COLON", "CLANS", "IRONS", 
-    "RISEN", "PAILS", "LEANS", "PRICE", "AREAS", "SPARE", "LEARN", "PANES", "PRIOR", 
-    "CRAPE", "LINES", "LEPER", "SNAPS", "POOLS", "SIRES", "SNARE", "COCOA", "PALER", 
-    "CLOSE", "CRIER", "SANER", "PEARL", "CIRCA", "PAEAN", "RAISE", "SELLS", "OPINE", 
-    "CEASE", "CANES", "ONION", "REELS", "RIPER", "SPARS", "RIPEN", "EPICS", "PLIES", 
-    "CELLS", "SCALP", "ELOPE", "CANAL", "ROARS", "EASES", "OPERA", "SLOOP", "RARER", 
-    "LIENS", "CROPS", "LACES", "LAIRS", "AEONS", "SOLES", "SNIPE", "PIECE", "NOOSE", 
-    "NICER", "PENAL", "SILLS", "LANCE", "LOOPS", "SNORE", "PACES", "PLACE", "SPILL", 
-    "PAIRS", "ARSON", "LAPSE", "CLASS", "EERIE", "PEERS", "PLANS", "LOONS", "SPOON", 
-    "POSER", "SEERS", "REARS", "ROSES", "INNER", "NASAL", "OCEAN", "OPALS", "ALIAS", 
-    "RACES", "ERASE", "SPINE", "SAILS", "CACAO", "CLASP", "REINS", "PAPER", "PIPER", 
-    "EARLS", "PINES", "POLAR", "SNARL", "SCALE", "SPEAR", "SCION", "CRONE", "PRONE", 
-    "SCORN", "RACER", "LILAC", "AROSE", "ISLES", "LAPEL", "PLANE", "PEARS", "POSSE", 
-    "SORES", "PENCE", "CLAPS", "PESOS", "PENIS", "CALLS", "ASPEN", "COOLS", "CRASS", 
-    "OSIER", "CARES", "PAPAL", "SOARS", "RILLS", "ERROR", "NAILS", "COPRA", "LOSER", 
-    "SPELL", "CONES", "PORES", "SNAIL", "CROSS", "NIECE", "COLOR", "SALON", "SINCE", 
-    "CORPS", "LIARS", "PIPES", "RAINS", "SPREE", "CLIPS", "NOISE", "PEALS", "SPOOR", 
-    "SENSE", "PEACE", "RAILS", 
+    "ROPES", "RESIN", "PACES", "RIPEN", "ALIEN", "SPINE", "ROSIN", "PIERS", "CAPER", 
+    "SNORE", "SANER", "RAILS", "SCORN", "PENIS", "NEARS", "ENROL", "PROSE", "CANES", 
+    "POSER", "ACORN", "PAILS", "SLAIN", "REALS", "CLAPS", "PLIES", "PALES", "LIENS", 
+    "PLAIN", "SLOPE", "REAPS", "CRAPE", "ASPEN", "COINS", "ARISE", "ALOES", "PANES", 
+    "SCION", "SNARL", "COPRA", "PALER", "CLIPS", "PANIC", "PARSE", "PENAL", "SPARE", 
+    "LIONS", "LINES", "SNARE", "PEONS", "CLEAN", "SPACE", "SCALE", "COILS", "SCRAP", 
+    "OPINE", "NICER", "LOANS", "RACES", "RELIC", "NOISE", "PIANO", "CRANE", "SNAIL", 
+    "SCORE", "CLEAR", "CROPS", "CORES", "COPSE", "PINES", "PANEL", "RINSE", "LOINS", 
+    "PRONE", "ALONE", "RAISE", "OSIER", "LEARN", "SPICE", "SPOIL", "EARLS", "NAILS", 
+    "PLANE", "CARES", "CRIES", "CORNS", "CORPS", "CLASP", "LACES", "ARSON", "LANES", 
+    "OPENS", "SALON", "SINCE", "PLANS", "SCARE", "SPORE", "OCEAN", "AEONS", "PRICE", 
+    "IRONS", "SCALP", "EPICS", "LIARS", "SPIRE", "LINER", "PILES", "SLICE", "LEANS", 
+    "RAINS", "PLEAS", "SOLAR", "CAPES", "APRON", "RISEN", "POISE", "CONES", "PEARS", 
+    "PERIL", "COALS", "OPALS", "ROLES", "CLOSE", "CAPON", "POLES", "EARNS", "CRISP", 
+    "AROSE", "SCOPE", "AISLE", "CLANS", "CORAL", "SCRIP", "PAINS", "OPERA", "PAIRS", 
+    "PEARL", "SIREN", "ACRES", "CAROL", "LAIRS", "PORES", "PRIES", "CRONE", "CANOE", 
+    "LAPSE", "LEAPS", "SNIPE", "REINS", "PEALS", "SPEAR", "LOSER", "POLAR", "LANCE", 
+    "CAIRN", "PLACE", "SILLS", "CELLS", "EERIE", "PIECE", "ISLES", "NOOSE", "SNEER", 
+    "SOLOS", "ELOPE", "INNER", "SLOOP", "SOARS", "SPREE", "SPANS", "PAPAL", "RIPER", 
+    "COLON", "SCANS", "RARES", "PILLS", "CANON", "POLLS", "POPPA", "ERROR", "REARS", 
+    "PESOS", "CRESS", "PENCE", "SPOOL", "COLOR", "NONCE", "CLASS", "SELLS", "NASAL", 
+    "ERASE", "RILLS", "LAPEL", "COOLS", "EASEL", "COLIC", "SPELL", "SPOOR", "LASSO", 
+    "APPAL", "PEACE", "SALSA", "SCENE", "NIECE", "CONIC", "APPLE", "SNAPS", "PEERS", 
+    "ROARS", "SPARS", "SAILS", "SLOPS", "APACE", "POSES", "SENSE", "PEEPS", "CASES", 
+    "CANAL", "CIRCA", "SLAPS", "SCOOP", "ROLLS", "PIPES", "SCARS", "LOOSE", "ROSES", 
+    "LILAC", "OASES", "SOLES", "PAEAN", "PAPAS", "CRASS", "PROPS", "SEALS", "CACAO", 
+    "LINEN", "SORES", "EASES", "POPES", "OASIS", "LOSES", "NOSES", "SIRES", "SPILL", 
+    "CREPE", "ALIAS", "CROSS", "ARENA", "SPINS", "REPEL", "SPIES", "PRIOR", "POOLS", 
+    "PRESS", "RISER", "AREAS", "SPOON", "SALES", "CREEP", "CEASE", "LOOPS", "ASSES", 
+    "CALLS", "CRIER", "COCOA", "SEERS", "LOONS", "SLIPS", "PAPER", "REELS", "RISES", 
+    "POSSE", "RARER", "SOILS", "PIPER", "INANE", "LOCAL", "PEASE", "ONION", "SLEEP", 
+    "LEASE", "RACER", "LEPER", 
 #if (USE_EXPANDED_DICT != 1)
 };
 // These are words that'll never be used, but still need to be in the dictionary for guesses.
@@ -127,13 +127,16 @@ static const char _expanded_words[][WORDLE_LENGTH + 1] = {
     "CELIE", "OLSON", "IRREN", "ARIAS", "ARION", "PASEO", "CAERE", "PISAN", "CARRO", 
     "PAROI", "NOONE", "SEPPI", "OPPIA", "SEALE", "LIPPI", "PELAS", "COCOS", "PLACA", 
     "CONOR", "LANCA", "OSASI", "ALOIS", "NAIRN", "PIENO", "SPASS", "SAONE", "ALNAR", 
-    "CARIA", "PIENA",
+    "CARIA", "PIENA", 
 #endif
 };
 
 #if (USE_EXPANDED_DICT == 1)
 static const char _expanded_words[][WORDLE_LENGTH + 1] = {};
 #endif
+
+static const uint16_t _num_unique_words = 155;  // The _legal_words array begins with this many words where each letter is different.
+
 
 static const uint16_t _num_words = (sizeof(_legal_words) / sizeof(_legal_words[0]));
 static const uint16_t _num_expanded_words = (sizeof(_expanded_words) / sizeof(_expanded_words[0]));
@@ -286,6 +289,7 @@ static void reset_board(wordle_state_t *state) {
         state->guessed_words[i] = _num_words + _num_expanded_words;
     }
     state->curr_answer = get_random(_num_words);
+    state->using_random_guess = false;
     state->attempt = 0;
     watch_clear_colon();
     watch_display_string(" ", 4);
@@ -464,6 +468,23 @@ static void get_result(wordle_state_t *state) {
     return;
 }
 
+static void insert_random_guess(wordle_state_t *state) {
+    uint16_t random_guess;
+    do {  // Don't allow the guess to be the same as the answer
+        random_guess = get_random(_num_unique_words);
+    } while (random_guess == state->curr_answer); 
+    for (size_t i = 0; i < WORDLE_LENGTH; i++) {
+        for (size_t j = 0; j < _num_valid_letters; j++)
+        {
+            if (_legal_words[random_guess][i] == _valid_letters[j])
+                state->word_elements[i] = j;     
+        }
+    } 
+    state->position = WORDLE_LENGTH - 1;
+    display_all_letters(state);
+    state->using_random_guess = true;
+}
+
 void wordle_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
     (void) watch_face_index;
@@ -484,6 +505,7 @@ void wordle_face_activate(movement_settings_t *settings, void *context) {
     if (state->prev_day <= (now + (60 *60 * 24))) state->streak = 0;
     if (state->curr_day != now) state->playing = false;
 #endif
+    state->using_random_guess = false;
     movement_request_tick_frequency(2);
     display_title(state);
 }
@@ -530,9 +552,17 @@ bool wordle_face_loop(movement_event_t event, movement_settings_t *settings, voi
             display_letter(state, true);
             if (state->word_elements[state->position] == _num_valid_letters) break;
             state->playing = true;
+
+            if (watch_get_pin_level(BTN_LIGHT) &&
+            (state->using_random_guess || (state->attempt == 0 && state->position == 0))) {
+                insert_random_guess(state);
+                break;
+            }
             state->position = get_next_pos(state->position, state->word_elements_result);
-            if (state->position >= WORDLE_LENGTH)
+            if (state->position >= WORDLE_LENGTH) {
                 get_result(state);
+                state->using_random_guess = false;
+            }
             break;
         case EVENT_ALARM_LONG_PRESS:
             if (state->curr_screen != SCREEN_PLAYING) break;
