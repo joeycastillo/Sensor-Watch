@@ -60,6 +60,13 @@
 #define WORDLE_MAX_ATTEMPTS 6
 #define USE_DAILY_STREAK false
 
+/*  USE_EXPANDED_DICT
+ *  0 = don't use it at all (saves 2.8KB of ROM)
+ *  1 = Include the expanded dict in answers
+ *  2 = Only include it in the dict for guessing, but it's never an answer
+*/
+#define USE_EXPANDED_DICT 2
+
 typedef enum {
     WORDLE_LETTER_WRONG = 0,
     WORDLE_LETTER_WRONG_LOC,

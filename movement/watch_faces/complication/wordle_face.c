@@ -67,11 +67,14 @@ static const char _legal_words[][WORDLE_LENGTH + 1] = {
     "SCOOP", "EASEL", "LOONS", "CONIC", "SPANS", "SPIES", "PRIOR", "SALSA", "SELLS", 
     "PILLS", "RISES", "RARES", "SNEER", "SOILS", "ARENA", "CASES", "CANAL", "SAILS", 
     "LASSO", "COCOA", "ERROR", "CALLS",
+#if (USE_EXPANDED_DICT != 1)
 };
 // These are words that'll never be used, but still need to be in the dictionary for guesses.
 // Top 100K most common words from Wiktionary https://gist.github.com/h3xx/1976236
 // Number of words found: 469
 static const char _expanded_words[][WORDLE_LENGTH + 1] = {
+#endif
+#if (USE_EXPANDED_DICT != 0)
     "PARIS", "APRIL", "SPAIN", "EINEN", "ASCII", "EINER", "SEINE", "AINSI", "ALICE", 
     "ALLES", "ALORS", "EINES", "ALLER", "PEINE", "PARCE", "CELLE", "CLARA", "ELLES", 
     "ELLEN", "OLISI", "ALLEN", "ISAAC", "APRES", "CROIS", "SANOI", "PASSE", "ELSIE", 
@@ -125,7 +128,12 @@ static const char _expanded_words[][WORDLE_LENGTH + 1] = {
     "NOONE", "SEPPI", "OPPIA", "SEALE", "LIPPI", "PELAS", "COCOS", "PLACA", "CONOR", 
     "LANCA", "OSASI", "ALOIS", "NAIRN", "PIENO", "SPASS", "SAONE", "ALNAR", "CARIA", 
     "PIENA",
+#endif
 };
+
+#if (USE_EXPANDED_DICT == 1)
+static const char _expanded_words[][WORDLE_LENGTH + 1] = {};
+#endif
 
 static const uint16_t _num_unique_words = 155;  // The _legal_words array begins with this many words where each letter is different.
 static const uint16_t _num_words = (sizeof(_legal_words) / sizeof(_legal_words[0]));
