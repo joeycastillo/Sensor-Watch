@@ -415,7 +415,9 @@ static bool act_on_btn(wordle_state_t *state) {
         return true;
     case SCREEN_NO_DICT:
     case SCREEN_ALREADY_GUESSED:
-        show_start_of_attempt(state);
+        state->position= state->position = get_first_pos(state->word_elements_result);
+        display_all_letters(state);
+        state->curr_screen = SCREEN_PLAYING;
         return true;
 #if USE_DAILY_STREAK
     case SCREEN_WAIT:
