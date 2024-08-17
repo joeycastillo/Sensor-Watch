@@ -135,8 +135,6 @@ static const char _expanded_words[][WORDLE_LENGTH + 1] = {
 static const char _expanded_words[][WORDLE_LENGTH + 1] = {};
 #endif
 
-static const uint16_t _num_unique_words = 155;  // The _legal_words array begins with this many words where each letter is different.
-
 
 static const uint16_t _num_words = (sizeof(_legal_words) / sizeof(_legal_words[0]));
 static const uint16_t _num_expanded_words = (sizeof(_expanded_words) / sizeof(_expanded_words[0]));
@@ -468,10 +466,12 @@ static void get_result(wordle_state_t *state) {
     return;
 }
 
+#if (USE_RANDOM_GUESS != 0)
+static const uint16_t _num_unique_words = 155;  // The _legal_words array begins with this many words where each letter is different.
 static void insert_random_guess(wordle_state_t *state) {
     uint16_t random_guess;
     do {  // Don't allow the guess to be the same as the answer
-        random_guess = get_random(_num_unique_words);
+        random_guess = get_random(USE_RANDOM_GUESS == 2 ? _num_unique_words : _num_words);
     } while (random_guess == state->curr_answer); 
     for (size_t i = 0; i < WORDLE_LENGTH; i++) {
         for (size_t j = 0; j < _num_valid_letters; j++)
@@ -484,6 +484,7 @@ static void insert_random_guess(wordle_state_t *state) {
     display_all_letters(state);
     state->using_random_guess = true;
 }
+#endif
 
 void wordle_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
@@ -552,12 +553,13 @@ bool wordle_face_loop(movement_event_t event, movement_settings_t *settings, voi
             display_letter(state, true);
             if (state->word_elements[state->position] == _num_valid_letters) break;
             state->playing = true;
-
+#if (USE_RANDOM_GUESS != 0)
             if (watch_get_pin_level(BTN_LIGHT) &&
             (state->using_random_guess || (state->attempt == 0 && state->position == 0))) {
                 insert_random_guess(state);
                 break;
             }
+#endif
             state->position = get_next_pos(state->position, state->word_elements_result);
             if (state->position >= WORDLE_LENGTH) {
                 get_result(state);

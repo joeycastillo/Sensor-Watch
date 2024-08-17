@@ -49,7 +49,7 @@
  *        Else: None
  *
  *    Alarm Press
- *        If Playing: If Light btn held and 
+ *        If Playing: If USE_RANDOM_GUESS is set and Light btn held and 
  *                    (on first letter or already used a random guess) 
  *                    and first attempt: Use a random 5 letter word with all letters that are different.
  *                    Else: Next position
@@ -63,6 +63,13 @@
 #define WORDLE_LENGTH 5
 #define WORDLE_MAX_ATTEMPTS 6
 #define USE_DAILY_STREAK false
+
+/*  USE_RANDOM_GUESS
+ *  0 = Don't allow quickly choosing a random quess
+ *  1 = Allow using a random guess of any value that can be an answer
+ *  2 = Allow using a random guess of any value that can be an answer where all of its letters are unique
+*/
+#define USE_RANDOM_GUESS 2
 
 /*  USE_EXPANDED_DICT
  *  0 = don't use it at all (saves 2.8KB of ROM)
