@@ -89,12 +89,13 @@ typedef enum {
     SCREEN_PLAYING = 0,
     SCREEN_TITLE,
     SCREEN_STREAK,
+    SCREEN_CONTINUE,
 #if USE_DAILY_STREAK
     SCREEN_WAIT,
 #endif
+    SCREEN_RESULT,
     SCREEN_WIN,
     SCREEN_LOSE,
-    SCREEN_RESULT,
     SCREEN_NO_DICT,
     SCREEN_ALREADY_GUESSED,
     SCREEN_COUNT
@@ -108,8 +109,9 @@ typedef struct {
     uint8_t attempt : 4;
     uint8_t position : 3;
     bool playing : 1;
-    uint16_t curr_answer : 15;
+    uint16_t curr_answer : 14;
     bool using_random_guess : 1;
+    bool continuing : 1;
     uint8_t streak;
     WordleScreen curr_screen;
 #if USE_DAILY_STREAK

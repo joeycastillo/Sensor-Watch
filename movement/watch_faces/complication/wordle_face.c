@@ -307,6 +307,13 @@ static void display_title(wordle_state_t *state) {
     watch_display_string("WO  WordLE", 0);
 }
 
+static void display_continue(wordle_state_t *state) {
+    char buf[7];
+    state->curr_screen = SCREEN_CONTINUE;
+    sprintf(buf, "Cont %c", state->continuing ? 'y' : 'n');
+    watch_display_string(buf, 4);
+}
+
 static void display_streak(wordle_state_t *state) {
     char buf[12];
     state->curr_screen = SCREEN_STREAK;
@@ -389,7 +396,7 @@ static void display_result(wordle_state_t *state, uint8_t subsecond) {
     watch_display_string(buf, 5);
 }
 
-static bool act_on_btn(wordle_state_t *state) {
+static bool act_on_btn(wordle_state_t *state, const uint8_t pin) {
     switch (state->curr_screen)
     {
     case SCREEN_RESULT:
@@ -401,13 +408,15 @@ static bool act_on_btn(wordle_state_t *state) {
 #if USE_DAILY_STREAK
         if (state->prev_day == get_day_unix_time()) {
             display_wait(state);
-            return true;
         }
-#endif
-        if (state->playing)
-            display_playing(state);
+#else
+        if (state->playing) {
+            state->continuing = true;
+            display_continue(state);
+        }
         else
             display_streak(state);
+#endif
         return true;
     case SCREEN_STREAK:
 #if USE_DAILY_STREAK
@@ -423,6 +432,23 @@ static bool act_on_btn(wordle_state_t *state) {
     case SCREEN_ALREADY_GUESSED:
         state->position = get_first_pos(state->word_elements_result);
         display_playing(state);
+        return true;
+    case SCREEN_CONTINUE:
+        switch (pin)
+        {
+        case BTN_ALARM:
+            if (state->continuing)
+                display_playing(state);
+            else {
+                reset_board(state);
+                display_streak(state);
+            }
+            break;
+        case BTN_LIGHT:
+            state->continuing = !state->continuing;
+            display_continue(state);
+            break;
+        }
         return true;
 #if USE_DAILY_STREAK
     case SCREEN_WAIT:
@@ -514,7 +540,7 @@ void wordle_face_activate(movement_settings_t *settings, void *context) {
     if (state->curr_day != now) state->playing = false;
 #endif
     state->using_random_guess = false;
-    if (state->playing && state->curr_screen >= SCREEN_WIN) {
+    if (state->playing && state->curr_screen >= SCREEN_RESULT) {
         reset_incorrect_elements(state);
         state->position = get_first_pos(state->word_elements_result); 
     }
@@ -550,7 +576,7 @@ bool wordle_face_loop(movement_event_t event, movement_settings_t *settings, voi
             }
             break;
         case EVENT_LIGHT_BUTTON_UP:
-            if (act_on_btn(state)) break;
+            if (act_on_btn(state, BTN_LIGHT)) break;
             get_next_letter(state->position, state->word_elements);
             display_letter(state, true);
             break;
@@ -560,7 +586,7 @@ bool wordle_face_loop(movement_event_t event, movement_settings_t *settings, voi
             display_letter(state, true);
             break; 
         case EVENT_ALARM_BUTTON_UP:
-            if (act_on_btn(state)) break;
+            if (act_on_btn(state, BTN_ALARM)) break;
             display_letter(state, true);
             if (state->word_elements[state->position] == _num_valid_letters) break;
             state->playing = true;
@@ -586,7 +612,7 @@ bool wordle_face_loop(movement_event_t event, movement_settings_t *settings, voi
         case EVENT_ACTIVATE:
             break;
         case EVENT_TIMEOUT:
-            if (state->curr_screen >= SCREEN_WIN)
+            if (state->curr_screen >= SCREEN_RESULT)
                 display_title(state);
             break;
         case EVENT_LOW_ENERGY_UPDATE:
