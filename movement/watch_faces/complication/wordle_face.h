@@ -87,7 +87,6 @@ typedef enum {
 
 typedef enum {
     SCREEN_PLAYING = 0,
-    SCREEN_RESULT,
     SCREEN_TITLE,
     SCREEN_STREAK,
 #if USE_DAILY_STREAK
@@ -95,6 +94,7 @@ typedef enum {
 #endif
     SCREEN_WIN,
     SCREEN_LOSE,
+    SCREEN_RESULT,
     SCREEN_NO_DICT,
     SCREEN_ALREADY_GUESSED,
     SCREEN_COUNT

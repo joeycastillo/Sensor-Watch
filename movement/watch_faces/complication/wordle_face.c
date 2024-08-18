@@ -267,17 +267,17 @@ static void display_attempt(uint8_t attempt) {
     watch_display_string(buf, 3);
 }
 
-static void show_start_of_attempt(wordle_state_t *state, bool reset_all_letters) {
-    if (reset_all_letters) {
-        for (size_t i = 0; i < WORDLE_LENGTH; i++) {
-            if (state->word_elements_result[i] != WORDLE_LETTER_CORRECT)
-                state->word_elements[i] = _num_valid_letters;
-        }
-    }
+static void display_playing(wordle_state_t *state) {
     display_attempt(state->attempt);
     display_all_letters(state);
-    state->position = get_first_pos(state->word_elements_result);
     state->curr_screen = SCREEN_PLAYING;
+}
+
+static void reset_incorrect_elements(wordle_state_t *state) {
+    for (size_t i = 0; i < WORDLE_LENGTH; i++) {
+        if (state->word_elements_result[i] != WORDLE_LETTER_CORRECT)
+            state->word_elements[i] = _num_valid_letters;
+    }
 }
 
 static void reset_board(wordle_state_t *state) {
@@ -293,7 +293,9 @@ static void reset_board(wordle_state_t *state) {
     state->attempt = 0;
     watch_clear_colon();
     watch_display_string(" ", 4);
-    show_start_of_attempt(state, true);
+    reset_incorrect_elements(state);
+    state->position = get_first_pos(state->word_elements_result);
+    display_playing(state);
     watch_display_string("-", 5);
 #if __EMSCRIPTEN__
     printf("ANSWER: %s\r\n", _legal_words[state->curr_answer]);
@@ -391,7 +393,9 @@ static bool act_on_btn(wordle_state_t *state) {
     switch (state->curr_screen)
     {
     case SCREEN_RESULT:
-        show_start_of_attempt(state, true);
+        reset_incorrect_elements(state);
+        state->position = get_first_pos(state->word_elements_result);
+        display_playing(state);
         return true;
     case SCREEN_TITLE:
 #if USE_DAILY_STREAK
@@ -401,7 +405,7 @@ static bool act_on_btn(wordle_state_t *state) {
         }
 #endif
         if (state->playing)
-            show_start_of_attempt(state, true);
+            display_playing(state);
         else
             display_streak(state);
         return true;
@@ -417,7 +421,8 @@ static bool act_on_btn(wordle_state_t *state) {
         return true;
     case SCREEN_NO_DICT:
     case SCREEN_ALREADY_GUESSED:
-        show_start_of_attempt(state, false);
+        state->position = get_first_pos(state->word_elements_result);
+        display_playing(state);
         return true;
 #if USE_DAILY_STREAK
     case SCREEN_WAIT:
@@ -509,6 +514,10 @@ void wordle_face_activate(movement_settings_t *settings, void *context) {
     if (state->curr_day != now) state->playing = false;
 #endif
     state->using_random_guess = false;
+    if (state->playing && state->curr_screen >= SCREEN_WIN) {
+        reset_incorrect_elements(state);
+        state->position = get_first_pos(state->word_elements_result); 
+    }
     movement_request_tick_frequency(2);
     display_title(state);
 }
@@ -581,7 +590,7 @@ bool wordle_face_loop(movement_event_t event, movement_settings_t *settings, voi
                 display_title(state);
             break;
         case EVENT_LOW_ENERGY_UPDATE:
-            if (state->curr_screen == SCREEN_TITLE)
+            if (state->curr_screen != SCREEN_TITLE)
                 display_title(state);
             break;
         default:
