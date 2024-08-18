@@ -360,8 +360,10 @@ bool world_clock2_face_loop(movement_event_t event, movement_settings_t *setting
     world_clock2_state_t *state = (world_clock2_state_t *) context;
     switch (state->current_mode) {
 	case WORLD_CLOCK2_MODE_DISPLAY:
+        movement_request_tick_frequency(1);
 	    return mode_display(event, settings, state);
 	case WORLD_CLOCK2_MODE_SETTINGS:
+        movement_request_tick_frequency(4);
 	    return mode_settings(event, settings, state);
     }
     return false;
