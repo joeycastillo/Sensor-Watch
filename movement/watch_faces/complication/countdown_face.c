@@ -87,7 +87,10 @@ static void draw(countdown_state_t *state, uint8_t subsecond) {
 
     switch (state->mode) {
         case cd_running:
-            delta = state->target_ts - state->now_ts;
+            if (state->target_ts <= state->now_ts)
+                delta = 0;
+            else
+                delta = state->target_ts - state->now_ts;
             result = div(delta, 60);
             state->seconds = result.rem;
             result = div(result.quot, 60);
