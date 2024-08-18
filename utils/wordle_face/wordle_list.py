@@ -260,7 +260,7 @@ legal_list = [
     "WORDS", "WORDY", "WORKS", "WORLD", "WORMS", "WORRY", "WORSE", "WORST", "WORTH", "WOULD", "WOUND", "WRACK", 
     "WRAPS", "WRAPT", "WRATH", "WREAK", "WRECK", "WREST", "WRING", "WRIST", "WRITE", "WRITS", "WRONG", "WROTE", 
     "WROTH", "YACHT", "YARDS", "YARNS", "YAWNS", "YEARN", "YEARS", "YEAST", "YELLS", "YELPS", "YIELD", "YOKED", 
-    "YOKES", "YOLKS", "YOUNG", "YOURS", "YOUTH", "ZEBRA", "ZONES", "COLOR", 
+    "YOKES", "YOLKS", "YOUNG", "YOURS", "YOUTH", "ZEBRA", "ZONES", "COLOR", "LASER", "SONIC",
 ]
 
 expanded_list = [
@@ -938,7 +938,7 @@ expanded_list = [
     "NOTAR", "OBEIR", "VIMES", "GENUA", "KANAL", "LIMON", "RAHAB", "SUOMI", "VEJEN", "BATEN", "FJORD", "LEVES", 
     "PHARE", "RECTO", "AAGOT", "GIZUR", "NADJA", "RUGGE", "SNEYD", "DECKT", "FAILE", "GAOLS", "MELER", "PACTO", 
     "PAHAN", "CALIF", "MENON", "SEPOY", "WADDY", "ZELLE", "AENDA", "ASTUA", "KROON", "LETRA", "MINIT", "NEEWA", 
-    "PATNA", "URIEL", "HITTE", "HOMOJ", "JOUET", "KOSKI", "LYSTE", "MINAS", "RUHTE", "SETZE",
+    "PATNA", "URIEL", "HITTE", "HOMOJ", "JOUET", "KOSKI", "LYSTE", "MINAS", "RUHTE", "SETZE", "LASER", "SONIC",
 ]
 
 alphabet = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']

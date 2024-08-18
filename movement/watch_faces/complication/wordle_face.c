@@ -33,7 +33,7 @@
 static const char _valid_letters[] = {'A', 'C', 'E', 'I', 'L', 'N', 'O', 'P', 'R', 'S'};
 
 // From: https://gist.github.com/shmookey/b28e342e1b1756c4700f42f17102c2ff
-// Number of words found: 282
+// Number of words found: 284
 static const char _legal_words[][WORDLE_LENGTH + 1] = {
     "ROPES", "RESIN", "PACES", "RIPEN", "ALIEN", "SPINE", "ROSIN", "PIERS", "CAPER", 
     "SNORE", "SANER", "RAILS", "SCORN", "PENIS", "NEARS", "ENROL", "PROSE", "CANES", 
@@ -52,7 +52,7 @@ static const char _legal_words[][WORDLE_LENGTH + 1] = {
     "AROSE", "SCOPE", "AISLE", "CLANS", "CORAL", "SCRIP", "PAINS", "OPERA", "PAIRS", 
     "PEARL", "SIREN", "ACRES", "CAROL", "LAIRS", "PORES", "PRIES", "CRONE", "CANOE", 
     "LAPSE", "LEAPS", "SNIPE", "REINS", "PEALS", "SPEAR", "LOSER", "POLAR", "LANCE", 
-    "CAIRN", "PLACE", "SILLS", "CELLS", "EERIE", "PIECE", "ISLES", "NOOSE", "SNEER", 
+    "CAIRN", "PLACE", "LASER", "SONIC", "EERIE", "PIECE", "ISLES", "NOOSE", "SNEER", 
     "SOLOS", "ELOPE", "INNER", "SLOOP", "SOARS", "SPREE", "SPANS", "PAPAL", "RIPER", 
     "COLON", "SCANS", "RARES", "PILLS", "CANON", "POLLS", "POPPA", "ERROR", "REARS", 
     "PESOS", "CRESS", "PENCE", "SPOOL", "COLOR", "NONCE", "CLASS", "SELLS", "NASAL", 
@@ -66,7 +66,7 @@ static const char _legal_words[][WORDLE_LENGTH + 1] = {
     "PRESS", "RISER", "AREAS", "SPOON", "SALES", "CREEP", "CEASE", "LOOPS", "ASSES", 
     "CALLS", "CRIER", "COCOA", "SEERS", "LOONS", "SLIPS", "PAPER", "REELS", "RISES", 
     "POSSE", "RARER", "SOILS", "PIPER", "INANE", "LOCAL", "PEASE", "ONION", "SLEEP", 
-    "LEASE", "RACER", "LEPER", 
+    "LEASE", "RACER", "LEPER", "SILLS", "CELLS",
 #if (USE_EXPANDED_DICT != 1)
 };
 // These are words that'll never be used, but still need to be in the dictionary for guesses.
@@ -474,7 +474,7 @@ static void get_result(wordle_state_t *state) {
 }
 
 #if (USE_RANDOM_GUESS != 0)
-static const uint16_t _num_unique_words = 155;  // The _legal_words array begins with this many words where each letter is different.
+static const uint16_t _num_unique_words = 157;  // The _legal_words array begins with this many words where each letter is different.
 static void insert_random_guess(wordle_state_t *state) {
     uint16_t random_guess;
     do {  // Don't allow the guess to be the same as the answer
