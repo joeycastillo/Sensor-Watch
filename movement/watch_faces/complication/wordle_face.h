@@ -108,9 +108,8 @@ typedef struct {
     uint16_t guessed_words[WORDLE_MAX_ATTEMPTS];
     uint8_t attempt : 4;
     uint8_t position : 3;
-    bool playing : 1;
-    uint16_t curr_answer : 14;
     bool using_random_guess : 1;
+    uint16_t curr_answer : 15;
     bool continuing : 1;
     uint8_t streak;
     WordleScreen curr_screen;

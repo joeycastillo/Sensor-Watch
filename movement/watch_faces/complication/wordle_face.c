@@ -273,6 +273,18 @@ static void display_playing(wordle_state_t *state) {
     state->curr_screen = SCREEN_PLAYING;
 }
 
+static void reset_all_elements(wordle_state_t *state) {
+    for (size_t i = 0; i < WORDLE_LENGTH; i++) {
+        state->word_elements[i] = _num_valid_letters;
+        state->word_elements_result[i] = WORDLE_LETTER_WRONG;
+    }
+    for (size_t i = 0; i < WORDLE_MAX_ATTEMPTS; i++) {
+        state->guessed_words[i] = _num_words + _num_expanded_words;
+    }
+    state->using_random_guess = false;
+    state->attempt = 0;
+}
+
 static void reset_incorrect_elements(wordle_state_t *state) {
     for (size_t i = 0; i < WORDLE_LENGTH; i++) {
         if (state->word_elements_result[i] != WORDLE_LETTER_CORRECT)
@@ -281,22 +293,12 @@ static void reset_incorrect_elements(wordle_state_t *state) {
 }
 
 static void reset_board(wordle_state_t *state) {
-    for (size_t i = 0; i < WORDLE_LENGTH; i++) {
-        state->word_elements[i] = _num_valid_letters;
-        state->word_elements_result[i] = WORDLE_LETTER_WRONG;
-    }
-    for (size_t i = 0; i < WORDLE_MAX_ATTEMPTS; i++) {
-        state->guessed_words[i] = _num_words + _num_expanded_words;
-    }
+    reset_all_elements(state);
     state->curr_answer = get_random(_num_words);
-    state->using_random_guess = false;
-    state->attempt = 0;
     watch_clear_colon();
-    watch_display_string(" ", 4);
-    reset_incorrect_elements(state);
     state->position = get_first_pos(state->word_elements_result);
     display_playing(state);
-    watch_display_string("-", 5);
+    watch_display_string(" -", 4);
 #if __EMSCRIPTEN__
     printf("ANSWER: %s\r\n", _legal_words[state->curr_answer]);
 #endif
@@ -371,8 +373,17 @@ static void display_lose(wordle_state_t *state, uint8_t subsecond) {
 static void display_win(wordle_state_t *state, uint8_t subsecond) {
     (void) state;
     char buf[13];
-    sprintf(buf," W   %s  ", subsecond % 2 ? "JOb " : "NICE");
+    sprintf(buf," W   %s  ", subsecond % 2 ? "NICE" : "JOB ");
     watch_display_string(buf, 0);
+}
+
+static bool is_playing(const wordle_state_t *state) {
+    if (state->attempt > 0) return true;
+    for (size_t i = 0; i < WORDLE_LENGTH; i++) {
+        if (state->word_elements[i] != _num_valid_letters)
+            return true;
+    }
+    return false;
 }
 
 static void display_result(wordle_state_t *state, uint8_t subsecond) {
@@ -413,7 +424,7 @@ static bool act_on_btn(wordle_state_t *state, const uint8_t pin) {
             display_wait(state);
         }
 #else
-        if (state->playing) {
+        if (is_playing(state)) {
             state->continuing = true;
             display_continue(state);
         }
@@ -483,7 +494,7 @@ static void get_result(wordle_state_t *state) {
     state->guessed_words[state->attempt] = in_dict;
     bool exact_match = check_word(state);
     if (exact_match) {
-        state->playing = false;
+        state->attempt = 0;
         state->curr_screen = SCREEN_WIN;
         if (state->streak < 0x7F)
             state->streak++;
@@ -493,7 +504,7 @@ static void get_result(wordle_state_t *state) {
         return;
     }
     if (++state->attempt >= WORDLE_MAX_ATTEMPTS) {
-        state->playing = false;
+        state->attempt = 0;
         state->curr_screen = SCREEN_LOSE;
         state->streak = 0;
         return;
@@ -530,6 +541,7 @@ void wordle_face_setup(movement_settings_t *settings, uint8_t watch_face_index, 
         memset(*context_ptr, 0, sizeof(wordle_state_t));
         wordle_state_t *state = (wordle_state_t *)*context_ptr;
         state->curr_screen = SCREEN_TITLE;
+        reset_all_elements(state);
     }
     // Do any pin or peripheral setup here; this will be called whenever the watch wakes from deep sleep.
 }
@@ -540,10 +552,10 @@ void wordle_face_activate(movement_settings_t *settings, void *context) {
 #if USE_DAILY_STREAK
     uint32_t now = get_day_unix_time() ;
     if (state->prev_day <= (now + (60 *60 * 24))) state->streak = 0;
-    if (state->curr_day != now) state->playing = false;
+    if (state->curr_day != now) state->attempt = 0;
 #endif
     state->using_random_guess = false;
-    if (state->playing && state->curr_screen >= SCREEN_RESULT) {
+    if (is_playing(state) && state->curr_screen >= SCREEN_RESULT) {
         reset_incorrect_elements(state);
         state->position = get_first_pos(state->word_elements_result); 
     }
@@ -592,7 +604,6 @@ bool wordle_face_loop(movement_event_t event, movement_settings_t *settings, voi
             if (act_on_btn(state, BTN_ALARM)) break;
             display_letter(state, true);
             if (state->word_elements[state->position] == _num_valid_letters) break;
-            state->playing = true;
 #if (USE_RANDOM_GUESS != 0)
             if (watch_get_pin_level(BTN_LIGHT) &&
             (state->using_random_guess || (state->attempt == 0 && state->position == 0))) {
