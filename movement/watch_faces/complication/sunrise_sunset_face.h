@@ -80,8 +80,7 @@ typedef struct {
 static const long_lat_presets_t longLatPresets[] =
 {
     { .name = "  "},  // Default, the long and lat get replaced by what's set in the watch
-//    { .name = "WC", .latitude = 3883, .longitude = -7711 },  // Alexandria, VA
-//    { .name = "dc", .latitude = 3890, .longitude = -7703 },  // Washington, DC
+    { .name = "dc", .latitude = 3883, .longitude = -7711 },  // Alexandria, VA
 //    { .name = "Ny", .latitude = 4072, .longitude = -7401 },  // New York City, NY
 //    { .name = "LA", .latitude = 3405, .longitude = -11824 },  // Los Angeles, CA
 //    { .name = "dE", .latitude = 4221, .longitude = -8305 },  // Detroit, MI

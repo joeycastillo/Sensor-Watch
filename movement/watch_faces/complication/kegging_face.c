@@ -52,7 +52,7 @@ bool kegging_face_loop(movement_event_t event, movement_settings_t *settings, vo
     switch (event.event_type) {
         case EVENT_ACTIVATE:
             // Display initial values
-            watch_display_string("     beer", 0);
+            watch_display_string("     keg  ", 0);
             break;
 
         case EVENT_LIGHT_BUTTON_DOWN:
