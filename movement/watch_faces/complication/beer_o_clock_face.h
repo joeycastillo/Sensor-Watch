@@ -48,6 +48,8 @@ typedef struct {
     uint32_t mode : 1;
     int8_t ticks;
     bool using;
+    bool tfb;
+    int8_t watch_face_index;
 } beer_o_clock_face_state_t;
 
 void beer_o_clock_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void **context_ptr);
