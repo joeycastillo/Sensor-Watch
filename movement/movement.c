@@ -672,12 +672,26 @@ void cb_fast_tick(void) {
     // check timestamps and auto-fire the long-press events
     // Notice: is it possible that two or more buttons have an identical timestamp? In this case
     // only one of these buttons would receive the long press event. Don't bother for now...
-    if (movement_state.light_down_timestamp > 0)
-        if (movement_state.fast_ticks - movement_state.light_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1)
+    //if (movement_state.light_down_timestamp > 0)
+    //    if (movement_state.fast_ticks - movement_state.light_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1)
+    //        event.event_type = EVENT_LIGHT_LONG_PRESS;
+    //if (movement_state.mode_down_timestamp > 0)
+    //    if (movement_state.fast_ticks - movement_state.mode_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1)
+    //        event.event_type = EVENT_MODE_LONG_PRESS;
+    if (movement_state.light_down_timestamp > 0) {
+        if (movement_state.fast_ticks - movement_state.light_down_timestamp == MOVEMENT_REALLY_LONG_PRESS_TICKS + 1) {
+            event.event_type = EVENT_LIGHT_REALLY_LONG_PRESS;
+        } else if (movement_state.fast_ticks - movement_state.light_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1) {
             event.event_type = EVENT_LIGHT_LONG_PRESS;
-    if (movement_state.mode_down_timestamp > 0)
-        if (movement_state.fast_ticks - movement_state.mode_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1)
+        }
+    }
+    if (movement_state.mode_down_timestamp > 0) {
+        if (movement_state.fast_ticks - movement_state.mode_down_timestamp == MOVEMENT_REALLY_LONG_PRESS_TICKS + 1) {
+            event.event_type = EVENT_MODE_REALLY_LONG_PRESS;
+        } else if (movement_state.fast_ticks - movement_state.mode_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1) {
             event.event_type = EVENT_MODE_LONG_PRESS;
+        }
+    }
     if (movement_state.alarm_down_timestamp > 0) {
         if (movement_state.fast_ticks - movement_state.alarm_down_timestamp == MOVEMENT_REALLY_LONG_PRESS_TICKS + 1) {
             event.event_type = EVENT_ALARM_REALLY_LONG_PRESS;
