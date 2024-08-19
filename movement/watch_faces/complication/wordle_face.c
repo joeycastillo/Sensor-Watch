@@ -375,7 +375,7 @@ static void display_lose(wordle_state_t *state, uint8_t subsecond) {
 static void display_win(wordle_state_t *state, uint8_t subsecond) {
     (void) state;
     char buf[13];
-    sprintf(buf," W   %s  ", subsecond % 2 ? "NICE" : "JOB ");
+    sprintf(buf," W   %s  ", subsecond % 2 ? "NICE" : "JOb ");
     watch_display_string(buf, 0);
 }
 
