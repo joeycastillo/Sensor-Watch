@@ -634,8 +634,11 @@ bool wordle_face_loop(movement_event_t event, movement_settings_t *settings, voi
         case EVENT_ACTIVATE:
             break;
         case EVENT_TIMEOUT:
-            if (state->curr_screen >= SCREEN_RESULT)
+            if (state->curr_screen >= SCREEN_RESULT) {
+                reset_incorrect_elements(state);
+                state->position = get_first_pos(state->word_elements_result); 
                 display_title(state);
+            }
             break;
         case EVENT_LOW_ENERGY_UPDATE:
             if (state->curr_screen != SCREEN_TITLE)
