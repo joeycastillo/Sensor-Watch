@@ -502,7 +502,7 @@ static void get_result(wordle_state_t *state) {
     state->guessed_words[state->attempt] = in_dict;
     bool exact_match = check_word(state);
     if (exact_match) {
-        state->attempt = 0;
+        reset_all_elements(state);
         state->curr_screen = SCREEN_WIN;
         if (state->streak < 0x7F)
             state->streak++;
@@ -512,7 +512,7 @@ static void get_result(wordle_state_t *state) {
         return;
     }
     if (++state->attempt >= WORDLE_MAX_ATTEMPTS) {
-        state->attempt = 0;
+        reset_all_elements(state);
         state->curr_screen = SCREEN_LOSE;
         state->streak = 0;
         return;
@@ -560,7 +560,7 @@ void wordle_face_activate(movement_settings_t *settings, void *context) {
 #if USE_DAILY_STREAK
     uint32_t now = get_day_unix_time() ;
     if (state->prev_day <= (now + (60 *60 * 24))) state->streak = 0;
-    if (state->curr_day != now) state->attempt = 0;
+    if (state->curr_day != now) reset_all_elements(state);
 #endif
     state->using_random_guess = false;
     if (is_playing(state) && state->curr_screen >= SCREEN_RESULT) {
