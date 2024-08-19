@@ -309,6 +309,7 @@ static void display_title(wordle_state_t *state) {
     watch_display_string("WO  WordLE", 0);
 }
 
+#if !USE_DAILY_STREAK
 static void display_continue_result(bool continuing) {
     watch_display_string(continuing ? "y" : "n", 9);
 }
@@ -318,6 +319,7 @@ static void display_continue(wordle_state_t *state) {
     watch_display_string("Cont ", 4);
     display_continue_result(state->continuing);
 }
+#endif
 
 static void display_streak(wordle_state_t *state) {
     char buf[12];
@@ -423,6 +425,10 @@ static bool act_on_btn(wordle_state_t *state, const uint8_t pin) {
         if (state->prev_day == get_day_unix_time()) {
             display_wait(state);
         }
+        else if (is_playing(state))
+            display_playing(state);
+        else
+            display_streak(state);
 #else
         if (is_playing(state)) {
             state->continuing = true;
@@ -447,6 +453,12 @@ static bool act_on_btn(wordle_state_t *state, const uint8_t pin) {
         state->position = get_first_pos(state->word_elements_result);
         display_playing(state);
         return true;
+#if USE_DAILY_STREAK
+    case SCREEN_WAIT:
+        (void) pin;
+        display_title(state);
+        return true;
+#else
     case SCREEN_CONTINUE:
         switch (pin)
         {
@@ -463,10 +475,6 @@ static bool act_on_btn(wordle_state_t *state, const uint8_t pin) {
             display_continue_result(state->continuing);
             break;
         }
-        return true;
-#if USE_DAILY_STREAK
-    case SCREEN_WAIT:
-        display_title(state);
         return true;
 #endif
     default:
