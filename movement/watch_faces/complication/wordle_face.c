@@ -307,11 +307,17 @@ static void display_title(wordle_state_t *state) {
     watch_display_string("WO  WordLE", 0);
 }
 
+static void display_continue_result(bool continuing, uint8_t subsecond) {
+    char buf[2];
+    char result = subsecond % 2 ? ' ' : (continuing ? 'y' : 'n');
+    sprintf(buf,"%c", result);
+    watch_display_string(buf, 9);
+}
+
 static void display_continue(wordle_state_t *state) {
-    char buf[7];
     state->curr_screen = SCREEN_CONTINUE;
-    sprintf(buf, "Cont %c", state->continuing ? 'y' : 'n');
-    watch_display_string(buf, 4);
+    watch_display_string("Cont ", 4);
+    display_continue_result(state->continuing, 0);
 }
 
 static void display_streak(wordle_state_t *state) {
@@ -446,7 +452,7 @@ static bool act_on_btn(wordle_state_t *state, const uint8_t pin) {
             break;
         case BTN_LIGHT:
             state->continuing = !state->continuing;
-            display_continue(state);
+            display_continue_result(state->continuing, 0);
             break;
         }
         return true;
@@ -570,6 +576,9 @@ bool wordle_face_loop(movement_event_t event, movement_settings_t *settings, voi
                 break;
             case SCREEN_WIN:
                 display_win(state, event.subsecond);
+                break;
+            case SCREEN_CONTINUE:
+                display_continue_result(state->continuing, event.subsecond);
                 break;
             default:
                 break;
