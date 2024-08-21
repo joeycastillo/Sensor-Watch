@@ -94,6 +94,10 @@ bool kegging_face_loop(movement_event_t event, movement_settings_t *settings, vo
 
         case EVENT_ALARM_BUTTON_UP:
             // Increment sixtels count
+            if (!state->using) {
+                state->sixtels--;
+                state->using = true;
+            }
             state->sixtels++;
             sprintf(buf, "H  s%-3d%3d", state->half_kegs, state->sixtels);
             watch_display_string(buf, 0);
@@ -118,22 +122,25 @@ bool kegging_face_loop(movement_event_t event, movement_settings_t *settings, vo
             if (state->half_kegs == 0 && state->sixtels == 0) {
                 movement_move_to_face(0);
             } else {
-                int8_t total_bbls = (state->half_kegs / 2) + (state->sixtels / 6);
-                int8_t remaining_bbls = 20 - total_bbls;
+                float total_bbls = (state->half_kegs / 2.0f) + (state->sixtels / 6.0f);
+                float remaining_bbls = 20.0f - total_bbls;
                 watch_clear_display();
-                sprintf(buf, "be C%-3d%3d", total_bbls, remaining_bbls);
+                sprintf(buf, "ch  %3f", remaining_bbls);
                 watch_display_string(buf, 0);
             }
             break;
             
+        case EVENT_MODE_REALLY_LONG_PRESS:
+            watch_clear_display();
+            float total_bbls = (state->half_kegs / 2.0f) + (state->sixtels / 6.0f);
+            sprintf(buf, "br  %3f", total_bbls);
+            watch_display_string(buf, 0);
+            break;
+
         case EVENT_MODE_LONG_UP:
             // Show totals again
             sprintf(buf, "H  s%-3d%3d", state->half_kegs, state->sixtels);
             watch_display_string(buf, 0);
-            break;
-
-        case EVENT_MODE_REALLY_LONG_PRESS:
-            if (state->half_kegs == 0 && state->sixtels == 0) movement_move_to_face(0);
             break;
 
         case EVENT_MODE_REALLY_LONG_UP:
@@ -142,8 +149,14 @@ bool kegging_face_loop(movement_event_t event, movement_settings_t *settings, vo
             watch_display_string(buf, 0);
             break;
 
+        case EVENT_LOW_ENERGY_UPDATE:
+            state->using = false;
+            watch_clear_display();
+            watch_display_string("     keg  ", 0);
+            watch_start_tick_animation(1000);
+            break;
+
         case EVENT_TIMEOUT:
-            movement_move_to_face(0);
             break;
 
         default:
