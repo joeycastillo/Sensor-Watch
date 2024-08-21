@@ -117,95 +117,98 @@ bool beer_o_clock_face_loop(movement_event_t event, movement_settings_t *setting
     beer_o_clock_face_state_t *state = (beer_o_clock_face_state_t *)context;
 
     switch (event.event_type) {
-    case EVENT_ACTIVATE:
-        if(!state->tfb) watch_display_string("     beer ", 0);
-        break;
-    case EVENT_TICK:
-        if (state->tfb) {
-            switch (state->ticks % 3) {
-                case 0:
-                    watch_display_string("     tin&e", 0);
-                    break;
-                case 1:
-                    watch_display_string("     for  ", 0);
-                    break;
-                case 2:
-                    watch_display_string("     beer ", 0);
-                    movement_play_alarm();
-                    break;
+        case EVENT_ACTIVATE:
+            if(!state->tfb) watch_display_string("     beer ", 0);
+            break;
+        case EVENT_LOW_ENERGY_UPDATE:
+            watch_display_string("     beer ", 0);
+            break;
+        case EVENT_TICK:
+            if (state->tfb) {
+                switch (state->ticks % 3) {
+                    case 0:
+                        watch_display_string("     tin&e", 0);
+                        break;
+                    case 1:
+                        watch_display_string("     for  ", 0);
+                        break;
+                    case 2:
+                        watch_display_string("     beer ", 0);
+                        movement_play_alarm();
+                        break;
+                }
+            } else if (!state->using) {
+                switch (state->ticks % 3) {
+                    case 0:
+                        watch_display_string("     beer ", 0);
+                        break;
+                    case 1:
+                        watch_display_string("     -o-  ", 0);
+                        break;
+                    case 2:
+                        watch_display_string("    clock ", 0);
+                        break;
+                }
             }
-        } else if (!state->using) {
-            switch (state->ticks % 3) {
-                case 0:
-                    watch_display_string("     beer ", 0);
-                    break;
-                case 1:
-                    watch_display_string("     -o-  ", 0);
-                    break;
-                case 2:
-                    watch_display_string("    clock ", 0);
-                    break;
+            state->ticks = (state->ticks + 1) % 3;
+            break;
+        case EVENT_LIGHT_BUTTON_UP:
+            if (!state->using) {
+                state->using = true;
+                state->tfb = false;
+                _beer_o_clock_face_update_display(settings, state);
+            } else {
+                state->hour = (state->hour + 1) % 24;
+                _beer_o_clock_face_update_display(settings, state);
             }
-        }
-        state->ticks = (state->ticks + 1) % 3;
-        break;
-    case EVENT_LIGHT_BUTTON_UP:
-        if (!state->using) {
-            state->using = true;
+            break;
+        case EVENT_LIGHT_LONG_PRESS:
+            if (!state->using) {
+                state->using = true;
+                state->tfb = false;
+                _beer_o_clock_face_update_display(settings, state);
+            } else {
+                state->hour = (state->hour + 6) % 24;
+                _beer_o_clock_face_update_display(settings, state);
+            }
+            break;
+        case EVENT_ALARM_BUTTON_UP:
+            if (!state->using) {
+                state->using = true;
+                state->tfb = false;
+                _beer_o_clock_face_update_display(settings, state);
+            } else {
+                state->minute = (state->minute + 5) % 60;
+                _beer_o_clock_face_update_display(settings, state);
+            }
+            break;
+        case EVENT_ALARM_LONG_PRESS:
+            if (!state->using) {
+                state->using = true;
+                state->tfb = false;
+                _beer_o_clock_face_update_display(settings, state);
+            } else {
+                state->mode ^= 1;
+                settings->bit.alarm_enabled = state->mode;
+                _beer_o_clock_face_update_display(settings, state);
+            }
+            break;
+        case EVENT_BACKGROUND_TASK:
+            state->tfb = true;
+            movement_request_wake();
+            movement_play_alarm();
+            movement_move_to_face(state->watch_face_index);
+            break;
+        case EVENT_TIMEOUT:
             state->tfb = false;
-            _beer_o_clock_face_update_display(settings, state);
-        } else {
-            state->hour = (state->hour + 1) % 24;
-            _beer_o_clock_face_update_display(settings, state);
-        }
-        break;
-    case EVENT_LIGHT_LONG_PRESS:
-        if (!state->using) {
-            state->using = true;
-            state->tfb = false;
-            _beer_o_clock_face_update_display(settings, state);
-        } else {
-            state->hour = (state->hour + 6) % 24;
-            _beer_o_clock_face_update_display(settings, state);
-        }
-        break;
-    case EVENT_ALARM_BUTTON_UP:
-        if (!state->using) {
-            state->using = true;
-            state->tfb = false;
-            _beer_o_clock_face_update_display(settings, state);
-        } else {
-            state->minute = (state->minute + 5) % 60;
-            _beer_o_clock_face_update_display(settings, state);
-        }
-        break;
-    case EVENT_ALARM_LONG_PRESS:
-        if (!state->using) {
-            state->using = true;
-            state->tfb = false;
-            _beer_o_clock_face_update_display(settings, state);
-        } else {
-            state->mode ^= 1;
-            settings->bit.alarm_enabled = state->mode;
-            _beer_o_clock_face_update_display(settings, state);
-        }
-        break;
-    case EVENT_BACKGROUND_TASK:
-        state->tfb = true;
-        movement_move_to_face(state->watch_face_index);
-        break;
-    case EVENT_TIMEOUT:
-        state->tfb = false;
-        movement_move_to_face(0);
-        break;
-    case EVENT_LIGHT_BUTTON_DOWN:
-        // Don't use the LED on this face
-        break;
-    case EVENT_LOW_ENERGY_UPDATE:
-        break;
-    default:
-        movement_default_loop_handler(event, settings);
-        break;
+            movement_move_to_face(0);
+            break;
+        case EVENT_LIGHT_BUTTON_DOWN:
+            // Don't use the LED on this face
+            break;
+        default:
+            movement_default_loop_handler(event, settings);
+            break;
     }
 
     return true;
