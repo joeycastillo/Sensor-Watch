@@ -25,10 +25,17 @@
 #define MOVEMENT_LONG_PRESS_TICKS 64
 #define MOVEMENT_REALLY_LONG_PRESS_TICKS 384
 #define DEBOUNCE_TICKS 1  // In terms of *7.8125ms
-#define DEBOUNCE_TICKS_DOWN 2  // In terms of *7.8125ms
-#define DEBOUNCE_TICKS_UP   2  // In terms of *7.8125ms
-#define DEBOUNCE_TICKS_DOWN 0  // In terms of *7.8125ms
-#define DEBOUNCE_TICKS_UP   0  // In terms of *7.8125ms
+#define DEBOUNCE_TICKS_DOWN 0
+#define DEBOUNCE_TICKS_UP   0
+/*
+DEBOUNCE_TICKS_DOWN and DEBOUNCE_TICKS_UP are in terms of fast_cb ticks after a button is pressed.
+The logic is that pressed of a button are ignored until the cb_fast_tick function runs this variable amount of times.
+Without modifying the code, the cb_fast_tick frequency is 128Hz, or 7.8125ms.
+It is not suggested to set this value to one for debouncing, as the callback occurs asynchronously of the button's press,
+meaning that if a button was pressed and 7ms passed since th elast time cb_fast_tick was called, then there will be only 812.5us
+of debounce time.
+*/
+>>>>>>> c6f2bff (Code review edits)
 
 #include <stdio.h>
 #include <string.h>
@@ -681,19 +688,21 @@ static movement_event_type_t _figure_out_button_event(bool pin_level, movement_e
     }
 }
 
-static void light_btn_action(bool pin_level) {
-    _movement_reset_inactivity_countdown();
-    event.event_type = _figure_out_button_event(pin_level, EVENT_LIGHT_BUTTON_DOWN, &movement_state.light_down_timestamp);
+static movement_event_type_t btn_action(bool pin_level, int code, uint16_t *timestamp) {
+    _movement_reset_inactivity_countdown(); 
+    return _figure_out_button_event(pin_level, code, timestamp);
 }
 
-static void mode_btn_action(bool pin_level) { 
-    _movement_reset_inactivity_countdown();
-    event.event_type = _figure_out_button_event(pin_level, EVENT_MODE_BUTTON_DOWN, &movement_state.mode_down_timestamp);
+static void light_btn_action(bool pin_level) {
+    event.event_type = btn_action(pin_level, EVENT_LIGHT_BUTTON_DOWN, &movement_state.light_down_timestamp);
+}
+
+static void mode_btn_action(bool pin_level) {
+    event.event_type = btn_action(pin_level, EVENT_MODE_BUTTON_DOWN, &movement_state.mode_down_timestamp);
 }
 
 static void alarm_btn_action(bool pin_level) {
-    _movement_reset_inactivity_countdown();
-    uint8_t event_type = _figure_out_button_event(pin_level, EVENT_ALARM_BUTTON_DOWN, &movement_state.alarm_down_timestamp);
+    uint8_t event_type = btn_action(pin_level, EVENT_ALARM_BUTTON_DOWN, &movement_state.alarm_down_timestamp);
     if  (movement_state.ignore_alarm_btn_after_sleep){
         if (event_type == EVENT_ALARM_BUTTON_UP || event_type == EVENT_ALARM_LONG_UP) movement_state.ignore_alarm_btn_after_sleep = false;
         return;
@@ -710,6 +719,12 @@ static void debounce_btn_press(uint8_t pin, uint8_t *debounce_ticks, uint16_t *d
     }
     else
         *down_timestamp = 0;
+}
+
+static void movement_disable_if_debounce_complete(void) {
+    if (movement_state.debounce_ticks_light > 0 && --movement_state.debounce_ticks_light == 0) _movement_disable_fast_tick_if_possible();
+    if (movement_state.debounce_ticks_alarm > 0 && --movement_state.debounce_ticks_alarm == 0) _movement_disable_fast_tick_if_possible();
+    if (movement_state.debounce_ticks_mode > 0 && --movement_state.debounce_ticks_mode == 0) _movement_disable_fast_tick_if_possible();
 }
 
 void cb_light_btn_interrupt(void) {
@@ -734,9 +749,7 @@ void cb_alarm_fired(void) {
 }
 
 void cb_fast_tick(void) {
-    if (movement_state.debounce_ticks_light > 0 && --movement_state.debounce_ticks_light == 0) _movement_disable_fast_tick_if_possible();
-    if (movement_state.debounce_ticks_alarm > 0 && --movement_state.debounce_ticks_alarm == 0) _movement_disable_fast_tick_if_possible();
-    if (movement_state.debounce_ticks_mode > 0 && --movement_state.debounce_ticks_mode == 0) _movement_disable_fast_tick_if_possible();
+    movement_disable_if_debounce_complete();
     if (movement_state.debounce_ticks_light + movement_state.debounce_ticks_mode + movement_state.debounce_ticks_alarm  == 0)
         movement_state.fast_ticks++;
     if (movement_state.light_ticks > 0) movement_state.light_ticks--;
