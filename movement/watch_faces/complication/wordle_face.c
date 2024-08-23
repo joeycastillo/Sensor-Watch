@@ -30,114 +30,220 @@
 #endif
 
 
-static const char _valid_letters[] = {'A', 'C', 'E', 'I', 'L', 'N', 'O', 'P', 'R', 'S'};
+static const char _valid_letters[] = {'A', 'C', 'E', 'G', 'H', 'I', 'L', 'N', 'O', 'P', 'R', 'S'};
 
-// From: https://gist.github.com/shmookey/b28e342e1b1756c4700f42f17102c2ff
-// Number of words found: 284
-static const char _legal_words[][WORDLE_LENGTH + 1] = {
-    "ROPES", "RESIN", "PACES", "RIPEN", "ALIEN", "SPINE", "ROSIN", "PIERS", "CAPER", 
-    "SNORE", "SANER", "RAILS", "SCORN", "PENIS", "NEARS", "ENROL", "PROSE", "CANES", 
-    "POSER", "ACORN", "PAILS", "SLAIN", "REALS", "CLAPS", "PLIES", "PALES", "LIENS", 
-    "PLAIN", "SLOPE", "REAPS", "CRAPE", "ASPEN", "COINS", "ARISE", "ALOES", "PANES", 
-    "SCION", "SNARL", "COPRA", "PALER", "CLIPS", "PANIC", "PARSE", "PENAL", "SPARE", 
-    "LIONS", "LINES", "SNARE", "PEONS", "CLEAN", "SPACE", "SCALE", "COILS", "SCRAP", 
-    "OPINE", "NICER", "LOANS", "RACES", "RELIC", "NOISE", "PIANO", "CRANE", "SNAIL", 
-    "SCORE", "CLEAR", "CROPS", "CORES", "COPSE", "PINES", "PANEL", "RINSE", "LOINS", 
-    "PRONE", "ALONE", "RAISE", "OSIER", "LEARN", "SPICE", "SPOIL", "EARLS", "NAILS", 
-    "PLANE", "CARES", "CRIES", "CORNS", "CORPS", "CLASP", "LACES", "ARSON", "LANES", 
-    "OPENS", "SALON", "SINCE", "PLANS", "SCARE", "SPORE", "OCEAN", "AEONS", "PRICE", 
-    "IRONS", "SCALP", "EPICS", "LIARS", "SPIRE", "LINER", "PILES", "SLICE", "LEANS", 
-    "RAINS", "PLEAS", "SOLAR", "CAPES", "APRON", "RISEN", "POISE", "CONES", "PEARS", 
-    "PERIL", "COALS", "OPALS", "ROLES", "CLOSE", "CAPON", "POLES", "EARNS", "CRISP", 
-    "AROSE", "SCOPE", "AISLE", "CLANS", "CORAL", "SCRIP", "PAINS", "OPERA", "PAIRS", 
-    "PEARL", "SIREN", "ACRES", "CAROL", "LAIRS", "PORES", "PRIES", "CRONE", "CANOE", 
-    "LAPSE", "LEAPS", "SNIPE", "REINS", "PEALS", "SPEAR", "LOSER", "POLAR", "LANCE", 
-    "CAIRN", "PLACE", "LASER", "SONIC", "EERIE", "PIECE", "ISLES", "NOOSE", "SNEER", 
-    "SOLOS", "ELOPE", "INNER", "SLOOP", "SOARS", "SPREE", "SPANS", "PAPAL", "RIPER", 
-    "COLON", "SCANS", "RARES", "PILLS", "CANON", "POLLS", "POPPA", "ERROR", "REARS", 
-    "PESOS", "CRESS", "PENCE", "SPOOL", "COLOR", "NONCE", "CLASS", "SELLS", "NASAL", 
-    "ERASE", "RILLS", "LAPEL", "COOLS", "EASEL", "COLIC", "SPELL", "SPOOR", "LASSO", 
-    "APPAL", "PEACE", "SALSA", "SCENE", "NIECE", "CONIC", "APPLE", "SNAPS", "PEERS", 
-    "ROARS", "SPARS", "SAILS", "SLOPS", "APACE", "POSES", "SENSE", "PEEPS", "CASES", 
-    "CANAL", "CIRCA", "SLAPS", "SCOOP", "ROLLS", "PIPES", "SCARS", "LOOSE", "ROSES", 
-    "LILAC", "OASES", "SOLES", "PAEAN", "PAPAS", "CRASS", "PROPS", "SEALS", "CACAO", 
-    "LINEN", "SORES", "EASES", "POPES", "OASIS", "LOSES", "NOSES", "SIRES", "SPILL", 
-    "CREPE", "ALIAS", "CROSS", "ARENA", "SPINS", "REPEL", "SPIES", "PRIOR", "POOLS", 
-    "PRESS", "RISER", "AREAS", "SPOON", "SALES", "CREEP", "CEASE", "LOOPS", "ASSES", 
-    "CALLS", "CRIER", "COCOA", "SEERS", "LOONS", "SLIPS", "PAPER", "REELS", "RISES", 
-    "POSSE", "RARER", "SOILS", "PIPER", "INANE", "LOCAL", "PEASE", "ONION", "SLEEP", 
-    "LEASE", "RACER", "LEPER", "SILLS", "CELLS",
-#if (USE_EXPANDED_DICT != 1)
+// From: https://matthewminer.name/projects/calculators/wordle-words-left/
+// Number of words found: 298
+static const char _valid_words[][WORDLE_LENGTH + 1] = {
+    "PLACE", "SHONE", "POSER", "CHAIN", "CAPER", "POLAR", "LEARN", "SHORN", "PORCH", 
+    "GRAPE", "GNASH", "CHAIR", "SCORE", "CIGAR", "GRASP", "SINCE", "SPIRE", "NEIGH", 
+    "SHORE", "CHASE", "RAISE", "CAIRN", "PLIER", "LOSER", "GRACE", "LEASH", "PENAL", 
+    "SLING", "RISEN", "LOGIC", "PRICE", "POISE", "SCALE", "SINGE", "SNARL", "LINER", 
+    "ANGEL", "SNAIL", "PALER", "SCION", "ALONE", "AGILE", "APRON", "PERIL", "GRIPE", 
+    "SPICE", "LOGIN", "REGAL", "CAROL", "SLICE", "CRONE", "LEACH", "COPSE", "SHEAR", 
+    "ALIGN", "LARGE", "LAPSE", "AISLE", "NICER", "OCEAN", "OPERA", "ALIEN", "ACORN", 
+    "ASHEN", "SHINE", "PANEL", "SPORE", "SCOPE", "SPACE", "PHASE", "AROSE", "CHOIR", 
+    "SNIPE", "CHAOS", "RALPH", "EPOCH", "GRAIN", "SANER", "GROIN", "SLANG", "SLAIN", 
+    "CRASH", "CLASP", "SHIRE", "SCONE", "ALONG", "APING", "NICHE", "CHEAP", "CHIRP", 
+    "LAGER", "CHORE", "SNORE", "SHAPE", "RESIN", "PERCH", "PECAN", "GLARE", "GROAN", 
+    "RHINO", "RENAL", "SALON", "GRAIL", "SEPIA", "LANCE", "PRONG", "RECAP", "CLONE", 
+    "CLASH", "HORSE", "SOLAR", "HERON", "PEACH", "ARSON", "HINGE", "CLEAN", "CLING", 
+    "PHONE", "CRANE", "CLANG", "SCORN", "SPEAR", "PLAIN", "PROSE", "SPOIL", "GONER", 
+    "SHOAL", "REIGN", "CLEAR", "ANGER", "CHINA", "GRAPH", "PEARL", "CARGO", "CHOSE", 
+    "SCALP", "CANOE", "RINSE", "RANGE", "LINGO", "RANCH", "PLANE", "SPINE", "REACH", 
+    "CRISP", "PARSE", "RIPEN", "SNARE", "CLOSE", "SHARE", "CORAL", "NOISE", "SHARP", 
+    "SPARE", "SONIC", "SCRAP", "SPIEL", "RELIC", "OPINE", "SCARE", "SPRIG", "SHALE", 
+    "PANIC", "SONAR", "GROPE", "SLOPE", "ANGLE", "ORGAN", "PIANO", "PINCH", "GLEAN", 
+    "PRONE", "ARISE", "ROACH", "SIREN", "CLASS", "POSSE", "INANE", "HENCE", "SNEER", 
+    "PAGAN", "PREEN", "ROGER", "SPELL", "SHEEP", "SENSE", "INNER", "ALPHA", "SHEEN", 
+    "SCREE", "CIRCA", "PRIOR", "RARER", "PEACE", "GENRE", "HELLO", "CACAO", "GORGE", 
+    "GLOSS", "CRIER", "CROSS", "CREPE", "COLON", "CHILL", "ONION", "LINEN", "PIPER", 
+    "SLOOP", "LEGAL", "SNOOP", "PAPER", "ALGAE", "LAPEL", "CHEER", "HIPPO", "PIECE", 
+    "LILAC", "HONOR", "PAPAL", "ARENA", "APNEA", "RIPER", "SCENE", "SHALL", "NASAL", 
+    "SPREE", "RIGOR", "EAGER", "LIEGE", "LEPER", "LEASE", "CORER", "SPOON", "GROSS", 
+    "COACH", "CEASE", "GENIE", "HARSH", "PENCE", "CHILI", "SHELL", "CREEP", "RISER", 
+    "ERASE", "CINCH", "SIEGE", "GOING", "SCOOP", "SPILL", "NOOSE", "EAGLE", "AGING", 
+    "NIECE", "SPOOL", "APPLE", "SALSA", "LEECH", "GREEN", "IONIC", "LASSO", "CONCH", 
+    "PENNE", "SLASH", "CANAL", "CRASS", "REPEL", "COCOA", "CRESS", "AGAPE", "EASEL", 
+    "CELLO", "CONIC", "IGLOO", "RACER", "GOOSE", "ICING", "POOCH", "ILIAC", "GRASS", 
+    "SHEER", "CANON", "ELOPE", "LOCAL", "EERIE", "COLOR", "AGREE", "PRESS", "GEESE", 
+    "SLOSH", "SLEEP", "GRILL", "AGAIN", "GLASS", "PARER", "CHESS", "CACHE", "ERROR", 
+    "LOOSE", 
 };
+
 // These are words that'll never be used, but still need to be in the dictionary for guesses.
-// Top 100K most common words from Wiktionary https://gist.github.com/h3xx/1976236
-// Number of words found: 470
-static const char _expanded_words[][WORDLE_LENGTH + 1] = {
-#endif
-#if (USE_EXPANDED_DICT != 0)
-    "PARIS", "APRIL", "SPAIN", "EINEN", "ASCII", "EINER", "SEINE", "AINSI", "ALICE", 
-    "ALLES", "ALORS", "EINES", "ALLER", "PEINE", "PARCE", "CELLE", "CLARA", "ELLES", 
-    "ELLEN", "OLISI", "ALLEN", "ISAAC", "APRES", "CROIS", "SANOI", "PASSE", "ELSIE", 
-    "REINE", "ELLER", "AARON", "CLARE", "IRENE", "ANNIE", "ELLOS", "PARLE", "ALLAN", 
-    "PELLE", "CAIRO", "SENOR", "PENSE", "CECIL", "SEELE", "ORION", "SELON", "COSAS", 
-    "PASSA", "ELLIS", "CARLO", "ENNEN", "SILAS", "EENEN", "OSCAR", "ONCLE", "CESSE", 
-    "SONNE", "ASSIS", "PRISE", "SERAI", "CELIA", "NOIRE", "NORSE", "SINNE", "LIESS", 
-    "ELIAS", "REPOS", "COLIN", "NOIRS", "CLAIR", "CIELO", "PARLA", "SOINS", "LASSE", 
-    "NELLA", "PAOLO", "SOLON", "REPAS", "NANCE", "PAINE", "SAISI", "ELISE", "CESAR", 
-    "CANNA", "SALLE", "SINON", "SINAI", "LOIRE", "PENSA", "LEILA", "REISE", "ELLAS", 
-    "POORE", "EARLE", "CERCA", "LEISE", "POOLE", "AILES", "SANOA", "LEONE", "LILLE", 
-    "PROIE", "CARNE", "SPIEL", "CERES", "ENSIN", "CINCO", "ROLLO", "ARRAS", "SEIEN", 
-    "PRIER", "ANNAN", "CALLE", "LIISA", "SALIR", "LESSE", "LESEN", "LIIAN", "NEERE", 
-    "ARIEL", "PIENI", "PIERO", "ERANO", "ELENA", "SILLE", "NEALE", "SEENE", "ROLLE", 
-    "NELLE", "SOLLE", "ESSER", "PASAR", "PREIS", "ASIAN", "SENCE", "ANSON", "SERRA", 
-    "CONAN", "SERAS", "SIENA", "SOPRA", "RENEE", "ALINE", "CORSE", "ASSAI", "INSEL", 
-    "ROSIE", "SONIA", "APPEL", "CRISE", "CIRCE", "LINIE", "RENAN", "CAIRE", "COLLA", 
-    "SANOO", "EENER", "ANCOR", "NEPAL", "REINO", "LAINE", "SOONE", "ALAIN", "LAPSI", 
-    "INCAS", "INNES", "CARON", "ROSEN", "CASAS", "NOLAN", "SERRE", "PESAR", "SEARS", 
-    "LEPIC", "LISLE", "LOSSE", "CINNA", "SERIE", "RIRES", "CORSO", "SOIRS", "CREER", 
-    "POCOS", "SIENS", "ARLES", "CROCE", "IONIC", "PONER", "ESSEN", "SANON", "CESSA", 
-    "SERIA", "ALPES", "NINON", "LILLA", "AINOA", "CORPO", "LESER", "ILLIS", "ROPER", 
-    "ANNEE", "PAIRE", "PEPIN", "ORIEL", "CANNE", "AIRES", "ARCIS", "EASIE", "ANNOS", 
-    "COLLE", "SELLE", "EILEN", "CAPRI", "ERICA", "ROCCO", "ARIAN", "CLEON", "ALLIE", 
-    "PONCE", "COPIE", "INNAN", "NOCES", "NAPPE", "CORNE", "ESIIN", "ENCOR", "LORNA", 
-    "SACRE", "PAPEL", "SAILE", "SAEPE", "CREON", "LLENO", "ELISA", "PASSO", "ASILE", 
-    "LORCS", "ASIAA", "SANIN", "ONNEN", "SONNA", "AILIE", "ALIIS", "ECOLE", "CREES", 
-    "PRESO", "CLARO", "EARES", "ROSSI", "COREA", "SANAN", "AESOP", "SAPOR", "EISEN", 
-    "ACASO", "PARAS", "NANON", "LAPIS", "ARRAN", "CLLIA", "SACRA", "PRINS", "CENCI", 
-    "CLAES", "SLAAP", "ROLLA", "COLES", "LORNE", "OLELO", "CASSE", "NILES", "PASOS", 
-    "ESSAI", "ROSAS", "LLENA", "LEERE", "CLASE", "CALOR", "ROSSE", "ALLEE", "SOREL", 
-    "SANAA", "SLONE", "OLSEN", "OOREN", "PARER", "PASSI", "POSSA", "PLAIE", "OPERE", 
-    "SCAPE", "POLEN", "RIPON", "SCALA", "AILLE", "PALOS", "CLAPP", "ESCAP", "ELLEI", 
-    "IONIA", "NICOL", "PAESE", "PERON", "ORSON", "INNEN", "AISNE", "RANCE", "SLAAN", 
-    "PAOLI", "COLLO", "ANNAS", "ERROL", "CLERC", "SAINE", "RAINA", "PRESE", "PARIA", 
-    "PERLE", "RECAL", "SINAE", "PESER", "OISIN", "PLENA", "CARLE", "PERES", "SACAR", 
-    "ALPEN", "CORRE", "ACCES", "RILLA", "ANNAL", "PERSE", "SAALE", "PERRO", "AILSA", 
-    "POCAS", "SOLEN", "PLASE", "SOLIS", "PAPPI", "COPIA", "ARIES", "ROCCA", "ALIOS", 
-    "ROCAS", "PELOS", "NEPOS", "COLPA", "ISORA", "LECON", "SOANE", "SNELL", "ILLOS", 
-    "PILAR", "ECLAC", "PRESA", "SILLA", "NIELS", "LIPPO", "CROLL", "PONEN", "POSEE", 
-    "PIPPA", "ILLAN", "CENIS", "SANNA", "RASSI", "CERRO", "SCENA", "CASOS", "COLPO", 
-    "POSSO", "POSEN", "EINAR", "ISLAS", "IPSIS", "SALEN", "ASIEN", "CREAN", "LENIN", 
-    "LOCIS", "NENNE", "ILION", "NARES", "ONNEA", "PALAA", "PIPPO", "POLIS", "RICOS", 
-    "ELSON", "SNOOP", "ANNIS", "PROPE", "ELLIE", "ERNIE", "PLIER", "SERES", "REINA", 
-    "LIPPE", "OLINE", "PARIE", "ARLEE", "NIAIS", "LEONI", "RAINE", "LARES", "SEINS", 
-    "CARRE", "POILS", "ALENE", "LINEA", "NEARE", "PENSO", "PRISA", "CAPEL", "PAREA", 
-    "PEECE", "SALIO", "COELO", "SCIRE", "NELLO", "LIENE", "ORICE", "EPAIS", "PERCE", 
-    "ALLIS", "PEPLE", "LARNE", "NEILL", "OLLEN", "CASCA", "LAPIN", "OLLIE", "SALIC", 
-    "LIANE", "REESE", "ELSLI", "SPION", "RIENS", "LILAS", "PAPPA", "ERRER", "SPISE", 
-    "CELIE", "OLSON", "IRREN", "ARIAS", "ARION", "PASEO", "CAERE", "PISAN", "CARRO", 
-    "PAROI", "NOONE", "SEPPI", "OPPIA", "SEALE", "LIPPI", "PELAS", "COCOS", "PLACA", 
-    "CONOR", "LANCA", "OSASI", "ALOIS", "NAIRN", "PIENO", "SPASS", "SAONE", "ALNAR", 
-    "CARIA", "PIENA", 
-#endif
+static const char _possible_words[][WORDLE_LENGTH + 1] = {
+    "AALII", "AARGH", "ACAIS", "ACARI", "ACCAS", "ACERS", "ACHAR", "ACHES", "ACHOO", 
+    "ACING", "ACINI", "ACNES", "ACRES", "ACROS", "AECIA", "AEGIS", "AEONS", "AERIE", 
+    "AEROS", "AESIR", "AGARS", "AGENE", "AGERS", "AGGER", "AGGIE", "AGGRI", "AGGRO", 
+    "AGHAS", "AGILA", "AGIOS", "AGLEE", "AGLOO", "AGOGE", "AGONE", "AGONS", "AGORA", 
+    "AGRIA", "AGRIN", "AGROS", "AHEAP", "AHIGH", "AHING", "AIGAS", "AINEE", "AINGA", 
+    "AIOLI", "AIRER", "AIRNS", "ALAAP", "ALANE", "ALANG", "ALANS", "ALAPA", "ALAPS", 
+    "ALCOS", "ALECS", "ALEPH", "ALGAL", "ALGAS", "ALGIN", "ALGOR", "ALIAS", "ALINE", 
+    "ALLEE", "ALLEL", "ALLIS", "ALOES", "ALOHA", "ALOIN", "ALOOS", "ANANA", "ANCHO", 
+    "ANCLE", "ANCON", "ANEAR", "ANELE", "ANGAS", "ANGLO", "ANIGH", "ANILE", "ANILS", 
+    "ANION", "ANISE", "ANLAS", "ANNAL", "ANNAS", "ANOAS", "ANOLE", "ANSAE", "APACE", 
+    "APAGE", "APERS", "APGAR", "APHIS", "APIAN", "APIOL", "APISH", "APOOP", "APPAL", 
+    "APPEL", "APPRO", "APRES", "APSES", "APSIS", "APSOS", "ARARS", "ARCHI", "ARCOS", 
+    "AREAE", "AREAL", "AREAR", "AREAS", "ARECA", "AREIC", "ARENE", "AREPA", "ARERE", 
+    "ARGAL", "ARGAN", "ARGIL", "ARGLE", "ARGOL", "ARGON", "ARIAS", "ARIEL", "ARILS", 
+    "ARISH", "ARLES", "ARNAS", "AROHA", "ARPAS", "ARPEN", "ARRAH", "ARRAS", "ARRIS", 
+    "ARSES", "ARSIS", "ASANA", "ASCON", "ASHES", "ASPEN", "ASPER", "ASPIC", "ASPIE", 
+    "ASPIS", "ASPRO", "ASSAI", "ASSES", "CACAS", "CAECA", "CAESE", "CAGER", "CAGES", 
+    "CAINS", "CALLA", "CALLS", "CALOS", "CALPA", "CALPS", "CANEH", "CANER", "CANES", 
+    "CANGS", "CANNA", "CANNS", "CANSO", "CAPAS", "CAPES", "CAPHS", "CAPLE", "CAPON", 
+    "CAPOS", "CAPRI", "CARAP", "CARER", "CARES", "CARLE", "CARLS", "CARNS", "CARON", 
+    "CARPI", "CARPS", "CARRS", "CARSE", "CASAS", "CASCO", "CASES", "CECAL", "CEILI", 
+    "CEILS", "CELLA", "CELLI", "CELLS", "CENSE", "CEORL", "CEPES", "CERCI", "CERES", 
+    "CERGE", "CERIA", "CERIC", "CERNE", "CEROC", "CEROS", "CESSE", "CHACE", "CHACO", 
+    "CHAIS", "CHALS", "CHANA", "CHANG", "CHAPE", "CHAPS", "CHARA", "CHARE", "CHARR", 
+    "CHARS", "CHEEP", "CHELA", "CHELP", "CHERE", "CHIAO", "CHIAS", "CHICA", "CHICH", 
+    "CHICO", "CHICS", "CHIEL", "CHILE", "CHINE", "CHING", "CHINO", "CHINS", "CHIPS", 
+    "CHIRL", "CHIRO", "CHIRR", "CHOCO", "CHOCS", "CHOGS", "CHOIL", "CHOLA", "CHOLI", 
+    "CHOLO", "CHONS", "CHOON", "CHOPS", "CIELS", "CILIA", "CILLS", "CINES", "CIONS", 
+    "CIPPI", "CIRCS", "CIRES", "CIRLS", "CIRRI", "CISCO", "CLACH", "CLAES", "CLAGS", 
+    "CLANS", "CLAPS", "CLARO", "CLEEP", "CLEGS", "CLEPE", "CLIES", "CLINE", "CLIPE", 
+    "CLIPS", "CLOGS", "CLONS", "CLOOP", "CLOPS", "COALA", "COALS", "COCAS", "COCCI", 
+    "COCCO", "COCOS", "COGIE", "COGON", "COHEN", "COHOE", "COHOG", "COHOS", "COIGN", 
+    "COILS", "COINS", "COIRS", "COLAS", "COLES", "COLIC", "COLIN", "COLLS", "COLOG", 
+    "CONES", "CONGA", "CONGE", "CONGO", "CONIA", "CONIN", "CONNE", "CONNS", "COOCH", 
+    "COOEE", "COOER", "COOLS", "COONS", "COOPS", "COPAL", "COPEN", "COPER", "COPES", 
+    "COPRA", "CORES", "CORGI", "CORIA", "CORNI", "CORNO", "CORNS", "CORPS", "CORSE", 
+    "CORSO", "COSEC", "COSES", "COSIE", "CRAAL", "CRAGS", "CRAIC", "CRAIG", "CRANS", 
+    "CRAPE", "CRAPS", "CRARE", "CREEL", "CREES", "CRENA", "CREPS", "CRIAS", "CRIES", 
+    "CRINE", "CRIOS", "CRIPE", "CRIPS", "CRISE", "CROCI", "CROCS", "CROGS", "CRONS", 
+    "CROOL", "CROON", "CROPS", "CRORE", "EAGRE", "EALES", "EARLS", "EARNS", "EASER", 
+    "EASES", "EASLE", "ECHES", "ECHOS", "EGERS", "EGGAR", "EGGER", "EHING", "EIGNE", 
+    "EISEL", "ELAIN", "ELANS", "ELCHI", "ELOGE", "ELOIN", "ELOPS", "ELPEE", "ELSIN", 
+    "ENIAC", "ENNOG", "ENOLS", "ENROL", "EORLS", "EOSIN", "EPEES", "EPHAH", "EPHAS", 
+    "EPHOR", "EPICS", "EPRIS", "ERGON", "ERGOS", "ERICA", "ERICS", "ERING", "ERNES", 
+    "EROSE", "ERSES", "ESCAR", "ESILE", "ESNES", "ESSES", "GAGER", "GAGES", "GAINS", 
+    "GAIRS", "GALAH", "GALAS", "GALEA", "GALES", "GALLS", "GALOP", "GANCH", "GANGS", 
+    "GAOLS", "GAPER", "GAPES", "GAPOS", "GARES", "GARIS", "GARNI", "GARRE", "GASES", 
+    "GASPS", "GEALS", "GEANS", "GEARE", "GEARS", "GEEPS", "GELEE", "GENAL", "GENAS", 
+    "GENES", "GENIC", "GENII", "GENIP", "GENOA", "GENRO", "GERAH", "GERES", "GERLE", 
+    "GERNE", "GESSE", "GESSO", "GHEES", "GIGAS", "GIGHE", "GILAS", "GILLS", "GINCH", 
+    "GINGE", "GINGS", "GIPON", "GIPPO", "GIRLS", "GIRNS", "GIRON", "GIROS", "GIRRS", 
+    "GIRSH", "GLACE", "GLAIR", "GLANS", "GLEES", "GLEIS", "GLENS", "GLIAL", "GLIAS", 
+    "GLOGG", "GLOOP", "GLOPS", "GNARL", "GNARR", "GNARS", "GOALS", "GOELS", "GOERS", 
+    "GOGGA", "GOGOS", "GOIER", "GOLES", "GOLPE", "GOLPS", "GONCH", "GONGS", "GONIA", 
+    "GONNA", "GOOGS", "GOOLS", "GOONS", "GOOPS", "GOORS", "GORAL", "GORAS", "GORES", 
+    "GORIS", "GORPS", "GORSE", "GOSSE", "GRAAL", "GRAIP", "GRANA", "GRANS", "GRECE", 
+    "GREES", "GREGE", "GREGO", "GREIN", "GRENS", "GRESE", "GRICE", "GRIGS", "GRINS", 
+    "GRIPS", "GRISE", "GROGS", "GRONE", "GRRLS", "GRRRL", "HAARS", "HAGGS", "HAHAS", 
+    "HAILS", "HAINS", "HAIRS", "HALAL", "HALER", "HALES", "HALLO", "HALLS", "HALON", 
+    "HALOS", "HALSE", "HANAP", "HANCE", "HANCH", "HANGI", "HANGS", "HANSA", "HANSE", 
+    "HAOLE", "HAPPI", "HARES", "HARLS", "HARNS", "HAROS", "HARPS", "HASPS", "HEALS", 
+    "HEAPS", "HEARE", "HEARS", "HEELS", "HEIGH", "HEILS", "HEIRS", "HELES", "HELIO", 
+    "HELLS", "HELOS", "HELPS", "HENCH", "HENGE", "HENNA", "HEPAR", "HERES", "HERLS", 
+    "HERNS", "HEROS", "HERSE", "HESPS", "HIGHS", "HILAR", "HILCH", "HILLO", "HILLS", 
+    "HINGS", "HIOIS", "HIREE", "HIRER", "HIRES", "HOARS", "HOERS", "HOGAN", "HOGEN", 
+    "HOGGS", "HOGHS", "HOING", "HOISE", "HOLES", "HOLLA", "HOLLO", "HOLON", "HOLOS", 
+    "HONAN", "HONER", "HONES", "HONGI", "HONGS", "HOOCH", "HOONS", "HOOPS", "HOORS", 
+    "HOOSH", "HOPER", "HOPES", "HORAH", "HORAL", "HORAS", "HORIS", "HORNS", "HOSEL", 
+    "HOSEN", "HOSER", "HOSES", "ICERS", "ICHES", "ICHOR", "ICIER", "ICONS", "IGAPO", 
+    "ILEAC", "ILEAL", "ILIAL", "ILLER", "INCEL", "INCLE", "INCOG", "INGAN", "INGLE", 
+    "INION", "INSPO", "IPPON", "IRING", "IRONE", "IRONS", "ISHES", "ISLES", "ISNAE", 
+    "ISSEI", "LAARI", "LACER", "LACES", "LAERS", "LAGAN", "LAHAL", "LAHAR", "LAICH", 
+    "LAICS", "LAIGH", "LAIRS", "LALLS", "LANAI", "LANAS", "LANCH", "LANES", "LAPIN", 
+    "LAPIS", "LARCH", "LAREE", "LARES", "LARGO", "LARIS", "LARNS", "LASER", "LASES", 
+    "LASSI", "LEANS", "LEAPS", "LEARE", "LEARS", "LEEAR", "LEEPS", "LEERS", "LEESE", 
+    "LEGER", "LEGES", "LEGGE", "LEGGO", "LEHRS", "LEIRS", "LEISH", "LENES", "LENGS", 
+    "LENIS", "LENOS", "LENSE", "LEONE", "LEPRA", "LERES", "LERPS", "LESES", "LIANA", 
+    "LIANE", "LIANG", "LIARS", "LICHI", "LIENS", "LIERS", "LIGAN", "LIGER", "LIGGE", 
+    "LIGNE", "LILLS", "LILOS", "LINAC", "LINCH", "LINES", "LINGA", "LINGS", "LININ", 
+    "LINNS", "LINOS", "LIONS", "LIPAS", "LIPES", "LIPIN", "LIPOS", "LIRAS", "LISLE", 
+    "LISPS", "LLANO", "LOACH", "LOANS", "LOCHE", "LOCHS", "LOCIE", "LOCIS", "LOCOS", 
+    "LOESS", "LOGAN", "LOGES", "LOGIA", "LOGIE", "LOGOI", "LOGON", "LOGOS", "LOHAN", 
+    "LOINS", "LOIPE", "LOIRS", "LOLLS", "LOLOG", "LONER", "LONGA", "LONGE", "LONGS", 
+    "LOOIE", "LOONS", "LOOPS", "LOPER", "LOPES", "LORAL", "LORAN", "LOREL", "LORES", 
+    "LORIC", "LORIS", "LOSEL", "LOSEN", "LOSES", "NAANS", "NACHE", "NACHO", "NACRE", 
+    "NAGAS", "NAGOR", "NAHAL", "NAILS", "NAIRA", "NALAS", "NALLA", "NANAS", "NANCE", 
+    "NANNA", "NANOS", "NAPAS", "NAPES", "NAPOO", "NAPPA", "NAPPE", "NARAS", "NARCO", 
+    "NARCS", "NARES", "NARIC", "NARIS", "NARRE", "NASHI", "NEALS", "NEAPS", "NEARS", 
+    "NEELE", "NEEPS", "NEESE", "NEGRO", "NELIS", "NENES", "NEONS", "NEPER", "NERAL", 
+    "NEROL", "NGAIO", "NGANA", "NICOL", "NIGER", "NIGHS", "NIHIL", "NILLS", "NINER", 
+    "NINES", "NINON", "NIPAS", "NIRLS", "NISEI", "NISSE", "NOAHS", "NOELS", "NOGGS", 
+    "NOILS", "NOIRS", "NOLES", "NOLLS", "NOLOS", "NONAS", "NONCE", "NONES", "NONGS", 
+    "NONIS", "NOONS", "NOOPS", "NOPAL", "NORIA", "NORIS", "NOSER", "NOSES", "OASES", 
+    "OASIS", "OCHER", "OCHES", "OCHRE", "OCREA", "OGEES", "OGGIN", "OGLER", "OGLES", 
+    "OGRES", "OHIAS", "OHING", "OHONE", "OILER", "OLEIC", "OLEIN", "OLEOS", "OLIOS", 
+    "OLLAS", "OLLER", "OLLIE", "OLPAE", "OLPES", "ONCER", "ONCES", "ONERS", "OORIE", 
+    "OOSES", "OPAHS", "OPALS", "OPENS", "OPEPE", "OPING", "OPPOS", "OPSIN", "ORACH", 
+    "ORALS", "ORANG", "ORCAS", "ORCIN", "ORGIA", "ORGIC", "ORIEL", "ORLES", "ORLON", 
+    "ORLOP", "ORNIS", "ORPIN", "ORRIS", "OSCAR", "OSHAC", "OSIER", "OSSIA", "PAALS", 
+    "PAANS", "PACAS", "PACER", "PACES", "PACHA", "PACOS", "PAEAN", "PAEON", "PAGER", 
+    "PAGES", "PAGLE", "PAGRI", "PAILS", "PAINS", "PAIRE", "PAIRS", "PAISA", "PAISE", 
+    "PALAS", "PALEA", "PALES", "PALIS", "PALLA", "PALLS", "PALPI", "PALPS", "PALSA", 
+    "PANCE", "PANES", "PANGA", "PANGS", "PANNE", "PANNI", "PAOLI", "PAOLO", "PAPAS", 
+    "PAPES", "PAPPI", "PARAE", "PARAS", "PARCH", "PAREN", "PAREO", "PARES", "PARGE", 
+    "PARGO", "PARIS", "PARLE", "PAROL", "PARPS", "PARRA", "PARRS", "PASEO", "PASES", 
+    "PASHA", "PASSE", "PEAGE", "PEAGS", "PEALS", "PEANS", "PEARE", "PEARS", "PEASE", 
+    "PECHS", "PEECE", "PEELS", "PEENS", "PEEPE", "PEEPS", "PEERS", "PEGHS", "PEINS", 
+    "PEISE", "PELAS", "PELES", "PELLS", "PELON", "PENES", "PENGO", "PENIE", "PENIS", 
+    "PENNA", "PENNI", "PEONS", "PEPLA", "PEPOS", "PEPSI", "PERAI", "PERCE", "PERCS", 
+    "PEREA", "PERES", "PERIS", "PERNS", "PEROG", "PERPS", "PERSE", "PESOS", "PHAGE", 
+    "PHANG", "PHARE", "PHEER", "PHENE", "PHEON", "PHESE", "PHIAL", "PHISH", "PHOCA", 
+    "PHONO", "PHONS", "PIANI", "PIANS", "PICAL", "PICAS", "PICRA", "PIERS", "PIING", 
+    "PILAE", "PILAO", "PILAR", "PILCH", "PILEA", "PILEI", "PILER", "PILES", "PILIS", 
+    "PILLS", "PINAS", "PINES", "PINGO", "PINGS", "PINNA", "PINON", "PIONS", "PIPAL", 
+    "PIPAS", "PIPES", "PIPIS", "PIRAI", "PIRLS", "PIRNS", "PIROG", "PISCO", "PISES", 
+    "PISOS", "PLAAS", "PLAGE", "PLANS", "PLAPS", "PLASH", "PLEAS", "PLENA", "PLEON", 
+    "PLESH", "PLICA", "PLIES", "PLING", "PLONG", "PLOPS", "POACH", "POEPS", "POGGE", 
+    "POGOS", "POLER", "POLES", "POLIO", "POLIS", "POLLS", "POLOS", "PONCE", "PONES", 
+    "PONGA", "PONGO", "PONGS", "POOHS", "POOLS", "POONS", "POOPS", "POORI", "POPES", 
+    "POPPA", "PORAE", "PORAL", "PORER", "PORES", "PORGE", "PORIN", "PORNO", "PORNS", 
+    "POSES", "POSHO", "PRANA", "PRANG", "PRAOS", "PRASE", "PREES", "PREON", "PREOP", 
+    "PREPS", "PRESA", "PRESE", "PRIAL", "PRIER", "PRIES", "PRIGS", "PRILL", "PRION", 
+    "PRISE", "PRISS", "PROAS", "PROGS", "PROIN", "PROLE", "PROLL", "PROPS", "PRORE", 
+    "PROSO", "PROSS", "PSION", "PSOAE", "PSOAI", "PSOAS", "PSORA", "RACES", "RACHE", 
+    "RACON", "RAGAS", "RAGEE", "RAGER", "RAGES", "RAGGA", "RAGGS", "RAGIS", "RAIAS", 
+    "RAILE", "RAILS", "RAINE", "RAINS", "RALES", "RANAS", "RANCE", "RANEE", "RANGA", 
+    "RANGI", "RANGS", "RANIS", "RAPER", "RAPES", "RAPHE", "RAPPE", "RAREE", "RARES", 
+    "RASER", "RASES", "RASPS", "RASSE", "REAIS", "REALO", "REALS", "REANS", "REAPS", 
+    "REARS", "RECAL", "RECCE", "RECCO", "RECON", "REECH", "REELS", "REENS", "REGAR", 
+    "REGES", "REGGO", "REGIE", "REGNA", "REGOS", "REINS", "RELIE", "RELLO", "RENGA", 
+    "RENIG", "RENIN", "RENNE", "RENOS", "REOIL", "REORG", "REPEG", "REPIN", "REPLA", 
+    "REPOS", "REPPS", "REPRO", "RERAN", "RERIG", "RESEE", "RESES", "RHEAS", "RHIES", 
+    "RHINE", "RHONE", "RIALS", "RICER", "RICES", "RICIN", "RIELS", "RIGGS", "RIGOL", 
+    "RILES", "RILLE", "RILLS", "RINES", "RINGS", "RIPES", "RIPPS", "RISES", "RISHI", 
+    "RISPS", "ROANS", "ROARS", "ROHES", "ROILS", "ROINS", "ROLAG", "ROLES", "ROLLS", 
+    "RONEO", "RONES", "RONIN", "RONNE", "ROONS", "ROOPS", "ROOSA", "ROOSE", "ROPER", 
+    "ROPES", "RORAL", "RORES", "RORIC", "RORIE", "ROSES", "ROSHI", "ROSIN", "SAAGS", 
+    "SACRA", "SAGAS", "SAGER", "SAGES", "SAGOS", "SAICE", "SAICS", "SAIGA", "SAILS", 
+    "SAINE", "SAINS", "SAIRS", "SALAL", "SALEP", "SALES", "SALIC", "SALLE", "SALOL", 
+    "SALOP", "SALPA", "SALPS", "SALSE", "SANES", "SANGA", "SANGH", "SANGO", "SANGS", 
+    "SANSA", "SAOLA", "SAPAN", "SAPOR", "SARAN", "SAREE", "SARGE", "SARGO", "SARIN", 
+    "SARIS", "SAROS", "SASER", "SASIN", "SASSE", "SCAGS", "SCAIL", "SCALA", "SCALL", 
+    "SCANS", "SCAPA", "SCAPE", "SCAPI", "SCARP", "SCARS", "SCENA", "SCOGS", "SCOOG", 
+    "SCOPA", "SCOPS", "SCRAE", "SCRAG", "SCRAN", "SCRIP", "SCROG", "SEALS", "SEANS", 
+    "SEARE", "SEARS", "SEASE", "SECCO", "SECHS", "SEELS", "SEEPS", "SEERS", "SEGAR", 
+    "SEGNI", "SEGNO", "SEGOL", "SEGOS", "SEHRI", "SEILS", "SEINE", "SEIRS", "SEISE", 
+    "SELAH", "SELES", "SELLA", "SELLE", "SELLS", "SENAS", "SENES", "SENGI", "SENNA", 
+    "SENOR", "SENSA", "SENSI", "SEPAL", "SEPIC", "SERAC", "SERAI", "SERAL", "SERER", 
+    "SERES", "SERGE", "SERIC", "SERIN", "SERON", "SERRA", "SERRE", "SERRS", "SESSA", 
+    "SHAGS", "SHAHS", "SHANS", "SHAPS", "SHARN", "SHASH", "SHCHI", "SHEAL", "SHEAS", 
+    "SHEEL", "SHEOL", "SHERE", "SHERO", "SHIAI", "SHIEL", "SHIER", "SHIES", "SHILL", 
+    "SHINS", "SHIPS", "SHIRR", "SHIRS", "SHISH", "SHISO", "SHLEP", "SHOER", "SHOES", 
+    "SHOGI", "SHOGS", "SHOLA", "SHOOL", "SHOON", "SHOOS", "SHOPE", "SHOPS", "SHORL", 
+    "SHRIS", "SIALS", "SICES", "SIENS", "SIGHS", "SIGIL", "SIGLA", "SIGNA", "SIGNS", 
+    "SILEN", "SILER", "SILES", "SILLS", "SILOS", "SINES", "SINGS", "SINHS", "SIPES", 
+    "SIREE", "SIRES", "SIRIH", "SIRIS", "SIROC", "SIRRA", "SISAL", "SISES", "SLAES", 
+    "SLAGS", "SLANE", "SLAPS", "SLEER", "SLIER", "SLIPE", "SLIPS", "SLISH", "SLOAN", 
+    "SLOES", "SLOGS", "SLOPS", "SNAGS", "SNAPS", "SNARS", "SNASH", "SNEAP", "SNEES", 
+    "SNELL", "SNIES", "SNIGS", "SNIPS", "SNOEP", "SNOGS", "SNOOL", "SOAPS", "SOARE", 
+    "SOARS", "SOCAS", "SOCES", "SOCLE", "SOGER", "SOILS", "SOLAH", "SOLAN", "SOLAS", 
+    "SOLEI", "SOLER", "SOLES", "SOLON", "SOLOS", "SONCE", "SONES", "SONGS", "SONNE", 
+    "SONSE", "SOOLE", "SOOLS", "SOOPS", "SOPHS", "SOPOR", "SOPRA", "SORAL", "SORAS", 
+    "SOREE", "SOREL", "SORER", "SORES", "SORGO", "SORNS", "SORRA", "SPAER", "SPAES", 
+    "SPAGS", "SPAHI", "SPAIL", "SPAIN", "SPALE", "SPALL", "SPANE", "SPANG", "SPANS", 
+    "SPARS", "SPEAL", "SPEAN", "SPECS", "SPEEL", "SPEER", "SPEIL", "SPEIR", "SPEOS", 
+    "SPIAL", "SPICA", "SPICS", "SPIER", "SPIES", "SPILE", "SPINA", "SPINS", "SPLOG", 
+    "SPOOR", "SPOSH", "SPRAG", "SPROG", 
 };
 
-#if (USE_EXPANDED_DICT == 1)
-static const char _expanded_words[][WORDLE_LENGTH + 1] = {};
-#endif
-
-
-static const uint16_t _num_words = (sizeof(_legal_words) / sizeof(_legal_words[0]));
-static const uint16_t _num_expanded_words = (sizeof(_expanded_words) / sizeof(_expanded_words[0]));
+static const uint16_t _num_words = (sizeof(_valid_words) / sizeof(_valid_words[0]));
+static const uint16_t _num_possible_words = (sizeof(_possible_words) / sizeof(_possible_words[0]));
 static const uint8_t _num_valid_letters = (sizeof(_valid_letters) / sizeof(_valid_letters[0]));
 
 static uint32_t get_random(uint32_t max) {
@@ -211,24 +317,24 @@ static uint32_t check_word_in_dict(uint8_t *word_elements) {
     for (uint16_t i = 0; i < _num_words; i++) {
         is_exact_match = true;
         for (size_t j = 0; j < WORDLE_LENGTH; j++) {
-            if (_valid_letters[word_elements[j]] != _legal_words[i][j]) {
+            if (_valid_letters[word_elements[j]] != _valid_words[i][j]) {
                 is_exact_match = false;
                 break;  
             }
         }
         if (is_exact_match) return i;
     }
-    for (uint16_t i = 0; i < _num_expanded_words; i++) {
+    for (uint16_t i = 0; i < _num_possible_words; i++) {
         is_exact_match = true;
         for (size_t j = 0; j < WORDLE_LENGTH; j++) {
-            if (_valid_letters[word_elements[j]] != _expanded_words[i][j]) {
+            if (_valid_letters[word_elements[j]] != _possible_words[i][j]) {
                 is_exact_match = false;
                 break;  
             }
         }
         if (is_exact_match) return _num_words + i;
     }
-    return _num_words + _num_expanded_words;
+    return _num_words + _num_possible_words;
 }
 
 static bool check_word(wordle_state_t *state) {
@@ -236,7 +342,7 @@ static bool check_word(wordle_state_t *state) {
     bool is_exact_match = true;
     bool answer_already_accounted[WORDLE_LENGTH] = { false };
     for (size_t i = 0; i < WORDLE_LENGTH; i++) {
-        if (_valid_letters[state->word_elements[i]] == _legal_words[state->curr_answer][i]) {
+        if (_valid_letters[state->word_elements[i]] == _valid_words[state->curr_answer][i]) {
             state->word_elements_result[i] = WORDLE_LETTER_CORRECT;
             answer_already_accounted[i] = true;
         }
@@ -251,7 +357,7 @@ static bool check_word(wordle_state_t *state) {
         if (state->word_elements_result[i] != WORDLE_LETTER_WRONG) continue;
         for (size_t j = 0; j < WORDLE_LENGTH; j++) {
             if (answer_already_accounted[j]) continue;
-            if (_valid_letters[state->word_elements[i]] == _legal_words[state->curr_answer][j]) {
+            if (_valid_letters[state->word_elements[i]] == _valid_words[state->curr_answer][j]) {
                 state->word_elements_result[i] = WORDLE_LETTER_WRONG_LOC;
                 answer_already_accounted[j] = true;
                 break;
@@ -279,7 +385,7 @@ static void reset_all_elements(wordle_state_t *state) {
         state->word_elements_result[i] = WORDLE_LETTER_WRONG;
     }
     for (size_t i = 0; i < WORDLE_MAX_ATTEMPTS; i++) {
-        state->guessed_words[i] = _num_words + _num_expanded_words;
+        state->guessed_words[i] = _num_words + _num_possible_words;
     }
     state->using_random_guess = false;
     state->attempt = 0;
@@ -300,7 +406,7 @@ static void reset_board(wordle_state_t *state) {
     display_playing(state);
     watch_display_string(" -", 4);
 #if __EMSCRIPTEN__
-    printf("ANSWER: %s\r\n", _legal_words[state->curr_answer]);
+    printf("ANSWER: %s\r\n", _valid_words[state->curr_answer]);
 #endif
 }
 
@@ -368,7 +474,7 @@ static void display_already_guessed(wordle_state_t *state) {
 
 static void display_lose(wordle_state_t *state, uint8_t subsecond) {
     char buf[WORDLE_LENGTH + 6];
-    sprintf(buf," L   %s", subsecond % 2 ? _legal_words[state->curr_answer] : "     ");
+    sprintf(buf," L   %s", subsecond % 2 ? _valid_words[state->curr_answer] : "     ");
     watch_display_string(buf, 0);
 }
 
@@ -486,7 +592,7 @@ static bool act_on_btn(wordle_state_t *state, const uint8_t pin) {
 static void get_result(wordle_state_t *state) {
     // Check if it's in the dict
     uint16_t in_dict = check_word_in_dict(state->word_elements);
-    if (in_dict == _num_words + _num_expanded_words) {
+    if (in_dict == _num_words + _num_possible_words) {
         display_not_in_dict(state);
         return;
     }
@@ -522,7 +628,7 @@ static void get_result(wordle_state_t *state) {
 }
 
 #if (USE_RANDOM_GUESS != 0)
-static const uint16_t _num_unique_words = 157;  // The _legal_words array begins with this many words where each letter is different.
+static const uint16_t _num_unique_words = 157;  // The _valid_words array begins with this many words where each letter is different.
 static void insert_random_guess(wordle_state_t *state) {
     uint16_t random_guess;
     do {  // Don't allow the guess to be the same as the answer
@@ -531,7 +637,7 @@ static void insert_random_guess(wordle_state_t *state) {
     for (size_t i = 0; i < WORDLE_LENGTH; i++) {
         for (size_t j = 0; j < _num_valid_letters; j++)
         {
-            if (_legal_words[random_guess][i] == _valid_letters[j])
+            if (_valid_words[random_guess][i] == _valid_letters[j])
                 state->word_elements[i] = j;     
         }
     } 
