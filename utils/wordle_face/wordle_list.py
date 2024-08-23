@@ -1223,7 +1223,7 @@ def txt_of_all_letter_combos(num_letters_in_set, words=valid_list, min_letter_oc
     print_iter = 0
     prev = time.time()
     start = prev
-    letters_to_ignore = ['D','M','T','Y']  # Don't diplay well on the watch
+    letters_to_ignore = ['D','M']  # Don't diplay well on the watch
     letter_usage = most_used_letters(words=words)
     for letter in letter_usage:
         if (100 * letter_usage[letter])/len(words) < min_letter_occ_percent_to_consider:
@@ -1301,7 +1301,7 @@ def location_of_letters(letters=alphabet, list=valid_list):
 
 
 if __name__ == "__main__":
-    my_letters = ['A', 'C', 'E', 'G', 'H', 'I', 'L', 'N', 'O', 'P', 'R', 'S']
+    my_letters = ['A', 'C', 'E', 'H', 'I', 'L', 'N', 'O', 'P', 'R', 'S', 'T']
     #print(f"{len(list_of_valid_words(my_letters, valid_list))} Words can be made with {my_letters}")
     #most_used_letters()
     #location_of_letters(my_letters)
