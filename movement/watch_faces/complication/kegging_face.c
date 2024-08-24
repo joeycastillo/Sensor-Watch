@@ -44,25 +44,26 @@ void kegging_face_activate(movement_settings_t *settings, void *context) {
     // Handle any tasks related to your watch face coming on screen.
 }
 
-static void update_keg_usage(bool *using_flag, uint8_t *keg_count) {
-    if (!*using_flag) {
-        (*keg_count)--;
-        *using_flag = true;
-    }
-}
-
 static void display_keg_counts(uint8_t half_kegs, uint8_t sixtels) {
     char buf[14];
     sprintf(buf, "H  s%-3d%3d", half_kegs, sixtels);
     watch_display_string(buf, 0);
 }
 
-static void update_keg_count(uint8_t *keg_count, int8_t increment,  uint8_t half_kegs, uint8_t sixtels) {
-    *keg_count += increment;
+static void update_keg_count(uint8_t *keg_count, int8_t increment, bool *using_flag) {
+    if (*using_flag) {
+        *keg_count += increment;
+    } else {
+        *using_flag = true;
+    }
 }
 
-static void reset_keg_count(uint8_t *keg_count, uint8_t half_kegs, uint8_t sixtels) {
-    *keg_count = 0;
+static void reset_keg_count(uint8_t *keg_count, bool *using_flag) {
+    if (*using_flag) {
+        *keg_count = 0;
+    } else {
+        *using_flag = true;
+    }
 }
 
 static void display_bbl_info(uint8_t half_kegs, uint8_t sixtels, bool show_remaining) {
@@ -88,48 +89,46 @@ bool kegging_face_loop(movement_event_t event, movement_settings_t *settings, vo
             break;
 
         case EVENT_LIGHT_BUTTON_DOWN:
-            // Wake up the display, set state->using = true, and disable LED
-            update_keg_usage(&state->using, &state->half_kegs);
+            // Disable LED
             break;
 
         case EVENT_LIGHT_BUTTON_UP:
             // Increment half-kegs count
-            update_keg_count(&(state->half_kegs), 1, state->half_kegs, state->sixtels);
+            update_keg_count(&(state->half_kegs), 1, &(state->using));
             display_keg_counts(state->half_kegs, state->sixtels);
             break;
 
         case EVENT_LIGHT_LONG_UP:
             // Decrement half-kegs count
-            update_keg_count(&(state->half_kegs), -1, state->half_kegs, state->sixtels);
+            update_keg_count(&(state->half_kegs), -1, &(state->using));
             display_keg_counts(state->half_kegs, state->sixtels);
             break;
 
         case EVENT_LIGHT_REALLY_LONG_PRESS:
             // Reset half-keg count
-            reset_keg_count(&(state->half_kegs), state->half_kegs, state->sixtels);
+            reset_keg_count(&(state->half_kegs), &(state->using));
             display_keg_counts(state->half_kegs, state->sixtels);
             break;
 
         case EVENT_ALARM_BUTTON_DOWN:
             // Wake up the display and set state->using = true
-            update_keg_usage(&state->using, &state->sixtels);
             break;
 
         case EVENT_ALARM_BUTTON_UP:
             // Increment sixtels count
-            update_keg_count(&(state->sixtels), 1, state->half_kegs, state->sixtels);
+            update_keg_count(&(state->sixtels), 1, &(state->using));
             display_keg_counts(state->half_kegs, state->sixtels);
             break;
 
         case EVENT_ALARM_LONG_UP:
             // Decrement sixtels count
-            update_keg_count(&(state->sixtels), -1, state->half_kegs, state->sixtels);
+            update_keg_count(&(state->sixtels), -1, &(state->using));
             display_keg_counts(state->half_kegs, state->sixtels);
             break;
 
         case EVENT_ALARM_REALLY_LONG_PRESS:
             // Reset sixtels count
-            reset_keg_count(&(state->sixtels), state->half_kegs, state->sixtels);
+            reset_keg_count(&(state->sixtels), &(state->using));
             display_keg_counts(state->half_kegs, state->sixtels);
             break;
 
@@ -175,4 +174,3 @@ void kegging_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
 }
-
