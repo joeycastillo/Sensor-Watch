@@ -31,17 +31,35 @@
  * Kegging Tracker
  *
  * This complication helps me keep track of beer kegging quantities. It can be
- * used to calculate the total barrels kegged and the number of barrels that
- * can still be kegged in relation to the number of barrels the cleaning
- * chemicals can support.
+ * used to approximately calculate the total barrels kegged and the number of 
+ * barrels that can still be kegged in relation to the number of barrels the 
+ * cleaning chemicals can support.
  *
- * 1/2 kegs = 1/2 barrel
- * sixtels = 1/6 barrel
- * cleaning chemicals are good for up to 20BBLs
+ * - Half-kegs (k)  = 1/2 barrel
+ * - Sixtels (s) = 1/6 barrel
+ * - Cleaning chemicals are good for up to 20BBLs
  *
  * How to use it:
- * TBD
+ * - Press LIGHT to increment half-keg count
+ * - Press ALARM to increment sixtel count
+ * 
+ * - Long press LIGHT to decrement half-keg count
+ * - Long press ALARM to decrement sixtel count
  *
+ * - Really long press LIGHT to reset half-keg count to 0
+ * - Really long press ALARM to reset sixtel count to 0
+ *   
+ * - Press MODE to move to the next watch face
+ * - Long press MODE to show how many remaining BBLs the cleaning chemicals
+ *   can support
+ * - Long pressing MODE while the total keg count is 0 will take you back to
+ *   face 0 in the primary face index
+ * - Really long press MODE to show (approximately) how many BBLs have been
+ *   kegged so far. This quantity is approximate because the half-keg and
+ *   sixtel tracking is actually keeping track of how many BBLs the cleaning
+ *   chemicals have been used on -- this number typically only be off by either
+ *   0.5BBLs if starting the run with half-kegs or 0.1666667BBLs (1/6) if
+ *   starting the run with sixtels.
  */
 
 typedef struct {
