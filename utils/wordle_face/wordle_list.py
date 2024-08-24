@@ -1171,8 +1171,8 @@ def print_valid_words(letters=alphabet):
     print("")
     print(f"// From: {source_link}")
     print(f"// Number of words found: {len(valid_words)}")
-    i = 0
     print("static const char _valid_words[][WORDLE_LENGTH + 1] = {")
+    i = 0
     while i < len(valid_words):
         print("    ", end='')
         for _ in range(min(items_per_row, len(valid_words)-i)):
@@ -1184,6 +1184,7 @@ def print_valid_words(letters=alphabet):
     possible_words = capitalize_all_and_remove_duplicates(possible_words)
     print("};")
     print("\n// These are words that'll never be used, but still need to be in the dictionary for guesses.")
+    print(f"// Number of words found: {len(possible_words)}")
     print("static const char _possible_words[][WORDLE_LENGTH + 1] = {")
     i = 0
     while i < len(possible_words):

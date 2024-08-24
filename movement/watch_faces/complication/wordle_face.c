@@ -86,6 +86,7 @@ static const char _valid_words[][WORDLE_LENGTH + 1] = {
 };
 
 // These are words that'll never be used, but still need to be in the dictionary for guesses.
+// Number of words found: 1898
 static const char _possible_words[][WORDLE_LENGTH + 1] = {
     "AALII", "AARTI", "ACAIS", "ACARI", "ACCAS", "ACERS", "ACETA", "ACHAR", "ACHES", 
     "ACHOO", "ACINI", "ACNES", "ACRES", "ACROS", "ACTIN", "ACTON", "AECIA", "AEONS", 
