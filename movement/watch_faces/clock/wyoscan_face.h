@@ -25,35 +25,20 @@
 #ifndef WYOSCAN_FACE_H_
 #define WYOSCAN_FACE_H_
 
+#include "movement.h"
+
 /*
- * WYOSCAN .5 hz watchface
+ * A DESCRIPTION OF YOUR WATCH FACE
  *
- * This is a recreation of the Wyoscan watch, which was a $175 watch in 2014.
- * It was an f-91w pcb replacement.
- * 
- * Video: https://user-images.githubusercontent.com/1795778/252550124-e07f0ed1-e328-4337-a654-fa1ee65d883f.mp4
- * Background information: https://artmetropole.com/shop/11460
- * Demo of what it looks like: https://www.o-r-g.com/apps/wyoscan
- *
- * 8 frames per number * 6 numbers + the trailing 16 frames = 64 frames
- * at 32 frames per second, this is a 2-second cycle time or 0.5 Hz.
- *
- * It is giving me a stack overflow after about 2.5 cycles of the time display
- * in the emulator, but it works fine on the watch.
- *
- * I'd like to make something for the low energy mode, but I haven't thought
- * about how that might work, right now it just freezes in low energy mode
- * until you press the 12-24HR button.
- *
- * There are no controls; it simply animates as long as the page is active.
+ * and a description of how use it
  *
  */
 
-#include "movement.h"
-
 #define MAX_ILLUMINATED_SEGMENTS 16
 
-typedef struct {
+typedef struct wyoscan_state wyoscan_state_t;
+
+struct wyoscan_state {
     uint32_t previous_date_time;
     uint8_t last_battery_check;
     uint8_t watch_face_index;
@@ -69,9 +54,11 @@ typedef struct {
     uint8_t position, segment;
     char *segments;
     uint8_t x, y;
+    uint8_t prev_le_interval;
     uint32_t time_digits[6];
     uint32_t illuminated_segments[MAX_ILLUMINATED_SEGMENTS][2]; 
-} wyoscan_state_t;
+    void (*convert_time)(wyoscan_state_t *, uint8_t);
+};
 
 void wyoscan_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
 void wyoscan_face_activate(movement_settings_t *settings, void *context);
@@ -88,4 +75,3 @@ bool wyoscan_face_wants_background_task(movement_settings_t *settings, void *con
 })
 
 #endif // WYOSCAN_FACE_H_
-
