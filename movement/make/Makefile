@@ -114,7 +114,6 @@ SRCS += \
   ../watch_faces/complication/invaders_face.c \
   ../watch_faces/clock/world_clock2_face.c \
   ../watch_faces/complication/time_left_face.c \
-  ../watch_faces/complication/randonaut_face.c \
   ../watch_faces/complication/toss_up_face.c \
   ../watch_faces/complication/geomancy_face.c \
   ../watch_faces/clock/simple_clock_bin_led_face.c \
