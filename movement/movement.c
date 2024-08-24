@@ -721,10 +721,15 @@ static void debounce_btn_press(uint8_t pin, uint8_t *debounce_ticks, uint16_t *d
         *down_timestamp = 0;
 }
 
+static void disable_if_needed(uint8_t *ticks) {
+    if (*ticks > 0 && --*ticks == 0)
+        _movement_disable_fast_tick_if_possible();
+}
+
 static void movement_disable_if_debounce_complete(void) {
-    if (movement_state.debounce_ticks_light > 0 && --movement_state.debounce_ticks_light == 0) _movement_disable_fast_tick_if_possible();
-    if (movement_state.debounce_ticks_alarm > 0 && --movement_state.debounce_ticks_alarm == 0) _movement_disable_fast_tick_if_possible();
-    if (movement_state.debounce_ticks_mode > 0 && --movement_state.debounce_ticks_mode == 0) _movement_disable_fast_tick_if_possible();
+    disable_if_needed(&movement_state.debounce_ticks_light);
+    disable_if_needed(&movement_state.debounce_ticks_alarm);
+    disable_if_needed(&movement_state.debounce_ticks_mode);
 }
 
 void cb_light_btn_interrupt(void) {
