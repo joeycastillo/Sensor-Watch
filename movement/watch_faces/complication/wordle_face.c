@@ -526,7 +526,7 @@ bool wordle_face_loop(movement_event_t event, movement_settings_t *settings, voi
             display_letter(state, true);
             break;
         case EVENT_LIGHT_LONG_PRESS:
-            if (state->curr_screen <= SCREEN_CONTINUE) {
+            if (state->curr_screen < SCREEN_PLAYING) {
                 state->skip_wrong_letter = !state->skip_wrong_letter;
                 show_skip_wrong_letter_indicator(state->skip_wrong_letter);
             }

@@ -57,7 +57,7 @@
  *        Else: Next screen
  *    Alarm Hold
  *        If Playing: Previous position
- *        Else: None
+ *        Else: Toggle skipping over letters that have been confirmed to not be in the word (indicated via the LAP icon)
  */
 
 #define WORDLE_LENGTH 5
