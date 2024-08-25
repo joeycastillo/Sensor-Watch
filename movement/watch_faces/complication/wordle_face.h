@@ -64,7 +64,7 @@
 #define WORDLE_MAX_ATTEMPTS 6
 #define WORDLE_USE_DAILY_STREAK false
 #define WORDLE_ALLOW_NON_WORD_AND_REPEAT_GUESSES false  // This allows non-words to be entered and repeat guesses to be made. It saves ~11.5KB of ROM.
-
+#define WORDLE_SKIP_WRONG_LETTERS true  // If true, already guessed letters that are known to be wrong will be skipped when cycling
 /*  WORDLE_USE_RANDOM_GUESS
  *  0 = Don't allow quickly choosing a random quess
  *  1 = Allow using a random guess of any value that can be an answer

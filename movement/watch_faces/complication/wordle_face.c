@@ -167,7 +167,7 @@ static bool check_word(wordle_state_t *state) {
 }
 
 static void update_known_wrong_letters(wordle_state_t *state) {
-
+#if WORDLE_SKIP_WRONG_LETTERS
     for (size_t i = 0; i < WORDLE_LENGTH; i++) {
         if (state->word_elements_result[i] == WORDLE_LETTER_WRONG) {
             for (size_t j = 0; j < WORDLE_NUM_VALID_LETTERS; j++) {
@@ -176,6 +176,7 @@ static void update_known_wrong_letters(wordle_state_t *state) {
             }
         }
     }
+#endif
 }
 
 static void display_attempt(uint8_t attempt) {
