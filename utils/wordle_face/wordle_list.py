@@ -1163,8 +1163,8 @@ def print_valid_words(letters=alphabet):
     print("#define WORDLE_LENGTH 5")
     print("#endif")
 
-    print("\n#ifndef USE_RANDOM_GUESS")
-    print("#define USE_RANDOM_GUESS 2")
+    print("\n#ifndef WORDLE_USE_RANDOM_GUESS")
+    print("#define WORDLE_USE_RANDOM_GUESS 2")
     print("#endif\n")
     
     items_per_row = 9
@@ -1197,7 +1197,7 @@ def print_valid_words(letters=alphabet):
     print("\n// These are words that'll never be used, but still need to be in the dictionary for guesses.")
     print(f"// Number of words found: {len(possible_words)}")
     print("static const char _possible_words[][WORDLE_LENGTH + 1] = {")
-    print("#if !ALLOW_NON_WORD_AND_REPEAT_GUESSES")
+    print("#if !WORDLE_ALLOW_NON_WORD_AND_REPEAT_GUESSES")
     i = 0
     while i < len(possible_words):
         print("    ", end='')
@@ -1208,9 +1208,9 @@ def print_valid_words(letters=alphabet):
     print("#endif")
     print("};\n")
     
-    print("#if (USE_RANDOM_GUESS == 2)")
+    print("#if (WORDLE_USE_RANDOM_GUESS == 2)")
     print(f"static const uint16_t _num_random_guess_words = {num_uniq};  // The _valid_words array begins with this many words where each letter is different.")
-    print("#elif (USE_RANDOM_GUESS == 1)")
+    print("#elif (WORDLE_USE_RANDOM_GUESS == 1)")
     print("static const uint16_t _num_random_guess_words = _num_words;")
     print("#endif")
     print("\n#endif // WORDLE_FACE_DICT_H_")
