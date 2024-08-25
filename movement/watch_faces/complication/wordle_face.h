@@ -70,6 +70,11 @@
  *  2 = Allow using a random guess of any value that can be an answer where all of its letters are unique
 */
 #define USE_RANDOM_GUESS 2
+#include "wordle_face_dict.h"
+
+static const uint16_t _num_words = (sizeof(_valid_words) / sizeof(_valid_words[0]));
+static const uint16_t _num_possible_words = (sizeof(_possible_words) / sizeof(_possible_words[0]));
+static const uint8_t _num_valid_letters = (sizeof(_valid_letters) / sizeof(_valid_letters[0]));
 
 typedef enum {
     WORDLE_LETTER_WRONG = 0,
