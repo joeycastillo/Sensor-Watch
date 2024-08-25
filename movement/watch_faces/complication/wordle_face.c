@@ -62,14 +62,18 @@ static uint8_t get_prev_pos(uint8_t curr_pos, WordleLetterResult *word_elements_
     return curr_pos;
 }
 
-static void get_next_letter(uint8_t curr_pos, uint8_t *word_elements) {
-    if (word_elements[curr_pos] >= _num_valid_letters) word_elements[curr_pos] = 0;
-    else word_elements[curr_pos] = (word_elements[curr_pos] + 1) % _num_valid_letters;
+static void get_next_letter(const uint8_t curr_pos, uint8_t *word_elements, const bool *known_wrong_letters) {
+    do {
+        if (word_elements[curr_pos] >= _num_valid_letters) word_elements[curr_pos] = 0;
+        else word_elements[curr_pos] = (word_elements[curr_pos] + 1) % _num_valid_letters;
+    } while (known_wrong_letters[word_elements[curr_pos]]);  
 }
 
-static void get_prev_letter(uint8_t curr_pos, uint8_t *word_elements) {
-    if (word_elements[curr_pos] >= _num_valid_letters) word_elements[curr_pos] = _num_valid_letters - 1;
-    else word_elements[curr_pos] = (word_elements[curr_pos] + _num_valid_letters - 1) % _num_valid_letters;
+static void get_prev_letter(const uint8_t curr_pos, uint8_t *word_elements, const bool *known_wrong_letters) {
+    do {
+        if (word_elements[curr_pos] >= _num_valid_letters) word_elements[curr_pos] = _num_valid_letters - 1;
+        else word_elements[curr_pos] = (word_elements[curr_pos] + _num_valid_letters - 1) % _num_valid_letters;
+    } while (known_wrong_letters[word_elements[curr_pos]]);  
 }
 
 static void display_letter(wordle_state_t *state, bool display_dash) {
@@ -130,8 +134,6 @@ static uint32_t check_word_in_dict(uint8_t *word_elements) {
     }
     return _num_words + _num_possible_words;
 }
-
-
 #endif
 
 static bool check_word(wordle_state_t *state) {
@@ -164,6 +166,18 @@ static bool check_word(wordle_state_t *state) {
     return false;
 }
 
+static void update_known_wrong_letters(wordle_state_t *state) {
+
+    for (size_t i = 0; i < WORDLE_LENGTH; i++) {
+        if (state->word_elements_result[i] == WORDLE_LETTER_WRONG) {
+            for (size_t j = 0; j < _num_valid_letters; j++) {
+                if (state->word_elements[i] == j)
+                    state->known_wrong_letters[j] = true;
+            }
+        }
+    }
+}
+
 static void display_attempt(uint8_t attempt) {
     char buf[3];
     sprintf(buf, "%d", attempt+1);
@@ -180,6 +194,9 @@ static void reset_all_elements(wordle_state_t *state) {
     for (size_t i = 0; i < WORDLE_LENGTH; i++) {
         state->word_elements[i] = _num_valid_letters;
         state->word_elements_result[i] = WORDLE_LETTER_WRONG;
+    }
+    for (size_t i = 0; i < _num_valid_letters; i++){
+        state->known_wrong_letters[i] = false;
     }
 #if !ALLOW_NON_WORD_AND_REPEAT_GUESSES
     for (size_t i = 0; i < WORDLE_MAX_ATTEMPTS; i++) {
@@ -414,6 +431,7 @@ static void get_result(wordle_state_t *state) {
         state->streak = 0;
         return;
     }
+    update_known_wrong_letters(state);
     state->curr_screen = SCREEN_RESULT;
     return;
 }
@@ -496,12 +514,12 @@ bool wordle_face_loop(movement_event_t event, movement_settings_t *settings, voi
             break;
         case EVENT_LIGHT_BUTTON_UP:
             if (act_on_btn(state, BTN_LIGHT)) break;
-            get_next_letter(state->position, state->word_elements);
+            get_next_letter(state->position, state->word_elements, state->known_wrong_letters);
             display_letter(state, true);
             break;
         case EVENT_LIGHT_LONG_PRESS:
             if (state->curr_screen != SCREEN_PLAYING) break;
-            get_prev_letter(state->position, state->word_elements);
+            get_prev_letter(state->position, state->word_elements, state->known_wrong_letters);
             display_letter(state, true);
             break; 
         case EVENT_ALARM_BUTTON_UP:

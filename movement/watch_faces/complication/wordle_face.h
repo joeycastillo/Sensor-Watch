@@ -114,6 +114,7 @@ typedef struct {
     bool continuing : 1;
     uint8_t streak;
     WordleScreen curr_screen;
+    bool known_wrong_letters[_num_valid_letters];
 #if USE_DAILY_STREAK
     uint32_t prev_day;
     uint32_t curr_day;
