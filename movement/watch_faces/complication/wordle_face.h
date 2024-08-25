@@ -37,7 +37,7 @@
  * and the letters found in the word, but in the incorrect spot will blink.
  * The screen after the title screen if a new game is started shows the streak of games won in a row.
  * 
- * If USE_DAILY_STREAK is set to True, then the game can only be played once per day,
+ * If WORDLE_USE_DAILY_STREAK is set to True, then the game can only be played once per day,
  *                  and the streak resets to 0 if a day goes by without playing the game.
  * 
  * Controls:
@@ -49,7 +49,7 @@
  *        Else: None
  *
  *    Alarm Press
- *        If Playing: If USE_RANDOM_GUESS is set and Light btn held and 
+ *        If Playing: If WORDLE_USE_RANDOM_GUESS is set and Light btn held and 
  *                    (on first letter or already used a random guess) 
  *                    and first attempt: Use a random 5 letter word with all letters that are different.
  *                    Else: Next position
@@ -62,20 +62,20 @@
 
 #define WORDLE_LENGTH 5
 #define WORDLE_MAX_ATTEMPTS 6
-#define USE_DAILY_STREAK false
-#define ALLOW_NON_WORD_AND_REPEAT_GUESSES false  // This allows non-words to be entered and repeat guesses to be made. It saves ~11.5KB of ROM.
+#define WORDLE_USE_DAILY_STREAK false
+#define WORDLE_ALLOW_NON_WORD_AND_REPEAT_GUESSES false  // This allows non-words to be entered and repeat guesses to be made. It saves ~11.5KB of ROM.
 
-/*  USE_RANDOM_GUESS
+/*  WORDLE_USE_RANDOM_GUESS
  *  0 = Don't allow quickly choosing a random quess
  *  1 = Allow using a random guess of any value that can be an answer
  *  2 = Allow using a random guess of any value that can be an answer where all of its letters are unique
 */
-#define USE_RANDOM_GUESS 2
+#define WORDLE_USE_RANDOM_GUESS 2
 #include "wordle_face_dict.h"
 
-static const uint16_t _num_words = (sizeof(_valid_words) / sizeof(_valid_words[0]));
-static const uint16_t _num_possible_words = (sizeof(_possible_words) / sizeof(_possible_words[0]));
-static const uint8_t _num_valid_letters = (sizeof(_valid_letters) / sizeof(_valid_letters[0]));
+#define WORDLE_NUM_WORDS (sizeof(_valid_words) / sizeof(_valid_words[0]))
+#define WORDLE_NUM_POSSIBLE_WORDS (sizeof(_possible_words) / sizeof(_possible_words[0]))
+#define WORDLE_NUM_VALID_LETTERS (sizeof(_valid_letters) / sizeof(_valid_letters[0]))
 
 typedef enum {
     WORDLE_LETTER_WRONG = 0,
@@ -89,7 +89,7 @@ typedef enum {
     SCREEN_TITLE,
     SCREEN_STREAK,
     SCREEN_CONTINUE,
-#if USE_DAILY_STREAK
+#if WORDLE_USE_DAILY_STREAK
     SCREEN_WAIT,
 #endif
     SCREEN_RESULT,
@@ -104,7 +104,7 @@ typedef struct {
     // Anything you need to keep track of, put it here!
     uint8_t word_elements[WORDLE_LENGTH];
     WordleLetterResult word_elements_result[WORDLE_LENGTH];
-#if !ALLOW_NON_WORD_AND_REPEAT_GUESSES
+#if !WORDLE_ALLOW_NON_WORD_AND_REPEAT_GUESSES
     uint16_t guessed_words[WORDLE_MAX_ATTEMPTS];
 #endif
     uint8_t attempt : 4;
@@ -114,8 +114,8 @@ typedef struct {
     bool continuing : 1;
     uint8_t streak;
     WordleScreen curr_screen;
-    bool known_wrong_letters[_num_valid_letters];
-#if USE_DAILY_STREAK
+    bool known_wrong_letters[WORDLE_NUM_VALID_LETTERS];
+#if WORDLE_USE_DAILY_STREAK
     uint32_t prev_day;
     uint32_t curr_day;
 #endif

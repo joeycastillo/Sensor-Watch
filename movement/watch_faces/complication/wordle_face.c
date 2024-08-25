@@ -25,7 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "wordle_face.h"
-#if USE_DAILY_STREAK
+#if WORDLE_USE_DAILY_STREAK
 #include "watch_utility.h"
 #endif
 
@@ -64,21 +64,21 @@ static uint8_t get_prev_pos(uint8_t curr_pos, WordleLetterResult *word_elements_
 
 static void get_next_letter(const uint8_t curr_pos, uint8_t *word_elements, const bool *known_wrong_letters) {
     do {
-        if (word_elements[curr_pos] >= _num_valid_letters) word_elements[curr_pos] = 0;
-        else word_elements[curr_pos] = (word_elements[curr_pos] + 1) % _num_valid_letters;
+        if (word_elements[curr_pos] >= WORDLE_NUM_VALID_LETTERS) word_elements[curr_pos] = 0;
+        else word_elements[curr_pos] = (word_elements[curr_pos] + 1) % WORDLE_NUM_VALID_LETTERS;
     } while (known_wrong_letters[word_elements[curr_pos]]);  
 }
 
 static void get_prev_letter(const uint8_t curr_pos, uint8_t *word_elements, const bool *known_wrong_letters) {
     do {
-        if (word_elements[curr_pos] >= _num_valid_letters) word_elements[curr_pos] = _num_valid_letters - 1;
-        else word_elements[curr_pos] = (word_elements[curr_pos] + _num_valid_letters - 1) % _num_valid_letters;
+        if (word_elements[curr_pos] >= WORDLE_NUM_VALID_LETTERS) word_elements[curr_pos] = WORDLE_NUM_VALID_LETTERS - 1;
+        else word_elements[curr_pos] = (word_elements[curr_pos] + WORDLE_NUM_VALID_LETTERS - 1) % WORDLE_NUM_VALID_LETTERS;
     } while (known_wrong_letters[word_elements[curr_pos]]);  
 }
 
 static void display_letter(wordle_state_t *state, bool display_dash) {
     char buf[1 + 1];
-    if (state->word_elements[state->position] >= _num_valid_letters) {
+    if (state->word_elements[state->position] >= WORDLE_NUM_VALID_LETTERS) {
         if (display_dash)
             watch_display_string("-", state->position + 5);
         else
@@ -99,7 +99,7 @@ static void display_all_letters(wordle_state_t *state) {
     state->position = prev_pos;
 }
 
-#if !ALLOW_NON_WORD_AND_REPEAT_GUESSES
+#if !WORDLE_ALLOW_NON_WORD_AND_REPEAT_GUESSES
 static void display_not_in_dict(wordle_state_t *state) {
     state->curr_screen = SCREEN_NO_DICT;
     watch_display_string("nodict", 4);
@@ -112,7 +112,7 @@ static void display_already_guessed(wordle_state_t *state) {
 
 static uint32_t check_word_in_dict(uint8_t *word_elements) {
     bool is_exact_match;
-    for (uint16_t i = 0; i < _num_words; i++) {
+    for (uint16_t i = 0; i < WORDLE_NUM_WORDS; i++) {
         is_exact_match = true;
         for (size_t j = 0; j < WORDLE_LENGTH; j++) {
             if (_valid_letters[word_elements[j]] != _valid_words[i][j]) {
@@ -122,7 +122,7 @@ static uint32_t check_word_in_dict(uint8_t *word_elements) {
         }
         if (is_exact_match) return i;
     }
-    for (uint16_t i = 0; i < _num_possible_words; i++) {
+    for (uint16_t i = 0; i < WORDLE_NUM_POSSIBLE_WORDS; i++) {
         is_exact_match = true;
         for (size_t j = 0; j < WORDLE_LENGTH; j++) {
             if (_valid_letters[word_elements[j]] != _possible_words[i][j]) {
@@ -130,9 +130,9 @@ static uint32_t check_word_in_dict(uint8_t *word_elements) {
                 break;  
             }
         }
-        if (is_exact_match) return _num_words + i;
+        if (is_exact_match) return WORDLE_NUM_WORDS + i;
     }
-    return _num_words + _num_possible_words;
+    return WORDLE_NUM_WORDS + WORDLE_NUM_POSSIBLE_WORDS;
 }
 #endif
 
@@ -170,7 +170,7 @@ static void update_known_wrong_letters(wordle_state_t *state) {
 
     for (size_t i = 0; i < WORDLE_LENGTH; i++) {
         if (state->word_elements_result[i] == WORDLE_LETTER_WRONG) {
-            for (size_t j = 0; j < _num_valid_letters; j++) {
+            for (size_t j = 0; j < WORDLE_NUM_VALID_LETTERS; j++) {
                 if (state->word_elements[i] == j)
                     state->known_wrong_letters[j] = true;
             }
@@ -192,15 +192,15 @@ static void display_playing(wordle_state_t *state) {
 
 static void reset_all_elements(wordle_state_t *state) {
     for (size_t i = 0; i < WORDLE_LENGTH; i++) {
-        state->word_elements[i] = _num_valid_letters;
+        state->word_elements[i] = WORDLE_NUM_VALID_LETTERS;
         state->word_elements_result[i] = WORDLE_LETTER_WRONG;
     }
-    for (size_t i = 0; i < _num_valid_letters; i++){
+    for (size_t i = 0; i < WORDLE_NUM_VALID_LETTERS; i++){
         state->known_wrong_letters[i] = false;
     }
-#if !ALLOW_NON_WORD_AND_REPEAT_GUESSES
+#if !WORDLE_ALLOW_NON_WORD_AND_REPEAT_GUESSES
     for (size_t i = 0; i < WORDLE_MAX_ATTEMPTS; i++) {
-        state->guessed_words[i] = _num_words + _num_possible_words;
+        state->guessed_words[i] = WORDLE_NUM_WORDS + WORDLE_NUM_POSSIBLE_WORDS;
     }
 #endif
     state->using_random_guess = false;
@@ -210,13 +210,13 @@ static void reset_all_elements(wordle_state_t *state) {
 static void reset_incorrect_elements(wordle_state_t *state) {
     for (size_t i = 0; i < WORDLE_LENGTH; i++) {
         if (state->word_elements_result[i] != WORDLE_LETTER_CORRECT)
-            state->word_elements[i] = _num_valid_letters;
+            state->word_elements[i] = WORDLE_NUM_VALID_LETTERS;
     }
 }
 
 static void reset_board(wordle_state_t *state) {
     reset_all_elements(state);
-    state->curr_answer = get_random(_num_words);
+    state->curr_answer = get_random(WORDLE_NUM_WORDS);
     watch_clear_colon();
     state->position = get_first_pos(state->word_elements_result);
     display_playing(state);
@@ -231,7 +231,7 @@ static void display_title(wordle_state_t *state) {
     watch_display_string("WO  WordLE", 0);
 }
 
-#if !USE_DAILY_STREAK
+#if !WORDLE_USE_DAILY_STREAK
 static void display_continue_result(bool continuing) {
     watch_display_string(continuing ? "y" : "n", 9);
 }
@@ -246,7 +246,7 @@ static void display_continue(wordle_state_t *state) {
 static void display_streak(wordle_state_t *state) {
     char buf[12];
     state->curr_screen = SCREEN_STREAK;
-#if USE_DAILY_STREAK
+#if WORDLE_USE_DAILY_STREAK
     if (state->streak > 99)
         sprintf(buf, "WO  St--dy");
     else
@@ -258,7 +258,7 @@ static void display_streak(wordle_state_t *state) {
     watch_set_colon();
 }
 
-#if USE_DAILY_STREAK
+#if WORDLE_USE_DAILY_STREAK
 static void display_wait(wordle_state_t *state) {
     state->curr_screen = SCREEN_WAIT;
     if (state->streak < 40) {
@@ -294,7 +294,7 @@ static void display_win(wordle_state_t *state, uint8_t subsecond) {
 static bool is_playing(const wordle_state_t *state) {
     if (state->attempt > 0) return true;
     for (size_t i = 0; i < WORDLE_LENGTH; i++) {
-        if (state->word_elements[i] != _num_valid_letters)
+        if (state->word_elements[i] != WORDLE_NUM_VALID_LETTERS)
             return true;
     }
     return false;
@@ -333,7 +333,7 @@ static bool act_on_btn(wordle_state_t *state, const uint8_t pin) {
         display_playing(state);
         return true;
     case SCREEN_TITLE:
-#if USE_DAILY_STREAK
+#if WORDLE_USE_DAILY_STREAK
         if (state->prev_day == get_day_unix_time()) {
             display_wait(state);
         }
@@ -351,7 +351,7 @@ static bool act_on_btn(wordle_state_t *state, const uint8_t pin) {
 #endif
         return true;
     case SCREEN_STREAK:
-#if USE_DAILY_STREAK
+#if WORDLE_USE_DAILY_STREAK
         state->curr_day = get_day_unix_time();
 #endif
         reset_board(state);
@@ -365,7 +365,7 @@ static bool act_on_btn(wordle_state_t *state, const uint8_t pin) {
         state->position = get_first_pos(state->word_elements_result);
         display_playing(state);
         return true;
-#if USE_DAILY_STREAK
+#if WORDLE_USE_DAILY_STREAK
     case SCREEN_WAIT:
         (void) pin;
         display_title(state);
@@ -396,10 +396,10 @@ static bool act_on_btn(wordle_state_t *state, const uint8_t pin) {
 }
 
 static void get_result(wordle_state_t *state) {
-#if !ALLOW_NON_WORD_AND_REPEAT_GUESSES
+#if !WORDLE_ALLOW_NON_WORD_AND_REPEAT_GUESSES
     // Check if it's in the dict
     uint16_t in_dict = check_word_in_dict(state->word_elements);
-    if (in_dict == _num_words + _num_possible_words) {
+    if (in_dict == WORDLE_NUM_WORDS + WORDLE_NUM_POSSIBLE_WORDS) {
         display_not_in_dict(state);
         return;
     }
@@ -420,7 +420,7 @@ static void get_result(wordle_state_t *state) {
         state->curr_screen = SCREEN_WIN;
         if (state->streak < 0x7F)
             state->streak++;
-#if USE_DAILY_STREAK
+#if WORDLE_USE_DAILY_STREAK
         state->prev_day = get_day_unix_time();
 #endif
         return;
@@ -436,14 +436,14 @@ static void get_result(wordle_state_t *state) {
     return;
 }
 
-#if (USE_RANDOM_GUESS != 0)
+#if (WORDLE_USE_RANDOM_GUESS != 0)
 static void insert_random_guess(wordle_state_t *state) {
     uint16_t random_guess;
     do {  // Don't allow the guess to be the same as the answer
         random_guess = get_random(_num_random_guess_words);
     } while (random_guess == state->curr_answer); 
     for (size_t i = 0; i < WORDLE_LENGTH; i++) {
-        for (size_t j = 0; j < _num_valid_letters; j++)
+        for (size_t j = 0; j < WORDLE_NUM_VALID_LETTERS; j++)
         {
             if (_valid_words[random_guess][i] == _valid_letters[j])
                 state->word_elements[i] = j;     
@@ -471,7 +471,7 @@ void wordle_face_setup(movement_settings_t *settings, uint8_t watch_face_index, 
 void wordle_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
     wordle_state_t *state = (wordle_state_t *)context;
-#if USE_DAILY_STREAK
+#if WORDLE_USE_DAILY_STREAK
     uint32_t now = get_day_unix_time() ;
     if (state->prev_day <= (now + (60 *60 * 24))) state->streak = 0;
     if (state->curr_day != now) reset_all_elements(state);
@@ -525,8 +525,8 @@ bool wordle_face_loop(movement_event_t event, movement_settings_t *settings, voi
         case EVENT_ALARM_BUTTON_UP:
             if (act_on_btn(state, BTN_ALARM)) break;
             display_letter(state, true);
-            if (state->word_elements[state->position] == _num_valid_letters) break;
-#if (USE_RANDOM_GUESS != 0)
+            if (state->word_elements[state->position] == WORDLE_NUM_VALID_LETTERS) break;
+#if (WORDLE_USE_RANDOM_GUESS != 0)
             if (watch_get_pin_level(BTN_LIGHT) &&
             (state->using_random_guess || (state->attempt == 0 && state->position == 0))) {
                 insert_random_guess(state);
