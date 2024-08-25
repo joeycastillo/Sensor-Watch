@@ -64,7 +64,6 @@
 #define WORDLE_MAX_ATTEMPTS 6
 #define WORDLE_USE_DAILY_STREAK false
 #define WORDLE_ALLOW_NON_WORD_AND_REPEAT_GUESSES false  // This allows non-words to be entered and repeat guesses to be made. It saves ~11.5KB of ROM.
-#define WORDLE_SKIP_WRONG_LETTERS true  // If true, already guessed letters that are known to be wrong will be skipped when cycling
 /*  WORDLE_USE_RANDOM_GUESS
  *  0 = Don't allow quickly choosing a random quess
  *  1 = Allow using a random guess of any value that can be an answer
@@ -85,13 +84,13 @@ typedef enum {
 } WordleLetterResult;
 
 typedef enum {
-    SCREEN_PLAYING = 0,
-    SCREEN_TITLE,
+    SCREEN_TITLE = 0,
     SCREEN_STREAK,
     SCREEN_CONTINUE,
 #if WORDLE_USE_DAILY_STREAK
     SCREEN_WAIT,
 #endif
+    SCREEN_PLAYING,
     SCREEN_RESULT,
     SCREEN_WIN,
     SCREEN_LOSE,
@@ -110,8 +109,9 @@ typedef struct {
     uint8_t attempt : 4;
     uint8_t position : 3;
     bool using_random_guess : 1;
-    uint16_t curr_answer : 15;
+    uint16_t curr_answer : 14;
     bool continuing : 1;
+    bool skip_wrong_letter : 1;
     uint8_t streak;
     WordleScreen curr_screen;
     bool known_wrong_letters[WORDLE_NUM_VALID_LETTERS];
