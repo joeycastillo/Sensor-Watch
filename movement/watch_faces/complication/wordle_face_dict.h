@@ -5,8 +5,8 @@
 #define WORDLE_LENGTH 5
 #endif
 
-#ifndef USE_RANDOM_GUESS
-#define USE_RANDOM_GUESS 2
+#ifndef WORDLE_USE_RANDOM_GUESS
+#define WORDLE_USE_RANDOM_GUESS 2
 #endif
 
 static const char _valid_letters[] = {'A', 'C', 'E', 'H', 'I', 'L', 'N', 'O', 'P', 'R', 'S', 'T'};
@@ -67,7 +67,7 @@ static const char _valid_words[][WORDLE_LENGTH + 1] = {
 // These are words that'll never be used, but still need to be in the dictionary for guesses.
 // Number of words found: 1898
 static const char _possible_words[][WORDLE_LENGTH + 1] = {
-#if !ALLOW_NON_WORD_AND_REPEAT_GUESSES
+#if !WORDLE_ALLOW_NON_WORD_AND_REPEAT_GUESSES
     "AALII", "AARTI", "ACAIS", "ACARI", "ACCAS", "ACERS", "ACETA", "ACHAR", "ACHES", 
     "ACHOO", "ACINI", "ACNES", "ACRES", "ACROS", "ACTIN", "ACTON", "AECIA", "AEONS", 
     "AERIE", "AEROS", "AESIR", "AHEAP", "AHENT", "AHINT", "AINEE", "AIOLI", "AIRER", 
@@ -282,9 +282,9 @@ static const char _possible_words[][WORDLE_LENGTH + 1] = {
 #endif
 };
 
-#if (USE_RANDOM_GUESS == 2)
+#if (WORDLE_USE_RANDOM_GUESS == 2)
 static const uint16_t _num_random_guess_words = 257;  // The _valid_words array begins with this many words where each letter is different.
-#elif (USE_RANDOM_GUESS == 1)
+#elif (WORDLE_USE_RANDOM_GUESS == 1)
 static const uint16_t _num_random_guess_words = _num_words;
 #endif
 
