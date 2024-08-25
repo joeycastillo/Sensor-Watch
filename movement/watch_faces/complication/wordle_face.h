@@ -46,7 +46,7 @@
  *        Else: Next screen
  *    Light Hold
  *        If Playing: Previous letter
- *        Else: None
+ *        Else: Toggle skipping over letters that have been confirmed to not be in the word (indicated via the LAP icon)
  *
  *    Alarm Press
  *        If Playing: If WORDLE_USE_RANDOM_GUESS is set and Light btn held and 
@@ -57,7 +57,7 @@
  *        Else: Next screen
  *    Alarm Hold
  *        If Playing: Previous position
- *        Else: Toggle skipping over letters that have been confirmed to not be in the word (indicated via the LAP icon)
+ *        Else: None
  */
 
 #define WORDLE_LENGTH 5
