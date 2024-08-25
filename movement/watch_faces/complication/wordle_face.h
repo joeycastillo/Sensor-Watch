@@ -63,6 +63,7 @@
 #define WORDLE_LENGTH 5
 #define WORDLE_MAX_ATTEMPTS 6
 #define USE_DAILY_STREAK false
+#define ALLOW_NON_WORD_AND_REPEAT_GUESSES false  // This allows non-words to be entered and repeat guesses to be made. It saves ~11.5KB of ROM.
 
 /*  USE_RANDOM_GUESS
  *  0 = Don't allow quickly choosing a random quess
@@ -103,7 +104,9 @@ typedef struct {
     // Anything you need to keep track of, put it here!
     uint8_t word_elements[WORDLE_LENGTH];
     WordleLetterResult word_elements_result[WORDLE_LENGTH];
+#if !ALLOW_NON_WORD_AND_REPEAT_GUESSES
     uint16_t guessed_words[WORDLE_MAX_ATTEMPTS];
+#endif
     uint8_t attempt : 4;
     uint8_t position : 3;
     bool using_random_guess : 1;

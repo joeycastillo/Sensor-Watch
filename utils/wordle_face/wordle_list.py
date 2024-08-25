@@ -1156,6 +1156,17 @@ def print_valid_words(letters=alphabet):
     '''
     Prints the array of valid words that the wordle_face.c can use
     '''
+    print("#ifndef WORDLE_FACE_DICT_H_")
+    print("#define WORDLE_FACE_DICT_H_")
+
+    print("\n#ifndef WORDLE_LENGTH")
+    print("#define WORDLE_LENGTH 5")
+    print("#endif")
+
+    print("\n#ifndef USE_RANDOM_GUESS")
+    print("#define USE_RANDOM_GUESS 2")
+    print("#endif\n")
+    
     items_per_row = 9
     valid_words = list_of_valid_words(letters, valid_list)
     valid_words = capitalize_all_and_remove_duplicates(valid_words)
@@ -1186,6 +1197,7 @@ def print_valid_words(letters=alphabet):
     print("\n// These are words that'll never be used, but still need to be in the dictionary for guesses.")
     print(f"// Number of words found: {len(possible_words)}")
     print("static const char _possible_words[][WORDLE_LENGTH + 1] = {")
+    print("#if !ALLOW_NON_WORD_AND_REPEAT_GUESSES")
     i = 0
     while i < len(possible_words):
         print("    ", end='')
@@ -1193,10 +1205,15 @@ def print_valid_words(letters=alphabet):
             print(f'"{clean_chars(possible_words[i])}", ', end='')
             i+=1
         print('')
-    print("};")
-    print('')
+    print("#endif")
+    print("};\n")
     
-    print(f"\nstatic const uint16_t _num_unique_words = {num_uniq};  // The _valid_words array begins with this many words where each letter is different.")
+    print("#if (USE_RANDOM_GUESS == 2)")
+    print(f"static const uint16_t _num_random_guess_words = {num_uniq};  // The _valid_words array begins with this many words where each letter is different.")
+    print("#elif (USE_RANDOM_GUESS == 1)")
+    print("static const uint16_t _num_random_guess_words = _num_words;")
+    print("#endif")
+    print("\n#endif // WORDLE_FACE_DICT_H_")
 
 
 def get_sec_val_and_units(seconds):

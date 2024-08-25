@@ -95,6 +95,17 @@ static void display_all_letters(wordle_state_t *state) {
     state->position = prev_pos;
 }
 
+#if !ALLOW_NON_WORD_AND_REPEAT_GUESSES
+static void display_not_in_dict(wordle_state_t *state) {
+    state->curr_screen = SCREEN_NO_DICT;
+    watch_display_string("nodict", 4);
+}
+
+static void display_already_guessed(wordle_state_t *state) {
+    state->curr_screen = SCREEN_ALREADY_GUESSED;
+    watch_display_string("GUESSD", 4);
+}
+
 static uint32_t check_word_in_dict(uint8_t *word_elements) {
     bool is_exact_match;
     for (uint16_t i = 0; i < _num_words; i++) {
@@ -119,6 +130,9 @@ static uint32_t check_word_in_dict(uint8_t *word_elements) {
     }
     return _num_words + _num_possible_words;
 }
+
+
+#endif
 
 static bool check_word(wordle_state_t *state) {
     // Exact
@@ -167,9 +181,11 @@ static void reset_all_elements(wordle_state_t *state) {
         state->word_elements[i] = _num_valid_letters;
         state->word_elements_result[i] = WORDLE_LETTER_WRONG;
     }
+#if !ALLOW_NON_WORD_AND_REPEAT_GUESSES
     for (size_t i = 0; i < WORDLE_MAX_ATTEMPTS; i++) {
         state->guessed_words[i] = _num_words + _num_possible_words;
     }
+#endif
     state->using_random_guess = false;
     state->attempt = 0;
 }
@@ -244,16 +260,6 @@ static uint32_t get_day_unix_time(void) {
     return watch_utility_date_time_to_unix_time(now, 0);
 }
 #endif
-
-static void display_not_in_dict(wordle_state_t *state) {
-    state->curr_screen = SCREEN_NO_DICT;
-    watch_display_string("nodict", 4);
-}
-
-static void display_already_guessed(wordle_state_t *state) {
-    state->curr_screen = SCREEN_ALREADY_GUESSED;
-    watch_display_string("GUESSD", 4);
-}
 
 static void display_lose(wordle_state_t *state, uint8_t subsecond) {
     char buf[WORDLE_LENGTH + 6];
@@ -373,6 +379,7 @@ static bool act_on_btn(wordle_state_t *state, const uint8_t pin) {
 }
 
 static void get_result(wordle_state_t *state) {
+#if !ALLOW_NON_WORD_AND_REPEAT_GUESSES
     // Check if it's in the dict
     uint16_t in_dict = check_word_in_dict(state->word_elements);
     if (in_dict == _num_words + _num_possible_words) {
@@ -389,6 +396,7 @@ static void get_result(wordle_state_t *state) {
     }
 
     state->guessed_words[state->attempt] = in_dict;
+#endif
     bool exact_match = check_word(state);
     if (exact_match) {
         reset_all_elements(state);

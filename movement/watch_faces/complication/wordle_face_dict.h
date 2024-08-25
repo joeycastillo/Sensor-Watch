@@ -67,6 +67,7 @@ static const char _valid_words[][WORDLE_LENGTH + 1] = {
 // These are words that'll never be used, but still need to be in the dictionary for guesses.
 // Number of words found: 1898
 static const char _possible_words[][WORDLE_LENGTH + 1] = {
+#if !ALLOW_NON_WORD_AND_REPEAT_GUESSES
     "AALII", "AARTI", "ACAIS", "ACARI", "ACCAS", "ACERS", "ACETA", "ACHAR", "ACHES", 
     "ACHOO", "ACINI", "ACNES", "ACRES", "ACROS", "ACTIN", "ACTON", "AECIA", "AEONS", 
     "AERIE", "AEROS", "AESIR", "AHEAP", "AHENT", "AHINT", "AINEE", "AIOLI", "AIRER", 
@@ -278,6 +279,7 @@ static const char _possible_words[][WORDLE_LENGTH + 1] = {
     "TRATT", "TREEN", "TREES", "TRESS", "TREST", "TRETS", "TRIAC", "TRIER", "TRIES", 
     "TRILL", "TRINE", "TRINS", "TRIOL", "TRIOR", "TRIOS", "TRIPS", "TRIST", "TROAT", 
     "TROIS", "TRONA", "TRONC", "TRONE", "TRONS", "TROTH", "TROTS", "TSARS", 
+#endif
 };
 
 #if (USE_RANDOM_GUESS == 2)
