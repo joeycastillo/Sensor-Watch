@@ -264,7 +264,7 @@ static void display_continue(wordle_state_t *state) {
 static void display_streak(wordle_state_t *state) {
     char buf[12];
     state->curr_screen = SCREEN_STREAK;
-#if WORDLE_USE_DAILY_STREAK != 2
+#if WORDLE_USE_DAILY_STREAK == 2
     if (state->streak > 99)
         sprintf(buf, "WO  St--dy");
     else
