@@ -25,9 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "wordle_face.h"
-#if WORDLE_USE_DAILY_STREAK
 #include "watch_utility.h"
-#endif
 
 static uint32_t get_random(uint32_t max) {
     #if __EMSCRIPTEN__
@@ -298,6 +296,11 @@ static uint32_t get_day_unix_time(void) {
     now.unit.hour = now.unit.minute = now.unit.second = 0;
     return watch_utility_date_time_to_unix_time(now, 0);
 }
+#else
+static uint32_t get_day_unix_time(void) {
+    watch_date_time now = watch_rtc_get_date_time();
+    return watch_utility_date_time_to_unix_time(now, 0);
+}
 #endif
 
 static void display_lose(wordle_state_t *state, uint8_t subsecond) {
@@ -373,9 +376,7 @@ static bool act_on_btn(wordle_state_t *state, const uint8_t pin) {
 #endif
         return true;
     case SCREEN_STREAK:
-#if WORDLE_USE_DAILY_STREAK
         state->curr_day = get_day_unix_time();
-#endif
         reset_board(state);
         return true;
     case SCREEN_WIN:
@@ -495,10 +496,15 @@ void wordle_face_setup(movement_settings_t *settings, uint8_t watch_face_index, 
 void wordle_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
     wordle_state_t *state = (wordle_state_t *)context;
+    uint32_t now = get_day_unix_time();
 #if WORDLE_USE_DAILY_STREAK
-    uint32_t now = get_day_unix_time() ;
-    if (now >= (state->prev_day + (60 *60 * 24))) state->streak = 0;
     if (state->curr_day != now) reset_all_elements(state);
+    if (now >= (state->prev_day + (60 *60 * 24))) state->streak = 0;
+#else
+    if (is_playing(state) && now >= (state->curr_day + (60 *60 * 24))) {
+        state->streak = 0;
+        reset_board(state);
+    }
 #endif
     state->using_random_guess = false;
     if (is_playing(state) && state->curr_screen >= SCREEN_RESULT) {

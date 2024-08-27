@@ -66,7 +66,8 @@
 
 #define WORDLE_LENGTH 5
 #define WORDLE_MAX_ATTEMPTS 6
-#define WORDLE_USE_DAILY_STREAK false
+#define WORDLE_USE_DAILY_STREAK false  // If true, the board will reset daily and the streak will go to zero if the game isn't played for a day
+                                       // If false, then the streak will still reset if the game is not completed within 24 hours
 #define WORDLE_ALLOW_NON_WORD_AND_REPEAT_GUESSES false  // This allows non-words to be entered and repeat guesses to be made. It saves ~11.5KB of ROM.
 /*  WORDLE_USE_RANDOM_GUESS
  *  0 = Don't allow quickly choosing a random quess
@@ -119,9 +120,9 @@ typedef struct {
     uint8_t streak;
     WordleScreen curr_screen;
     bool known_wrong_letters[WORDLE_NUM_VALID_LETTERS];
+    uint32_t curr_day;
 #if WORDLE_USE_DAILY_STREAK
     uint32_t prev_day;
-    uint32_t curr_day;
 #endif
 } wordle_state_t;
 
