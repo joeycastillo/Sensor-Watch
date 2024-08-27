@@ -46,18 +46,22 @@
  *        Else: Next screen
  *    Light Hold
  *        If Playing: Previous letter
- *        Else: Toggle skipping over letters that have been confirmed to not be in the word (indicated via the LAP icon)
+ *        Else: None
  *
  *    Alarm Press
  *        If Playing: If WORDLE_USE_RANDOM_GUESS is set and Light btn held and 
  *                    (on first letter or already used a random guess) 
  *                    and first attempt: Use a random 5 letter word with all letters that are different.
  *                    Else: Next position
- * Next position
  *        Else: Next screen
  *    Alarm Hold
  *        If Playing: Previous position
- *        Else: None
+ *        Else: Toggle Hard-Mode. This is skipping over letters that have been confirmed
+ *              to not be in the word (indicated via 'H' in the top-right)
+ * 
+ * Note: Actual Hard Mode in Wordle game is "Any revealed hints must be used in subsequent guesses"
+ *       But that came off as clunky UX on the Casio. So instead it only removes unused letters from the keyboard
+ *       as that also simplifies the keyboard.
  */
 
 #define WORDLE_LENGTH 5

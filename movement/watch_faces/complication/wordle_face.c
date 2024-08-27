@@ -167,17 +167,29 @@ static bool check_word(wordle_state_t *state) {
 }
 
 static void show_skip_wrong_letter_indicator(bool skipping, WordleScreen curr_screen) {
-    if (skipping && curr_screen <= SCREEN_CONTINUE)
-       watch_set_indicator(WATCH_INDICATOR_LAP);
+    if (curr_screen >= SCREEN_PLAYING) return;
+    if (skipping)
+        watch_display_string("H", 3);
     else
-        watch_clear_indicator(WATCH_INDICATOR_LAP);
+        watch_display_string(" ", 3);
 }
 
 static void update_known_wrong_letters(wordle_state_t *state) {
+    bool wrong_loc[WORDLE_NUM_VALID_LETTERS] = {false};
+    // To ignore letters that appear, but are in the wrong location, as letters that are guessed
+    // more often than they appear in the word will display as WORDLE_LETTER_WRONG
+    for (size_t i = 0; i < WORDLE_LENGTH; i++) {
+        if (state->word_elements_result[i] == WORDLE_LETTER_WRONG_LOC) {
+            for (size_t j = 0; j < WORDLE_NUM_VALID_LETTERS; j++) {
+                if (state->word_elements[i] == j)
+                    wrong_loc[j] = true;
+            }
+        }
+    }
     for (size_t i = 0; i < WORDLE_LENGTH; i++) {
         if (state->word_elements_result[i] == WORDLE_LETTER_WRONG) {
             for (size_t j = 0; j < WORDLE_NUM_VALID_LETTERS; j++) {
-                if (state->word_elements[i] == j)
+                if (state->word_elements[i] == j && !wrong_loc[j])
                     state->known_wrong_letters[j] = true;
             }
         }
@@ -192,7 +204,6 @@ static void display_attempt(uint8_t attempt) {
 
 static void display_playing(wordle_state_t *state) {
     state->curr_screen = SCREEN_PLAYING;
-    show_skip_wrong_letter_indicator(state->skip_wrong_letter, state->curr_screen);
     display_attempt(state->attempt);
     display_all_letters(state);
 }
@@ -235,8 +246,8 @@ static void reset_board(wordle_state_t *state) {
 
 static void display_title(wordle_state_t *state) {
     state->curr_screen = SCREEN_TITLE;
-    show_skip_wrong_letter_indicator(state->skip_wrong_letter, state->curr_screen);
     watch_display_string("WO  WordLE", 0);
+    show_skip_wrong_letter_indicator(state->skip_wrong_letter, state->curr_screen);
 }
 
 #if !WORDLE_USE_DAILY_STREAK
@@ -246,8 +257,8 @@ static void display_continue_result(bool continuing) {
 
 static void display_continue(wordle_state_t *state) {
     state->curr_screen = SCREEN_CONTINUE;
-    show_skip_wrong_letter_indicator(state->skip_wrong_letter, state->curr_screen);
     watch_display_string("Cont ", 4);
+    show_skip_wrong_letter_indicator(state->skip_wrong_letter, state->curr_screen);
     display_continue_result(state->continuing);
 }
 #endif
@@ -255,7 +266,6 @@ static void display_continue(wordle_state_t *state) {
 static void display_streak(wordle_state_t *state) {
     char buf[12];
     state->curr_screen = SCREEN_STREAK;
-    show_skip_wrong_letter_indicator(state->skip_wrong_letter, state->curr_screen);
 #if WORDLE_USE_DAILY_STREAK
     if (state->streak > 99)
         sprintf(buf, "WO  St--dy");
@@ -266,12 +276,12 @@ static void display_streak(wordle_state_t *state) {
 #endif
     watch_display_string(buf, 0);
     watch_set_colon();
+    show_skip_wrong_letter_indicator(state->skip_wrong_letter, state->curr_screen);
 }
 
 #if WORDLE_USE_DAILY_STREAK
 static void display_wait(wordle_state_t *state) {
     state->curr_screen = SCREEN_WAIT;
-    show_skip_wrong_letter_indicator(state->skip_wrong_letter, state->curr_screen);
     if (state->streak < 40) {
         char buf[13];
         sprintf(buf,"WO%2d WaIt ", state->streak);
@@ -280,6 +290,7 @@ static void display_wait(wordle_state_t *state) {
     else {  // Streak too long to display in top-right
         watch_display_string("WO   WaIt ", 0);
     }
+    show_skip_wrong_letter_indicator(state->skip_wrong_letter, state->curr_screen);
 }
 
 static uint32_t get_day_unix_time(void) {
@@ -291,7 +302,6 @@ static uint32_t get_day_unix_time(void) {
 
 static void display_lose(wordle_state_t *state, uint8_t subsecond) {
     char buf[WORDLE_LENGTH + 6];
-    show_skip_wrong_letter_indicator(state->skip_wrong_letter, state->curr_screen);
     sprintf(buf," L   %s", subsecond % 2 ? _valid_words[state->curr_answer] : "     ");
     watch_display_string(buf, 0);
 }
@@ -299,7 +309,6 @@ static void display_lose(wordle_state_t *state, uint8_t subsecond) {
 static void display_win(wordle_state_t *state, uint8_t subsecond) {
     (void) state;
     char buf[13];
-    show_skip_wrong_letter_indicator(state->skip_wrong_letter, state->curr_screen);
     sprintf(buf," W   %s  ", subsecond % 2 ? "NICE" : "JOb ");
     watch_display_string(buf, 0);
 }
@@ -334,7 +343,6 @@ static void display_result(wordle_state_t *state, uint8_t subsecond) {
             break;
         }
     }
-    show_skip_wrong_letter_indicator(state->skip_wrong_letter, state->curr_screen);
     watch_display_string(buf, 5);
 }
 
@@ -533,10 +541,6 @@ bool wordle_face_loop(movement_event_t event, movement_settings_t *settings, voi
             display_letter(state, true);
             break;
         case EVENT_LIGHT_LONG_PRESS:
-            if (state->curr_screen < SCREEN_PLAYING) {
-                state->skip_wrong_letter = !state->skip_wrong_letter;
-                show_skip_wrong_letter_indicator(state->skip_wrong_letter, state->curr_screen);
-            }
             if (state->curr_screen != SCREEN_PLAYING) break;
             get_prev_letter(state->position, state->word_elements, state->known_wrong_letters, state->skip_wrong_letter);
             display_letter(state, true);
@@ -559,6 +563,11 @@ bool wordle_face_loop(movement_event_t event, movement_settings_t *settings, voi
             }
             break;
         case EVENT_ALARM_LONG_PRESS:
+            if (state->curr_screen < SCREEN_PLAYING) {
+                state->skip_wrong_letter = !state->skip_wrong_letter;
+                show_skip_wrong_letter_indicator(state->skip_wrong_letter, state->curr_screen);
+                break;
+            }
             if (state->curr_screen != SCREEN_PLAYING) break;
             display_letter(state, true);
             state->position = get_prev_pos(state->position, state->word_elements_result);
