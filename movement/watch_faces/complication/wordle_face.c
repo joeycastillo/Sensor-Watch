@@ -401,6 +401,7 @@ static bool act_on_btn(wordle_state_t *state, const uint8_t pin) {
                 display_playing(state);
             else {
                 reset_board(state);
+                state->streak = 0;
                 display_streak(state);
             }
             break;
@@ -496,7 +497,7 @@ void wordle_face_activate(movement_settings_t *settings, void *context) {
     wordle_state_t *state = (wordle_state_t *)context;
 #if WORDLE_USE_DAILY_STREAK
     uint32_t now = get_day_unix_time() ;
-    if (state->prev_day <= (now + (60 *60 * 24))) state->streak = 0;
+    if (now >= (state->prev_day + (60 *60 * 24))) state->streak = 0;
     if (state->curr_day != now) reset_all_elements(state);
 #endif
     state->using_random_guess = false;
