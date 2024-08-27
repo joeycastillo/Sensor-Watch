@@ -381,7 +381,7 @@ static void begin_playing(endless_runner_state_t *state) {
 static void display_lose_screen(endless_runner_state_t *state) {
     game_state.curr_screen = SCREEN_LOSE;
     game_state.curr_score = 0;
-    watch_display_string(" U   LOSE ", 0);
+    watch_display_string("     LOSE ", 0);
     if (state -> soundOn)
         watch_buzzer_play_note(BUZZER_NOTE_A1, 600);
     else
