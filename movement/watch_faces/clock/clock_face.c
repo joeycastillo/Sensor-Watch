@@ -46,6 +46,20 @@
 #define CLOCK_FACE_24H_ONLY 0
 #endif
 
+/**
+ * Signal interval in minutes. Default is an hourly signal. Acceptable range for
+ * this value is 0 to 59. This can be defined at build time using:
+ *
+ *   CFLAGS="-DCLOCK_FACE_SIGNAL_INTERVAL=1" make
+ *
+ * For an interval of 1 minute. Keep in mind that this is a sub-hour interval,
+ * if the hour is not divisible by the value set then it may not work as
+ * expected.
+ */
+#ifndef CLOCK_FACE_SIGNAL_INTERVAL
+#define CLOCK_FACE_SIGNAL_INTERVAL 0
+#endif
+
 typedef struct {
     struct {
         watch_date_time previous;
@@ -286,6 +300,9 @@ bool clock_face_wants_background_task(movement_settings_t *settings, void *conte
     if (!state->time_signal_enabled) return false;
 
     watch_date_time date_time = watch_rtc_get_date_time();
-
+#if CLOCK_FACE_SIGNAL_INTERVAL == 0
     return date_time.unit.minute == 0;
+#else
+    return date_time.unit.minute % CLOCK_FACE_SIGNAL_INTERVAL == 0;
+#endif
 }
