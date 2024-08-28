@@ -87,7 +87,6 @@ static float convert_to_float(calculator_number_t number) {
 }
 
 static char* update_display_number(calculator_number_t *number, char *display_string) {
-    // Update the display string based on the new values
     sprintf(display_string, "%d%d%d%d%d%d",
             number->thousands,
             number->hundreds,
@@ -99,7 +98,7 @@ static char* update_display_number(calculator_number_t *number, char *display_st
     return display_string;
 }
 
-static void update_display_operation(simple_calculator_state_t *state) {
+static void set_operation(simple_calculator_state_t *state) {
     switch (state->operation) {
         case 0:
             watch_display_string("   Add", 4);
@@ -147,10 +146,87 @@ static calculator_number_t convert_to_string(float number) {
     return result;
 }
 
+static calculator_number_t reset_to_zero(calculator_number_t *number) {
+    number->hundredths = 0;
+    number->tenths = 0;
+    number->ones = 0;
+    number->tens = 0;
+    number->hundreds = 0;
+    number->thousands = 0;
+
+    return *number;
+}
+
+static void set_number(calculator_number_t *number, calculator_placeholder_t placeholder, char *display_string, char *temp_display_string, movement_event_t event) {
+    int display_index;
+    // Update display string with current number
+    update_display_number(number, display_string);
+    
+    // Copy the updated display string to a temporary buffer
+    strcpy(temp_display_string, display_string);
+    
+    // Determine the display index based on the placeholder
+    display_index = 5 - placeholder;
+    
+    // Blink selected placeholder
+    // Check if `event.subsecond` is even
+    if (event.subsecond % 2 == 0) {
+        // Replace the character at the index corresponding to the current placeholder with a space
+        temp_display_string[display_index] = ' ';
+    }
+    
+    // Display the (possibly modified) string
+    watch_display_string(temp_display_string, 4);
+} 
+
+static void view_results(simple_calculator_state_t *state, char *display_string) {
+    float first_num_float, second_num_float, result_float; // For arithmetic operations
+    // Convert the numbers to float
+    first_num_float = convert_to_float(state->first_num);
+    printf("first_num_float = %f\n", first_num_float); // For debugging // For debugging
+    second_num_float = convert_to_float(state->second_num);
+    printf("second_num_float = %f\n", second_num_float); // For debugging
+    
+    // Perform the calculation based on the selected operation
+    switch (state->operation) {
+        case OP_ADD:
+            result_float = first_num_float + second_num_float;
+            break;
+        case OP_SUB:
+            result_float = first_num_float - second_num_float;
+            break;
+        case OP_MULT:
+            result_float = first_num_float * second_num_float;
+            break;
+        case OP_DIV:
+            if (second_num_float != 0) {
+                result_float = first_num_float / second_num_float;
+            } else {
+                result_float = 0; // Handle division by zero
+            }
+            break;
+        case OP_ROOT:
+            result_float = sqrtf(first_num_float);
+            break;
+        case OP_POWER:
+            result_float = powf(first_num_float, second_num_float); // Power operation
+            break;
+    }
+    
+    result_float = roundf(result_float * 100.0f) / 100.0f; // Might not be needed
+    printf("result as float = %f\n", result_float); // For debugging
+    
+    // Convert the float result to a string
+    state->result = convert_to_string(result_float);
+    
+    // Update the display with the result
+    update_display_number(&state->result, display_string);
+    watch_display_string(display_string, 4);
+}
+
 bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     simple_calculator_state_t *state = (simple_calculator_state_t *)context;
-    int display_index;
-    float first_num_float, second_num_float, result_float; // For arithmetic operations
+    //float first_num_float, second_num_float, result_float; // For arithmetic operations
     char display_string[7];
     char temp_display_string[7];  // Temporary buffer for blinking effect
 
@@ -159,117 +235,33 @@ bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *se
             break;
 
         case EVENT_TICK: 
-            // Blink the placeholder that is selected
             switch (state->mode) {
                 case MODE_ENTERING_FIRST_NUM:
-                    // Update display string with current number
-                    update_display_number(&state->first_num, display_string);
-
-                    // Copy the updated display string to a temporary buffer
-                    strcpy(temp_display_string, display_string);
-
-                    // Determine the display index based on the placeholder
-                    display_index = 5 - state->placeholder;
-
-                    // Check if `event.subsecond` is even
-                    if (event.subsecond % 2 == 0) {
-                        // Replace the character at the index corresponding to the current placeholder with a space
-                        temp_display_string[display_index] = ' ';
-                    }
-
-                    // Display the (possibly modified) string
-                    watch_display_string(temp_display_string, 4);
+                    set_number(&state->first_num, 
+                            state->placeholder,
+                            display_string, 
+                            temp_display_string, 
+                            event);
                     break;                
+
                 case MODE_CHOOSING:
-                    update_display_operation(state);
+                    set_operation(state);
                     break;
+
                 case MODE_ENTERING_SECOND_NUM:
-                    // Update display string with current number
-                    update_display_number(&state->second_num, display_string);
-
-                    // Copy the updated display string to a temporary buffer
-                    strcpy(temp_display_string, display_string);
-
-                    // Determine the display index based on the placeholder
-                    display_index = 5 - state->placeholder;
-
-                    // Check if `event.subsecond` is even
-                    if (event.subsecond % 2 == 0) {
-                        // Replace the character at the index corresponding to the current placeholder with a space
-                        temp_display_string[display_index] = ' ';
-                    }
-
-                    // Display the (possibly modified) string
-                    watch_display_string(temp_display_string, 4);
+                    set_number(&state->second_num, 
+                            state->placeholder,
+                            display_string, 
+                            temp_display_string, 
+                            event);
                     break;
+
                 case MODE_VIEW_RESULTS:
-                    // Convert the numbers to float
-                    //state->first_num.thousands = 0; // For debugging
-                    //state->first_num.hundreds = 6; // For debugging
-                    //state->first_num.tens = 3; // For debugging
-                    //state->first_num.ones = 3; // For debugging
-                    //state->first_num.tenths = 0; // For debugging
-                    //state->first_num.hundredths = 2; // For debugging
-                    first_num_float = convert_to_float(state->first_num);
-                    printf("first_num_float = %f\n", first_num_float); // For debugging // For debugging
-                    //state->second_num.thousands = 0; // For debugging
-                    //state->second_num.hundreds = 7; // For debugging
-                    //state->second_num.tens = 5; // For debugging
-                    //state->second_num.ones = 3; // For debugging
-                    //state->second_num.tenths = 6; // For debugging
-                    //state->second_num.hundredths = 1; // For debugging
-                    second_num_float = convert_to_float(state->second_num);
-                    printf("second_num_float = %f\n", second_num_float); // For debugging
-
-                    // Perform the calculation based on the selected operation
-                    switch (state->operation) {
-                        case OP_ADD:
-                            result_float = first_num_float + second_num_float;
-                            break;
-                        case OP_SUB:
-                            result_float = first_num_float - second_num_float;
-                            break;
-                        case OP_MULT:
-                            result_float = first_num_float * second_num_float;
-                            break;
-                        case OP_DIV:
-                            if (second_num_float != 0) {
-                                result_float = first_num_float / second_num_float;
-                            } else {
-                                result_float = 0; // Handle division by zero
-                            }
-                            break;
-                        case OP_ROOT:
-                            result_float = sqrtf(first_num_float);
-                            break;
-                        case OP_POWER:
-                            result_float = powf(first_num_float, second_num_float); // Power operation
-                            break;
-                        default:
-                            result_float = 0; // Default case
-                            break;
-                    }
-
-                    result_float = roundf(result_float * 100.0f) / 100.0f;
-                    printf("result as float = %f\n", result_float); // For debugging
-
-                    // Convert the float result to a string
-                    state->result = convert_to_string(result_float);
-                    sprintf(display_string, "%d%d%d%d%d%d", // For debugging
-                        state->result.thousands, // For debugging
-                        state->result.hundreds, // For debugging
-                        state->result.tens, // For debugging
-                        state->result.ones, // For debugging
-                        state->result.tenths, // For debugging
-                        state->result.hundredths); // For debugging
-                    printf("result as string: %s\n", display_string); // For debugging
-
-                    // Update the display with the result
-                    update_display_number(&state->result, display_string);
-                    watch_display_string(display_string, 4);
+                    view_results(state, display_string);
                     break;
             }
             break;
+
         case EVENT_LIGHT_BUTTON_DOWN:
             break;
 
@@ -284,6 +276,17 @@ bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *se
                     cycle_operation(state);
                     break;
                 case MODE_VIEW_RESULTS:
+                    break;
+            }
+            break;
+
+        case EVENT_LIGHT_LONG_PRESS:
+            switch (state->mode) {
+                case MODE_ENTERING_FIRST_NUM:
+                    // toggle negative on state->first_num
+                    break;
+                case MODE_ENTERING_SECOND_NUM:
+                    // toggle negative on state->second_num
                     break;
             }
             break;
@@ -310,12 +313,33 @@ bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *se
             }
             break;
 
+        case EVENT_ALARM_LONG_PRESS:
+            switch (state->mode) {
+                case MODE_ENTERING_FIRST_NUM:
+                    reset_to_zero(&state->first_num);
+                    break;
+                case MODE_ENTERING_SECOND_NUM:
+                    reset_to_zero(&state->second_num);
+                    break;
+            }
+            break;
+
         case EVENT_MODE_BUTTON_DOWN:
+            break;
+
+        case EVENT_MODE_BUTTON_UP:
+            state->placeholder = PLACEHOLDER_ONES;
             state->mode = (state->mode + 1) % 4;
+            if (state->mode == MODE_ENTERING_FIRST_NUM) {
+                state->first_num = state->result;
+                reset_to_zero(&state->second_num);
+            }
             printf("Current mode: %d\n", state->mode); // For debugging
             break;
+
         case EVENT_TIMEOUT:
-            // Handle timeout (e.g., resign face)
+            movement_request_tick_frequency(1);
+            movement_move_to_face(0);
             break;
 
         default:
