@@ -87,7 +87,7 @@ static float convert_to_float(calculator_number_t number) {
 }
 
 static char* update_display_number(calculator_number_t *number, char *display_string) {
-    sprintf(display_string, "%d%d%d%d%d%d",
+    sprintf(display_string, "CA  %d%d%d%d%d%d",
             number->thousands,
             number->hundreds,
             number->tens,
@@ -101,22 +101,22 @@ static char* update_display_number(calculator_number_t *number, char *display_st
 static void set_operation(simple_calculator_state_t *state) {
     switch (state->operation) {
         case 0:
-            watch_display_string("   Add", 4);
+            watch_display_string("       Add", 0);
             break;
         case 1:
-            watch_display_string("   sub", 4);
+            watch_display_string("       sub", 0);
             break;
         case 2:
-            watch_display_string("  n&ul", 4);
+            watch_display_string("      n&ul", 0);
             break;
         case 3:
-            watch_display_string("   div", 4);
+            watch_display_string("       div", 0);
             break;
         case 4:
-            watch_display_string("  root", 4);
+            watch_display_string("      root", 0);
             break;
         case 5:
-            watch_display_string("   pow", 4);
+            watch_display_string("       pow", 0);
             break;
     }
 }
@@ -158,7 +158,7 @@ static calculator_number_t reset_to_zero(calculator_number_t *number) {
 }
 
 static void set_number(calculator_number_t *number, calculator_placeholder_t placeholder, char *display_string, char *temp_display_string, movement_event_t event) {
-    int display_index;
+    uint8_t display_index;
     // Update display string with current number
     update_display_number(number, display_string);
     
@@ -166,7 +166,7 @@ static void set_number(calculator_number_t *number, calculator_placeholder_t pla
     strcpy(temp_display_string, display_string);
     
     // Determine the display index based on the placeholder
-    display_index = 5 - placeholder;
+    display_index = 9 - placeholder;
     
     // Blink selected placeholder
     // Check if `event.subsecond` is even
@@ -176,11 +176,11 @@ static void set_number(calculator_number_t *number, calculator_placeholder_t pla
     }
     
     // Display the (possibly modified) string
-    watch_display_string(temp_display_string, 4);
+    watch_display_string(temp_display_string, 0);
 } 
 
 static void view_results(simple_calculator_state_t *state, char *display_string) {
-    float first_num_float, second_num_float, result_float; // For arithmetic operations
+    float first_num_float, second_num_float, result_float = 0.0f; // For arithmetic operations
     // Convert the numbers to float
     first_num_float = convert_to_float(state->first_num);
     printf("first_num_float = %f\n", first_num_float); // For debugging // For debugging
@@ -211,6 +211,9 @@ static void view_results(simple_calculator_state_t *state, char *display_string)
         case OP_POWER:
             result_float = powf(first_num_float, second_num_float); // Power operation
             break;
+        default:
+            result_float = 0.0f;
+            break;
     }
     
     result_float = roundf(result_float * 100.0f) / 100.0f; // Might not be needed
@@ -221,14 +224,13 @@ static void view_results(simple_calculator_state_t *state, char *display_string)
     
     // Update the display with the result
     update_display_number(&state->result, display_string);
-    watch_display_string(display_string, 4);
+    watch_display_string(display_string, 0);
 }
 
 bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     simple_calculator_state_t *state = (simple_calculator_state_t *)context;
-    //float first_num_float, second_num_float, result_float; // For arithmetic operations
-    char display_string[7];
-    char temp_display_string[7];  // Temporary buffer for blinking effect
+    char display_string[10];
+    char temp_display_string[10];  // Temporary buffer for blinking effect
 
     switch (event.event_type) {
         case EVENT_ACTIVATE:
@@ -288,6 +290,9 @@ bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *se
                 case MODE_ENTERING_SECOND_NUM:
                     // toggle negative on state->second_num
                     break;
+                case MODE_CHOOSING:
+                case MODE_VIEW_RESULTS:
+                    break;
             }
             break;
 
@@ -321,6 +326,12 @@ bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *se
                 case MODE_ENTERING_SECOND_NUM:
                     reset_to_zero(&state->second_num);
                     break;
+                case MODE_CHOOSING:
+                case MODE_VIEW_RESULTS:
+                    reset_to_zero(&state->first_num);
+                    reset_to_zero(&state->second_num);
+                    state->mode = MODE_ENTERING_FIRST_NUM;
+                    break;
             }
             break;
 
@@ -335,6 +346,10 @@ bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *se
                 reset_to_zero(&state->second_num);
             }
             printf("Current mode: %d\n", state->mode); // For debugging
+            break;
+
+        case EVENT_MODE_LONG_PRESS:
+            movement_move_to_next_face();
             break;
 
         case EVENT_TIMEOUT:
