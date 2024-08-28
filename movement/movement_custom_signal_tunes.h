@@ -77,7 +77,7 @@ int8_t signal_tune[] = {
     BUZZER_NOTE_REST, 5,
     BUZZER_NOTE_A7SHARP_B7FLAT, 6,
     BUZZER_NOTE_REST, 2,
-    BUZZER_NOTE_G7,  6,
+    BUZZER_NOTE_G7, 6,
     BUZZER_NOTE_G4, 2,
     0
 };
