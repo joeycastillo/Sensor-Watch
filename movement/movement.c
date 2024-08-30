@@ -201,7 +201,7 @@ static void _movement_handle_scheduled_tasks(void) {
 
     for(uint8_t i = 0; i < MOVEMENT_NUM_FACES; i++) {
         if (scheduled_tasks[i].reg) {
-            if (scheduled_tasks[i].reg <= date_time.reg) {
+            if (scheduled_tasks[i].reg == date_time.reg) {
                 scheduled_tasks[i].reg = 0;
                 movement_event_t background_event = { EVENT_BACKGROUND_TASK, 0 };
                 watch_faces[i].loop(background_event, &movement_state.settings, watch_face_contexts[i]);
