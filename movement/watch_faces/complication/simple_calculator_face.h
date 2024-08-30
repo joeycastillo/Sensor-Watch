@@ -34,6 +34,9 @@
  *
  */
 
+#define OPERATIONS_COUNT 6
+#define MAX_PLACEHOLDERS 6
+
 typedef struct {
     uint8_t hundredths;
     uint8_t tenths;

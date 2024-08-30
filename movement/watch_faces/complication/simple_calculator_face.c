@@ -40,32 +40,20 @@ void simple_calculator_face_activate(movement_settings_t *settings, void *contex
     (void) settings;
     simple_calculator_state_t *state = (simple_calculator_state_t *)context;
     state->placeholder = PLACEHOLDER_ONES;
+    state->mode = MODE_ENTERING_FIRST_NUM;
     movement_request_tick_frequency(4);
 }
 
 static void increment_placeholder(calculator_number_t *number, calculator_placeholder_t placeholder) {
-    switch (placeholder) {
-        case PLACEHOLDER_HUNDREDTHS:
-            number->hundredths = (number->hundredths + 1) % 10;
-            break;
-        case PLACEHOLDER_TENTHS:
-            number->tenths = (number->tenths + 1) % 10;
-            break;
-        case PLACEHOLDER_ONES:
-            number->ones = (number->ones + 1) % 10;
-            break;
-        case PLACEHOLDER_TENS:
-            number->tens = (number->tens + 1) % 10;
-            break;
-        case PLACEHOLDER_HUNDREDS:
-            number->hundreds = (number->hundreds + 1) % 10;
-            break;
-        case PLACEHOLDER_THOUSANDS:
-            number->thousands = (number->thousands + 1) % 10;
-            break;
-        default:
-            break;
-    }
+    uint8_t *digits[] = {
+        &number->hundredths,
+        &number->tenths,
+        &number->ones,
+        &number->tens,
+        &number->hundreds,
+        &number->thousands
+    };
+    *digits[placeholder] = (*digits[placeholder] + 1) % 10;
 }
 
 static float convert_to_float(calculator_number_t number) {
@@ -86,8 +74,9 @@ static float convert_to_float(calculator_number_t number) {
     return result;
 }
 
-static char* update_display_number(calculator_number_t *number, char *display_string) {
-    sprintf(display_string, "CA  %d%d%d%d%d%d",
+static char* update_display_number(calculator_number_t *number, char *display_string, uint8_t which_num) {
+    sprintf(display_string, "CA%d %d%d%d%d%d%d",
+            which_num,
             number->thousands,
             number->hundreds,
             number->tens,
@@ -122,7 +111,7 @@ static void set_operation(simple_calculator_state_t *state) {
 }
 
 static void cycle_operation(simple_calculator_state_t *state) {
-    state->operation = (state->operation + 1) % 6; // Assuming there are 6 operations
+    state->operation = (state->operation + 1) % OPERATIONS_COUNT; // Assuming there are 6 operations
     printf("Current operation: %d\n", state->operation); // For debugging
 }
 
@@ -146,21 +135,19 @@ static calculator_number_t convert_to_string(float number) {
     return result;
 }
 
-static calculator_number_t reset_to_zero(calculator_number_t *number) {
+static void reset_to_zero(calculator_number_t *number) {
     number->hundredths = 0;
     number->tenths = 0;
     number->ones = 0;
     number->tens = 0;
     number->hundreds = 0;
     number->thousands = 0;
-
-    return *number;
 }
 
-static void set_number(calculator_number_t *number, calculator_placeholder_t placeholder, char *display_string, char *temp_display_string, movement_event_t event) {
+static void set_number(calculator_number_t *number, calculator_placeholder_t placeholder, char *display_string, char *temp_display_string, movement_event_t event, uint8_t which_num) {
     uint8_t display_index;
     // Update display string with current number
-    update_display_number(number, display_string);
+    update_display_number(number, display_string, which_num);
     
     // Copy the updated display string to a temporary buffer
     strcpy(temp_display_string, display_string);
@@ -223,7 +210,7 @@ static void view_results(simple_calculator_state_t *state, char *display_string)
     state->result = convert_to_string(result_float);
     
     // Update the display with the result
-    update_display_number(&state->result, display_string);
+    update_display_number(&state->result, display_string, 3);
     watch_display_string(display_string, 0);
 }
 
@@ -243,7 +230,8 @@ bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *se
                             state->placeholder,
                             display_string, 
                             temp_display_string, 
-                            event);
+                            event,
+                            1);
                     break;                
 
                 case MODE_CHOOSING:
@@ -255,7 +243,8 @@ bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *se
                             state->placeholder,
                             display_string, 
                             temp_display_string, 
-                            event);
+                            event,
+                            2);
                     break;
 
                 case MODE_VIEW_RESULTS:
@@ -272,7 +261,7 @@ bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *se
                 case MODE_ENTERING_FIRST_NUM:
                 case MODE_ENTERING_SECOND_NUM:
                     // Move to the next placeholder when the light button is pressed
-                    state->placeholder = (state->placeholder + 1) % 6; // Loop back to the start after PLACEHOLDER_THOUSANDS
+                    state->placeholder = (state->placeholder + 1) % MAX_PLACEHOLDERS; // Loop back to the start after PLACEHOLDER_THOUSANDS
                     break;
                 case MODE_CHOOSING:
                     cycle_operation(state);
@@ -301,7 +290,7 @@ bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *se
                 case MODE_ENTERING_FIRST_NUM:
                     // Increment the digit in the current placeholder
                     increment_placeholder(&state->first_num, state->placeholder);
-                    update_display_number(&state->first_num, display_string);
+                    update_display_number(&state->first_num, display_string, 1);
                     break;
                 case MODE_CHOOSING:
                     // Confirm and select the current operation
@@ -311,7 +300,7 @@ bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *se
                 case MODE_ENTERING_SECOND_NUM:
                     // Increment the digit in the current placeholder
                     increment_placeholder(&state->second_num, state->placeholder);
-                    update_display_number(&state->second_num, display_string);
+                    update_display_number(&state->second_num, display_string, 2);
                     break;
                 case MODE_VIEW_RESULTS:
                     break;
