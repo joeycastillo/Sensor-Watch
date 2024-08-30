@@ -205,8 +205,38 @@ void alarm_face_setup(movement_settings_t *settings, uint8_t watch_face_index, v
         alarm_state_t *state = (alarm_state_t *)*context_ptr;
         memset(*context_ptr, 0, sizeof(alarm_state_t));
         // initialize the default alarm values
-        for (uint8_t i = 0; i < ALARM_ALARMS; i++) {
-            state->alarm[i].day = ALARM_DAY_EACH_DAY;
+        state->alarm[0].day = ALARM_DAY_WORKDAY;
+        state->alarm[0].hour = 16;
+        state->alarm[0].minute = 30;
+        state->alarm[0].beeps = 10;
+        state->alarm[0].pitch = 1;
+        state->alarm[0].enabled = true;
+        state->alarm[1].day = 1;
+        state->alarm[1].hour = 16;
+        state->alarm[1].minute = 25;
+        state->alarm[1].beeps = 10;
+        state->alarm[1].pitch = 1;
+        state->alarm[1].enabled = true;
+        state->alarm[2].day = ALARM_DAY_WORKDAY;
+        state->alarm[2].hour = 6;
+        state->alarm[2].minute = 0;
+        state->alarm[2].beeps = 8;
+        state->alarm[2].pitch = 1;
+        state->alarm[2].enabled = true;
+        state->alarm[3].day = ALARM_DAY_WORKDAY;
+        state->alarm[3].hour = 6;
+        state->alarm[3].minute = 34;
+        state->alarm[3].beeps = 2;
+        state->alarm[3].pitch = 1;
+        state->alarm[3].enabled = true;
+        state->alarm[4].day = 2;
+        state->alarm[4].hour = 16;
+        state->alarm[4].minute = 50;
+        state->alarm[4].beeps = 10;
+        state->alarm[4].pitch = 1;
+        state->alarm[4].enabled = true;
+        for (uint8_t i = 5; i < ALARM_ALARMS; i++) {
+            state->alarm[i].day = ALARM_DAY_ONE_TIME;
             state->alarm[i].beeps = 5;
             state->alarm[i].pitch = 1;
         }
