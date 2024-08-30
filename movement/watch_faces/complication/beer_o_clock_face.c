@@ -89,6 +89,7 @@ void beer_o_clock_face_activate(movement_settings_t *settings, void *context) {
 }
 void beer_o_clock_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
+    (void) context;
     movement_request_tick_frequency(1);
 }
 
