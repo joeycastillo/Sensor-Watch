@@ -56,8 +56,9 @@ void preferences_face_activate(movement_settings_t *settings, void *context) {
 }
 
 static void _watch_display_hourly_chime_string(movement_settings_t *settings, uint8_t hour){
-    char buf[4];
+    char buf[6];
     if (settings->bit.hourly_chime_always){
+        watch_clear_indicator(WATCH_INDICATOR_PM);
         watch_display_string(" Always", 4);
     }
     else{
@@ -72,10 +73,11 @@ static void _watch_display_hourly_chime_string(movement_settings_t *settings, ui
             if (hour == 0) hour = 12;
         }
         if (hour > 9)
-            sprintf(buf, "%2d", hour);
+            sprintf(buf, "%2d00", hour);
         else
-            sprintf(buf, " %d", hour);
-        watch_display_string(buf, 6);
+            sprintf(buf, " %d00", hour);
+        watch_set_colon();
+        watch_display_string(buf, 4);
     }
 }
 
@@ -158,6 +160,7 @@ bool preferences_face_loop(movement_event_t event, movement_settings_t *settings
     watch_display_string((char *)preferences_face_titles[current_page], 0);
 
     // blink active setting on even-numbered quarter-seconds
+    watch_clear_colon();
     if (event.subsecond % 2) {
         char buf[8];
         switch (current_page) {
