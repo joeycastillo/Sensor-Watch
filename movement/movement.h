@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Joey Castillo
+ * Copyright (c) 2022 Joey Castillo (edits by Patrick McGuire)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -112,14 +112,20 @@ typedef enum {
     EVENT_LIGHT_BUTTON_UP,      // The light button was pressed for less than half a second, and released.
     EVENT_LIGHT_LONG_PRESS,     // The light button was held for over half a second, but not yet released.
     EVENT_LIGHT_LONG_UP,        // The light button was held for over half a second, and released.
+    EVENT_LIGHT_REALLY_LONG_PRESS,     // The light button was held for over 3 seconds, but not yet released.
+    EVENT_LIGHT_REALLY_LONG_UP,        // The light button was held for over 3 second, and released.
     EVENT_MODE_BUTTON_DOWN,     // The mode button has been pressed, but not yet released.
     EVENT_MODE_BUTTON_UP,       // The mode button was pressed for less than half a second, and released.
     EVENT_MODE_LONG_PRESS,      // The mode button was held for over half a second, but not yet released.
     EVENT_MODE_LONG_UP,         // The mode button was held for over half a second, and released. NOTE: your watch face will resign immediately after receiving this event.
+    EVENT_MODE_REALLY_LONG_PRESS,     // The mode button was held for over 3 seconds, but not yet released.
+    EVENT_MODE_REALLY_LONG_UP,     // The mode button was held for over 3 seconds, and released.
     EVENT_ALARM_BUTTON_DOWN,    // The alarm button has been pressed, but not yet released.
     EVENT_ALARM_BUTTON_UP,      // The alarm button was pressed for less than half a second, and released.
     EVENT_ALARM_LONG_PRESS,     // The alarm button was held for over half a second, but not yet released.
     EVENT_ALARM_LONG_UP,        // The alarm button was held for over half a second, and released.
+    EVENT_ALARM_REALLY_LONG_PRESS,     // The alarm button was held for over 3 seconds, but not yet released.
+    EVENT_ALARM_REALLY_LONG_UP,     // The alarm button was held for over 3 seconds, and released.
 } movement_event_type_t;
 
 typedef struct {
