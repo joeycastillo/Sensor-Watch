@@ -85,10 +85,12 @@ void beer_o_clock_face_activate(movement_settings_t *settings, void *context) {
     beer_o_clock_face_state_t *state = (beer_o_clock_face_state_t *)context;
     state->using = false;
     state->ticks = 0;
+    state->alarm_count = 0;
 
 }
 void beer_o_clock_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
+    (void) context;
     movement_request_tick_frequency(1);
 }
 
@@ -122,17 +124,28 @@ bool beer_o_clock_face_loop(movement_event_t event, movement_settings_t *setting
             break;
         case EVENT_TICK:
             if (state->tfb) {
-                switch (state->ticks % 3) {
-                    case 0:
-                        watch_display_string("     tin&e", 0);
-                        break;
-                    case 1:
-                        watch_display_string("     for  ", 0);
-                        break;
-                    case 2:
-                        watch_display_string("     beer ", 0);
-                        movement_play_alarm();
-                        break;
+                printf("state->ticks = %d\n", state->ticks);
+                printf("state->alarm_count = %d\n", state->alarm_count);
+                if (state->alarm_count <= ALARM_COUNT) {
+                    movement_request_tick_frequency(2);
+                    switch (state->ticks % 3) {
+                        case 0:
+                            watch_display_string("     tin&e", 0);
+                            break;
+                        case 1:
+                            watch_display_string("     for  ", 0);
+                            break;
+                        case 2:
+                            movement_request_tick_frequency(1);
+                            watch_display_string("     beer ", 0);
+                            movement_play_alarm();
+                            state->alarm_count++;
+                            printf("state->alarm_count = %d\n", state->alarm_count);
+                            break;
+                    }
+                } else {
+                    state->tfb = !state->tfb;
+                    movement_move_to_face(0);
                 }
             } else if (!state->using) {
                 switch (state->ticks % 3) {
@@ -140,14 +153,17 @@ bool beer_o_clock_face_loop(movement_event_t event, movement_settings_t *setting
                         watch_display_string("     -o-  ", 0);
                         break;
                     case 1:
+                        movement_request_tick_frequency(1);
                         watch_display_string("    clock ", 0);
                         break;
                     case 2:
+                        movement_request_tick_frequency(2);
                         watch_display_string("     beer ", 0);
                         break;
                 }
             }
             state->ticks = (state->ticks + 1) % 3;
+            printf("state->ticks = %d\n", state->ticks);
             break;
         case EVENT_LIGHT_BUTTON_UP:
             if (!state->using) {

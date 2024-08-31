@@ -42,11 +42,14 @@
 
 #include "movement.h"
 
+#define ALARM_COUNT 10
+
 typedef struct {
     uint32_t hour : 5;
     uint32_t minute : 6;
     uint32_t mode : 1;
-    int8_t ticks;
+    uint8_t ticks : 3;
+    uint8_t alarm_count : 4;
     bool using;
     bool tfb;
     int8_t watch_face_index;

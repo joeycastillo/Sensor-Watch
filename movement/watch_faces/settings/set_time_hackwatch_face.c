@@ -33,7 +33,7 @@ char set_time_hackwatch_face_titles[][3] = {"HR", "M1", "SE", "YR", "MO", "DA", 
 watch_date_time date_time_settings;
 
 void set_time_hackwatch_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
-    (void) settings;
+    settings->bit.time_zone = 35;
     (void) watch_face_index;
     if (*context_ptr == NULL) *context_ptr = malloc(sizeof(uint8_t));
 }
