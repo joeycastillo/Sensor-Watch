@@ -321,7 +321,7 @@ bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *se
                     break;
                 case MODE_ENTERING_SECOND_NUM:
                     // toggle negative on state->second_num
-                    state->first_num.negative = !state->first_num.negative;
+                    state->second_num.negative = !state->second_num.negative;
                     break;
                 case MODE_ERROR:
                     reset_from_error(state);
