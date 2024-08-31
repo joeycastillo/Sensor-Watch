@@ -115,7 +115,7 @@ static void set_operation(simple_calculator_state_t *state) {
 
 static void cycle_operation(simple_calculator_state_t *state) {
     state->operation = (state->operation + 1) % OPERATIONS_COUNT; // Assuming there are 6 operations
-    printf("Current operation: %d\n", state->operation); // For debugging
+    //printf("Current operation: %d\n", state->operation); // For debugging
 }
 
 
@@ -131,9 +131,9 @@ static calculator_number_t convert_to_string(float number) {
 
     int int_part = (int)number;
     float decimal_part_float = ((number - int_part) * 100); // two decimal places
-    printf("decimal_part_float = %f\n", decimal_part_float); //For debugging
+    //printf("decimal_part_float = %f\n", decimal_part_float); //For debugging
     int decimal_part = round(decimal_part_float);
-    printf("decimal_part = %d\n", decimal_part); //For debugging
+    //printf("decimal_part = %d\n", decimal_part); //For debugging
 
     result.thousands = int_part / 1000 % 10;
     result.hundreds = int_part / 100 % 10;
@@ -183,10 +183,10 @@ static void view_results(simple_calculator_state_t *state, char *display_string)
     // Convert the numbers to float
     first_num_float = convert_to_float(state->first_num);
     if (state->first_num.negative) first_num_float = first_num_float * -1;
-    printf("first_num_float = %f\n", first_num_float); // For debugging // For debugging
+    //printf("first_num_float = %f\n", first_num_float); // For debugging // For debugging
     second_num_float = convert_to_float(state->second_num);
     if (state->second_num.negative) second_num_float = second_num_float * -1;
-    printf("second_num_float = %f\n", second_num_float); // For debugging
+    //printf("second_num_float = %f\n", second_num_float); // For debugging
     
     // Perform the calculation based on the selected operation
     switch (state->operation) {
@@ -229,7 +229,7 @@ static void view_results(simple_calculator_state_t *state, char *display_string)
     }
     
     result_float = roundf(result_float * 100.0f) / 100.0f; // Might not be needed
-    printf("result as float = %f\n", result_float); // For debugging
+    //printf("result as float = %f\n", result_float); // For debugging
     
     // Convert the float result to a string
     state->result = convert_to_string(result_float);
@@ -341,7 +341,7 @@ bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *se
                     break;
                 case MODE_CHOOSING:
                     // Confirm and select the current operation
-                    printf("Selected operation: %d\n", state->operation); // For debugging
+                    //printf("Selected operation: %d\n", state->operation); // For debugging
                     state->mode = MODE_ENTERING_SECOND_NUM;                
                     break;
                 case MODE_ENTERING_SECOND_NUM:
@@ -380,6 +380,14 @@ bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *se
         case EVENT_MODE_BUTTON_UP:
             if (state->mode == MODE_ERROR) {
                 reset_from_error(state);
+            } else if (state->mode == MODE_ENTERING_FIRST_NUM &&
+                    state->first_num.hundredths == 0 &&
+                    state->first_num.tenths == 0 &&
+                    state->first_num.ones== 0 &&
+                    state->first_num.tens == 0 &&
+                    state->first_num.hundreds == 0 &&
+                    state->first_num.thousands == 0) { 
+                movement_move_to_next_face();
             } else {
                 state->placeholder = PLACEHOLDER_ONES;
                 state->mode = (state->mode + 1) % 4;
@@ -387,12 +395,12 @@ bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *se
                     state->first_num = state->result;
                     reset_to_zero(&state->second_num);
                 }
-                printf("Current mode: %d\n", state->mode); // For debugging
+                //printf("Current mode: %d\n", state->mode); // For debugging
             }
             break;
 
         case EVENT_MODE_LONG_PRESS:
-            movement_move_to_next_face();
+            movement_move_to_face(0);
             break;
 
         case EVENT_TIMEOUT:
