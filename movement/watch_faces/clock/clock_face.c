@@ -35,6 +35,7 @@
 #include "watch.h"
 #include "watch_utility.h"
 #include "watch_private_display.h"
+#include "../settings/set_time_face.h"
 
 // 2.2 volts will happen when the battery has maybe 5-10% remaining?
 // we can refine this later.
@@ -50,6 +51,8 @@ typedef struct {
     uint8_t watch_face_index;
     bool time_signal_enabled;
     bool battery_low;
+    void *set_time_context;
+    bool setting_mode;
 } clock_state_t;
 
 static bool clock_is_in_24h_mode(movement_settings_t *settings) {
@@ -221,6 +224,7 @@ void clock_face_setup(movement_settings_t *settings, uint8_t watch_face_index, v
         clock_state_t *state = (clock_state_t *) *context_ptr;
         state->time_signal_enabled = false;
         state->watch_face_index = watch_face_index;
+        set_time_face.setup(settings, -1, &state->set_time_context);
     }
 }
 
@@ -237,11 +241,26 @@ void clock_face_activate(movement_settings_t *settings, void *context) {
 
     // this ensures that none of the timestamp fields will match, so we can re-render them all.
     clock->date_time.previous.reg = 0xFFFFFFFF;
+
+    clock->setting_mode = false;
 }
 
 bool clock_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     clock_state_t *state = (clock_state_t *) context;
     watch_date_time current;
+
+    if(state->setting_mode) {
+	if(event.event_type != EVENT_MODE_BUTTON_UP) {
+	    return set_time_face.loop(event, settings, state->set_time_context);
+	} else {
+	  // We have to trigger an end to fastticks first.. bit hacky
+	  event.event_type = EVENT_ALARM_LONG_UP;
+	  set_time_face.loop(event, settings, state->set_time_context);
+
+	  state->setting_mode = false;
+	  event.event_type = EVENT_ACTIVATE;
+	}
+    }
 
     switch (event.event_type) {
         case EVENT_LOW_ENERGY_UPDATE:
@@ -260,6 +279,10 @@ bool clock_face_loop(movement_event_t event, movement_settings_t *settings, void
 
             break;
         case EVENT_ALARM_LONG_PRESS:
+             state->setting_mode = true;
+             set_time_face.activate(settings, state->set_time_context);
+             break;
+	case EVENT_LIGHT_LONG_PRESS:
             clock_toggle_time_signal(state);
             break;
         case EVENT_BACKGROUND_TASK:
@@ -276,13 +299,15 @@ bool clock_face_loop(movement_event_t event, movement_settings_t *settings, void
 
 void clock_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
-    (void) context;
+    clock_state_t *state = (clock_state_t *) context;
+    set_time_face.resign(settings, state->set_time_context);
 }
 
 bool clock_face_wants_background_task(movement_settings_t *settings, void *context) {
     (void) settings;
     clock_state_t *state = (clock_state_t *) context;
     if (!state->time_signal_enabled) return false;
+    if (state->setting_mode) return true;
 
     watch_date_time date_time = watch_rtc_get_date_time();
 
