@@ -24,7 +24,6 @@
 
 #define MOVEMENT_LONG_PRESS_TICKS 64
 #define MOVEMENT_REALLY_LONG_PRESS_TICKS 384
-#define DEBOUNCE_TICKS 1  // In terms of *7.8125ms
 #define DEBOUNCE_TICKS_DOWN 0
 #define DEBOUNCE_TICKS_UP   0
 /*
@@ -35,7 +34,6 @@ It is not suggested to set this value to one for debouncing, as the callback occ
 meaning that if a button was pressed and 7ms passed since th elast time cb_fast_tick was called, then there will be only 812.5us
 of debounce time.
 */
->>>>>>> c6f2bff (Code review edits)
 
 #include <stdio.h>
 #include <string.h>
@@ -769,15 +767,33 @@ void cb_fast_tick(void) {
     // check timestamps and auto-fire the long-press events
     // Notice: is it possible that two or more buttons have an identical timestamp? In this case
     // only one of these buttons would receive the long press event. Don't bother for now...
-    if (movement_state.light_down_timestamp > 0)
-        if (movement_state.fast_ticks - movement_state.light_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1)
+    //if (movement_state.light_down_timestamp > 0)
+    //    if (movement_state.fast_ticks - movement_state.light_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1)
+    //        event.event_type = EVENT_LIGHT_LONG_PRESS;
+    //if (movement_state.mode_down_timestamp > 0)
+    //    if (movement_state.fast_ticks - movement_state.mode_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1)
+    //        event.event_type = EVENT_MODE_LONG_PRESS;
+    if (movement_state.light_down_timestamp > 0) {
+        if (movement_state.fast_ticks - movement_state.light_down_timestamp == MOVEMENT_REALLY_LONG_PRESS_TICKS + 1) {
+            event.event_type = EVENT_LIGHT_REALLY_LONG_PRESS;
+        } else if (movement_state.fast_ticks - movement_state.light_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1) {
             event.event_type = EVENT_LIGHT_LONG_PRESS;
-    if (movement_state.mode_down_timestamp > 0)
-        if (movement_state.fast_ticks - movement_state.mode_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1)
+        }
+    }
+    if (movement_state.mode_down_timestamp > 0) {
+        if (movement_state.fast_ticks - movement_state.mode_down_timestamp == MOVEMENT_REALLY_LONG_PRESS_TICKS + 1) {
+            event.event_type = EVENT_MODE_REALLY_LONG_PRESS;
+        } else if (movement_state.fast_ticks - movement_state.mode_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1) {
             event.event_type = EVENT_MODE_LONG_PRESS;
-    if (movement_state.alarm_down_timestamp > 0)
-        if (movement_state.fast_ticks - movement_state.alarm_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1)
+        }
+    }
+    if (movement_state.alarm_down_timestamp > 0) {
+        if (movement_state.fast_ticks - movement_state.alarm_down_timestamp == MOVEMENT_REALLY_LONG_PRESS_TICKS + 1) {
+            event.event_type = EVENT_ALARM_REALLY_LONG_PRESS;
+        } else if (movement_state.fast_ticks - movement_state.alarm_down_timestamp == MOVEMENT_LONG_PRESS_TICKS + 1) {
             event.event_type = EVENT_ALARM_LONG_PRESS;
+        }
+    }
     // this is just a fail-safe; fast tick should be disabled as soon as the button is up, the LED times out, and/or the alarm finishes.
     // but if for whatever reason it isn't, this forces the fast tick off after 20 seconds.
     if (movement_state.fast_ticks >= 128 * 20) {
