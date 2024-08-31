@@ -28,8 +28,8 @@
 #include "movement_faces.h"
 
 const watch_face_t watch_faces[] = {
-    simple_clock_face,
     si1133_uv_face,
+    simple_clock_face,
     set_time_face,
     thermistor_readout_face,
     voltage_face

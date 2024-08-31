@@ -60,7 +60,8 @@ void si1133_uv_face_setup(movement_settings_t *settings, uint8_t watch_face_inde
         state->needs_setup = true;
         state->current_mux = SI1133_ADCMUX_UV;
         state->current_hw_gain = SI1133_HW_GAIN_11;
-        state->current_sw_gain = SI1133_SW_GAIN_2;
+        state->current_sw_gain = SI1133_SW_GAIN_0;
+        state->hist_mode = si1133_hist_last_ten;
     }
     // Do any pin or peripheral setup here; this will be called whenever the watch wakes from deep sleep.
     si1133_init();
@@ -90,7 +91,7 @@ static void settings_draw(si1133_uv_state_t *state) {
     watch_display_string(buf, 0);
 }
 
-static void save_history(si1133_uv_state_t *state, uint16_t new_reading) {
+static void __attribute__((optimize("O0"))) save_history(si1133_uv_state_t *state, uint32_t volatile new_reading) {
     state->history[state->hist_loc] = new_reading;
     state->hist_loc = (state->hist_loc + 1) % SI1133_HIST_LEN;
 }
@@ -136,7 +137,7 @@ static void main_draw(si1133_uv_state_t *state) {
                 SI1133_RANGING_OFF,
                 state->current_hw_gain,
                 state->current_sw_gain,
-                SI1133_16_BIT,
+                SI1133_24_BIT,
                 SI1133_POST_SHIFT_0,
                 SI1133_THRESH_DISABLE,
                 SI1133_COUNTER_DISABLE
@@ -182,9 +183,10 @@ static void main_draw(si1133_uv_state_t *state) {
 
     uint8_t hostout0 = watch_i2c_read8(SI1133_ADDR, SI1133_REG_HOSTOUT0);
     uint8_t hostout1 = watch_i2c_read8(SI1133_ADDR, SI1133_REG_HOSTOUT1);
-    uint16_t adccount = hostout0 << 8 | hostout1;
+    uint8_t hostout2 = watch_i2c_read8(SI1133_ADDR, SI1133_REG_HOSTOUT2);
+    uint32_t adccount = (hostout0 << 16) | (hostout1 << 8) | (hostout2);
     save_history(state, adccount);
-    uint16_t to_draw = 0;
+    uint32_t to_draw = 0;
     uint8_t hist_mode = 0;
     switch(state->hist_mode) {
         case si1133_hist_current:
@@ -200,9 +202,9 @@ static void main_draw(si1133_uv_state_t *state) {
             hist_mode = 0x80;
             break;
     }
-    sprintf(buf, "%02x%02x%04x  ", hist_mode, to_draw, adccount);
+    sprintf(buf, "%02x%08lx", hist_mode, to_draw);
     watch_display_string(buf, 0);
-    printf("reading: %04x\r\n", adccount);
+    printf("reading: %08lx\r\n", adccount);
     printf("reading count: %02x\r\n", state->readings);
     printf("current mux: %02x\r\n", state->current_mux);
     state->readings++;

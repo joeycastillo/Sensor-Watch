@@ -4,12 +4,12 @@ target remote :2331
 monitor halt
 monitor reset 2
 file build/watch.elf
-#load
+load
 
-break ../watch_faces/sensor/si1133_uv_face.c:186
+break save_history
 command 1
 p new_reading
-append value raw/trace_log new_reading
+append value trace.log new_reading
 continue
 end
 

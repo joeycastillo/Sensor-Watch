@@ -57,7 +57,7 @@ typedef struct {
     si1133_hw_gain current_hw_gain;
     si1133_sw_gain current_sw_gain;
     si1133_hist_mode hist_mode;
-    uint16_t history[SI1133_HIST_LEN];
+    uint32_t history[SI1133_HIST_LEN];
     size_t hist_loc;
 } si1133_uv_state_t;
 
@@ -65,6 +65,7 @@ void si1133_uv_face_setup(movement_settings_t *settings, uint8_t watch_face_inde
 void si1133_uv_face_activate(movement_settings_t *settings, void *context);
 bool si1133_uv_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void si1133_uv_face_resign(movement_settings_t *settings, void *context);
+void measuring_alarm_button(si1133_uv_state_t *state);
 
 #define si1133_uv_face ((const watch_face_t){ \
     si1133_uv_face_setup, \

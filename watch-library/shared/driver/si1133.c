@@ -64,8 +64,8 @@ int si1133_configure_channel(
 
     // --- set ADCSENS
     // [7] ranging bit?
-    // [6:5] software gain
-    // [4:0] hardware gain
+    // [6:4] software gain
+    // [3:0] hardware gain
     //uint8_t adcsens = 0x0b;
     uint8_t adcsens = (ranging << 6) | (sw_gain << 4) | hw_gain;
     si1133_params adcsense_param = (si1133_params) SI1133_PARAM_ADCSENS0 + addr_base; 
