@@ -28,9 +28,57 @@
 #include "movement.h"
 
 /*
- * A DESCRIPTION OF YOUR WATCH FACE
+ * Simple Calculator
  *
- * and a description of how use it
+ * How to use:
+ *
+ * Important note: LONG PRESS MODE to move to next watch face
+ *
+ * Flow:
+ * Enter first number -> Select operator -> Enter second number -> View Results
+ * 
+ * How to read the display:
+ * - "CA" is displayed at the top to tell you that you're in the CAlculator
+ * - The top-right digit (1, 2, or 3) lets you know whether you're entering the
+ *   first number (1), entering the second number (2), or viewing the results (3).
+ * - To the right of the top-right digit will show the number's sign. If the
+ *   number is negative, a "-" will be displayed, otherwise it is empty.
+ * - The 4 large digits to the left are whole numbers and the 2 smaller digits
+ *   on the right are the tenths and hundredths decimal places.
+ *
+ * Entering the first number:
+ * - Press ALARM to increment the selected (blinking) digit
+ * - Press LIGHT to move to the next placeholder
+ * - LONG PRESS the LIGHT button to toggle the number's sign to make it 
+ *   negative
+ * - LONG PRESS the ALARM button to reset the number to 0
+ * - Press MODE to proceed to selecting the operator
+ *
+ * Selecting the operator:
+ * - Press the LIGHT button to cycle through available operators. They are:
+ *   + Add
+ *   - Subtract
+ *   * Multiply
+ *   / Divide
+ *   sqrtf() Square root
+ *   powf() Power (exponent calculation)
+ * - Press MODE or ALARM to proceed to entering the second number
+ *
+ * Entering the second number:
+ * - Everything is the same as setting the first number except that pressing
+ *   MODE here will proceed to viewing the results
+ *
+ * Viewing the results:
+ * - Pressing MODE will start a new calculation with the result as the first
+ *   number. (LONG PRESS ALARM to reset the value to 0)
+ *
+ * Errors:
+ * - An error will be triggered if the result is not able to be displayed, that
+ * is, if the value is greater than 9,999.99 or less than -9,999.99.
+ * - An error will also be triggered if an impossible operation is selected,
+ *   for instance trying to divide by 0 or get the square root of a negative
+ *   number.
+ * - Exit error mode and start over with any button press.
  *
  */
 
