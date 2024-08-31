@@ -32,6 +32,8 @@
  *
  * How to use:
  *
+ * Important note: LONG PRESS MODE to move to next watch face
+ *
  * Flow:
  * Enter first number -> Select operator -> Enter second number -> View Results
  * 
