@@ -239,12 +239,18 @@ bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *se
                     break;
 
                 case MODE_ENTERING_SECOND_NUM:
-                    set_number(&state->second_num, 
+                    // If doing a square root calculation, skip to results
+                    if (state->operation == 4) {
+                        state->mode = MODE_VIEW_RESULTS;
+                    // otherwise, set the second number
+                    } else {
+                        set_number(&state->second_num, 
                             state->placeholder,
                             display_string, 
                             temp_display_string, 
                             event,
                             2);
+                    }
                     break;
 
                 case MODE_VIEW_RESULTS:
