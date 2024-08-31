@@ -380,6 +380,14 @@ bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *se
         case EVENT_MODE_BUTTON_UP:
             if (state->mode == MODE_ERROR) {
                 reset_from_error(state);
+            } else if (state->mode == MODE_ENTERING_FIRST_NUM &&
+                    state->first_num.hundredths == 0 &&
+                    state->first_num.tenths == 0 &&
+                    state->first_num.ones== 0 &&
+                    state->first_num.tens == 0 &&
+                    state->first_num.hundreds == 0 &&
+                    state->first_num.thousands == 0) { 
+                movement_move_to_next_face();
             } else {
                 state->placeholder = PLACEHOLDER_ONES;
                 state->mode = (state->mode + 1) % 4;
@@ -392,7 +400,7 @@ bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *se
             break;
 
         case EVENT_MODE_LONG_PRESS:
-            movement_move_to_next_face();
+            movement_move_to_face(0);
             break;
 
         case EVENT_TIMEOUT:
