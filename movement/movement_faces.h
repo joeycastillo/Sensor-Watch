@@ -105,6 +105,7 @@
 #include "kitchen_conversions_face.h"
 #include "kegging_face.h"
 #include "beer_o_clock_face.h"
+#include "simple_calculator_face.h"
 // New includes go above this line.
 
 #endif // MOVEMENT_FACES_H_
