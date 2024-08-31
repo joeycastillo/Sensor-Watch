@@ -31,11 +31,12 @@
 // hacky hacky!
 uint32_t *ptr_to_count = 0;
 
-void *accel_interrupt_handler(void) {
+void accel_interrupt_handler(void);
+void accel_interrupt_handler(void) {
     (*ptr_to_count)++;
 }
 
-static void _accel_interrupt_count_face_update_display(movement_settings_t *settings, accel_interrupt_count_state_t *state) {
+static void _accel_interrupt_count_face_update_display(accel_interrupt_count_state_t *state) {
     char buf[11];
 
     if (state->running) {
@@ -45,7 +46,7 @@ static void _accel_interrupt_count_face_update_display(movement_settings_t *sett
     }
 
     // "AC"celerometer "IN"terrupts
-    snprintf(buf, 11, "AC1N%6d", state->count);
+    snprintf(buf, 11, "AC1N%6ld", state->count);
     watch_display_string(buf, 0);
     printf("%s\n", buf);
 }
@@ -118,7 +119,7 @@ bool accel_interrupt_count_face_loop(movement_event_t event, movement_settings_t
                 if (!state->running) {
                     state->count = 0;
                 }
-                _accel_interrupt_count_face_update_display(settings, state);
+                _accel_interrupt_count_face_update_display(state);
                 break;
             case EVENT_ALARM_BUTTON_UP:
                 if (state->running) {
@@ -128,11 +129,11 @@ bool accel_interrupt_count_face_loop(movement_event_t event, movement_settings_t
                     state->running = true;
                     watch_register_interrupt_callback(A4, accel_interrupt_handler, INTERRUPT_TRIGGER_RISING);
                 }
-                _accel_interrupt_count_face_update_display(settings, state);
+                _accel_interrupt_count_face_update_display(state);
                 break;
             case EVENT_ACTIVATE:
             case EVENT_TICK:
-                _accel_interrupt_count_face_update_display(settings, state);
+                _accel_interrupt_count_face_update_display(state);
                 break;
             case EVENT_ALARM_LONG_PRESS:
                 if (!state->running) {
