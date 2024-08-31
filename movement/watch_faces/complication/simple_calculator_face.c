@@ -75,8 +75,11 @@ static float convert_to_float(calculator_number_t number) {
 }
 
 static char* update_display_number(calculator_number_t *number, char *display_string, uint8_t which_num) {
-    sprintf(display_string, "CA%d %d%d%d%d%d%d",
+    char sign = ' ';
+    if (number->negative) sign = '-';
+    sprintf(display_string, "CA%d%c%d%d%d%d%d%d",
             which_num,
+            sign,
             number->thousands,
             number->hundreds,
             number->tens,
@@ -118,6 +121,14 @@ static void cycle_operation(simple_calculator_state_t *state) {
 
 static calculator_number_t convert_to_string(float number) {
     calculator_number_t result;
+
+    // Handle negative numbers
+    bool is_negative = (number < 0);
+    if (is_negative) {
+        number = -number;
+        result.negative = true;
+    }
+
     int int_part = (int)number;
     float decimal_part_float = ((number - int_part) * 100); // two decimal places
     printf("decimal_part_float = %f\n", decimal_part_float); //For debugging
@@ -136,6 +147,7 @@ static calculator_number_t convert_to_string(float number) {
 }
 
 static void reset_to_zero(calculator_number_t *number) {
+    number->negative = false;
     number->hundredths = 0;
     number->tenths = 0;
     number->ones = 0;
@@ -170,8 +182,10 @@ static void view_results(simple_calculator_state_t *state, char *display_string)
     float first_num_float, second_num_float, result_float = 0.0f; // For arithmetic operations
     // Convert the numbers to float
     first_num_float = convert_to_float(state->first_num);
+    if (state->first_num.negative) first_num_float = first_num_float * -1;
     printf("first_num_float = %f\n", first_num_float); // For debugging // For debugging
     second_num_float = convert_to_float(state->second_num);
+    if (state->second_num.negative) second_num_float = second_num_float * -1;
     printf("second_num_float = %f\n", second_num_float); // For debugging
     
     // Perform the calculation based on the selected operation
@@ -189,11 +203,17 @@ static void view_results(simple_calculator_state_t *state, char *display_string)
             if (second_num_float != 0) {
                 result_float = first_num_float / second_num_float;
             } else {
-                result_float = 0; // Handle division by zero
+                state->mode = MODE_ERROR;
+                return;
             }
             break;
         case OP_ROOT:
-            result_float = sqrtf(first_num_float);
+            if (first_num_float >= 0) {
+                result_float = sqrtf(first_num_float);
+            } else {
+                state->mode = MODE_ERROR;
+                return;
+            }
             break;
         case OP_POWER:
             result_float = powf(first_num_float, second_num_float); // Power operation
@@ -201,6 +221,11 @@ static void view_results(simple_calculator_state_t *state, char *display_string)
         default:
             result_float = 0.0f;
             break;
+    }
+
+    if (result_float > 9999.99 || result_float < -9999.99) {
+        state->mode = MODE_ERROR;
+        return;
     }
     
     result_float = roundf(result_float * 100.0f) / 100.0f; // Might not be needed
@@ -214,6 +239,11 @@ static void view_results(simple_calculator_state_t *state, char *display_string)
     watch_display_string(display_string, 0);
 }
 
+static void reset_from_error(simple_calculator_state_t *state) {
+    reset_to_zero(&state->first_num);
+    reset_to_zero(&state->second_num);
+    state->mode = MODE_ENTERING_FIRST_NUM;
+}
 bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     simple_calculator_state_t *state = (simple_calculator_state_t *)context;
     char display_string[10];
@@ -256,6 +286,9 @@ bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *se
                 case MODE_VIEW_RESULTS:
                     view_results(state, display_string);
                     break;
+                case MODE_ERROR:
+                    watch_display_string("CA  Error ", 0);
+                    break;
             }
             break;
 
@@ -272,6 +305,9 @@ bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *se
                 case MODE_CHOOSING:
                     cycle_operation(state);
                     break;
+                case MODE_ERROR:
+                    reset_from_error(state);
+                    break;
                 case MODE_VIEW_RESULTS:
                     break;
             }
@@ -281,9 +317,14 @@ bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *se
             switch (state->mode) {
                 case MODE_ENTERING_FIRST_NUM:
                     // toggle negative on state->first_num
+                    state->first_num.negative = !state->first_num.negative;
                     break;
                 case MODE_ENTERING_SECOND_NUM:
                     // toggle negative on state->second_num
+                    state->first_num.negative = !state->first_num.negative;
+                    break;
+                case MODE_ERROR:
+                    reset_from_error(state);
                     break;
                 case MODE_CHOOSING:
                 case MODE_VIEW_RESULTS:
@@ -308,6 +349,9 @@ bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *se
                     increment_placeholder(&state->second_num, state->placeholder);
                     update_display_number(&state->second_num, display_string, 2);
                     break;
+                case MODE_ERROR:
+                    reset_from_error(state);
+                    break;
                 case MODE_VIEW_RESULTS:
                     break;
             }
@@ -321,11 +365,11 @@ bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *se
                 case MODE_ENTERING_SECOND_NUM:
                     reset_to_zero(&state->second_num);
                     break;
+                case MODE_ERROR:
+                    reset_from_error(state);
+                    break;
                 case MODE_CHOOSING:
                 case MODE_VIEW_RESULTS:
-                    reset_to_zero(&state->first_num);
-                    reset_to_zero(&state->second_num);
-                    state->mode = MODE_ENTERING_FIRST_NUM;
                     break;
             }
             break;
@@ -334,13 +378,17 @@ bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *se
             break;
 
         case EVENT_MODE_BUTTON_UP:
-            state->placeholder = PLACEHOLDER_ONES;
-            state->mode = (state->mode + 1) % 4;
-            if (state->mode == MODE_ENTERING_FIRST_NUM) {
-                state->first_num = state->result;
-                reset_to_zero(&state->second_num);
+            if (state->mode == MODE_ERROR) {
+                reset_from_error(state);
+            } else {
+                state->placeholder = PLACEHOLDER_ONES;
+                state->mode = (state->mode + 1) % 4;
+                if (state->mode == MODE_ENTERING_FIRST_NUM) {
+                    state->first_num = state->result;
+                    reset_to_zero(&state->second_num);
+                }
+                printf("Current mode: %d\n", state->mode); // For debugging
             }
-            printf("Current mode: %d\n", state->mode); // For debugging
             break;
 
         case EVENT_MODE_LONG_PRESS:

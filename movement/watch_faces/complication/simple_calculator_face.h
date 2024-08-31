@@ -38,6 +38,7 @@
 #define MAX_PLACEHOLDERS 6
 
 typedef struct {
+    bool negative;
     uint8_t hundredths;
     uint8_t tenths;
     uint8_t ones;
@@ -68,7 +69,8 @@ typedef enum {
     MODE_ENTERING_FIRST_NUM,
     MODE_CHOOSING,
     MODE_ENTERING_SECOND_NUM,
-    MODE_VIEW_RESULTS
+    MODE_VIEW_RESULTS,
+    MODE_ERROR
 } calculator_mode_t;
 
 typedef struct {
