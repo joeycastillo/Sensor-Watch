@@ -24,9 +24,10 @@
 
 #include <stdlib.h>
 #include "preferences_face.h"
+#include "watch_utility.h"
 #include "watch.h"
 
-#define PREFERENCES_FACE_NUM_PREFEFENCES (7)
+#define PREFERENCES_FACE_NUM_PREFEFENCES (8)
 const char preferences_face_titles[PREFERENCES_FACE_NUM_PREFEFENCES][11] = {
     "CL        ",   // Clock: 12 or 24 hour
     "BT  Beep  ",   // Buttons: should they beep?
@@ -39,6 +40,7 @@ const char preferences_face_titles[PREFERENCES_FACE_NUM_PREFEFENCES][11] = {
     "LT   grn  ",   // Light: green component
 #endif
     "LT   red  ",   // Light: red component
+    "          ",   // Language of weekday names, title changes based on selection
 };
 
 void preferences_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
@@ -91,6 +93,10 @@ bool preferences_face_loop(movement_event_t event, movement_settings_t *settings
                 case 6:
                     settings->bit.led_red_color = settings->bit.led_red_color + 1;
                     break;
+                case 7:
+                    settings->bit.lang_preference = settings->bit.lang_preference + 1;
+                    watch_store_backup_data(settings->reg, 0);
+                    break;
             }
             break;
         case EVENT_TIMEOUT:
@@ -101,6 +107,13 @@ bool preferences_face_loop(movement_event_t event, movement_settings_t *settings
     }
 
     watch_display_string((char *)preferences_face_titles[current_page], 0);
+    if (current_page == 7) {    // weekday language selection
+        watch_date_time date_time = watch_rtc_get_date_time();
+        char *weekday_to_show = watch_utility_get_weekday(date_time);
+        watch_display_string( weekday_to_show, 0 ); // dynamic changing title, but shouldn't blink
+        //watch_display_string( watch_utility_get_weekday(date_time), 0 ); // dynamic changing title, but shouldn't blink
+        //watch_display_string( watch_utility_get_weekday(watch_rtc_get_date_time()), 0 ); // dynamic changing title, but shouldn't blink
+    }
 
     // blink active setting on even-numbered quarter-seconds
     if (event.subsecond % 2) {
@@ -174,11 +187,27 @@ bool preferences_face_loop(movement_event_t event, movement_settings_t *settings
                 sprintf(buf, "%2d", settings->bit.led_red_color);
                 watch_display_string(buf, 8);
                 break;
+            case 7:
+                switch (settings->bit.lang_preference) {  // order of langs should match weekdays_dict in watch_utility.c
+                    case 0:
+                        watch_display_string(" En ", 4);
+                        break;
+                    case 1:
+                        watch_display_string(" dE ", 4);
+                        break;
+                    case 2:
+                        watch_display_string(" ES ", 4);
+                        break;
+                    case 3:
+                        watch_display_string(" Fr ", 4);
+                        break;
+                }
+                break;
         }
     }
 
     // on LED color select screns, preview the color.
-    if (current_page >= 5) {
+    if (current_page == 5 || current_page == 6) {
         watch_set_led_color(settings->bit.led_red_color ? (0xF | settings->bit.led_red_color << 4) : 0,
                             settings->bit.led_green_color ? (0xF | settings->bit.led_green_color << 4) : 0);
         // return false so the watch stays awake (needed for the PWM driver to function).

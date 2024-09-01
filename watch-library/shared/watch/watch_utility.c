@@ -24,10 +24,25 @@
 
 #include <math.h>
 #include "watch_utility.h"
+#include "movement.h"
 
 const char * watch_utility_get_weekday(watch_date_time date_time) {
-    static const char weekdays[7][3] = {"MO", "TU", "WE", "TH", "FR", "SA", "SU"};
-    return weekdays[watch_utility_get_iso8601_weekday_number(date_time.unit.year + WATCH_RTC_REFERENCE_YEAR, date_time.unit.month, date_time.unit.day) - 1];
+    //movement_settings_t movement_settings = (movement_settings_t) watch_get_backup_data(0);
+    uint8_t weekday_index;
+
+    //static const char weekdays[7][3] = {"MO", "TU", "WE", "TH", "FR", "SA", "SU"};
+    static const char weekdays_dict[4][7][3] = { {"MO", "TU", "WE", "TH", "FR", "SA", "SU"} ,   // EN
+                                                 {"MO", "DI", "MI", "DO", "FR", "SA", "SO"} ,   // DE
+                                                 {"LU", "ME", "MI", "JU", "VI", "SA", "DO"} ,   // ES
+                                                 {"LU", "MA", "ME", "JE", "VE", "SA", "DI"} };  // FR
+    const char (*p_dict_row)[7][3] = weekdays_dict;  // point to the first row; default is English, esp. if there's no config face
+
+    weekday_index = watch_utility_get_iso8601_weekday_number(date_time.unit.year + WATCH_RTC_REFERENCE_YEAR, date_time.unit.month, date_time.unit.day) - 1 ;
+
+    //return weekdays[watch_utility_get_iso8601_weekday_number(date_time.unit.year + WATCH_RTC_REFERENCE_YEAR, date_time.unit.month, date_time.unit.day) - 1];
+    return  *( *(p_dict_row + (uint8_t)movement_settings.bit.lang_preference) + weekday_index );
+    //return  *( *(p_dict_row +                                               3) + weekday_index );   // debug
+
 }
 
 // Per ISO8601 week starts on Monday with index 1
