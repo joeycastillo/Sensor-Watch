@@ -92,22 +92,22 @@ static char* update_display_number(calculator_number_t *number, char *display_st
 
 static void set_operation(simple_calculator_state_t *state) {
     switch (state->operation) {
-        case 0:
+        case OP_ADD:
             watch_display_string("       Add", 0);
             break;
-        case 1:
+        case OP_SUB:
             watch_display_string("       sub", 0);
             break;
-        case 2:
+        case OP_MULT:
             watch_display_string("      n&ul", 0);
             break;
-        case 3:
+        case OP_DIV:
             watch_display_string("       div", 0);
             break;
-        case 4:
+        case OP_ROOT:
             watch_display_string("      root", 0);
             break;
-        case 5:
+        case OP_POWER:
             watch_display_string("       pow", 0);
             break;
     }
@@ -239,10 +239,12 @@ static void view_results(simple_calculator_state_t *state, char *display_string)
     watch_display_string(display_string, 0);
 }
 
-static void reset_from_error(simple_calculator_state_t *state) {
+static void reset_all(simple_calculator_state_t *state) {
     reset_to_zero(&state->first_num);
     reset_to_zero(&state->second_num);
     state->mode = MODE_ENTERING_FIRST_NUM;
+    state->operation = OP_ADD;
+    state->placeholder = PLACEHOLDER_ONES;
 }
 bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     simple_calculator_state_t *state = (simple_calculator_state_t *)context;
@@ -270,7 +272,7 @@ bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *se
 
                 case MODE_ENTERING_SECOND_NUM:
                     // If doing a square root calculation, skip to results
-                    if (state->operation == 4) {
+                    if (state->operation == OP_ROOT) {
                         state->mode = MODE_VIEW_RESULTS;
                     // otherwise, set the second number
                     } else {
@@ -306,7 +308,7 @@ bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *se
                     cycle_operation(state);
                     break;
                 case MODE_ERROR:
-                    reset_from_error(state);
+                    reset_all(state);
                     break;
                 case MODE_VIEW_RESULTS:
                     break;
@@ -324,7 +326,7 @@ bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *se
                     state->second_num.negative = !state->second_num.negative;
                     break;
                 case MODE_ERROR:
-                    reset_from_error(state);
+                    reset_all(state);
                     break;
                 case MODE_CHOOSING:
                 case MODE_VIEW_RESULTS:
@@ -350,7 +352,7 @@ bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *se
                     update_display_number(&state->second_num, display_string, 2);
                     break;
                 case MODE_ERROR:
-                    reset_from_error(state);
+                    reset_all(state);
                     break;
                 case MODE_VIEW_RESULTS:
                     break;
@@ -366,7 +368,7 @@ bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *se
                     reset_to_zero(&state->second_num);
                     break;
                 case MODE_ERROR:
-                    reset_from_error(state);
+                    reset_all(state);
                     break;
                 case MODE_CHOOSING:
                 case MODE_VIEW_RESULTS:
@@ -379,7 +381,7 @@ bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *se
 
         case EVENT_MODE_BUTTON_UP:
             if (state->mode == MODE_ERROR) {
-                reset_from_error(state);
+                reset_all(state);
             } else if (state->mode == MODE_ENTERING_FIRST_NUM &&
                     state->first_num.hundredths == 0 &&
                     state->first_num.tenths == 0 &&
@@ -400,7 +402,22 @@ bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *se
             break;
 
         case EVENT_MODE_LONG_PRESS:
-            movement_move_to_face(0);
+            if (state->first_num.hundredths == 0 &&
+                    state->first_num.tenths == 0 &&
+                    state->first_num.ones== 0 &&
+                    state->first_num.tens == 0 &&
+                    state->first_num.hundreds == 0 &&
+                    state->first_num.thousands == 0 &&
+                    state->second_num.hundredths == 0 &&
+                    state->second_num.tenths == 0 &&
+                    state->second_num.ones== 0 &&
+                    state->second_num.tens == 0 &&
+                    state->second_num.hundreds == 0 &&
+                    state->second_num.thousands == 0) { 
+                movement_move_to_face(0);
+            } else {
+                reset_all(state);
+            }
             break;
 
         case EVENT_TIMEOUT:
