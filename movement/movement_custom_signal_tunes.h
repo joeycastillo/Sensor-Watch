@@ -86,17 +86,19 @@ int8_t signal_tune[] = {
 
 #ifdef SIGNAL_TUNE_LAYLA
 int8_t signal_tune[] = {
-    BUZZER_NOTE_A6, 4,
+    BUZZER_NOTE_A6, 5,
     BUZZER_NOTE_REST, 1,
     BUZZER_NOTE_C7, 5,  
-    BUZZER_NOTE_REST, 2,
+    BUZZER_NOTE_REST, 1,
     BUZZER_NOTE_D7, 5,
     BUZZER_NOTE_REST, 1,
     BUZZER_NOTE_F7, 5,
     BUZZER_NOTE_REST, 1,
     BUZZER_NOTE_D7, 5,
-    BUZZER_NOTE_REST, 2,
-    BUZZER_NOTE_D7, 15,
+    BUZZER_NOTE_REST, 1,
+    BUZZER_NOTE_C7, 5,
+    BUZZER_NOTE_REST, 1,
+    BUZZER_NOTE_D7, 20,
     0
 };
 #endif // SIGNAL_TUNE_LAYLA
