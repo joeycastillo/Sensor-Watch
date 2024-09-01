@@ -22,33 +22,6 @@
  * SOFTWARE.
  */
 
-/*
- * The goal of nanosec face is dramatic improvement of SensorWatch accuracy.
- * Minimum goal is <60 seconds of error per year. Full success is if we can reach <15 seconds per year (<0.47ppm error).
- *
- * It implements temperature correction using tempco from datasheet (and allows to adjust these)
- * and allows to introduce offset fix. Therefore requires temperature sensor board.
- *
- * Most users will need to apply profile 3 ("default") or 2("conservative datasheet"), and tune first parameter -
- * static offset (as it's different for every crystal sample).
- *
- * Frequency correction is dithered over 31 correction intervals (31x10 minutes or ~5 hours), to allow <0.1ppm correction resolution.
- * 1ppm is 0.0864 sec per day.
- * 0.1ppm is 0.00864 sec per day.
- *
- * To stay under 1ppm error you would need calibration of your specific instance of quartz crystal after some "burn-in" (ideally 1 year).
- *
- * Should improve TOTP experience.
- *
- * Default funing fork tempco: -0.034 ppm/°C², centered around 25°C
- * We add optional cubic coefficient, which was measured in practice on my sample.
- *
- * Cadence (CD) - how many minutes between corrections. Default 10 minutes.
- * Every minute might be too much. Every hour - slightly less power consumption but also less precision.
- *
- * Can compensate crystal aging (ppm/year) - but you really should be worrying about it on second/third years of watch calibration. *
- */
-
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
@@ -272,7 +245,6 @@ static void value_increase(int16_t delta) {
                     nanosec_state.correction_cadence = (delta > 0) ? 1 : 20;
                     break;
             }
-            nanosec_state.correction_profile = (nanosec_state.correction_profile + delta) % nanosec_profile_count;
             break;
         case 6: // Aging
             nanosec_state.aging_ppm_pa += delta;

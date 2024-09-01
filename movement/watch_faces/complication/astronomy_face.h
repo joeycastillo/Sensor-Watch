@@ -25,6 +25,47 @@
 #ifndef ASTRONOMY_FACE_H_
 #define ASTRONOMY_FACE_H_
 
+/*
+ * ASTRONOMY face
+ *
+ * The Astronomy watch face is among the most complex watch faces in the
+ * Movement collection. It allows you to calculate the locations of celestial
+ * bodies in the sky, as well as distance in astronomical units (or, in the
+ * case of the Moon, distance in kilometers).
+ * 
+ * When you arrive at the Astronomy watch face, you’ll see its name (“Astro”)
+ * and an animation of two objects orbiting each other. You will also see “SO”
+ * (for Sol) flashing in the top left. The flashing letters indicate the
+ * currently selected celestial body. Short press Alarm to advance through
+ * the available celestial bodies:
+ * 
+ *     SO - Sol, the sun
+ *     ME - Mercury
+ *     VE - Venus
+ *     LU - Luna, the Earth’s moon
+ *     MA - Mars
+ *     JU - Jupiter
+ *     SA - Saturn
+ *     UR - Uranus
+ *     NE - Neptune
+ * 
+ * Once you’ve selected the celestial body whose parameters you wish to
+ * calculate, long press the Alarm button and release it. The letter “C” will
+ * flash while the calculation is performed.
+ * 
+ * When the calculation is complete, the screen will display the altitude
+ * (“aL”) of the celestial body. You can cycle through the available parameters
+ * with repeated short presses on the Alarm button:
+ * 
+ *     aL - Altitude (in degrees), the elevation over the horizon. If negative, it is below the horizon.
+ *     aZ - Azimuth (in degrees), the cardinal direction relative to true north.
+ *     rA - Right Ascension (in hours/minutes/seconds)
+ *     dE - Declination (in degrees/minutes/seconds)
+ *     di - Distance (the digits in the top right will display either aU for astronomical units, or K for kilometers)
+ * 
+ * Long press on the Alarm button to select another celestial body.
+ */
+
 #include "movement.h"
 #include "astrolib.h"
 

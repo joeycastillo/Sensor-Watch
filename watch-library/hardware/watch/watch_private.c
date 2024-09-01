@@ -23,6 +23,7 @@
  */
 
 #include "watch_private.h"
+#include "watch_private_cdc.h"
 #include "watch_utility.h"
 #include "tusb.h"
 
@@ -30,11 +31,22 @@ void _watch_init(void) {
     // disable the LED pin (it may have been enabled by the bootloader)
     watch_disable_digital_output(GPIO(GPIO_PORTA, 20));
 
+    // disable debugger hot-plugging
+    gpio_set_pin_function(SWCLK, GPIO_PIN_FUNCTION_OFF);
+    gpio_set_pin_direction(SWCLK, GPIO_DIRECTION_OFF);
+    gpio_set_pin_pull_mode(SWCLK, GPIO_PULL_OFF);
+
     // RAM should be back-biased in STANDBY
     PM->STDBYCFG.bit.BBIASHS = 1;
 
     // Use switching regulator for lower power consumption.
     SUPC->VREG.bit.SEL = 1;
+
+    // per Microchip datasheet clarification DS80000782,
+    // work around silicon erratum 1.7.2, which causes the microcontroller to lock up on leaving standby:
+    // request that the voltage regulator run in standby, and also that it switch to PL0.
+    SUPC->VREG.bit.RUNSTDBY = 1;
+    SUPC->VREG.bit.STDBYPL0 = 1;
     while(!SUPC->STATUS.bit.VREGRDY); // wait for voltage regulator to become ready
 
     // check the battery voltage...
@@ -106,11 +118,21 @@ int getentropy(void *buf, size_t buflen) {
         }
     }
 
-    hri_trng_clear_CTRLA_ENABLE_bit(TRNG);
+    watch_disable_TRNG();
     hri_mclk_clear_APBCMASK_TRNG_bit(MCLK);
 
     return 0;
 }
+
+void watch_disable_TRNG(void);
+void watch_disable_TRNG(void) {
+    // per Microchip datasheet clarification DS80000782,
+    // silicon erratum 1.16.1 indicates that the TRNG may leave internal components powered after being disabled.
+    // the workaround is to disable the TRNG by clearing the control register, twice.
+    hri_trng_write_CTRLA_reg(TRNG, 0);
+    hri_trng_write_CTRLA_reg(TRNG, 0);
+}
+
 
 void _watch_enable_tcc(void) {
     // clock TCC0 with the main clock (8 MHz) and enable the peripheral clock.
@@ -135,11 +157,14 @@ void _watch_enable_tcc(void) {
     //    period (i.e. a square wave with a 50% duty cycle).
     //  * LEDs on CC[2] and CC[3] can be set to any value from 0 (off) to PER (fully on).
     hri_tcc_write_WAVE_reg(TCC0, TCC_WAVE_WAVEGEN_NPWM);
-    #ifdef WATCH_INVERT_LED_POLARITY
-    // This is here for the dev board, which uses a common anode LED (instead of common cathode like the actual watch).
+#ifdef WATCH_INVERT_LED_POLARITY
+    // This is here for the dev board and Pro, which use a common anode LED (instead of common cathode like the actual watch).
     hri_tcc_set_WAVE_reg(TCC0, (1 << (TCC_WAVE_POL0_Pos + WATCH_RED_TCC_CHANNEL)) |
+#ifdef WATCH_BLUE_TCC_CHANNEL
+                               (1 << (TCC_WAVE_POL0_Pos + WATCH_BLUE_TCC_CHANNEL)) |
+#endif // WATCH_BLUE_TCC_CHANNEL
                                (1 << (TCC_WAVE_POL0_Pos + WATCH_GREEN_TCC_CHANNEL)));
-    #endif
+#endif // WATCH_INVERT_LED_POLARITY
     // The buzzer will set the period depending on the tone it wants to play, but we have to set some period here to
     // get the LED working. Almost any period will do, tho it should be below 20000 (i.e. 50 Hz) to avoid flickering.
     hri_tcc_write_PER_reg(TCC0, 1024);
@@ -147,6 +172,9 @@ void _watch_enable_tcc(void) {
     hri_tcc_write_CC_reg(TCC0, WATCH_BUZZER_TCC_CHANNEL, 0);
     hri_tcc_write_CC_reg(TCC0, WATCH_RED_TCC_CHANNEL, 0);
     hri_tcc_write_CC_reg(TCC0, WATCH_GREEN_TCC_CHANNEL, 0);
+#ifdef WATCH_BLUE_TCC_CHANNEL
+    hri_tcc_write_CC_reg(TCC0, WATCH_BLUE_TCC_CHANNEL, 0);
+#endif
     // Enable the TCC
     hri_tcc_set_CTRLA_ENABLE_bit(TCC0);
     hri_tcc_wait_for_sync(TCC0, TCC_SYNCBUSY_ENABLE);
@@ -156,6 +184,10 @@ void _watch_enable_tcc(void) {
     gpio_set_pin_function(RED, WATCH_RED_TCC_PINMUX);
     gpio_set_pin_direction(GREEN, GPIO_DIRECTION_OUT);
     gpio_set_pin_function(GREEN, WATCH_GREEN_TCC_PINMUX);
+#ifdef WATCH_BLUE_TCC_CHANNEL
+    gpio_set_pin_direction(BLUE, GPIO_DIRECTION_OUT);
+    gpio_set_pin_function(BLUE, WATCH_BLUE_TCC_PINMUX);
+#endif
 }
 
 void _watch_disable_tcc(void) {
@@ -166,10 +198,95 @@ void _watch_disable_tcc(void) {
     gpio_set_pin_function(RED, GPIO_PIN_FUNCTION_OFF);
     gpio_set_pin_direction(GREEN, GPIO_DIRECTION_OFF);
     gpio_set_pin_function(GREEN, GPIO_PIN_FUNCTION_OFF);
+#ifdef WATCH_BLUE_TCC_CHANNEL
+    gpio_set_pin_direction(BLUE, GPIO_DIRECTION_OFF);
+    gpio_set_pin_function(BLUE, GPIO_PIN_FUNCTION_OFF);
+#endif
 
     // disable the TCC
     hri_tcc_clear_CTRLA_ENABLE_bit(TCC0);
     hri_mclk_clear_APBCMASK_TCC0_bit(MCLK);
+}    
+
+void _watch_enable_tc0(void) {
+    // before we init TinyUSB, we are going to need a periodic callback to handle TinyUSB tasks.
+    // TC2 and TC3 are reserved for devices on the 9-pin connector, so let's use TC0.
+    // clock TC0 with the 8 MHz clock on GCLK0.
+    hri_gclk_write_PCHCTRL_reg(GCLK, TC0_GCLK_ID, GCLK_PCHCTRL_GEN_GCLK0_Val | GCLK_PCHCTRL_CHEN);
+    // and enable the peripheral clock.
+    hri_mclk_set_APBCMASK_TC0_bit(MCLK);
+    // disable and reset TC0.
+    hri_tc_clear_CTRLA_ENABLE_bit(TC0);
+    hri_tc_wait_for_sync(TC0, TC_SYNCBUSY_ENABLE);
+    hri_tc_write_CTRLA_reg(TC0, TC_CTRLA_SWRST);
+    hri_tc_wait_for_sync(TC0, TC_SYNCBUSY_SWRST);
+    hri_tc_write_CTRLA_reg(TC0, TC_CTRLA_PRESCALER_DIV1024 | // divide the 8 MHz clock by 1024 to count at 7812.5 Hz
+                                TC_CTRLA_MODE_COUNT8 |       // count in 8-bit mode
+                                TC_CTRLA_RUNSTDBY);          // run in standby, just in case we figure that out
+    hri_tccount8_write_PER_reg(TC0, 10);                     // 7812.5 Hz / 10 = 781.125 Hz
+    // set an interrupt on overflow; this will call TC0_Handler below.
+    hri_tc_set_INTEN_OVF_bit(TC0);
+
+    // set priority higher than TC1
+    NVIC_SetPriority(TC0_IRQn, 5);
+    NVIC_ClearPendingIRQ(TC0_IRQn);
+    NVIC_EnableIRQ(TC0_IRQn);
+
+    // Start the timer
+    hri_tc_set_CTRLA_ENABLE_bit(TC0);
+}
+
+void _watch_disable_tc0(void) {
+    NVIC_DisableIRQ(TC0_IRQn);
+    NVIC_ClearPendingIRQ(TC0_IRQn);
+    hri_tc_clear_CTRLA_ENABLE_bit(TC0);
+    hri_tc_wait_for_sync(TC0, TC_SYNCBUSY_ENABLE);
+    hri_tc_write_CTRLA_reg(TC0, TC_CTRLA_SWRST);
+    hri_tc_wait_for_sync(TC0, TC_SYNCBUSY_SWRST);
+}
+
+void _watch_enable_tc1(void) {
+    hri_gclk_write_PCHCTRL_reg(GCLK, TC1_GCLK_ID, GCLK_PCHCTRL_GEN_GCLK0_Val | GCLK_PCHCTRL_CHEN);
+    // and enable the peripheral clock.
+    hri_mclk_set_APBCMASK_TC1_bit(MCLK);
+    // disable and reset TC1.
+    hri_tc_clear_CTRLA_ENABLE_bit(TC1);
+    hri_tc_wait_for_sync(TC1, TC_SYNCBUSY_ENABLE);
+    hri_tc_write_CTRLA_reg(TC1, TC_CTRLA_SWRST);
+    hri_tc_wait_for_sync(TC1, TC_SYNCBUSY_SWRST);
+    hri_tc_write_CTRLA_reg(TC1, TC_CTRLA_PRESCALER_DIV1024 | // divide the 8 MHz clock by 1024 to count at 7812.5 Hz
+                                TC_CTRLA_MODE_COUNT8 |       // count in 8-bit mode
+                                TC_CTRLA_RUNSTDBY);          // run in standby, just in case we figure that out
+    hri_tccount8_write_PER_reg(TC1, 20);                     // 7812.5 Hz / 50 = 156.25 Hz
+    // set an interrupt on overflow; this will call TC1_Handler below.
+    hri_tc_set_INTEN_OVF_bit(TC1);
+
+    // set priority lower than TC0
+    NVIC_SetPriority(TC1_IRQn, 6);
+    NVIC_ClearPendingIRQ(TC1_IRQn);
+    NVIC_EnableIRQ(TC1_IRQn);
+
+    // Start the timer
+    hri_tc_set_CTRLA_ENABLE_bit(TC1);
+}
+
+void _watch_disable_tc1(void) {
+    NVIC_DisableIRQ(TC1_IRQn);
+    NVIC_ClearPendingIRQ(TC1_IRQn);
+    hri_tc_clear_CTRLA_ENABLE_bit(TC1);
+    hri_tc_wait_for_sync(TC1, TC_SYNCBUSY_ENABLE);
+    hri_tc_write_CTRLA_reg(TC1, TC_CTRLA_SWRST);
+    hri_tc_wait_for_sync(TC1, TC_SYNCBUSY_SWRST);
+}
+
+void TC0_Handler(void) {
+    tud_task();
+    TC0->COUNT8.INTFLAG.reg |= TC_INTFLAG_OVF;
+}
+
+void TC1_Handler(void) {
+    cdc_task();
+    TC1->COUNT8.INTFLAG.reg |= TC_INTFLAG_OVF;
 }
 
 void _watch_enable_usb(void) {
@@ -216,75 +333,16 @@ void _watch_enable_usb(void) {
     gpio_set_pin_function(PIN_PA24, PINMUX_PA24G_USB_DM);
     gpio_set_pin_function(PIN_PA25, PINMUX_PA25G_USB_DP);
 
-    // before we init TinyUSB, we are going to need a periodic callback to handle TinyUSB tasks.
-    // TC2 and TC3 are reserved for devices on the 9-pin connector, so let's use TC0.
-    // clock TC0 with the 8 MHz clock on GCLK0.
-    hri_gclk_write_PCHCTRL_reg(GCLK, TC0_GCLK_ID, GCLK_PCHCTRL_GEN_GCLK0_Val | GCLK_PCHCTRL_CHEN);
-    // and enable the peripheral clock.
-    hri_mclk_set_APBCMASK_TC0_bit(MCLK);
-    // disable and reset TC0.
-    hri_tc_clear_CTRLA_ENABLE_bit(TC0);
-    hri_tc_wait_for_sync(TC0, TC_SYNCBUSY_ENABLE);
-    hri_tc_write_CTRLA_reg(TC0, TC_CTRLA_SWRST);
-    hri_tc_wait_for_sync(TC0, TC_SYNCBUSY_SWRST);
-    // configure the TC to overflow 1,000 times per second
-    hri_tc_write_CTRLA_reg(TC0, TC_CTRLA_PRESCALER_DIV64 |  // divide the 8 MHz clock by 64 to count at 125 KHz
-                                TC_CTRLA_MODE_COUNT8 |      // count in 8-bit mode
-                                TC_CTRLA_RUNSTDBY);         // run in standby, just in case we figure that out
-    hri_tccount8_write_PER_reg(TC0, 125);                   // 125000 Hz / 125 = 1,000 Hz
-    // set an interrupt on overflow; this will call TC0_Handler below.
-    hri_tc_set_INTEN_OVF_bit(TC0);
-    NVIC_ClearPendingIRQ(TC0_IRQn);
-    NVIC_EnableIRQ (TC0_IRQn);
+    _watch_enable_tc0();
 
-    // now we can init TinyUSB
     tusb_init();
-    // and start the timer that handles USB device tasks.
-    hri_tc_set_CTRLA_ENABLE_bit(TC0);
-}
 
-// this function ends up getting called by printf to log stuff to the USB console.
-int _write(int file, char *ptr, int len) {
-    (void)file;
-    if (hri_usbdevice_get_CTRLA_ENABLE_bit(USB)) {
-        tud_cdc_n_write(0, (void const*)ptr, len);
-        tud_cdc_n_write_flush(0);
-        return len;
-    }
-
-    return 0;
-}
-
-static char buf[256] = {0};
-
-int _read(int file, char *ptr, int len) {
-    (void)file;
-    int actual_length = strlen(buf);
-    if (actual_length) {
-        memcpy(ptr, buf, min(len, actual_length));
-        return actual_length;
-    }
-    return 0;
+    _watch_enable_tc1();
 }
 
 void USB_Handler(void) {
     tud_int_handler(0);
 }
-
-static void cdc_task(void) {
-    if (tud_cdc_n_available(0)) {
-        tud_cdc_n_read(0, buf, sizeof(buf));
-    } else {
-        memset(buf, 0, 256);
-    }
-}
-
-void TC0_Handler(void) {
-    tud_task();
-    cdc_task();
-    TC0->COUNT8.INTFLAG.reg |= TC_INTFLAG_OVF;
-}
-
 
 // USB Descriptors and tinyUSB callbacks follow.
 

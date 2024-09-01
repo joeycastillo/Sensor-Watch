@@ -37,6 +37,7 @@
 #include <string.h>
 #include <utils.h>
 #include <utils_assert.h>
+#include "pins.h"
 
 #ifdef __MINGW32__
 #define ffs __builtin_ffs
@@ -61,16 +62,6 @@ static int ffs(int v)
  */
 #define INVALID_EXTINT_NUMBER 0xFF
 #define INVALID_PIN_NUMBER 0xFFFFFFFF
-
-#ifndef CONFIG_EIC_EXTINT_MAP
-/** Dummy mapping to pass compiling. */
-#define CONFIG_EIC_EXTINT_MAP                                                                                          \
-	{                                                                                                                  \
-		INVALID_EXTINT_NUMBER, INVALID_PIN_NUMBER                                                                      \
-	}
-#endif
-
-#define EXT_IRQ_AMOUNT 6
 
 /**
  * \brief EXTINTx and pin number map

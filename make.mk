@@ -6,7 +6,19 @@ BUILD = ./build-sim
 endif
 BIN = watch
 
-ifndef BOARD
+ifndef COLOR
+$(error Set the COLOR variable to RED, BLUE, GREEN or PRO depending on what board you have.)
+endif
+
+COLOR_VALID := $(filter $(COLOR),RED BLUE GREEN PRO)
+
+ifeq ($(COLOR_VALID),)
+$(error COLOR must be RED, BLUE, GREEN or PRO)
+endif
+
+ifeq ($(COLOR), PRO)
+override BOARD = OSO-SWAT-C1-00
+else
 override BOARD = OSO-SWAT-A1-05
 endif
 
@@ -62,6 +74,7 @@ CFLAGS += -MD -MP -MT $(BUILD)/$(*F).o -MF $(BUILD)/$(@F).d
 LDFLAGS += -mcpu=cortex-m0plus -mthumb
 LDFLAGS += -Wl,--gc-sections
 LDFLAGS += -Wl,--script=$(TOP)/watch-library/hardware/linker/saml22j18.ld
+LDFLAGS += -Wl,--print-memory-usage
 
 LIBS += -lm
 
@@ -120,6 +133,7 @@ SRCS += \
   $(TOP)/watch-library/hardware/watch/watch_storage.c \
   $(TOP)/watch-library/hardware/watch/watch_deepsleep.c \
   $(TOP)/watch-library/hardware/watch/watch_private.c \
+  $(TOP)/watch-library/hardware/watch/watch_private_cdc.c \
   $(TOP)/watch-library/hardware/watch/watch.c \
   $(TOP)/watch-library/hardware/hal/src/hal_atomic.c \
   $(TOP)/watch-library/hardware/hal/src/hal_delay.c \
@@ -152,7 +166,6 @@ SRCS += \
   $(TOP)/watch-library/shared/driver/lis2dw.c \
   $(TOP)/watch-library/shared/driver/opt3001.c \
   $(TOP)/watch-library/shared/driver/spiflash.c \
-  $(TOP)/watch-library/shared/watch/watch_private_buzzer.c \
   $(TOP)/watch-library/shared/watch/watch_private_display.c \
   $(TOP)/watch-library/shared/watch/watch_utility.c \
 
@@ -197,14 +210,9 @@ SRCS += \
   $(TOP)/watch-library/simulator/watch/watch.c \
   $(TOP)/watch-library/shared/driver/thermistor_driver.c \
   $(TOP)/watch-library/shared/driver/opt3001.c \
-  $(TOP)/watch-library/shared/watch/watch_private_buzzer.c \
   $(TOP)/watch-library/shared/watch/watch_private_display.c \
   $(TOP)/watch-library/shared/watch/watch_utility.c \
 
-endif
-
-ifeq ($(LED), BLUE)
-CFLAGS += -DWATCH_IS_BLUE_BOARD
 endif
 
 ifeq ($(COLOR), BLUE)
@@ -223,4 +231,10 @@ endif
 
 ifeq ($(BOARD), OSO-FEAL-A1-00)
 CFLAGS += -DCRYSTALLESS
+endif
+
+# Build options to customize movement and faces
+
+ifdef CLOCK_FACE_24H_ONLY
+CFLAGS += -DCLOCK_FACE_24H_ONLY
 endif

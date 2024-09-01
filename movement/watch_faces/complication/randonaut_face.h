@@ -25,11 +25,8 @@
 #ifndef RANDONAUT_FACE_H_
 #define RANDONAUT_FACE_H_
 
-#include "movement.h"
-#include "place_face.h"
-
 /*
- * RANDONAUT FACE
+ * RANDONAUT face
  * ==============
  *
  * Randonauting is a way to turn the world around you into an adventure and get the user outside 
@@ -70,6 +67,9 @@
  * in the watch register commonly used for astronomical watch faces.
  * 
  */
+
+#include "movement.h"
+#include "place_face.h"
 
 typedef struct {
     uint8_t mode :3;
