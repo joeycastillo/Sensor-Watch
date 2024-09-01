@@ -36,15 +36,16 @@
 #define GAME_BOARD_SIZE 6
 #define MAX_BOARDS 40
 #define GUESSES_PER_SCREEN 5
-#define WIN_SCORE MAX_BOARDS * GUESSES_PER_SCREEN
+#define WIN_SCORE (MAX_BOARDS * GUESSES_PER_SCREEN)
 #define STATUS_DISPLAY_START 0
 #define BOARD_SCORE_DISPLAY_START 2
 #define BOARD_DISPLAY_START 4
 #define BOARD_DISPLAY_END 9
 #define MIN_CARD_VALUE 2
 #define MAX_CARD_VALUE 14
-#define DUPLICATES_OF_CARD 4
-#define DECK_COUNT (DUPLICATES_OF_CARD * (MAX_CARD_VALUE - MIN_CARD_VALUE + 1))
+#define CARD_RANK_COUNT (MAX_CARD_VALUE - MIN_CARD_VALUE + 1)
+#define CARD_SUIT_COUNT 4
+#define DECK_SIZE (CARD_SUIT_COUNT * CARD_RANK_COUNT)
 #define FLIP_BOARD_DIRECTION false
 
 typedef struct card_t {
@@ -75,8 +76,8 @@ static card_t game_board[GAME_BOARD_SIZE] = {0};
 static uint8_t guess_position = 0;
 static uint8_t score = 0;
 static uint8_t completed_board_count = 0;
-static uint8_t _deck[DECK_COUNT];
-static uint8_t _curr_card;
+static uint8_t deck[DECK_SIZE] = {0};
+static uint8_t current_card = 0;
 
 static uint8_t generate_random_number(uint8_t num_values) {
     // Emulator: use rand. Hardware: use arc4random.
@@ -87,35 +88,37 @@ static uint8_t generate_random_number(uint8_t num_values) {
 #endif
 }
 
-static void stack_deck(uint8_t *array) {
-    const uint8_t unique_cards = MAX_CARD_VALUE - MIN_CARD_VALUE + 1;
-    for (uint8_t i = 0; i < unique_cards; i++)
-    {
-        for (uint8_t j = 0; j < DUPLICATES_OF_CARD; j++) 
-            array[(i * DUPLICATES_OF_CARD) + j] = MIN_CARD_VALUE + i;
+static void stack_deck(void) {
+    for (size_t i = 0; i < CARD_RANK_COUNT; i++) {
+        for (size_t j = 0; j < CARD_SUIT_COUNT; j++)
+            deck[(i * CARD_SUIT_COUNT) + j] = MIN_CARD_VALUE + i;
     }
 }
 
-static void shuffle_deck(uint8_t *array, uint8_t n) {
+static void shuffle_deck(void) {
     // Randomize shuffle with Fisher Yates
-    uint8_t i, j, tmp;
-     for (i = n - 1; i > 0; i--) {
-         j = generate_random_number(0xFF) % (i + 1);
-         tmp = array[j];
-         array[j] = array[i];
-         array[i] = tmp;
-     }
+    size_t i;
+    size_t j;
+    uint8_t tmp;
+
+    for (i = DECK_SIZE - 1; i > 0; i--) {
+        j = generate_random_number(0xFF) % (i + 1);
+        tmp = deck[j];
+        deck[j] = deck[i];
+        deck[i] = tmp;
+    }
 }
 
 static void reset_deck(void) {
-    _curr_card = 0;
-    stack_deck(_deck);
-    shuffle_deck(_deck, DECK_COUNT);
+    current_card = 0;
+    stack_deck();
+    shuffle_deck();
 }
 
 static uint8_t get_next_card(void) {
-    if (_curr_card >= DECK_COUNT) reset_deck();
-    return _deck[_curr_card++];
+    if (current_card >= DECK_SIZE)
+        reset_deck();
+    return deck[current_card++];
 }
 
 static void reset_board(bool first_round) {
@@ -156,8 +159,8 @@ static void set_segment_at_position(segment_t segment, uint8_t position) {
 
 static void render_board_position(size_t board_position) {
     const size_t display_position = FLIP_BOARD_DIRECTION
-            ? BOARD_DISPLAY_START + board_position
-            : BOARD_DISPLAY_END - board_position;
+                                    ? BOARD_DISPLAY_START + board_position
+                                    : BOARD_DISPLAY_END - board_position;
     const bool revealed = game_board[board_position].revealed;
 
     //// Current position indicator spot
@@ -196,7 +199,7 @@ static void render_board_position(size_t board_position) {
     }
 }
 
-static void render_board() {
+static void render_board(void) {
     for (size_t i = 0; i < GAME_BOARD_SIZE; ++i) {
         render_board_position(i);
     }
@@ -218,7 +221,7 @@ static void render_final_score(void) {
     watch_display_string(buf, BOARD_DISPLAY_START);
 }
 
-static guess_t get_answer() {
+static guess_t get_answer(void) {
     if (guess_position < 1 || guess_position > GAME_BOARD_SIZE)
         return HL_GUESS_EQUAL; // Maybe add an error state, shouldn't ever hit this.
 
