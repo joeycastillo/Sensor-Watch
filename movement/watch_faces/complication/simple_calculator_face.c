@@ -86,7 +86,7 @@ static float convert_to_float(calculator_number_t number) {
     
     // Handle negative numbers
     if (number.negative) result = -result;
-    printf("convert_to_float results = %f\n", result); // For debugging
+    //printf("convert_to_float results = %f\n", result); // For debugging
 
     return result;
 }
@@ -149,10 +149,10 @@ static calculator_number_t convert_to_string(float number) {
     int int_part = (int)number;
 
     float decimal_part_float = ((number - int_part) * 100); // two decimal places
-    printf("decimal_part_float = %f\n", decimal_part_float); //For debugging
+    //printf("decimal_part_float = %f\n", decimal_part_float); //For debugging
 
     int decimal_part = round(decimal_part_float);
-    printf("decimal_part = %d\n", decimal_part); //For debugging
+    //printf("decimal_part = %d\n", decimal_part); //For debugging
 
     result.thousands = int_part / 1000 % 10;
     result.hundreds = int_part / 100 % 10;
@@ -242,7 +242,7 @@ static void view_results(simple_calculator_state_t *state, char *display_string)
     
     result_float = roundf(result_float * 100.0f) / 100.0f; // Might not be needed
 
-    printf("result as float = %f\n", result_float); // For debugging
+    //printf("result as float = %f\n", result_float); // For debugging
     
     // Convert the float result to a string
     // This isn't strictly necessary, but allows easily reusing the result as
@@ -252,7 +252,7 @@ static void view_results(simple_calculator_state_t *state, char *display_string)
     // Update the display with the result
     update_display_number(&state->result, display_string, 3);
 
-    printf("display_string = %s\n", display_string); // For debugging
+    //printf("display_string = %s\n", display_string); // For debugging
 
     watch_display_string(display_string, 0);
 }
@@ -363,7 +363,7 @@ bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *se
                     increment_placeholder(&state->first_num, state->placeholder);
                     update_display_number(&state->first_num, display_string, 1);
 
-                    printf("display_string = %s\n", display_string); // For debugging
+                    //printf("display_string = %s\n", display_string); // For debugging
 
                     break;
                 case MODE_CHOOSING:
@@ -375,7 +375,7 @@ bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *se
                     increment_placeholder(&state->second_num, state->placeholder);
                     update_display_number(&state->second_num, display_string, 2);
 
-                    printf("display_string = %s\n", display_string); // For debugging
+                    //printf("display_string = %s\n", display_string); // For debugging
 
                     break;
                 case MODE_ERROR:
