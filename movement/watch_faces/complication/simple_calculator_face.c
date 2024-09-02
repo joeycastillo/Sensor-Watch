@@ -36,11 +36,23 @@ void simple_calculator_face_setup(movement_settings_t *settings, uint8_t watch_f
     }
 }
 
+static void reset_to_zero(calculator_number_t *number) {
+    number->negative = false;
+    number->hundredths = 0;
+    number->tenths = 0;
+    number->ones = 0;
+    number->tens = 0;
+    number->hundreds = 0;
+    number->thousands = 0;
+}
+
 void simple_calculator_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
     simple_calculator_state_t *state = (simple_calculator_state_t *)context;
     state->placeholder = PLACEHOLDER_ONES;
     state->mode = MODE_ENTERING_FIRST_NUM;
+    reset_to_zero(&state->second_num);
+    reset_to_zero(&state->result);
     movement_request_tick_frequency(4);
 }
 
@@ -71,12 +83,18 @@ static float convert_to_float(calculator_number_t number) {
 
     // Round to nearest hundredth
     result = roundf(result * 100) / 100;
+    
+    // Handle negative numbers
+    if (number.negative) result = -result;
+    //printf("convert_to_float results = %f\n", result); // For debugging
+
     return result;
 }
 
 static char* update_display_number(calculator_number_t *number, char *display_string, uint8_t which_num) {
     char sign = ' ';
     if (number->negative) sign = '-';
+
     sprintf(display_string, "CA%d%c%d%d%d%d%d%d",
             which_num,
             sign,
@@ -115,7 +133,6 @@ static void set_operation(simple_calculator_state_t *state) {
 
 static void cycle_operation(simple_calculator_state_t *state) {
     state->operation = (state->operation + 1) % OPERATIONS_COUNT; // Assuming there are 6 operations
-    //printf("Current operation: %d\n", state->operation); // For debugging
 }
 
 
@@ -123,15 +140,17 @@ static calculator_number_t convert_to_string(float number) {
     calculator_number_t result;
 
     // Handle negative numbers
-    bool is_negative = (number < 0);
-    if (is_negative) {
+    if (number < 0) {
         number = -number;
         result.negative = true;
-    }
+    } else result.negative = false;
 
+    // Get each digit from each placeholder
     int int_part = (int)number;
+
     float decimal_part_float = ((number - int_part) * 100); // two decimal places
     //printf("decimal_part_float = %f\n", decimal_part_float); //For debugging
+
     int decimal_part = round(decimal_part_float);
     //printf("decimal_part = %d\n", decimal_part); //For debugging
 
@@ -146,22 +165,15 @@ static calculator_number_t convert_to_string(float number) {
     return result;
 }
 
-static void reset_to_zero(calculator_number_t *number) {
-    number->negative = false;
-    number->hundredths = 0;
-    number->tenths = 0;
-    number->ones = 0;
-    number->tens = 0;
-    number->hundreds = 0;
-    number->thousands = 0;
-}
-
+// This is the main function for setting the first_num and second_num
+// WISH: there must be a way to pass less to this function?
 static void set_number(calculator_number_t *number, calculator_placeholder_t placeholder, char *display_string, char *temp_display_string, movement_event_t event, uint8_t which_num) {
+
+    // Create the display index
     uint8_t display_index;
-    // Update display string with current number
+
+    // Update display string with current number and copy into temp string
     update_display_number(number, display_string, which_num);
-    
-    // Copy the updated display string to a temporary buffer
     strcpy(temp_display_string, display_string);
     
     // Determine the display index based on the placeholder
@@ -179,14 +191,13 @@ static void set_number(calculator_number_t *number, calculator_placeholder_t pla
 } 
 
 static void view_results(simple_calculator_state_t *state, char *display_string) {
-    float first_num_float, second_num_float, result_float = 0.0f; // For arithmetic operations
-    // Convert the numbers to float
+
+    // Initialize float variables to do the math
+    float first_num_float, second_num_float, result_float = 0.0f;
+
+    // Convert the passed numbers to floats
     first_num_float = convert_to_float(state->first_num);
-    if (state->first_num.negative) first_num_float = first_num_float * -1;
-    //printf("first_num_float = %f\n", first_num_float); // For debugging // For debugging
     second_num_float = convert_to_float(state->second_num);
-    if (state->second_num.negative) second_num_float = second_num_float * -1;
-    //printf("second_num_float = %f\n", second_num_float); // For debugging
     
     // Perform the calculation based on the selected operation
     switch (state->operation) {
@@ -216,29 +227,37 @@ static void view_results(simple_calculator_state_t *state, char *display_string)
             }
             break;
         case OP_POWER:
-            result_float = powf(first_num_float, second_num_float); // Power operation
+            result_float = powf(first_num_float, second_num_float);
             break;
         default:
             result_float = 0.0f;
             break;
     }
 
+    // Be sure the result can fit on the watch display, else error
     if (result_float > 9999.99 || result_float < -9999.99) {
         state->mode = MODE_ERROR;
         return;
     }
     
     result_float = roundf(result_float * 100.0f) / 100.0f; // Might not be needed
+
     //printf("result as float = %f\n", result_float); // For debugging
     
     // Convert the float result to a string
+    // This isn't strictly necessary, but allows easily reusing the result as
+    // the next calculation's first_num
     state->result = convert_to_string(result_float);
     
     // Update the display with the result
     update_display_number(&state->result, display_string, 3);
+
+    //printf("display_string = %s\n", display_string); // For debugging
+
     watch_display_string(display_string, 0);
 }
 
+// Used both when returning from errors and when long pressing MODE
 static void reset_all(simple_calculator_state_t *state) {
     reset_to_zero(&state->first_num);
     reset_to_zero(&state->second_num);
@@ -246,6 +265,7 @@ static void reset_all(simple_calculator_state_t *state) {
     state->operation = OP_ADD;
     state->placeholder = PLACEHOLDER_ONES;
 }
+
 bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     simple_calculator_state_t *state = (simple_calculator_state_t *)context;
     char display_string[10];
@@ -258,6 +278,7 @@ bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *se
         case EVENT_TICK: 
             switch (state->mode) {
                 case MODE_ENTERING_FIRST_NUM:
+                    // See the WISH for this function above
                     set_number(&state->first_num, 
                             state->placeholder,
                             display_string, 
@@ -274,8 +295,8 @@ bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *se
                     // If doing a square root calculation, skip to results
                     if (state->operation == OP_ROOT) {
                         state->mode = MODE_VIEW_RESULTS;
-                    // otherwise, set the second number
                     } else {
+                        // See the WISH for this function above
                         set_number(&state->second_num, 
                             state->placeholder,
                             display_string, 
@@ -288,6 +309,7 @@ bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *se
                 case MODE_VIEW_RESULTS:
                     view_results(state, display_string);
                     break;
+
                 case MODE_ERROR:
                     watch_display_string("CA  Error ", 0);
                     break;
@@ -340,16 +362,21 @@ bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *se
                     // Increment the digit in the current placeholder
                     increment_placeholder(&state->first_num, state->placeholder);
                     update_display_number(&state->first_num, display_string, 1);
+
+                    //printf("display_string = %s\n", display_string); // For debugging
+
                     break;
                 case MODE_CHOOSING:
                     // Confirm and select the current operation
-                    //printf("Selected operation: %d\n", state->operation); // For debugging
                     state->mode = MODE_ENTERING_SECOND_NUM;                
                     break;
                 case MODE_ENTERING_SECOND_NUM:
                     // Increment the digit in the current placeholder
                     increment_placeholder(&state->second_num, state->placeholder);
                     update_display_number(&state->second_num, display_string, 2);
+
+                    //printf("display_string = %s\n", display_string); // For debugging
+
                     break;
                 case MODE_ERROR:
                     reset_all(state);
@@ -391,30 +418,30 @@ bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *se
                     state->first_num.thousands == 0) { 
                 movement_move_to_next_face();
             } else {
+                // Reset the placeholder and proceed to the next MODE
                 state->placeholder = PLACEHOLDER_ONES;
                 state->mode = (state->mode + 1) % 4;
+                // When looping back to MODE_ENTERING_FIRST_NUM, reuse the
+                // previous calculation's results as the next calculation's
+                // first_num; also reset other numbers
                 if (state->mode == MODE_ENTERING_FIRST_NUM) {
                     state->first_num = state->result;
                     reset_to_zero(&state->second_num);
+                    reset_to_zero(&state->result);
                 }
-                //printf("Current mode: %d\n", state->mode); // For debugging
             }
             break;
 
         case EVENT_MODE_LONG_PRESS:
+            // Move to next face if first number is 0
             if (state->first_num.hundredths == 0 &&
                     state->first_num.tenths == 0 &&
                     state->first_num.ones== 0 &&
                     state->first_num.tens == 0 &&
                     state->first_num.hundreds == 0 &&
-                    state->first_num.thousands == 0 &&
-                    state->second_num.hundredths == 0 &&
-                    state->second_num.tenths == 0 &&
-                    state->second_num.ones== 0 &&
-                    state->second_num.tens == 0 &&
-                    state->second_num.hundreds == 0 &&
-                    state->second_num.thousands == 0) { 
+                    state->first_num.thousands == 0) { 
                 movement_move_to_face(0);
+            // otherwise, start over
             } else {
                 reset_all(state);
             }
