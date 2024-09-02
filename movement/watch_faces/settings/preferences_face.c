@@ -26,6 +26,11 @@
 #include "preferences_face.h"
 #include "watch.h"
 
+typedef struct {
+    int current_page;
+    bool settings_mode;
+} preferences_state_t;
+
 #define PREFERENCES_FACE_NUM_PREFEFENCES (7)
 const char preferences_face_titles[PREFERENCES_FACE_NUM_PREFEFENCES][11] = {
     "CL        ",   // Clock: 12 or 24 hour
@@ -44,17 +49,20 @@ const char preferences_face_titles[PREFERENCES_FACE_NUM_PREFEFENCES][11] = {
 void preferences_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
     (void) watch_face_index;
-    if (*context_ptr == NULL) *context_ptr = malloc(sizeof(uint8_t));
+    if (*context_ptr == NULL) *context_ptr = malloc(sizeof(preferences_state_t));
 }
 
 void preferences_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
-    *((uint8_t *)context) = 0;
+    preferences_state_t *state = (preferences_state_t *)context;
+
+    state->current_page = 0;
+    state->settings_mode = false;
     movement_request_tick_frequency(4); // we need to manually blink some pixels
 }
 
 bool preferences_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
-    uint8_t current_page = *((uint8_t *)context);
+    preferences_state_t *state = (preferences_state_t *)context;
     switch (event.event_type) {
         case EVENT_TICK:
         case EVENT_ACTIVATE:
@@ -65,11 +73,15 @@ bool preferences_face_loop(movement_event_t event, movement_settings_t *settings
             movement_move_to_next_face();
             return false;
         case EVENT_LIGHT_BUTTON_DOWN:
-            current_page = (current_page + 1) % PREFERENCES_FACE_NUM_PREFEFENCES;
-            *((uint8_t *)context) = current_page;
+            state->current_page = (state->current_page + 1) % PREFERENCES_FACE_NUM_PREFEFENCES;
+            break;
+        case EVENT_ALARM_LONG_PRESS:
+            state->settings_mode = !state->settings_mode;
             break;
         case EVENT_ALARM_BUTTON_UP:
-            switch (current_page) {
+            if(!state->settings_mode) break;
+
+            switch (state->current_page) {
                 case 0:
                     settings->bit.clock_mode_24h = !(settings->bit.clock_mode_24h);
                     break;
@@ -100,12 +112,12 @@ bool preferences_face_loop(movement_event_t event, movement_settings_t *settings
             return movement_default_loop_handler(event, settings);
     }
 
-    watch_display_string((char *)preferences_face_titles[current_page], 0);
+    watch_display_string((char *)preferences_face_titles[state->current_page], 0);
 
     // blink active setting on even-numbered quarter-seconds
-    if (event.subsecond % 2) {
+    if (!state->settings_mode || event.subsecond % 2) {
         char buf[8];
-        switch (current_page) {
+        switch (state->current_page) {
             case 0:
                 if (settings->bit.clock_mode_24h) watch_display_string("24h", 4);
                 else watch_display_string("12h", 4);
@@ -178,7 +190,7 @@ bool preferences_face_loop(movement_event_t event, movement_settings_t *settings
     }
 
     // on LED color select screns, preview the color.
-    if (current_page >= 5) {
+    if (state->current_page >= 5) {
         watch_set_led_color(settings->bit.led_red_color ? (0xF | settings->bit.led_red_color << 4) : 0,
                             settings->bit.led_green_color ? (0xF | settings->bit.led_green_color << 4) : 0);
         // return false so the watch stays awake (needed for the PWM driver to function).
