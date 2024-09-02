@@ -151,14 +151,14 @@ bool beer_o_clock_face_loop(movement_event_t event, movement_settings_t *setting
                 switch (state->ticks % 3) {
                     case 0:
                         watch_display_string("     -o-  ", 0);
+                        movement_request_tick_frequency(2);
                         break;
                     case 1:
-                        movement_request_tick_frequency(1);
                         watch_display_string("    clock ", 0);
                         break;
                     case 2:
-                        movement_request_tick_frequency(2);
                         watch_display_string("     beer ", 0);
+                        movement_request_tick_frequency(1);
                         break;
                 }
             }

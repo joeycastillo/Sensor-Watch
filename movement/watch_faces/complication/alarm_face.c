@@ -235,7 +235,13 @@ void alarm_face_setup(movement_settings_t *settings, uint8_t watch_face_index, v
         state->alarm[4].beeps = 10;
         state->alarm[4].pitch = 1;
         state->alarm[4].enabled = true;
-        for (uint8_t i = 5; i < ALARM_ALARMS; i++) {
+        state->alarm[5].day = ALARM_DAY_EACH_DAY;
+        state->alarm[5].hour = 18;
+        state->alarm[5].minute = 0;
+        state->alarm[5].beeps = 10;
+        state->alarm[5].pitch = 1;
+        state->alarm[5].enabled = true;
+        for (uint8_t i = 6; i < ALARM_ALARMS; i++) {
             state->alarm[i].day = ALARM_DAY_ONE_TIME;
             state->alarm[i].beeps = 5;
             state->alarm[i].pitch = 1;
