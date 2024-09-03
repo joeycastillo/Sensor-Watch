@@ -233,7 +233,7 @@ static void add_to_score(endless_runner_state_t *state) {
 
 static void display_fuel(uint8_t subsecond, uint8_t difficulty) {
     char buf[4];
-    if (difficulty == DIFF_FUEL_1 && game_state.fuel == 0 && subsecond % 4 == 0) {
+    if (difficulty == DIFF_FUEL_1 && game_state.fuel == 0 && subsecond % (FREQ/2) == 0) {
         watch_display_string("  ", 2);  // Blink the 0 fuel to show it cannot be refilled.
         return;
     }
