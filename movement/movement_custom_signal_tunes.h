@@ -100,4 +100,23 @@ int8_t signal_tune[] = {
 };
 #endif // SIGNAL_TUNE_POWER_RANGERS
 
+#ifdef SIGNAL_TUNE_LAYLA
+int8_t signal_tune[] = {
+    BUZZER_NOTE_A6, 5,
+    BUZZER_NOTE_REST, 1,
+    BUZZER_NOTE_C7, 5,
+    BUZZER_NOTE_REST, 1,
+    BUZZER_NOTE_D7, 5,
+    BUZZER_NOTE_REST, 1,
+    BUZZER_NOTE_F7, 5,
+    BUZZER_NOTE_REST, 1,
+    BUZZER_NOTE_D7, 5,
+    BUZZER_NOTE_REST, 1,
+    BUZZER_NOTE_C7, 5,
+    BUZZER_NOTE_REST, 1,
+    BUZZER_NOTE_D7, 20,
+    0
+};
+#endif // SIGNAL_TUNE_LAYLA
+
 #endif // MOVEMENT_CUSTOM_SIGNAL_TUNES_H_
