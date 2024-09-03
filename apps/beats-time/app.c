@@ -2,6 +2,7 @@
 #include <string.h>
 #include <math.h>
 #include "watch.h"
+#include "watch_utility.h"
 
 const int8_t UTC_OFFSET = 4; // set to your current UTC offset to see correct beats time
 const uint8_t BEAT_REFRESH_FREQUENCY = 8;
@@ -203,7 +204,6 @@ void set_time_mode_handle_primary_button(void) {
 
 void set_time_mode_handle_secondary_button(void) {
     watch_date_time date_time = watch_rtc_get_date_time();
-    const uint8_t days_in_month[12] = {31, 28, 31, 30, 31, 30, 30, 31, 30, 31, 30, 31};
 
     switch (application_state.page) {
         case 0: // hour
@@ -224,13 +224,10 @@ void set_time_mode_handle_secondary_button(void) {
             break;
         case 5: // day
             date_time.unit.day = date_time.unit.day + 1;
-            // can't set to the 29th on a leap year. if it's february 29, set to 11:59 on the 28th.
-            // and it should roll over.
-            if (date_time.unit.day > days_in_month[date_time.unit.month - 1]) {
-                date_time.unit.day = 1;
-            }
             break;
     }
+    if (date_time.unit.day > days_in_month(date_time.unit.month, date_time.unit.year + WATCH_RTC_REFERENCE_YEAR))
+        date_time.unit.day = 1;
     watch_rtc_set_date_time(date_time);
 }
 

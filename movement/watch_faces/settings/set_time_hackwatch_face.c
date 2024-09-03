@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include "set_time_hackwatch_face.h"
 #include "watch.h"
+#include "watch_utility.h"
 
 char set_time_hackwatch_face_titles[][3] = {"HR", "M1", "SE", "YR", "MO", "DA", "ZO"};
 #define set_time_hackwatch_face_NUM_SETTINGS (sizeof(set_time_hackwatch_face_titles) / sizeof(*set_time_hackwatch_face_titles))
@@ -47,7 +48,6 @@ void set_time_hackwatch_face_activate(movement_settings_t *settings, void *conte
 
 bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     uint8_t current_page = *((uint8_t *)context);
-    const uint8_t days_in_month[12] = {31, 28, 31, 30, 31, 30, 30, 31, 30, 31, 30, 31};
 
     if (event.subsecond == 15) // Delay displayed time update by ~0.5 seconds, to align phase exactly to main clock at 1Hz
         date_time_settings = watch_rtc_get_date_time();
@@ -119,10 +119,8 @@ bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *s
                     break;
                 case 5: // day
                     date_time_settings.unit.day = date_time_settings.unit.day - 2;
-                    // can't set to the 29th on a leap year. if it's february 29, set to 11:59 on the 28th.
-                    // and it should roll over.
                     if (date_time_settings.unit.day == 0) {
-                        date_time_settings.unit.day = days_in_month[date_time_settings.unit.month - 1];
+                        date_time_settings.unit.day = days_in_month(date_time_settings.unit.month, date_time_settings.unit.year + WATCH_RTC_REFERENCE_YEAR);
                     } else
                         date_time_settings.unit.day++;
                     break;
@@ -137,7 +135,7 @@ bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *s
             if (current_page != 2) // Do not set time when we are at seconds, it was already set previously
                 watch_rtc_set_date_time(date_time_settings);
             break;
-        
+
         case EVENT_ALARM_LONG_UP://Setting seconds on long release
             switch (current_page) {
                 case 2: // second
@@ -167,17 +165,14 @@ bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *s
                     break;
                 case 5: // day
                     date_time_settings.unit.day = date_time_settings.unit.day + 1;
-                    // can't set to the 29th on a leap year. if it's february 29, set to 11:59 on the 28th.
-                    // and it should roll over.
-                    if (date_time_settings.unit.day > days_in_month[date_time_settings.unit.month - 1]) {
-                        date_time_settings.unit.day = 1;
-                    }
                     break;
                 case 6: // time zone
                     settings->bit.time_zone++;
                     if (settings->bit.time_zone > 40) settings->bit.time_zone = 0;
                     break;
             }
+            if (date_time_settings.unit.day > days_in_month(date_time_settings.unit.month, date_time_settings.unit.year + WATCH_RTC_REFERENCE_YEAR))
+                date_time_settings.unit.day = 1;
             if (current_page != 2) // Do not set time when we are at seconds, it was already set previously
                 watch_rtc_set_date_time(date_time_settings);
             //TODO: Do not update whole RTC, just what we are changing
