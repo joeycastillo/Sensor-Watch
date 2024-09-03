@@ -1,4 +1,4 @@
-import random, itertools, time, ast
+import random, itertools, time, numpy
 
 source_link = "https://matthewminer.name/projects/calculators/wordle-words-left/"
 valid_list = [
@@ -1091,12 +1091,12 @@ possible_list = [
 
 alphabet = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
 
-def most_used_letters(words=valid_list):
+def most_used_letters(words=valid_list, letters=alphabet, print_result=True):
     '''
     Outputs how many times each letter is used in the words array.
     '''
     use_each_letter = {}
-    for i in alphabet:
+    for i in letters:
         count = 0
         for word in words:
             for letter in word:
@@ -1105,10 +1105,11 @@ def most_used_letters(words=valid_list):
                     break
         use_each_letter[i] = count
     use_each_letter = dict(sorted(use_each_letter.items(), key=lambda item: item[1], reverse=True))
-    print("Letter |   Usage   | Percent")
-    print("----------------------------")
-    for k in use_each_letter:
-        print(f"{k.upper()}      | {use_each_letter[k]:5}     | {round((100 * use_each_letter[k]) / len(words)):2}%")
+    if print_result:
+        print("Letter |   Usage   | Percent")
+        print("----------------------------")
+        for k in use_each_letter:
+            print(f"{k.upper()}      | {use_each_letter[k]:5}     | {round((100 * use_each_letter[k]) / len(words)):2}%")
     return use_each_letter
 
 
@@ -1242,7 +1243,7 @@ def txt_of_all_letter_combos(num_letters_in_set, words=valid_list, min_letter_oc
     prev = time.time()
     start = prev
     letters_to_ignore = ['D','M']  # Don't diplay well on the watch
-    letter_usage = most_used_letters(words=words)
+    letter_usage = most_used_letters(words=words, print_result=False)
     for letter in letter_usage:
         if (100 * letter_usage[letter])/len(words) < min_letter_occ_percent_to_consider:
             letters_to_ignore.append(letter)
@@ -1276,7 +1277,7 @@ def txt_of_all_letter_combos(num_letters_in_set, words=valid_list, min_letter_oc
     dict_combos_counts = dict(sorted(dict_combos_counts.items(), key=lambda item: item[1], reverse=True))
     
     most_common_key = next(iter(dict_combos_counts))
-    print(f"The Most Common Combo is: {most_common_key} with {dict_combos_counts[most_common_key]} words.")
+    print(f"The Most Common Combo for {num_letters_in_set} letters is: {most_common_key} with {dict_combos_counts[most_common_key]} words.")
     # print_valid_words(ast.literal_eval(most_common_key))  # Uncomment to display the text it creates
     
     if txt_out:
@@ -1304,9 +1305,11 @@ def txt_of_all_letter_combos_differing_sizes(min=9, max=15, num_combos_print=20,
         print(f"{key}, {item}") 
             
 
-def location_of_letters(letters=alphabet, list=valid_list):
-    print("        1      2      3      4       5   ")
-    print("-----------------------------------------")
+def location_of_letters(letters=alphabet, list=valid_list, print_result=True):
+    letter_location_percentages = {}
+    if print_result:
+        print("        1      2      3      4       5   ")
+        print("-----------------------------------------")
     letters = sorted(letters)
     for letter in letters:
         location = [0, 0, 0, 0, 0]
@@ -1314,15 +1317,62 @@ def location_of_letters(letters=alphabet, list=valid_list):
             for i, char in enumerate(word):
                 if char.upper() == letter.upper():
                     location[i]+=1
-        location = [f"{round((100 * x) / sum(location)):2}%" for x in location]
-        print(f"{letter} :   {location}")
+        location = [((100 * x) / sum(location)) for x in location]
+        letter_location_percentages[letter] = location
+        location_txt = [f"{round(x):2}%" for x in location]
+        if print_result:
+            print(f"{letter} :   {location_txt}")
+    return letter_location_percentages
+
+
+def best_first_word(letters=alphabet, list=valid_list, print_result=True, words_to_print=None):
+    '''
+    Word_good has every word with only unique letters as keys and that values are:
+        1. Take the usage of every letter, normalize the max to 100 and the min to 0.
+        2. Go through each letter in the word and see how often that letter appears in that exact location.
+        3. Multiply that occurrance in location with the normalized total usage.
+        4. Do this for each letter and add it all together.
+        
+        Ex: SLATE
+            Normalized usage: S=38, L=42, A=79, T=46, E=100
+            S in position 1: 55%
+            L in position 2: 27%
+            A in position 3: 31%
+            T in position 4: 19%
+            E in position 5: 34%
+        Total = (38*55) + (42*27) + (79*31) + (46*19) + (100*35) = 10047
+    '''    
+    valid_words = list_of_valid_words(letters, list)
+    letter_usage = most_used_letters(words=list, letters=letters, print_result=False)
+    a=[[max(letter_usage.values()),1],[min(letter_usage.values()),1]]
+    b=[100,0]
+    m,b = numpy.linalg.solve(a,b).tolist()
+    letter_usage_normalized = {key: ((m * value) + b) for key, value in letter_usage.items()}
+    loc_letters = location_of_letters(letters=letters, list=list, print_result=False)
+    word_good = {}
+    valid_words_unique = [word for word in valid_words if len(word) == len(set(word))]
+    for word in valid_words_unique:
+        usage = 0
+        for i, char in enumerate(word):
+            usage += loc_letters[char][i] * letter_usage_normalized[char]
+        word_good[word] = round(usage)
+    word_good = {k: v for k, v in sorted(word_good.items(), key=lambda item: item[1], reverse=True)}
+    if print_result:
+        print("Word,  Usage Value")
+        print("------------------")
+        for i,[k,v] in enumerate(word_good.items()):
+            if words_to_print is not None and i+1 > words_to_print:
+                break
+            print(f"{k}, {v}")
+    return word_good
 
 
 if __name__ == "__main__":
     my_letters = ['A', 'C', 'E', 'H', 'I', 'L', 'N', 'O', 'P', 'R', 'S', 'T']
     #print(f"{len(list_of_valid_words(my_letters, valid_list))} Words can be made with {my_letters}")
-    #most_used_letters()
-    #location_of_letters(my_letters)
+    #most_used_letters(letters=my_letters)
+    #location_of_letters(letters=my_letters)
     print_valid_words(my_letters)
     #txt_of_all_letter_combos_differing_sizes(max = 16, min=10)
     #txt_of_all_letter_combos(14)
+    #best_first_word(letters=my_letters, print_result=True, words_to_print=10)
