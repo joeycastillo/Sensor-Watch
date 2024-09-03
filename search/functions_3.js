@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['is_5fleap_0',['is_leap',['../group__utility.html#gafa27a35234148d4f9d0216e21ddaabec',1,'is_leap(uint16_t y):&#160;watch_utility.c'],['../group__utility.html#gafa27a35234148d4f9d0216e21ddaabec',1,'is_leap(uint16_t year):&#160;watch_utility.c']]]
+  ['days_5fin_5fmonth_0',['days_in_month',['../group__utility.html#gad3a725af3abd77d08d503f665f2ccd70',1,'days_in_month(uint8_t month, uint16_t year):&#160;watch_utility.c'],['../group__utility.html#gad3a725af3abd77d08d503f665f2ccd70',1,'days_in_month(uint8_t month, uint16_t year):&#160;watch_utility.c']]]
 ];

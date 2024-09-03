@@ -127,6 +127,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ga176fd2c04778c2049f6ae8b9d374725c" id="r_ga176fd2c04778c2049f6ae8b9d374725c"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__utility.html#ga176fd2c04778c2049f6ae8b9d374725c">watch_utility_offset_timestamp</a> (uint32_t now, int8_t hours, int8_t minutes, int8_t seconds)</td></tr>
 <tr class="memdesc:ga176fd2c04778c2049f6ae8b9d374725c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Offset a timestamp by a given amount.  <br /></td></tr>
 <tr class="separator:ga176fd2c04778c2049f6ae8b9d374725c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad3a725af3abd77d08d503f665f2ccd70" id="r_gad3a725af3abd77d08d503f665f2ccd70"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__utility.html#gad3a725af3abd77d08d503f665f2ccd70">days_in_month</a> (uint8_t month, uint16_t year)</td></tr>
+<tr class="memdesc:gad3a725af3abd77d08d503f665f2ccd70"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of days in a month. It also handles Leap Years for February.  <br /></td></tr>
+<tr class="separator:gad3a725af3abd77d08d503f665f2ccd70"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
@@ -146,6 +149,43 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>watch_duration_t:
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>This section covers various useful functions that don't fit anywhere else. </p>
 <h2 class="groupheader">Function Documentation</h2>
+<a id="gad3a725af3abd77d08d503f665f2ccd70" name="gad3a725af3abd77d08d503f665f2ccd70"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gad3a725af3abd77d08d503f665f2ccd70">&#9670;&#160;</a></span>days_in_month()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t days_in_month </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>month</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>year</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns the number of days in a month. It also handles Leap Years for February. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">month</td><td>The month of the date (1-12) </td></tr>
+    <tr><td class="paramname">year</td><td>The year of the date (ex. 2022) </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="gafa27a35234148d4f9d0216e21ddaabec" name="gafa27a35234148d4f9d0216e21ddaabec"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#gafa27a35234148d4f9d0216e21ddaabec">&#9670;&#160;</a></span>is_leap()</h2>
 
