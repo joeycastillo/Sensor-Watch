@@ -93,6 +93,14 @@ bool preferences_face_loop(movement_event_t event, movement_settings_t *settings
                     break;
             }
             break;
+        case EVENT_ALARM_LONG_PRESS:
+            switch (current_page) {
+                case 0:
+                    if (settings->bit.clock_mode_24h)
+                        settings->bit.clock_24h_leading_zero = !(settings->bit.clock_24h_leading_zero);
+                    break;
+            }
+            break;
         case EVENT_TIMEOUT:
             movement_move_to_face(0);
             break;
@@ -109,8 +117,10 @@ bool preferences_face_loop(movement_event_t event, movement_settings_t *settings
         char buf[8];
         switch (current_page) {
             case 0:
-                if (settings->bit.clock_mode_24h) watch_display_string("24h", 4);
-                else watch_display_string("12h", 4);
+                if (settings->bit.clock_mode_24h) {
+                    if (settings->bit.clock_24h_leading_zero) watch_display_string("024h", 4);
+                    else watch_display_string("24h", 4);
+                } else watch_display_string("12h", 4);
                 break;
             case 1:
                 if (settings->bit.button_should_sound) watch_display_string("y", 9);
