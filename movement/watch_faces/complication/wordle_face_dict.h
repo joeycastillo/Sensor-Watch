@@ -14,25 +14,25 @@ static const char _valid_letters[] = {'A', 'C', 'E', 'H', 'I', 'L', 'N', 'O', 'P
 // From: https://matthewminer.name/projects/calculators/wordle-words-left/
 // Number of words found: 432
 static const char _valid_words[][WORDLE_LENGTH + 1] = {
-    "STALE", "TRACE", "CLOSE", "ARISE", "SNIPE", "SHIRE", "LEASH", "SAINT", "CLEAN", 
-    "RELIC", "CHORE", "CRONE", "REACH", "CHAOS", "TAPIR", "CAIRN", "TENOR", "STARE", 
-    "HEART", "SCOPE", "SNARL", "SLEPT", "SINCE", "EPOCH", "SPACE", "SHARE", "SPOIL", 
+    "SLATE", "STARE", "SNARE", "SANER", "CRANE", "STALE", "CRATE", "RAISE", "TRACE", 
+    "SHARE", "ARISE", "SCARE", "SPARE", "CHAOS", "TAPIR", "CAIRN", "TENOR", "CLEAN", 
+    "HEART", "SCOPE", "SNARL", "SLEPT", "SINCE", "EPOCH", "SPACE", "RELIC", "SPOIL", 
     "LITER", "LEAPT", "LANCE", "RANCH", "HORSE", "LEACH", "LATER", "STEAL", "CHEAP", 
-    "SHORT", "ETHIC", "CHANT", "ACTOR", "SPARE", "SEPIA", "ONSET", "SPLAT", "LEANT", 
+    "SHORT", "ETHIC", "CHANT", "ACTOR", "REACH", "SEPIA", "ONSET", "SPLAT", "LEANT", 
     "REACT", "OCTAL", "SPORE", "IRATE", "CORAL", "NICER", "SPILT", "SCENT", "PANIC", 
     "SHIRT", "PECAN", "SLAIN", "SPLIT", "ROACH", "ASCOT", "PHONE", "LITHE", "STOIC", 
     "STRIP", "RENAL", "POISE", "ENACT", "CHEAT", "PITCH", "NOISE", "INLET", "PEARL", 
-    "POLAR", "PEACH", "STOLE", "CASTE", "CREST", "SCARE", "ETHOS", "THEIR", "STONE", 
-    "SLATE", "LATCH", "HASTE", "SNARE", "SPINE", "SLANT", "SPEAR", "SCALE", "CAPER", 
+    "POLAR", "PEACH", "STOLE", "CASTE", "CREST", "CRONE", "ETHOS", "THEIR", "STONE", 
+    "SHIRE", "LATCH", "HASTE", "CLOSE", "SPINE", "SLANT", "SPEAR", "SCALE", "CAPER", 
     "RETCH", "PESTO", "CHIRP", "SPORT", "OPTIC", "SNAIL", "PRICE", "PLANE", "TORCH", 
     "PASTE", "RECAP", "SOLAR", "CRASH", "LINER", "OPINE", "ASHEN", "PALER", "ECLAT", 
-    "SPELT", "TRIAL", "PERIL", "SLICE", "SCANT", "RAISE", "POSIT", "ATONE", "SPIRE", 
+    "SPELT", "TRIAL", "PERIL", "SLICE", "SCANT", "SAINT", "POSIT", "ATONE", "SPIRE", 
     "COAST", "INEPT", "SHOAL", "CLASH", "THORN", "PHASE", "SCORE", "TRICE", "PERCH", 
-    "PORCH", "SHEAR", "CHOIR", "RHINO", "PLANT", "SHONE", "SANER", "LEARN", "ALTER", 
+    "PORCH", "SHEAR", "CHOIR", "RHINO", "PLANT", "SHONE", "CHORE", "LEARN", "ALTER", 
     "CHAIN", "PANEL", "PLIER", "STEIN", "COPSE", "SONIC", "ALIEN", "CHOSE", "ACORN", 
     "ANTIC", "CHEST", "OTHER", "CHINA", "TALON", "SCORN", "PLAIN", "PILOT", "RIPEN", 
     "PATCH", "SPICE", "CLONE", "SCION", "SCONE", "STRAP", "PARSE", "SHALE", "RISEN", 
-    "CANOE", "INTER", "CRATE", "ISLET", "PRINT", "SHINE", "NORTH", "CLEAT", "PLAIT", 
+    "CANOE", "INTER", "LEASH", "ISLET", "PRINT", "SHINE", "NORTH", "CLEAT", "PLAIT", 
     "SCRAP", "CLEAR", "SLOTH", "LAPSE", "CHAIR", "SNORT", "SHARP", "OPERA", "STAIN", 
     "TEACH", "TRAIL", "TRAIN", "LATHE", "PIANO", "PINCH", "PETAL", "STERN", "PRONE", 
     "PROSE", "PLEAT", "TROPE", "PLACE", "POSER", "INERT", "CHASE", "CAROL", "STAIR", 
@@ -41,7 +41,7 @@ static const char _valid_words[][WORDLE_LENGTH + 1] = {
     "SONAR", "AISLE", "AROSE", "HATER", "NICHE", "POINT", "EARTH", "PINTO", "THOSE", 
     "CLOTH", "NOTCH", "TOPIC", "RESIN", "SCALP", "HEIST", "HERON", "TRIPE", "TONAL", 
     "TAPER", "SHORN", "TONIC", "HOIST", "SNORE", "STORE", "SLOPE", "OCEAN", "CHART", 
-    "PAINT", "SPENT", "CRANE", "CRISP", "TRASH", "PATIO", "PLATE", "HOTEL", "LEAST", 
+    "PAINT", "SPENT", "SNIPE", "CRISP", "TRASH", "PATIO", "PLATE", "HOTEL", "LEAST", 
     "ALONE", "RALPH", "SPIEL", "SIREN", "RATIO", "STOOP", "TROLL", "ATOLL", "SLASH", 
     "RETRO", "CREEP", "STILT", "SPREE", "TASTE", "CACHE", "CANON", "EATEN", "TEPEE", 
     "SHEET", "SNEER", "ERROR", "NATAL", "SLEEP", "STINT", "TROOP", "SHALL", "STALL", 
@@ -282,8 +282,10 @@ static const char _possible_words[][WORDLE_LENGTH + 1] = {
 #endif
 };
 
-#if (WORDLE_USE_RANDOM_GUESS == 2)
-static const uint16_t _num_random_guess_words = 257;  // The _valid_words array begins with this many words where each letter is different.
+#if (WORDLE_USE_RANDOM_GUESS == 3)
+static const uint16_t _num_random_guess_words = 13;  // The valid_words array begins with this many words that are considered the top 3% best options.
+#elif (WORDLE_USE_RANDOM_GUESS == 2)
+static const uint16_t _num_random_guess_words = 257;  // The valid_words array begins with this many words where each letter is different.
 #elif (WORDLE_USE_RANDOM_GUESS == 1)
 static const uint16_t _num_random_guess_words = _num_words;
 #endif

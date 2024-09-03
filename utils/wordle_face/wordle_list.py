@@ -1169,11 +1169,16 @@ def print_valid_words(letters=alphabet):
     print("#endif\n")
     
     items_per_row = 9
+    top_words_percent = 3
     valid_words = list_of_valid_words(letters, valid_list)
     valid_words = capitalize_all_and_remove_duplicates(valid_words)
     random.shuffle(valid_words) 
     # Just in case the watch's random function is too pseudo, better to shuffle th elist so it's less likely to always have the same starting letter
     valid_words, num_uniq = rearrange_words_by_uniqueness(valid_words)
+    best_words = list(best_first_word(letters=letters, print_result=False).keys())  
+    num_best_words = round(len(valid_words) * top_words_percent / 100)
+    for i in range(num_best_words, 0, -1):
+        valid_words.insert(0, valid_words.pop(valid_words.index(best_words[i-1])))
             
     print("static const char _valid_letters[] = {", end='')
     letters = sorted(letters)
@@ -1209,8 +1214,10 @@ def print_valid_words(letters=alphabet):
     print("#endif")
     print("};\n")
     
-    print("#if (WORDLE_USE_RANDOM_GUESS == 2)")
-    print(f"static const uint16_t _num_random_guess_words = {num_uniq};  // The _valid_words array begins with this many words where each letter is different.")
+    print("#if (WORDLE_USE_RANDOM_GUESS == 3)")
+    print(f"static const uint16_t _num_random_guess_words = {num_best_words};  // The valid_words array begins with this many words that are considered the top {top_words_percent}% best options.")
+    print("#elif (WORDLE_USE_RANDOM_GUESS == 2)")
+    print(f"static const uint16_t _num_random_guess_words = {num_uniq};  // The valid_words array begins with this many words where each letter is different.")
     print("#elif (WORDLE_USE_RANDOM_GUESS == 1)")
     print("static const uint16_t _num_random_guess_words = _num_words;")
     print("#endif")
