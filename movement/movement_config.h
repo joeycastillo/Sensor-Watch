@@ -115,6 +115,6 @@ const watch_face_t watch_faces[] = {
 * button to the A4 input, defining this will enable the
 * watch to wake, and light up, on the LIGHT button
 */
-#define MOVEMENT_SLEEP_LIGHT_A4 1
+//#define MOVEMENT_SLEEP_LIGHT_A4 1
 
 #endif // MOVEMENT_CONFIG_H_
