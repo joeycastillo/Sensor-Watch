@@ -192,6 +192,9 @@ void cb_mode_btn_interrupt(void);
 void cb_light_btn_interrupt(void);
 void cb_alarm_btn_interrupt(void);
 void cb_alarm_btn_extwake(void);
+#ifdef MOVEMENT_SLEEP_LIGHT_A4   
+void cb_a4_extwake(void);
+#endif
 void cb_alarm_fired(void);
 void cb_fast_tick(void);
 void cb_tick(void);
@@ -218,6 +221,9 @@ static inline void _movement_disable_fast_tick_if_possible(void) {
         ((movement_state.debounce_ticks_light + movement_state.debounce_ticks_mode + movement_state.debounce_ticks_alarm) == 0) &&
         ((movement_state.light_down_timestamp + movement_state.mode_down_timestamp + movement_state.alarm_down_timestamp) == 0)) {
         movement_state.fast_tick_enabled = false;
+#ifdef MOVEMENT_SLEEP_LIGHT_A4           
+        movement_state.sleep_light_timestamp = 0;
+#endif        
         watch_rtc_disable_periodic_callback(128);
     }
 }
@@ -487,6 +493,9 @@ void app_setup(void) {
     }
     if (movement_state.le_mode_ticks != -1) {
         watch_disable_extwake_interrupt(BTN_ALARM);
+#ifdef MOVEMENT_SLEEP_LIGHT_A4       
+        watch_disable_extwake_interrupt(A4);
+#endif        
 
         watch_enable_external_interrupts();
         watch_register_interrupt_callback(BTN_MODE, cb_mode_btn_interrupt, INTERRUPT_TRIGGER_BOTH);
@@ -575,6 +584,10 @@ bool app_loop(void) {
     if (movement_state.le_mode_ticks == 0) {
         movement_state.le_mode_ticks = -1;
         watch_register_extwake_callback(BTN_ALARM, cb_alarm_btn_extwake, true);
+#ifdef MOVEMENT_SLEEP_LIGHT_A4           
+        watch_register_extwake_callback(A4, cb_a4_extwake, true);
+        gpio_set_pin_pull_mode(A4, GPIO_PULL_DOWN);
+#endif
         event.event_type = EVENT_NONE;
         event.subsecond = 0;
 
@@ -660,7 +673,13 @@ bool app_loop(void) {
     if (woke_up_for_buzzer) {
         while(watch_is_buzzer_or_led_enabled());
     }
-
+#ifdef MOVEMENT_SLEEP_LIGHT_A4   
+    // Woke up from the LIGHT button
+    if (movement_state.sleep_light_timestamp == -1) {
+        movement_illuminate_led();
+        movement_state.sleep_light_timestamp =  movement_state.fast_ticks + (movement_state.settings.bit.led_duration * 2 - 1) * 128;
+    }
+#endif
     // if the LED is on, we need to stay awake to keep the TCC running.
     if (movement_state.light_ticks != -1) can_sleep = false;
 
@@ -734,6 +753,12 @@ static void movement_disable_if_debounce_complete(void) {
 }
 
 void cb_light_btn_interrupt(void) {
+    #ifdef MOVEMENT_SLEEP_LIGHT_A4    
+    // If we register a light button press while the watch is waking up FROM a light button press, do
+    // not update the activity countdown. This allows the watch to go back to sleep quickly when we wake up
+    // just to check the screen with the light button
+    if (movement_state.sleep_light_timestamp != -1 && movement_state.fast_ticks >= movement_state.sleep_light_timestamp)
+#endif
     debounce_btn_press(BTN_LIGHT, &movement_state.debounce_ticks_light, &movement_state.light_down_timestamp, light_btn_action);
 }
 
@@ -749,6 +774,19 @@ void cb_alarm_btn_extwake(void) {
     // wake up!
     _movement_reset_inactivity_countdown();
 }
+
+#ifdef MOVEMENT_SLEEP_LIGHT_A4   
+void cb_a4_extwake(void) {
+
+    // This tells app_loop that we woke up to turn on the light
+    movement_state.sleep_light_timestamp = -1;
+
+    // This breaks us out of _sleep_mode_app_loop, but only keeps the watch awake for 5 seconds
+    // (the maximum configurable LED time)
+    movement_state.le_mode_ticks = 5;
+
+}
+#endif
 
 void cb_alarm_fired(void) {
     movement_state.needs_background_tasks_handled = true;
