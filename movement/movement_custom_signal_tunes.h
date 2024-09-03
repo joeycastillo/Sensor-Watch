@@ -83,4 +83,21 @@ int8_t signal_tune[] = {
 };
 #endif // SIGNAL_TUNE_KIM_POSSIBLE
 
+#ifdef SIGNAL_TUNE_POWER_RANGERS
+int8_t signal_tune[] = {
+    BUZZER_NOTE_D8, 6,
+    BUZZER_NOTE_REST, 8,
+    BUZZER_NOTE_D8, 6,
+    BUZZER_NOTE_REST, 8,
+    BUZZER_NOTE_C8, 6,
+    BUZZER_NOTE_REST, 2,
+    BUZZER_NOTE_D8, 6,
+    BUZZER_NOTE_REST, 8,
+    BUZZER_NOTE_F8, 6,
+    BUZZER_NOTE_REST, 8,
+    BUZZER_NOTE_D8, 6,
+    0
+};
+#endif // SIGNAL_TUNE_POWER_RANGERS
+
 #endif // MOVEMENT_CUSTOM_SIGNAL_TUNES_H_
