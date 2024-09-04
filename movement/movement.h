@@ -248,6 +248,8 @@ typedef struct {
 typedef struct {
     // properties stored in BACKUP register
     movement_settings_t settings;
+    movement_location_t location;
+    movement_birthdate_t birthdate;
 
     // transient properties
     int16_t current_face_idx;
@@ -276,6 +278,10 @@ typedef struct {
 
     // low energy mode countdown
     int32_t le_mode_ticks;
+    uint8_t debounce_ticks_light;
+    uint8_t debounce_ticks_alarm;
+    uint8_t debounce_ticks_mode;
+    bool ignore_alarm_btn_after_sleep;
 
     // app resignation countdown (TODO: consolidate with LE countdown?)
     int16_t timeout_ticks;

@@ -77,6 +77,7 @@ void watch_register_extwake_callback(uint8_t pin, ext_irq_cb_t callback, bool le
     RTC->MODE2.TAMPCTRL.reg = config;
     // re-enable the RTC
     RTC->MODE2.CTRLA.bit.ENABLE = 1;
+    while (RTC->MODE2.SYNCBUSY.bit.ENABLE); // wait for RTC to be enabled
 
     NVIC_ClearPendingIRQ(RTC_IRQn);
     NVIC_EnableIRQ(RTC_IRQn);
