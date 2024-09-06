@@ -121,7 +121,7 @@ int8_t signal_tune[] = {
 
 #ifdef SIGNAL_TUNE_HARRY_POTTER_SHORT
 int8_t signal_tune[] = {
-    BUZZER_NOTE_B5, 24,
+    BUZZER_NOTE_B5, 12,
     BUZZER_NOTE_REST, 1,
     BUZZER_NOTE_E6, 12,
     BUZZER_NOTE_REST, 1,
@@ -142,7 +142,7 @@ int8_t signal_tune[] = {
 
 #ifdef SIGNAL_TUNE_HARRY_POTTER_LONG
 int8_t signal_tune[] = {
-    BUZZER_NOTE_B5, 24,
+    BUZZER_NOTE_B5, 12,
     BUZZER_NOTE_REST, 1,
     BUZZER_NOTE_E6, 12,
     BUZZER_NOTE_REST, 1,
