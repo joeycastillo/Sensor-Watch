@@ -264,10 +264,11 @@ bool simple_clock_bin_led_face_wants_background_task(movement_settings_t *settin
 
     watch_date_time date_time = watch_rtc_get_date_time();
     if (date_time.unit.minute != 0) return false;
+    if (settings->bit.hourly_chime_always) return true;
     uint8_t chime_start, chime_end;
     _get_chime_times(date_time, settings, &chime_start, &chime_end);
     if (chime_end == 0) chime_end = 24;
-    if (!settings->bit.hourly_chime_always && (date_time.unit.hour < chime_start || date_time.unit.hour >= chime_end)) return false;
+    if (date_time.unit.hour < chime_start || date_time.unit.hour >= chime_end) return false;
 
     return true;
 }
