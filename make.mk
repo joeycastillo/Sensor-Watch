@@ -215,6 +215,20 @@ SRCS += \
 
 endif
 
+ifeq ($(LED), BLUE)
+CFLAGS += -DWATCH_IS_BLUE_BOARD
+endif
+
+ifndef COLOR
+$(error Set the COLOR variable to RED, BLUE, or GREEN depending on what board you have.)
+endif
+
+COLOR_VALID := $(filter $(COLOR),RED BLUE GREEN)
+
+ifeq ($(COLOR_VALID),)
+$(error COLOR must be RED, BLUE, or GREEN)
+endif
+
 ifeq ($(COLOR), BLUE)
 CFLAGS += -DWATCH_IS_BLUE_BOARD
 endif

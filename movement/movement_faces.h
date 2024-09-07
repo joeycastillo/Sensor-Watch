@@ -111,6 +111,7 @@
 #include "higher_lower_game_face.h"
 #include "french_revolutionary_face.h"
 #include "minimal_clock_face.h"
+#include "simon_face.h"
 // New includes go above this line.
 
 #endif // MOVEMENT_FACES_H_
