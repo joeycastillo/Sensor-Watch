@@ -1,6 +1,7 @@
 /*
  * MIT License
  *
+ * Copyright (c) 2024 Joseph Bryant
  * Copyright (c) 2023 Konrad Rieck
  * Copyright (c) 2022 Wesley Ellis
  *
@@ -68,16 +69,29 @@ static inline void button_beep(movement_settings_t *settings) {
         watch_buzzer_play_note(BUZZER_NOTE_C7, 50);
 }
 
-static void start(countdown_state_t *state, movement_settings_t *settings) {
-    watch_date_time now = watch_rtc_get_date_time();
+static void schedule_countdown(countdown_state_t *state, movement_settings_t *settings) {
 
-    state->mode = cd_running;
-    state->now_ts = watch_utility_date_time_to_unix_time(now, get_tz_offset(settings));
-    state->target_ts = watch_utility_offset_timestamp(state->now_ts, state->hours, state->minutes, state->seconds);
+    // Calculate the new state->now_ts but don't update it until we've updated the target - 
+    // avoid possible race where the old target is compared to the new time and immediately triggers
+    uint32_t new_now = watch_utility_date_time_to_unix_time(watch_rtc_get_date_time(), get_tz_offset(settings));
+    state->target_ts = watch_utility_offset_timestamp(new_now, state->hours, state->minutes, state->seconds);
+    state->now_ts = new_now;
     watch_date_time target_dt = watch_utility_date_time_from_unix_time(state->target_ts, get_tz_offset(settings));
-    movement_schedule_background_task(target_dt);
-    watch_set_indicator(WATCH_INDICATOR_BELL);
+    movement_schedule_background_task_for_face(state->watch_face_index, target_dt);
 }
+
+static void auto_repeat(countdown_state_t *state, movement_settings_t *settings) {
+    movement_play_alarm();
+    load_countdown(state);
+    schedule_countdown(state, settings);
+}
+
+static void start(countdown_state_t *state, movement_settings_t *settings) {
+    state->mode = cd_running;
+    schedule_countdown(state, settings);
+}
+
+
 
 static void draw(countdown_state_t *state, uint8_t subsecond) {
     char buf[16];
@@ -100,7 +114,7 @@ static void draw(countdown_state_t *state, uint8_t subsecond) {
             break;
         case cd_reset:
         case cd_paused:
-            watch_clear_indicator(WATCH_INDICATOR_BELL);
+            watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
             sprintf(buf, "CD  %2d%02d%02d", state->hours, state->minutes, state->seconds);
             break;
         case cd_setting:
@@ -127,19 +141,28 @@ static void draw(countdown_state_t *state, uint8_t subsecond) {
 
 static void pause(countdown_state_t *state) {
     state->mode = cd_paused;
-    movement_cancel_background_task();
-    watch_clear_indicator(WATCH_INDICATOR_BELL);
+    movement_cancel_background_task_for_face(state->watch_face_index);
+    watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
 }
 
 static void reset(countdown_state_t *state) {
     state->mode = cd_reset;
-    movement_cancel_background_task();
+    movement_cancel_background_task_for_face(state->watch_face_index);
     load_countdown(state);
 }
 
 static void ring(countdown_state_t *state) {
     movement_play_alarm();
     reset(state);
+}
+
+static void times_up(movement_settings_t *settings, countdown_state_t *state) {
+    if(state->repeat) {
+        auto_repeat(state, settings);
+    }
+    else {
+        ring(state);
+    }
 }
 
 static void settings_increment(countdown_state_t *state) {
@@ -170,6 +193,7 @@ void countdown_face_setup(movement_settings_t *settings, uint8_t watch_face_inde
         memset(*context_ptr, 0, sizeof(countdown_state_t));
         state->minutes = DEFAULT_MINUTES;
         state->mode = cd_reset;
+        state->watch_face_index = watch_face_index;
         store_countdown(state);
     }
 }
@@ -180,9 +204,11 @@ void countdown_face_activate(movement_settings_t *settings, void *context) {
     if(state->mode == cd_running) {
         watch_date_time now = watch_rtc_get_date_time();
         state->now_ts = watch_utility_date_time_to_unix_time(now, get_tz_offset(settings));
-        watch_set_indicator(WATCH_INDICATOR_BELL);
+        watch_set_indicator(WATCH_INDICATOR_SIGNAL);
     }
     watch_set_colon();
+    if(state->repeat)
+        watch_set_indicator(WATCH_INDICATOR_BELL);
 
     movement_request_tick_frequency(1);
     quick_ticks_running = false;
@@ -252,6 +278,7 @@ bool countdown_face_loop(movement_event_t event, movement_settings_t *settings, 
                         // Only start the timer if we have a valid time.
                         start(state, settings);
                         button_beep(settings);
+                        watch_set_indicator(WATCH_INDICATOR_SIGNAL);
                     }
                     break;
                 case cd_setting:
@@ -261,9 +288,19 @@ bool countdown_face_loop(movement_event_t event, movement_settings_t *settings, 
             draw(state, event.subsecond);
             break;
         case EVENT_ALARM_LONG_PRESS:
-            if (state->mode == cd_setting) {
-                quick_ticks_running = true;
-                movement_request_tick_frequency(8);
+            switch(state->mode) {
+                case cd_setting:
+                    quick_ticks_running = true;
+                    movement_request_tick_frequency(8);
+                    break;
+                default:
+                    // Toggle auto-repeat
+                    button_beep(settings);
+                    state->repeat = !state->repeat;
+                    if(state->repeat)
+                        watch_set_indicator(WATCH_INDICATOR_BELL);
+                    else
+                        watch_clear_indicator(WATCH_INDICATOR_BELL);
             }
             break;
         case EVENT_LIGHT_LONG_PRESS:
@@ -285,7 +322,7 @@ bool countdown_face_loop(movement_event_t event, movement_settings_t *settings, 
             abort_quick_ticks(state);
             break;
         case EVENT_BACKGROUND_TASK:
-            ring(state);
+            times_up(settings, state);
             break;
         case EVENT_TIMEOUT:
             abort_quick_ticks(state);
