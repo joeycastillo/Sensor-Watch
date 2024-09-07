@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include "set_time_face.h"
 #include "watch.h"
+#include "watch_utility.h"
 
 #define SET_TIME_FACE_NUM_SETTINGS (7)
 const char set_time_face_titles[SET_TIME_FACE_NUM_SETTINGS][3] = {"HR", "M1", "SE", "YR", "MO", "DA", "ZO"};
@@ -33,7 +34,6 @@ static bool _quick_ticks_running;
 
 static void _handle_alarm_button(movement_settings_t *settings, watch_date_time date_time, uint8_t current_page) {
     // handles short or long pressing of the alarm button
-    const uint8_t days_in_month[12] = {31, 28, 31, 30, 31, 30, 30, 31, 30, 31, 30, 31};
 
     switch (current_page) {
         case 0: // hour
@@ -52,14 +52,7 @@ static void _handle_alarm_button(movement_settings_t *settings, watch_date_time 
             date_time.unit.month = (date_time.unit.month % 12) + 1;
             break;
         case 5: { // day
-            uint32_t tmp_day = date_time.unit.day;   // use a temporary variable to avoid messing up the months
-            tmp_day = tmp_day + 1;
-            // handle February 29th on a leap year
-            if (((tmp_day > days_in_month[date_time.unit.month - 1]) && (date_time.unit.month != 2 || (date_time.unit.year % 4) != 0))
-                || (date_time.unit.month == 2 && (date_time.unit.year % 4) == 0 && tmp_day > 29)) {
-                tmp_day = 1;
-            }
-            date_time.unit.day = tmp_day;
+            date_time.unit.day = date_time.unit.day + 1;
             break;
         }
         case 6: // time zone
@@ -67,6 +60,8 @@ static void _handle_alarm_button(movement_settings_t *settings, watch_date_time 
             if (settings->bit.time_zone > 40) settings->bit.time_zone = 0;
             break;
     }
+    if (date_time.unit.day > days_in_month(date_time.unit.month, date_time.unit.year + WATCH_RTC_REFERENCE_YEAR))
+        date_time.unit.day = 1;
     watch_rtc_set_date_time(date_time);
 }
 

@@ -86,6 +86,13 @@ shell_command_t g_shell_commands[] = {
         .cb = filesystem_cmd_rm,
     },
     {
+        .name = "format",
+        .help = "usage: format YES",
+        .min_args = 1,
+        .max_args = 1,
+        .cb = filesystem_cmd_format,
+    },
+    {
         .name = "echo",
         .help = "usage: echo TEXT {>,>>} FILE",
         .min_args = 3,
@@ -109,7 +116,7 @@ static int help_cmd(int argc, char *argv[]) {
 
     printf("Command List:\r\n");
     for (size_t i = 0; i < g_num_shell_commands; i++) {
-        printf(" %s\t%s\r\n", 
+        printf(" %s\t%s\r\n",
                 g_shell_commands[i].name,
                 (g_shell_commands[i].help) ? g_shell_commands[i].help : ""
         );
@@ -156,4 +163,3 @@ static int stress_cmd(int argc, char *argv[]) {
 
     return 0;
 }
-

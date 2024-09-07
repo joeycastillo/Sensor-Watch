@@ -59,6 +59,7 @@ typedef struct {
 } pulsometer_state_t;
 
 static void pulsometer_display_title(pulsometer_state_t *pulsometer) {
+    (void) pulsometer;
     watch_display_string(PULSOMETER_FACE_TITLE, 0);
 }
 

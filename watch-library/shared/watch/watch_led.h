@@ -36,7 +36,7 @@
   * @note Some watches use a red/blue LED instead of a red/green LED. You will be able to determine this
   *       easily when you double tap the reset button: if the pulsing bootloader LED is red, you have a
   *       red/green edition; if it is blue, you have a red/blue edition. For red/blue watches, build your
-  *       project with the command `make LED=BLUE`, and the watch library will automatically swap the pins
+  *       project with the command `make COLOR=BLUE`, and the watch library will automatically swap the pins
   *       so that watch_set_led_red sets the red LED, and watch_set_led_green sets the blue one.
   */
 /// @{
@@ -62,6 +62,16 @@ void watch_disable_leds(void);
   *       returning false in your app_loop method.
   */
 void watch_set_led_color(uint8_t red, uint8_t green);
+
+/** @brief On boards with an RGB LED, sets the LED to a custom color by modulating each output's duty cycle.
+  * @param red The red value from 0-255.
+  * @param green The green value from 0-255.
+  * @param blue The blue value from 0-255.
+  * @note If you are displaying a custom color, you will need to prevent your app from going to sleep
+  *       while the LED is on; otherwise, the color will not display correctly. You can do this by
+  *       returning false in your app_loop method.
+  */
+void watch_set_led_color_rgb(uint8_t red, uint8_t green, uint8_t blue);
 
 /** @brief Sets the red LED to full brightness, and turns the green LED off.
   * @details Of the two LED's in the RG bi-color LED, the red LED is the less power-efficient one (~4.5 mA).

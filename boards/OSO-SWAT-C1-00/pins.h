@@ -2,15 +2,15 @@
 #define PINS_H_INCLUDED
 
 // Detects if we are on USB power.
-#define VBUS_DET GPIO(GPIO_PORTA, 3)
+#define VBUS_DET GPIO(GPIO_PORTB, 5)
 
 // Buttons
 #define BTN_ALARM GPIO(GPIO_PORTA, 2)
 #define WATCH_BTN_ALARM_EIC_CHANNEL 2
-#define BTN_LIGHT GPIO(GPIO_PORTB, 5)
-#define WATCH_BTN_LIGHT_EIC_CHANNEL 5
-#define BTN_MODE GPIO(GPIO_PORTA, 7)
-#define WATCH_BTN_MODE_EIC_CHANNEL 7
+#define BTN_LIGHT GPIO(GPIO_PORTA, 30)
+#define WATCH_BTN_LIGHT_EIC_CHANNEL 10
+#define BTN_MODE GPIO(GPIO_PORTA, 31)
+#define WATCH_BTN_MODE_EIC_CHANNEL 11
 
 // Buzzer
 #define BUZZER GPIO(GPIO_PORTA, 27)
@@ -19,51 +19,46 @@
 
 // LEDs
 #define WATCH_INVERT_LED_POLARITY
-#define RED GPIO(GPIO_PORTA, 4)
-#define WATCH_RED_TCC_CHANNEL 0
-#define WATCH_RED_TCC_PINMUX PINMUX_PA04E_TCC0_WO0
 
-#ifdef WATCH_IS_BLUE_BOARD
-    #define GREEN GPIO(GPIO_PORTB, 22)
-    #define WATCH_GREEN_TCC_CHANNEL 2
-    #define WATCH_GREEN_TCC_PINMUX PINMUX_PB22F_TCC0_WO2
-#else
-    #define GREEN GPIO(GPIO_PORTB, 23)
-    #define WATCH_GREEN_TCC_CHANNEL 3
-    #define WATCH_GREEN_TCC_PINMUX PINMUX_PB23F_TCC0_WO3
-#endif
+#define RED GPIO(GPIO_PORTA, 12)
+#define WATCH_RED_TCC_CHANNEL 2
+#define WATCH_RED_TCC_PINMUX PINMUX_PA12F_TCC0_WO6
 
+#define BLUE GPIO(GPIO_PORTA, 13)
+#define WATCH_BLUE_TCC_CHANNEL 3
+#define WATCH_BLUE_TCC_PINMUX PINMUX_PA13F_TCC0_WO7
+
+#define GREEN GPIO(GPIO_PORTA, 22)
+#define WATCH_GREEN_TCC_CHANNEL 0
+#define WATCH_GREEN_TCC_PINMUX PINMUX_PA22F_TCC0_WO4
 
 // Segment LCD
-// The LCD in this board can run comfortably at a lower voltage.
-#define CONF_SLCD_CONTRAST_ADJUST 7
-
 #define SLCD0 GPIO(GPIO_PORTB, 6)
 #define SLCD1 GPIO(GPIO_PORTB, 7)
 #define SLCD2 GPIO(GPIO_PORTB, 8)
 #define SLCD3 GPIO(GPIO_PORTB, 9)
 #define SLCD4 GPIO(GPIO_PORTA, 5)
 #define SLCD5 GPIO(GPIO_PORTA, 6)
-#define SLCD6 GPIO(GPIO_PORTA, 8)
-#define SLCD7 GPIO(GPIO_PORTA, 9)
-#define SLCD8 GPIO(GPIO_PORTA, 10)
-#define SLCD9 GPIO(GPIO_PORTA, 11)
-#define SLCD10 GPIO(GPIO_PORTB, 11)
-#define SLCD11 GPIO(GPIO_PORTB, 12)
-#define SLCD12 GPIO(GPIO_PORTB, 13)
-#define SLCD13 GPIO(GPIO_PORTB, 14)
-#define SLCD14 GPIO(GPIO_PORTB, 15)
-#define SLCD15 GPIO(GPIO_PORTA, 14)
-#define SLCD16 GPIO(GPIO_PORTA, 15)
-#define SLCD17 GPIO(GPIO_PORTA, 16)
-#define SLCD18 GPIO(GPIO_PORTA, 17)
-#define SLCD19 GPIO(GPIO_PORTA, 18)
-#define SLCD20 GPIO(GPIO_PORTA, 19)
-#define SLCD21 GPIO(GPIO_PORTB, 16)
-#define SLCD22 GPIO(GPIO_PORTB, 17)
-#define SLCD23 GPIO(GPIO_PORTA, 20)
-#define SLCD24 GPIO(GPIO_PORTA, 21)
-#define SLCD25 GPIO(GPIO_PORTA, 22)
+#define SLCD6 GPIO(GPIO_PORTA, 7)
+#define SLCD7 GPIO(GPIO_PORTA, 8)
+#define SLCD8 GPIO(GPIO_PORTA, 9)
+#define SLCD9 GPIO(GPIO_PORTA, 10)
+#define SLCD10 GPIO(GPIO_PORTA, 11)
+#define SLCD11 GPIO(GPIO_PORTB, 11)
+#define SLCD12 GPIO(GPIO_PORTB, 12)
+#define SLCD13 GPIO(GPIO_PORTB, 13)
+#define SLCD14 GPIO(GPIO_PORTB, 14)
+#define SLCD15 GPIO(GPIO_PORTB, 15)
+#define SLCD16 GPIO(GPIO_PORTA, 14)
+#define SLCD17 GPIO(GPIO_PORTA, 15)
+#define SLCD18 GPIO(GPIO_PORTA, 16)
+#define SLCD19 GPIO(GPIO_PORTA, 17)
+#define SLCD20 GPIO(GPIO_PORTA, 18)
+#define SLCD21 GPIO(GPIO_PORTA, 19)
+#define SLCD22 GPIO(GPIO_PORTB, 16)
+#define SLCD23 GPIO(GPIO_PORTB, 17)
+#define SLCD24 GPIO(GPIO_PORTA, 20)
+#define SLCD25 GPIO(GPIO_PORTA, 21)
 #define SLCD26 GPIO(GPIO_PORTA, 23)
 // This board uses a slightly different pin mapping from the standard watch, and it's not enough to
 // just declare the pins. We also have to set the LCD Pin Enable register with the SLCD pins we're
@@ -77,6 +72,7 @@
         (uint32_t)1 <<  3 | \
         (uint32_t)1 <<  5 | \
         (uint32_t)1 <<  6 | \
+        (uint32_t)1 <<  7 | \
         (uint32_t)1 << 11 | \
         (uint32_t)1 << 12 | \
         (uint32_t)1 << 13 | \
@@ -98,7 +94,6 @@
         (uint32_t)1 << (43 - 32) | \
         (uint32_t)1 << (48 - 32) | \
         (uint32_t)1 << (49 - 32) | \
-        (uint32_t)1 << (50 - 32) | \
         (uint32_t)1 << (51 - 32) | 0)
 
 
@@ -122,6 +117,6 @@
 
 // interrupt mapping
 #define EXT_IRQ_AMOUNT 6
-#define CONFIG_EIC_EXTINT_MAP {0, PIN_PB00}, {1, PIN_PB01}, {2, PIN_PA02}, {3, PIN_PB03}, {5, PIN_PB05}, {7, PIN_PA07},
+#define CONFIG_EIC_EXTINT_MAP {0, PIN_PB00}, {1, PIN_PB01}, {2, PIN_PA02}, {3, PIN_PB03}, {10, PIN_PA30}, {11, PIN_PA31},
 
 #endif // PINS_H_INCLUDED

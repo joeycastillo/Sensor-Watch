@@ -1,6 +1,4 @@
-FROM ubuntu:22.10
-
-# TODO: install emscripten (https://emscripten.org/docs/getting_started/downloads.html)
+FROM ubuntu:24.04
 
 # TODO: Clean this up once buildkit is supported gracefully in devcontainers
 # https://github.com/microsoft/vscode-remote-release/issues/1409
@@ -27,7 +25,9 @@ RUN apt-get update \
     # ca certs need to be available for fetching git submodules
     ca-certificates \
     # python is used to convert binaries to uf2 files
-    python3 python-is-python3
+    python3 python-is-python3 \
+    # emscripten for building simulator
+    emscripten
 
 # Download and verify both x86-64 and aarch64 toolchains. This is unfortunate and
 # slows down the build, but it's a clean-ish option until buildkit can be used.

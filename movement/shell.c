@@ -30,6 +30,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #if __EMSCRIPTEN__
 #include <emscripten.h>
@@ -57,7 +58,7 @@ static char *prv_skip_whitespace(char *c) {
         if (*c == 0) {
             return NULL;
         }
-        if (!isspace((int) *c) != 0) {
+        if ((!isspace((int) *c)) != 0) {
             return c;
         }
         c++;
