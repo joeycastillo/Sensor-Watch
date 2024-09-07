@@ -6,22 +6,6 @@ BUILD = ./build-sim
 endif
 BIN = watch
 
-ifndef COLOR
-$(error Set the COLOR variable to RED, BLUE, GREEN or PRO depending on what board you have.)
-endif
-
-COLOR_VALID := $(filter $(COLOR),RED BLUE GREEN PRO)
-
-ifeq ($(COLOR_VALID),)
-$(error COLOR must be RED, BLUE, GREEN or PRO)
-endif
-
-ifeq ($(COLOR), PRO)
-override BOARD = OSO-SWAT-C1-00
-else
-override BOARD = OSO-SWAT-A1-05
-endif
-
 ##############################################################################
 .PHONY: all directory clean size
 
@@ -215,6 +199,29 @@ SRCS += \
 
 endif
 
+ifeq ($(filter $(MAKECMDGOALS),clean analyze size directory install),)
+
+ifeq ($(LED), BLUE)
+CFLAGS += -DWATCH_IS_BLUE_BOARD
+endif
+
+ifndef COLOR
+COLOR := NONE  # Change to your board's color to not need to set the COLOR parameter on every make
+$(info COLOR is set to $(COLOR) by default.)
+endif
+
+COLOR_VALID := $(filter $(COLOR),RED BLUE GREEN)
+
+ifeq ($(COLOR_VALID),)
+$(error Set the COLOR variable to RED, BLUE, GREEN or PRO depending on what board you have.)
+endif
+
+ifeq ($(COLOR), PRO)
+override BOARD = OSO-SWAT-C1-00
+else
+override BOARD = OSO-SWAT-A1-05
+endif
+
 ifeq ($(COLOR), BLUE)
 CFLAGS += -DWATCH_IS_BLUE_BOARD
 endif
@@ -273,5 +280,7 @@ CFLAGS += -DINITIAL_MINUTE=$(CURRENT_MINUTE)
 $(info Default time set to $(CURRENT_HOUR):$(CURRENT_MINUTE) on $(shell date +"%b") $(CURRENT_DAY) $(shell date +"%Y") $(shell date +%Z))
 else
 $(error DATE must be YEAR, DAY, or MIN if used.)
+endif
+
 endif
 endif
