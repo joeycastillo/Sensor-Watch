@@ -109,6 +109,7 @@
 #include "periodic_face.h"
 #include "deadline_face.h"
 #include "higher_lower_game_face.h"
+#include "french_revolutionary_face.h"
 // New includes go above this line.
 
 #endif // MOVEMENT_FACES_H_
