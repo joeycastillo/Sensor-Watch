@@ -6,22 +6,6 @@ BUILD = ./build-sim
 endif
 BIN = watch
 
-ifndef COLOR
-$(error Set the COLOR variable to RED, BLUE, GREEN or PRO depending on what board you have.)
-endif
-
-COLOR_VALID := $(filter $(COLOR),RED BLUE GREEN PRO)
-
-ifeq ($(COLOR_VALID),)
-$(error COLOR must be RED, BLUE, GREEN or PRO)
-endif
-
-ifeq ($(COLOR), PRO)
-override BOARD = OSO-SWAT-C1-00
-else
-override BOARD = OSO-SWAT-A1-05
-endif
-
 ##############################################################################
 .PHONY: all directory clean size
 
@@ -215,6 +199,29 @@ SRCS += \
 
 endif
 
+ifeq ($(filter $(MAKECMDGOALS),clean analyze size directory install),)
+
+ifeq ($(LED), BLUE)
+CFLAGS += -DWATCH_IS_BLUE_BOARD
+endif
+
+ifndef COLOR
+COLOR := NONE  # Change to your board's color to not need to set the COLOR parameter on every make
+$(info COLOR is set to $(COLOR) by default.)
+endif
+
+COLOR_VALID := $(filter $(COLOR),RED BLUE GREEN)
+
+ifeq ($(COLOR_VALID),)
+$(error Set the COLOR variable to RED, BLUE, GREEN or PRO depending on what board you have.)
+endif
+
+ifeq ($(COLOR), PRO)
+override BOARD = OSO-SWAT-C1-00
+else
+override BOARD = OSO-SWAT-A1-05
+endif
+
 ifeq ($(COLOR), BLUE)
 CFLAGS += -DWATCH_IS_BLUE_BOARD
 endif
@@ -237,4 +244,43 @@ endif
 
 ifdef CLOCK_FACE_24H_ONLY
 CFLAGS += -DCLOCK_FACE_24H_ONLY
+endif
+
+# DATE = X
+#  YEAR = Sets the year and timezone to the PC's
+#  DAY = Sets the default time down to the day (year, month, day, timezone)
+#  MIN = Sets the default time down to the minute (year, month, day, timezone, hour, minute)
+ifdef DATE
+ifneq ($(DETECTED_OS), LINUX)
+$(error DATE parameter only works with Linux.)
+endif
+TIMEZONE := $(shell date +%z | awk '{print substr($$0, 1, 3) * 60 + substr($$0, 4, 2)}')
+CURRENT_YEAR := $(shell echo $$(($(shell date +"%Y") - 2020)))
+CURRENT_MONTH := $(shell date +"%-m")
+CURRENT_DAY := $(shell date +"%-d")
+CURRENT_HOUR := $(shell date +"%-H")
+CURRENT_MINUTE := $(shell date +"%-M")
+ifeq ($(DATE), YEAR)
+CFLAGS += -DINITIAL_TIMEZONE=$(TIMEZONE)
+CFLAGS += -DINITIAL_YEAR=$(CURRENT_YEAR)
+$(info Default year and timezone are set to $(shell date +"%Y") $(shell date +%Z))
+else ifeq ($(DATE), DAY)
+CFLAGS += -DINITIAL_TIMEZONE=$(TIMEZONE)
+CFLAGS += -DINITIAL_YEAR=$(CURRENT_YEAR)
+CFLAGS += -DINITIAL_MONTH=$(CURRENT_MONTH)
+CFLAGS += -DINITIAL_DAY=$(CURRENT_DAY)
+$(info Default date set to $(shell date +"%b") $(CURRENT_DAY) $(shell date +"%Y") $(shell date +%Z))
+else ifeq ($(DATE), MIN)
+CFLAGS += -DINITIAL_TIMEZONE=$(TIMEZONE)
+CFLAGS += -DINITIAL_YEAR=$(CURRENT_YEAR)
+CFLAGS += -DINITIAL_MONTH=$(CURRENT_MONTH)
+CFLAGS += -DINITIAL_DAY=$(CURRENT_DAY)
+CFLAGS += -DINITIAL_HOUR=$(CURRENT_HOUR)
+CFLAGS += -DINITIAL_MINUTE=$(CURRENT_MINUTE)
+$(info Default time set to $(CURRENT_HOUR):$(CURRENT_MINUTE) on $(shell date +"%b") $(CURRENT_DAY) $(shell date +"%Y") $(shell date +%Z))
+else
+$(error DATE must be YEAR, DAY, or MIN if used.)
+endif
+
+endif
 endif
