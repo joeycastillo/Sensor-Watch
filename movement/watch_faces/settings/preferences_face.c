@@ -217,10 +217,16 @@ bool preferences_face_loop(movement_event_t event, movement_settings_t *settings
                 }
                 break;
             case 4:
-                _watch_display_hourly_chime_string(settings, Hourly_Chime_Start[settings->bit.hourly_chime_start]);
+                if (watch_get_backup_data(1) && settings->bit.hourly_chime_start == 3)
+                    watch_display_string("SUNRIS", 4);
+                else
+                    _watch_display_hourly_chime_string(settings, Hourly_Chime_Start[settings->bit.hourly_chime_start]);
                 break;
             case 5:
-                _watch_display_hourly_chime_string(settings, Hourly_Chime_End[settings->bit.hourly_chime_end]);
+                if (watch_get_backup_data(1)  && settings->bit.hourly_chime_end == 3)
+                    watch_display_string("SUNSET", 4);
+                else
+                    _watch_display_hourly_chime_string(settings, Hourly_Chime_End[settings->bit.hourly_chime_end]);
                 break;
             case 6:
                 if (settings->bit.led_duration) {

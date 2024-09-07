@@ -63,8 +63,8 @@ typedef union {
         bool use_imperial_units : 1;        // indicates whether to use metric units (the default) or imperial.
         bool alarm_enabled : 1;             // indicates whether there is at least one alarm enabled.
         bool hourly_chime_always : 1;       // if true, then ignore the 
-        uint8_t hourly_chime_start : 2;     // 0: 6am; 1: 7am; 2: 10am; 3: 12pm; 
-        uint8_t hourly_chime_end : 2;       // 0: 8pm; 1: 9pm; 2: 10pm; 3: 12am;
+        uint8_t hourly_chime_start : 2;     // 0: 6am; 1: 7am; 2: 10am; 3: 12pm or sunrise in long and lat set; 
+        uint8_t hourly_chime_end : 2;       // 0: 8pm; 1: 9pm; 2: 10pm; 3: 12am or sunset in long and lat set;
         bool reserved : 1;                  // room for more preferences if needed.
     } bit;
     uint32_t reg;
@@ -326,7 +326,7 @@ static const uint8_t Hourly_Chime_Start[] =
     6,  // 6am
     7,  // 7am
     10, // 10am
-    12  // 12pm
+    12  // 12pm if no long and lat set; sunset otherwise
 };
 
 static const uint8_t Hourly_Chime_End[] =
@@ -334,7 +334,7 @@ static const uint8_t Hourly_Chime_End[] =
     20, // 8pm
     21, // 9pm
     22, // 10pm
-    00  // 12am
+    00  // 12am if no long and lat set; sunrise otherwise
 };
 
 #endif // MOVEMENT_H_
