@@ -113,6 +113,7 @@
 #include "minimal_clock_face.h"
 #include "simon_face.h"
 #include "simple_calculator_face.h"
+#include "alarm_thermometer_face.h"
 // New includes go above this line.
 
 #endif // MOVEMENT_FACES_H_
