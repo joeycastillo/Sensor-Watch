@@ -50,15 +50,16 @@ static void _sunrise_sunset_face_update(movement_settings_t *settings, sunrise_s
     bool show_next_match = false;
     movement_location_t movement_location;
     int16_t tz;
+    watch_date_time date_time = watch_rtc_get_date_time(); // the current local date / time
     if (state->longLatToUse == 0 || _location_count <= 1) {
+        tz = get_timezone_offset(settings->bit.time_zone, date_time);
         movement_location = (movement_location_t) watch_get_backup_data(1);
-        tz = movement_timezone_offsets[settings->bit.time_zone];
     }
     else{
         movement_location.bit.latitude = longLatPresets[state->longLatToUse].latitude;
         movement_location.bit.longitude = longLatPresets[state->longLatToUse].longitude;
-        if (longLatPresets[state->longLatToUse].timezone == SUNRISE_USE_LOCAL_TZ)
-            tz = movement_timezone_offsets[settings->bit.time_zone];
+        if (longLatPresets[state->longLatToUse].uses_dst && dst_occurring(date_time))
+            tz = movement_timezone_dst_offsets[longLatPresets[state->longLatToUse].timezone];
         else
             tz = movement_timezone_offsets[longLatPresets[state->longLatToUse].timezone];
     }
@@ -70,7 +71,6 @@ static void _sunrise_sunset_face_update(movement_settings_t *settings, sunrise_s
         return;
     }
 
-    watch_date_time date_time = watch_rtc_get_date_time(); // the current local date / time
     watch_date_time utc_now = watch_utility_date_time_convert_zone(date_time, tz * 60, 0); // the current date / time in UTC
     watch_date_time scratch_time; // scratchpad, contains different values at different times
     scratch_time.reg = utc_now.reg;
@@ -343,7 +343,6 @@ void sunrise_sunset_face_activate(movement_settings_t *settings, void *context) 
     movement_location_t movement_location = (movement_location_t) watch_get_backup_data(1);
     state->working_latitude = _sunrise_sunset_face_struct_from_latlon(movement_location.bit.latitude);
     state->working_longitude = _sunrise_sunset_face_struct_from_latlon(movement_location.bit.longitude);
-    state->tz = get_timezone_offset(settings->bit.time_zone, watch_rtc_get_date_time());
 }
 
 bool sunrise_sunset_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
