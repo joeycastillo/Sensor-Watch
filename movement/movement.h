@@ -63,7 +63,8 @@ typedef union {
         bool clock_24h_leading_zero : 1;    // indicates whether clock should leading zero to indicate 24 hour mode.
         bool use_imperial_units : 1;        // indicates whether to use metric units (the default) or imperial.
         bool alarm_enabled : 1;             // indicates whether there is at least one alarm enabled.
-        uint8_t reserved : 5;               // room for more preferences if needed.
+        bool dst_active : 1;                // indicates whether daylight savings time is active
+        uint8_t reserved : 4;               // room for more preferences if needed.
     } bit;
     uint32_t reg;
 } movement_settings_t;
@@ -129,6 +130,8 @@ typedef struct {
 } movement_event_t;
 
 extern const int16_t movement_timezone_offsets[];
+extern const uint8_t movement_dst_jump_table[];
+extern const uint8_t movement_dst_inverse_jump_table[];
 extern const char movement_valid_position_0_chars[];
 extern const char movement_valid_position_1_chars[];
 
