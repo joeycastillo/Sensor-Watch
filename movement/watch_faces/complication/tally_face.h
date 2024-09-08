@@ -54,6 +54,9 @@ typedef struct {
     uint8_t tally_default_idx;
 } tally_state_t;
 
+//#define TALLY_FACE_PRESETS_MTG
+//#define TALLY_FACE_PRESETS_YUGIOH
+
 
 void tally_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
 void tally_face_activate(movement_settings_t *settings, void *context);
