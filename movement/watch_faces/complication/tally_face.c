@@ -105,10 +105,15 @@ static void tally_face_decrement(tally_state_t *state, bool sound_on) {
         }
 }
 
+static bool tally_face_should_move_back(tally_state_t *state) {
+    if (_tally_default_size <= 1) { return false; }
+    return state->tally_idx == _tally_default[state->tally_default_idx];
+}
+
 bool tally_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     tally_state_t *state = (tally_state_t *)context;
     static bool using_led = false;
-    
+
     if (using_led) {
         if(!watch_get_pin_level(BTN_MODE) && !watch_get_pin_level(BTN_LIGHT) && !watch_get_pin_level(BTN_ALARM))
             using_led = false;
@@ -118,7 +123,7 @@ bool tally_face_loop(movement_event_t event, movement_settings_t *settings, void
             return true;
         }
     }
-    
+
     switch (event.event_type) {
         case EVENT_TICK:
             if (_quick_ticks_running) {
@@ -138,7 +143,7 @@ bool tally_face_loop(movement_event_t event, movement_settings_t *settings, void
             start_quick_cyc();
             break;
         case EVENT_MODE_LONG_PRESS:
-            if (state->tally_idx == _tally_default[state->tally_default_idx]) {
+            if (tally_face_should_move_back(state)) {
                 _init_val = true;
                 movement_move_to_face(0);
             }
