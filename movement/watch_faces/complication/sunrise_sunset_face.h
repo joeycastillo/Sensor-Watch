@@ -59,6 +59,8 @@ typedef struct {
     uint8_t longLatToUse;
 } sunrise_sunset_state_t;
 
+#define SUNRISE_USE_LOCAL_TZ 0xFF
+
 void sunrise_sunset_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
 void sunrise_sunset_face_activate(movement_settings_t *settings, void *context);
 bool sunrise_sunset_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
@@ -76,15 +78,15 @@ typedef struct {
     char name[2];
     int16_t latitude;
     int16_t longitude;
-    int16_t timezone;  // References element in movement_timezone_offsets
+    uint8_t timezone;  // References element in movement_timezone_offsets; Set to 0xFF to use local timezone
 } long_lat_presets_t;
 
+// Locations must either use the same timezone as local time, or not observe DST.
 static const long_lat_presets_t longLatPresets[] =
 {
-    { .name = "  "},  // Default, the long and lat get replaced by what's set in the watch
-    { .name = "Ny", .latitude = 4072, .longitude = -7401, .timezone = 35 },  // New York City, NY
-    { .name = "LA", .latitude = 3405, .longitude = -11824, .timezone = 30 },  // Los Angeles, CA
-    { .name = "dE", .latitude = 4221, .longitude = -8305, .timezone = 35 },  // Detroit, MI
+    { .name = "  "},  // Default, the long, lat, and timezone get replaced by what's set in the watch
+//    { .name = "dE", .latitude = 4221, .longitude = -8305, .timezone = SUNRISE_USE_LOCAL_TZ },  // Detroit, MI; Assumes you live in the Eastern Timezone
+//    { .name = "To", .latitude = 3567, .longitude = 13965, .timezone = 15 },  // Tokyo, JP
 };
 
 #endif // SUNRISE_SUNSET_FACE_H_

@@ -57,7 +57,10 @@ static void _sunrise_sunset_face_update(movement_settings_t *settings, sunrise_s
     else{
         movement_location.bit.latitude = longLatPresets[state->longLatToUse].latitude;
         movement_location.bit.longitude = longLatPresets[state->longLatToUse].longitude;
-        tz = movement_timezone_offsets[longLatPresets[state->longLatToUse].timezone];
+        if (longLatPresets[state->longLatToUse].timezone == SUNRISE_USE_LOCAL_TZ)
+            tz = movement_timezone_offsets[settings->bit.time_zone];
+        else
+            tz = movement_timezone_offsets[longLatPresets[state->longLatToUse].timezone];
     }
 
     if (movement_location.reg == 0) {
@@ -405,11 +408,11 @@ bool sunrise_sunset_face_loop(movement_event_t event, movement_settings_t *setti
             break;
         case EVENT_ALARM_LONG_PRESS:
             if (state->page == 0) {
-            if (state->longLatToUse != 0) {
-                state->longLatToUse = 0;
-                _sunrise_sunset_face_update(settings, state);
-                break;
-            }
+                if (state->longLatToUse != 0) {
+                    state->longLatToUse = 0;
+                    _sunrise_sunset_face_update(settings, state);
+                    break;
+                }
                 state->page++;
                 state->active_digit = 0;
                 watch_clear_display();
