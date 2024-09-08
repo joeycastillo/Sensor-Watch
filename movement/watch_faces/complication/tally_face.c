@@ -48,7 +48,7 @@ static const int16_t _tally_default[] = {
 
 };
 
-static const uint8_t _tally_default_size = sizeof(_tally_default) / sizeof(int16_t);
+#define TALLY_FACE_PRESETS_SIZE() (sizeof(_tally_default) / sizeof(int16_t))
 
 void tally_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
@@ -106,7 +106,7 @@ static void tally_face_decrement(tally_state_t *state, bool sound_on) {
 }
 
 static bool tally_face_should_move_back(tally_state_t *state) {
-    if (_tally_default_size <= 1) { return false; }
+    if (TALLY_FACE_PRESETS_SIZE() <= 1) { return false; }
     return state->tally_idx == _tally_default[state->tally_default_idx];
 }
 
@@ -169,7 +169,7 @@ bool tally_face_loop(movement_event_t event, movement_settings_t *settings, void
             break;
         case EVENT_LIGHT_LONG_PRESS:
             if (_init_val){
-                state->tally_default_idx = (state->tally_default_idx + 1) % _tally_default_size;
+                state->tally_default_idx = (state->tally_default_idx + 1) % TALLY_FACE_PRESETS_SIZE();
                 state->tally_idx = _tally_default[state->tally_default_idx];
                 if (settings->bit.button_should_sound) watch_buzzer_play_note(BUZZER_NOTE_E6, 30);
                 if (settings->bit.button_should_sound) watch_buzzer_play_note(BUZZER_NOTE_REST, 30);
