@@ -133,7 +133,7 @@ SRCS += \
   ../watch_faces/complication/wordle_face.c \
   ../watch_faces/complication/endless_runner_face.c \
   ../watch_faces/complication/periodic_face.c \
-  ../watch_faces/complication/deadline_face.c
+  ../watch_faces/complication/deadline_face.c \
   ../watch_faces/complication/higher_lower_game_face.c \
   ../watch_faces/clock/french_revolutionary_face.c \
   ../watch_faces/clock/minimal_clock_face.c \
