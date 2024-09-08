@@ -76,14 +76,15 @@ typedef struct {
     char name[2];
     int16_t latitude;
     int16_t longitude;
+    int16_t timezone;  // References element in movement_timezone_offsets
 } long_lat_presets_t;
 
 static const long_lat_presets_t longLatPresets[] =
 {
     { .name = "  "},  // Default, the long and lat get replaced by what's set in the watch
-//    { .name = "Ny", .latitude = 4072, .longitude = -7401 },  // New York City, NY
-//    { .name = "LA", .latitude = 3405, .longitude = -11824 },  // Los Angeles, CA
-//    { .name = "dE", .latitude = 4221, .longitude = -8305 },  // Detroit, MI
+    { .name = "Ny", .latitude = 4072, .longitude = -7401, .timezone = 35 },  // New York City, NY
+    { .name = "LA", .latitude = 3405, .longitude = -11824, .timezone = 30 },  // Los Angeles, CA
+    { .name = "dE", .latitude = 4221, .longitude = -8305, .timezone = 35 },  // Detroit, MI
 };
 
 #endif // SUNRISE_SUNSET_FACE_H_
