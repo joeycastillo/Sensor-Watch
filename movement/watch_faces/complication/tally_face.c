@@ -168,7 +168,7 @@ bool tally_face_loop(movement_event_t event, movement_settings_t *settings, void
             }
             break;
         case EVENT_LIGHT_LONG_PRESS:
-            if (_init_val){
+            if (TALLY_FACE_PRESETS_SIZE() > 1 && _init_val){
                 state->tally_default_idx = (state->tally_default_idx + 1) % TALLY_FACE_PRESETS_SIZE();
                 state->tally_idx = _tally_default[state->tally_default_idx];
                 if (settings->bit.button_should_sound) watch_buzzer_play_note(BUZZER_NOTE_E6, 30);
