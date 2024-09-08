@@ -273,8 +273,6 @@ bool simple_calculator_face_loop(movement_event_t event, movement_settings_t *se
 
     switch (event.event_type) {
         case EVENT_ACTIVATE:
-            break;
-
         case EVENT_TICK: 
             switch (state->mode) {
                 case MODE_ENTERING_FIRST_NUM:
