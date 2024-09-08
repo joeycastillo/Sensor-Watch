@@ -457,8 +457,7 @@ uint8_t movement_claim_backup_register(void) {
 }
 
 int16_t get_timezone_offset(uint8_t timezone_idx, watch_date_time date_time) {
-    if (!movement_state.settings.bit.dst_active) return movement_timezone_offsets[timezone_idx];
-    if (dst_occurring(date_time))
+    if (movement_state.settings.bit.dst_active && dst_occurring(date_time))
         return movement_timezone_dst_offsets[timezone_idx];
     return movement_timezone_offsets[timezone_idx];
 }
