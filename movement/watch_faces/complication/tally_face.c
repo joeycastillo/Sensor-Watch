@@ -32,7 +32,7 @@
 
 static bool _init_val;
 static bool _quick_ticks_running;
-static const int16_t _tally_default[] = {0, 40, 20};
+static const int16_t _tally_default[] = {0, 100, 40, 20, 10};
 static const uint8_t _tally_default_size = sizeof(_tally_default) / sizeof(int16_t);
 
 void tally_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
