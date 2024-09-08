@@ -43,7 +43,6 @@ void tally_face_setup(movement_settings_t *settings, uint8_t watch_face_index, v
         memset(*context_ptr, 0, sizeof(tally_state_t));
         tally_state_t *state = (tally_state_t *)*context_ptr;
         state->tally_default_idx = 0;
-        state->soundOff = true;
         state->tally_idx = _tally_default[state->tally_default_idx];
         _init_val = true;
     }
@@ -65,34 +64,33 @@ static void stop_quick_cyc(void){
     movement_request_tick_frequency(1);
 }
 
-static void tally_face_increment(tally_state_t *state) {
-        bool soundOn = !_quick_ticks_running && !state->soundOff;
+static void tally_face_increment(tally_state_t *state, bool sound_on) {
+        bool soundOn = !_quick_ticks_running && sound_on;
         _init_val = false;
         if (state->tally_idx >= TALLY_FACE_MAX){
             if (soundOn) watch_buzzer_play_note(BUZZER_NOTE_E7, 30);
         }
         else {
             state->tally_idx++;
-            print_tally(state);
+            print_tally(state, sound_on);
             if (soundOn) watch_buzzer_play_note(BUZZER_NOTE_E6, 30);
         }
 }
 
-static void tally_face_decrement(tally_state_t *state) {
-        bool soundOn = !_quick_ticks_running && !state->soundOff;
+static void tally_face_decrement(tally_state_t *state, bool sound_on) {
+        bool soundOn = !_quick_ticks_running && sound_on;
         _init_val = false;
         if (state->tally_idx <= TALLY_FACE_MIN){
             if (soundOn) watch_buzzer_play_note(BUZZER_NOTE_C5SHARP_D5FLAT, 30);
         }
         else {
             state->tally_idx--;
-            print_tally(state);
+            print_tally(state, sound_on);
             if (soundOn) watch_buzzer_play_note(BUZZER_NOTE_C6SHARP_D6FLAT, 30);
         }
 }
 
 bool tally_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
-    (void) settings;
     tally_state_t *state = (tally_state_t *)context;
     static bool using_led = false;
     
@@ -112,24 +110,17 @@ bool tally_face_loop(movement_event_t event, movement_settings_t *settings, void
                 bool light_pressed = watch_get_pin_level(BTN_LIGHT);
                 bool alarm_pressed = watch_get_pin_level(BTN_ALARM);
                 if (light_pressed && alarm_pressed) stop_quick_cyc();
-                else if (light_pressed) tally_face_increment(state);
-                else if (alarm_pressed) tally_face_decrement(state);
+                else if (light_pressed) tally_face_increment(state, settings->bit.button_should_sound);
+                else if (alarm_pressed) tally_face_decrement(state, settings->bit.button_should_sound);
                 else stop_quick_cyc();
             }
             break;
         case EVENT_ALARM_BUTTON_UP:
-            tally_face_decrement(state);
+            tally_face_decrement(state, settings->bit.button_should_sound);
             break;
         case EVENT_ALARM_LONG_PRESS:
-            if (_init_val) {
-                state->soundOff = !state->soundOff;
-                if (!state->soundOff) watch_buzzer_play_note(BUZZER_NOTE_E6, 30);
-                print_tally(state);
-            }
-            else{
-                tally_face_decrement(state);
-                start_quick_cyc();
-            }
+            tally_face_decrement(state, settings->bit.button_should_sound);
+            start_quick_cyc();
             break;
         case EVENT_MODE_LONG_PRESS:
             if (state->tally_idx == _tally_default[state->tally_default_idx]) {
@@ -140,14 +131,14 @@ bool tally_face_loop(movement_event_t event, movement_settings_t *settings, void
                 state->tally_idx = _tally_default[state->tally_default_idx]; // reset tally index
                 _init_val = true;
                 //play a reset tune
-                if (!state->soundOff) watch_buzzer_play_note(BUZZER_NOTE_G6, 30);
-                if (!state->soundOff) watch_buzzer_play_note(BUZZER_NOTE_REST, 30);
-                if (!state->soundOff) watch_buzzer_play_note(BUZZER_NOTE_E6, 30);
-                print_tally(state);
+                if (settings->bit.button_should_sound) watch_buzzer_play_note(BUZZER_NOTE_G6, 30);
+                if (settings->bit.button_should_sound) watch_buzzer_play_note(BUZZER_NOTE_REST, 30);
+                if (settings->bit.button_should_sound) watch_buzzer_play_note(BUZZER_NOTE_E6, 30);
+                print_tally(state, settings->bit.button_should_sound);
             }
             break;
         case EVENT_LIGHT_BUTTON_UP:
-            tally_face_increment(state);
+            tally_face_increment(state, settings->bit.button_should_sound);
             break;
         case EVENT_LIGHT_BUTTON_DOWN:
         case EVENT_ALARM_BUTTON_DOWN:
@@ -160,18 +151,18 @@ bool tally_face_loop(movement_event_t event, movement_settings_t *settings, void
             if (_init_val){
                 state->tally_default_idx = (state->tally_default_idx + 1) % _tally_default_size;
                 state->tally_idx = _tally_default[state->tally_default_idx];
-                if (!state->soundOff) watch_buzzer_play_note(BUZZER_NOTE_E6, 30);
-                if (!state->soundOff) watch_buzzer_play_note(BUZZER_NOTE_REST, 30);
-                if (!state->soundOff) watch_buzzer_play_note(BUZZER_NOTE_G6, 30);
-                print_tally(state);
+                if (settings->bit.button_should_sound) watch_buzzer_play_note(BUZZER_NOTE_E6, 30);
+                if (settings->bit.button_should_sound) watch_buzzer_play_note(BUZZER_NOTE_REST, 30);
+                if (settings->bit.button_should_sound) watch_buzzer_play_note(BUZZER_NOTE_G6, 30);
+                print_tally(state, settings->bit.button_should_sound);
             }
             else{
-                tally_face_increment(state);
+                tally_face_increment(state, settings->bit.button_should_sound);
                 start_quick_cyc();
             }
             break;
         case EVENT_ACTIVATE:
-            print_tally(state);
+            print_tally(state, settings->bit.button_should_sound);
             break;
         case EVENT_TIMEOUT:
             // ignore timeout
@@ -185,9 +176,9 @@ bool tally_face_loop(movement_event_t event, movement_settings_t *settings, void
 }
 
 // print tally index at the center of display.
-void print_tally(tally_state_t *state) {
+void print_tally(tally_state_t *state, bool sound_on) {
     char buf[14];
-    if (!state->soundOff)
+    if (sound_on)
         watch_set_indicator(WATCH_INDICATOR_BELL);
     else
         watch_clear_indicator(WATCH_INDICATOR_BELL);
