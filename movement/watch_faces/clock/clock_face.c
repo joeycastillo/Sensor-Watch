@@ -145,8 +145,8 @@ static bool clock_display_some(watch_date_time current, watch_date_time previous
     if ((current.reg >> 6) == (previous.reg >> 6)) {
         // everything before seconds is the same, don't waste cycles setting those segments.
 
-        watch_display_character_lp_seconds('0' + current.unit.second / 10, 8);
-        watch_display_character_lp_seconds('0' + current.unit.second % 10, 9);
+        watch_display_character_lp('0' + current.unit.second / 10, 8);
+        watch_display_character_lp('0' + current.unit.second % 10, 9);
 
         return true;
 
