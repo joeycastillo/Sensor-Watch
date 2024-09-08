@@ -60,13 +60,6 @@ static void _handle_alarm_button(movement_settings_t *settings, watch_date_time 
             if (settings->bit.time_zone > 40) settings->bit.time_zone = 0;
             break;
         case 7: // daylight savings time
-            if (settings->bit.dst_active) {  // deactivate DST
-                date_time.unit.hour = (date_time.unit.hour + 24 - 1) % 24;
-                settings->bit.time_zone = movement_dst_inverse_jump_table[settings->bit.time_zone];
-            } else {  // activate DST
-                date_time.unit.hour = (date_time.unit.hour + 1) % 24;
-                settings->bit.time_zone = movement_dst_jump_table[settings->bit.time_zone];
-            }
             settings->bit.dst_active = !settings->bit.dst_active;
             break;
     }
@@ -135,8 +128,9 @@ bool set_time_face_loop(movement_event_t event, movement_settings_t *settings, v
             return movement_default_loop_handler(event, settings);
     }
 
-    char buf[11];
+    char buf[13];
     bool set_leading_zero = false;
+
     if (current_page < 3) {
         watch_set_colon();
         if (settings->bit.clock_mode_24h) {
@@ -156,17 +150,18 @@ bool set_time_face_loop(movement_event_t event, movement_settings_t *settings, v
         watch_clear_indicator(WATCH_INDICATOR_PM);
         sprintf(buf, "%s  %2d%02d%02d", set_time_face_titles[current_page], date_time.unit.year + 20, date_time.unit.month, date_time.unit.day);
     } else if (current_page < 7) {  // zone
+        char dst_char = (settings->bit.dst_active && dst_occurring(watch_rtc_get_date_time())) ? 'd' : ' ';
         if (event.subsecond % 2) {
             watch_clear_colon();
-            sprintf(buf, "%s        ", set_time_face_titles[current_page]);
+            sprintf(buf, "%s       %c", set_time_face_titles[current_page], dst_char);
         } else {
+            int16_t tz = get_timezone_offset(settings->bit.time_zone, date_time);
             watch_set_colon();
-            sprintf(buf, "%s %3d%02d  ", set_time_face_titles[current_page], (int8_t) (movement_timezone_offsets[settings->bit.time_zone] / 60), (int8_t) (movement_timezone_offsets[settings->bit.time_zone] % 60) * (movement_timezone_offsets[settings->bit.time_zone] < 0 ? -1 : 1));
+            sprintf(buf, "%s %3d%02d %c", set_time_face_titles[current_page], (int8_t) (tz / 60), (int8_t) (tz % 60) * (tz < 0 ? -1 : 1), dst_char);
         }
     } else { // daylight savings
         watch_clear_colon();
-        if (settings->bit.dst_active) sprintf(buf, "%s   dsT y", set_time_face_titles[current_page]);
-        else sprintf(buf, "%s   dsT n", set_time_face_titles[current_page]);
+        sprintf(buf, "%s   dsT %c", set_time_face_titles[current_page], settings->bit.dst_active ? 'y' : 'n');
     }
 
     // blink up the parameter we're setting

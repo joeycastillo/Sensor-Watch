@@ -62,6 +62,7 @@ typedef struct {
     uint8_t backup_register;
     uint8_t current_screen;
     uint32_t previous_date_time;
+    int16_t tz;
 } world_clock_state_t;
 
 void world_clock_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);

@@ -45,6 +45,13 @@ typedef struct {
     uint32_t days;    // 0-4294967295
 } watch_duration_t;
 
+typedef enum {
+    DST_STARTING,
+    DST_OCCURRING,
+    DST_ENDING,
+    DST_ENDED
+} dst_t;
+
 /** @brief Returns a two-letter weekday for the given timestamp, suitable for display
   *        in positions 0-1 of the watch face
   * @param date_time The watch_date_time whose weekday you want.
@@ -77,6 +84,17 @@ uint16_t watch_utility_days_since_new_year(uint16_t year, uint8_t month, uint8_t
  * @param year The year (ex. 2022)
  */
 uint8_t is_leap(uint16_t year);
+
+/** @brief Returns off of dst_t based off if DST is occurring, srted, ended, or none of those.
+ * @param date_time The watch_date_time that you wish to convert.
+ * @return DST_OCCURRING, DST_HAPPENING, DST_ENDING, DST_ENDED
+ */
+uint8_t get_dst_status(watch_date_time date_time);
+
+/** @brief Returns true if it's DST and false otherwise.
+ * @param date_time The watch_date_time that you wish to convert.
+ */
+bool dst_occurring(watch_date_time date_time);
 
 /** @brief Returns the UNIX time (seconds since 1970) for a given date/time in UTC.
   * @param date_time The watch_date_time that you wish to convert.

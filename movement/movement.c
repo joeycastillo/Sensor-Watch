@@ -44,6 +44,7 @@ of debounce time.
 #include "filesystem.h"
 #include "movement.h"
 #include "shell.h"
+#include "watch_utility.h"
 
 #ifndef MOVEMENT_FIRMWARE
 #include "movement_config.h"
@@ -130,6 +131,11 @@ of debounce time.
 #define MOVEMENT_DEFAULT_BIRTHDATE_DAY 0
 #endif
 
+// Default to having DST get set
+#ifndef MOVEMENT_DEFAULT_DST_ACTIVE
+#define MOVEMENT_DEFAULT_DST_ACTIVE true
+#endif
+
 #if __EMSCRIPTEN__
 #include <emscripten.h>
 #endif
@@ -141,7 +147,8 @@ const int32_t movement_le_inactivity_deadlines[8] = {INT_MAX, 600, 3600, 7200, 2
 const int16_t movement_timeout_inactivity_deadlines[4] = {60, 120, 300, 1800};
 movement_event_t event;
 
-const int16_t movement_timezone_offsets[] = {
+#define NUM_TIME_ZONES 41
+const int16_t movement_timezone_offsets[NUM_TIME_ZONES] = {
     0,      //  0 :   0:00:00 (UTC)
     60,     //  1 :   1:00:00 (Central European Time)
     120,    //  2 :   2:00:00 (South African Standard Time)
@@ -198,92 +205,48 @@ const int16_t movement_timezone_offsets[] = {
  * having to separately change the hour and timezone info
  * in the time set face.
  */
-const uint8_t movement_dst_jump_table[] = {
-    1,  // 0  UTC  + 1 = CET
-    2,  // 1  CET  + 1 = SAST
-    3,  // 2  SAST + 1 = AST
-    5,  // 3  AST  + 1 = GST
-    6,  // 4  IST  + 1 = AT
-    7,  // 5  GST  + 1 = PST
-    8,  // 6  AT   + 1 = IST
-    10, // 7  PST  + 1 = KT
-    11, // 8  IST  + 1 = MT
-    9,  // 9  Nepal has no equivalent DST timezone, but they don't observe DST anyway
-    12, // 10 KT   + 1 = TST
-    11, // 11 Myanmar has no equivalent DST timezone, but they don't observe DST anyway
-    13, // 12 TST  + 1 = CST
-    15, // 13 CST  + 1 = JST
-    14, // 14 ACWST has no equivalent DST timezone, but they don't observe DST anyway
-    17, // 15 JST  + 1 = AEST
-    18, // 16 ACST + 1 = LHST
-    19, // 17 AEST + 1 = SIT
-    18, // 18 LHST has no equivalent DST timezone, but they don't observe DST anyway
-    20, // 19 SIT  + 1 = NZST
-    22, // 20 NZST + 1 = TT
-    23, // 21 CST  + 1 = CDT
-    24, // 22 TT   + 1 = LIT
-    23, // 23 CDT is already a daylight timezone
-    24, // 24 LIT has no equivalent DST timezone, but they don't observe DST anyway
-    26, // 25 BIT  + 1 = NT
-    27, // 26 NT   + 1 = HAST
-    29, // 27 HAST + 1 = AST
-    28, // 28 MIT has no equivalent DST timezone, but they don't observe DST anyway
-    30, // 29 AST  + 1 = PST
-    31, // 30 PST  + 1 = MST
-    32, // 31 MST  + 1 = CST
-    33, // 32 CST  + 1 = EST
-    35, // 33 EST  + 1 = AST
-    36, // 34 VST  + 1 = NST
-    37, // 35 AST  + 1 = BT
-    38, // 36 NST  + 1 = NDT
-    39, // 37 BT   + 1 = 39
-    38, // 38 NDT is already a daylight timezone
-    40, // 39 FNT  + 1 = AST
+const int16_t movement_timezone_dst_offsets[NUM_TIME_ZONES] = {
+    60,  // 0  UTC  + 1 = CET
+    120,  // 1  CET  + 1 = SAST
+    189,  // 2  SAST + 1 = AST
+    240,  // 3  AST  + 1 = GST
+    270,  // 4  IST  + 1 = AT
+    300,  // 5  GST  + 1 = PST
+    330,  // 6  AT   + 1 = IST
+    360, // 7  PST  + 1 = KT
+    390, // 8  IST  + 1 = MT
+    345,  // 9  Nepal has no equivalent DST timezone, but they don't observe DST anyway
+    420, // 10 KT   + 1 = TST
+    390, // 11 Myanmar has no equivalent DST timezone, but they don't observe DST anyway
+    480, // 12 TST  + 1 = CST
+    540, // 13 CST  + 1 = JST
+    525, // 14 ACWST has no equivalent DST timezone, but they don't observe DST anyway
+    600, // 15 JST  + 1 = AEST
+    630, // 16 ACST + 1 = LHST
+    660, // 17 AEST + 1 = SIT
+    630, // 18 LHST has no equivalent DST timezone, but they don't observe DST anyway
+    720, // 19 SIT  + 1 = NZST
+    780, // 20 NZST + 1 = TT
+    825, // 21 CST  + 1 = CDT
+    840, // 22 TT   + 1 = LIT
+    825, // 23 CDT is already a daylight timezone
+    840, // 24 LIT has no equivalent DST timezone, but they don't observe DST anyway
+    -660, // 25 BIT  + 1 = NT
+    -600, // 26 NT   + 1 = HAST
+    -540, // 27 HAST + 1 = AST
+    -570, // 28 MIT has no equivalent DST timezone, but they don't observe DST anyway
+    -480, // 29 AST  + 1 = PST
+    -420, // 30 PST  + 1 = MST
+    -360, // 31 MST  + 1 = CST
+    -300, // 32 CST  + 1 = EST
+    -240, // 33 EST  + 1 = AST
+    -210, // 34 VST  + 1 = NST
+    -180, // 35 AST  + 1 = BT
+    -150, // 36 NST  + 1 = NDT
+    -120, // 37 BT   + 1 = 39
+    -150, // 38 NDT is already a daylight timezone
+    -60, // 39 FNT  + 1 = AST
     0   // 40 AST  + 1 = UTC
-};
-
-const uint8_t movement_dst_inverse_jump_table[] = {
-    40, // 0
-    0,  // 1
-    1,  // 2
-    2,  // 3
-    4,  // 4
-    3,  // 5
-    4,  // 6
-    5,  // 7
-    6,  // 8
-    9,  // 9
-    7,  // 10
-    8,  // 11
-    10, // 12
-    12, // 13
-    14, // 14
-    13, // 15
-    16, // 16
-    15, // 17
-    16, // 18
-    17, // 19
-    19, // 20
-    21, // 21
-    20, // 22
-    21, // 23
-    24, // 24
-    25, // 25
-    25, // 26
-    26, // 27
-    28, // 28
-    27, // 29
-    29, // 30
-    30, // 31
-    31, // 32
-    32, // 33
-    34, // 34
-    33, // 35
-    34, // 36
-    35, // 37
-    36, // 38
-    37, // 39
-    39  // 40
 };
 
 const char movement_valid_position_0_chars[] = " AaBbCcDdEeFGgHhIiJKLMNnOoPQrSTtUuWXYZ-='+\\/0123456789";
@@ -323,6 +286,31 @@ static inline void _movement_disable_fast_tick_if_possible(void) {
     }
 }
 
+static bool _check_and_act_on_daylight_savings(void) {
+    if (!movement_state.settings.bit.dst_active) return false;
+    watch_date_time date_time = watch_rtc_get_date_time();
+    // No need for all of the unix time calculations for times not at the beginning or end of the hour
+    if (date_time.unit.minute > 1 && date_time.unit.minute < 59) return false;
+    uint8_t dst_result = get_dst_status(date_time);
+    bool dst_skip_rolling_back = get_dst_skip_rolling_back();
+
+    if (dst_skip_rolling_back && (dst_result == DST_ENDED)) {
+        clear_dst_skip_rolling_back();
+    }
+    else if (dst_result == DST_ENDING && !dst_skip_rolling_back) {
+        date_time.unit.hour = (date_time.unit.hour + 24 - 1) % 24;
+        watch_rtc_set_date_time(date_time);
+        set_dst_skip_rolling_back();
+        return true;
+    }
+    else if (dst_result == DST_STARTING) {
+        date_time.unit.hour = (date_time.unit.hour + 1) % 24;
+        watch_rtc_set_date_time(date_time);
+        return true;
+    }
+    return false;
+}
+
 static void _movement_handle_background_tasks(void) {
     for(uint8_t i = 0; i < MOVEMENT_NUM_FACES; i++) {
         // For each face, if the watch face wants a background task...
@@ -332,6 +320,7 @@ static void _movement_handle_background_tasks(void) {
             watch_faces[i].loop(background_event, &movement_state.settings, watch_face_contexts[i]);
         }
     }
+    _check_and_act_on_daylight_savings();
     movement_state.needs_background_tasks_handled = false;
 }
 
@@ -529,6 +518,12 @@ uint8_t movement_claim_backup_register(void) {
     return movement_state.next_available_backup_register++;
 }
 
+int16_t get_timezone_offset(uint8_t timezone_idx, watch_date_time date_time) {
+    if (movement_state.settings.bit.dst_active && dst_occurring(date_time))
+        return movement_timezone_dst_offsets[timezone_idx];
+    return movement_timezone_offsets[timezone_idx];
+}
+
 void app_init(void) {
 #if defined(NO_FREQCORR)
     watch_rtc_freqcorr_write(0, 0);
@@ -551,6 +546,20 @@ void app_init(void) {
     movement_state.birthdate.bit.year = MOVEMENT_DEFAULT_BIRTHDATE_YEAR;
     movement_state.birthdate.bit.month = MOVEMENT_DEFAULT_BIRTHDATE_MONTH;
     movement_state.birthdate.bit.day = MOVEMENT_DEFAULT_BIRTHDATE_DAY;
+    movement_state.settings.bit.dst_active = MOVEMENT_DEFAULT_DST_ACTIVE;
+
+#ifdef MAKEFILE_TIMEZONE
+    timezone_offsets = dst_occurring(watch_rtc_get_date_time()) ? movement_timezone_dst_offsets : movement_timezone_offsets;
+    for (int i = 0; i < NUM_TIME_ZONES; i++) {
+        if (timezone_offsets[i] == MAKEFILE_TIMEZONE) {
+            movement_state.settings.bit.time_zone = i;
+            break;
+        }
+    }
+#else
+    movement_state.settings.bit.time_zone = 35;  // Atlantic Time as default
+#endif
+
     movement_state.light_ticks = -1;
     movement_state.alarm_ticks = -1;
     movement_state.next_available_backup_register = 4;
@@ -559,11 +568,13 @@ void app_init(void) {
     filesystem_init();
 
 #if __EMSCRIPTEN__
+    const int16_t* timezone_offsets;
     int32_t time_zone_offset = EM_ASM_INT({
         return -new Date().getTimezoneOffset();
     });
-    for (int i = 0, count = sizeof(movement_timezone_offsets) / sizeof(movement_timezone_offsets[0]); i < count; i++) {
-        if (movement_timezone_offsets[i] == time_zone_offset) {
+    timezone_offsets = dst_occurring(watch_rtc_get_date_time()) ? movement_timezone_dst_offsets : movement_timezone_offsets;
+    for (int i = 0; i < NUM_TIME_ZONES; i++) {
+        if (timezone_offsets[i] == time_zone_offset) {
             movement_state.settings.bit.time_zone = i;
             break;
         }

@@ -70,7 +70,7 @@ static void _h_to_hms(mars_clock_hms_t *date_time, double h) {
 static void _update(movement_settings_t *settings, mars_time_state_t *state) {
     char buf[11];
     watch_date_time date_time = watch_rtc_get_date_time();
-    uint32_t now = watch_utility_date_time_to_unix_time(date_time, movement_timezone_offsets[settings->bit.time_zone] * 60);
+    uint32_t now = watch_utility_date_time_to_unix_time(date_time, get_timezone_offset(settings->bit.time_zone, date_time) * 60);
     // TODO: I'm skipping over some steps here.
     // https://www.giss.nasa.gov/tools/mars24/help/algorithm.html
     double jdut = 2440587.5 + ((double)now / 86400.0);

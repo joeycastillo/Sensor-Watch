@@ -104,6 +104,7 @@ typedef struct {
     world_clock2_mode_t current_mode;
     uint8_t current_zone;
     uint32_t previous_date_time;
+    int16_t tz;
 } world_clock2_state_t;
 
 void world_clock2_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void **context_ptr);

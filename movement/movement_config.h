@@ -111,4 +111,11 @@ const watch_face_t watch_faces[] = {
 #define MOVEMENT_DEFAULT_BIRTHDATE_MONTH 0
 #define MOVEMENT_DEFAULT_BIRTHDATE_DAY 0
 
+/* Set if using DST
+ * Valid values are:
+ * false: Don't allow the watch to use DST
+ * true: Allow the watch to use DST
+ */
+#define MOVEMENT_DEFAULT_DST_ACTIVE true
+
 #endif // MOVEMENT_CONFIG_H_

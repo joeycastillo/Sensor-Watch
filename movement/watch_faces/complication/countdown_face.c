@@ -45,8 +45,8 @@ static void abort_quick_ticks(countdown_state_t *state) {
     }
 }
 
-static inline int32_t get_tz_offset(movement_settings_t *settings) {
-    return movement_timezone_offsets[settings->bit.time_zone] * 60;
+static inline int32_t get_tz_offset(movement_settings_t *settings, watch_date_time date_time) {
+    return get_timezone_offset(settings->bit.time_zone, date_time) * 60;
 }
 
 static inline void store_countdown(countdown_state_t *state) {
@@ -70,13 +70,15 @@ static inline void button_beep(movement_settings_t *settings) {
 }
 
 static void schedule_countdown(countdown_state_t *state, movement_settings_t *settings) {
+    watch_date_time now = watch_rtc_get_date_time();
+    int16_t tz = get_tz_offset(settings, now);
 
-    // Calculate the new state->now_ts but don't update it until we've updated the target - 
+    // Calculate the new state->now_ts but don't update it until we've updated the target -
     // avoid possible race where the old target is compared to the new time and immediately triggers
-    uint32_t new_now = watch_utility_date_time_to_unix_time(watch_rtc_get_date_time(), get_tz_offset(settings));
+    uint32_t new_now = watch_utility_date_time_to_unix_time(now, tz);
     state->target_ts = watch_utility_offset_timestamp(new_now, state->hours, state->minutes, state->seconds);
     state->now_ts = new_now;
-    watch_date_time target_dt = watch_utility_date_time_from_unix_time(state->target_ts, get_tz_offset(settings));
+    watch_date_time target_dt = watch_utility_date_time_from_unix_time(state->target_ts, tz);
     movement_schedule_background_task_for_face(state->watch_face_index, target_dt);
 }
 
@@ -203,7 +205,7 @@ void countdown_face_activate(movement_settings_t *settings, void *context) {
     countdown_state_t *state = (countdown_state_t *)context;
     if(state->mode == cd_running) {
         watch_date_time now = watch_rtc_get_date_time();
-        state->now_ts = watch_utility_date_time_to_unix_time(now, get_tz_offset(settings));
+        state->now_ts = watch_utility_date_time_to_unix_time(now, get_tz_offset(settings, now));
         watch_set_indicator(WATCH_INDICATOR_SIGNAL);
     }
     watch_set_colon();
