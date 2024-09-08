@@ -41,6 +41,11 @@ static const int16_t _tally_default[] = {
     40,
 #endif /* TALLY_FACE_PRESETS_MTG */
 
+#ifdef TALLY_FACE_PRESETS_YUGIOH
+    4000,
+    8000,
+#endif /* TALLY_FACE_PRESETS_YUGIOH */
+
 };
 
 static const uint8_t _tally_default_size = sizeof(_tally_default) / sizeof(int16_t);
