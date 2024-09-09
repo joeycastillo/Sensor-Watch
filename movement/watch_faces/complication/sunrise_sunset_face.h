@@ -52,12 +52,13 @@ typedef struct {
     uint8_t rise_index;
     uint8_t active_digit;
     bool location_changed;
-    int16_t tz;
     watch_date_time rise_set_expires;
     sunrise_sunset_lat_lon_settings_t working_latitude;
     sunrise_sunset_lat_lon_settings_t working_longitude;
     uint8_t longLatToUse;
 } sunrise_sunset_state_t;
+
+#define SUNRISE_USE_LOCAL_TZ 0xFF
 
 void sunrise_sunset_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
 void sunrise_sunset_face_activate(movement_settings_t *settings, void *context);
@@ -76,14 +77,18 @@ typedef struct {
     char name[2];
     int16_t latitude;
     int16_t longitude;
+    uint8_t timezone;  // References element in movement_timezone_offsets
+    bool uses_dst;
 } long_lat_presets_t;
 
+// Locations must either use the same timezone as local time, or not observe DST.
 static const long_lat_presets_t longLatPresets[] =
 {
-    { .name = "  "},  // Default, the long and lat get replaced by what's set in the watch
-//    { .name = "Ny", .latitude = 4072, .longitude = -7401 },  // New York City, NY
-//    { .name = "LA", .latitude = 3405, .longitude = -11824 },  // Los Angeles, CA
-//    { .name = "dE", .latitude = 4221, .longitude = -8305 },  // Detroit, MI
+    { .name = "  "},  // Default, the long, lat, and timezone get replaced by what's set in the watch
+//    { .name = "Ny", .latitude = 4072, .longitude = -7401, .timezone = 33, .uses_dst = true },  // New York City, NY
+//    { .name = "LA", .latitude = 3405, .longitude = -11824, .timezone = 30, .uses_dst = true },  // Los Angeles, CA
+//    { .name = "dE", .latitude = 4221, .longitude = -8305, .timezone = 33, .uses_dst = true },  // Detroit, MI
+//    { .name = "To", .latitude = 3567, .longitude = 13965, .timezone = 15, .uses_dst = false },  // Tokyo, JP
 };
 
 #endif // SUNRISE_SUNSET_FACE_H_
