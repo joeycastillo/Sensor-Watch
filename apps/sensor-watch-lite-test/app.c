@@ -56,6 +56,9 @@ void app_init(void) {
 void app_wake_from_backup(void) {
 }
 
+void app_write_to_backup(void) {
+}
+
 void app_setup(void) {
     // Set up tick for RTC test
     watch_rtc_register_periodic_callback(cb_tick, 8);

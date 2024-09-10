@@ -14,6 +14,9 @@ void app_init(void) {
 void app_wake_from_backup(void) {
 }
 
+void app_write_to_backup(void) {
+}
+
 void app_setup(void) {
     watch_enable_digital_output(RED);
     watch_enable_digital_output(GREEN);

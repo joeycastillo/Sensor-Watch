@@ -55,6 +55,9 @@ void app_wake_from_backup(void) {
     // This app does not support BACKUP mode.
 }
 
+void app_write_to_backup(void) {
+}
+
 void app_setup(void) {
     watch_enable_external_interrupts();
     watch_register_interrupt_callback(BTN_MODE, cb_mode_pressed, INTERRUPT_TRIGGER_RISING);

@@ -61,6 +61,9 @@ void app_init(void) {
 void app_wake_from_backup(void) {
 }
 
+void app_write_to_backup(void) {
+}
+
 void app_setup(void) {
 }
 

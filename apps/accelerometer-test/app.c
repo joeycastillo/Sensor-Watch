@@ -52,6 +52,9 @@ void app_wake_from_backup(void) {
 void app_setup(void) {
 }
 
+void app_write_to_backup(void) {
+}
+
 void app_prepare_for_standby(void) {
 }
 
