@@ -177,7 +177,6 @@ void watch_enter_sleep_mode(void) {
     SysTick->CTRL = SysTick->CTRL | (CONF_SYSTICK_TICKINT << SysTick_CTRL_TICKINT_Pos);
 
     // call app_setup so the app can re-enable everything we disabled.
-    app_wake_from_backup();
     app_setup();
 
     // and call app_wake_from_standby (since main won't have a chance to do it)

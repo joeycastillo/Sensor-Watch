@@ -589,7 +589,6 @@ bool app_loop(void) {
         event.event_type = EVENT_ACTIVATE;
         // this is a hack tho: waking from sleep mode, app_setup does get called, but it happens before we have reset our ticks.
         // need to figure out if there's a better heuristic for determining how we woke up.
-        app_wake_from_backup();
         app_setup();
     }
 
