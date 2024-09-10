@@ -65,6 +65,7 @@ static inline void button_beep(movement_settings_t *settings) {
 }
 
 static void start(countdown_state_t *state, movement_settings_t *settings) {
+    (void) settings;
     watch_date_time now = watch_rtc_get_date_time();
 
     state->mode = cd_running;

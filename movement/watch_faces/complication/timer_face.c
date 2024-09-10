@@ -44,6 +44,7 @@ static void _signal_callback() {
 }
 
 static void _start(timer_state_t *state, movement_settings_t *settings, bool with_beep) {
+    (void) settings;
     if (state->timers[state->current_timer].value == 0) return;
     watch_date_time now = watch_rtc_get_date_time();
     state->now_ts = watch_utility_date_time_to_unix_time(now, 0);
