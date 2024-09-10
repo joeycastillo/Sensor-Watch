@@ -67,6 +67,7 @@ void watch_enter_sleep_mode(void) {
     // sleep(4);
 
     // call app_setup so the app can re-enable everything we disabled.
+    app_wake_from_backup();
     app_setup();
 
     // and call app_wake_from_standby (since main won't have a chance to do it)
