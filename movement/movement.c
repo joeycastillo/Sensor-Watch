@@ -461,11 +461,13 @@ void app_wake_from_backup(void) {
     movement_state.birthdate.reg = watch_get_backup_data(2);
 }
 
-void app_setup(void) {
+void app_write_to_backup(void) {
     watch_store_backup_data(movement_state.settings.reg, 0);
     watch_store_backup_data(movement_state.location.reg, 1);
     watch_store_backup_data(movement_state.birthdate.reg, 2);
+}
 
+void app_setup(void) {
     static bool is_first_launch = true;
 
     if (is_first_launch) {

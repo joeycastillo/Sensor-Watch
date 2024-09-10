@@ -63,6 +63,11 @@ void app_init(void);
   */
 void app_wake_from_backup(void);
 
+/** @brief This function writes the values in movement_state to the backup registers.
+ *         It is used on start-up to write the defaults to each of the registers.
+  */
+void app_write_to_backup(void);
+
 /** @brief A function you will implement to set up your application. The app_setup function is like setup() in Arduino.
   *        It is called once when the program begins. You should set pin modes and enable any peripherals you want to
   *        set up (real-time clock, I2C, etc.) Depending on your application, you may or may not want to configure

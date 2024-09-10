@@ -108,6 +108,7 @@ void delay_ms(const uint16_t ms) {
 int main(void) {
     app_init();
     _watch_init();
+    app_write_to_backup();
     app_setup();
 
     resume_main_loop();
