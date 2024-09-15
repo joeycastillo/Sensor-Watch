@@ -69,7 +69,7 @@ static bool world_clock_face_do_display_mode(movement_event_t event, movement_se
         case EVENT_LOW_ENERGY_UPDATE:
             date_time = watch_rtc_get_date_time();
             timestamp = watch_utility_date_time_to_unix_time(date_time, state->tz * 60);
-            date_time = watch_utility_date_time_from_unix_time(timestamp, state->tz * 60);
+            date_time = watch_utility_date_time_from_unix_time(timestamp, state->tz_curr * 60);
             previous_date_time = state->previous_date_time;
             state->previous_date_time = date_time.reg;
 
@@ -158,6 +158,7 @@ static bool _world_clock_face_do_settings_mode(movement_event_t event, movement_
                 case 3:
                     state->settings.bit.timezone_index++;
                     if (state->settings.bit.timezone_index > 40) state->settings.bit.timezone_index = 0;
+                    state->tz_curr = get_timezone_offset(state->settings.bit.timezone_index, watch_rtc_get_date_time());
                     break;
             }
             break;
@@ -172,8 +173,8 @@ static bool _world_clock_face_do_settings_mode(movement_event_t event, movement_
     sprintf(buf, "%c%c %3d%02d  ",
         movement_valid_position_0_chars[state->settings.bit.char_0],
         movement_valid_position_1_chars[state->settings.bit.char_1],
-        (int8_t) (state->tz / 60),
-        (int8_t) (state->tz % 60) * (state->tz < 0 ? -1 : 1));
+        (int8_t) (state->tz_curr / 60),
+        (int8_t) (state->tz_curr % 60) * (state->tz_curr < 0 ? -1 : 1));
     watch_set_colon();
     watch_clear_indicator(WATCH_INDICATOR_PM);
 
