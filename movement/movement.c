@@ -176,12 +176,15 @@ static inline void _movement_reset_inactivity_countdown(void) {
     movement_state.timeout_ticks = movement_timeout_inactivity_deadlines[movement_state.settings.bit.to_interval];
 }
 
+static inline void _reset_debounce_ticks(void) {
+    movement_state.debounce_ticks_light = 0;
+    movement_state.debounce_ticks_alarm = 0;
+    movement_state.debounce_ticks_mode = 0;
+}
+
 static inline void _movement_enable_fast_tick_if_needed(void) {
     if (!movement_state.fast_tick_enabled) {
         movement_state.fast_ticks = 0;
-        movement_state.debounce_ticks_light = 0;
-        movement_state.debounce_ticks_alarm = 0;
-        movement_state.debounce_ticks_mode = 0;
         watch_rtc_register_periodic_callback(cb_fast_tick, 128);
         movement_state.fast_tick_enabled = true;
     }
@@ -190,7 +193,7 @@ static inline void _movement_enable_fast_tick_if_needed(void) {
 static inline void _movement_disable_fast_tick_if_possible(void) {
     if ((movement_state.light_ticks == -1) &&
         (movement_state.alarm_ticks == -1) &&
-        ((movement_state.debounce_ticks_light + movement_state.debounce_ticks_mode + movement_state.debounce_ticks_alarm) == 0) &&
+        ((movement_state.debounce_ticks_light | movement_state.debounce_ticks_mode | movement_state.debounce_ticks_alarm) == 0) &&
         ((movement_state.light_down_timestamp + movement_state.mode_down_timestamp + movement_state.alarm_down_timestamp) == 0)) {
         movement_state.fast_tick_enabled = false;
         watch_rtc_disable_periodic_callback(128);
@@ -546,6 +549,7 @@ bool app_loop(void) {
             woke_up_for_buzzer = true;
         }
         event.event_type = EVENT_ACTIVATE;
+        _reset_debounce_ticks();  // Likely unneeded, but good to reset the debounce timers on wake.
         // this is a hack tho: waking from sleep mode, app_setup does get called, but it happens before we have reset our ticks.
         // need to figure out if there's a better heuristic for determining how we woke up.
         app_setup();
@@ -622,6 +626,8 @@ bool app_loop(void) {
 
     // if the LED is on, we need to stay awake to keep the TCC running.
     if (movement_state.light_ticks != -1) can_sleep = false;
+    // if we're checking debounce, stay awake
+    if ((movement_state.debounce_ticks_light | movement_state.debounce_ticks_mode | movement_state.debounce_ticks_alarm) != 0) can_sleep = false;
 
     return can_sleep;
 }
@@ -674,6 +680,7 @@ static void debounce_btn_press(uint8_t pin, uint8_t *debounce_ticks, uint16_t *d
     if (*debounce_ticks == 0) {
         bool pin_level = watch_get_pin_level(pin);
         function(pin_level);
+        _reset_debounce_ticks();  // Avoids adding the debounce time of one btn into this one becoming a long press
         *debounce_ticks = pin_level ? DEBOUNCE_TICKS_DOWN : DEBOUNCE_TICKS_UP;
         if (*debounce_ticks != 0) _movement_enable_fast_tick_if_needed();
     }
@@ -715,7 +722,7 @@ void cb_alarm_fired(void) {
 
 void cb_fast_tick(void) {
     movement_disable_if_debounce_complete();
-    if (movement_state.debounce_ticks_light + movement_state.debounce_ticks_mode + movement_state.debounce_ticks_alarm  == 0)
+    if ((movement_state.debounce_ticks_light | movement_state.debounce_ticks_mode | movement_state.debounce_ticks_alarm)  == 0)
         movement_state.fast_ticks++;
     if (movement_state.light_ticks > 0) movement_state.light_ticks--;
     if (movement_state.alarm_ticks > 0) movement_state.alarm_ticks--;
@@ -736,6 +743,7 @@ void cb_fast_tick(void) {
     if (movement_state.fast_ticks >= 128 * 20) {
         watch_rtc_disable_periodic_callback(128);
         movement_state.fast_tick_enabled = false;
+        _reset_debounce_ticks();
     }
 }
 
