@@ -177,9 +177,19 @@ static inline void _movement_reset_inactivity_countdown(void) {
 }
 
 static inline void _reset_debounce_ticks(void) {
+#if (DEBOUNCE_TICKS_DOWN || DEBOUNCE_TICKS_UP)
     movement_state.debounce_ticks_light = 0;
     movement_state.debounce_ticks_alarm = 0;
     movement_state.debounce_ticks_mode = 0;
+#endif
+}
+
+static inline bool _debounce_ticks_all_zero(void) {
+#if (DEBOUNCE_TICKS_DOWN || DEBOUNCE_TICKS_UP)
+        return ((movement_state.debounce_ticks_light | movement_state.debounce_ticks_mode | movement_state.debounce_ticks_alarm) == 0);
+#else
+    return true;
+#endif
 }
 
 static inline void _movement_enable_fast_tick_if_needed(void) {
@@ -193,7 +203,7 @@ static inline void _movement_enable_fast_tick_if_needed(void) {
 static inline void _movement_disable_fast_tick_if_possible(void) {
     if ((movement_state.light_ticks == -1) &&
         (movement_state.alarm_ticks == -1) &&
-        ((movement_state.debounce_ticks_light | movement_state.debounce_ticks_mode | movement_state.debounce_ticks_alarm) == 0) &&
+        _debounce_ticks_all_zero() &&
         ((movement_state.light_down_timestamp + movement_state.mode_down_timestamp + movement_state.alarm_down_timestamp) == 0)) {
         movement_state.fast_tick_enabled = false;
         watch_rtc_disable_periodic_callback(128);
@@ -627,7 +637,7 @@ bool app_loop(void) {
     // if the LED is on, we need to stay awake to keep the TCC running.
     if (movement_state.light_ticks != -1) can_sleep = false;
     // if we're checking debounce, stay awake
-    if ((movement_state.debounce_ticks_light | movement_state.debounce_ticks_mode | movement_state.debounce_ticks_alarm) != 0) can_sleep = false;
+    if (!_debounce_ticks_all_zero()) can_sleep = false;
 
     return can_sleep;
 }
@@ -676,6 +686,7 @@ static void alarm_btn_action(bool pin_level) {
     event.event_type = event_type;
 }
 
+#if (DEBOUNCE_TICKS_DOWN || DEBOUNCE_TICKS_UP)
 static void debounce_btn_press(uint8_t pin, uint8_t *debounce_ticks, uint16_t *down_timestamp, void (*function)(bool)) {
     if (*debounce_ticks == 0) {
         bool pin_level = watch_get_pin_level(pin);
@@ -698,17 +709,33 @@ static void movement_disable_if_debounce_complete(void) {
     disable_if_needed(&movement_state.debounce_ticks_alarm);
     disable_if_needed(&movement_state.debounce_ticks_mode);
 }
+#endif
 
 void cb_light_btn_interrupt(void) {
+#if (DEBOUNCE_TICKS_DOWN || DEBOUNCE_TICKS_UP)
     debounce_btn_press(BTN_LIGHT, &movement_state.debounce_ticks_light, &movement_state.light_down_timestamp, light_btn_action);
+#else
+    bool pin_level = watch_get_pin_level(BTN_LIGHT);
+    light_btn_action(pin_level);
+#endif
 }
 
 void cb_mode_btn_interrupt(void) {
+#if (DEBOUNCE_TICKS_DOWN || DEBOUNCE_TICKS_UP)
     debounce_btn_press(BTN_MODE, &movement_state.debounce_ticks_mode, &movement_state.mode_down_timestamp, mode_btn_action);
+#else
+    bool pin_level = watch_get_pin_level(BTN_MODE);
+    mode_btn_action(pin_level);
+#endif
 }
 
 void cb_alarm_btn_interrupt(void) {
+#if (DEBOUNCE_TICKS_DOWN || DEBOUNCE_TICKS_UP)
     debounce_btn_press(BTN_ALARM, &movement_state.debounce_ticks_alarm, &movement_state.alarm_down_timestamp, alarm_btn_action);
+#else
+    bool pin_level = watch_get_pin_level(BTN_ALARM);
+    alarm_btn_action(pin_level);
+#endif
 }
 
 void cb_alarm_btn_extwake(void) {
@@ -721,9 +748,13 @@ void cb_alarm_fired(void) {
 }
 
 void cb_fast_tick(void) {
+#if (DEBOUNCE_TICKS_DOWN || DEBOUNCE_TICKS_UP)
     movement_disable_if_debounce_complete();
-    if ((movement_state.debounce_ticks_light | movement_state.debounce_ticks_mode | movement_state.debounce_ticks_alarm)  == 0)
+    if (_debounce_ticks_all_zero())
         movement_state.fast_ticks++;
+#else
+    movement_state.fast_ticks++;
+#endif
     if (movement_state.light_ticks > 0) movement_state.light_ticks--;
     if (movement_state.alarm_ticks > 0) movement_state.alarm_ticks--;
     // check timestamps and auto-fire the long-press events
