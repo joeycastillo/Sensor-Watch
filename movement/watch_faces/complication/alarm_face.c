@@ -92,7 +92,7 @@ static void _alarm_face_draw(movement_settings_t *settings, alarm_state_t *state
         }
     }
 
-    sprintf(buf, "%c%c%2d%2d%02d  ",
+    sprintf(buf, set_leading_zero? "%c%c%2d%02d%02d  " : "%c%c%2d%2d%02d  ",
         _dow_strings[i][0], _dow_strings[i][1],
         (state->alarm_idx + 1),
         h,
@@ -102,9 +102,7 @@ static void _alarm_face_draw(movement_settings_t *settings, alarm_state_t *state
         buf[_blink_idx[state->setting_state]] = buf[_blink_idx2[state->setting_state]] = ' ';
     }
     watch_display_string(buf, 0);
-    if (set_leading_zero)
-        watch_display_string("0", 4);
-    
+
     if (state->is_setting) {
     // draw pitch level indicator
         if ((subsecond % 2) == 0 || (state->setting_state != alarm_setting_idx_pitch)) {
