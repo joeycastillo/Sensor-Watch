@@ -82,11 +82,16 @@ static void _alarm_face_draw(movement_settings_t *settings, alarm_state_t *state
             watch_clear_indicator(WATCH_INDICATOR_PM);
         }
         if (h == 0) h = 12;
-    } else if (!settings->bit.clock_24h_leading_zero) {
+    } else {
         watch_set_indicator(WATCH_INDICATOR_24H);
-    } else if (h < 10) {
-        set_leading_zero = true;
+
+        if (settings->bit.clock_24h_leading_zero) {
+            if (h < 10) {
+                set_leading_zero = true;
+            }
+        }
     }
+
     sprintf(buf, "%c%c%2d%2d%02d  ",
         _dow_strings[i][0], _dow_strings[i][1],
         (state->alarm_idx + 1),
