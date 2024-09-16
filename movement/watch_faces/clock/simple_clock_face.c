@@ -124,7 +124,7 @@ bool simple_clock_face_loop(movement_event_t event, movement_settings_t *setting
                 }
 #endif
 
-                if (settings->bit.clock_24h_leading_zero && date_time.unit.hour < 10) {
+                if (settings->bit.clock_mode_24h && settings->bit.clock_24h_leading_zero && date_time.unit.hour < 10) {
                     set_leading_zero = true;
                 }
 
@@ -137,8 +137,10 @@ bool simple_clock_face_loop(movement_event_t event, movement_settings_t *setting
                 }
             }
             watch_display_string(buf, pos);
+
             if (set_leading_zero)
                 watch_display_string("0", 4);
+
             // handle alarm indicator
             if (state->alarm_enabled != settings->bit.alarm_enabled) _update_alarm_indicator(settings->bit.alarm_enabled, state);
             break;
