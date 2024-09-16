@@ -35,6 +35,7 @@
 #include "watch.h"
 #include "watch_utility.h"
 #include "watch_private_display.h"
+#include "sunriset.h"
 
 // 2.2 volts will happen when the battery has maybe 5-10% remaining?
 // we can refine this later.
@@ -51,6 +52,48 @@ typedef struct {
     bool time_signal_enabled;
     bool battery_low;
 } clock_state_t;
+
+static uint8_t _time_to_chime_hour(double time, double hours_from_utc, bool use_end_of_hour) {
+    time += hours_from_utc;
+    uint8_t hour_to_start = (uint8_t)time;
+    double minutes = (time - hour_to_start) * 60;
+    if (!use_end_of_hour) return hour_to_start;
+    if (minutes >= 0.5)
+        hour_to_start = (hour_to_start + 1) % 24;
+    return hour_to_start;
+}
+
+static void _get_chime_times(watch_date_time date_time, movement_settings_t *settings, uint8_t *start_hour, uint8_t *end_hour) {
+    uint8_t init_val = 0xFF;
+    uint8_t hourly_chime_start = settings->bit.hourly_chime_start;
+    uint8_t hourly_chime_end = settings->bit.hourly_chime_end;
+    *start_hour = (hourly_chime_start == 3) ? init_val : Hourly_Chime_Start[hourly_chime_start];
+    *end_hour = (hourly_chime_end == 3) ? init_val : Hourly_Chime_End[hourly_chime_end];
+    if (hourly_chime_start != 3 && hourly_chime_end != 3) {
+        return;
+    }
+    int16_t tz = movement_timezone_offsets[settings->bit.time_zone];
+    watch_date_time utc_now = watch_utility_date_time_convert_zone(date_time, tz * 60, 0); // the current date / time in UTC
+    movement_location_t movement_location = (movement_location_t) watch_get_backup_data(1);
+    if (movement_location.reg == 0) {
+        return;
+    }
+    double rise, set;
+    uint8_t rise_hour, set_hour;
+    double lat = (double)movement_location.bit.latitude / 100.0;
+    double lon = (double)movement_location.bit.longitude / 100.0;
+    double hours_from_utc = ((double)tz) / 60.0;
+    uint8_t result = sun_rise_set(utc_now.unit.year + WATCH_RTC_REFERENCE_YEAR, utc_now.unit.month, utc_now.unit.day, lon, lat, &rise, &set);
+    if (result != 0) {
+        return;
+    }
+    rise_hour = _time_to_chime_hour(rise, hours_from_utc, true);
+    set_hour = _time_to_chime_hour(set, hours_from_utc, false);
+    if (*start_hour == init_val) *start_hour = rise_hour;
+    if (*end_hour == init_val) *end_hour = set_hour;
+    if (*start_hour == 0) *start_hour = 24;
+    if (*end_hour == 0) *end_hour = 24;
+}
 
 static bool clock_is_in_24h_mode(movement_settings_t *settings) {
 #ifdef CLOCK_FACE_24H_ONLY
@@ -285,6 +328,11 @@ bool clock_face_wants_background_task(movement_settings_t *settings, void *conte
     if (!state->time_signal_enabled) return false;
 
     watch_date_time date_time = watch_rtc_get_date_time();
+    if (date_time.unit.minute != 0) return false;
+    if (settings->bit.hourly_chime_always) return true;
+    uint8_t chime_start, chime_end;
+    _get_chime_times(date_time, settings, &chime_start, &chime_end);
+    if ((24 >= chime_start && date_time.unit.hour < chime_start) || (24 >= chime_end && date_time.unit.hour >= chime_end)) return false;
 
-    return date_time.unit.minute == 0;
+    return true;
 }
