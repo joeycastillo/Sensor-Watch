@@ -22,7 +22,8 @@
  * SOFTWARE.
  */
 
-#define MOVEMENT_LONG_PRESS_TICKS 64
+#define FAST_TICK_FREQUENCY 8
+#define MOVEMENT_LONG_PRESS_TICKS FAST_TICK_FREQUENCY / 2
 
 #include <stdio.h>
 #include <string.h>
@@ -185,6 +186,7 @@ void cb_alarm_btn_extwake(void);
 void cb_alarm_fired(void);
 void cb_fast_tick(void);
 void cb_tick(void);
+void cb_fast_and_regular_tick(void);
 
 static inline void _movement_reset_inactivity_countdown(void) {
     movement_state.le_mode_ticks = movement_le_inactivity_deadlines[movement_state.settings.bit.le_interval];
@@ -194,7 +196,11 @@ static inline void _movement_reset_inactivity_countdown(void) {
 static inline void _movement_enable_fast_tick_if_needed(void) {
     if (!movement_state.fast_tick_enabled) {
         movement_state.fast_ticks = 0;
-        watch_rtc_register_periodic_callback(cb_fast_tick, 128);
+        if (movement_state.tick_frequency == FAST_TICK_FREQUENCY) {
+            watch_rtc_register_periodic_callback(cb_fast_and_regular_tick, FAST_TICK_FREQUENCY);
+        } else {
+            watch_rtc_register_periodic_callback(cb_fast_tick, FAST_TICK_FREQUENCY);
+        }
         movement_state.fast_tick_enabled = true;
     }
 }
@@ -204,7 +210,11 @@ static inline void _movement_disable_fast_tick_if_possible(void) {
         (movement_state.alarm_ticks == -1) &&
         ((movement_state.light_down_timestamp + movement_state.mode_down_timestamp + movement_state.alarm_down_timestamp) == 0)) {
         movement_state.fast_tick_enabled = false;
-        watch_rtc_disable_periodic_callback(128);
+        if (movement_state.tick_frequency == FAST_TICK_FREQUENCY) {
+            watch_rtc_register_periodic_callback(cb_tick, FAST_TICK_FREQUENCY);
+        } else {
+            watch_rtc_disable_periodic_callback(FAST_TICK_FREQUENCY);
+        }
     }
 }
 
@@ -248,26 +258,35 @@ static void _movement_handle_scheduled_tasks(void) {
 }
 
 void movement_request_tick_frequency(uint8_t freq) {
-    // Movement uses the 128 Hz tick internally
-    if (freq == 128) return;
-
     // Movement requires at least a 1 Hz tick.
     // If we are asked for an invalid frequency, default back to 1 Hz.
     if (freq == 0 || __builtin_popcount(freq) != 1) freq = 1;
 
-    // disable all callbacks except the 128 Hz one
-    watch_rtc_disable_matching_periodic_callbacks(0xFE);
+    // disable the previous frequency callback
+    if (movement_state.tick_frequency == FAST_TICK_FREQUENCY && movement_state.fast_tick_enabled) {
+        watch_rtc_register_periodic_callback(cb_fast_tick, FAST_TICK_FREQUENCY);
+    } else {
+        watch_rtc_disable_periodic_callback(movement_state.tick_frequency);
+    }
 
     movement_state.subsecond = 0;
     movement_state.tick_frequency = freq;
-    watch_rtc_register_periodic_callback(cb_tick, freq);
+
+    // If the frequency requested is the same as the frequency
+    // used for fast ticks, register cb_fast_and_regular_tick,
+    // which will invoke both cb_tick and cb_fast_tick internally
+    if (freq == FAST_TICK_FREQUENCY && movement_state.fast_tick_enabled) {
+        watch_rtc_register_periodic_callback(cb_fast_and_regular_tick, freq);
+    } else {
+        watch_rtc_register_periodic_callback(cb_tick, freq);
+    }
 }
 
 void movement_illuminate_led(void) {
     if (movement_state.settings.bit.led_duration) {
         watch_set_led_color(movement_state.settings.bit.led_red_color ? (0xF | movement_state.settings.bit.led_red_color << 4) : 0,
                             movement_state.settings.bit.led_green_color ? (0xF | movement_state.settings.bit.led_green_color << 4) : 0);
-        movement_state.light_ticks = (movement_state.settings.bit.led_duration * 2 - 1) * 128;
+        movement_state.light_ticks = (movement_state.settings.bit.led_duration * 2 - 1) * FAST_TICK_FREQUENCY;
         _movement_enable_fast_tick_if_needed();
     }
 }
@@ -390,7 +409,7 @@ void movement_play_alarm_beeps(uint8_t rounds, BuzzerNote alarm_note) {
     movement_request_wake();
     movement_state.alarm_note = alarm_note;
     // our tone is 0.375 seconds of beep and 0.625 of silence, repeated as given.
-    movement_state.alarm_ticks = 128 * rounds - 75;
+    movement_state.alarm_ticks = FAST_TICK_FREQUENCY * rounds - FAST_TICK_FREQUENCY / 2;
     _movement_enable_fast_tick_if_needed();
 }
 
@@ -613,8 +632,8 @@ bool app_loop(void) {
 
     // Now that we've handled all display update tasks, handle the alarm.
     if (movement_state.alarm_ticks >= 0) {
-        uint8_t buzzer_phase = (movement_state.alarm_ticks + 80) % 128;
-        if(buzzer_phase == 127) {
+        uint8_t buzzer_phase = (movement_state.alarm_ticks + 5 * FAST_TICK_FREQUENCY / 8) % FAST_TICK_FREQUENCY;
+        if(buzzer_phase == FAST_TICK_FREQUENCY - 1) {
             // failsafe: buzzer could have been disabled in the meantime
             if (!watch_is_buzzer_or_led_enabled()) watch_enable_buzzer();
             // play 4 beeps plus pause
@@ -666,7 +685,7 @@ static movement_event_type_t _figure_out_button_event(bool pin_level, movement_e
         // fast tick is disabled by then, and the LED would get stuck on since there's no one left decrementing light_ticks.
         if (movement_state.light_ticks == 1) movement_state.light_ticks = 0;
         // now that that's out of the way, handle falling edge
-        uint16_t diff = movement_state.fast_ticks - *down_timestamp;
+        uint16_t diff = movement_state.fast_ticks + 1 - *down_timestamp;
         *down_timestamp = 0;
         _movement_disable_fast_tick_if_possible();
         // any press over a half second is considered a long press. Fire the long-up event
@@ -720,14 +739,13 @@ void cb_fast_tick(void) {
             event.event_type = EVENT_ALARM_LONG_PRESS;
     // this is just a fail-safe; fast tick should be disabled as soon as the button is up, the LED times out, and/or the alarm finishes.
     // but if for whatever reason it isn't, this forces the fast tick off after 20 seconds.
-    if (movement_state.fast_ticks >= 128 * 20) {
-        watch_rtc_disable_periodic_callback(128);
+    if (movement_state.fast_ticks >= FAST_TICK_FREQUENCY * 20) {
+        watch_rtc_disable_periodic_callback(FAST_TICK_FREQUENCY);
         movement_state.fast_tick_enabled = false;
     }
 }
 
 void cb_tick(void) {
-    event.event_type = EVENT_TICK;
     watch_date_time date_time = watch_rtc_get_date_time();
     if (date_time.unit.second != movement_state.last_second) {
         // TODO: can we consolidate these two ticks?
@@ -739,4 +757,14 @@ void cb_tick(void) {
     } else {
         movement_state.subsecond++;
     }
+
+    if (event.event_type != EVENT_NONE) {
+        return;
+    }
+    event.event_type = EVENT_TICK;
+}
+
+void cb_fast_and_regular_tick(void) {
+    cb_fast_tick();
+    cb_tick();
 }
