@@ -49,29 +49,20 @@ static void _sunrise_sunset_face_update(movement_settings_t *settings, sunrise_s
     double rise, set, minutes, seconds;
     bool show_next_match = false;
     movement_location_t movement_location;
-    int16_t tz;
-    watch_date_time date_time = watch_rtc_get_date_time(); // the current local date / time
-    if (state->longLatToUse == 0 || _location_count <= 1) {
-        tz = get_timezone_offset(settings->bit.time_zone, date_time);
+    if (state->longLatToUse == 0 || _location_count <= 1)
         movement_location = (movement_location_t) watch_get_backup_data(1);
-    }
     else{
         movement_location.bit.latitude = longLatPresets[state->longLatToUse].latitude;
         movement_location.bit.longitude = longLatPresets[state->longLatToUse].longitude;
-        if (longLatPresets[state->longLatToUse].uses_dst && dst_occurring(date_time))
-            tz = movement_timezone_dst_offsets[longLatPresets[state->longLatToUse].timezone];
-        else
-            tz = movement_timezone_offsets[longLatPresets[state->longLatToUse].timezone];
     }
 
     if (movement_location.reg == 0) {
-        watch_clear_all_indicators();
-        watch_clear_colon();
         watch_display_string("RI  no Loc", 0);
         return;
     }
 
-    watch_date_time utc_now = watch_utility_date_time_convert_zone(date_time, tz * 60, 0); // the current date / time in UTC
+    watch_date_time date_time = watch_rtc_get_date_time(); // the current local date / time
+    watch_date_time utc_now = watch_utility_date_time_convert_zone(date_time, state->tz * 60, 0); // the current date / time in UTC
     watch_date_time scratch_time; // scratchpad, contains different values at different times
     scratch_time.reg = utc_now.reg;
 
@@ -86,7 +77,7 @@ static void _sunrise_sunset_face_update(movement_settings_t *settings, sunrise_s
     // sunriset returns the rise/set times as signed decimal hours in UTC.
     // this can mean hours below 0 or above 31, which won't fit into a watch_date_time struct.
     // to deal with this, we set aside the offset in hours, and add it back before converting it to a watch_date_time.
-    double hours_from_utc = ((double)tz) / 60.0;
+    double hours_from_utc = ((double)state->tz) / 60.0;
 
     // we loop twice because if it's after sunset today, we need to recalculate to display values for tomorrow.
     for(int i = 0; i < 2; i++) {
@@ -343,6 +334,7 @@ void sunrise_sunset_face_activate(movement_settings_t *settings, void *context) 
     movement_location_t movement_location = (movement_location_t) watch_get_backup_data(1);
     state->working_latitude = _sunrise_sunset_face_struct_from_latlon(movement_location.bit.latitude);
     state->working_longitude = _sunrise_sunset_face_struct_from_latlon(movement_location.bit.longitude);
+    state->tz = get_timezone_offset(settings->bit.time_zone, watch_rtc_get_date_time());
 }
 
 bool sunrise_sunset_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
@@ -407,11 +399,11 @@ bool sunrise_sunset_face_loop(movement_event_t event, movement_settings_t *setti
             break;
         case EVENT_ALARM_LONG_PRESS:
             if (state->page == 0) {
-                if (state->longLatToUse != 0) {
-                    state->longLatToUse = 0;
-                    _sunrise_sunset_face_update(settings, state);
-                    break;
-                }
+            if (state->longLatToUse != 0) {
+                state->longLatToUse = 0;
+                _sunrise_sunset_face_update(settings, state);
+                break;
+            }
                 state->page++;
                 state->active_digit = 0;
                 watch_clear_display();
