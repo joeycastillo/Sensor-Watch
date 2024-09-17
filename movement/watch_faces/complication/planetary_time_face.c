@@ -37,7 +37,7 @@
 // STATIC FUNCTIONS AND CONSTANTS /////////////////////////////////////////////
 
 /** @brief Planetary rulers in the Chaldean order from slowest to fastest
- *  @details Planetary rulers in the Chaldean order from slowest to fastest:
+ *  @details Planetary rulers in the Chaldean order from slowest to fastest: 
  *  Jupiter, Mars, Sun, Venus, Mercury, Moon
  */
 static const char planets[7][3] = {"Sa", "Ju", "Ma", "So", "Ve", "Me", "Lu"}; // Latin
@@ -129,8 +129,7 @@ static void _planetary_solar_phase(movement_settings_t *settings, planetary_time
     state->no_location = false;
 
     watch_date_time date_time = watch_rtc_get_date_time(); // the current local date / time
-    int16_t tz = get_timezone_offset(settings->bit.time_zone, date_time);
-    watch_date_time utc_now = watch_utility_date_time_convert_zone(date_time, tz * 60, 0); // the current date / time in UTC
+    watch_date_time utc_now = watch_utility_date_time_convert_zone(date_time, movement_timezone_offsets[settings->bit.time_zone] * 60, 0); // the current date / time in UTC
     watch_date_time scratch_time; // scratchpad, contains different values at different times
     watch_date_time midnight;
     scratch_time.reg = midnight.reg = utc_now.reg;
@@ -143,7 +142,7 @@ static void _planetary_solar_phase(movement_settings_t *settings, planetary_time
     double lon = (double)lon_centi / 100.0;
 
     // save UTC offset
-    state->utc_offset = ((double)tz) / 60.0;
+    state->utc_offset = ((double)movement_timezone_offsets[settings->bit.time_zone]) / 60.0;
 
     // get UNIX epoch time
     now_epoch = watch_utility_date_time_to_unix_time(utc_now, 0);
@@ -151,7 +150,7 @@ static void _planetary_solar_phase(movement_settings_t *settings, planetary_time
 
     // calculate sunrise and sunset of current day in decimal hours after midnight
     sun_rise_set(scratch_time.unit.year + WATCH_RTC_REFERENCE_YEAR, scratch_time.unit.month, scratch_time.unit.day, lon, lat, &sunrise, &sunset);
-
+    
     // calculate sunrise and sunset UNIX timestamps
     sunrise_epoch = midnight_epoch + sunrise * 3600;
     sunset_epoch = midnight_epoch + sunset * 3600;
@@ -192,7 +191,7 @@ static void _planetary_solar_phase(movement_settings_t *settings, planetary_time
         state->phase_end = sunrise_epoch;
     }
 
-    // calculate the duration of a planetary second during this solar phase
+    // calculate the duration of a planetary second during this solar phase 
     // and convert to Hertz so we can call a faster tick rate
     state->freq = (1 / ((double)( state->phase_end - state->phase_start ) / 43200));
 }
@@ -208,12 +207,11 @@ static void _planetary_time(movement_event_t event, movement_settings_t *setting
     uint8_t weekday, planet, planetary_hour;
     double hour_duration, current_hour, current_minute, current_second;
     bool set_leading_zero = false;
-    watch_date_time date_time = watch_rtc_get_date_time();
 
         watch_set_colon();
 
     // get current time and convert to UTC
-    state->scratch = watch_utility_date_time_convert_zone(date_time, get_timezone_offset(settings->bit.time_zone, date_time) * 60, 0);
+    state->scratch = watch_utility_date_time_convert_zone(watch_rtc_get_date_time(), movement_timezone_offsets[settings->bit.time_zone] * 60, 0); 
 
     // when current phase ends calculate the next phase
     if ( watch_utility_date_time_to_unix_time(state->scratch, 0) >= state->phase_end ) {
@@ -263,11 +261,11 @@ static void _planetary_time(movement_event_t event, movement_settings_t *setting
     if ( state->ruler == 0 ) strncpy(ruler, planets[planet], 3);
     if ( state->ruler == 1 ) strncpy(ruler, planetes[planet], 3);
     if ( state->ruler == 2 ) strncpy(ruler, "  ", 3);
-
+    
     // display planetary time with ruler of the hour or ruler of the day
     if ( state->day_ruler ) sprintf(buf, "%s d%2d%02d%02d", ruler, state->scratch.unit.hour, state->scratch.unit.minute, state->scratch.unit.second);
     else sprintf(buf, "%s h%2d%02d%02d", ruler, state->scratch.unit.hour, state->scratch.unit.minute, state->scratch.unit.second);
-
+    
     watch_display_string(buf, 0);
     if (set_leading_zero)
         watch_display_string("0", 4);
@@ -303,7 +301,7 @@ void planetary_time_face_activate(movement_settings_t *settings, void *context) 
 #endif
 
     planetary_time_state_t *state = (planetary_time_state_t *)context;
-
+    
     // calculate phase
     _planetary_solar_phase(settings, state);
 }

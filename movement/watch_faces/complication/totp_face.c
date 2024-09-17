@@ -157,9 +157,8 @@ static void totp_generate_and_display(totp_state_t *totp_state) {
     totp_display(totp_state);
 }
 
-static uint32_t totp_compute_base_timestamp(movement_settings_t *settings) {
-    watch_date_time date_time = watch_rtc_get_date_time();
-    return watch_utility_date_time_to_unix_time(date_time, get_timezone_offset(settings->bit.time_zone, date_time) * 60);
+static inline uint32_t totp_compute_base_timestamp(movement_settings_t *settings) {
+    return watch_utility_date_time_to_unix_time(watch_rtc_get_date_time(), movement_timezone_offsets[settings->bit.time_zone] * 60);
 }
 
 void totp_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {

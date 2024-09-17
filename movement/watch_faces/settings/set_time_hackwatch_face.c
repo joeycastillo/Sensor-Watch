@@ -132,9 +132,8 @@ bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *s
                     }
                     break;
             }
-            if (current_page != 2) { // Do not set time when we are at seconds, it was already set previously
+            if (current_page != 2) // Do not set time when we are at seconds, it was already set previously
                 watch_rtc_set_date_time(date_time_settings);
-            }
             break;
 
         case EVENT_ALARM_LONG_UP://Setting seconds on long release
@@ -172,16 +171,11 @@ bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *s
                     if (settings->bit.time_zone > 40) settings->bit.time_zone = 0;
                     break;
             }
-
             if (date_time_settings.unit.day > days_in_month(date_time_settings.unit.month, date_time_settings.unit.year + WATCH_RTC_REFERENCE_YEAR))
                 date_time_settings.unit.day = 1;
-
-            if (current_page != 2) { // Do not set time when we are at seconds, it was already set previously
+            if (current_page != 2) // Do not set time when we are at seconds, it was already set previously
                 watch_rtc_set_date_time(date_time_settings);
-            }
-
             //TODO: Do not update whole RTC, just what we are changing
-
             break;
         case EVENT_TIMEOUT:
             movement_move_to_face(0);
@@ -237,13 +231,12 @@ bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *s
             watch_clear_colon();
             sprintf(buf, "%s        ", set_time_hackwatch_face_titles[current_page]);
         } else {
-            int16_t tz = get_timezone_offset(settings->bit.time_zone, date_time_settings);
             watch_set_colon();
             sprintf(buf,
                     "%s %3d%02d  ",
                     set_time_hackwatch_face_titles[current_page],
-                    (int8_t)(tz / 60),
-                    (int8_t)(tz % 60) * (tz < 0 ? -1 : 1));
+                    (int8_t)(movement_timezone_offsets[settings->bit.time_zone] / 60),
+                    (int8_t)(movement_timezone_offsets[settings->bit.time_zone] % 60) * (movement_timezone_offsets[settings->bit.time_zone] < 0 ? -1 : 1));
         }
     }
 

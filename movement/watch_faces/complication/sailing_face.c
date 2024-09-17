@@ -33,8 +33,8 @@
 #define sl_SELECTIONS 6
 #define DEFAULT_MINUTES { 5,4,1,0,0,0 }
 
-static inline int32_t get_tz_offset(movement_settings_t *settings, watch_date_time date_time) {
-    return get_timezone_offset(settings->bit.time_zone, date_time) * 60;
+static inline int32_t get_tz_offset(movement_settings_t *settings) {
+    return movement_timezone_offsets[settings->bit.time_zone] * 60;
 }
 
 static int lap = 0;
@@ -165,8 +165,7 @@ static void ring(sailing_state_t *state, movement_settings_t *settings) {
         return;
     }
     state->nextbeep_ts = state->target_ts - beepseconds[beepflag+1];
-    watch_date_time now = watch_rtc_get_date_time();
-    watch_date_time target_dt = watch_utility_date_time_from_unix_time(state->nextbeep_ts, get_tz_offset(settings, now));
+    watch_date_time target_dt = watch_utility_date_time_from_unix_time(state->nextbeep_ts, get_tz_offset(settings));
     movement_schedule_background_task_for_face(state->watch_face_index, target_dt);
 //background task is set, now we have time to play the tune. If this is cancelled accidentally, the next alarm will still ring. Sound is implemented non-blocking, so that neither buttons nor display output are compromised.
     for (int i = 0; i < 5; i++) {
@@ -195,7 +194,7 @@ static void start(sailing_state_t *state, movement_settings_t *settings) {//gets
     }
     if (state->index > 5 || state->minutes[state->index] == 0) {
         watch_date_time now = watch_rtc_get_date_time();
-        state->now_ts = watch_utility_date_time_to_unix_time(now, get_tz_offset(settings, now));
+        state->now_ts = watch_utility_date_time_to_unix_time(now, get_tz_offset(settings));
         state->target_ts = state->now_ts;
         if (alarmflag != 0){
             watch_buzzer_play_sequence(long_beep, NULL);
@@ -206,7 +205,7 @@ static void start(sailing_state_t *state, movement_settings_t *settings) {//gets
     movement_request_tick_frequency(1); //synchronises tick with the moment the button was pressed. Solves 1s offset between sound and display, solves up to +-0.5s offset between button action and display.
     state->mode = sl_running;
     watch_date_time now = watch_rtc_get_date_time();
-    state->now_ts = watch_utility_date_time_to_unix_time(now, get_tz_offset(settings, now));
+    state->now_ts = watch_utility_date_time_to_unix_time(now, get_tz_offset(settings));
     state->target_ts = watch_utility_offset_timestamp(state->now_ts, 0, state->minutes[state->index], 0);
     ring(state, settings);
 }
@@ -254,11 +253,11 @@ void sailing_face_activate(movement_settings_t *settings, void *context) {
     sailing_state_t *state = (sailing_state_t *)context;
     if(state->mode == sl_running) {
         watch_date_time now = watch_rtc_get_date_time();
-        state->now_ts = watch_utility_date_time_to_unix_time(now, get_tz_offset(settings, now));
+        state->now_ts = watch_utility_date_time_to_unix_time(now, get_tz_offset(settings));
     }
     if(state->mode == sl_counting) {
         watch_date_time now = watch_rtc_get_date_time();
-        state->now_ts = watch_utility_date_time_to_unix_time(now, get_tz_offset(settings, now));
+        state->now_ts = watch_utility_date_time_to_unix_time(now, get_tz_offset(settings));
         watch_set_indicator(WATCH_INDICATOR_LAP);
     }
     switch (alarmflag) {

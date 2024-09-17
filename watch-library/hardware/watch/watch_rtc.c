@@ -30,19 +30,6 @@ ext_irq_cb_t btn_alarm_callback;
 ext_irq_cb_t a2_callback;
 ext_irq_cb_t a4_callback;
 
-static bool dst_skip_rolling_back;
-bool get_dst_skip_rolling_back(void) {
-    return dst_skip_rolling_back;
-}
-
-void set_dst_skip_rolling_back(void) {
-    dst_skip_rolling_back = true;
-}
-
-void clear_dst_skip_rolling_back(void) {
-    dst_skip_rolling_back = false;
-}
-
 bool _watch_rtc_is_enabled(void) {
     return RTC->MODE2.CTRLA.bit.ENABLE;
 }
@@ -73,7 +60,6 @@ void watch_rtc_set_date_time(watch_date_time date_time) {
     _sync_rtc(); // Double sync as without it at high Hz faces setting time is unrealiable (specifically, set_time_hackwatch)
     RTC->MODE2.CLOCK.reg = date_time.reg;
     _sync_rtc();
-    clear_dst_skip_rolling_back();
 }
 
 watch_date_time watch_rtc_get_date_time(void) {
