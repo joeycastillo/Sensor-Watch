@@ -174,7 +174,7 @@ static bool mode_display(movement_event_t event, movement_settings_t *settings, 
 	    if (refresh_face) {
 		watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
 		watch_set_colon();
-                if (settings->bit.clock_mode_24h)
+                if (settings->bit.clock_mode_24h && !settings->bit.clock_24h_leading_zero)
                     watch_set_indicator(WATCH_INDICATOR_24H);
 
                 state->previous_date_time = REFRESH_TIME;
@@ -188,6 +188,7 @@ static bool mode_display(movement_event_t event, movement_settings_t *settings, 
 	    previous_date_time = state->previous_date_time;
 	    state->previous_date_time = date_time.reg;
 
+            bool set_leading_zero = false;
 	    if ((date_time.reg >> 6) == (previous_date_time >> 6) && event.event_type != EVENT_LOW_ENERGY_UPDATE) {
                 /* Everything before seconds is the same, don't waste cycles setting those segments. */
 		pos = 8;
@@ -208,7 +209,9 @@ static bool mode_display(movement_event_t event, movement_settings_t *settings, 
 		    date_time.unit.hour %= 12;
 		    if (date_time.unit.hour == 0)
 			date_time.unit.hour = 12;
-		}
+                } else if (settings->bit.clock_24h_leading_zero && date_time.unit.hour < 10) {
+                    set_leading_zero = true;
+                }
 
 		pos = 0;
 		if (event.event_type == EVENT_LOW_ENERGY_UPDATE) {
@@ -230,6 +233,8 @@ static bool mode_display(movement_event_t event, movement_settings_t *settings, 
 		}
 	    }
 	    watch_display_string(buf, pos);
+            if (set_leading_zero)
+                watch_display_string("0", 4);
 	    break;
 	case EVENT_ALARM_BUTTON_UP:
 	    state->current_zone = find_selected_zone(state, FORWARD);

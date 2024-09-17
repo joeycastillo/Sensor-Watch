@@ -76,15 +76,15 @@ const watch_face_t watch_faces[] = {
 /* Set the timeout before switching to low energy mode
  * Valid values are:
  * 0: Never
- * 1: 10 mins
- * 2: 1 hour
- * 3: 2 hours
- * 4: 6 hours
- * 5: 12 hours
- * 6: 1 day
+ * 1: 1 hour
+ * 2: 2 hours
+ * 3: 6 hours
+ * 4: 12 hours
+ * 5: 1 day
+ * 6: 2 days
  * 7: 7 days
  */
-#define MOVEMENT_DEFAULT_LOW_ENERGY_INTERVAL 2
+#define MOVEMENT_DEFAULT_LOW_ENERGY_INTERVAL 1
 
 /* Set the led duration
  * Valid values are:
@@ -94,21 +94,5 @@ const watch_face_t watch_faces[] = {
  * 3: 5 seconds
  */
 #define MOVEMENT_DEFAULT_LED_DURATION 1
-
-/* The latitude and longitude used for the wearers location
- * Set signed values in 1/100ths of a degree
- */
-#define MOVEMENT_DEFAULT_LATITUDE 0
-#define MOVEMENT_DEFAULT_LONGITUDE 0
-
-/* The wearers birthdate
- * Valid values:
- * Year: 1 - 4095
- * Month: 1 - 12
- * Day: 1 - 31
- */
-#define MOVEMENT_DEFAULT_BIRTHDATE_YEAR 0
-#define MOVEMENT_DEFAULT_BIRTHDATE_MONTH 0
-#define MOVEMENT_DEFAULT_BIRTHDATE_DAY 0
 
 #endif // MOVEMENT_CONFIG_H_

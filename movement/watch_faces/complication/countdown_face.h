@@ -62,6 +62,8 @@ typedef struct {
     uint8_t set_seconds;
     uint8_t selection;
     countdown_mode_t mode;
+    bool repeat;
+    uint8_t watch_face_index;
 } countdown_state_t;
 
 

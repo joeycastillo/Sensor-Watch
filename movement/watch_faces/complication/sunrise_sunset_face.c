@@ -93,7 +93,7 @@ static void _sunrise_sunset_face_update(movement_settings_t *settings, sunrise_s
         }
 
         watch_set_colon();
-        if (settings->bit.clock_mode_24h) watch_set_indicator(WATCH_INDICATOR_24H);
+        if (settings->bit.clock_mode_24h && !settings->bit.clock_24h_leading_zero) watch_set_indicator(WATCH_INDICATOR_24H);
 
         rise += hours_from_utc;
         set += hours_from_utc;
@@ -113,12 +113,17 @@ static void _sunrise_sunset_face_update(movement_settings_t *settings, sunrise_s
 
         if (date_time.reg < scratch_time.reg || show_next_match) {
             if (state->rise_index == 0 || show_next_match) {
+                bool set_leading_zero = false;
                 if (!settings->bit.clock_mode_24h) {
                     if (watch_utility_convert_to_12_hour(&scratch_time)) watch_set_indicator(WATCH_INDICATOR_PM);
                     else watch_clear_indicator(WATCH_INDICATOR_PM);
+                } else if (settings->bit.clock_24h_leading_zero && scratch_time.unit.hour < 10) {
+                    set_leading_zero = true;
                 }
                 sprintf(buf, "rI%2d%2d%02d%s", scratch_time.unit.day, scratch_time.unit.hour, scratch_time.unit.minute,longLatPresets[state->longLatToUse].name);
                 watch_display_string(buf, 0);
+                if (set_leading_zero)
+                    watch_display_string("0", 4);
                 return;
             } else {
                 show_next_match = true;
@@ -140,12 +145,17 @@ static void _sunrise_sunset_face_update(movement_settings_t *settings, sunrise_s
 
         if (date_time.reg < scratch_time.reg || show_next_match) {
             if (state->rise_index == 0 || show_next_match) {
+                bool set_leading_zero = false;
                 if (!settings->bit.clock_mode_24h) {
                     if (watch_utility_convert_to_12_hour(&scratch_time)) watch_set_indicator(WATCH_INDICATOR_PM);
                     else watch_clear_indicator(WATCH_INDICATOR_PM);
+                } else if (settings->bit.clock_24h_leading_zero && scratch_time.unit.hour < 10) {
+                    set_leading_zero = true;
                 }
                 sprintf(buf, "SE%2d%2d%02d%s", scratch_time.unit.day, scratch_time.unit.hour, scratch_time.unit.minute, longLatPresets[state->longLatToUse].name);
                 watch_display_string(buf, 0);
+                if (set_leading_zero)
+                    watch_display_string("0", 4);
                 return;
             } else {
                 show_next_match = true;

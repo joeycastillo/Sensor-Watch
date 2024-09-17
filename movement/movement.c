@@ -95,31 +95,6 @@
 #define MOVEMENT_DEFAULT_LED_DURATION 1
 #endif
 
-// Default to no set location latitude
-#ifndef MOVEMENT_DEFAULT_LATITUDE
-#define MOVEMENT_DEFAULT_LATITUDE 0
-#endif
-
-// Default to no set location longitude
-#ifndef MOVEMENT_DEFAULT_LONGITUDE
-#define MOVEMENT_DEFAULT_LONGITUDE 0
-#endif
-
-// Default to no set birthdate year
-#ifndef MOVEMENT_DEFAULT_BIRTHDATE_YEAR
-#define MOVEMENT_DEFAULT_BIRTHDATE_YEAR 0
-#endif
-
-// Default to no set birthdate month
-#ifndef MOVEMENT_DEFAULT_BIRTHDATE_MONTH
-#define MOVEMENT_DEFAULT_BIRTHDATE_MONTH 0
-#endif
-
-// Default to no set birthdate day
-#ifndef MOVEMENT_DEFAULT_BIRTHDATE_DAY
-#define MOVEMENT_DEFAULT_BIRTHDATE_DAY 0
-#endif
-
 #if __EMSCRIPTEN__
 #include <emscripten.h>
 #endif
@@ -264,12 +239,22 @@ void movement_request_tick_frequency(uint8_t freq) {
 }
 
 void movement_illuminate_led(void) {
-    if (movement_state.settings.bit.led_duration) {
+    if (movement_state.settings.bit.led_duration != 0b111) {
         watch_set_led_color(movement_state.settings.bit.led_red_color ? (0xF | movement_state.settings.bit.led_red_color << 4) : 0,
                             movement_state.settings.bit.led_green_color ? (0xF | movement_state.settings.bit.led_green_color << 4) : 0);
-        movement_state.light_ticks = (movement_state.settings.bit.led_duration * 2 - 1) * 128;
+        if (movement_state.settings.bit.led_duration == 0) {
+            movement_state.light_ticks = 1;
+        } else {
+            movement_state.light_ticks = (movement_state.settings.bit.led_duration * 2 - 1) * 128;
+        }
         _movement_enable_fast_tick_if_needed();
     }
+}
+
+static void _movement_led_off(void) {
+    watch_set_led_off();
+    movement_state.light_ticks = -1;
+    _movement_disable_fast_tick_if_possible();
 }
 
 bool movement_default_loop_handler(movement_event_t event, movement_settings_t *settings) {
@@ -281,6 +266,11 @@ bool movement_default_loop_handler(movement_event_t event, movement_settings_t *
             break;
         case EVENT_LIGHT_BUTTON_DOWN:
             movement_illuminate_led();
+            break;
+        case EVENT_LIGHT_BUTTON_UP:
+            if (movement_state.settings.bit.led_duration == 0) {
+                _movement_led_off();
+            }
             break;
         case EVENT_MODE_LONG_PRESS:
             if (MOVEMENT_SECONDARY_FACE_INDEX && movement_state.current_face_idx == 0) {
@@ -416,11 +406,7 @@ void app_init(void) {
     movement_state.settings.bit.to_interval = MOVEMENT_DEFAULT_TIMEOUT_INTERVAL;
     movement_state.settings.bit.le_interval = MOVEMENT_DEFAULT_LOW_ENERGY_INTERVAL;
     movement_state.settings.bit.led_duration = MOVEMENT_DEFAULT_LED_DURATION;
-    movement_state.location.bit.latitude = MOVEMENT_DEFAULT_LATITUDE;
-    movement_state.location.bit.longitude = MOVEMENT_DEFAULT_LONGITUDE;
-    movement_state.birthdate.bit.year = MOVEMENT_DEFAULT_BIRTHDATE_YEAR;
-    movement_state.birthdate.bit.month = MOVEMENT_DEFAULT_BIRTHDATE_MONTH;
-    movement_state.birthdate.bit.day = MOVEMENT_DEFAULT_BIRTHDATE_DAY;
+
     movement_state.light_ticks = -1;
     movement_state.alarm_ticks = -1;
     movement_state.next_available_backup_register = 4;
@@ -443,14 +429,10 @@ void app_init(void) {
 
 void app_wake_from_backup(void) {
     movement_state.settings.reg = watch_get_backup_data(0);
-    movement_state.location.reg = watch_get_backup_data(1);
-    movement_state.birthdate.reg = watch_get_backup_data(2);
 }
 
 void app_setup(void) {
     watch_store_backup_data(movement_state.settings.reg, 0);
-    watch_store_backup_data(movement_state.location.reg, 1);
-    watch_store_backup_data(movement_state.birthdate.reg, 2);
 
     static bool is_first_launch = true;
 
@@ -544,9 +526,7 @@ bool app_loop(void) {
         if (watch_get_pin_level(BTN_LIGHT)) {
             movement_state.light_ticks = 1;
         } else {
-            watch_set_led_off();
-            movement_state.light_ticks = -1;
-            _movement_disable_fast_tick_if_possible();
+            _movement_led_off();
         }
     }
 
@@ -584,6 +564,17 @@ bool app_loop(void) {
         event.subsecond = movement_state.subsecond;
         // the first trip through the loop overrides the can_sleep state
         can_sleep = wf->loop(event, &movement_state.settings, watch_face_contexts[movement_state.current_face_idx]);
+
+        // Keep light on if user is still interacting with the watch.
+        if (movement_state.light_ticks > 0) {
+            switch (event.event_type) {
+                case EVENT_LIGHT_BUTTON_DOWN:
+                case EVENT_MODE_BUTTON_DOWN:
+                case EVENT_ALARM_BUTTON_DOWN:
+                    movement_illuminate_led();
+            }
+        }
+
         event.event_type = EVENT_NONE;
     }
 

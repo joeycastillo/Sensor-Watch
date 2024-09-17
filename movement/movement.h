@@ -50,7 +50,7 @@ typedef union {
         uint8_t to_interval : 2;            // an inactivity interval for asking the active face to resign.
         bool to_always : 1;                 // if true, always time out from the active face to face 0. otherwise only faces that time out will resign (the default).
         uint8_t le_interval : 3;            // 0 to disable low energy mode, or an inactivity interval for going into low energy mode.
-        uint8_t led_duration : 2;           // how many seconds to shine the LED for (x2), or 0 to disable it.
+        uint8_t led_duration : 3;           // how many seconds to shine the LED for (x2), 0 to shine only while the button is depressed, or all bits set to disable the LED altogether.
         uint8_t led_red_color : 4;          // for general purpose illumination, the red LED value (0-15)
         uint8_t led_green_color : 4;        // for general purpose illumination, the green LED value (0-15)
         uint8_t time_zone : 6;              // an integer representing an index in the time zone table.
@@ -60,9 +60,10 @@ typedef union {
         // time-oriented complication like a sunrise/sunset timer, and a simple locale preference could tell an
         // altimeter to display feet or meters as easily as it tells a thermometer to display degrees in F or C.
         bool clock_mode_24h : 1;            // indicates whether clock should use 12 or 24 hour mode.
+        bool clock_24h_leading_zero : 1;    // indicates whether clock should leading zero to indicate 24 hour mode.
         bool use_imperial_units : 1;        // indicates whether to use metric units (the default) or imperial.
         bool alarm_enabled : 1;             // indicates whether there is at least one alarm enabled.
-        uint8_t reserved : 6;               // room for more preferences if needed.
+        uint8_t reserved : 5;               // room for more preferences if needed.
     } bit;
     uint32_t reg;
 } movement_settings_t;
@@ -242,8 +243,6 @@ typedef struct {
 typedef struct {
     // properties stored in BACKUP register
     movement_settings_t settings;
-    movement_location_t location;
-    movement_birthdate_t birthdate;
 
     // transient properties
     int16_t current_face_idx;
