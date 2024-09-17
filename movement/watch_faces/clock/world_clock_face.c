@@ -162,7 +162,6 @@ static bool _world_clock_face_do_settings_mode(movement_event_t event, movement_
                 case 3:
                     state->settings.bit.timezone_index++;
                     if (state->settings.bit.timezone_index > 40) state->settings.bit.timezone_index = 0;
-                    state->tz_curr = get_timezone_offset(state->settings.bit.timezone_index, watch_rtc_get_date_time());
                     break;
             }
             break;
