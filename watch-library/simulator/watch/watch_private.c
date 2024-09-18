@@ -57,6 +57,8 @@ void _watch_disable_tcc(void) {}
 
 void _watch_enable_usb(void) {}
 
+void watch_disable_TRNG() {}
+
 // this function ends up getting called by printf to log stuff to the USB console.
 int _write(int file, char *ptr, int len) {
     // TODO: (a2) hook to UI

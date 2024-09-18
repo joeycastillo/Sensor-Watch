@@ -25,6 +25,15 @@
 #ifndef SIMPLE_CLOCK_FACE_H_
 #define SIMPLE_CLOCK_FACE_H_
 
+/*
+ * SIMPLE CLOCK FACE
+ *
+ * Displays the current time, matching the original operation of the watch.
+ * This is the default display mode in most watch configurations.
+ *
+ * Long-press ALARM to toggle the hourly chime.
+ */
+
 #include "movement.h"
 
 typedef struct {

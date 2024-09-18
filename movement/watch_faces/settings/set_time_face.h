@@ -25,6 +25,23 @@
 #ifndef SET_TIME_FACE_H_
 #define SET_TIME_FACE_H_
 
+/*
+ * SET TIME face
+ *
+ * The default method for adjusting Sensor Watch time.
+ *
+ * The Time Set watch face allows you to set the time on Sensor Watch. Use
+ * the LIGHT button to advance through the field you are setting, and the
+ * ALARM button to change the value in that field. The fields are, in order:
+ * Hour, Minute, Second, Year, Month, Day and Time Zone.
+ *
+ * For features like World Clock and Sunrise/Sunset to work correctly, you
+ * must set the time to your local time, and the time zone to your local time
+ * zone. This allows Sensor Watch to correctly offset the time. This also
+ * means that when daylight savings time starts or ends, you must update
+ * both the time and the time zone on this screen.
+ */
+
 #include "movement.h"
 
 void set_time_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);

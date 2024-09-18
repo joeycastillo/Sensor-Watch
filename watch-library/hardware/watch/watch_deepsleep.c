@@ -22,6 +22,8 @@
  * SOFTWARE.
  */
 
+#include "hpl_systick_config.h"
+
 #include "watch_extint.h"
 
 // this warning only appears when you `make BOARD=OSO-SWAT-A1-02`. it's annoying,
@@ -75,6 +77,7 @@ void watch_register_extwake_callback(uint8_t pin, ext_irq_cb_t callback, bool le
     RTC->MODE2.TAMPCTRL.reg = config;
     // re-enable the RTC
     RTC->MODE2.CTRLA.bit.ENABLE = 1;
+    while (RTC->MODE2.SYNCBUSY.bit.ENABLE); // wait for RTC to be enabled
 
     NVIC_ClearPendingIRQ(RTC_IRQn);
     NVIC_EnableIRQ(RTC_IRQn);
@@ -158,14 +161,20 @@ void watch_enter_sleep_mode(void) {
     // disable brownout detector interrupt, which could inadvertently wake us up.
     SUPC->INTENCLR.bit.BOD33DET = 1;
 
+    // per Microchip datasheet clarification DS80000782,
+    // work around silicon erratum 1.8.4 by disabling the SysTick interrupt, which is
+    // enabled as part of driver init, before going to sleep.
+    SysTick->CTRL = SysTick->CTRL & ~(CONF_SYSTICK_TICKINT << SysTick_CTRL_TICKINT_Pos);
+
     // disable all pins
     _watch_disable_all_pins_except_rtc();
 
     // enter standby (4); we basically hang out here until an interrupt wakes us.
     sleep(4);
 
-    // and we awake! re-enable the brownout detector
+    // and we awake! re-enable the brownout detector and SysTick interrupt
     SUPC->INTENSET.bit.BOD33DET = 1;
+    SysTick->CTRL = SysTick->CTRL | (CONF_SYSTICK_TICKINT << SysTick_CTRL_TICKINT_Pos);
 
     // call app_setup so the app can re-enable everything we disabled.
     app_setup();

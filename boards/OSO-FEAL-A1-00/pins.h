@@ -120,4 +120,8 @@
 #define D0 GPIO(GPIO_PORTB, 3)
 #define D1 GPIO(GPIO_PORTB, 0)
 
+// interrupt mapping
+#define EXT_IRQ_AMOUNT 6
+#define CONFIG_EIC_EXTINT_MAP {0, PIN_PB00}, {1, PIN_PB01}, {2, PIN_PA02}, {3, PIN_PB03}, {5, PIN_PB05}, {7, PIN_PA07},
+
 #endif // PINS_H_INCLUDED

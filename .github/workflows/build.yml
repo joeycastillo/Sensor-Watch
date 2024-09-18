@@ -6,7 +6,10 @@ on:
     branches-ignore:
       - gh-pages
 
-jobs: 
+env:
+  COLOR: BLUE
+
+jobs:
   build:
     container:
       image: ghcr.io/armmbed/mbed-os-env:latest
@@ -26,7 +29,7 @@ jobs:
         run: make
         working-directory: 'movement/make'
       - name: Upload UF2
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: watch.uf2
           path: movement/make/build/watch.uf2
@@ -49,7 +52,7 @@ jobs:
           cp watch.html index.html
           tar -czf simulator.tar.gz index.html watch.wasm watch.js
       - name: Upload simulator build
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: simulator.tar.gz
           path: movement/make/build-sim/simulator.tar.gz
