@@ -49,7 +49,7 @@ static void _sunrise_sunset_face_update(movement_settings_t *settings, sunrise_s
     double rise, set, minutes, seconds;
     bool show_next_match = false;
     movement_location_t movement_location;
-    if (state->longLatToUse == 0)
+    if (state->longLatToUse == 0 || _location_count <= 1)
         movement_location = (movement_location_t) watch_get_backup_data(1);
     else{
         movement_location.bit.latitude = longLatPresets[state->longLatToUse].latitude;
@@ -93,7 +93,7 @@ static void _sunrise_sunset_face_update(movement_settings_t *settings, sunrise_s
         }
 
         watch_set_colon();
-        if (settings->bit.clock_mode_24h) watch_set_indicator(WATCH_INDICATOR_24H);
+        if (settings->bit.clock_mode_24h && !settings->bit.clock_24h_leading_zero) watch_set_indicator(WATCH_INDICATOR_24H);
 
         rise += hours_from_utc;
         set += hours_from_utc;
@@ -113,12 +113,17 @@ static void _sunrise_sunset_face_update(movement_settings_t *settings, sunrise_s
 
         if (date_time.reg < scratch_time.reg || show_next_match) {
             if (state->rise_index == 0 || show_next_match) {
+                bool set_leading_zero = false;
                 if (!settings->bit.clock_mode_24h) {
                     if (watch_utility_convert_to_12_hour(&scratch_time)) watch_set_indicator(WATCH_INDICATOR_PM);
                     else watch_clear_indicator(WATCH_INDICATOR_PM);
+                } else if (settings->bit.clock_24h_leading_zero && scratch_time.unit.hour < 10) {
+                    set_leading_zero = true;
                 }
                 sprintf(buf, "rI%2d%2d%02d%s", scratch_time.unit.day, scratch_time.unit.hour, scratch_time.unit.minute,longLatPresets[state->longLatToUse].name);
                 watch_display_string(buf, 0);
+                if (set_leading_zero)
+                    watch_display_string("0", 4);
                 return;
             } else {
                 show_next_match = true;
@@ -140,12 +145,17 @@ static void _sunrise_sunset_face_update(movement_settings_t *settings, sunrise_s
 
         if (date_time.reg < scratch_time.reg || show_next_match) {
             if (state->rise_index == 0 || show_next_match) {
+                bool set_leading_zero = false;
                 if (!settings->bit.clock_mode_24h) {
                     if (watch_utility_convert_to_12_hour(&scratch_time)) watch_set_indicator(WATCH_INDICATOR_PM);
                     else watch_clear_indicator(WATCH_INDICATOR_PM);
+                } else if (settings->bit.clock_24h_leading_zero && scratch_time.unit.hour < 10) {
+                    set_leading_zero = true;
                 }
                 sprintf(buf, "SE%2d%2d%02d%s", scratch_time.unit.day, scratch_time.unit.hour, scratch_time.unit.minute, longLatPresets[state->longLatToUse].name);
                 watch_display_string(buf, 0);
+                if (set_leading_zero)
+                    watch_display_string("0", 4);
                 return;
             } else {
                 show_next_match = true;
@@ -359,7 +369,7 @@ bool sunrise_sunset_face_loop(movement_event_t event, movement_settings_t *setti
                     _sunrise_sunset_face_update_location_register(state);
                 }
                 _sunrise_sunset_face_update_settings_display(event, context);
-            } else if (_location_count == 1) {
+            } else if (_location_count <= 1) {
                 movement_illuminate_led();
             }
             if (state->page == 0) {
@@ -368,7 +378,7 @@ bool sunrise_sunset_face_loop(movement_event_t event, movement_settings_t *setti
             }
             break;
         case EVENT_LIGHT_LONG_PRESS:
-            if (_location_count == 1) break;
+            if (_location_count <= 1) break;
             else if (!state->page) movement_illuminate_led();
             break;
         case EVENT_LIGHT_BUTTON_UP:

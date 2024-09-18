@@ -40,9 +40,10 @@ static void _thermistor_logging_face_log_data(thermistor_logger_state_t *logger_
     thermistor_driver_disable();
 }
 
-static void _thermistor_logging_face_update_display(thermistor_logger_state_t *logger_state, bool in_fahrenheit, bool clock_mode_24h) {
+static void _thermistor_logging_face_update_display(thermistor_logger_state_t *logger_state, bool in_fahrenheit, bool clock_mode_24h, bool clock_24h_leading_zero) {
     int8_t pos = (logger_state->data_points - 1 - logger_state->display_index) % THERMISTOR_LOGGING_NUM_DATA_POINTS;
     char buf[14];
+    bool set_leading_zero = false;
 
     watch_clear_indicator(WATCH_INDICATOR_24H);
     watch_clear_indicator(WATCH_INDICATOR_PM);
@@ -53,12 +54,14 @@ static void _thermistor_logging_face_update_display(thermistor_logger_state_t *l
     } else if (logger_state->ts_ticks) {
         watch_date_time date_time = logger_state->data[pos].timestamp;
         watch_set_colon();
-        if (clock_mode_24h) {
-            watch_set_indicator(WATCH_INDICATOR_24H);
-        } else {
+        if (!clock_mode_24h) {
             if (date_time.unit.hour > 11) watch_set_indicator(WATCH_INDICATOR_PM);
             date_time.unit.hour %= 12;
             if (date_time.unit.hour == 0) date_time.unit.hour = 12;
+        } else if (!clock_24h_leading_zero) {
+            watch_set_indicator(WATCH_INDICATOR_24H);
+        } else if (date_time.unit.hour < 10) {
+            set_leading_zero = true;
         }
         sprintf(buf, "AT%2d%2d%02d%02d", date_time.unit.day, date_time.unit.hour, date_time.unit.minute, date_time.unit.second);
     } else {
@@ -70,6 +73,8 @@ static void _thermistor_logging_face_update_display(thermistor_logger_state_t *l
     }
 
     watch_display_string(buf, 0);
+    if (set_leading_zero)
+        watch_display_string("0", 4);
 }
 
 void thermistor_logging_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
@@ -100,18 +105,18 @@ bool thermistor_logging_face_loop(movement_event_t event, movement_settings_t *s
             break;
         case EVENT_LIGHT_BUTTON_DOWN:
             logger_state->ts_ticks = 2;
-            _thermistor_logging_face_update_display(logger_state, settings->bit.use_imperial_units, settings->bit.clock_mode_24h);
+            _thermistor_logging_face_update_display(logger_state, settings->bit.use_imperial_units, settings->bit.clock_mode_24h, settings->bit.clock_24h_leading_zero);
             break;
         case EVENT_ALARM_BUTTON_DOWN:
             logger_state->display_index = (logger_state->display_index + 1) % THERMISTOR_LOGGING_NUM_DATA_POINTS;
             logger_state->ts_ticks = 0;
             // fall through
         case EVENT_ACTIVATE:
-            _thermistor_logging_face_update_display(logger_state, settings->bit.use_imperial_units, settings->bit.clock_mode_24h);
+            _thermistor_logging_face_update_display(logger_state, settings->bit.use_imperial_units, settings->bit.clock_mode_24h, settings->bit.clock_24h_leading_zero);
             break;
         case EVENT_TICK:
             if (logger_state->ts_ticks && --logger_state->ts_ticks == 0) {
-                _thermistor_logging_face_update_display(logger_state, settings->bit.use_imperial_units, settings->bit.clock_mode_24h);
+                _thermistor_logging_face_update_display(logger_state, settings->bit.use_imperial_units, settings->bit.clock_mode_24h, settings->bit.clock_24h_leading_zero);
             }
             break;
         case EVENT_BACKGROUND_TASK:

@@ -206,6 +206,7 @@ static void _planetary_time(movement_event_t event, movement_settings_t *setting
     double night_hour_count = 0.0;
     uint8_t weekday, planet, planetary_hour;
     double hour_duration, current_hour, current_minute, current_second;
+    bool set_leading_zero = false;
 
         watch_set_colon();
 
@@ -218,7 +219,7 @@ static void _planetary_time(movement_event_t event, movement_settings_t *setting
         return;
     }
 
-    if (settings->bit.clock_mode_24h) watch_set_indicator(WATCH_INDICATOR_24H);
+    if (settings->bit.clock_mode_24h && !settings->bit.clock_24h_leading_zero) watch_set_indicator(WATCH_INDICATOR_24H);
 
     // PM for night hours, otherwise the night hours are counted from 13
     if ( state->night ) {
@@ -246,6 +247,9 @@ static void _planetary_time(movement_event_t event, movement_settings_t *setting
     state->scratch.unit.minute = floor(current_minute);
     state->scratch.unit.second = (uint8_t)floor(current_second) % 60;
 
+    if (settings->bit.clock_mode_24h && settings->bit.clock_24h_leading_zero && state->scratch.unit.hour < 10)
+        set_leading_zero = true;
+
     // what weekday is it (0 - 6)
     weekday = watch_utility_get_iso8601_weekday_number(state->scratch.unit.year, state->scratch.unit.month, state->scratch.unit.day) - 1;
 
@@ -263,6 +267,8 @@ static void _planetary_time(movement_event_t event, movement_settings_t *setting
     else sprintf(buf, "%s h%2d%02d%02d", ruler, state->scratch.unit.hour, state->scratch.unit.minute, state->scratch.unit.second);
     
     watch_display_string(buf, 0);
+    if (set_leading_zero)
+        watch_display_string("0", 4);
 
     if ( state->ruler == 2 ) _planetary_icon(planet);
 
