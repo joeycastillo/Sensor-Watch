@@ -38,7 +38,7 @@ void beeps_face_setup(movement_settings_t *settings, uint8_t watch_face_index, v
 
 void beeps_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
-    beeps_state_t *state = (beeps_state_t *)context;
+    (void) context;
 }
 
 static void _beep_face_update_lcd(beeps_state_t *state) {
