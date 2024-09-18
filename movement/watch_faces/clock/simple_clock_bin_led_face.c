@@ -60,7 +60,7 @@ void simple_clock_bin_led_face_activate(movement_settings_t *settings, void *con
 
     if (watch_tick_animation_is_running()) watch_stop_tick_animation();
 
-    if (settings->bit.clock_mode_24h) watch_set_indicator(WATCH_INDICATOR_24H);
+    if (settings->bit.clock_mode_24h && !settings->bit.clock_24h_leading_zero) watch_set_indicator(WATCH_INDICATOR_24H);
 
     // handle chime indicator
     if (state->signal_enabled) watch_set_indicator(WATCH_INDICATOR_BELL);
@@ -138,6 +138,7 @@ bool simple_clock_bin_led_face_loop(movement_event_t event, movement_settings_t 
                 // ...and set the LAP indicator if low.
                 if (state->battery_low) watch_set_indicator(WATCH_INDICATOR_LAP);
 
+                bool set_leading_zero = false;
                 if ((date_time.reg >> 6) == (previous_date_time >> 6) && event.event_type != EVENT_LOW_ENERGY_UPDATE) {
                     // everything before seconds is the same, don't waste cycles setting those segments.
                     watch_display_character_lp_seconds('0' + date_time.unit.second / 10, 8);
@@ -158,6 +159,8 @@ bool simple_clock_bin_led_face_loop(movement_event_t event, movement_settings_t 
                         }
                         date_time.unit.hour %= 12;
                         if (date_time.unit.hour == 0) date_time.unit.hour = 12;
+                    } else if (settings->bit.clock_24h_leading_zero && date_time.unit.hour < 10) {
+                        set_leading_zero = true;
                     }
                     pos = 0;
                     if (event.event_type == EVENT_LOW_ENERGY_UPDATE) {
@@ -168,6 +171,8 @@ bool simple_clock_bin_led_face_loop(movement_event_t event, movement_settings_t 
                     }
                 }
                 watch_display_string(buf, pos);
+                if (set_leading_zero)
+                    watch_display_string("0", 4);
                 // handle alarm indicator
                 if (state->alarm_enabled != settings->bit.alarm_enabled) _update_alarm_indicator(settings->bit.alarm_enabled, state);
             }
