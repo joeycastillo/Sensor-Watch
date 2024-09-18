@@ -338,6 +338,8 @@ static bool _goal_select_screen(movement_event_t event, butterfly_game_state_t *
 }
 
 static bool _reset_screen(movement_event_t event, butterfly_game_state_t *state) {
+    (void) event;
+
     state->score_p1 = 0;
     state->score_p2 = 0;
 
@@ -416,6 +418,8 @@ static bool _splash_screen(movement_event_t event, butterfly_game_state_t *state
 
 void butterfly_game_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
+    (void) watch_face_index;
+
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(butterfly_game_state_t));
         memset(*context_ptr, 0, sizeof(butterfly_game_state_t));
@@ -431,6 +435,7 @@ void butterfly_game_face_setup(movement_settings_t *settings, uint8_t watch_face
 
 void butterfly_game_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
+    (void) context;
 
     movement_request_tick_frequency(TICK_FREQ);
 }
