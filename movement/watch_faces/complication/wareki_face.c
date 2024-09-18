@@ -11,6 +11,7 @@ static bool _light_button_press;
 
 
 void wareki_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
+    (void) watch_face_index;
     
     //printf("wareki_setup() \n");
     (void) settings;
@@ -38,6 +39,7 @@ void wareki_setup(movement_settings_t *settings, uint8_t watch_face_index, void 
 
 // splash view
 static void draw_wareki_splash(wareki_state_t *state) {    
+    (void) state;
     char buf[11];
     
     watch_clear_colon();
@@ -50,15 +52,15 @@ static void draw_wareki_splash(wareki_state_t *state) {
 
 //draw year and Japanese wareki
 static void draw_year_and_wareki(wareki_state_t *state) {
-    char buf[11];
+    char buf[27];
     
     if(state->disp_year < REIWA_GANNEN){
         //Heisei
-        sprintf(buf, " h%2d%4d  ",state->disp_year - HEISEI_GANNEN + 1,state->disp_year);                
+        sprintf(buf, " h%2d%4d  ", (int)state->disp_year - HEISEI_GANNEN + 1, (int)state->disp_year);
     }
     else{
         //Reiwa
-        sprintf(buf, " r%2d%4d  ",state->disp_year - REIWA_GANNEN + 1 ,state->disp_year);                
+        sprintf(buf, " r%2d%4d  ", (int)state->disp_year - REIWA_GANNEN + 1 , (int)state->disp_year);
     }
     watch_display_string(buf, 0);
 }
@@ -176,6 +178,7 @@ bool wareki_loop(movement_event_t event, movement_settings_t *settings, void *co
             //printf("LIGHTPRESS UP\n");
             _light_button_press = false;
             movement_request_tick_frequency(4);
+            break;
         case EVENT_LIGHT_BUTTON_UP:
             //printf("LIGHT UP\n");
             _light_button_press = false;
@@ -194,6 +197,7 @@ bool wareki_loop(movement_event_t event, movement_settings_t *settings, void *co
             //printf("LONGPRESS UP\n");
             _alarm_button_press = false;
             movement_request_tick_frequency(4);
+            break;
         case EVENT_ALARM_BUTTON_UP:
             //printf("ALARM UP\n");
             movement_request_tick_frequency(4);
