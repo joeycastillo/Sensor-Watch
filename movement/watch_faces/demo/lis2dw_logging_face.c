@@ -94,6 +94,7 @@ static void _lis2dw_logging_face_update_display(movement_settings_t *settings, l
     watch_display_string(buf, 0);
     if (set_leading_zero)
         watch_display_string("0", 4);
+    printf("%s\n", buf);
 }
 
 static void _lis2dw_logging_face_log_data(lis2dw_logger_state_t *logger_state) {
@@ -142,7 +143,7 @@ void lis2dw_logging_face_activate(movement_settings_t *settings, void *context) 
 
     logger_state->display_index = 0;
     logger_state->log_ticks = 0;
-    watch_enable_digital_input(A0);
+    watch_enable_digital_input(A4);
 }
 
 bool lis2dw_logging_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
@@ -196,7 +197,7 @@ bool lis2dw_logging_face_loop(movement_event_t event, movement_settings_t *setti
 void lis2dw_logging_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
-    watch_disable_digital_input(A0);
+    watch_disable_digital_input(A4);
 }
 
 bool lis2dw_logging_face_wants_background_task(movement_settings_t *settings, void *context) {
