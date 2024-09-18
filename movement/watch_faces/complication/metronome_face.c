@@ -32,6 +32,7 @@ static const int8_t _sound_seq_beat[] = {BUZZER_NOTE_C6, 2, 0};
 
 void metronome_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr) {
     (void) settings;
+    (void) watch_face_index;
     if (*context_ptr == NULL) {
         *context_ptr = malloc(sizeof(metronome_state_t));
         memset(*context_ptr, 0, sizeof(metronome_state_t));
@@ -92,6 +93,8 @@ static void _metronome_tick_beat(metronome_state_t *state) {
 }
 
 static void _metronome_event_tick(uint8_t subsecond, metronome_state_t *state) {
+    (void) subsecond;
+
     if (state->curCorrection >= 1) {
         state->curCorrection -= 1;
         state->curTick -= 1;
@@ -115,7 +118,7 @@ static void _metronome_event_tick(uint8_t subsecond, metronome_state_t *state) {
 }
 
 static void _metronome_setting_tick(uint8_t subsecond, metronome_state_t *state) {
-    char buf[11];
+    char buf[13];
     sprintf(buf, "MN %d %03d%s", state->count, state->bpm, "bp"); 
     if (subsecond%2 == 0) {
         switch (state->setCur) {
@@ -136,13 +139,13 @@ static void _metronome_setting_tick(uint8_t subsecond, metronome_state_t *state)
         }
     }
     if (state->setCur == alarm) {
-        sprintf(buf, "MN %d Ala%s", state->count, state->soundOn ? "On" : "Off");
+        sprintf(buf, "MN %d Ala%s", state->count % 10, state->soundOn ? "On" : "Off");
     }
     watch_display_string(buf, 0);
 }
 
 static void _metronome_update_setting(metronome_state_t *state) {
-    char buf[11];
+    char buf[13];
     switch (state->setCur) {
         case hundred:
             if (state->bpm < 100) {
@@ -176,9 +179,9 @@ static void _metronome_update_setting(metronome_state_t *state) {
             state->soundOn = !state->soundOn;
             break;
     }
-    sprintf(buf, "MN %d %03d%s", state->count, state->bpm, "bp"); 
+    sprintf(buf, "MN %d %03d%s", state->count % 10, state->bpm, "bp"); 
     if (state->setCur == alarm) {
-        sprintf(buf, "MN %d Ala%s", state->count, state->soundOn ? "On" : "Off");
+        sprintf(buf, "MN %d Ala%s", state->count % 10, state->soundOn ? "On" : "Off");
     }
     watch_display_string(buf, 0);
 }
@@ -224,6 +227,7 @@ bool metronome_face_loop(movement_event_t event, movement_settings_t *settings, 
             } else {
                 movement_move_to_next_face();
             }
+            break;
         case EVENT_TIMEOUT:
             if (state->mode != metRun) {
                 movement_move_to_face(0);
