@@ -130,6 +130,7 @@ SRCS += \
   ../watch_faces/complication/couch_to_5k_face.c \
   ../watch_faces/clock/minute_repeater_decimal_face.c \
   ../watch_faces/complication/tuning_tones_face.c \
+  ../watch_faces/sensor/minmax_face.c \
   ../watch_faces/complication/kitchen_conversions_face.c \
   ../watch_faces/complication/wordle_face.c \
   ../watch_faces/complication/endless_runner_face.c \
