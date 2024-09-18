@@ -107,6 +107,7 @@
 #include "tuning_tones_face.h"
 #include "minmax_face.h"
 #include "kitchen_conversions_face.h"
+#include "wareki_face.h"
 #include "wordle_face.h"
 #include "endless_runner_face.h"
 #include "periodic_face.h"
