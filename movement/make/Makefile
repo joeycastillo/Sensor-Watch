@@ -131,7 +131,10 @@ SRCS += \
   ../watch_faces/complication/couch_to_5k_face.c \
   ../watch_faces/clock/minute_repeater_decimal_face.c \
   ../watch_faces/complication/tuning_tones_face.c \
+  ../watch_faces/sensor/minmax_face.c \
   ../watch_faces/complication/kitchen_conversions_face.c \
+  ../watch_faces/complication/butterfly_game_face.c \
+  ../watch_faces/complication/wareki_face.c \
   ../watch_faces/complication/wordle_face.c \
   ../watch_faces/complication/endless_runner_face.c \
   ../watch_faces/complication/periodic_face.c \
@@ -144,6 +147,7 @@ SRCS += \
   ../watch_faces/sensor/alarm_thermometer_face.c \
   ../watch_faces/demo/beeps_face.c \
   ../watch_faces/sensor/accel_interrupt_count_face.c \
+  ../watch_faces/complication/metronome_face.c \
   ../watch_faces/complication/smallchess_face.c \
 # New watch faces go above this line.
 

@@ -105,7 +105,10 @@
 #include "couch_to_5k_face.h"
 #include "minute_repeater_decimal_face.h"
 #include "tuning_tones_face.h"
+#include "minmax_face.h"
 #include "kitchen_conversions_face.h"
+#include "butterfly_game_face.h"
+#include "wareki_face.h"
 #include "wordle_face.h"
 #include "endless_runner_face.h"
 #include "periodic_face.h"
@@ -118,6 +121,7 @@
 #include "alarm_thermometer_face.h"
 #include "beeps_face.h"
 #include "accel_interrupt_count_face.h"
+#include "metronome_face.h"
 #include "smallchess_face.h"
 // New includes go above this line.
 
