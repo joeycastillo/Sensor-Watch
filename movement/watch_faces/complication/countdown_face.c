@@ -213,15 +213,11 @@ bool countdown_face_loop(movement_event_t event, movement_settings_t *settings, 
         case EVENT_LIGHT_BUTTON_UP:
             switch(state->mode) {
                 case cd_running:
+                case cd_reset:
                     movement_illuminate_led();
                     break;
                 case cd_paused:
                     reset(state);
-                    button_beep(settings);
-                    break;
-                case cd_reset:
-                    state->mode = cd_setting;
-                    movement_request_tick_frequency(4);
                     button_beep(settings);
                     break;
                 case cd_setting:
@@ -258,7 +254,10 @@ bool countdown_face_loop(movement_event_t event, movement_settings_t *settings, 
             draw(state, event.subsecond);
             break;
         case EVENT_ALARM_LONG_PRESS:
-            if (state->mode == cd_setting) {
+            if (state->mode == cd_paused) {
+                state->mode = cd_setting;
+                movement_request_tick_frequency(4);
+            } else if (state->mode == cd_setting) {
                 quick_ticks_running = true;
                 movement_request_tick_frequency(8);
             }
