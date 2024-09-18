@@ -119,6 +119,7 @@ SRCS += \
   ../watch_faces/complication/toss_up_face.c \
   ../watch_faces/complication/geomancy_face.c \
   ../watch_faces/clock/simple_clock_bin_led_face.c \
+  ../watch_faces/complication/menstrual_cycle_face.c \
   ../watch_faces/complication/flashlight_face.c \
   ../watch_faces/clock/decimal_time_face.c \
   ../watch_faces/clock/wyoscan_face.c \
