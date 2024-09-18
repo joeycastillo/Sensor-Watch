@@ -228,6 +228,7 @@ static void _planetary_hours(movement_settings_t *settings, planetary_hours_stat
     uint8_t weekday, planet, planetary_hour;
     uint32_t current_hour_epoch;
     watch_date_time scratch_time;
+    bool set_leading_zero = false;
 
     // check if we have a location. If not, display error
     if ( state->no_location ) {
@@ -253,7 +254,7 @@ static void _planetary_hours(movement_settings_t *settings, planetary_hours_stat
         return;
     }
 
-    if (settings->bit.clock_mode_24h) watch_set_indicator(WATCH_INDICATOR_24H);
+    if (settings->bit.clock_mode_24h && !settings->bit.clock_24h_leading_zero) watch_set_indicator(WATCH_INDICATOR_24H);
 
     // roll over hour iterator
     if ( state->hour < 0 ) state->hour = 23;
@@ -313,6 +314,8 @@ static void _planetary_hours(movement_settings_t *settings, planetary_hours_stat
         }
         scratch_time.unit.hour %= 12;
         if (scratch_time.unit.hour == 0) scratch_time.unit.hour = 12;
+    } else if (settings->bit.clock_24h_leading_zero && scratch_time.unit.hour < 10) {
+        set_leading_zero = true;
     }
     
     // planetary ruler of the hour
@@ -328,6 +331,8 @@ static void _planetary_hours(movement_settings_t *settings, planetary_hours_stat
 
     watch_set_colon();
     watch_display_string(buf, 0);
+    if (set_leading_zero)
+        watch_display_string("0", 4);
 
     if ( state->ruler == 2 ) _planetary_icon(planet);
 }
