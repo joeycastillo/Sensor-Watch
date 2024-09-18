@@ -64,6 +64,14 @@ int32_t _set_sleep_mode(const uint8_t mode)
 }
 
 /**
+ * \brief Get the sleep mode for the device
+ */
+int32_t _get_sleep_mode()
+{
+    return hri_pm_read_SLEEPCFG_SLEEPMODE_bf(PM);
+}
+
+/**
  * \brief Set performance level
  */
 void _set_performance_level(const uint8_t level)

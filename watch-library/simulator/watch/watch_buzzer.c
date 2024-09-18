@@ -23,6 +23,7 @@
  */
 
 #include "watch_buzzer.h"
+#include "watch_private_buzzer.h"
 #include "watch_main_loop.h"
 
 #include <emscripten.h>

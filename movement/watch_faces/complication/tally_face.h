@@ -29,17 +29,33 @@
  * TALLY face
  *
  * Tally face is designed to act as a tally counter.
- * Based on the counter_face watch face by Shogo Okamoto.
  *
- * To advance the counter, press the ALARM button.
- * To reset, long press the ALARM button.
+ * Alarm
+ *    Press: Decrement
+ *    Hold : Fast Decrement
+ *
+ * Light
+ *    Press: Increment
+ *    Hold : On initial value: Cycles through other initial values.
+ *                       Else: Fast Increment
+ *
+ * Mode
+ *    Press: Next face
+ *    Hold : On initial value: Go to first face.
+ *                       Else: Resets counter
+ * 
+ * Incrementing or Decrementing the tally will beep if Beeping is set in the global Preferences
  */
 
 #include "movement.h"
 
 typedef struct {
-    uint32_t tally_idx;
+    int16_t tally_idx;
+    uint8_t tally_default_idx;
 } tally_state_t;
+
+//#define TALLY_FACE_PRESETS_MTG
+//#define TALLY_FACE_PRESETS_YUGIOH
 
 
 void tally_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
@@ -47,7 +63,7 @@ void tally_face_activate(movement_settings_t *settings, void *context);
 bool tally_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
 void tally_face_resign(movement_settings_t *settings, void *context);
 
-void print_tally(tally_state_t *state);
+void print_tally(tally_state_t *state, bool sound_on);
 
 #define tally_face ((const watch_face_t){ \
     tally_face_setup, \

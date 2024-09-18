@@ -35,7 +35,8 @@
  *   otpauth://totp/ACME%20Co:john.doe@email.com?secret=HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ&issuer=ACME%20Co&algorithm=SHA1&digits=6&period=30
  *
  * This is also the same as what Aegis exports in plain-text format.
- * This face performs minimal sanitisation of input, however.
+ * This face performs minimal sanitisation of input, however, and you
+ * will only see errors if you use the simulator or view the serial console.
  *
  * At the moment, to get the records onto the filesystem, start a serial connection and do:
  *   echo otpauth://totp/Example:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Example > totp_uris.txt
@@ -47,6 +48,8 @@
  * to modify the URI.
  *
  * If you have more than one secret key, press ALARM to cycle through them.
+ * Press LIGHT to cycle in the other direction or keep it pressed longer to
+ * activate the light.
  */
 
 #include "movement.h"

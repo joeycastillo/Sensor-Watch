@@ -60,7 +60,7 @@ static bool world_clock_face_do_display_mode(movement_event_t event, movement_se
     watch_date_time date_time;
     switch (event.event_type) {
         case EVENT_ACTIVATE:
-            if (settings->bit.clock_mode_24h) watch_set_indicator(WATCH_INDICATOR_24H);
+            if (settings->bit.clock_mode_24h && !settings->bit.clock_24h_leading_zero) watch_set_indicator(WATCH_INDICATOR_24H);
             watch_set_colon();
             state->previous_date_time = 0xFFFFFFFF;
             // fall through
@@ -72,6 +72,7 @@ static bool world_clock_face_do_display_mode(movement_event_t event, movement_se
             previous_date_time = state->previous_date_time;
             state->previous_date_time = date_time.reg;
 
+            bool set_leading_zero = false;
             if ((date_time.reg >> 6) == (previous_date_time >> 6) && event.event_type != EVENT_LOW_ENERGY_UPDATE) {
                 // everything before seconds is the same, don't waste cycles setting those segments.
                 pos = 8;
@@ -91,6 +92,8 @@ static bool world_clock_face_do_display_mode(movement_event_t event, movement_se
                     }
                     date_time.unit.hour %= 12;
                     if (date_time.unit.hour == 0) date_time.unit.hour = 12;
+                } else if (settings->bit.clock_24h_leading_zero && date_time.unit.hour < 10) {
+                    set_leading_zero = true;
                 }
                 pos = 0;
                 if (event.event_type == EVENT_LOW_ENERGY_UPDATE) {
@@ -112,6 +115,8 @@ static bool world_clock_face_do_display_mode(movement_event_t event, movement_se
                 }
             }
             watch_display_string(buf, pos);
+            if (set_leading_zero)
+                watch_display_string("0", 4);
             break;
         case EVENT_ALARM_LONG_PRESS:
             movement_request_tick_frequency(4);
