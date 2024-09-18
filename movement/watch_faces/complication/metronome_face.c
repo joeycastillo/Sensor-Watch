@@ -55,7 +55,11 @@ void metronome_face_activate(movement_settings_t *settings, void *context) {
 
 static void _metronome_face_update_lcd(metronome_state_t *state) {
     char buf[11];
-    state->soundOn ? watch_set_indicator(WATCH_INDICATOR_BELL) : watch_clear_indicator(WATCH_INDICATOR_BELL);
+    if (state->soundOn) {
+        watch_set_indicator(WATCH_INDICATOR_BELL);
+    } else {
+        watch_clear_indicator(WATCH_INDICATOR_BELL);
+    }
     sprintf(buf, "MN %d %03d%s", state->count, state->bpm, "bp");
     watch_display_string(buf, 0);
 }
@@ -139,7 +143,12 @@ static void _metronome_setting_tick(uint8_t subsecond, metronome_state_t *state)
         }
     }
     if (state->setCur == alarm) {
-        sprintf(buf, "MN %d Ala%s", state->count % 10, state->soundOn ? "On" : "Off");
+        sprintf(buf, "MN  8eep%s", state->soundOn ? "On" : " -");
+    }
+    if (state->soundOn) {
+        watch_set_indicator(WATCH_INDICATOR_BELL);
+    } else {
+        watch_clear_indicator(WATCH_INDICATOR_BELL);
     }
     watch_display_string(buf, 0);
 }
@@ -181,7 +190,12 @@ static void _metronome_update_setting(metronome_state_t *state) {
     }
     sprintf(buf, "MN %d %03d%s", state->count % 10, state->bpm, "bp"); 
     if (state->setCur == alarm) {
-        sprintf(buf, "MN %d Ala%s", state->count % 10, state->soundOn ? "On" : "Off");
+        sprintf(buf, "MN  8eep%s", state->soundOn ? "On" : " -");
+    }
+    if (state->soundOn) {
+        watch_set_indicator(WATCH_INDICATOR_BELL);
+    } else {
+        watch_clear_indicator(WATCH_INDICATOR_BELL);
     }
     watch_display_string(buf, 0);
 }
@@ -202,13 +216,18 @@ bool metronome_face_loop(movement_event_t event, movement_settings_t *settings, 
             break;
         case EVENT_ALARM_BUTTON_UP:
             if (state->mode == setMenu) {
+                _metronome_update_setting(state);
+            } else {
+                _metronome_start_stop(state);
+            }
+            break;
+        case EVENT_LIGHT_BUTTON_DOWN:
+            if (state->mode == setMenu) {
                 if (state->setCur < alarm) {
                     state->setCur += 1;
                 } else {
                     state->setCur = hundred;
                 }
-            } else {
-                _metronome_start_stop(state);
             }
             break;
         case EVENT_ALARM_LONG_PRESS:
@@ -222,11 +241,7 @@ bool metronome_face_loop(movement_event_t event, movement_settings_t *settings, 
             }
             break;
         case EVENT_MODE_BUTTON_UP:
-            if (state->mode == setMenu) {
-                _metronome_update_setting(state);
-            } else {
-                movement_move_to_next_face();
-            }
+            movement_move_to_next_face();
             break;
         case EVENT_TIMEOUT:
             if (state->mode != metRun) {

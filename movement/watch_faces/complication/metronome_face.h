@@ -35,8 +35,8 @@
  * USE:
  *      Press Alarm to start/stop metronome_face
  *      Hold Alarm to enter settings menu
- *          Short alarm press will move through options
- *          Short mode press will increment/toggle options
+ *          Short Light press will move through options
+ *          Short Alarm press will increment/toggle options
  *          Long alarm press will exit options
  */
  
