@@ -68,7 +68,7 @@ void repetition_minute_face_activate(movement_settings_t *settings, void *contex
 
     if (watch_tick_animation_is_running()) watch_stop_tick_animation();
 
-    if (settings->bit.clock_mode_24h) watch_set_indicator(WATCH_INDICATOR_24H);
+    if (settings->bit.clock_mode_24h && !settings->bit.clock_24h_leading_zero) watch_set_indicator(WATCH_INDICATOR_24H);
 
     // handle chime indicator
     if (state->signal_enabled) watch_set_indicator(WATCH_INDICATOR_BELL);
@@ -112,6 +112,7 @@ bool repetition_minute_face_loop(movement_event_t event, movement_settings_t *se
             // ...and set the LAP indicator if low.
             if (state->battery_low) watch_set_indicator(WATCH_INDICATOR_LAP);
 
+            bool set_leading_zero = false;
             if ((date_time.reg >> 6) == (previous_date_time >> 6) && event.event_type != EVENT_LOW_ENERGY_UPDATE) {
                 // everything before seconds is the same, don't waste cycles setting those segments.
                 watch_display_character_lp_seconds('0' + date_time.unit.second / 10, 8);
@@ -132,6 +133,8 @@ bool repetition_minute_face_loop(movement_event_t event, movement_settings_t *se
                     }
                     date_time.unit.hour %= 12;
                     if (date_time.unit.hour == 0) date_time.unit.hour = 12;
+                } else if (settings->bit.clock_24h_leading_zero && date_time.unit.hour < 10) {
+                    set_leading_zero = true;
                 }
                 pos = 0;
                 if (event.event_type == EVENT_LOW_ENERGY_UPDATE) {
@@ -142,6 +145,8 @@ bool repetition_minute_face_loop(movement_event_t event, movement_settings_t *se
                 }
             }
             watch_display_string(buf, pos);
+            if (set_leading_zero)
+                watch_display_string("0", 4);
             // handle alarm indicator
             if (state->alarm_enabled != settings->bit.alarm_enabled) _update_alarm_indicator(settings->bit.alarm_enabled, state);
             break;
@@ -153,17 +158,7 @@ bool repetition_minute_face_loop(movement_event_t event, movement_settings_t *se
         case EVENT_BACKGROUND_TASK:
             // uncomment this line to snap back to the clock face when the hour signal sounds:
             // movement_move_to_face(state->watch_face_index);
-            if (watch_is_buzzer_or_led_enabled()) {
-                // if we are in the foreground, we can just beep.
-                movement_play_signal();
-            } else {
-                // if we were in the background, we need to enable the buzzer peripheral first,
-                watch_enable_buzzer();
-                // beep quickly (this call blocks for 275 ms),
-                movement_play_signal();
-                // and then turn the buzzer peripheral off again.
-                watch_disable_buzzer();
-            }
+            movement_play_signal();
             break;
         case EVENT_LIGHT_LONG_UP:
             /*

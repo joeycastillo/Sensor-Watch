@@ -481,7 +481,7 @@
 // <i> Indicates whether the external interrupt 10 filter is enabled or not
 // <id> eic_arch_filten10
 #ifndef CONF_EIC_FILTEN10
-#define CONF_EIC_FILTEN10 0
+#define CONF_EIC_FILTEN10 1
 #endif
 
 // <q> External Interrupt 10 Event Output Enable
@@ -523,7 +523,7 @@
 // <i> Indicates whether the external interrupt 11 filter is enabled or not
 // <id> eic_arch_filten11
 #ifndef CONF_EIC_FILTEN11
-#define CONF_EIC_FILTEN11 0
+#define CONF_EIC_FILTEN11 1
 #endif
 
 // <q> External Interrupt 11 Event Output Enable
@@ -722,14 +722,6 @@
 #endif
 
 // </e>
-
-// this is still a hack: if the user wants to use PA02 (alarm button) as an RTC interrupt pin and PB02 (9-pin A2) on the EIC, we don't support that.
-// TODO item: refactor out our reliance on the ASF external interrupt driver. - joey 11/30
-#ifdef CRYSTALLESS
-#define CONFIG_EIC_EXTINT_MAP {0, PIN_PB00}, {1, PIN_PB01}, {2, PIN_PA02}, {3, PIN_PB03}, {5, PIN_PB05}, {7, PIN_PA07},
-#else
-#define CONFIG_EIC_EXTINT_MAP {0, PIN_PB00}, {1, PIN_PB01}, {2, PIN_PA02}, {3, PIN_PB03}, {6, PIN_PA22}, {7, PIN_PA23},
-#endif
 
 // <<< end of configuration section >>>
 

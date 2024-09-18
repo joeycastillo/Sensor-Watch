@@ -25,6 +25,19 @@
 #ifndef TEMPCHART_FACE_H_
 #define TEMPCHART_FACE_H_
 
+/*
+ * TEMPERATURE CHART face
+ *
+ * Gathers temperature statistics in a chart form.
+ * Statistics bins are per hour / per 0.5°C.
+ *
+ * Saved to file every day at 00:00.
+ * Can help improve watch precision in the future. 
+ *
+ * If you can gather statistics over few months, and then send "tempchart.ini"
+ * to "3@14.by", it will help future generations of precision quartz watches.
+ */
+
 #include "movement.h"
 
 void tempchart_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);

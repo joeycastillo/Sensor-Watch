@@ -23,6 +23,7 @@
  */
 
 #include "watch_buzzer.h"
+#include "watch_private_buzzer.h"
 #include "watch_main_loop.h"
 
 #include <emscripten.h>
@@ -152,7 +153,7 @@ void watch_set_buzzer_on(void) {
         }
 
         audioContext._oscillator.frequency.value = 1e6/$0;
-        audioContext._gain.gain.value = 1;
+        audioContext._gain.gain.value = volumeGain;
     }, buzzer_period);
 }
 

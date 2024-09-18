@@ -22,8 +22,6 @@
  * SOFTWARE.
  */
 
-//-----------------------------------------------------------------------------
-
 #include <stdlib.h>
 #include <string.h>
 
@@ -31,31 +29,6 @@
 #include "watch.h"
 #include "watch_utility.h"
 #include "watch_private_display.h"
-
-/*
-    Implements 16 alarm slots on the sensor watch
-
-    Usage:
-    - In normal mode, the alarm button cycles through all 16 alarms. 
-    - Pressing the alarm button long in normal mode toggles the corresponding alarm on or off.
-      (Whereas pressing the alarm button extra long brings you back to alarm no. 1.)
-    - Pressing the light button enters setting mode and cycles through the settings of each alarm.
-      (Long pressing the light button enters setting mode without illuminating the led.)
-    - In setting mode an alarm slot is selected by pressing the alarm button when the slot number 
-      in the upper right corner is blinking.
-    - For each alarm slot, you can select the day. These are the day modes:
-        - ED = the alarm rings every day
-        - 1t = the alarm fires only one time and is erased afterwards
-        - MF = the alarm fires Mondays to Fridays
-        - WN = the alarm fires on weekends (Sa/Su)
-        - MO to SU = the alarm fires only on the given day of week
-    - You can fast cycle through hour or minute setting via long press of the alarm button.
-    - You can select the tone in which the alarm is played. (Three pitch levels available.)
-    - You can select how many "beep rounds" are played for each alarm. 1 to 9 rounds, plus extra 
-      long ('L') and extra short ('o') alarms.
-    - The simple watch face indicates if any alarm is set within the next 24h by showing the signal
-      indicator.
-*/
 
 typedef enum {
     alarm_setting_idx_alarm,
@@ -99,6 +72,7 @@ static void _alarm_face_draw(movement_settings_t *settings, alarm_state_t *state
         i = state->alarm[state->alarm_idx].day + 1;
     }
     //handle am/pm for hour display
+    bool set_leading_zero = false;
     uint8_t h = state->alarm[state->alarm_idx].hour;
     if (!settings->bit.clock_mode_24h) {
         if (h >= 12) {
@@ -108,8 +82,17 @@ static void _alarm_face_draw(movement_settings_t *settings, alarm_state_t *state
             watch_clear_indicator(WATCH_INDICATOR_PM);
         }
         if (h == 0) h = 12;
+    } else {
+        watch_set_indicator(WATCH_INDICATOR_24H);
+
+        if (settings->bit.clock_24h_leading_zero) {
+            if (h < 10) {
+                set_leading_zero = true;
+            }
+        }
     }
-    sprintf(buf, "%c%c%2d%2d%02d  ",
+
+    sprintf(buf, set_leading_zero? "%c%c%2d%02d%02d  " : "%c%c%2d%2d%02d  ",
         _dow_strings[i][0], _dow_strings[i][1],
         (state->alarm_idx + 1),
         h,
@@ -119,7 +102,7 @@ static void _alarm_face_draw(movement_settings_t *settings, alarm_state_t *state
         buf[_blink_idx[state->setting_state]] = buf[_blink_idx2[state->setting_state]] = ' ';
     }
     watch_display_string(buf, 0);
-    
+
     if (state->is_setting) {
     // draw pitch level indicator
         if ((subsecond % 2) == 0 || (state->setting_state != alarm_setting_idx_pitch)) {

@@ -57,6 +57,15 @@ int sleep(const uint8_t mode)
 	if (ERR_NONE != _set_sleep_mode(mode))
 		return ERR_INVALID_ARG;
 
+        // wait for the mode set to actually take, per note in Microchip data
+        // sheet DS60001465, section 19.8.2:
+        //
+        // A small latency happens between the store instruction and actual
+        // writing of the SLEEPCFG register due to bridges. Software has to make
+        // sure the SLEEPCFG register reads the wanted value before issuing WFI
+        // instruction.
+        while(_get_sleep_mode() != mode);
+
 	_go_to_sleep();
 
 	return ERR_NONE;

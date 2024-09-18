@@ -43,6 +43,8 @@ void watch_display_character(uint8_t character, uint8_t position) {
         else if (character == 'M' || character == 'm' || character == 'N') character = 'n'; // M and uppercase N need to be lowercase n
         else if (character == 'c') character = 'C'; // C needs to be uppercase
         else if (character == 'J') character = 'j'; // same
+        else if (character == 't' || character == 'T') character = '+'; // t in those locations looks like E otherwise
+        else if (character == 'y' || character == 'Y') character = '4'; // y in those locations looks like g otherwise
         else if (character == 'v' || character == 'V' || character == 'U' || character == 'W' || character == 'w') character = 'u'; // bottom segment duplicated, so show in top half
     } else {
         if (character == 'u') character = 'v'; // we can use the bottom segment; move to lower half
@@ -93,7 +95,7 @@ void watch_display_character(uint8_t character, uint8_t position) {
     }
 
     if (character == 'T' && position == 1) watch_set_pixel(1, 12); // add descender
-    else if (position == 0 && (character == 'B' || character == 'D')) watch_set_pixel(0, 15); // add funky ninth segment
+    else if (position == 0 && (character == 'B' || character == 'D' || character == '@')) watch_set_pixel(0, 15); // add funky ninth segment
     else if (position == 1 && (character == 'B' || character == 'D' || character == '@')) watch_set_pixel(0, 12); // add funky ninth segment
 }
 

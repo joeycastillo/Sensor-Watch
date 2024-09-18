@@ -22,22 +22,27 @@
  * SOFTWARE.
  */
 
-//-----------------------------------------------------------------------------
-
 #ifndef COUNTDOWN_FACE_H_
 #define COUNTDOWN_FACE_H_
 
-#include "movement.h"
-
 /*
-A countdown/timer face
+ * COUNTDOWN TIMER face
+ *
+ * Slight extension of the original countdown face by Wesley Ellis.
+ *   - Press the light button to enter setting mode and adjust the
+ *     countdown timer.
+ *   - Start and pause the countdown using the alarm button, similar
+ *     to the stopwatch face.
+ *   - When paused or terminated, press the light button to restore the
+ *     last entered countdown.
+ *
+ * Max countdown is 23 hours, 59 minutes and 59 seconds.
+ *
+ * Note: we have to prevent the watch from going to deep sleep using
+ * movement_schedule_background_task() while the timer is running.
+ */
 
-Max countdown is 23 hours, 59 minutes and 59 seconds.
-
-Note: we have to prevent the watch from going to deep sleep using
-movement_schedule_background_task() while the timer is running.
-*/
-
+#include "movement.h"
 
 typedef enum {
     cd_paused,
@@ -57,6 +62,8 @@ typedef struct {
     uint8_t set_seconds;
     uint8_t selection;
     countdown_mode_t mode;
+    bool repeat;
+    uint8_t watch_face_index;
 } countdown_state_t;
 
 
