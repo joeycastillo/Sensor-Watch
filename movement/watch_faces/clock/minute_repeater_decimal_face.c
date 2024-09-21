@@ -71,8 +71,10 @@ static void _get_chime_times(watch_date_time date_time, movement_settings_t *set
     }
     double rise, set;
     uint8_t rise_hour, set_hour;
-    double lat = (double)movement_location.bit.latitude / 100.0;
-    double lon = (double)movement_location.bit.longitude / 100.0;
+    int16_t lat_centi = (int16_t)movement_location.bit.latitude;
+    int16_t lon_centi = (int16_t)movement_location.bit.longitude;
+    double lat = (double)lat_centi / 100.0;
+    double lon = (double)lon_centi / 100.0;
     double hours_from_utc = ((double)tz) / 60.0;
     uint8_t result = sun_rise_set(utc_now.unit.year + WATCH_RTC_REFERENCE_YEAR, utc_now.unit.month, utc_now.unit.day, lon, lat, &rise, &set);
     if (result != 0) {
