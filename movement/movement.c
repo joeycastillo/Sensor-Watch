@@ -504,9 +504,25 @@ bool app_loop(void) {
     const watch_face_t *wf = &watch_faces[movement_state.current_face_idx];
     bool woke_up_for_buzzer = false;
     if (movement_state.watch_face_changed) {
-        if (movement_state.settings.bit.button_should_sound) {
-            // low note for nonzero case, high note for return to watch_face 0
-            watch_buzzer_play_note(movement_state.next_face_idx ? BUZZER_NOTE_C7 : BUZZER_NOTE_C8, 50);
+
+        switch(movement_state.settings.bit.button_should_sound){
+                case 1:
+                    watch_buzzer_play_note(movement_state.next_face_idx ? BUZZER_NOTE_C7 : BUZZER_NOTE_C8, 50);
+                    break;
+                case 2:
+                if (movement_state.next_face_idx == 0) {
+                    watch_buzzer_play_note(movement_state.next_face_idx ? BUZZER_NOTE_REST : BUZZER_NOTE_C8, 50);
+                    break;
+                }
+                case 3:
+                    if (movement_state.next_face_idx == 0) {
+                    watch_buzzer_play_note(BUZZER_NOTE_C7, 30);
+                    watch_buzzer_play_note(BUZZER_NOTE_REST, 30);
+                    watch_buzzer_play_note(BUZZER_NOTE_E7, 30);
+                    break;
+                    }
+
+        break;                    
         }
         wf->resign(&movement_state.settings, watch_face_contexts[movement_state.current_face_idx]);
         movement_state.current_face_idx = movement_state.next_face_idx;
