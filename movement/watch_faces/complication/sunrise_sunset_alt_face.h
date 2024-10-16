@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#ifndef SUNRISE_SUNSET_FACE_H_
-#define SUNRISE_SUNSET_FACE_H_
+#ifndef SUNRISE_SUNSET_ALT_FACE_H_
+#define SUNRISE_SUNSET_ALT_FACE_H_
 
 /*
  * SUNRISE & SUNSET FACE
@@ -45,7 +45,7 @@ typedef struct {
     uint8_t ones: 4;        // 0-9 (must wrap at 10)
     uint8_t tenths: 4;      // 0-9 (must wrap at 10)
     uint8_t hundredths: 4;  // 0-9 (must wrap at 10)
-} sunrise_sunset_lat_lon_settings_t;
+} sunrise_sunset_alt_lat_lon_settings_t;
 
 typedef struct {
     uint8_t page;
@@ -53,10 +53,10 @@ typedef struct {
     uint8_t active_digit;
     bool location_changed;
     watch_date_time rise_set_expires;
-    sunrise_sunset_lat_lon_settings_t working_latitude;
-    sunrise_sunset_lat_lon_settings_t working_longitude;
+    sunrise_sunset_alt_lat_lon_settings_t working_latitude;
+    sunrise_sunset_alt_lat_lon_settings_t working_longitude;
     uint8_t longLatToUse;
-} sunrise_sunset_state_t;
+} sunrise_sunset_alt_state_t;
 
 typedef struct {
     int timestamp;
@@ -65,16 +65,16 @@ typedef struct {
     const char *abreviation;
 } SolarEvent;
 
-void sunrise_sunset_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
-void sunrise_sunset_face_activate(movement_settings_t *settings, void *context);
-bool sunrise_sunset_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
-void sunrise_sunset_face_resign(movement_settings_t *settings, void *context);
+void sunrise_sunset_alt_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
+void sunrise_sunset_alt_face_activate(movement_settings_t *settings, void *context);
+bool sunrise_sunset_alt_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void sunrise_sunset_alt_face_resign(movement_settings_t *settings, void *context);
 
-#define sunrise_sunset_face ((const watch_face_t){ \
-    sunrise_sunset_face_setup, \
-    sunrise_sunset_face_activate, \
-    sunrise_sunset_face_loop, \
-    sunrise_sunset_face_resign, \
+#define sunrise_sunset_alt_face ((const watch_face_t){ \
+    sunrise_sunset_alt_face_setup, \
+    sunrise_sunset_alt_face_activate, \
+    sunrise_sunset_alt_face_loop, \
+    sunrise_sunset_alt_face_resign, \
     NULL, \
 })
 
@@ -82,9 +82,9 @@ typedef struct {
     char name[2];
     int16_t latitude;
     int16_t longitude;
-} long_lat_presets_t;
+} alt_long_lat_presets_t;
 
-static const long_lat_presets_t longLatPresets[] =
+static const alt_long_lat_presets_t alt_longLatPresets[] =
 {
     { .name = "  "},  // Default, the long and lat get replaced by what's set in the watch
     { .name = "dc", .latitude = 3883, .longitude = -7711 },  // Alexandria, VA
