@@ -39,63 +39,15 @@
 
 static const uint8_t _location_count = sizeof(longLatPresets) / sizeof(long_lat_presets_t);
 
-static int compare(const void *a, const void *b) {
-    SolarEvent *eventA = (SolarEvent *)a;
-    SolarEvent *eventB = (SolarEvent *)b;
-
-    return (eventA->timestamp - eventB->timestamp);
+static void _sunrise_sunset_set_expiration(sunrise_sunset_state_t *state, watch_date_time next_rise_set) {
+    uint32_t timestamp = watch_utility_date_time_to_unix_time(next_rise_set, 0);
+    state->rise_set_expires = watch_utility_date_time_from_unix_time(timestamp + 60, 0);
 }
 
-static void set_sunriset(double time_value, watch_date_time *time_unit) {
-    // Calculate minutes and seconds
-    float minutes = 60.0 * fmod(time_value, 1);
-    float seconds = 60.0 * fmod(minutes, 1);
-
-    // Set hour and minute
-    time_unit->unit.hour = floor(time_value);
-    if (seconds < 30) {
-        time_unit->unit.minute = floor(minutes);
-    } else {
-        time_unit->unit.minute = ceil(minutes);
-    }
-
-    // Handle edge case where minutes equal 60
-    if (time_unit->unit.minute == 60) {
-        time_unit->unit.minute = 0;
-        time_unit->unit.hour = (time_unit->unit.hour + 1) % 24;
-    }
-}
-
-static void display_time(watch_date_time *time, const char *prefix, movement_settings_t *settings, watch_date_time *date_time, sunrise_sunset_state_t *state) {
-    bool set_leading_zero = false;
-    char buf[32]; // Adjust size as needed
-
-    // Handle 12-hour mode and PM indicator
-    if (!settings->bit.clock_mode_24h) {
-        if (watch_utility_convert_to_12_hour(time)) {
-            watch_set_indicator(WATCH_INDICATOR_PM);
-        } else {
-            watch_clear_indicator(WATCH_INDICATOR_PM);
-        }
-    }
-    // Handle 24-hour mode with leading zero
-    else if (settings->bit.clock_24h_leading_zero && time->unit.hour < 10) {
-        set_leading_zero = true;
-    }
-
-    // Format and display time
-    sprintf(buf, "%s%2d%2d%02d%s", prefix, time->unit.day, time->unit.hour, time->unit.minute, longLatPresets[state->longLatToUse].name);
-    watch_display_string(buf, 0);
-
-    // Display leading zero if needed
-    if (set_leading_zero) {
-        watch_display_string("0", 4);
-    }
-}
-
-static void sunrise_sunset_face_update(movement_settings_t *settings, sunrise_sunset_state_t *state) {
+static void _sunrise_sunset_face_update(movement_settings_t *settings, sunrise_sunset_state_t *state) {
     char buf[14];
-    double civ_start, rise, set, civ_end;
+    double rise, set, minutes, seconds;
+    bool show_next_match = false;
     movement_location_t movement_location;
     if (state->longLatToUse == 0 || _location_count <= 1)
         movement_location = (movement_location_t) watch_get_backup_data(1);
@@ -105,8 +57,6 @@ static void sunrise_sunset_face_update(movement_settings_t *settings, sunrise_su
     }
 
     if (movement_location.reg == 0) {
-        watch_clear_colon();
-        watch_clear_indicator(WATCH_INDICATOR_PM);
         watch_display_string("RI  no Loc", 0);
         return;
     }
@@ -114,15 +64,7 @@ static void sunrise_sunset_face_update(movement_settings_t *settings, sunrise_su
     watch_date_time date_time = watch_rtc_get_date_time(); // the current local date / time
     watch_date_time utc_now = watch_utility_date_time_convert_zone(date_time, movement_timezone_offsets[settings->bit.time_zone] * 60, 0); // the current date / time in UTC
     watch_date_time scratch_time; // scratchpad, contains different values at different times
-    watch_date_time civ_start_time;
-    watch_date_time rise_time;
-    watch_date_time set_time;
-    watch_date_time civ_end_time;
     scratch_time.reg = utc_now.reg;
-    civ_start_time.reg = utc_now.reg;
-    rise_time.reg = utc_now.reg;
-    set_time.reg = utc_now.reg;
-    civ_end_time.reg = utc_now.reg;
 
     // Weird quirky unsigned things were happening when I tried to cast these directly to doubles below.
     // it looks redundant, but extracting them to local int16's seemed to fix it.
@@ -138,98 +80,96 @@ static void sunrise_sunset_face_update(movement_settings_t *settings, sunrise_su
     double hours_from_utc = ((double)movement_timezone_offsets[settings->bit.time_zone]) / 60.0;
 
     // we loop twice because if it's after sunset today, we need to recalculate to display values for tomorrow.
-    uint8_t result = sun_rise_set(scratch_time.unit.year + WATCH_RTC_REFERENCE_YEAR, scratch_time.unit.month, scratch_time.unit.day, lon, lat, &rise, &set);
+    for(int i = 0; i < 2; i++) {
+        uint8_t result = sun_rise_set(scratch_time.unit.year + WATCH_RTC_REFERENCE_YEAR, scratch_time.unit.month, scratch_time.unit.day, lon, lat, &rise, &set);
 
-    if (result != 0) {
-        watch_clear_colon();
-        watch_clear_indicator(WATCH_INDICATOR_PM);
-        watch_clear_indicator(WATCH_INDICATOR_24H);
-        sprintf(buf, "%s%2d none ", (result == 1) ? "SE" : "rI", scratch_time.unit.day);
-        watch_display_string(buf, 0);
-        return;
-    }
-    civil_twilight(scratch_time.unit.year + WATCH_RTC_REFERENCE_YEAR, scratch_time.unit.month, scratch_time.unit.day, lon, lat, &civ_start, &civ_end);
+        if (result != 0) {
+            watch_clear_colon();
+            watch_clear_indicator(WATCH_INDICATOR_PM);
+            watch_clear_indicator(WATCH_INDICATOR_24H);
+            sprintf(buf, "%s%2d none ", (result == 1) ? "SE" : "rI", scratch_time.unit.day);
+            watch_display_string(buf, 0);
+            return;
+        }
 
-    watch_set_colon();
-    if (settings->bit.clock_mode_24h && !settings->bit.clock_24h_leading_zero) watch_set_indicator(WATCH_INDICATOR_24H);
+        watch_set_colon();
+        if (settings->bit.clock_mode_24h && !settings->bit.clock_24h_leading_zero) watch_set_indicator(WATCH_INDICATOR_24H);
 
-    rise += hours_from_utc;
-    set += hours_from_utc;
-    civ_start += hours_from_utc;
-    civ_end += hours_from_utc;
+        rise += hours_from_utc;
+        set += hours_from_utc;
 
-    set_sunriset(civ_start, &civ_start_time);
-    if (date_time.reg > civ_start_time.reg) {
+        minutes = 60.0 * fmod(rise, 1);
+        seconds = 60.0 * fmod(minutes, 1);
+        scratch_time.unit.hour = floor(rise);
+        if (seconds < 30) scratch_time.unit.minute = floor(minutes);
+        else scratch_time.unit.minute = ceil(minutes);
+
+        if (scratch_time.unit.minute == 60) {
+            scratch_time.unit.minute = 0;
+            scratch_time.unit.hour = (scratch_time.unit.hour + 1) % 24;
+        }
+
+        if (date_time.reg < scratch_time.reg) _sunrise_sunset_set_expiration(state, scratch_time);
+
+        if (date_time.reg < scratch_time.reg || show_next_match) {
+            if (state->rise_index == 0 || show_next_match) {
+                bool set_leading_zero = false;
+                if (!settings->bit.clock_mode_24h) {
+                    if (watch_utility_convert_to_12_hour(&scratch_time)) watch_set_indicator(WATCH_INDICATOR_PM);
+                    else watch_clear_indicator(WATCH_INDICATOR_PM);
+                } else if (settings->bit.clock_24h_leading_zero && scratch_time.unit.hour < 10) {
+                    set_leading_zero = true;
+                }
+                sprintf(buf, "rI%2d%2d%02d%s", scratch_time.unit.day, scratch_time.unit.hour, scratch_time.unit.minute,longLatPresets[state->longLatToUse].name);
+                watch_display_string(buf, 0);
+                if (set_leading_zero)
+                    watch_display_string("0", 4);
+                return;
+            } else {
+                show_next_match = true;
+            }
+        }
+
+        minutes = 60.0 * fmod(set, 1);
+        seconds = 60.0 * fmod(minutes, 1);
+        scratch_time.unit.hour = floor(set);
+        if (seconds < 30) scratch_time.unit.minute = floor(minutes);
+        else scratch_time.unit.minute = ceil(minutes);
+
+        if (scratch_time.unit.minute == 60) {
+            scratch_time.unit.minute = 0;
+            scratch_time.unit.hour = (scratch_time.unit.hour + 1) % 24;
+        }
+
+        if (date_time.reg < scratch_time.reg) _sunrise_sunset_set_expiration(state, scratch_time);
+
+        if (date_time.reg < scratch_time.reg || show_next_match) {
+            if (state->rise_index == 0 || show_next_match) {
+                bool set_leading_zero = false;
+                if (!settings->bit.clock_mode_24h) {
+                    if (watch_utility_convert_to_12_hour(&scratch_time)) watch_set_indicator(WATCH_INDICATOR_PM);
+                    else watch_clear_indicator(WATCH_INDICATOR_PM);
+                } else if (settings->bit.clock_24h_leading_zero && scratch_time.unit.hour < 10) {
+                    set_leading_zero = true;
+                }
+                sprintf(buf, "SE%2d%2d%02d%s", scratch_time.unit.day, scratch_time.unit.hour, scratch_time.unit.minute, longLatPresets[state->longLatToUse].name);
+                watch_display_string(buf, 0);
+                if (set_leading_zero)
+                    watch_display_string("0", 4);
+                return;
+            } else {
+                show_next_match = true;
+            }
+        }
+
         // it's after sunset. we need to display sunrise/sunset for tomorrow.
         uint32_t timestamp = watch_utility_date_time_to_unix_time(utc_now, 0);
         timestamp += 86400;
-        civ_start_time = watch_utility_date_time_from_unix_time(timestamp, 0);
-        set_sunriset(civ_start, &civ_start_time);
+        scratch_time = watch_utility_date_time_from_unix_time(timestamp, 0);
     }
-    //display_time(&civ_start_time, "CI", settings, &date_time, state);
-
-    set_sunriset(rise, &rise_time);
-    if (date_time.reg > rise_time.reg) {
-        // it's after sunset. we need to display sunrise/sunset for tomorrow.
-        uint32_t timestamp = watch_utility_date_time_to_unix_time(utc_now, 0);
-        timestamp += 86400;
-        rise_time = watch_utility_date_time_from_unix_time(timestamp, 0);
-        set_sunriset(rise, &rise_time);
-    }
-    //display_time(&rise_time, "rI", settings, &date_time, state);
-
-    set_sunriset(set, &set_time);
-    if (date_time.reg > set_time.reg) {
-        // it's after sunset. we need to display sunrise/sunset for tomorrow.
-        uint32_t timestamp = watch_utility_date_time_to_unix_time(utc_now, 0);
-        timestamp += 86400;
-        set_time = watch_utility_date_time_from_unix_time(timestamp, 0);
-        set_sunriset(set, &set_time);
-    }
-    //display_time(&set_time, "SE", settings, &date_time, state);
-
-    set_sunriset(civ_end, &civ_end_time);
-    if (date_time.reg > civ_end_time.reg) {
-        // it's after sunset. we need to display sunrise/sunset for tomorrow.
-        uint32_t timestamp = watch_utility_date_time_to_unix_time(utc_now, 0);
-        timestamp += 86400;
-        civ_end_time = watch_utility_date_time_from_unix_time(timestamp, 0);
-        set_sunriset(civ_end, &civ_end_time);
-    }
-    //display_time(&civ_end_time, "SE", settings, &date_time, state);
-
-     SolarEvent events[] = {
-        {civ_start_time.reg, &civ_start_time, "civ_start_time", "cI"},
-        {rise_time.reg, &rise_time, "rise_time", "rI"},
-        {set_time.reg, &set_time, "set_time", "SE"},
-        {civ_end_time.reg, &civ_end_time, "civ_end_time", "cI"}
-    };
-
-    int n = sizeof(events) / sizeof(events[0]);
-
-    // Sort the array of events
-    qsort(events, n, sizeof(SolarEvent), compare);
-
-    switch (state->rise_index) {
-        case 0:
-            display_time(events[0].event, events[0].abreviation, settings, &date_time, state);
-            break;
-        case 1:
-            display_time(events[1].event, events[1].abreviation, settings, &date_time, state);
-            break;
-        case 2:
-            display_time(events[2].event, events[2].abreviation, settings, &date_time, state);
-            break;
-        case 3:
-            display_time(events[3].event, events[3].abreviation, settings, &date_time, state);
-            break;
-        default:
-            break;
-    }
-
 }
 
-static int16_t sunrise_sunset_face_latlon_from_struct(sunrise_sunset_lat_lon_settings_t val) {
+static int16_t _sunrise_sunset_face_latlon_from_struct(sunrise_sunset_lat_lon_settings_t val) {
     int16_t retval = (val.sign ? -1 : 1) *
                         (
                             val.hundreds * 10000 +
@@ -241,7 +181,7 @@ static int16_t sunrise_sunset_face_latlon_from_struct(sunrise_sunset_lat_lon_set
     return retval;
 }
 
-static sunrise_sunset_lat_lon_settings_t sunrise_sunset_face_struct_from_latlon(int16_t val) {
+static sunrise_sunset_lat_lon_settings_t _sunrise_sunset_face_struct_from_latlon(int16_t val) {
     sunrise_sunset_lat_lon_settings_t retval;
 
     retval.sign = val < 0;
@@ -259,11 +199,11 @@ static sunrise_sunset_lat_lon_settings_t sunrise_sunset_face_struct_from_latlon(
     return retval;
 }
 
-static void sunrise_sunset_face_update_location_register(sunrise_sunset_state_t *state) {
+static void _sunrise_sunset_face_update_location_register(sunrise_sunset_state_t *state) {
     if (state->location_changed) {
         movement_location_t movement_location;
-        int16_t lat = sunrise_sunset_face_latlon_from_struct(state->working_latitude);
-        int16_t lon = sunrise_sunset_face_latlon_from_struct(state->working_longitude);
+        int16_t lat = _sunrise_sunset_face_latlon_from_struct(state->working_latitude);
+        int16_t lon = _sunrise_sunset_face_latlon_from_struct(state->working_longitude);
         movement_location.bit.latitude = lat;
         movement_location.bit.longitude = lon;
         watch_store_backup_data(movement_location.reg, 1);
@@ -271,17 +211,17 @@ static void sunrise_sunset_face_update_location_register(sunrise_sunset_state_t 
     }
 }
 
-static void sunrise_sunset_face_update_settings_display(movement_event_t event, sunrise_sunset_state_t *state) {
+static void _sunrise_sunset_face_update_settings_display(movement_event_t event, sunrise_sunset_state_t *state) {
     char buf[12];
 
     switch (state->page) {
         case 0:
             return;
         case 1:
-            sprintf(buf, "LA  %c %04d", state->working_latitude.sign ? '-' : '+', abs(sunrise_sunset_face_latlon_from_struct(state->working_latitude)));
+            sprintf(buf, "LA  %c %04d", state->working_latitude.sign ? '-' : '+', abs(_sunrise_sunset_face_latlon_from_struct(state->working_latitude)));
             break;
         case 2:
-            sprintf(buf, "LO  %c%05d", state->working_longitude.sign ? '-' : '+', abs(sunrise_sunset_face_latlon_from_struct(state->working_longitude)));
+            sprintf(buf, "LO  %c%05d", state->working_longitude.sign ? '-' : '+', abs(_sunrise_sunset_face_latlon_from_struct(state->working_longitude)));
             break;
     }
     if (event.subsecond % 2) {
@@ -290,7 +230,7 @@ static void sunrise_sunset_face_update_settings_display(movement_event_t event, 
     watch_display_string(buf, 0);
 }
 
-static void sunrise_sunset_face_advance_digit(sunrise_sunset_state_t *state) {
+static void _sunrise_sunset_face_advance_digit(sunrise_sunset_state_t *state) {
     state->location_changed = true;
     switch (state->page) {
         case 1: // latitude
@@ -303,7 +243,7 @@ static void sunrise_sunset_face_advance_digit(sunrise_sunset_state_t *state) {
                     break;
                 case 2:
                     state->working_latitude.tens = (state->working_latitude.tens + 1) % 10;
-                    if (abs(sunrise_sunset_face_latlon_from_struct(state->working_latitude)) > 9000) {
+                    if (abs(_sunrise_sunset_face_latlon_from_struct(state->working_latitude)) > 9000) {
                         // prevent latitude from going over ±90.
                         // TODO: perform these checks when advancing the digit?
                         state->working_latitude.ones = 0;
@@ -313,15 +253,15 @@ static void sunrise_sunset_face_advance_digit(sunrise_sunset_state_t *state) {
                     break;
                 case 3:
                     state->working_latitude.ones = (state->working_latitude.ones + 1) % 10;
-                    if (abs(sunrise_sunset_face_latlon_from_struct(state->working_latitude)) > 9000) state->working_latitude.ones = 0;
+                    if (abs(_sunrise_sunset_face_latlon_from_struct(state->working_latitude)) > 9000) state->working_latitude.ones = 0;
                     break;
                 case 4:
                     state->working_latitude.tenths = (state->working_latitude.tenths + 1) % 10;
-                    if (abs(sunrise_sunset_face_latlon_from_struct(state->working_latitude)) > 9000) state->working_latitude.tenths = 0;
+                    if (abs(_sunrise_sunset_face_latlon_from_struct(state->working_latitude)) > 9000) state->working_latitude.tenths = 0;
                     break;
                 case 5:
                     state->working_latitude.hundredths = (state->working_latitude.hundredths + 1) % 10;
-                    if (abs(sunrise_sunset_face_latlon_from_struct(state->working_latitude)) > 9000) state->working_latitude.hundredths = 0;
+                    if (abs(_sunrise_sunset_face_latlon_from_struct(state->working_latitude)) > 9000) state->working_latitude.hundredths = 0;
                     break;
             }
             break;
@@ -332,7 +272,7 @@ static void sunrise_sunset_face_advance_digit(sunrise_sunset_state_t *state) {
                     break;
                 case 1:
                     state->working_longitude.hundreds = (state->working_longitude.hundreds + 1) % 10;
-                    if (abs(sunrise_sunset_face_latlon_from_struct(state->working_longitude)) > 18000) {
+                    if (abs(_sunrise_sunset_face_latlon_from_struct(state->working_longitude)) > 18000) {
                         // prevent longitude from going over ±180
                         state->working_longitude.tens = 8;
                         state->working_longitude.ones = 0;
@@ -342,19 +282,19 @@ static void sunrise_sunset_face_advance_digit(sunrise_sunset_state_t *state) {
                     break;
                 case 2:
                     state->working_longitude.tens = (state->working_longitude.tens + 1) % 10;
-                    if (abs(sunrise_sunset_face_latlon_from_struct(state->working_longitude)) > 18000) state->working_longitude.tens = 0;
+                    if (abs(_sunrise_sunset_face_latlon_from_struct(state->working_longitude)) > 18000) state->working_longitude.tens = 0;
                     break;
                 case 3:
                     state->working_longitude.ones = (state->working_longitude.ones + 1) % 10;
-                    if (abs(sunrise_sunset_face_latlon_from_struct(state->working_longitude)) > 18000) state->working_longitude.ones = 0;
+                    if (abs(_sunrise_sunset_face_latlon_from_struct(state->working_longitude)) > 18000) state->working_longitude.ones = 0;
                     break;
                 case 4:
                     state->working_longitude.tenths = (state->working_longitude.tenths + 1) % 10;
-                    if (abs(sunrise_sunset_face_latlon_from_struct(state->working_longitude)) > 18000) state->working_longitude.tenths = 0;
+                    if (abs(_sunrise_sunset_face_latlon_from_struct(state->working_longitude)) > 18000) state->working_longitude.tenths = 0;
                     break;
                 case 5:
                     state->working_longitude.hundredths = (state->working_longitude.hundredths + 1) % 10;
-                    if (abs(sunrise_sunset_face_latlon_from_struct(state->working_longitude)) > 18000) state->working_longitude.hundredths = 0;
+                    if (abs(_sunrise_sunset_face_latlon_from_struct(state->working_longitude)) > 18000) state->working_longitude.hundredths = 0;
                     break;
             }
             break;
@@ -392,8 +332,8 @@ void sunrise_sunset_face_activate(movement_settings_t *settings, void *context) 
 
     sunrise_sunset_state_t *state = (sunrise_sunset_state_t *)context;
     movement_location_t movement_location = (movement_location_t) watch_get_backup_data(1);
-    state->working_latitude = sunrise_sunset_face_struct_from_latlon(movement_location.bit.latitude);
-    state->working_longitude = sunrise_sunset_face_struct_from_latlon(movement_location.bit.longitude);
+    state->working_latitude = _sunrise_sunset_face_struct_from_latlon(movement_location.bit.latitude);
+    state->working_longitude = _sunrise_sunset_face_struct_from_latlon(movement_location.bit.longitude);
 }
 
 bool sunrise_sunset_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
@@ -401,15 +341,22 @@ bool sunrise_sunset_face_loop(movement_event_t event, movement_settings_t *setti
 
     switch (event.event_type) {
         case EVENT_ACTIVATE:
-            sunrise_sunset_face_update(settings, state);
+            _sunrise_sunset_face_update(settings, state);
             break;
         case EVENT_LOW_ENERGY_UPDATE:
         case EVENT_TICK:
             if (state->page == 0) {
                 // if entering low energy mode, start tick animation
                 if (event.event_type == EVENT_LOW_ENERGY_UPDATE && !watch_tick_animation_is_running()) watch_start_tick_animation(1000);
-                } else {
-                sunrise_sunset_face_update_settings_display(event, state);
+                // check if we need to update the display
+                watch_date_time date_time = watch_rtc_get_date_time();
+                if (date_time.reg >= state->rise_set_expires.reg) {
+                    // and on the off chance that this happened before EVENT_TIMEOUT snapped us back to rise/set 0, go back now
+                    state->rise_index = 0;
+                    _sunrise_sunset_face_update(settings, state);
+                }
+            } else {
+                _sunrise_sunset_face_update_settings_display(event, state);
             }
             break;
         case EVENT_LIGHT_BUTTON_DOWN:
@@ -419,15 +366,15 @@ bool sunrise_sunset_face_loop(movement_event_t event, movement_settings_t *setti
                 if (state->active_digit > 5) {
                     state->active_digit = 0;
                     state->page = (state->page + 1) % 3;
-                    sunrise_sunset_face_update_location_register(state);
+                    _sunrise_sunset_face_update_location_register(state);
                 }
-                sunrise_sunset_face_update_settings_display(event, context);
+                _sunrise_sunset_face_update_settings_display(event, context);
             } else if (_location_count <= 1) {
                 movement_illuminate_led();
             }
             if (state->page == 0) {
                 movement_request_tick_frequency(1);
-                sunrise_sunset_face_update(settings, state);
+                _sunrise_sunset_face_update(settings, state);
             }
             break;
         case EVENT_LIGHT_LONG_PRESS:
@@ -437,36 +384,36 @@ bool sunrise_sunset_face_loop(movement_event_t event, movement_settings_t *setti
         case EVENT_LIGHT_BUTTON_UP:
             if (state->page == 0 && _location_count > 1) {
                 state->longLatToUse = (state->longLatToUse + 1) % _location_count;
-                sunrise_sunset_face_update(settings, state);
+                _sunrise_sunset_face_update(settings, state);
             }
             break;
         case EVENT_ALARM_BUTTON_UP:
             if (state->page) {
-                sunrise_sunset_face_advance_digit(state);
-                sunrise_sunset_face_update_settings_display(event, context);
+                _sunrise_sunset_face_advance_digit(state);
+                _sunrise_sunset_face_update_settings_display(event, context);
             } else {
-                state->rise_index = (state->rise_index + 1) % 4;
-                sunrise_sunset_face_update(settings, state);
+                state->rise_index = (state->rise_index + 1) % 2;
+                _sunrise_sunset_face_update(settings, state);
             }
             break;
         case EVENT_ALARM_LONG_PRESS:
             if (state->page == 0) {
             if (state->longLatToUse != 0) {
                 state->longLatToUse = 0;
-                sunrise_sunset_face_update(settings, state);
+                _sunrise_sunset_face_update(settings, state);
                 break;
             }
                 state->page++;
                 state->active_digit = 0;
                 watch_clear_display();
                 movement_request_tick_frequency(4);
-                sunrise_sunset_face_update_settings_display(event, context);
+                _sunrise_sunset_face_update_settings_display(event, context);
             }
             else {
                 state->active_digit = 0;
                 state->page = 0;
-                sunrise_sunset_face_update_location_register(state);
-                sunrise_sunset_face_update(settings, state);
+                _sunrise_sunset_face_update_location_register(state);
+                _sunrise_sunset_face_update(settings, state);
             }
             break;
         case EVENT_TIMEOUT:
@@ -478,7 +425,7 @@ bool sunrise_sunset_face_loop(movement_event_t event, movement_settings_t *setti
                 state->page = 0;
                 state->rise_index = 0;
                 movement_request_tick_frequency(1);
-                sunrise_sunset_face_update(settings, state);
+                _sunrise_sunset_face_update(settings, state);
             }
             break;
         default:
@@ -494,5 +441,5 @@ void sunrise_sunset_face_resign(movement_settings_t *settings, void *context) {
     state->page = 0;
     state->active_digit = 0;
     state->rise_index = 0;
-    sunrise_sunset_face_update_location_register(state);
+    _sunrise_sunset_face_update_location_register(state);
 }
