@@ -223,11 +223,9 @@ void set_time_mode_handle_secondary_button(void) {
             date_time.unit.month = ((date_time.unit.month + 1) % 12);
             break;
         case 5: // day
-            date_time.unit.day = date_time.unit.day + 1;
+            date_time.unit.day = ((date_time.unit.day % watch_utility_days_in_month(date_time.unit.month, date_time.unit.year + WATCH_RTC_REFERENCE_YEAR)) + 1);
             break;
     }
-    if (date_time.unit.day > watch_utility_days_in_month(date_time.unit.month, date_time.unit.year + WATCH_RTC_REFERENCE_YEAR))
-        date_time.unit.day = 1;
     watch_rtc_set_date_time(date_time);
 }
 

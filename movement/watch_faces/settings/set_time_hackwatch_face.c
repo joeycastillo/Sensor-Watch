@@ -164,15 +164,13 @@ bool set_time_hackwatch_face_loop(movement_event_t event, movement_settings_t *s
                     date_time_settings.unit.month = (date_time_settings.unit.month % 12) + 1;
                     break;
                 case 5: // day
-                    date_time_settings.unit.day = date_time_settings.unit.day + 1;
+                    date_time_settings.unit.day = (date_time_settings.unit.day % watch_utility_days_in_month(date_time_settings.unit.month, date_time_settings.unit.year + WATCH_RTC_REFERENCE_YEAR)) + 1;
                     break;
                 case 6: // time zone
                     settings->bit.time_zone++;
                     if (settings->bit.time_zone > 40) settings->bit.time_zone = 0;
                     break;
             }
-            if (date_time_settings.unit.day > watch_utility_days_in_month(date_time_settings.unit.month, date_time_settings.unit.year + WATCH_RTC_REFERENCE_YEAR))
-                date_time_settings.unit.day = 1;
             if (current_page != 2) // Do not set time when we are at seconds, it was already set previously
                 watch_rtc_set_date_time(date_time_settings);
             //TODO: Do not update whole RTC, just what we are changing

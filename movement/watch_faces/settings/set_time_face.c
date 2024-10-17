@@ -52,7 +52,7 @@ static void _handle_alarm_button(movement_settings_t *settings, watch_date_time 
             date_time.unit.month = (date_time.unit.month % 12) + 1;
             break;
         case 5: { // day
-            date_time.unit.day = date_time.unit.day + 1;
+            date_time.unit.day = (date_time.unit.day % watch_utility_days_in_month(date_time.unit.month, date_time.unit.year + WATCH_RTC_REFERENCE_YEAR)) + 1;
             break;
         }
         case 6: // time zone
@@ -60,8 +60,6 @@ static void _handle_alarm_button(movement_settings_t *settings, watch_date_time 
             if (settings->bit.time_zone > 40) settings->bit.time_zone = 0;
             break;
     }
-    if (date_time.unit.day > watch_utility_days_in_month(date_time.unit.month, date_time.unit.year + WATCH_RTC_REFERENCE_YEAR))
-        date_time.unit.day = 1;
     watch_rtc_set_date_time(date_time);
 }
 

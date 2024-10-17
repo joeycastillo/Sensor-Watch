@@ -168,7 +168,7 @@ static void _handle_alarm_button(time_left_state_t *state) {
             state->birth_date.bit.month = (state->birth_date.bit.month % 12) + 1;
             break;
         case TIME_LEFT_FACE_SETTINGS_STATE + 2: // birth day
-            state->birth_date.bit.day++;
+            state->birth_date.bit.day = (state->birth_date.bit.day % watch_utility_days_in_month(state->birth_date.bit.month, state->birth_date.bit.year)) + 1;
             break;
         case TIME_LEFT_FACE_SETTINGS_STATE + 3: // target year
             state->target_date.bit.year++;
@@ -178,13 +178,9 @@ static void _handle_alarm_button(time_left_state_t *state) {
             state->target_date.bit.month = (state->target_date.bit.month % 12) + 1;
             break;
         case TIME_LEFT_FACE_SETTINGS_STATE + 5: // target day
-            state->target_date.bit.day++;
+            state->target_date.bit.day = (state->target_date.bit.day % watch_utility_days_in_month(state->target_date.bit.month, state->birth_date.bit.year)) + 1;
             break;
     }
-    if (state->birth_date.bit.day > watch_utility_days_in_month(state->birth_date.bit.month, state->birth_date.bit.year))
-        state->birth_date.bit.day = 1;
-    if (state->target_date.bit.day > watch_utility_days_in_month(state->target_date.bit.month, state->birth_date.bit.year))
-        state->target_date.bit.day = 1;
 }
 
 static void _initiate_setting(time_left_state_t *state) {
