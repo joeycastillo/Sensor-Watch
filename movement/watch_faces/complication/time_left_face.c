@@ -181,9 +181,9 @@ static void _handle_alarm_button(time_left_state_t *state) {
             state->target_date.bit.day++;
             break;
     }
-    if (state->birth_date.bit.day > days_in_month(state->birth_date.bit.month, state->birth_date.bit.year))
+    if (state->birth_date.bit.day > watch_utility_days_in_month(state->birth_date.bit.month, state->birth_date.bit.year))
         state->birth_date.bit.day = 1;
-    if (state->target_date.bit.day > days_in_month(state->target_date.bit.month, state->birth_date.bit.year))
+    if (state->target_date.bit.day > watch_utility_days_in_month(state->target_date.bit.month, state->birth_date.bit.year))
         state->target_date.bit.day = 1;
 }
 

@@ -69,7 +69,7 @@ static void _day_one_face_increment(day_one_state_t *state) {
         default:
             break;
     }
-    if (state->birth_day == 0 || state->birth_day > days_in_month(state->birth_month, state->birth_year))
+    if (state->birth_day == 0 || state->birth_day > watch_utility_days_in_month(state->birth_month, state->birth_year))
         state->birth_day = 1;
 }
 
