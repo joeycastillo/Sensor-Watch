@@ -55,11 +55,14 @@ void preferences_face_activate(movement_settings_t *settings, void *context) {
     movement_request_tick_frequency(4); // we need to manually blink some pixels
 }
 
-static void _watch_display_hourly_chime_string(movement_settings_t *settings, uint8_t hour){
+static void _watch_display_hourly_chime_string(movement_settings_t *settings, uint8_t hour, uint8_t hour_bit, char *sun_string){
     char buf[6];
-    if (settings->bit.hourly_chime_always){
+    if (settings->bit.hourly_chime_always) {
         watch_clear_indicator(WATCH_INDICATOR_PM);
         watch_display_string(" Always", 4);
+    }
+    else if (hour_bit == 3 && watch_get_backup_data(1)) {
+        watch_display_string(sun_string, 4);
     }
     else{
         if (!settings->bit.clock_mode_24h) {
@@ -217,16 +220,10 @@ bool preferences_face_loop(movement_event_t event, movement_settings_t *settings
                 }
                 break;
             case 4:
-                if (watch_get_backup_data(1) && settings->bit.hourly_chime_start == 3)
-                    watch_display_string("SUNRIS", 4);
-                else
-                    _watch_display_hourly_chime_string(settings, Hourly_Chime_Start[settings->bit.hourly_chime_start]);
+                _watch_display_hourly_chime_string(settings, Hourly_Chime_Start[settings->bit.hourly_chime_start], settings->bit.hourly_chime_start, "SUNRIS");
                 break;
             case 5:
-                if (watch_get_backup_data(1)  && settings->bit.hourly_chime_end == 3)
-                    watch_display_string("SUNSET", 4);
-                else
-                    _watch_display_hourly_chime_string(settings, Hourly_Chime_End[settings->bit.hourly_chime_end]);
+                _watch_display_hourly_chime_string(settings, Hourly_Chime_End[settings->bit.hourly_chime_end], settings->bit.hourly_chime_end, "SUNSET");
                 break;
             case 6:
                 if (settings->bit.led_duration) {
