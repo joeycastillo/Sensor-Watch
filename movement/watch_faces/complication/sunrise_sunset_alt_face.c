@@ -79,7 +79,7 @@ static void check_and_update_sunriset(double event_type, watch_date_time *event_
 
 static void display_time(watch_date_time *time, const char *prefix, movement_settings_t *settings, watch_date_time *date_time, sunrise_sunset_alt_state_t *state) {
     bool set_leading_zero = false;
-    char buf[32]; // Adjust size as needed
+    char buf[14];
 
     // Handle 12-hour mode and PM indicator
     if (!settings->bit.clock_mode_24h) {
