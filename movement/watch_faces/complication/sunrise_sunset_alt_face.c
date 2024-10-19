@@ -66,6 +66,17 @@ static void set_sunriset(double time_value, watch_date_time *time_unit) {
     }
 }
 
+static void check_and_update_sunriset(double event_type, watch_date_time *event_time, watch_date_time utc_now, watch_date_time date_time) {
+    set_sunriset(event_type, event_time);
+    if (date_time.reg > event_time->reg) {
+        // It's after the specific solar event. We need to display the event time for tomorrow.
+        uint32_t timestamp = watch_utility_date_time_to_unix_time(utc_now, 0);
+        timestamp += 86400;  // Advance by 24 hours
+        *event_time = watch_utility_date_time_from_unix_time(timestamp, 0);
+        set_sunriset(event_type, event_time);  // Update for the next day
+    }
+}
+
 static void display_time(watch_date_time *time, const char *prefix, movement_settings_t *settings, watch_date_time *date_time, sunrise_sunset_alt_state_t *state) {
     bool set_leading_zero = false;
     char buf[32]; // Adjust size as needed
@@ -94,8 +105,7 @@ static void display_time(watch_date_time *time, const char *prefix, movement_set
 }
 
 static void sunrise_sunset_alt_face_update(movement_settings_t *settings, sunrise_sunset_alt_state_t *state) {
-    char buf[14];
-    double civ_start, rise, set, civ_end;
+    double naut_start, civ_start, rise, set, civ_end, naut_end;
     movement_location_t movement_location;
     if (state->longLatToUse == 0 || _location_count <= 1)
         movement_location = (movement_location_t) watch_get_backup_data(1);
@@ -113,16 +123,22 @@ static void sunrise_sunset_alt_face_update(movement_settings_t *settings, sunris
 
     watch_date_time date_time = watch_rtc_get_date_time(); // the current local date / time
     watch_date_time utc_now = watch_utility_date_time_convert_zone(date_time, movement_timezone_offsets[settings->bit.time_zone] * 60, 0); // the current date / time in UTC
+
     watch_date_time scratch_time; // scratchpad, contains different values at different times
+    watch_date_time naut_start_time;
     watch_date_time civ_start_time;
     watch_date_time rise_time;
     watch_date_time set_time;
     watch_date_time civ_end_time;
+    watch_date_time naut_end_time;
+
     scratch_time.reg = utc_now.reg;
+    naut_start_time.reg = utc_now.reg;
     civ_start_time.reg = utc_now.reg;
     rise_time.reg = utc_now.reg;
     set_time.reg = utc_now.reg;
     civ_end_time.reg = utc_now.reg;
+    naut_end_time.reg = utc_now.reg;
 
     // Weird quirky unsigned things were happening when I tried to cast these directly to doubles below.
     // it looks redundant, but extracting them to local int16's seemed to fix it.
@@ -137,72 +153,34 @@ static void sunrise_sunset_alt_face_update(movement_settings_t *settings, sunris
     // to deal with this, we set aside the offset in hours, and add it back before converting it to a watch_date_time.
     double hours_from_utc = ((double)movement_timezone_offsets[settings->bit.time_zone]) / 60.0;
 
-    // we loop twice because if it's after sunset today, we need to recalculate to display values for tomorrow.
-    uint8_t result = sun_rise_set(scratch_time.unit.year + WATCH_RTC_REFERENCE_YEAR, scratch_time.unit.month, scratch_time.unit.day, lon, lat, &rise, &set);
-
-    if (result != 0) {
-        watch_clear_colon();
-        watch_clear_indicator(WATCH_INDICATOR_PM);
-        watch_clear_indicator(WATCH_INDICATOR_24H);
-        sprintf(buf, "%s%2d none ", (result == 1) ? "SE" : "rI", scratch_time.unit.day);
-        watch_display_string(buf, 0);
-        return;
-    }
+    sun_rise_set(scratch_time.unit.year + WATCH_RTC_REFERENCE_YEAR, scratch_time.unit.month, scratch_time.unit.day, lon, lat, &rise, &set);
     civil_twilight(scratch_time.unit.year + WATCH_RTC_REFERENCE_YEAR, scratch_time.unit.month, scratch_time.unit.day, lon, lat, &civ_start, &civ_end);
+    nautical_twilight(scratch_time.unit.year + WATCH_RTC_REFERENCE_YEAR, scratch_time.unit.month, scratch_time.unit.day, lon, lat, &naut_start, &naut_end);
 
     watch_set_colon();
     if (settings->bit.clock_mode_24h && !settings->bit.clock_24h_leading_zero) watch_set_indicator(WATCH_INDICATOR_24H);
 
+    naut_start += hours_from_utc;
+    civ_start += hours_from_utc;
     rise += hours_from_utc;
     set += hours_from_utc;
-    civ_start += hours_from_utc;
     civ_end += hours_from_utc;
+    naut_end += hours_from_utc;
 
-    set_sunriset(civ_start, &civ_start_time);
-    if (date_time.reg > civ_start_time.reg) {
-        // it's after sunset. we need to display sunrise/sunset for tomorrow.
-        uint32_t timestamp = watch_utility_date_time_to_unix_time(utc_now, 0);
-        timestamp += 86400;
-        civ_start_time = watch_utility_date_time_from_unix_time(timestamp, 0);
-        set_sunriset(civ_start, &civ_start_time);
-    }
-    //display_time(&civ_start_time, "CI", settings, &date_time, state);
-
-    set_sunriset(rise, &rise_time);
-    if (date_time.reg > rise_time.reg) {
-        // it's after sunset. we need to display sunrise/sunset for tomorrow.
-        uint32_t timestamp = watch_utility_date_time_to_unix_time(utc_now, 0);
-        timestamp += 86400;
-        rise_time = watch_utility_date_time_from_unix_time(timestamp, 0);
-        set_sunriset(rise, &rise_time);
-    }
-    //display_time(&rise_time, "rI", settings, &date_time, state);
-
-    set_sunriset(set, &set_time);
-    if (date_time.reg > set_time.reg) {
-        // it's after sunset. we need to display sunrise/sunset for tomorrow.
-        uint32_t timestamp = watch_utility_date_time_to_unix_time(utc_now, 0);
-        timestamp += 86400;
-        set_time = watch_utility_date_time_from_unix_time(timestamp, 0);
-        set_sunriset(set, &set_time);
-    }
-    //display_time(&set_time, "SE", settings, &date_time, state);
-
-    set_sunriset(civ_end, &civ_end_time);
-    if (date_time.reg > civ_end_time.reg) {
-        // it's after sunset. we need to display sunrise/sunset for tomorrow.
-        uint32_t timestamp = watch_utility_date_time_to_unix_time(utc_now, 0);
-        timestamp += 86400;
-        civ_end_time = watch_utility_date_time_from_unix_time(timestamp, 0);
-        set_sunriset(civ_end, &civ_end_time);
-    }
-    //display_time(&civ_end_time, "SE", settings, &date_time, state);
+    check_and_update_sunriset(naut_start, &naut_start_time, utc_now, date_time);
+    check_and_update_sunriset(civ_start, &civ_start_time, utc_now, date_time);
+    check_and_update_sunriset(rise, &rise_time, utc_now, date_time);
+    check_and_update_sunriset(set, &set_time, utc_now, date_time);
+    check_and_update_sunriset(civ_end, &civ_end_time, utc_now, date_time);
+    check_and_update_sunriset(naut_end, &naut_end_time, utc_now, date_time);
 
      SolarEvent events[] = {
+        {naut_start_time.reg, &naut_start_time, "naut_start_time", "nt"},
         {civ_start_time.reg, &civ_start_time, "civ_start_time", "cI"},
         {rise_time.reg, &rise_time, "rise_time", "rI"},
         {set_time.reg, &set_time, "set_time", "SE"},
-        {civ_end_time.reg, &civ_end_time, "civ_end_time", "cI"}
+        {civ_end_time.reg, &civ_end_time, "civ_end_time", "cI"},
+        {naut_end_time.reg, &naut_end_time, "naut_end_time", "nt"}
     };
 
     int n = sizeof(events) / sizeof(events[0]);
@@ -222,6 +200,12 @@ static void sunrise_sunset_alt_face_update(movement_settings_t *settings, sunris
             break;
         case 3:
             display_time(events[3].event, events[3].abreviation, settings, &date_time, state);
+            break;
+        case 4:
+            display_time(events[4].event, events[4].abreviation, settings, &date_time, state);
+            break;
+        case 5:
+            display_time(events[5].event, events[5].abreviation, settings, &date_time, state);
             break;
         default:
             break;
@@ -445,7 +429,8 @@ bool sunrise_sunset_alt_face_loop(movement_event_t event, movement_settings_t *s
                 sunrise_sunset_alt_face_advance_digit(state);
                 sunrise_sunset_alt_face_update_settings_display(event, context);
             } else {
-                state->rise_index = (state->rise_index + 1) % 4;
+                state->rise_index = (state->rise_index + 1) % 6;
+                printf("state->rise_index = %d\n", state->rise_index);
                 sunrise_sunset_alt_face_update(settings, state);
             }
             break;
