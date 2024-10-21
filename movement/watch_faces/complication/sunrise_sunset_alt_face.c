@@ -77,10 +77,11 @@ static void check_and_update_sunriset(double event_type, watch_date_time *event_
     }
 }
 
-static void display_time(watch_date_time *time, const char *prefix, movement_settings_t *settings, watch_date_time *date_time, sunrise_sunset_alt_state_t *state) {
+static void display_time(watch_date_time *time, const char *prefix, movement_settings_t *settings, sunrise_sunset_alt_state_t *state) {
     bool set_leading_zero = false;
     char buf[14];
 
+    watch_set_colon();
     // Handle 12-hour mode and PM indicator
     if (!settings->bit.clock_mode_24h) {
         if (watch_utility_convert_to_12_hour(time)) {
@@ -157,7 +158,6 @@ static void sunrise_sunset_alt_face_update(movement_settings_t *settings, sunris
     civil_twilight(scratch_time.unit.year + WATCH_RTC_REFERENCE_YEAR, scratch_time.unit.month, scratch_time.unit.day, lon, lat, &civ_start, &civ_end);
     nautical_twilight(scratch_time.unit.year + WATCH_RTC_REFERENCE_YEAR, scratch_time.unit.month, scratch_time.unit.day, lon, lat, &naut_start, &naut_end);
 
-    watch_set_colon();
     if (settings->bit.clock_mode_24h && !settings->bit.clock_24h_leading_zero) watch_set_indicator(WATCH_INDICATOR_24H);
 
     naut_start += hours_from_utc;
@@ -175,37 +175,37 @@ static void sunrise_sunset_alt_face_update(movement_settings_t *settings, sunris
     check_and_update_sunriset(naut_end, &naut_end_time, utc_now, date_time);
 
      SolarEvent events[] = {
-        {naut_start_time.reg, &naut_start_time, "naut_start_time", "nt"},
-        {civ_start_time.reg, &civ_start_time, "civ_start_time", "cI"},
-        {rise_time.reg, &rise_time, "rise_time", "rI"},
-        {set_time.reg, &set_time, "set_time", "SE"},
-        {civ_end_time.reg, &civ_end_time, "civ_end_time", "cI"},
-        {naut_end_time.reg, &naut_end_time, "naut_end_time", "nt"}
+        {naut_start_time.reg, &naut_start_time, "nt"},
+        {civ_start_time.reg, &civ_start_time, "cI"},
+        {rise_time.reg, &rise_time, "rI"},
+        {set_time.reg, &set_time, "SE"},
+        {civ_end_time.reg, &civ_end_time, "cI"},
+        {naut_end_time.reg, &naut_end_time, "nt"}
     };
 
-    int n = sizeof(events) / sizeof(events[0]);
+    uint8_t n = sizeof(events) / sizeof(events[0]);
 
     // Sort the array of events
     qsort(events, n, sizeof(SolarEvent), compare);
 
     switch (state->rise_index) {
         case 0:
-            display_time(events[0].event, events[0].abreviation, settings, &date_time, state);
+            display_time(events[0].event, events[0].abreviation, settings, state);
             break;
         case 1:
-            display_time(events[1].event, events[1].abreviation, settings, &date_time, state);
+            display_time(events[1].event, events[1].abreviation, settings, state);
             break;
         case 2:
-            display_time(events[2].event, events[2].abreviation, settings, &date_time, state);
+            display_time(events[2].event, events[2].abreviation, settings, state);
             break;
         case 3:
-            display_time(events[3].event, events[3].abreviation, settings, &date_time, state);
+            display_time(events[3].event, events[3].abreviation, settings, state);
             break;
         case 4:
-            display_time(events[4].event, events[4].abreviation, settings, &date_time, state);
+            display_time(events[4].event, events[4].abreviation, settings, state);
             break;
         case 5:
-            display_time(events[5].event, events[5].abreviation, settings, &date_time, state);
+            display_time(events[5].event, events[5].abreviation, settings, state);
             break;
         default:
             break;
@@ -430,7 +430,6 @@ bool sunrise_sunset_alt_face_loop(movement_event_t event, movement_settings_t *s
                 sunrise_sunset_alt_face_update_settings_display(event, context);
             } else {
                 state->rise_index = (state->rise_index + 1) % 6;
-                printf("state->rise_index = %d\n", state->rise_index);
                 sunrise_sunset_alt_face_update(settings, state);
             }
             break;

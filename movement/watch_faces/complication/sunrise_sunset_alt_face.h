@@ -58,9 +58,8 @@ typedef struct {
 } sunrise_sunset_alt_state_t;
 
 typedef struct {
-    int timestamp;
+    uint32_t timestamp;
     watch_date_time *event;
-    const char *name;
     const char *abreviation;
 } SolarEvent;
 
