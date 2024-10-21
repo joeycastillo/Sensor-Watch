@@ -149,6 +149,7 @@ SRCS += \
   ../watch_faces/sensor/accel_interrupt_count_face.c \
   ../watch_faces/complication/metronome_face.c \
   ../watch_faces/complication/smallchess_face.c \
+  ../watch_faces/complication/sunrise_sunset_alt_face.c \
 # New watch faces go above this line.
 
 # Leave this line at the bottom of the file; it has all the targets for making your project.
