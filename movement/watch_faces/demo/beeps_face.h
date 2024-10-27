@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Joey Castillo
+ * Copyright (c) 2024 Wesley
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,15 +21,41 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include "driver_init.h"
 
-uint16_t sequence_length(int8_t *sequence) {
-    uint16_t result = 0;
+#ifndef BEEPS_FACE_H_
+#define BEEPS_FACE_H_
 
-    while (*sequence != 0){
-        result += *(sequence + 1);
-        sequence += 2;
-    }
+#include "movement.h"
 
-    return result;
-}
+/*
+ * A simple watch face to test the different Buzzer Notes.
+ *
+ * Press the Light button to play a sound.
+ * Press the Alarm button to change the frequency.
+ *
+ * The watch face displays the frequency of the buzzer it will play
+ * this allows you to reference the watch_buzzer.h file to find the
+ * corresponding note.
+ *
+ * The watch_buzzer.h file is found at watch-library/shared/watch/watch_buzzer.h
+ */
+
+typedef struct {
+    uint8_t frequency;
+} beeps_state_t;
+
+void beeps_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
+void beeps_face_activate(movement_settings_t *settings, void *context);
+bool beeps_face_loop(movement_event_t event, movement_settings_t *settings, void *context);
+void beeps_face_resign(movement_settings_t *settings, void *context);
+
+#define beeps_face ((const watch_face_t){ \
+    beeps_face_setup, \
+    beeps_face_activate, \
+    beeps_face_loop, \
+    beeps_face_resign, \
+    NULL, \
+})
+
+#endif // BEEPS_FACE_H_
+

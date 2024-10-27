@@ -26,6 +26,7 @@
 #define MOVEMENT_FACES_H_
 
 #include "simple_clock_face.h"
+#include "close_enough_clock_face.h"
 #include "clock_face.h"
 #include "world_clock_face.h"
 #include "preferences_face.h"
@@ -93,6 +94,7 @@
 #include "geomancy_face.h"
 #include "dual_timer_face.h"
 #include "simple_clock_bin_led_face.h"
+#include "menstrual_cycle_face.h"
 #include "flashlight_face.h"
 #include "decimal_time_face.h"
 #include "wyoscan_face.h"
@@ -103,7 +105,24 @@
 #include "couch_to_5k_face.h"
 #include "minute_repeater_decimal_face.h"
 #include "tuning_tones_face.h"
+#include "minmax_face.h"
 #include "kitchen_conversions_face.h"
+#include "butterfly_game_face.h"
+#include "wareki_face.h"
+#include "wordle_face.h"
+#include "endless_runner_face.h"
+#include "periodic_face.h"
+#include "deadline_face.h"
+#include "higher_lower_game_face.h"
+#include "french_revolutionary_face.h"
+#include "minimal_clock_face.h"
+#include "simon_face.h"
+#include "simple_calculator_face.h"
+#include "alarm_thermometer_face.h"
+#include "beeps_face.h"
+#include "accel_interrupt_count_face.h"
+#include "metronome_face.h"
+#include "smallchess_face.h"
 // New includes go above this line.
 
 #endif // MOVEMENT_FACES_H_

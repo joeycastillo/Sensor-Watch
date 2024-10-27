@@ -24,6 +24,7 @@ INCLUDES += \
   -I../lib/vsop87/ \
   -I../lib/astrolib/ \
   -I../lib/morsecalc/ \
+  -I../lib/smallchesslib/ \
 
 # If you add any other source files you wish to compile, add them after ../app.c
 # Note that you will need to add a backslash at the end of any line you wish to continue, i.e.
@@ -52,6 +53,7 @@ SRCS += \
   ../shell.c \
   ../shell_cmd_list.c \
   ../watch_faces/clock/simple_clock_face.c \
+  ../watch_faces/clock/close_enough_clock_face.c \
   ../watch_faces/clock/clock_face.c \
   ../watch_faces/clock/world_clock_face.c \
   ../watch_faces/clock/beats_face.c \
@@ -118,6 +120,7 @@ SRCS += \
   ../watch_faces/complication/toss_up_face.c \
   ../watch_faces/complication/geomancy_face.c \
   ../watch_faces/clock/simple_clock_bin_led_face.c \
+  ../watch_faces/complication/menstrual_cycle_face.c \
   ../watch_faces/complication/flashlight_face.c \
   ../watch_faces/clock/decimal_time_face.c \
   ../watch_faces/clock/wyoscan_face.c \
@@ -128,7 +131,24 @@ SRCS += \
   ../watch_faces/complication/couch_to_5k_face.c \
   ../watch_faces/clock/minute_repeater_decimal_face.c \
   ../watch_faces/complication/tuning_tones_face.c \
+  ../watch_faces/sensor/minmax_face.c \
   ../watch_faces/complication/kitchen_conversions_face.c \
+  ../watch_faces/complication/butterfly_game_face.c \
+  ../watch_faces/complication/wareki_face.c \
+  ../watch_faces/complication/wordle_face.c \
+  ../watch_faces/complication/endless_runner_face.c \
+  ../watch_faces/complication/periodic_face.c \
+  ../watch_faces/complication/deadline_face.c \
+  ../watch_faces/complication/higher_lower_game_face.c \
+  ../watch_faces/clock/french_revolutionary_face.c \
+  ../watch_faces/clock/minimal_clock_face.c \
+  ../watch_faces/complication/simon_face.c \
+  ../watch_faces/complication/simple_calculator_face.c \
+  ../watch_faces/sensor/alarm_thermometer_face.c \
+  ../watch_faces/demo/beeps_face.c \
+  ../watch_faces/sensor/accel_interrupt_count_face.c \
+  ../watch_faces/complication/metronome_face.c \
+  ../watch_faces/complication/smallchess_face.c \
 # New watch faces go above this line.
 
 # Leave this line at the bottom of the file; it has all the targets for making your project.

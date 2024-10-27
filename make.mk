@@ -6,7 +6,19 @@ BUILD = ./build-sim
 endif
 BIN = watch
 
-ifndef BOARD
+ifndef COLOR
+$(error Set the COLOR variable to RED, BLUE, GREEN or PRO depending on what board you have.)
+endif
+
+COLOR_VALID := $(filter $(COLOR),RED BLUE GREEN PRO)
+
+ifeq ($(COLOR_VALID),)
+$(error COLOR must be RED, BLUE, GREEN or PRO)
+endif
+
+ifeq ($(COLOR), PRO)
+override BOARD = OSO-SWAT-C1-00
+else
 override BOARD = OSO-SWAT-A1-05
 endif
 
@@ -154,7 +166,6 @@ SRCS += \
   $(TOP)/watch-library/shared/driver/lis2dw.c \
   $(TOP)/watch-library/shared/driver/opt3001.c \
   $(TOP)/watch-library/shared/driver/spiflash.c \
-  $(TOP)/watch-library/shared/watch/watch_private_buzzer.c \
   $(TOP)/watch-library/shared/watch/watch_private_display.c \
   $(TOP)/watch-library/shared/watch/watch_utility.c \
 
@@ -199,7 +210,6 @@ SRCS += \
   $(TOP)/watch-library/simulator/watch/watch.c \
   $(TOP)/watch-library/shared/driver/thermistor_driver.c \
   $(TOP)/watch-library/shared/driver/opt3001.c \
-  $(TOP)/watch-library/shared/watch/watch_private_buzzer.c \
   $(TOP)/watch-library/shared/watch/watch_private_display.c \
   $(TOP)/watch-library/shared/watch/watch_utility.c \
 
@@ -211,6 +221,12 @@ endif
 
 ifndef COLOR
 $(error Set the COLOR variable to RED, BLUE, or GREEN depending on what board you have.)
+endif
+
+COLOR_VALID := $(filter $(COLOR),RED BLUE GREEN)
+
+ifeq ($(COLOR_VALID),)
+$(error COLOR must be RED, BLUE, or GREEN)
 endif
 
 ifeq ($(COLOR), BLUE)
