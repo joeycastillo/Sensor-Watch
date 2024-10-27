@@ -46,7 +46,7 @@
 // function by calling `watch_store_backup_data(settings->reg, 0)`. Otherwise it may not persist after a reset event.
 typedef union {
     struct {
-        bool button_should_sound : 1;       // if true, pressing a button emits a sound.
+        uint8_t button_should_sound : 2;       // if true, pressing a button emits a sound.
         uint8_t to_interval : 2;            // an inactivity interval for asking the active face to resign.
         bool to_always : 1;                 // if true, always time out from the active face to face 0. otherwise only faces that time out will resign (the default).
         uint8_t le_interval : 3;            // 0 to disable low energy mode, or an inactivity interval for going into low energy mode.

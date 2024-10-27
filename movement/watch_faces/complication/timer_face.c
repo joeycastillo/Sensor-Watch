@@ -62,7 +62,10 @@ static void _start(timer_state_t *state, movement_settings_t *settings, bool wit
     state->mode = running;
     movement_schedule_background_task_for_face(state->watch_face_index, target_dt);
     watch_set_indicator(WATCH_INDICATOR_BELL);
-    if (with_beep) watch_buzzer_play_sequence((int8_t *)_sound_seq_start, NULL);
+    if (with_beep) {
+        if (settings->bit.button_should_sound){
+        watch_buzzer_play_sequence((int8_t *)_sound_seq_start, NULL);
+    }}
 }
 
 static void _draw(timer_state_t *state, uint8_t subsecond) {
@@ -308,6 +311,7 @@ bool timer_face_loop(movement_event_t event, movement_settings_t *settings, void
             _reset(state);
             if (state->timers[state->current_timer].unit.repeat) _start(state, settings, false);
             break;
+
         case EVENT_ALARM_LONG_PRESS:
             switch(state->mode) {
                 case setting:
@@ -331,7 +335,7 @@ bool timer_face_loop(movement_event_t event, movement_settings_t *settings, void
                 case pausing:
                 case running:
                     _reset(state);
-                    if (settings->bit.button_should_sound) watch_buzzer_play_note(BUZZER_NOTE_C7, 50);
+                    if (settings->bit.button_should_sound)watch_buzzer_play_note (BUZZER_NOTE_C7, 50);
                     break;
                 default:
                     break;

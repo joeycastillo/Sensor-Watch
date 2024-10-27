@@ -297,7 +297,7 @@ bool stock_stopwatch_face_loop(movement_event_t event, movement_settings_t *sett
                 } else if (_ticks) {
                     // reset stopwatch
                     _ticks = _lap_ticks = _blink_ticks = _old_minutes = _old_seconds = _hours = 0;
-                    _button_beep(settings);
+
                 }
             }
             _display_ticks(_ticks);
