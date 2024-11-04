@@ -172,7 +172,7 @@ bool beer_counter_face_loop(movement_event_t event, movement_settings_t *setting
         case EVENT_ALARM_BUTTON_DOWN:
             if (!quick_ticks_running) {
                 quick_ticks_running = true;
-                movement_request_tick_frequency(8);
+                movement_request_tick_frequency(4);
             }
             break;
         case EVENT_ALARM_LONG_PRESS:
