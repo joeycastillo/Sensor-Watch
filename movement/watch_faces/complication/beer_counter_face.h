@@ -33,10 +33,12 @@
  * This watchfaces let's you track how many beers you've had, 
  * your current blood alcohol content (BAC) 
  * and how much time it takes to be completely sober again (ST).
- * It takes the Widmark formula to calculate the BAC using your sex and weight.
+ * It takes the the formula by Seidl et al.[1] to calculate the BAC using your sex and weight.
  * When you drink another beer and track it, BAC and ST update to the new values.
  * Also as time progresses BAC and ST also update but you have to switch between
  * the screens to see the updated time.
+ * For extreme values the BAC doesn't make sense anymore so the range is limited to a BMI = 16 < x < 45.
+ *
  * 
  * USAGE:
  *
@@ -64,14 +66,18 @@
  * 
  * sober time (ST) -> displays the time until bac reaches 0. the first 3 digits are hours and the last 2 (smaller ones) are minutes.
  * - Light Short Press: switch to BC
+ *
+ * [1] Seidl et al. (2000) The calculation of blood ethanol concentrations in males and females. Int J Legal Med (2000) 114:71–77
  */
 
 typedef struct {
     uint8_t beer_count;
     uint32_t last_time; // Store last time of beer consumption
     uint32_t weight;
+    uint32_t height;
     uint8_t sex; // 0 for male, 1 for female
     bool is_weight_screen;
+    bool is_height_screen;
     bool is_sex_screen;
     bool is_bac_screen;
     bool is_sober_screen; // Add this line
@@ -86,8 +92,10 @@ void beer_counter_face_resign(movement_settings_t *settings, void *context);
 static void print_beer_count(beer_counter_state_t *state);
 static void print_bac(beer_counter_state_t *state);
 static void print_weight(beer_counter_state_t *state); // Add this line
+static void print_height(beer_counter_state_t *state);
 static void print_sex(beer_counter_state_t *state); // Add this line
-static float calculate_bac(uint32_t weight, uint8_t sex, uint8_t beer_count, uint32_t last_time);
+static void print_error_message(void);
+static float calculate_bac(beer_counter_state_t *state);
 static uint32_t calculate_time_to_sober(float current_bac);
 
 #define beer_counter_face ((const watch_face_t){ \
