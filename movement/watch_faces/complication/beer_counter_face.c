@@ -144,17 +144,17 @@ bool beer_counter_face_loop(movement_event_t event, movement_settings_t *setting
             abort_quick_ticks();
             if (state->is_weight_screen) {
                  //Increase weight (only on weight screen)
-                if (state->weight < 295) {
-                    state->weight++; // Increment weight up to 295
+                if (state->weight < 250) {
+                    state->weight++; // Increment weight up to 250
                 } else {
                     state->weight = 30; // Reset weight to 30 when reaching 295
                 }
                 print_weight(state); // Update display to reflect new weight
             } else if (state->is_height_screen) {
-                if (state->height < 250) {
-                    state->height++; // Increment height up to 250
+                if (state->height < 220) {
+                    state->height++; // Increment height up to 220
                 } else {
-                    state->height = 130; // Reset height to 130 when reaching 250
+                    state->height = 130; // Reset height to 130 when reaching 220
                 }
                 print_height(state); // Update display to reflect new height
             } else if (state->is_sex_screen) {
@@ -194,12 +194,12 @@ bool beer_counter_face_loop(movement_event_t event, movement_settings_t *setting
             if (quick_ticks_running) {
                 if (watch_get_pin_level(BTN_ALARM)) {
                     if (state->is_weight_screen) {
-                        if (state->weight < 295) {
+                        if (state->weight < 250) {
                             state->weight++; // Increment weight
                         }
                         print_weight(state); // Update display to reflect new weight
                     } else if (state->is_height_screen) {
-                        if (state->height < 250) {
+                        if (state->height < 220) {
                             state->height++; // Increment height
                         }
                         print_height(state);
@@ -287,7 +287,7 @@ static void print_sober_time(beer_counter_state_t *state) {
     uint32_t hours = time_to_sober_seconds / 3600;
     uint32_t minutes = (time_to_sober_seconds % 3600) / 60;
     char buf[14];
-    sprintf(buf, "ST   %03d%02d", hours, minutes); // Format as HH:MM Sober-Time
+    sprintf(buf, "TT S %03d%02d", hours, minutes); // Format as HH:MM Sober-Time
     watch_display_string(buf, 0);
     if (time_to_sober_seconds == 0) {
         state->beer_count = 0; // Reset beer count when BAC reaches 0
@@ -330,16 +330,24 @@ static float calculate_bac(beer_counter_state_t *state) {
     float total_alcohol_g = state->beer_count * BEER_VOLUME_ML * BEER_ALCOHOL_PERCENT * ALCOHOL_DENSITY;
 
     // Calculate Widmark factor based on sex
-    //float widmark_factor = (state->sex == 0) ? 0.68 : 0.55;
+    float widmark_factor = (state->sex == 0) ? 0.68 : 0.55;
     
     // Calculate Seidl et al. reduction factor based on height and sex
     float seidl_factor;
     if (state->sex == 0) {
         // Male Seidl factor calculation
         seidl_factor = (0.31608 - (0.004821 * state->weight) + (0.004432 * state->height));
+        // Check if the Seidl factor for males is out of range
+        if (seidl_factor < 0.64) {
+            seidl_factor = widmark_factor;
+        }
     } else {
         // Female Seidl factor calculation
         seidl_factor = (0.31223 - (0.006446 * state->weight) + (0.004466 * state->height));
+        // Check if the Seidl factor for females is out of range
+        if (seidl_factor < 0.54) {
+            seidl_factor = widmark_factor;
+        }
     }
     
     // Calculate initial BAC (g/kg)
