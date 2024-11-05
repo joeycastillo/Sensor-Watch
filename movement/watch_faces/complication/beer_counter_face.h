@@ -32,10 +32,10 @@
  *
  * This watchfaces let's you track how many beers you've had, 
  * your current blood alcohol content (BAC) 
- * and how much time it takes to be completely sober again (ST).
+ * and how much time it takes to be completely sober again (TTS).
  * It takes the the formula by Seidl et al.[1] to calculate the BAC using your sex and weight.
- * When you drink another beer and track it, BAC and ST update to the new values.
- * Also as time progresses BAC and ST also update but you have to switch between
+ * When you drink another beer and track it, BAC and TTS update to the new values.
+ * Also as time progresses BAC and TTS also update but you have to switch between
  * the screens to see the updated time.
  * For extreme values the BAC doesn't make sense anymore so the range is limited to a BMI = 16 < x < 45.
  *
@@ -62,13 +62,13 @@
  * - Light Short Press: switch to weight screen (WE)
  *
  * blood alcohol content (BA C) -> displays the blood alcohol content in g/kg bodyweight AKA per mille (‰); the - represents a decimal point
- * - Light Short Press: switch to sober time screen (ST)
+ * - Light Short Press: switch to time to sobriety screen (TTS)
  * 
- * sober time (ST) -> displays the time until bac reaches 0. the first 3 digits are hours and the last 2 (smaller ones) are minutes.
+ * time to sobriety (TTS) -> displays the time until bac reaches 0. the first 3 digits are hours and the last 2 (smaller ones) are minutes.
  * - Light Short Press: switch to BC
  *
  * [1] Seidl et al. (2000) The calculation of blood ethanol concentrations in males and females. Int J Legal Med (2000) 114:71–77
- *
+ * 
  * DISCLAIMER
  * This watchface is for entertainment purposes only. 
  * There are many variables that mean this tool cannot fully determine your BAC level, 
