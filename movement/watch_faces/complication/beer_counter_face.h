@@ -68,6 +68,16 @@
  * - Light Short Press: switch to BC
  *
  * [1] Seidl et al. (2000) The calculation of blood ethanol concentrations in males and females. Int J Legal Med (2000) 114:71–77
+ *
+ * DISCLAIMER
+ * This watchface is for entertainment purposes only. 
+ * There are many variables that mean this tool cannot fully determine your BAC level, 
+ * and therefore whether an individual is able to lawfully drive a vehicle. 
+ * I strongly suggest that if you have any alcohol in your body: do not drive.
+ *
+ * By using this tool, you acknowledge that any information presented may 
+ * contain inaccuracies or errors and I expressly exclude liability for any 
+ * such inaccuracies or errors to the fullest extent permitted by law.
  */
 
 typedef struct {
