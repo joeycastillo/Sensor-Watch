@@ -78,12 +78,16 @@ void beer_counter_face_activate(movement_settings_t *settings, void *context) {
     movement_request_tick_frequency(4);
     quick_ticks_running = false;
     watch_set_led_off(); // Ensure LED is off when activating the face
-
     // Get the current date and time
     watch_date_time now = watch_rtc_get_date_time();
     uint32_t current_time_unix = watch_utility_date_time_to_unix_time(now, 0);
     beer_counter_state_t *state = (beer_counter_state_t *)context;
-    //state->last_time = current_time_unix; // Store the current time in last_time
+    // Calculate the BAC
+    float bac = calculate_bac(state);
+    if (bac == 0) {
+        state->beer_count = 0; // Reset beer count when BAC reaches 0
+    }
+    print_beer_count(state);
 }
 
 // Main loop function
