@@ -82,7 +82,9 @@
 
 typedef struct {
     uint8_t beer_count;
+    uint8_t old_beer_count;
     uint32_t last_time; // Store last time of beer consumption
+    uint32_t last_time_bac;
     uint32_t weight;
     uint32_t height;
     uint8_t sex; // 0 for male, 1 for female
@@ -91,6 +93,7 @@ typedef struct {
     bool is_sex_screen;
     bool is_bac_screen;
     bool is_sober_screen; // Add this line
+    float old_bac;
 } beer_counter_state_t;
 
 void beer_counter_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void **context_ptr);
