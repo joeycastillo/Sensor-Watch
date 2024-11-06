@@ -28,8 +28,6 @@
 #include "watch.h"
 #include "watch_utility.h"
 
-#define BEER_VOLUME_ML 500
-#define BEER_ALCOHOL_PERCENT 0.05
 #define ALCOHOL_DENSITY 0.789  // g/ml
 #define ELIMINATION_RATE_H 0.15f // Average elimination rate (g/kg/hour)
 #define ELIMINATION_RATE 0.00004167f // Average elimination rate (g/kg/seconds)
@@ -67,6 +65,8 @@ void beer_counter_face_setup(movement_settings_t *settings, uint8_t watch_face_i
         state->is_sex_screen = false;
         state->is_sober_screen = false;
         state->beer_count = 0;
+        state->drink_vol = 500;
+        state->alc_cont = 5;
     }
 }
 
@@ -98,6 +98,8 @@ bool beer_counter_face_loop(movement_event_t event, movement_settings_t *setting
             state->is_sex_screen = false;
             state->is_bac_screen = false;
             state->is_sober_screen = false;
+            state->is_drink_vol_screen = false;
+            state->is_alc_cont_screen =false;
             print_beer_count(state);
             break;
         case EVENT_LIGHT_BUTTON_UP:
@@ -121,7 +123,16 @@ bool beer_counter_face_loop(movement_event_t event, movement_settings_t *setting
                 state->is_sex_screen = false; 
                 state->is_weight_screen = true;
                 print_weight(state);
-            } else {
+            } else if (state->is_drink_vol_screen) {
+                state->is_drink_vol_screen = false;
+                state->is_alc_cont_screen = true;
+                print_alc_cont(state);
+            } else if (state->is_alc_cont_screen) {
+                state->is_alc_cont_screen = false;
+                state->is_drink_vol_screen = true;
+                print_drink_vol(state);
+            }
+            else {
                 state->is_bac_screen = true;
                 print_bac(state);
             }
@@ -149,6 +160,20 @@ bool beer_counter_face_loop(movement_event_t event, movement_settings_t *setting
             } else if (state->is_sex_screen) {
                 state->sex = !state->sex;
                 print_sex(state);
+            } else if (state->is_drink_vol_screen) {
+                if (state->drink_vol < 1000) {
+                    state->drink_vol++;
+                } else {
+                    state->drink_vol = 20;
+                }
+                print_drink_vol(state);
+            } else if (state->is_alc_cont_screen) {
+                if (state->alc_cont < 100) {
+                    state->alc_cont++;
+                } else {
+                    state->alc_cont = 1;
+                }
+                print_alc_cont(state);
             } else if (state->is_bac_screen) {
             } else if (state->is_sober_screen) {
             } else {
@@ -165,12 +190,12 @@ bool beer_counter_face_loop(movement_event_t event, movement_settings_t *setting
             }
             break;
         case EVENT_ALARM_LONG_PRESS:
-            if (!state->is_weight_screen && !state->is_height_screen && !state->is_sex_screen && !state->is_bac_screen && !state->is_sober_screen) {
+            if (!state->is_weight_screen && !state->is_height_screen && !state->is_sex_screen && !state->is_bac_screen && !state->is_sober_screen && !state->is_drink_vol_screen && !state->is_alc_cont_screen) {
                 state->beer_count = 0;
                 state->old_beer_count = 0;
                 state->old_bac = 0;
                 watch_date_time now = watch_rtc_get_date_time();
-                state->last_time = watch_utility_date_time_to_unix_time(now, 0); // Using zero offset as no tz_offset is available
+                state->last_time = watch_utility_date_time_to_unix_time(now, 0);
                 print_beer_count(state);
             }
             break;
@@ -187,23 +212,37 @@ bool beer_counter_face_loop(movement_event_t event, movement_settings_t *setting
                             state->height++;
                         }
                         print_height(state);
-                    }
+                    } else if (state->is_drink_vol_screen) {
+                        if (state->drink_vol < 1000) {
+                            state->drink_vol+=10;
+                        }
+                        print_drink_vol(state);
+                    } else if (state->is_alc_cont_screen) {
+                        if (state->alc_cont < 100) {
+                            state->alc_cont++;
+                        }
+                        print_alc_cont(state);
                 } else {
                     abort_quick_ticks();
                 }
             }
             break;
         case EVENT_MODE_LONG_PRESS:
-            if (state->is_weight_screen || state->is_height_screen || state->is_sex_screen || state->is_bac_screen || state->is_sober_screen) {
+            if (state->is_weight_screen || state->is_height_screen || state->is_sex_screen || state->is_bac_screen || state->is_drink_vol_screen || state->is_alc_cont_screen) {
                 state->is_weight_screen = false;
                 state->is_height_screen = false;
                 state->is_sex_screen = false;
                 state->is_bac_screen = false;
-                state->is_sober_screen = false;
+                state->is_drink_vol_screen =false;
+                state->is_alc_cont_screen = false;
                 print_beer_count(state);
-            } else {
+            } else if (state->is_sober_screen) {
+                state->is_sober_screen = false;
                 state->is_weight_screen = true;
                 print_weight(state);
+            } else {
+                state->is_drink_vol_screen = true;
+                print_drink_vol(state);
             }
             break;
         case EVENT_TIMEOUT:
@@ -213,7 +252,7 @@ bool beer_counter_face_loop(movement_event_t event, movement_settings_t *setting
             return movement_default_loop_handler(event, settings);
     }
     return true;
-}
+}}
 
 static void print_error_message(void) {
     char buf[14];
@@ -280,6 +319,18 @@ static void print_sex(beer_counter_state_t *state) {
     watch_display_string(buf, 0);
 }
 
+static void print_drink_vol(beer_counter_state_t *state) {
+    char buf[14];
+    sprintf(buf, "VD  %04d  ", state->drink_vol);
+    watch_display_string(buf,0);
+}
+
+static void print_alc_cont(beer_counter_state_t *state) {
+    char buf[14];
+    sprintf(buf, "AC   %03d  ", state->alc_cont);
+    watch_display_string(buf,0);
+}
+
 static float calculate_bac(beer_counter_state_t *state) {
     watch_date_time now = watch_rtc_get_date_time();
     uint32_t current_time_unix = watch_utility_date_time_to_unix_time(now, 0);
@@ -288,8 +339,8 @@ static float calculate_bac(beer_counter_state_t *state) {
         time_elapsed_seconds = 0;
     }
 
-    float new_alcohol_g = state->beer_count * BEER_VOLUME_ML * BEER_ALCOHOL_PERCENT * ALCOHOL_DENSITY;
-    float old_alcohol_g = state->old_beer_count * BEER_VOLUME_ML * BEER_ALCOHOL_PERCENT * ALCOHOL_DENSITY;
+    float new_alcohol_g = (state->beer_count * state->drink_vol * state->alc_cont * ALCOHOL_DENSITY)/100; //because we put in drink_vol as integers we have to divide by 100
+    float old_alcohol_g = (state->old_beer_count * state->drink_vol * state->alc_cont * ALCOHOL_DENSITY)/100;
 
     float widmark_factor = (state->sex == 0) ? 0.68 : 0.55;
     
