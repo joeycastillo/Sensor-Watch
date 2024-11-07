@@ -162,7 +162,7 @@ bool beer_counter_face_loop(movement_event_t event, movement_settings_t *setting
                 print_sex(state);
             } else if (state->is_drink_vol_screen) {
                 if (state->drink_vol < 1000) {
-                    state->drink_vol++;
+                    state->drink_vol += 10;
                 } else {
                     state->drink_vol = 20;
                 }
