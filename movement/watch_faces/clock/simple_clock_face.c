@@ -51,7 +51,11 @@ void simple_clock_face_activate(movement_settings_t *settings, void *context) {
 
     if (watch_tick_animation_is_running()) watch_stop_tick_animation();
 
+#ifdef CLOCK_FACE_24H_ONLY
+    watch_set_indicator(WATCH_INDICATOR_24H);
+#else
     if (settings->bit.clock_mode_24h) watch_set_indicator(WATCH_INDICATOR_24H);
+#endif
 
     // handle chime indicator
     if (state->signal_enabled) watch_set_indicator(WATCH_INDICATOR_BELL);
@@ -95,6 +99,7 @@ bool simple_clock_face_loop(movement_event_t event, movement_settings_t *setting
             // ...and set the LAP indicator if low.
             if (state->battery_low) watch_set_indicator(WATCH_INDICATOR_LAP);
 
+            bool set_leading_zero = false;
             if ((date_time.reg >> 6) == (previous_date_time >> 6) && event.event_type != EVENT_LOW_ENERGY_UPDATE) {
                 // everything before seconds is the same, don't waste cycles setting those segments.
                 watch_display_character_lp_seconds('0' + date_time.unit.second / 10, 8);
@@ -106,6 +111,7 @@ bool simple_clock_face_loop(movement_event_t event, movement_settings_t *setting
                 sprintf(buf, "%02d%02d", date_time.unit.minute, date_time.unit.second);
             } else {
                 // other stuff changed; let's do it all.
+#ifndef CLOCK_FACE_24H_ONLY
                 if (!settings->bit.clock_mode_24h) {
                     // if we are in 12 hour mode, do some cleanup.
                     if (date_time.unit.hour < 12) {
@@ -116,6 +122,12 @@ bool simple_clock_face_loop(movement_event_t event, movement_settings_t *setting
                     date_time.unit.hour %= 12;
                     if (date_time.unit.hour == 0) date_time.unit.hour = 12;
                 }
+#endif
+
+                if (settings->bit.clock_mode_24h && settings->bit.clock_24h_leading_zero && date_time.unit.hour < 10) {
+                    set_leading_zero = true;
+                }
+
                 pos = 0;
                 if (event.event_type == EVENT_LOW_ENERGY_UPDATE) {
                     if (!watch_tick_animation_is_running()) watch_start_tick_animation(500);
@@ -125,6 +137,10 @@ bool simple_clock_face_loop(movement_event_t event, movement_settings_t *setting
                 }
             }
             watch_display_string(buf, pos);
+
+            if (set_leading_zero)
+                watch_display_string("0", 4);
+
             // handle alarm indicator
             if (state->alarm_enabled != settings->bit.alarm_enabled) _update_alarm_indicator(settings->bit.alarm_enabled, state);
             break;

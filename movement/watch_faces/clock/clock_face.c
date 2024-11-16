@@ -42,10 +42,6 @@
 #define CLOCK_FACE_LOW_BATTERY_VOLTAGE_THRESHOLD 2200
 #endif
 
-#ifndef CLOCK_FACE_24H_ONLY
-#define CLOCK_FACE_24H_ONLY 0
-#endif
-
 typedef struct {
     struct {
         watch_date_time previous;
@@ -57,8 +53,15 @@ typedef struct {
 } clock_state_t;
 
 static bool clock_is_in_24h_mode(movement_settings_t *settings) {
-    if (CLOCK_FACE_24H_ONLY) { return true; }
+#ifdef CLOCK_FACE_24H_ONLY
+    return true;
+#else
     return settings->bit.clock_mode_24h;
+#endif
+}
+
+static bool clock_should_set_leading_zero(movement_settings_t *settings) {
+    return clock_is_in_24h_mode(settings) && settings->bit.clock_24h_leading_zero;
 }
 
 static void clock_indicate(WatchIndicatorSegment indicator, bool on) {
@@ -70,11 +73,11 @@ static void clock_indicate(WatchIndicatorSegment indicator, bool on) {
 }
 
 static void clock_indicate_alarm(movement_settings_t *settings) {
-    clock_indicate(WATCH_INDICATOR_BELL, settings->bit.alarm_enabled);
+    clock_indicate(WATCH_INDICATOR_SIGNAL, settings->bit.alarm_enabled);
 }
 
 static void clock_indicate_time_signal(clock_state_t *clock) {
-    clock_indicate(WATCH_INDICATOR_SIGNAL, clock->time_signal_enabled);
+    clock_indicate(WATCH_INDICATOR_BELL, clock->time_signal_enabled);
 }
 
 static void clock_indicate_24h(movement_settings_t *settings) {
@@ -125,13 +128,13 @@ static void clock_toggle_time_signal(clock_state_t *clock) {
     clock_indicate_time_signal(clock);
 }
 
-static void clock_display_all(watch_date_time date_time) {
+static void clock_display_all(watch_date_time date_time, bool leading_zero) {
     char buf[10 + 1];
 
     snprintf(
         buf,
         sizeof(buf),
-        "%s%2d%2d%02d%02d",
+        leading_zero? "%s%02d%02d%02d%02d" : "%s%2d%2d%02d%02d",
         watch_utility_get_weekday(date_time),
         date_time.unit.day,
         date_time.unit.hour,
@@ -181,7 +184,7 @@ static void clock_display_clock(movement_settings_t *settings, clock_state_t *cl
             clock_indicate_pm(settings, current);
             current = clock_24h_to_12h(current);
         }
-        clock_display_all(current);
+        clock_display_all(current, clock_should_set_leading_zero(settings));
     }
 }
 

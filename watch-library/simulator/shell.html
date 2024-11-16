@@ -905,6 +905,11 @@
     <div>
       <button onclick="getLocation()">Set register (will prompt for access)</button>
     </div>
+    <h2>Temp.</h2>
+    <div>
+      <input type="number" min="-100" max="120" id="temp-c" />C
+      <button onclick="setTemp()">Set</button>
+    </div>
   </div>
 
   <form onSubmit="sendText(); return false" style="display: flex; flex-direction: column; width: 100%">
@@ -962,6 +967,7 @@
   lat = 0;
   lon = 0;
   tx = "";
+  temp_c = 25.0;
   function updateLocation(location) {
     lat = Math.round(location.coords.latitude * 100);
     lon = Math.round(location.coords.longitude * 100);
@@ -1038,10 +1044,25 @@
     document.getElementById(skin).checked = true;
     setSkin(skin);
   }
+
+  function setTemp() {
+    let tempInput = document.getElementById("temp-c");
+    if (!tempInput) {
+      return console.warn("no input found");
+    }
+    if (tempInput.value == "") {
+      return console.warn("no value in input");
+    }
+    
+    try {
+      temp_c = Number.parseFloat(tempInput.value);
+    } catch (e) {
+      return console.warn("input value is not a valid float:", tempInput.value,  e);
+    }
+  }
   loadPrefs();
 </script>
 {{{ SCRIPT }}}
 
 </body>
 </html>
-
