@@ -27,6 +27,20 @@
 #include "hpl_slcd_config.h"
 #include "driver_init.h"
 
+// Bit position -> segment mapping for Character_Set.
+//  --0--
+// |     |
+// 5     1
+// |     |
+//  --6--
+// |     |
+// 4     2
+// |     |
+//  --3--
+//
+// 7 is the middle divider (i.e. only position 0).
+
+
 static const uint8_t Character_Set[] =
 {
     0b00000000, //  
@@ -140,9 +154,5 @@ static const uint64_t Segment_Map[] = {
 };
 
 static const uint8_t Num_Chars = 10;
-
-void watch_display_character(uint8_t character, uint8_t position);
-void watch_display_character_lp_seconds(uint8_t character, uint8_t position);
-
 
 #endif
