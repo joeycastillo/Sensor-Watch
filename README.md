@@ -74,6 +74,17 @@ python3 -m http.server -d build-sim
 
 Finally, visit [watch.html](http://localhost:8000/watch.html) to see your work.
 
+Hardware Schematics and PCBs
+----------------------------
+
+| Name | Color | Schematic | Gerbers |
+| ---- | ----- | --------- | ------- |
+| Sensorwatch Lite | RED   | [PCB/Main Boards/OSO-SWAT-B1](PCB/Main%20Boards/OSO-SWAT-B1) | [OSO-SWAT-B1-03](PCB/Main%20Boards/OSO-SWAT-B1/OSO-SWAT-B1-03.zip) |
+| Sensorwatch      | GREEN | [OSO-SWAT-A1-05](PCB/Main%20Boards/OSO-SWAT-A1/OSO-SWAT-A1-05.sch) (Eagle format) | ?                                                                |
+| Sensorwatch Pro  | TBD   | TBD                                                                             | TBD                                                              |
+
+
+
 License
 -------
 Different components of the project are licensed differently, see [LICENSE.md](https://github.com/joeycastillo/Sensor-Watch/blob/main/LICENSE.md).
