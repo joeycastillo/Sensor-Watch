@@ -80,8 +80,8 @@ Hardware Schematics and PCBs
 | Name | Color | Schematic | Gerbers |
 | ---- | ----- | --------- | ------- |
 | Sensorwatch Lite | RED   | [PCB/Main Boards/OSO-SWAT-B1](PCB/Main%20Boards/OSO-SWAT-B1) | [OSO-SWAT-B1-03](PCB/Main%20Boards/OSO-SWAT-B1/OSO-SWAT-B1-03.zip) |
-| Sensorwatch      | GREEN | [OSO-SWAT-A1-05](PCB/Main%20Boards/OSO-SWAT-A1/OSO-SWAT-A1-05.sch) (Eagle format) | ?                                                                |
-| Sensorwatch Pro  | TBD   | TBD                                                                             | TBD                                                              |
+| Sensorwatch      | GREEN | [OSO-SWAT-A1-05](PCB/Main%20Boards/OSO-SWAT-A1/OSO-SWAT-A1-05.sch) (Eagle format) | ? |
+| Sensorwatch Pro  | TBD   | TBD  | TBD |
 
 
 
