@@ -4,5 +4,5 @@ var searchData=
   ['digital_20input_20and_20output_1',['Digital Input and Output',['../group__gpio.html',1,'']]],
   ['display_2',['Segment LCD Display',['../group__slcd.html',1,'']]],
   ['documentation_3',['Sensor Watch Documentation',['../index.html',1,'']]],
-  ['driver_4',['driver',['../group__i2c.html',1,'I2C Controller Driver'],['../group__spi.html',1,'SPI Controller Driver']]]
+  ['driver_4',['Driver',['../group__i2c.html',1,'I2C Controller Driver'],['../group__spi.html',1,'SPI Controller Driver']]]
 ];
