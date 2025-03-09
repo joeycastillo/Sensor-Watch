@@ -414,6 +414,18 @@ void app_init(void) {
 
     filesystem_init();
 
+    if(filesystem_file_exists(MOVEMENT_SETTINGS_FILE)) {
+        uint32_t settings;
+        filesystem_read_file(MOVEMENT_SETTINGS_FILE, (char *)&settings, sizeof(uint32_t));
+        movement_state.settings.reg = settings;
+        watch_store_backup_data(movement_state.settings.reg, 0);
+    } else {
+        movement_state.settings.bit.led_green_color = 0xF;
+        movement_state.settings.bit.button_should_sound = true;
+        movement_state.settings.bit.le_interval = 1;
+        movement_state.settings.bit.led_duration = 1;
+    }
+
 #if __EMSCRIPTEN__
     int32_t time_zone_offset = EM_ASM_INT({
         return -new Date().getTimezoneOffset();
