@@ -26,7 +26,15 @@
 #include "watch_utility.h"
 
 const char * watch_utility_get_weekday(watch_date_time date_time) {
+#if defined(WATCH_LANGUAGE_SPANISH)
+    static const char weekdays[7][3] = {"LU", "MA", "MI", "JU", "VI", "SA", "DO"};
+#elif defined(WATCH_LANGUAGE_GERMAN)
+    static const char weekdays[7][3] = {"MO", "DI", "MI", "DO", "FR", "SA", "SO"};
+#elif defined(WATCH_LANGUAGE_MAORI)
+    static const char weekdays[7][3] = {"HI", "TU", "A ", "PA", "ME", "HO", "TA"};
+#else
     static const char weekdays[7][3] = {"MO", "TU", "WE", "TH", "FR", "SA", "SU"};
+#endif
     return weekdays[watch_utility_get_iso8601_weekday_number(date_time.unit.year + WATCH_RTC_REFERENCE_YEAR, date_time.unit.month, date_time.unit.day) - 1];
 }
 
