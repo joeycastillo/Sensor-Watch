@@ -16,274 +16,238 @@ USE_TEST_ARR = 0
 PRINT_SEARCH_RESULTS = 1
 SORT_POP_BY_FOLLOWERS = 0
 GENRE_DEFAULT = "NO_GENRE"
-STAGES = [ "RANCH_ARENA", "SHERWOOD_COURT", "TRIPOLEE", "CAROUSEL_CLUB", "OBSERVATORY", "HONEYCOMB"]
+STAGES = [ "T_MOBILE", "COINBASE", "BUD_LIGHT", "TITOS", "PERRYS", "BACARDI", "BMI"]
 STAGE_DEFAULT = "NO_STAGE"
-URL = "https://clashfinder.com/m/elecfor24/"
+URL = "https://clashfinder.com/m/lolla2025/"
 
-junNine = [{'name': 'ACRAZE', 'followers': 127991, 'popularity': 63}, {'name': 'AK Sports', 'followers': 3347, 'popularity': 19}, 
-           {'name': 'ALLEYCVT', 'followers': 37270, 'popularity': 41}, {'name': 'ATLiens', 'followers': 99093, 'popularity': 45}, 
-           {'name': 'AYYBO', 'followers': 53574, 'popularity': 56}, {'name': 'Baggi', 'followers': 4171, 'popularity': 20}, 
-           {'name': 'Barclay Crenshaw', 'followers': 31513, 'popularity': 35}, {'name': 'Ben Böhmer', 'followers': 499334, 'popularity': 63}, 
-           {'name': 'Black Tiger Sex Machine', 'followers': 167574, 'popularity': 46}, {'name': 'Blastoyz', 'followers': 112730, 'popularity': 44}, 
-           {'name': 'Boogie T', 'followers': 90700, 'popularity': 43}, {'name': 'Boogie T.rio', 'followers': 19383, 'popularity': 28}, 
-           {'name': 'Brandi Cyrus', 'followers': 0, 'popularity': 0}, {'name': 'Calussa', 'followers': 8695, 'popularity': 45}, 
-           {'name': 'CanaBliss', 'followers': 13543, 'popularity': 34}, {'name': 'Cannons', 'followers': 363542, 'popularity': 60}, 
-           {'name': 'Caspa', 'followers': 68386, 'popularity': 31}, {'name': 'Cassian', 'followers': 57359, 'popularity': 53}, 
-           {'name': 'Chaos in the CBD', 'followers': 102272, 'popularity': 47}, {'name': 'Charlotte De Witte', 'followers': 941867, 'popularity': 59}, 
-           {'name': 'Chase & Status', 'followers': 921270, 'popularity': 68}, {'name': 'Coco & Breezy', 'followers': 20356, 'popularity': 45}, 
-           {'name': 'Cuco', 'followers': 1059, 'popularity': 32}, {'name': 'Dave Yaden', 'followers': 668, 'popularity': 5}, 
-           {'name': 'Dimension', 'followers': 127706, 'popularity': 61}, {'name': 'Dirtwire', 'followers': 97097, 'popularity': 42}, 
-           {'name': 'The Disco Biscuits', 'followers': 86290, 'popularity': 33}, {'name': "Dixon's Violin", 'followers': 4937, 'popularity': 11}, 
-           {'name': 'DJ Brownie', 'followers': 248, 'popularity': 5}, {'name': 'DJ Susan', 'followers': 32295, 'popularity': 32}, 
-           {'name': 'DRAMA', 'followers': 144295, 'popularity': 56}, {'name': 'Dumpstaphunk', 'followers': 52008, 'popularity': 30}, 
-           {'name': 'Eggy', 'followers': 10710, 'popularity': 28}, {'name': 'Emo Nite', 'followers': 0, 'popularity': 0}, 
-           {'name': 'Equanimous', 'followers': 49140, 'popularity': 46}, {'name': 'Excision', 'followers': 728513, 'popularity': 59}, 
-           {'name': 'Exclusive 6 In The Forest Celebration', 'followers': 0, 'popularity': 0}, {'name': 'G jones', 'followers': 91272, 'popularity': 37}, 
-           {'name': 'Goodboys', 'followers': 67202, 'popularity': 66}, {'name': 'Green Velvet', 'followers': 231089, 'popularity': 52}, 
-           {'name': 'H&RRY', 'followers': 0, 'popularity': 0}, {'name': 'Hamdi', 'followers': 53651, 'popularity': 55}, 
-           {'name': 'Hiatus Kaiyote', 'followers': 629430, 'popularity': 56}, {'name': 'INZO', 'followers': 154911, 'popularity': 51}, 
-           {'name': "it's murph", 'followers': 47756, 'popularity': 58}, {'name': 'Ivy Lab', 'followers': 85173, 'popularity': 40}, 
-           {'name': 'Jason Leech', 'followers': 7228, 'popularity': 26}, {'name': 'Jjuujjuu', 'followers': 9052, 'popularity': 21}, 
-           {'name': 'John Summit', 'followers': 304278, 'popularity': 71}, {'name': 'Juelz', 'followers': 31279, 'popularity': 43}, 
-           {'name': 'Kallaghan', 'followers': 517, 'popularity': 16}, {'name': 'Kenny Beats', 'followers': 204558, 'popularity': 61}, 
-           {'name': 'Kiltro', 'followers': 34151, 'popularity': 42}, {'name': 'Knock2', 'followers': 94524, 'popularity': 57}, 
-           {'name': 'Layton Giordani', 'followers': 76037, 'popularity': 57}, {'name': 'Le Youth', 'followers': 113548, 'popularity': 52}, 
-           {'name': 'League of Sound Disciples', 'followers': 0, 'popularity': 0}, {'name': 'Lettuce', 'followers': 212698, 'popularity': 41}, 
-           {'name': 'LEVEL UP', 'followers': 36418, 'popularity': 44}, {'name': 'levity', 'followers': 35512, 'popularity': 45}, 
-           {'name': 'Libianca', 'followers': 468493, 'popularity': 64}, {'name': 'Little stranger', 'followers': 57325, 'popularity': 49}, 
-           {'name': 'LP Giobbi', 'followers': 75790, 'popularity': 59}, {'name': 'Lucii', 'followers': 67428, 'popularity': 42}, 
-           {'name': 'Ludacris', 'followers': 2966337, 'popularity': 75}, {'name': 'LYNY', 'followers': 14540, 'popularity': 42}, 
-           {'name': "Maddy O'Neal", 'followers': 18515, 'popularity': 35}, {'name': 'Major League Djz', 'followers': 850784, 'popularity': 49}, 
-           {'name': 'marsh', 'followers': 70606, 'popularity': 51}, {'name': 'Mascolo', 'followers': 2373, 'popularity': 37}, 
-           {'name': 'MASONIC', 'followers': 102, 'popularity': 0}, {'name': 'Matroda', 'followers': 126927, 'popularity': 57}, 
-           {'name': 'Mau P', 'followers': 103816, 'popularity': 62}, {'name': 'Michaël Brun', 'followers': 49231, 'popularity': 49}, 
-           {'name': 'Mojave Grey', 'followers': 3796, 'popularity': 25}, {'name': 'Moontricks', 'followers': 58681, 'popularity': 44}, 
-           {'name': 'NEIL FRANCES', 'followers': 210548, 'popularity': 64}, {'name': 'Nelly Furtado', 'followers': 3882375, 'popularity': 75}, 
-           {'name': 'Neoma', 'followers': 12670, 'popularity': 27}, {'name': 'ODEN & Fatzo', 'followers': 37472, 'popularity': 56}, 
-           {'name': 'Only fire', 'followers': 41241, 'popularity': 38}, {'name': 'PAPERWATER', 'followers': 1449, 'popularity': 20}, 
-           {'name': 'Peach Tree Rascals', 'followers': 228444, 'popularity': 54}, {'name': 'Politik', 'followers': 330, 'popularity': 6}, 
-           {'name': 'Polyrhythmics', 'followers': 28934, 'popularity': 31}, {'name': 'Pretty Lights', 'followers': 559572, 'popularity': 49}, 
-           {'name': 'Pretty Pink', 'followers': 45668, 'popularity': 47}, {'name': 'Próxima Parada', 'followers': 66700, 'popularity': 49}, 
-           {'name': 'Ranger Trucco', 'followers': 10676, 'popularity': 32}, {'name': 'Rawayana', 'followers': 665608, 'popularity': 64}, 
-           {'name': 'Rayben', 'followers': 42199, 'popularity': 40}, {'name': 'Redrum', 'followers': 2622, 'popularity': 13}, 
-           {'name': 'Sammy Virji', 'followers': 109855, 'popularity': 61}, {'name': 'Sara Landry', 'followers': 201195, 'popularity': 52}, 
-           {'name': 'Seven lions', 'followers': 488549, 'popularity': 58}, {'name': 'Shae District', 'followers': 2679, 'popularity': 15}, 
-           {'name': 'Shaun Ross', 'followers': 5632, 'popularity': 41}, {'name': 'Slayyyter', 'followers': 398930, 'popularity': 53}, 
-           {'name': 'The String Cheese Incident', 'followers': 226925, 'popularity': 41}, {'name': 'Subtronics', 'followers': 309365, 'popularity': 61}, 
-           {'name': 'Sultan + Shepard', 'followers': 126480, 'popularity': 55}, {'name': 'Super Future', 'followers': 13470, 'popularity': 28}, 
-           {'name': 'Swaylo', 'followers': 3, 'popularity': 0}, {'name': 'Thought process', 'followers': 8411, 'popularity': 29}, 
-           {'name': 'Tripp St.', 'followers': 14955, 'popularity': 29}, {'name': 'TSHA', 'followers': 71923, 'popularity': 49}, 
-           {'name': "Umphrey's McGee", 'followers': 201758, 'popularity': 41}, {'name': 'Unusual demont', 'followers': 43679, 'popularity': 41}, 
-           {'name': 'venbee', 'followers': 79458, 'popularity': 55}, {'name': 'Vini Vici', 'followers': 528186, 'popularity': 62}, 
-           {'name': 'Westend', 'followers': 47387, 'popularity': 57}, {'name': 'Whyte Fang', 'followers': 15233, 'popularity': 28}, 
-           {'name': 'Will Clarke', 'followers': 50419, 'popularity': 42}, {'name': 'Wooli', 'followers': 113411, 'popularity': 56}, 
-           {'name': 'Yoga', 'followers': 0, 'popularity': 0}, {'name': 'Zen Selekta', 'followers': 3820, 'popularity': 16}, 
-           {'name': 'Gigantic NGHTMRE', 'followers': 432631, 'popularity': 55}, {'name': 'EVERYTHING ALWAYS', 'followers': 426118, 'popularity': 72}, 
-           {'name': 'LSZEE', 'followers': 202854, 'popularity': 53}, {'name': 'VNSSA B2B Nala', 'followers': 16650, 'popularity': 37}, 
-           {'name': 'Hyperbeam', 'followers': 56415, 'popularity': 56}]
+testPop = [
+    {'name': '2Hollis', 'followers': 236642, 'popularity': 65}, {'name': 'A$AP Rocky', 'followers': 16210405, 'popularity': 86},
+    {'name': 'Alemeda', 'followers': 50590, 'popularity': 40}, {'name': 'Alex Warren', 'followers': 995524, 'popularity': 83},
+    {'name': 'ALEXSUCKS', 'followers': 26202, 'popularity': 44}, {'name': "Aliyah's Interlude", 'followers': 288187, 'popularity': 57},
+    {'name': 'ALLEYCVT', 'followers': 61934, 'popularity': 52}, {'name': 'Amaarae', 'followers': 508201, 'popularity': 66},
+    {'name': 'Artemas', 'followers': 1173774, 'popularity': 76}, {'name': 'Azzecca', 'followers': 24656, 'popularity': 43},
+    {'name': "Barry Can't Swim", 'followers': 224248, 'popularity': 64}, {'name': 'benches', 'followers': 48473, 'popularity': 48},
+    {'name': 'Bilmuri', 'followers': 199045, 'popularity': 61}, {'name': 'Black Party', 'followers': 250213, 'popularity': 44},
+    {'name': 'Bladee', 'followers': 571806, 'popularity': 68}, {'name': 'Bleachers', 'followers': 842156, 'popularity': 69},
+    {'name': 'The Blessed Madonna', 'followers': 115076, 'popularity': 66}, {'name': 'BLK Odyssy', 'followers': 106263, 'popularity': 54},
+    {'name': 'Bo Staloch', 'followers': 19093, 'popularity': 48}, {'name': 'Bossman Dlow', 'followers': 625379, 'popularity': 72},
+    {'name': 'Boynextdoor', 'followers': 1316289, 'popularity': 70}, {'name': 'BUNT.', 'followers': 224449, 'popularity': 69},
+    {'name': 'Bôa', 'followers': 1054227, 'popularity': 71}, {'name': 'Ca7riel y Paco Amoroso', 'followers': 0, 'popularity': 0},
+    {'name': 'Cage the Elephant', 'followers': 4080179, 'popularity': 75}, {'name': 'Carole Ades', 'followers': 0, 'popularity': 0},
+    {'name': 'Caroline Kingsbury', 'followers': 20217, 'popularity': 46}, {'name': 'Carter Vail', 'followers': 109493, 'popularity': 48},
+    {'name': 'Cassandra Coleman', 'followers': 0, 'popularity': 0}, {'name': 'Charlotte Lawrence', 'followers': 1180094, 'popularity': 57},
+    {'name': 'Chase & Status', 'followers': 1126432, 'popularity': 71}, {'name': 'Chicago Made', 'followers': 0, 'popularity': 0},
+    {'name': 'Chicago Youth Symphony Orchestra', 'followers': 132, 'popularity': 3}, {'name': 'Clairo', 'followers': 5886511, 'popularity': 81},
+    {'name': 'Cloonee', 'followers': 191526, 'popularity': 63}, {'name': 'Colby Acuff', 'followers': 131456, 'popularity': 55},
+    {'name': 'The Criticals', 'followers': 20252, 'popularity': 35}, {'name': 'Damiano David', 'followers': 421147, 'popularity': 71},
+    {'name': 'Daniel Allan', 'followers': 21076, 'popularity': 49}, {'name': 'The Dare', 'followers': 144408, 'popularity': 56},
+    {'name': 'Del Water Gap', 'followers': 245530, 'popularity': 63}, {'name': 'DJ Heather', 'followers': 1929, 'popularity': 6},
+    {'name': 'DJO', 'followers': 0, 'popularity': 0}, {'name': 'Doechii', 'followers': 2520225, 'popularity': 88},
+    {'name': 'Dogpark', 'followers': 31619, 'popularity': 43}, {'name': 'Dom Dolla', 'followers': 541154, 'popularity': 72},
+    {'name': 'Dominic Fike', 'followers': 2062334, 'popularity': 79}, {'name': 'Dr. Fresch', 'followers': 134848, 'popularity': 52},
+    {'name': 'The Droptines', 'followers': 16473, 'popularity': 49}, {'name': 'Dua Saleh', 'followers': 109124, 'popularity': 46},
+    {'name': 'Durand Bernarr', 'followers': 122109, 'popularity': 54}, {'name': 'Eddie and the Getaway', 'followers': 86838, 'popularity': 54},
+    {'name': 'Fcukers', 'followers': 30607, 'popularity': 47}, {'name': 'Finneas', 'followers': 2203078, 'popularity': 70},
+    {'name': 'Flipturn', 'followers': 223775, 'popularity': 63}, {'name': 'Flowerovlove', 'followers': 108283, 'popularity': 54},
+    {'name': 'Flux Pavilion', 'followers': 717298, 'popularity': 58}, {'name': 'Foster the People', 'followers': 3963438, 'popularity': 73},
+    {'name': 'Fujii Kaze', 'followers': 4017200, 'popularity': 74}, {'name': 'Gigi Perez', 'followers': 1013366, 'popularity': 80},
+    {'name': 'Girl Tones', 'followers': 3976, 'popularity': 28}, {'name': 'Glass Beams', 'followers': 444275, 'popularity': 54},
+    {'name': 'Gracie Abrams', 'followers': 5003797, 'popularity': 89}, {'name': 'Graham Barham', 'followers': 86809, 'popularity': 63},
+    {'name': 'Gryffin', 'followers': 983894, 'popularity': 69}, {'name': 'Half Alive', 'followers': 73, 'popularity': 0},
+    {'name': 'Hex Cougar', 'followers': 33313, 'popularity': 41}, {'name': 'hey, nothing', 'followers': 147397, 'popularity': 54},
+    {'name': 'Ian', 'followers': 0, 'popularity': 0}, {'name': 'Isabel LaRosa', 'followers': 2235427, 'popularity': 74},
+    {'name': 'Isaiah Rashad', 'followers': 1549139, 'popularity': 70}, {'name': 'ISOxo', 'followers': 78305, 'popularity': 55},
+    {'name': 'Jade LeMac', 'followers': 216106, 'popularity': 66}, {'name': 'Jane Remover', 'followers': 89988, 'popularity': 54},
+    {'name': 'Jesse Detor', 'followers': 14512, 'popularity': 35}, {'name': 'Jev', 'followers': 0, 'popularity': 0},
+    {'name': 'Jigitz', 'followers': 22061, 'popularity': 56}, {'name': 'Joe P', 'followers': 138718, 'popularity': 49},
+    {'name': 'Joey Valence & Brae', 'followers': 594240, 'popularity': 65}, {'name': 'JPEGMafia', 'followers': 966369, 'popularity': 69},
+    {'name': 'Julie', 'followers': 346363, 'popularity': 56}, {'name': 'Junior Varsity', 'followers': 36665, 'popularity': 49},
+    {'name': 'Kaicrewsade', 'followers': 4032, 'popularity': 30}, {'name': 'KATSEYE', 'followers': 1280847, 'popularity': 68},
+    {'name': 'Kenny Mason', 'followers': 207819, 'popularity': 59}, {'name': 'Kickflip', 'followers': 180136, 'popularity': 54},
+    {'name': 'KNOCK2', 'followers': 137658, 'popularity': 63}, {'name': 'Korn', 'followers': 8789407, 'popularity': 77},
+    {'name': 'La Femme', 'followers': 568895, 'popularity': 59}, {'name': 'Laila!', 'followers': 218927, 'popularity': 55},
+    {'name': 'Landon Barker', 'followers': 39846, 'popularity': 42}, {'name': 'Landon Conrath,', 'followers': 0, 'popularity': 0},
+    {'name': 'Latin Mafia', 'followers': 1418802, 'popularity': 75}, {'name': 'Layz', 'followers': 29928, 'popularity': 41},
+    {'name': 'Lekan', 'followers': 14583, 'popularity': 37}, {'name': 'Levity', 'followers': 90345, 'popularity': 54},
+    {'name': 'Luke Combs', 'followers': 12439664, 'popularity': 86}, {'name': 'Magdalena Bay', 'followers': 410014, 'popularity': 68},
+    {'name': 'Mariah the Scientist', 'followers': 752998, 'popularity': 68}, {'name': 'The Marias', 'followers': 12, 'popularity': 0},
+    {'name': 'Maribou State', 'followers': 443041, 'popularity': 69}, {'name': 'Mark Ambor', 'followers': 602452, 'popularity': 72},
+    {'name': 'Marlon Hoffstadt', 'followers': 144803, 'popularity': 64}, {'name': 'Martin Garrix', 'followers': 15173248, 'popularity': 77},
+    {'name': 'Mary Droppinz', 'followers': 12141, 'popularity': 32}, {'name': 'Matt Champion', 'followers': 174254, 'popularity': 50},
+    {'name': 'Mau P', 'followers': 150564, 'popularity': 65}, {'name': 'Max McNown', 'followers': 443103, 'popularity': 72},
+    {'name': 'Midnight Generation', 'followers': 82113, 'popularity': 52}, {'name': 'Mk.gee', 'followers': 351347, 'popularity': 64},
+    {'name': 'Montell Fish', 'followers': 1924827, 'popularity': 75}, {'name': 'Murda Beatz', 'followers': 167094, 'popularity': 58},
+    {'name': 'Naomi Scott', 'followers': 382345, 'popularity': 62}, {'name': 'New Dad', 'followers': 985, 'popularity': 0},
+    {'name': 'Nimino', 'followers': 113867, 'popularity': 66}, {'name': 'Nourished By Time', 'followers': 29797, 'popularity': 44},
+    {'name': 'Ocean Alley', 'followers': 620717, 'popularity': 64}, {'name': 'Old Mervs', 'followers': 37575, 'popularity': 53},
+    {'name': 'Ole 60', 'followers': 271599, 'popularity': 64}, {'name': 'Olivia Rodrigo', 'followers': 44539271, 'popularity': 87},
+    {'name': 'Orion Sun', 'followers': 393702, 'popularity': 63}, {'name': 'Orla Gartland', 'followers': 273116, 'popularity': 52},
+    {'name': 'Otoboke Beaver', 'followers': 153292, 'popularity': 37}, {'name': 'Overmono', 'followers': 165736, 'popularity': 55},
+    {'name': 'People R Ugly', 'followers': 41053, 'popularity': 45}, {'name': 'Prospa', 'followers': 55864, 'popularity': 53},
+    {'name': 'Rachel Grae', 'followers': 212819, 'popularity': 56}, {'name': 'Raecola', 'followers': 1533, 'popularity': 12},
+    {'name': 'Ratboys', 'followers': 51734, 'popularity': 40}, {'name': 'Ravyn Lenae', 'followers': 531497, 'popularity': 71},
+    {'name': 'Rebecca Black', 'followers': 165702, 'popularity': 58}, {'name': 'Remi Wolf', 'followers': 590733, 'popularity': 66},
+    {'name': 'Role Model', 'followers': 588282, 'popularity': 74}, {'name': 'Royel Otis', 'followers': 422890, 'popularity': 71},
+    {'name': 'RÜFÜS DU SOL', 'followers': 2016509, 'popularity': 75}, {'name': 'Sabrina Carpenter', 'followers': 20591996, 'popularity': 92},
+    {'name': 'Salute', 'followers': 85690, 'popularity': 53}, {'name': 'Sam Austins', 'followers': 44082, 'popularity': 60},
+    {'name': 'Sammy Virji', 'followers': 167412, 'popularity': 65}, {'name': 'Sierra Ferrell', 'followers': 356087, 'popularity': 63},
+    {'name': 'Silly Goose', 'followers': 29215, 'popularity': 33}, {'name': 'Sofia Camara', 'followers': 57467, 'popularity': 57},
+    {'name': 'Star Bandz', 'followers': 119244, 'popularity': 51}, {'name': 'Still Woozy', 'followers': 1069174, 'popularity': 66},
+    {'name': 'Sunami', 'followers': 150013, 'popularity': 50}, {'name': 'The Symposium', 'followers': 95546, 'popularity': 47},
+    {'name': 'T-Pain', 'followers': 5367567, 'popularity': 79}, {'name': 'Tanner Adell', 'followers': 116218, 'popularity': 54},
+    {'name': 'Tape B', 'followers': 72494, 'popularity': 53}, {'name': 'Tessla', 'followers': 358, 'popularity': 4},
+    {'name': 'Torren Foot , Airwolf Paradise', 'followers': 0, 'popularity': 0}, {'name': 'TWICE', 'followers': 21586371, 'popularity': 79},
+    {'name': 'Two Friends', 'followers': 237167, 'popularity': 56}, {'name': 'Tyler, the Creator', 'followers': 20926976, 'popularity': 91},
+    {'name': 'Vincent Lima', 'followers': 60660, 'popularity': 54}, {'name': 'Viperactive', 'followers': 13688, 'popularity': 40},
+    {'name': 'Wallows', 'followers': 2922933, 'popularity': 72}, {'name': 'Wasia Project', 'followers': 335672, 'popularity': 57},
+    {'name': 'Wave to Earth', 'followers': 4162678, 'popularity': 76}, {'name': 'Wild Rivers', 'followers': 278270, 'popularity': 65},
+    {'name': 'Willow Avalon', 'followers': 158903, 'popularity': 52}, {'name': 'Winnetka Bowling League', 'followers': 78904, 'popularity': 46},
+    {'name': 'Winyah', 'followers': 3986, 'popularity': 35}, {'name': 'Wunderhorse', 'followers': 155400, 'popularity': 63},
+    {'name': 'Wyatt Flores', 'followers': 372174, 'popularity': 67}, {'name': 'Xaviersobased', 'followers': 128173, 'popularity': 61},
+    {'name': 'Xdinary Heroes', 'followers': 1163270, 'popularity': 60}, {'name': 'Yana', 'followers': 24319, 'popularity': 50},
+    {'name': 'Young Miko', 'followers': 3703506, 'popularity': 77}, {'name': 'Zinadelphia', 'followers': 46263, 'popularity': 44},
+    {'name': 'Zoe KoMARINA', 'followers': 0, 'popularity': 0}
+]
 
 test_content = """
-<div class="day" data-date="1718859600" data-first-start="52200" data-last-stop="93600"><h2 class="dayName">Thurs&#8203;day 20th June</h2>
-<div class="stage"><h3 class="stageName">Ranch Arena</h3>
-<div class="actLists"><div class="act id-brandi-1 " data-id="brandi-1" data-start-time="1718913600000" data-end-time="1718917200000" ><span class="actTime">15:00 - 16:00</span><span class="actNm">Brandi Cyrus</span></div><div class="act id-westen-1 " data-id="westen-1" data-start-time="1718919000000" data-end-time="1718922600000" ><span class="actTime">16:30 - 17:30</span><span class="actNm">Westend</span></div><div class="act id-drama-1 " data-id="drama-1" data-start-time="1718924400000" data-end-time="1718928000000" data-mbid="c3505299-5cb9-4a30-a7c8-e74d0aa3e1b0" ><span class="actTime">18:00 - 19:00</span><span class="actNm">Drama</span></div><div class="act id-greenv-1 " data-id="greenv-1" data-start-time="1718930700000" data-end-time="1718935200000" data-mbid="e425b041-c28a-4ae8-9d5c-997890433cd4" ><span class="actTime">19:45 - 21:00</span><span class="actNm">Green Velvet</span></div><div class="act id-nellyf-1 " data-id="nellyf-1" data-start-time="1718937000000" data-end-time="1718940600000" data-mbid="13655113-cd16-4b43-9dca-cadbbf26ee05" ><span class="actTime">21:30 - 22:30</span><span class="actNm">Nelly Furtado</span></div><div class="act id-everyt-1 " data-id="everyt-1" data-start-time="1718944200000" data-end-time="1718949600000" ><span class="actTime">23:30 - 01:00</span><span class="actNm">Everything Always</span></div></div>
-</div><div class="stage"><h3 class="stageName">Sherwood Court</h3>
-<div class="actLists"><div class="act id-maddyo-1 " data-id="maddyo-1" data-start-time="1718920800000" data-end-time="1718924400000" ><span class="actTime">17:00 - 18:00</span><span class="actNm">Maddy O'Neal</span></div><div class="act id-eggy-1 " data-id="eggy-1" data-start-time="1718927100000" data-end-time="1718931600000" data-mbid="ba0b9dc6-bd61-42c7-a28f-5179b1c04391" ><span class="actTime">18:45 - 20:00</span><span class="actNm">Eggy</span></div><div class="act id-discob-1 " data-id="discob-1" data-start-time="1718937000000" data-end-time="1718944200000" data-mbid="4e43632a-afef-4b54-a822-26311110d5c5" ><span class="actTime">21:30 - 23:30</span><span class="actNm">The Disco Biscuits</span></div><div class="act id-knock2-1 " data-id="knock2-1" data-start-time="1718948700000" data-end-time="1718953200000" ><span class="actTime">00:45 - 02:00</span><span class="actNm">Knock 2</span></div></div>
-</div><div class="stage"><h3 class="stageName">Tripolee</h3>
-<div class="actLists"><div class="act id-maeson-1 " data-id="maeson-1" data-start-time="1718911800000" data-end-time="1718915400000" ><span class="actTime">14:30 - 15:30</span><span class="actNm">Maesonic</span></div><div class="act id-chaosi-1 " data-id="chaosi-1" data-start-time="1718919000000" data-end-time="1718923500000" data-mbid="ae534b5f-95e5-40d9-9ce0-75e4b777cad1" ><span class="actTime">16:30 - 17:45</span><span class="actNm">Chaos in the CBD</span></div><div class="act id-vnssab-1 " data-id="vnssab-1" data-start-time="1718923500000" data-end-time="1718928000000" ><span class="actTime">17:45 - 19:00</span><span class="actNm">VNSSA b2b Nala</span></div><div class="act id-tsha-1 " data-id="tsha-1" data-start-time="1718928000000" data-end-time="1718932500000" data-mbid="0e3ca88b-910e-4daa-97db-68f3722edd5f" ><span class="actTime">19:00 - 20:15</span><span class="actNm">TSHA</span></div><div class="act id-sultan-1 " data-id="sultan-1" data-start-time="1718932500000" data-end-time="1718937000000" data-mbid="30ae649d-142a-4a97-b38d-bd02efebf4b0" ><span class="actTime">20:15 - 21:30</span><span class="actNm">Sultan + Shepard</span></div><div class="act id-cassia-1 " data-id="cassia-1" data-start-time="1718937000000" data-end-time="1718941500000" ><span class="actTime">21:30 - 22:45</span><span class="actNm">Cassian</span></div><div class="act id-youth-1 " data-id="youth-1" data-start-time="1718941500000" data-end-time="1718946000000" data-mbid="60584cf9-69a4-48e8-929a-935e7f8d74b3" ><span class="actTime">22:45 - 00:00</span><span class="actNm">Le Youth</span></div><div class="act id-benboh-1 " data-id="benboh-1" data-start-time="1718946000000" data-end-time="1718951400000" ><span class="actTime">00:00 - 01:30</span><span class="actNm">Ben Bohmer</span></div></div>
-</div><div class="stage"><h3 class="stageName">Carousel Club</h3>
-<div class="actLists"><div class="act id-dumpst-1 " data-id="dumpst-1" data-start-time="1718924400000" data-end-time="1718928900000" ><span class="actTime">18:00 - 19:15</span><span class="actNm">Dumpstaphunk</span></div><div class="act id-lettuc-1 " data-id="lettuc-1" data-start-time="1718930700000" data-end-time="1718935200000" data-mbid="e88313e2-22f6-4f6d-9656-6d2ad20ea415" ><span class="actTime">19:45 - 21:00</span><span class="actNm">Lettuce</span></div><div class="act id-goodbo-1 " data-id="goodbo-1" data-start-time="1718939700000" data-end-time="1718944200000" ><span class="actTime">22:15 - 23:30</span><span class="actNm">Goodboys</span></div><div class="act id-emonit-1 " data-id="emonit-1" data-start-time="1718947800000" data-end-time="1718953200000" ><span class="actTime">00:30 - 02:00</span><span class="actNm">Emo Nite</span></div></div>
-</div><div class="stage"><h3 class="stageName">The Observatory</h3>
-<div class="actLists"><div class="act id-dixons-1 " data-id="dixons-1" data-start-time="1718919000000" data-end-time="1718922600000" data-mbid="2cc0c42d-a27a-43fe-bee4-ea12b8572322" ><span class="actTime">16:30 - 17:30</span><span class="actNm">Dixon's Violin</span></div><div class="act id-redrum-1 " data-id="redrum-1" data-start-time="1718924400000" data-end-time="1718928000000" data-mbid="885fb011-4334-483b-954a-6b931eb3f125" ><span class="actTime">18:00 - 19:00</span><span class="actNm">Redrum</span></div><div class="act id-zensel-1 " data-id="zensel-1" data-start-time="1718928000000" data-end-time="1718931600000" ><span class="actTime">19:00 - 20:00</span><span class="actNm">Zen Selecta</span></div><div class="act id-superf-1 " data-id="superf-1" data-start-time="1718931600000" data-end-time="1718935200000" ><span class="actTime">20:00 - 21:00</span><span class="actNm">Super Future</span></div><div class="act id-tripps-1 " data-id="tripps-1" data-start-time="1718935200000" data-end-time="1718938800000" data-mbid="253df878-ce2a-496c-b568-762ba44493cc" ><span class="actTime">21:00 - 22:00</span><span class="actNm">Tripp St.</span></div><div class="act id-zingar-1 " data-id="zingar-1" data-start-time="1718938800000" data-end-time="1718942400000" data-mbid="6d9e2ce3-5557-469c-a99d-ec2d0b9be7f0" ><span class="actTime">22:00 - 23:00</span><span class="actNm">Zingara</span></div><div class="act id-tba-1 " data-id="tba-1" data-start-time="1718942400000" data-end-time="1718946300000" data-mbid="6ee649c3-b301-474a-a98f-527ef2cf064a" ><span class="actTime">23:00 - 00:05</span><span class="actNm">TBA</span></div><div class="act id-marsh-1 " data-id="marsh-1" data-start-time="1718947800000" data-end-time="1718952300000" ><span class="actTime">00:30 - 01:45</span><span class="actNm">Marsh</span></div></div>
-</div><div class="stage"><h3 class="stageName">Honeycomb</h3>
-<div class="actLists"><div class="act id-hrry-1 " data-id="hrry-1" data-start-time="1718915400000" data-end-time="1718919000000" ><span class="actTime">15:30 - 16:30</span><span class="actNm">H&RRY</span></div><div class="act id-moontr-1 " data-id="moontr-1" data-start-time="1718920800000" data-end-time="1718924400000" ><span class="actTime">17:00 - 18:00</span><span class="actNm">Moontricks</span></div><div class="act id-equani-1 " data-id="equani-1" data-start-time="1718925300000" data-end-time="1718928600000" ><span class="actTime">18:15 - 19:10</span><span class="actNm">Equanimous</span></div><div class="act id-levity-1 " data-id="levity-1" data-start-time="1718929800000" data-end-time="1718933400000" ><span class="actTime">19:30 - 20:30</span><span class="actNm">Levity</span></div><div class="act id-swaylo-1 " data-id="swaylo-1" data-start-time="1718935200000" data-end-time="1718938800000" ><span class="actTime">21:00 - 22:00</span><span class="actNm">SWAYLO</span></div><div class="act id-paperw-1 " data-id="paperw-1" data-start-time="1718940600000" data-end-time="1718944200000" ><span class="actTime">22:30 - 23:30</span><span class="actNm">Paperwater</span></div><div class="act id-politi-1 " data-id="politi-1" data-start-time="1718945100000" data-end-time="1718949600000" ><span class="actTime">23:45 - 01:00</span><span class="actNm">Politik</span></div><div class="act id-brandi-2 " data-id="brandi-2" data-start-time="1718949600000" data-end-time="1718953200000" ><span class="actTime">01:00 - 02:00</span><span class="actNm">Brandi Cyrus</span></div></div>
-</div></div><div class="day" data-date="1718946000" data-first-start="43200" data-last-stop="99000"><h2 class="dayName">Fri&#8203;day 21st June</h2>
-<div class="stage"><h3 class="stageName">Ranch Arena</h3>
-<div class="actLists"><div class="act id-ludacr-1 " data-id="ludacr-1" data-start-time="1719014400000" data-end-time="1719018900000" ><span class="actTime">19:00 - 20:15</span><span class="actNm">Ludacris</span></div><div class="act id-string-1 " data-id="string-1" data-start-time="1719021600000" data-end-time="1719028800000" data-mbid="cff95140-6d57-498a-8834-10eb72865b29" ><span class="actTime">21:00 - 23:00</span><span class="actNm">The String Cheese Incident</span></div><div class="act id-pretty-1 " data-id="pretty-1" data-start-time="1719032400000" data-end-time="1719039600000" data-mbid="3a07764c-7cc5-42e9-8205-3de7532f4771" ><span class="actTime">00:00 - 02:00</span><span class="actNm">Pretty Lights</span></div></div>
-</div><div class="stage"><h3 class="stageName">Sherwood Court</h3>
-<div class="actLists"><div class="act id-rawaya-1 " data-id="rawaya-1" data-start-time="1719011700000" data-end-time="1719016200000" ><span class="actTime">18:15 - 19:30</span><span class="actNm">Rawayana</span></div><div class="act id-cannon-1 " data-id="cannon-1" data-start-time="1719018900000" data-end-time="1719023400000" ><span class="actTime">20:15 - 21:30</span><span class="actNm">Cannons</span></div><div class="act id-whytef-1 " data-id="whytef-1" data-start-time="1719027900000" data-end-time="1719031500000" data-mbid="6273570e-518b-44e7-80ef-a9280c79b3bf" ><span class="actTime">22:45 - 23:45</span><span class="actNm">Whyte Fang</span></div><div class="act id-sevenl-1 " data-id="sevenl-1" data-start-time="1719039600000" data-end-time="1719043200000" data-mbid="75c016da-48e4-4992-8a10-b7128189b272" ><span class="actTime">02:00 - 03:00</span><span class="actNm">Seven Lions</span></div></div>
-</div><div class="stage"><h3 class="stageName">Tripolee</h3>
-<div class="actLists"><div class="act id-yoga-1 " data-id="yoga-1" data-start-time="1718989200000" data-end-time="1718993700000" data-mbid="409b911e-1496-4238-a63a-25bcefe0f872" ><span class="actTime">12:00 - 13:15</span><span class="actNm">Yoga</span></div><div class="act id-canabl-1 " data-id="canabl-1" data-start-time="1719003600000" data-end-time="1719007200000" data-mbid="96b74b9c-6adb-4448-8bdf-1a55666de0d3" ><span class="actTime">16:00 - 17:00</span><span class="actNm">Canabliss</span></div><div class="act id-alleyc-1 " data-id="alleyc-1" data-start-time="1719007200000" data-end-time="1719011700000" data-mbid="2590b6d4-648a-4092-9850-f614d6df51ca" ><span class="actTime">17:00 - 18:15</span><span class="actNm">Alleycvt</span></div><div class="act id-levelu-1 " data-id="levelu-1" data-start-time="1719011700000" data-end-time="1719015300000" ><span class="actTime">18:15 - 19:15</span><span class="actNm">Level Up</span></div><div class="act id-ivylab-1 " data-id="ivylab-1" data-start-time="1719015300000" data-end-time="1719019800000" data-mbid="05a8fca6-3178-4f95-ad82-d325bc6102fe" ><span class="actTime">19:15 - 20:30</span><span class="actNm">Ivy Lab</span></div><div class="act id-caspa-1 " data-id="caspa-1" data-start-time="1719019800000" data-end-time="1719023400000" data-mbid="dc9b8085-fe1e-4b83-8d41-6dd8d295513c" ><span class="actTime">20:30 - 21:30</span><span class="actNm">Caspa</span></div><div class="act id-boogie-1 " data-id="boogie-1" data-start-time="1719023400000" data-end-time="1719027000000" data-mbid="906b8f09-9e3b-4063-ba9e-5ce1f1a45227" ><span class="actTime">21:30 - 22:30</span><span class="actNm">Boogie T</span></div><div class="act id-dimens-1 " data-id="dimens-1" data-start-time="1719027000000" data-end-time="1719031500000" data-mbid="50b41344-7a92-4e53-8c93-f38c66cf68f3" ><span class="actTime">22:30 - 23:45</span><span class="actNm">Dimension</span></div><div class="act id-atlien-1 " data-id="atlien-1" data-start-time="1719031500000" data-end-time="1719035100000" ><span class="actTime">23:45 - 00:45</span><span class="actNm">ATLiens</span></div><div class="act id-wooli-1 " data-id="wooli-1" data-start-time="1719035100000" data-end-time="1719039000000" ><span class="actTime">00:45 - 01:50</span><span class="actNm">Wooli</span></div><div class="act id-blackt-1 " data-id="blackt-1" data-start-time="1719039600000" data-end-time="1719044100000" data-mbid="8a672f30-4ed6-4fb4-9b8a-4f28e1d1be1c" ><span class="actTime">02:00 - 03:15</span><span class="actNm">Black Tiger Sex Machine</span></div></div>
-</div><div class="stage"><h3 class="stageName">Carousel Club</h3>
-<div class="actLists"><div class="act id-neoma-1 " data-id="neoma-1" data-start-time="1719009000000" data-end-time="1719012600000" ><span class="actTime">17:30 - 18:30</span><span class="actNm">Neoma</span></div><div class="act id-jjuujj-1 " data-id="jjuujj-1" data-start-time="1719014400000" data-end-time="1719018000000" data-mbid="95a895f4-760c-40f9-a66d-94f9c3eb22b6" ><span class="actTime">19:00 - 20:00</span><span class="actNm">jjuujjuu</span></div><div class="act id-djsusa-1 " data-id="djsusa-1" data-start-time="1719019800000" data-end-time="1719023400000" ><span class="actTime">20:30 - 21:30</span><span class="actNm">DJ Susan</span></div><div class="act id-odenfa-1 " data-id="odenfa-1" data-start-time="1719025200000" data-end-time="1719029700000" data-mbid="70768b77-fa4f-4ce5-afc5-8cf71129cadc" ><span class="actTime">22:00 - 23:15</span><span class="actNm">Oden & Fatzo</span></div><div class="act id-itsmur-1 " data-id="itsmur-1" data-start-time="1719039600000" data-end-time="1719044100000" ><span class="actTime">02:00 - 03:15</span><span class="actNm">It's Murph</span></div></div>        
-</div><div class="stage"><h3 class="stageName">The Observatory</h3>
-<div class="actLists"><div class="act id-baggi-1 " data-id="baggi-1" data-start-time="1719015300000" data-end-time="1719018900000" data-mbid="15a25819-cc15-44e0-aec4-1cb717e55812" ><span class="actTime">19:15 - 20:15</span><span class="actNm">Baggi</span></div><div class="act id-swaylo-2 " data-id="swaylo-2" data-start-time="1719018900000" data-end-time="1719023400000" ><span class="actTime">20:15 - 21:30</span><span class="actNm">SWAYLO</span></div><div class="act id-pretty1-1 " data-id="pretty1-1" data-start-time="1719023400000" data-end-time="1719027900000" ><span class="actTime">21:30 - 22:45</span><span class="actNm">Pretty Pink</span></div><div class="act id-vinivi-1 " data-id="vinivi-1" data-start-time="1719027900000" data-end-time="1719033300000" data-mbid="14276a83-d21d-41ab-b809-09b494645645" ><span class="actTime">22:45 - 00:15</span><span class="actNm">Vini Vici</span></div><div class="act id-blasto-1 " data-id="blasto-1" data-start-time="1719033300000" data-end-time="1719038700000" data-mbid="cf1d0ddf-9794-4c7b-9758-a43b261f5a97" ><span class="actTime">00:15 - 01:45</span><span class="actNm">Blastoyz</span></div><div class="act id-layton-1 " data-id="layton-1" data-start-time="1719039600000" data-end-time="1719044100000" data-mbid="81f494b2-bd4b-486c-aae5-8c789165d14c" ><span class="actTime">02:00 - 03:15</span><span class="actNm">Layton Giordani</span></div></div>
-</div><div class="stage"><h3 class="stageName">Honeycomb</h3>
-<div class="actLists"><div class="act id-humani-1 " data-id="humani-1" data-start-time="1718998200000" data-end-time="1719001800000" ><span class="actTime">14:30 - 15:30</span><span class="actNm">Humanity Circle</span></div><div class="act id-rumble-1 " data-id="rumble-1" data-start-time="1719003900000" data-end-time="1719010800000" ><span class="actTime">16:05 - 18:00</span><span class="actNm">Rumble in the Bumble</span></div><div class="act id-boogie1-1 " data-id="boogie1-1" data-start-time="1719014400000" data-end-time="1719018900000" data-mbid="52a2a50e-6a46-42be-9131-071cef564644" ><span class="actTime">19:00 - 20:15</span><span class="actNm">Boogie T.Rio</span></div><div class="act id-westen-2 " data-id="westen-2" data-start-time="1719020700000" data-end-time="1719025200000" ><span class="actTime">20:45 - 22:00</span><span class="actNm">Westend</span></div><div class="act id-sultan-2 " data-id="sultan-2" data-start-time="1719027000000" data-end-time="1719031500000" data-mbid="30ae649d-142a-4a97-b38d-bd02efebf4b0" ><span class="actTime">22:30 - 23:45</span><span class="actNm">Sultan + Shepard</span></div><div class="act id-djsusa-2 " data-id="djsusa-2" data-start-time="1719033300000" data-end-time="1719036900000" ><span class="actTime">00:15 - 01:15</span><span class="actNm">DJ Susan</span></div><div class="act id-djbrow-1 " data-id="djbrow-1" data-start-time="1719038700000" data-end-time="1719042900000" ><span class="actTime">01:45 - 02:55</span><span class="actNm">DJ Brownie</span></div></div>
-</div></div><div class="day" data-date="1719032400" data-first-start="43200" data-last-stop="102600"><h2 class="dayName">Sat&#8203;urday 22nd June</h2>
-<div class="stage"><h3 class="stageName">Ranch Arena</h3>
-<div class="actLists"><div class="act id-kennyb-1 " data-id="kennyb-1" data-start-time="1719095400000" data-end-time="1719099900000" data-mbid="22ba00db-f132-4f3c-ab06-4ddaa4cc066b" ><span class="actTime">17:30 - 18:45</span><span class="actNm">Kenny Beats</span></div><div class="act id-string-2 " data-id="string-2" data-start-time="1719102600000" data-end-time="1719117000000" data-mbid="cff95140-6d57-498a-8834-10eb72865b29" ><span class="actTime">19:30 - 23:30</span><span class="actNm">The String Cheese Incident</span></div><div class="act id-subtro-1 " data-id="subtro-1" data-start-time="1719119700000" data-end-time="1719125100000" data-mbid="f576b153-85ea-4538-b28d-51c9552b50dd" ><span class="actTime">00:15 - 01:45</span><span class="actNm">Subtronics</span></div></div>
-</div><div class="stage"><h3 class="stageName">Sherwood Court</h3>
-<div class="actLists"><div class="act id-polyrh-1 " data-id="polyrh-1" data-start-time="1719094500000" data-end-time="1719099000000" ><span class="actTime">17:15 - 18:30</span><span class="actNm">Polyrhythmics</span></div><div class="act id-juelz-1 " data-id="juelz-1" data-start-time="1719101700000" data-end-time="1719105300000" ><span class="actTime">19:15 - 20:15</span><span class="actNm">Juelz</span></div><div class="act id-barcla-1 " data-id="barcla-1" data-start-time="1719109800000" data-end-time="1719113400000" data-mbid="c74ae9aa-37e4-460e-a91a-36914a670691" ><span class="actTime">21:30 - 22:30</span><span class="actNm">Barclay Crenshaw</span></div><div class="act id-gjones-1 " data-id="gjones-1" data-start-time="1719115200000" data-end-time="1719119700000" data-mbid="20bb2a85-e6ab-42e2-bfa8-ec048b60bbdb" ><span class="actTime">23:00 - 00:15</span><span class="actNm">G Jones</span></div><div class="act id-lszeec-1 " data-id="lszeec-1" data-start-time="1719125100000" data-end-time="1719129600000" ><span class="actTime">01:45 - 03:00</span><span class="actNm">LSZEE (CloZee + LSDream)</span></div><div class="act id-unusua-2 " data-id="unusua-2" data-start-time="1719132300000" data-end-time="1719135000000" ><span class="actTime">03:45 - 04:30</span><span class="actNm">Unusual Demont</span></div></div>       
-</div><div class="stage"><h3 class="stageName">Tripolee</h3>
-<div class="actLists"><div class="act id-yoga-2 " data-id="yoga-2" data-start-time="1719075600000" data-end-time="1719079800000" data-mbid="409b911e-1496-4238-a63a-25bcefe0f872" ><span class="actTime">12:00 - 13:10</span><span class="actNm">Yoga</span></div><div class="act id-cardio-1 " data-id="cardio-1" data-start-time="1719093600000" data-end-time="1719097200000" ><span class="actTime">17:00 - 18:00</span><span class="actNm">Cardio</span></div><div class="act id-ranger-1 " data-id="ranger-1" data-start-time="1719097200000" data-end-time="1719101700000" data-mbid="39de9c60-14bb-4148-a29e-08df6303476a" ><span class="actTime">18:00 - 19:15</span><span class="actNm">Ranger Trucco</span></div><div class="act id-luci-1 " data-id="luci-1" data-start-time="1719101700000" data-end-time="1719106200000" ><span class="actTime">19:15 - 20:30</span><span class="actNm">Luci</span></div><div class="act id-itsmur-2 " data-id="itsmur-2" data-start-time="1719106200000" data-end-time="1719110700000" ><span class="actTime">20:30 - 21:45</span><span class="actNm">It's Murph</span></div><div class="act id-willcl-1 " data-id="willcl-1" data-start-time="1719110700000" data-end-time="1719115200000" ><span class="actTime">21:45 - 23:00</span><span class="actNm">Will Clarke</span></div><div class="act id-sammyv-1 " data-id="sammyv-1" data-start-time="1719115200000" data-end-time="1719119700000" data-mbid="e23abc5f-478a-4594-ad18-b3805b3c5316" ><span class="actTime">23:00 - 00:15</span><span class="actNm">Sammy Virji</span></div><div class="act id-maup-1 " data-id="maup-1" data-start-time="1719119700000" data-end-time="1719125100000" ><span class="actTime">00:15 - 01:45</span><span class="actNm">Mau P</span></div><div class="act id-johnsu-1 " data-id="johnsu-1" data-start-time="1719125100000" data-end-time="1719130500000" ><span class="actTime">01:45 - 03:15</span><span class="actNm">John Summit</span></div></div>
-</div><div class="stage"><h3 class="stageName">Carousel Club</h3>
-<div class="actLists"><div class="act id-libian-1 " data-id="libian-1" data-start-time="1719097200000" data-end-time="1719100800000" ><span class="actTime">18:00 - 19:00</span><span class="actNm">Libianca</span></div><div class="act id-peacht-1 " data-id="peacht-1" data-start-time="1719102600000" data-end-time="1719107100000" data-mbid="49e3f8be-6c8d-4e4b-b8dd-af5571cc82ce" ><span class="actTime">19:30 - 20:45</span><span class="actNm">Peach Tree Rascals</span></div><div class="act id-unusua-1 " data-id="unusua-1" data-start-time="1719108900000" data-end-time="1719112500000" ><span class="actTime">21:15 - 22:15</span><span class="actNm">Unusual Demont</span></div><div class="act id-neilfr-1 " data-id="neilfr-1" data-start-time="1719115200000" data-end-time="1719118800000" data-mbid="c4a1d94a-b37b-4d1a-8449-e3f8c65beecb" ><span class="actTime">23:00 - 00:00</span><span class="actNm">Neil Frances</span></div><div class="act id-hiatus-1 " data-id="hiatus-1" data-start-time="1719120600000" data-end-time="1719125100000" data-mbid="55c03773-59ea-4d4e-9057-87c2ecab005d" ><span class="actTime">00:30 - 01:45</span><span class="actNm">Hiatus Kaiyote</span></div></div>
-</div><div class="stage"><h3 class="stageName">The Observatory</h3>
-<div class="actLists"><div class="act id-rayben-1 " data-id="rayben-1" data-start-time="1719093600000" data-end-time="1719097200000" ><span class="actTime">17:00 - 18:00</span><span class="actNm">RAYBEN</span></div><div class="act id-kiltro-1 " data-id="kiltro-1" data-start-time="1719099000000" data-end-time="1719102600000" ><span class="actTime">18:30 - 19:30</span><span class="actNm">Kiltro</span></div><div class="act id-cucodj-1 " data-id="cucodj-1" data-start-time="1719103500000" data-end-time="1719107100000" ><span class="actTime">19:45 - 20:45</span><span class="actNm">Cuco (DJ Set)</span></div><div class="act id-caluss-1 " data-id="caluss-1" data-start-time="1719107100000" data-end-time="1719110700000" ><span class="actTime">20:45 - 21:45</span><span class="actNm">Calussa</span></div><div class="act id-michae-1 " data-id="michae-1" data-start-time="1719110700000" data-end-time="1719114300000" data-mbid="dbb214e0-53b8-467b-8ba8-296817d5bc16" ><span class="actTime">21:45 - 22:45</span><span class="actNm">Michael Brun</span></div><div class="act id-majorl-1 " data-id="majorl-1" data-start-time="1719114300000" data-end-time="1719117900000" ><span class="actTime">22:45 - 23:45</span><span class="actNm">Major League DJz</span></div><div class="act id-akspor-1 " data-id="akspor-1" data-start-time="1719117900000" data-end-time="1719122400000" ><span class="actTime">23:45 - 01:00</span><span class="actNm">AK Sports</span></div><div class="act id-jennas-1 " data-id="jennas-1" data-start-time="1719122400000" data-end-time="1719126000000" ><span class="actTime">01:00 - 02:00</span><span class="actNm">Jenna Shaw</span></div><div class="act id-sarala-1 " data-id="sarala-1" data-start-time="1719126000000" data-end-time="1719130500000" data-mbid="e7891efe-8326-4b04-bbc4-1271da101932" ><span class="actTime">02:00 - 03:15</span><span class="actNm">Sara Landry</span></div></div>
-</div><div class="stage"><h3 class="stageName">Honeycomb</h3>
-<div class="actLists"><div class="act id-femmei-1 " data-id="femmei-1" data-start-time="1719088200000" data-end-time="1719091800000" ><span class="actTime">15:30 - 16:30</span><span class="actNm">Femme Identifying Circle</span></div><div class="act id-rumble-2 " data-id="rumble-2" data-start-time="1719093600000" data-end-time="1719100800000" ><span class="actTime">17:00 - 19:00</span><span class="actNm">Rumble in the Bumble</span></div><div class="act id-dixons-2 " data-id="dixons-2" data-start-time="1719101700000" data-end-time="1719104400000" data-mbid="2cc0c42d-a27a-43fe-bee4-ea12b8572322" ><span class="actTime">19:15 - 20:00</span><span class="actNm">Dixon's Violin</span></div><div class="act id-mascol-1 " data-id="mascol-1" data-start-time="1719109800000" data-end-time="1719113400000" ><span class="actTime">21:30 - 22:30</span><span class="actNm">Mascolo</span></div><div class="act id-mojave-1 " data-id="mojave-1" data-start-time="1719115200000" data-end-time="1719118800000" ><span class="actTime">23:00 - 00:00</span><span class="actNm">Mojave Grey</span></div><div class="act id-lpgiob1-1 " data-id="lpgiob1-1" data-start-time="1719120600000" data-end-time="1719127800000" ><span class="actTime">00:30 - 02:30</span><span class="actNm">LP Giobbi (Dead House Set)</span></div></div>
-</div></div><div class="day" data-date="1719118800" data-first-start="43200" data-last-stop="93600"><h2 class="dayName">Sun&#8203;day 23rd June</h2>
-<div class="stage"><h3 class="stageName">Ranch Arena</h3>
-<div class="actLists"><div class="act id-dirtwi-1 " data-id="dirtwi-1" data-start-time="1719180000000" data-end-time="1719183600000" data-mbid="cb761761-4f52-4f29-9825-314c6e3d20ac" ><span class="actTime">17:00 - 18:00</span><span class="actNm">Dirtwire</span></div><div class="act id-umphre-1 " data-id="umphre-1" data-start-time="1719186300000" data-end-time="1719192600000" ><span class="actTime">18:45 - 20:30</span><span class="actNm">Umphrey's Mcgee</span></div><div class="act id-gigant-1 " data-id="gigant-1" data-start-time="1719195300000" data-end-time="1719200700000" ><span class="actTime">21:15 - 22:45</span><span class="actNm">Gigantic NGHTMRE</span></div><div class="act id-excisi-1 " data-id="excisi-1" data-start-time="1719203400000" data-end-time="1719208800000" data-mbid="733c6e6f-0306-403e-9243-82b16a4f82d8" ><span class="actTime">23:30 - 01:00</span><span class="actNm">Excision</span></div></div>
-</div><div class="stage"><h3 class="stageName">Sherwood Court</h3>
-<div class="actLists"><div class="act id-lightc-1 " data-id="lightc-1" data-start-time="1719174600000" data-end-time="1719179100000" ><span class="actTime">15:30 - 16:45</span><span class="actNm">Lightcode by LSDream</span></div><div class="act id-little-1 " data-id="little-1" data-start-time="1719181800000" data-end-time="1719185400000" ><span class="actTime">17:30 - 18:30</span><span class="actNm">Little Stranger</span></div><div class="act id-inzo-1 " data-id="inzo-1" data-start-time="1719191700000" data-end-time="1719196200000" ><span class="actTime">20:15 - 21:30</span><span class="actNm">Inzo</span></div><div class="act id-chases-1 " data-id="chases-1" data-start-time="1719198000000" data-end-time="1719202500000" data-mbid="82e454e2-38ee-4e69-89a6-cc65167753d1" ><span class="actTime">22:00 - 23:15</span><span class="actNm">Chase & Status</span></div><div class="act id-charlo-1 " data-id="charlo-1" data-start-time="1719205200000" data-end-time="1719209700000" ><span class="actTime">00:00 - 01:15</span><span class="actNm">Charlotte De Witte presents Overdrive</span></div></div>
-</div><div class="stage"><h3 class="stageName">Tripolee</h3>
-<div class="actLists"><div class="act id-yoga-3 " data-id="yoga-3" data-start-time="1719162000000" data-end-time="1719166500000" data-mbid="409b911e-1496-4238-a63a-25bcefe0f872" ><span class="actTime">12:00 - 13:15</span><span class="actNm">Yoga</span></div><div class="act id-ayybo-1 " data-id="ayybo-1" data-start-time="1719184500000" data-end-time="1719189000000" ><span class="actTime">18:15 - 19:30</span><span class="actNm">Ayybo</span></div><div class="act id-cocobr-1 " data-id="cocobr-1" data-start-time="1719189000000" data-end-time="1719193500000" ><span class="actTime">19:30 - 20:45</span><span class="actNm">Coco & Breezy</span></div><div class="act id-oddmob-1 " data-id="oddmob-1" data-start-time="1719193500000" data-end-time="1719198000000" ><span class="actTime">20:45 - 22:00</span><span class="actNm">Odd Mob & Omnom present Hyperbeam</span></div><div class="act id-acraze-1 " data-id="acraze-1" data-start-time="1719198000000" data-end-time="1719201600000" ><span class="actTime">22:00 - 23:00</span><span class="actNm">acraze</span></div><div class="act id-matrod-1 " data-id="matrod-1" data-start-time="1719201600000" data-end-time="1719206100000" ><span class="actTime">23:00 - 00:15</span><span class="actNm">Matroda</span></div><div class="act id-closin-1 " data-id="closin-1" data-start-time="1719207000000" data-end-time="1719212400000" ><span class="actTime">00:30 - 02:00</span><span class="actNm">Closing Party</span></div></div>
-</div><div class="stage"><h3 class="stageName">Carousel Club</h3>
-<div class="actLists"><div class="act id-pridep-1 " data-id="pridep-1" data-start-time="1719178200000" data-end-time="1719183600000" ><span class="actTime">16:30 - 18:00</span><span class="actNm">Pride Party</span></div><div class="act id-onlyfi-1 " data-id="onlyfi-1" data-start-time="1719183600000" data-end-time="1719188100000" ><span class="actTime">18:00 - 19:15</span><span class="actNm">Only Fire</span></div><div class="act id-shaunr-1 " data-id="shaunr-1" data-start-time="1719189900000" data-end-time="1719194400000" ><span class="actTime">19:45 - 21:00</span><span class="actNm">Shaun Ross</span></div><div class="act id-slayyy-1 " data-id="slayyy-1" data-start-time="1719196200000" data-end-time="1719199800000" ><span class="actTime">21:30 - 22:30</span><span class="actNm">Slayyyter</span></div><div class="act id-lpgiob-1 " data-id="lpgiob-1" data-start-time="1719201600000" data-end-time="1719207000000" data-mbid="dae7874c-3428-4e16-be51-5cb1968c8a97" ><span class="actTime">23:00 - 00:30</span><span class="actNm">LP Giobbi</span></div></div>
-</div><div class="stage"><h3 class="stageName">The Observatory</h3>
-<div class="actLists"><div class="act id-shaedi-1 " data-id="shaedi-1" data-start-time="1719179100000" data-end-time="1719182700000" ><span class="actTime">16:45 - 17:45</span><span class="actNm">Shae District</span></div><div class="act id-though-1 " data-id="though-1" data-start-time="1719184500000" data-end-time="1719188100000" data-mbid="1666ed7f-c66d-491a-874a-1536385d5267" ><span class="actTime">18:15 - 19:15</span><span class="actNm">Thought Process</span></div><div class="act id-levity-2 " data-id="levity-2" data-start-time="1719189000000" data-end-time="1719192600000" ><span class="actTime">19:30 - 20:30</span><span class="actNm">Levity</span></div><div class="act id-lyny-1 " data-id="lyny-1" data-start-time="1719193500000" data-end-time="1719197100000" ><span class="actTime">20:45 - 21:45</span><span class="actNm">LYNY</span></div><div class="act id-venbee-1 " data-id="venbee-1" data-start-time="1719198000000" data-end-time="1719201300000" data-mbid="28121910-a402-451d-b471-0085a8db0e5c" ><span class="actTime">22:00 - 22:55</span><span class="actNm">Venbee</span></div><div class="act id-hamdi-1 " data-id="hamdi-1" data-start-time="1719202500000" data-end-time="1719207000000" ><span class="actTime">23:15 - 00:30</span><span class="actNm">Hamdi</span></div><div class="act id-dixons-3 " data-id="dixons-3" data-start-time="1719208800000" data-end-time="1719212400000" data-mbid="2cc0c42d-a27a-43fe-bee4-ea12b8572322" ><span class="actTime">01:00 - 02:00</span><span class="actNm">Dixon's Violin</span></div></div>
-</div><div class="stage"><h3 class="stageName">Honeycomb</h3>
-<div class="actLists"><div class="act id-proxim-1 " data-id="proxim-1" data-start-time="1719182700000" data-end-time="1719186300000" ><span class="actTime">17:45 - 18:45</span><span class="actNm">Proxima Parada</span></div><div class="act id-jasonl-1 " data-id="jasonl-1" data-start-time="1719188100000" data-end-time="1719191700000" ><span class="actTime">19:15 - 20:15</span><span class="actNm">Jason Leech</span></div><div class="act id-maddyo-2 " data-id="maddyo-2" data-start-time="1719192600000" data-end-time="1719196200000" ><span class="actTime">20:30 - 21:30</span><span class="actNm">Maddy O'Neal</span></div><div class="act id-kallag-1 " data-id="kallag-1" data-start-time="1719198000000" data-end-time="1719201600000" ><span class="actTime">22:00 - 23:00</span><span class="actNm">Kallaghan</span></div><div class="act id-acraze-2 " data-id="acraze-2" data-start-time="1719208800000" data-end-time="1719212400000" ><span class="actTime">01:00 - 02:00</span><span class="actNm">acraze</span></div></div>
+<div class="stage"><h2 class="stageName">T-Mobile</h2>
+<div class="day" data-date="1753938000" data-first-start="43200" data-last-stop="79200"><h3 class="dayName">31/7/25</h3>
+<div class="actLists"><div class="act id-noname-1 " data-id="noname-1" data-start-time="1753985700000" data-end-time="1753988400000" ><span class="actTime">13:15 - 14:00</span><span class="actNm">??</span></div><div class="act id-2holli-1 " data-id="2holli-1" data-start-time="1753992000000" data-end-time="1753995600000" ><span class="actTime">15:00 - 16:00</span><span class="actNm">2hollis</span></div><div class="act id-magdal-1 " data-id="magdal-1" data-start-time="1753998300000" data-end-time="1754001900000" data-mbid="68c261d5-48c8-4ea9-9466-9fc908dc79bb" ><span class="actTime">16:45 - 17:45</span><span class="actNm">Magdalena Bay</span></div><div class="act id-gracie-1 " data-id="gracie-1" data-start-time="1754005500000" data-end-time="1754009100000" data-mbid="f7441bc7-d7de-4813-a2fc-31a4033d396d" ><span class="actTime">18:45 - 19:45</span><span class="actNm">Gracie Abrams</span></div><div class="act id-tylerc-1 " data-id="tylerc-1" data-start-time="1754012700000" data-end-time="1754017200000" data-mbid="f6beac20-5dfe-4d1f-ae02-0b0a740aafd6" ><span class="actTime">20:45 - 22:00</span><span class="actNm">Tyler, the Creator</span></div></div>
+</div><div class="day" data-date="1754024400" data-first-start="43200" data-last-stop="79200"><h3 class="dayName">1/8/25</h3>
+<div class="actLists"><div class="act id-alemed-1 " data-id="alemed-1" data-start-time="1754072100000" data-end-time="1754074800000" ><span class="actTime">13:15 - 14:00</span><span class="actNm">Alemeda</span></div><div class="act id-amaara-1 " data-id="amaara-1" data-start-time="1754078700000" data-end-time="1754082300000" data-mbid="29fab96f-c3a2-4251-80f6-7ccda50da706" ><span class="actTime">15:05 - 16:05</span><span class="actNm">Amaarae</span></div><div class="act id-tpain-1 " data-id="tpain-1" data-start-time="1754084700000" data-end-time="1754088300000" data-mbid="f5c2233f-20ee-48f1-ae21-53a6103acfe5" ><span class="actTime">16:45 - 17:45</span><span class="actNm">T-Pain</span></div><div class="act id-bleach-1 " data-id="bleach-1" data-start-time="1754091900000" data-end-time="1754095500000" data-mbid="58e235fc-f6ea-4614-9ed4-9855a5665ae1" ><span class="actTime">18:45 - 19:45</span><span class="actNm">Bleachers</span></div><div class="act id-olivia-1 " data-id="olivia-1" data-start-time="1754099100000" data-end-time="1754103600000" data-mbid="6925db17-f35e-42f3-a4eb-84ee6bf5d4b0" ><span class="actTime">20:45 - 22:00</span><span class="actNm">Olivia Rodrigo</span></div></div>
+</div><div class="day" data-date="1754110800" data-first-start="43200" data-last-stop="79200"><h3 class="dayName">2/8/25</h3>
+<div class="actLists"><div class="act id-naomis-1 " data-id="naomis-1" data-start-time="1754158500000" data-end-time="1754161200000" ><span class="actTime">13:15 - 14:00</span><span class="actNm">Naomi Scott</span></div><div class="act id-orions-1 " data-id="orions-1" data-start-time="1754163900000" data-end-time="1754167500000" ><span class="actTime">14:45 - 15:45</span><span class="actNm">Orion Sun</span></div><div class="act id-marina-1 " data-id="marina-1" data-start-time="1754171100000" data-end-time="1754174700000" data-mbid="7f3d82ee-3817-4367-9eec-f33a312247a1" ><span class="actTime">16:45 - 17:45</span><span class="actNm">MARINA</span></div><div class="act id-clairo-1 " data-id="clairo-1" data-start-time="1754178300000" data-end-time="1754181900000" data-mbid="d786f59b-1836-4ddb-8393-ab753edbe984" ><span class="actTime">18:45 - 19:45</span><span class="actNm">Clairo</span></div><div class="act id-doechi-1 " data-id="doechi-1" data-start-time="1754185500000" data-end-time="1754190000000" data-mbid="9f75277c-b283-4846-ac8c-f932255cd0ac" ><span class="actTime">20:45 - 22:00</span><span class="actNm">Doechii</span></div></div>
+</div><div class="day" data-date="1754197200" data-first-start="43200" data-last-stop="79200"><h3 class="dayName">3/8/25</h3>
+<div class="actLists"><div class="act id-rebecc-1 " data-id="rebecc-1" data-start-time="1754244900000" data-end-time="1754247600000" data-mbid="312c7cc1-9b5c-4406-963b-9f73f50674c0" ><span class="actTime">13:15 - 
+14:00</span><span class="actNm">Rebecca Black</span></div><div class="act id-mariah-1 " data-id="mariah-1" data-start-time="1754250300000" data-end-time="1754253900000" data-mbid="5fc55ebf-21bd-4eda-954c-dd250132331e" ><span class="actTime">14:45 - 15:45</span><span class="actNm">Mariah the Scientist</span></div><div class="act id-stillw-1 " data-id="stillw-1" data-start-time="1754257500000" data-end-time="1754261100000" data-mbid="bfa6929d-8375-488d-b027-8a0691c73643" ><span class="actTime">16:45 - 17:45</span><span class="actNm">Still Woozy</span></div><div class="act id-domini-1 " data-id="domini-1" data-start-time="1754264700000" data-end-time="1754268300000" data-mbid="e337c918-098f-418e-97a2-81dc224b1bf9" ><span class="actTime">18:45 - 19:45</span><span class="actNm">Dominic Fike</span></div><div class="act id-sabrin-1 " data-id="sabrin-1" data-start-time="1754271900000" data-end-time="1754276400000" data-mbid="1882fe91-cdd9-49c9-9956-8e06a3810bd4" ><span class="actTime">20:45 - 22:00</span><span class="actNm">Sabrina Carpenter</span></div></div>
+</div></div><div class="stage"><h2 class="stageName">IHG/Coinbase</h2>
+<div class="day" data-date="1753938000" data-first-start="43200" data-last-stop="79200"><h3 class="dayName">31/7/25</h3>
+<div class="actLists"><div class="act id-sillyg-1 " data-id="sillyg-1" data-start-time="1753983000000" data-end-time="1753985700000" ><span class="actTime">12:30 - 13:15</span><span class="actNm">Silly Goose</span></div><div class="act id-sunami-1 " data-id="sunami-1" data-start-time="1753988400000" data-end-time="1753992000000" data-mbid="1b53aa11-ccef-457f-90d9-5165b270fdc5" ><span class="actTime">14:00 - 15:00</span><span class="actNm">Sunami</span></div><div class="act id-durand-1 " data-id="durand-1" data-start-time="1753995600000" data-end-time="1753998300000" data-mbid="dc346e8d-b930-4878-b0f7-7e50e197388f" ><span class="actTime">16:00 - 16:45</span><span class="actNm">Durand Bernarr</span></div><div class="act id-mattch-1 " data-id="mattch-1" data-start-time="1754001900000" data-end-time="1754005500000" ><span class="actTime">17:45 
+- 18:45</span><span class="actNm">Matt Champion</span></div><div class="act id-rolemo-1 " data-id="rolemo-1" data-start-time="1754009100000" data-end-time="1754012700000" ><span class="actTime">19:45 - 20:45</span><span class="actNm">Role Model</span></div></div>
+</div><div class="day" data-date="1754024400" data-first-start="43200" data-last-stop="79200"><h3 class="dayName">1/8/25</h3>
+<div class="actLists"><div class="act id-janere-1 " data-id="janere-1" data-start-time="1754069400000" data-end-time="1754072100000" ><span class="actTime">12:30 - 13:15</span><span class="actNm">Jane Remover</span></div><div class="act id-otobok-1 " data-id="otobok-1" data-start-time="1754074800000" data-end-time="1754078400000" ><span class="actTime">14:00 - 15:00</span><span class="actNm">Otoboke Beaver</span></div><div class="act id-ravenl-1 " data-id="ravenl-1" data-start-time="1754082000000" data-end-time="1754084700000" ><span class="actTime">16:00 - 16:45</span><span class="actNm">Raven Lenae</span></div><div class="act id-bladee-1 " data-id="bladee-1" data-start-time="1754088300000" data-end-time="1754091900000" data-mbid="cd689e77-dfdd-4f81-b50c-5e5a3f5e38a4" ><span class="actTime">17:45 - 18:45</span><span class="actNm">Bladee</span></div><div class="act id-foster-1 " data-id="foster-1" data-start-time="1754095500000" data-end-time="1754099100000" data-mbid="e0e1a584-dd0a-4bd1-88d1-c4c62895039d" ><span class="actTime">19:45 - 20:45</span><span class="actNm">Foster the People</span></div></div>
+</div><div class="day" data-date="1754110800" data-first-start="43200" data-last-stop="79200"><h3 class="dayName">2/8/25</h3>
+<div class="actLists"><div class="act id-duasal-1 " data-id="duasal-1" data-start-time="1754155800000" data-end-time="1754158500000" ><span class="actTime">12:30 - 13:15</span><span class="actNm">Dua Saleh</span></div><div class="act id-ca7rie-1 " data-id="ca7rie-1" data-start-time="1754161200000" data-end-time="1754163900000" ><span class="actTime">14:00 - 14:45</span><span class="actNm">CA7RIEL & Paco Amoroso</span></div><div class="act id-ole60-1 " data-id="ole60-1" data-start-time="1754167500000" data-end-time="1754171100000" ><span class="actTime">15:45 - 16:45</span><span class="actNm">Ole 60</span></div><div class="act id-jpegma-1 " data-id="jpegma-1" data-start-time="1754174700000" data-end-time="1754178300000" data-mbid="c42e60f4-4520-4954-b6e4-82bbdf532c11" ><span class="actTime">17:45 - 18:45</span><span class="actNm">JPEGMAFIA</span></div><div class="act id-mkgee-1 " data-id="mkgee-1" data-start-time="1754181900000" data-end-time="1754185500000" data-mbid="262cf0ce-2af2-4686-a8cc-d6b33e97336d" ><span class="actTime">19:45 - 20:45</span><span class="actNm">Mk.gee</span></div></div>
+</div><div class="day" data-date="1754197200" data-first-start="43200" data-last-stop="79200"><h3 class="dayName">3/8/25</h3>
+<div class="actLists"><div class="act id-blkody-1 " data-id="blkody-1" data-start-time="1754242200000" data-end-time="1754244900000" ><span class="actTime">12:30 - 13:15</span><span class="actNm">BLK ODYSSY</span></div><div class="act id-joeyva-1 " data-id="joeyva-1" data-start-time="1754247600000" data-end-time="1754250300000" data-mbid="93a4d03b-4f0e-42da-ae0b-a62876e46071" ><span class="actTime">14:00 - 14:45</span><span class="actNm">Joey Valence & Brae</span></div><div class="act id-artema-1 " data-id="artema-1" data-start-time="1754253900000" data-end-time="1754257500000" ><span class="actTime">15:45 - 16:45</span><span class="actNm">Artemas</span></div><div class="act id-latinm-1 " data-id="latinm-1" data-start-time="1754261100000" data-end-time="1754264700000" ><span class="actTime">17:45 - 18:45</span><span class="actNm">Latin Mafia</span></div><div class="act id-remiwo-1 " data-id="remiwo-1" data-start-time="1754268300000" data-end-time="1754271900000" data-mbid="afb6cc6d-a060-4f5e-bc3a-00d4b6832e41" ><span class="actTime">19:45 - 20:45</span><span class="actNm">Remi Wolf</span></div></div>
+</div></div><div class="stage"><h2 class="stageName">Bud Light</h2>
+<div class="day" data-date="1753938000" data-first-start="43200" data-last-stop="79200"><h3 class="dayName">31/7/25</h3>
+<div class="actLists"><div class="act id-yana-1 " data-id="yana-1" data-start-time="1753984800000" data-end-time="1753987500000" ><span class="actTime">13:00 - 13:45</span><span class="actNm">Yana</span></div><div class="act id-alexwa-1 " data-id="alexwa-1" data-start-time="1753991100000" data-end-time="1753994700000" ><span class="actTime">14:45 - 15:45</span><span class="actNm">Alex Warren</span></div><div class="act id-sierra-1 " data-id="sierra-1" data-start-time="1753998300000" data-end-time="1754001900000" ><span class="actTime">16:45 - 17:45</span><span class="actNm">Sierra Ferrell</span></div><div class="act id-cageel-1 " data-id="cageel-1" data-start-time="1754005500000" data-end-time="1754009100000" data-mbid="b41b38d4-ef3e-4f37-8c75-cfe9af999696" ><span class="actTime">18:45 - 19:45</span><span class="actNm">Cage the Elephant</span></div><div class="act id-lukeco-1 " data-id="lukeco-1" data-start-time="1754011800000" data-end-time="1754017200000" data-mbid="c20ee61f-071f-4e65-9c81-45ee931a54ce" ><span class="actTime">20:30 - 22:00</span><span class="actNm">Luke Combs</span></div></div>
+</div><div class="day" data-date="1754024400" data-first-start="43200" data-last-stop="79200"><h3 class="dayName">1/8/25</h3>
+<div class="actLists"><div class="act id-oldmer-1 " data-id="oldmer-1" data-start-time="1754071200000" data-end-time="1754073900000" ><span class="actTime">13:00 - 13:45</span><span class="actNm">Old Mervs</span></div><div class="act id-gigipe-1 " data-id="gigipe-1" data-start-time="1754077500000" data-end-time="1754081100000" ><span class="actTime">14:45 - 15:45</span><span class="actNm">Gigi Perez</span></div><div class="act id-wallow-1 " data-id="wallow-1" data-start-time="1754084700000" data-end-time="1754088300000" ><span class="actTime">16:45 - 17:45</span><span class="actNm">Wallows</span></div><div class="act id-djo-1 " data-id="djo-1" data-start-time="1754091900000" data-end-time="1754095500000" ><span class="actTime">18:45 - 19:45</span><span class="actNm">Djo</span></div><div class="act id-korn-1 " data-id="korn-1" data-start-time="1754098200000" data-end-time="1754103600000" data-mbid="ac865b2e-bba8-4f5a-8756-dd40d5e39f46" ><span class="actTime">20:30 - 22:00</span><span class="actNm">Korn</span></div></div>
+</div><div class="day" data-date="1754110800" data-first-start="43200" data-last-stop="79200"><h3 class="dayName">2/8/25</h3>
+<div class="actLists"><div class="act id-chicag1-1 " data-id="chicag1-1" data-start-time="1754157600000" data-end-time="1754160300000" ><span class="actTime">13:00 - 13:45</span><span class="actNm">Chicago Youth Symphony Orchestra</span></div><div class="act id-fujiik-1 " data-id="fujiik-1" data-start-time="1754163900000" data-end-time="1754167500000" ><span class="actTime">14:45 - 15:45</span><span class="actNm">Fujii Kaze</span></div><div class="act id-levity-1 " data-id="levity-1" data-start-time="1754171100000" data-end-time="1754174700000" data-mbid="204407c3-26ab-469a-b487-40ae6b067c1b" ><span class="actTime">16:45 - 17:45</span><span class="actNm">Levity</span></div><div class="act id-youngm-1 " data-id="youngm-1" data-start-time="1754178300000" data-end-time="1754181900000" data-mbid="c4442130-e7f2-40aa-bcab-b921cc45a365" ><span class="actTime">18:45 - 19:45</span><span class="actNm">Young Miko</span></div><div class="act id-twice-1 " data-id="twice-1" data-start-time="1754184600000" data-end-time="1754190000000" ><span class="actTime">20:30 - 22:00</span><span class="actNm">Twice</span></div></div>
+</div><div class="day" data-date="1754197200" data-first-start="43200" data-last-stop="79200"><h3 class="dayName">3/8/25</h3>
+<div class="actLists"><div class="act id-wunder-1 " data-id="wunder-1" data-start-time="1754244000000" data-end-time="1754246700000" data-mbid="5126db33-86ad-469d-88fb-4158350e1515" ><span class="actTime">13:00 - 
+13:45</span><span class="actNm">Wunderhorse</span></div><div class="act id-isaiah-1 " data-id="isaiah-1" data-start-time="1754250300000" data-end-time="1754253900000" data-mbid="37547347-ea75-45fa-9766-ff36b44d8147" ><span class="actTime">14:45 - 15:45</span><span class="actNm">Isaiah Rashad</span></div><div class="act id-finnea-1 " data-id="finnea-1" data-start-time="1754257500000" data-end-time="1754261100000" data-mbid="151cd917-1ee2-4702-859f-90899ad897f8" ><span class="actTime">16:45 - 17:45</span><span class="actNm">Finneas</span></div><div class="act id-maras-1 " data-id="maras-1" data-start-time="1754264700000" data-end-time="1754268300000" data-mbid="7a3970c9-ecd8-4eee-a267-4d8c77d97ff3" ><span class="actTime">18:45 - 19:45</span><span class="actNm">The Marías</span></div><div class="act id-aaproc-1 " data-id="aaproc-1" data-start-time="1754271000000" data-end-time="1754276400000" data-mbid="25b7b584-d952-4662-a8b9-dd8cdfbfeb64" ><span class="actTime">20:30 - 22:00</span><span class="actNm">A$AP Rocky</span></div></div>
+</div></div><div class="stage"><h2 class="stageName">Tito's</h2>
+<div class="day" data-date="1753938000" data-first-start="43200" data-last-stop="79200"><h3 class="dayName">31/7/25</h3>
+<div class="actLists"><div class="act id-xavier-1 " data-id="xavier-1" data-start-time="1753982100000" data-end-time="1753984800000" ><span class="actTime">12:15 - 13:00</span><span class="actNm">xaviersobased</span></div><div class="act id-blackp-1 " data-id="blackp-1" data-start-time="1753987500000" data-end-time="1753991100000" ><span class="actTime">13:45 - 14:45</span><span class="actNm">bLAck pARty</span></div><div class="act id-glassb-1 " data-id="glassb-1" data-start-time="1753994700000" data-end-time="1753998300000" data-mbid="5bb54b77-2caa-4377-bdc3-3b8c0f5e507f" ><span class="actTime">15:45 - 16:45</span><span class="actNm">Glass Beams</span></div><div class="act id-markam-1 " data-id="markam-1" data-start-time="1754001900000" data-end-time="1754005500000" data-mbid="483e1216-3eb3-4996-a45d-55f6169689a0" ><span class="actTime">17:45 - 18:45</span><span class="actNm">Mark Ambor</span></div><div class="act id-djheat-1 " data-id="djheat-1" data-start-time="1754009100000" data-end-time="1754011800000" data-mbid="8c2d581b-4482-4653-9d02-f44506604b57" ><span class="actTime">19:45 - 20:30</span><span class="actNm">DJ Heather</span></div></div>
+</div><div class="day" data-date="1754024400" data-first-start="43200" data-last-stop="79200"><h3 class="dayName">1/8/25</h3>
+<div class="actLists"><div class="act id-heynot-1 " data-id="heynot-1" data-start-time="1754068500000" data-end-time="1754071200000" ><span class="actTime">12:15 - 13:00</span><span class="actNm">Hey, Nothing</span></div><div class="act id-oceana-1 " data-id="oceana-1" data-start-time="1754073900000" data-end-time="1754077500000" data-mbid="8cf32b06-c5a3-4804-a967-376f88d12aad" ><span class="actTime">13:45 - 14:45</span><span class="actNm">Ocean Alley</span></div><div class="act id-dare-1 " data-id="dare-1" data-start-time="1754081100000" data-end-time="1754084700000" data-mbid="7fe3380a-8e35-48d1-ac5a-174fe6b5060b" ><span class="actTime">15:45 - 16:45</span><span class="actNm">The Dare</span></div><div class="act id-fliptu-1 " data-id="fliptu-1" data-start-time="1754088300000" data-end-time="1754091900000" ><span class="actTime">17:45 - 18:45</span><span class="actNm">flipturn</span></div><div class="act id-starba1-1 " data-id="starba1-1" data-start-time="1754095500000" data-end-time="1754098200000" ><span class="actTime">19:45 - 20:30</span><span 
+class="actNm">STAR BANDZ</span></div></div>
+</div><div class="day" data-date="1754110800" data-first-start="43200" data-last-stop="79200"><h3 class="dayName">2/8/25</h3>
+<div class="actLists"><div class="act id-ba-1 " data-id="ba-1" data-start-time="1754154900000" data-end-time="1754157600000" ><span class="actTime">12:15 - 13:00</span><span class="actNm">Bôa</span></div><div class="act id-salute-1 " data-id="salute-1" data-start-time="1754160300000" data-end-time="1754163900000" data-mbid="87484a93-1aae-4917-8d2f-7af0d16a2129" ><span class="actTime">13:45 - 14:45</span><span class="actNm">Salute</span></div><div class="act id-maxmck-1 " data-id="maxmck-1" data-start-time="1754167500000" data-end-time="1754171100000" ><span class="actTime">15:45 - 16:45</span><span class="actNm">Max McKnown</span></div><div class="act id-damian-1 " data-id="damian-1" data-start-time="1754174700000" data-end-time="1754178300000" data-mbid="852c198a-75ee-4e2b-9aba-4453c52260b2" ><span class="actTime">17:45 - 18:45</span><span class="actNm">Damiano David</span></div><div class="act id-starba-1 " data-id="starba-1" data-start-time="1754181900000" data-end-time="1754184600000" ><span class="actTime">19:45 - 20:30</span><span class="actNm">Starbandz</span></div></div>
+</div><div class="day" data-date="1754197200" data-first-start="43200" data-last-stop="79200"><h3 class="dayName">3/8/25</h3>
+<div class="actLists"><div class="act id-benche-1 " data-id="benche-1" data-start-time="1754241300000" data-end-time="1754244000000" ><span class="actTime">12:15 - 13:00</span><span class="actNm">Benches</span></div><div class="act id-laila-1 " data-id="laila-1" data-start-time="1754246700000" data-end-time="1754250300000" ><span class="actTime">13:45 - 14:45</span><span class="actNm">Laila!</span></div><div class="act id-wildri-1 " data-id="wildri-1" data-start-time="1754253900000" data-end-time="1754257500000" data-mbid="ffd11889-af95-42ed-b0ee-315df62510f5" ><span class="actTime">15:45 - 16:45</span><span class="actNm">Wild Rivers</span></div><div class="act id-ian-1 " data-id="ian-1" data-start-time="1754261100000" data-end-time="1754264700000" ><span class="actTime">17:45 - 18:45</span><span class="actNm">ian</span></div><div class="act id-aliyah-1 " data-id="aliyah-1" data-start-time="1754268300000" data-end-time="1754271000000" ><span class="actTime">19:45 - 20:30</span><span class="actNm">Aliyah's Interlude</span></div></div>
+</div></div><div class="stage"><h2 class="stageName">Perry's/Solana</h2>
+<div class="day" data-date="1753938000" data-first-start="43200" data-last-stop="79200"><h3 class="dayName">31/7/25</h3>
+<div class="actLists"><div class="act id-torren-1 " data-id="torren-1" data-start-time="1753981200000" data-end-time="1753984800000" ><span class="actTime">12:00 - 13:00</span><span class="actNm">Torren Foot b2b Airwolf Paradise</span></div><div class="act id-azzecc-1 " data-id="azzecc-1" data-start-time="1753985400000" data-end-time="1753987500000" ><span class="actTime">13:10 - 13:45</span><span class="actNm">Azzecca</span></div><div class="act id-prospa-1 " data-id="prospa-1" data-start-time="1753987800000" data-end-time="1753990500000" data-mbid="4c3cffca-37b7-4ecd-9320-e6dcc2cb837a" ><span class="actTime">13:50 - 14:35</span><span class="actNm">Prospa</span></div><div class="act id-blesse-1 " data-id="blesse-1" data-start-time="1753991100000" data-end-time="1753994400000" data-mbid="3f351696-75a2-4167-86b1-c5cd37770600" ><span class="actTime">14:45 - 15:40</span><span class="actNm">The Blessed Madonna</span></div><div class="act id-overmo-1 " data-id="overmo-1" data-start-time="1753995300000" data-end-time="1753998900000" data-mbid="b841d0f2-0a2a-4cb2-a2d8-9895b7f90bfa" ><span class="actTime">15:55 - 16:55</span><span class="actNm">Overmono</span></div><div class="act id-cloone-1 " data-id="cloone-1" data-start-time="1753999800000" data-end-time="1754003400000" data-mbid="b643c24d-4cd6-4531-88bc-62b39ce43ee1" ><span class="actTime">17:10 - 18:10</span><span class="actNm">Cloonee</span></div><div class="act id-barryc-1 " data-id="barryc-1" data-start-time="1754003700000" data-end-time="1754007900000" data-mbid="7dcf3b98-701a-4309-a90c-eb4179b96ea9" ><span class="actTime">18:15 - 19:25</span><span class="actNm">Barry Can't Swim</span></div><div class="act id-maup-1 " data-id="maup-1" data-start-time="1754008500000" data-end-time="1754012100000" data-mbid="933d5cd2-a70a-44b5-96e5-332b32209592" ><span class="actTime">19:35 - 20:35</span><span class="actNm">Mau P</span></div><div class="act id-domdol-1 " data-id="domdol-1" data-start-time="1754012700000" data-end-time="1754017200000" data-mbid="9b8548a9-5991-42a9-ba96-fe83bd238b7a" ><span class="actTime">20:45 - 22:00</span><span class="actNm">Dom Dolla</span></div></div>
+</div><div class="day" data-date="1754024400" data-first-start="43200" data-last-stop="79200"><h3 class="dayName">1/8/25</h3>
+<div class="actLists"><div class="act id-hexcou-1 " data-id="hexcou-1" data-start-time="1754067600000" data-end-time="1754069700000" ><span class="actTime">12:00 - 12:35</span><span class="actNm">Hex Cougar</span></div><div class="act id-marydr-1 " data-id="marydr-1" data-start-time="1754070900000" data-end-time="1754073300000" ><span class="actTime">12:55 - 13:35</span><span class="actNm">Mary Droppinz</span></div><div class="act id-vipera-1 " data-id="vipera-1" data-start-time="1754073900000" data-end-time="1754076600000" data-mbid="54eb87ac-5fcf-41de-b86e-9fafd1e771de" ><span class="actTime">13:45 - 14:30</span><span class="actNm">Viperactive</span></div><div class="act id-alleyc-1 " data-id="alleyc-1" data-start-time="1754077200000" data-end-time="1754081100000" data-mbid="2590b6d4-648a-4092-9850-f614d6df51ca" ><span class="actTime">14:40 - 15:45</span><span class="actNm">ALLEYCVT</span></div><div class="act id-murdab-1 " data-id="murdab-1" data-start-time="1754081700000" data-end-time="1754085300000" ><span class="actTime">15:55 - 16:55</span><span class="actNm">Murda Beats</span></div><div class="act id-bunt-1 " data-id="bunt-1" data-start-time="1754085900000" data-end-time="1754089500000" ><span class="actTime">17:05 - 18:05</span><span class="actNm">BUNT.</span></div><div class="act id-tapeb-1 " data-id="tapeb-1" data-start-time="1754089800000" data-end-time="1754094000000" data-mbid="cdee470d-8167-4c15-808e-c4ce7fa3d6e7" ><span class="actTime">18:10 - 19:20</span><span class="actNm">Tape B</span></div><div class="act id-isoxo-1 " data-id="isoxo-1" data-start-time="1754094600000" data-end-time="1754098200000" data-mbid="8f9a7d46-778a-48b6-8b4c-0c0938a95053" ><span class="actTime">19:30 - 20:30</span><span class="actNm">ISOxo</span></div><div class="act id-knock2-1 " data-id="knock2-1" data-start-time="1754099100000" data-end-time="1754103600000" ><span class="actTime">20:45 - 
+22:00</span><span class="actNm">Knock2</span></div></div>
+</div><div class="day" data-date="1754110800" data-first-start="43200" data-last-stop="79200"><h3 class="dayName">2/8/25</h3>
+<div class="actLists"><div class="act id-tessla-1 " data-id="tessla-1" data-start-time="1754154000000" data-end-time="1754156700000" ><span class="actTime">12:00 - 12:45</span><span class="actNm">Tessla</span></div><div class="act id-jev-1 " data-id="jev-1" data-start-time="1754157600000" data-end-time="1754160300000" ><span class="actTime">13:00 - 13:45</span><span class="actNm">JEV</span></div><div class="act id-daniel-1 " data-id="daniel-1" data-start-time="1754160900000" data-end-time="1754163600000" ><span class="actTime">13:55 - 14:40</span><span class="actNm">Daniel Allan</span></div><div class="act id-layz-1 " data-id="layz-1" data-start-time="1754164500000" data-end-time="1754167500000" data-mbid="60c0c427-ef03-4d63-b47e-9ab08bf48d04" ><span class="actTime">14:55 - 15:45</span><span class="actNm">LAYZ</span></div><div class="act id-fluxpa-1 " data-id="fluxpa-1" data-start-time="1754167800000" data-end-time="1754171400000" data-mbid="3ce513c5-bdd4-492c-a875-07e0f3e1993b" ><span class="actTime">15:50 - 16:50</span><span class="actNm">Flux Pavilion</span></div><div class="act id-drfres-1 " data-id="drfres-1" data-start-time="1754172300000" data-end-time="1754175900000" data-mbid="6bc0fa87-4d85-4387-94f0-f99094c32ea6" ><span class="actTime">17:05 - 18:05</span><span class="actNm">Dr. Fresch</span></div><div class="act id-chases-1 " data-id="chases-1" data-start-time="1754176500000" data-end-time="1754180100000" data-mbid="82e454e2-38ee-4e69-89a6-cc65167753d1" ><span class="actTime">18:15 - 19:15</span><span class="actNm">Chase & Status</span></div><div class="act id-twofri-1 " data-id="twofri-1" data-start-time="1754180700000" data-end-time="1754184300000" data-mbid="c394e9ff-888f-4c03-a494-147d5aa53ccb" ><span class="actTime">19:25 - 20:25</span><span class="actNm">Two Friends</span></div><div class="act id-rfsdus-1 " data-id="rfsdus-1" data-start-time="1754184600000" data-end-time="1754190000000" ><span class="actTime">20:30 - 22:00</span><span class="actNm">Rüfüs Du Sol</span></div></div>
+</div><div class="day" data-date="1754197200" data-first-start="43200" data-last-stop="79200"><h3 class="dayName">3/8/25</h3>
+<div class="actLists"><div class="act id-raecol-1 " data-id="raecol-1" data-start-time="1754240400000" data-end-time="1754243100000" ><span class="actTime">12:00 - 12:45</span><span class="actNm">RaeCola</span></div><div class="act id-jigitz-1 " data-id="jigitz-1" data-start-time="1754244300000" data-end-time="1754247600000" ><span class="actTime">13:05 - 14:00</span><span class="actNm">jigitz</span></div><div class="act id-nimino-1 " data-id="nimino-1" data-start-time="1754248800000" data-end-time="1754252400000" ><span class="actTime">14:20 - 15:20</span><span class="actNm">nimino</span></div><div class="act id-maribo-1 " data-id="maribo-1" data-start-time="1754254500000" data-end-time="1754258100000" data-mbid="72034a05-bcd8-40c2-8255-3ee4ac0e7ef0" ><span class="actTime">15:55 - 16:55</span><span class="actNm">Maribou State</span></div><div class="act id-marlon-1 " data-id="marlon-1" data-start-time="1754258700000" data-end-time="1754262900000" ><span class="actTime">17:05 - 18:15</span><span class="actNm">Marlon Hoffstadt</span></div><div class="act id-sammyv-1 " data-id="sammyv-1" data-start-time="1754263200000" data-end-time="1754267100000" data-mbid="e23abc5f-478a-4594-ad18-b3805b3c5316" ><span class="actTime">18:20 - 19:25</span><span class="actNm">Sammy Virji</span></div><div class="act id-gryffi-1 " data-id="gryffi-1" data-start-time="1754267400000" data-end-time="1754271000000" data-mbid="f1348139-efb5-43c7-9204-199827efad3c" ><span class="actTime">19:30 - 20:30</span><span class="actNm">Gryffin</span></div><div class="act id-martin-1 " data-id="martin-1" data-start-time="1754271900000" data-end-time="1754276400000" data-mbid="3e1f2ee4-16be-4406-bf18-6173840cf2b1" 
+><span class="actTime">20:45 - 22:00</span><span class="actNm">Martin Garrix</span></div></div>
+</div></div><div class="stage"><h2 class="stageName">Bacardi</h2>
+<div class="day" data-date="1753938000" data-first-start="43200" data-last-stop="79200"><h3 class="dayName">31/7/25</h3>
+<div class="actLists"><div class="act id-alexsu-1 " data-id="alexsu-1" data-start-time="1753984200000" data-end-time="1753986900000" ><span class="actTime">12:50 - 13:35</span><span class="actNm">ALEXSUCKS</span></div><div class="act id-sympos-1 " data-id="sympos-1" data-start-time="1753988400000" data-end-time="1753991100000" ><span class="actTime">14:00 - 14:45</span><span class="actNm">The Symposium</span></div><div class="act id-nouris-1 " data-id="nouris-1" data-start-time="1753992300000" data-end-time="1753995000000" data-mbid="6420dd6b-8232-42db-9cb9-90bec8f40e91" ><span class="actTime">15:05 - 15:50</span><span class="actNm">Nourished By Time</span></div><div class="act id-ratboy-1 " data-id="ratboy-1" data-start-time="1753996500000" data-end-time="1753999200000" ><span class="actTime">16:15 - 17:00</span><span class="actNm">Ratboys</span></div><div class="act id-julie-1 " data-id="julie-1" data-start-time="1754000700000" data-end-time="1754003400000" data-mbid="1e79565e-60d5-498d-aa73-fa24d9065df1" ><span class="actTime">17:25 - 18:10</span><span class="actNm">julie</span></div><div class="act id-fcuker-1 " data-id="fcuker-1" data-start-time="1754004900000" data-end-time="1754007600000" data-mbid="5e23e428-d9f5-4679-bd7c-8254d6f0a437" ><span class="actTime">18:35 - 19:20</span><span class="actNm">Fcukers</span></div><div class="act id-halfal-1 " data-id="halfal-1" data-start-time="1754009100000" data-end-time="1754011800000" ><span class="actTime">19:45 - 20:30</span><span class="actNm">Half-Alive</span></div><div class="act id-xdinar-1 " data-id="xdinar-1" data-start-time="1754013600000" data-end-time="1754017200000" ><span class="actTime">21:00 - 22:00</span><span 
+class="actNm">Xdinary Heroes</span></div></div>
+</div><div class="day" data-date="1754024400" data-first-start="43200" data-last-stop="79200"><h3 class="dayName">1/8/25</h3>
+<div class="actLists"><div class="act id-midnig-1 " data-id="midnig-1" data-start-time="1754070600000" data-end-time="1754073300000" ><span class="actTime">12:50 - 13:35</span><span class="actNm">Midnight Generation</span></div><div class="act id-dogpar-1 " data-id="dogpar-1" data-start-time="1754075100000" data-end-time="1754077800000" ><span class="actTime">14:05 - 14:50</span><span class="actNm">Dogpark</span></div><div class="act id-zinade-1 " data-id="zinade-1" data-start-time="1754079300000" data-end-time="1754082000000" ><span class="actTime">15:15 - 16:00</span><span class="actNm">Zinadelphia</span></div><div class="act id-isabel-1 " data-id="isabel-1" data-start-time="1754083500000" data-end-time="1754086200000" ><span class="actTime">16:25 - 17:10</span><span class="actNm">Isabel Larosa</span></div><div class="act id-orlaga-1 " data-id="orlaga-1" data-start-time="1754087700000" data-end-time="1754090400000" data-mbid="8094a83b-86ce-4a13-b25f-90af829c9ed6" ><span class="actTime">17:35 - 18:20</span><span class="actNm">Orla Gartland</span></div><div class="act id-delwat-1 " data-id="delwat-1" data-start-time="1754091900000" data-end-time="1754094600000" data-mbid="5f606b3d-fab7-4d39-bcdb-f5d42edae945" ><span class="actTime">18:45 - 19:30</span><span 
+class="actNm">Del Water Gap</span></div><div class="act id-kennym-1 " data-id="kennym-1" data-start-time="1754095800000" data-end-time="1754098500000" ><span class="actTime">19:50 - 20:35</span><span class="actNm">Kenny Mason</span></div><div class="act id-wyattf-1 " data-id="wyattf-1" data-start-time="1754100000000" data-end-time="1754103600000" data-mbid="4ae67eb7-c01c-4d71-b995-21b093fcb888" ><span class="actTime">21:00 - 22:00</span><span class="actNm">Wyatt Flores</span></div></div>
+</div><div class="day" data-date="1754110800" data-first-start="43200" data-last-stop="79200"><h3 class="dayName">2/8/25</h3>
+<div class="actLists"><div class="act id-eddiea-1 " data-id="eddiea-1" data-start-time="1754154000000" data-end-time="1754156700000" ><span class="actTime">12:00 - 12:45</span><span class="actNm">Eddie and the Getaway</span></div><div class="act id-junior-1 " data-id="junior-1" data-start-time="1754157600000" data-end-time="1754160300000" ><span class="actTime">13:00 - 13:45</span><span class="actNm">Junior Varsity</span></div><div class="act id-winnet-1 " data-id="winnet-1" data-start-time="1754161200000" data-end-time="1754163900000" ><span class="actTime">14:00 - 14:45</span><span class="actNm">Winnetka Bowling League</span></div><div class="act id-kickfl-1 " data-id="kickfl-1" data-start-time="1754164800000" data-end-time="1754167500000" ><span class="actTime">15:00 - 15:45</span><span class="actNm">Kickflip</span></div><div class="act 
+id-newdad-1 " data-id="newdad-1" data-start-time="1754168400000" data-end-time="1754171100000" data-mbid="038bd27c-ebec-44e5-9880-1f5eb933db11" ><span class="actTime">16:00 - 16:45</span><span class="actNm">NewDad</span></div><div class="act id-charlo-1 " data-id="charlo-1" data-start-time="1754172000000" data-end-time="1754174700000" ><span class="actTime">17:00 - 17:45</span><span class="actNm">Charlotte Lawrence</span></div><div class="act id-wasiap-1 " data-id="wasiap-1" data-start-time="1754175600000" data-end-time="1754178300000" ><span class="actTime">18:00 - 18:45</span><span class="actNm">Wasia Project</span></div><div class="act id-montel-1 " data-id="montel-1" data-start-time="1754179200000" data-end-time="1754181900000" ><span class="actTime">19:00 - 19:45</span><span class="actNm">Montell Fish</span></div><div class="act id-bossma-1 " data-id="bossma-1" data-start-time="1754182800000" data-end-time="1754185500000" ><span class="actTime">20:00 - 20:45</span><span class="actNm">Bossman Dlow</span></div><div class="act id-bilmur-1 " data-id="bilmur-1" data-start-time="1754186400000" data-end-time="1754190000000" data-mbid="b09de30a-09ac-4cc9-8812-49bb12e2bfa6" ><span class="actTime">21:00 - 22:00</span><span class="actNm">Bilmuri</span></div></div></div><div class="day" data-date="1754197200" data-first-start="43200" data-last-stop="79200"><h3 class="dayName">3/8/25</h3>
+<div class="actLists"><div class="act id-lekan-1 " data-id="lekan-1" data-start-time="1754243400000" data-end-time="1754246400000" ><span class="actTime">12:50 - 13:40</span><span class="actNm">Lekan</span></div><div class="act id-critic-1 " data-id="critic-1" data-start-time="1754247900000" data-end-time="1754250600000" ><span class="actTime">14:05 - 14:50</span><span class="actNm">The Criticals</span></div><div class="act id-joep-1 " data-id="joep-1" data-start-time="1754251800000" data-end-time="1754254500000" ><span class="actTime">15:10 - 15:55</span><span class="actNm">Joe P</span></div><div class="act id-flower-1 " data-id="flower-1" data-start-time="1754256000000" data-end-time="1754258700000" data-mbid="cc082564-87b8-405c-97b0-7c2a8e84212a" ><span class="actTime">16:20 - 17:05</span><span class="actNm">Flowerovlove</span></div><div class="act id-boynex-1 " data-id="boynex-1" data-start-time="1754260200000" data-end-time="1754262900000" ><span class="actTime">17:30 - 18:15</span><span class="actNm">Boynextdoor</span></div><div class="act id-femme-1 " data-id="femme-1" data-start-time="1754264400000" data-end-time="1754267100000" data-mbid="45ce3d4f-3cb5-474a-a3b0-614b0f517349" ><span class="actTime">18:40 - 19:25</span><span class="actNm">La Femme</span></div><div class="act id-katsey-1 " data-id="katsey-1" data-start-time="1754268600000" data-end-time="1754271300000" ><span class="actTime">19:50 - 20:35</span><span class="actNm">KATSEYE</span></div><div class="act id-waveto-1 " data-id="waveto-1" data-start-time="1754272800000" data-end-time="1754276400000" ><span class="actTime">21:00 - 22:00</span><span class="actNm">wave to earth</span></div></div>
+</div></div><div class="stage"><h2 class="stageName">BMI</h2>
+<div class="day" data-date="1753938000" data-first-start="43200" data-last-stop="79200"><h3 class="dayName">31/7/25</h3>
+<div class="actLists"><div class="act id-girlto-1 " data-id="girlto-1" data-start-time="1753984800000" data-end-time="1753987200000" ><span class="actTime">13:00 - 13:40</span><span class="actNm">Girl Tones</span></div><div class="act id-chicag-1 " data-id="chicag-1" data-start-time="1753989300000" data-end-time="1753991700000" ><span class="actTime">14:15 - 14:55</span><span class="actNm">Chicago Made</span></div><div class="act id-bostal-1 " data-id="bostal-1" data-start-time="1753993500000" data-end-time="1753995900000" ><span class="actTime">15:25 - 16:05</span><span class="actNm">Bo Staloch</span></div><div class="act id-colbya-1 " data-id="colbya-1" data-start-time="1753997700000" data-end-time="1754000100000" ><span class="actTime">16:35 - 17:15</span><span class="actNm">Colby Acuff</span></div><div class="act id-jadele-1 " data-id="jadele-1" data-start-time="1754001900000" data-end-time="1754004300000" ><span class="actTime">17:45 - 18:25</span><span class="actNm">Jade Lemac</span></div><div class="act id-dropti-1 " data-id="dropti-1" data-start-time="1754005800000" data-end-time="1754008200000" ><span class="actTime">18:50 - 19:30</span><span class="actNm">The Droptines</span></div></div>
+</div><div class="day" data-date="1754024400" data-first-start="43200" data-last-stop="79200"><h3 class="dayName">1/8/25</h3>
+<div class="actLists"><div class="act id-winyah-1 " data-id="winyah-1" data-start-time="1754071200000" data-end-time="1754073600000" ><span class="actTime">13:00 - 13:40</span><span class="actNm">Winyah</span></div><div class="act id-cassan-1 " data-id="cassan-1" data-start-time="1754075700000" data-end-time="1754078100000" ><span class="actTime">14:15 - 14:55</span><span class="actNm">Cassandra Coleman</span></div><div class="act id-caroli-1 " data-id="caroli-1" data-start-time="1754079900000" data-end-time="1754082300000" ><span class="actTime">15:25 - 16:05</span><span class="actNm">Caroline Kingsbury</span></div><div class="act id-carola-1 " data-id="carola-1" data-start-time="1754084100000" data-end-time="1754086500000" ><span class="actTime">16:35 - 17:15</span><span class="actNm">Carol Ades</span></div><div class="act id-jessed-1 " data-id="jessed-1" data-start-time="1754088000000" data-end-time="1754090400000" ><span class="actTime">17:40 - 18:20</span><span class="actNm">Jesse Detor</span></div><div class="act id-tanner-1 " data-id="tanner-1" data-start-time="1754092200000" data-end-time="1754094600000" data-mbid="dc5aa749-10d1-4e58-a18d-9e2c8cadaa7c" ><span class="actTime">18:50 - 19:30</span><span class="actNm">Tanner Adell</span></div></div>     
+</div><div class="day" data-date="1754110800" data-first-start="43200" data-last-stop="79200"><h3 class="dayName">2/8/25</h3>
+<div class="actLists"><div class="act id-zoeko-1 " data-id="zoeko-1" data-start-time="1754157600000" data-end-time="1754160000000" ><span class="actTime">13:00 - 13:40</span><span class="actNm">Zoe Ko</span></div><div class="act id-people-1 " data-id="people-1" data-start-time="1754161800000" data-end-time="1754164200000" ><span class="actTime">14:10 - 14:50</span><span class="actNm">People R Ugly</span></div><div class="act id-landon-1 " data-id="landon-1" data-start-time="1754165700000" data-end-time="1754168100000" ><span class="actTime">15:15 - 15:55</span><span class="actNm">Landon Conrath</span></div><div class="act id-rachel-1 " data-id="rachel-1" data-start-time="1754169600000" data-end-time="1754172000000" ><span class="actTime">16:20 - 17:00</span><span class="actNm">Rachel Grae</span></div><div class="act id-carter-1 " data-id="carter-1" data-start-time="1754174100000" data-end-time="1754176500000" ><span class="actTime">17:35 - 18:15</span><span class="actNm">Carter Vail</span></div><div class="act id-samaus-1 " data-id="samaus-1" data-start-time="1754178600000" data-end-time="1754181000000" ><span class="actTime">18:50 - 19:30</span><span class="actNm">Sam Austins</span></div></div>
+</div><div class="day" data-date="1754197200" data-first-start="43200" data-last-stop="79200"><h3 class="dayName">3/8/25</h3>
+<div class="actLists"><div class="act id-kaicre-1 " data-id="kaicre-1" data-start-time="1754244000000" data-end-time="1754246400000" ><span class="actTime">13:00 - 13:40</span><span class="actNm">Kaicrewsade</span></div><div class="act id-graham-1 " data-id="graham-1" data-start-time="1754248200000" data-end-time="1754250600000" data-mbid="0ddd210b-12f5-43f5-ba4b-17c9da267d4c" ><span class="actTime">14:10 - 14:50</span><span class="actNm">Graham Barham</span></div><div class="act id-sofiac-1 " data-id="sofiac-1" data-start-time="1754252400000" data-end-time="1754254800000" ><span class="actTime">15:20 - 16:00</span><span class="actNm">Sofia Camara</span></div><div class="act id-landon1-1 " data-id="landon1-1" data-start-time="1754256300000" data-end-time="1754258700000" data-mbid="f5b25786-81c6-4d48-9042-76b7ea75a0ce" ><span class="actTime">16:25 - 17:05</span><span class="actNm">Landon Barker</span></div><div class="act id-vincen-1 " data-id="vincen-1" data-start-time="1754260500000" data-end-time="1754262900000" ><span class="actTime">17:35 - 18:15</span><span class="actNm">Vincent Lima</span></div><div class="act id-willow-1 " data-id="willow-1" data-start-time="1754265000000" data-end-time="1754267400000" data-mbid="a7c5cd9d-861f-4500-9958-ec4a50b7d80f" 
+><span class="actTime">18:50 - 19:30</span><span class="actNm">Willow Avalon</span></div></div>
 </div></div></div>
 """
 
-# https://old.reddit.com/r/ElectricForest/comments/1bqbwlv/electric_forest_2024_lineup_broken_down_by_genre/
-dicto = {"BASS" : ["Barclay Crenshaw",
-                  "Whyte Fang", 
-                  "LSZEE",
-                  "Seven lions",
-                  "Pretty Lights",
-                  "Zingara"],
-        "DUBSTEP": ["ALLEYCVT",
-                    "ATLiens",
-                    "Black Tiger Sex Machine",
-                    "Caspa",
-                    "Excision",
-                    "Gigantic NGHTMRE",
-                    "Hamdi",
-                    "LEVEL UP",
-                    "Lucii",
-                    "LYNY",
-                    "Subtronics",
-                    "Boogie T",
-                    "CanaBliss",
-                    "levity",
-                    "Hyperbeam",
-                    ],
-        "DnB":   ["Chase & Status",
-                  "Dimension",
-                  "AK Sports",
-                  "Sammy Virji",
-                  "venbee",
-                  "Wooli",
-                  "G jones",
-                  "Ivy Lab",
-                  "Super Future",
-                  "Zen Selekta",],
-         "HOUSE": ["ACRAZE",
-                   "AYYBO",
-                   "Ben Böhmer",
-                   "Calussa",
-                   "Cassian",
-                   "EVERYTHING ALWAYS",
-                   "Green Velvet",
-                   "John Summit",
-                   "Knock2",
-                   "Major League Djz",
-                   "Matroda",
-                   "Mau P",
-                   "ODEN & Fatzo",
-                   "Ranger Trucco",
-                   "TSHA",
-                   "VNSSA B2B Nala",
-                   "Westend",
-                   "Will Clarke",
-                   "Baggi",
-                   "Brandi Cyrus",
-                   "Chaos in the CBD",
-                   "H&RRY",
-                   "marsh",
-                   "MASONIC",
-                   "Mojave Grey",
-                   "Only fire",
-                   "Rayben",
-                   "Shae District",
-                   "Swaylo",
-                   "DJ Brownie",
-                   "Kallaghan",
-                   "Pretty Pink",],
-         "DANCE": ["Coco & Breezy",
-                   "DRAMA",
-                   "it's murph",
-                   "LP Giobbi",
-                   "Michaël Brun",
-                   "DJ Susan",
-                   "Jason Leech",
-                   "Shaun Ross",],
-         "TECHNO" :["Charlotte De Witte",
-                    "Sara Landry",
-                    "Layton Giordani",
-                    "Vini Vici",
-                    "Jenna Shaw",
-                    "Blastoyz",],
-         "INDIE": ["Cuco",
-                   "Cannons",
-                   "NEIL FRANCES",
-                   "Peach Tree Rascals",
-                   "Emo Nite",
-                   "Equanimous",
-                   "Kiltro",
-                   "Goodboys",],
-         "POP": ["Mascolo",
-                 "Nelly Furtado",
-                 "Slayyyter",
-                 "Neoma",
-                 "Unusual demont",],
-         "JAM": ["Dirtwire",
-                 "Dumpstaphunk",
-                 "Eggy",
-                 "Lettuce",
+genre_source =  "https://docs.google.com/document/d/1aEJK7fxm-8BUmWOp24QD2GEpIR2YVU3pmbc23-I2vgc/edit?tab=t.0"
+dicto = { # POP
+    "POP": [
+        "Sabrina Carpenter", "The Dare", "KATSEYE", "Charlotte Lawrence",
+        "Isabel LaRosa", "Naomi Scott", "Jade LeMac", "Zoe Ko"
+        "MARINA", "Artemas", "Nourished By Time", "Caroline Kingsbury",
+        "Olivia Rodrigo", "Damiano David", "Remi Wolf", "Magdalena Bay", 
+        "Sam Austins", "Wasia Project", "Vincent Lima", "Bo Staloch"],
+    "INDIE": [
+        "Dominic Fike", "Bleachers", "Wallows", "Foster the People",
+        "Role Model", "Finneas", "Royel Otis", "Flipturn", "Half Alive",
+        "Del Water Gap", "Alemeda", "New Dad", "Dogpark", "Joe P",
+        "Winnetka Bowling League", "Carole Ades", "Carter Vail",
+        "Landon Conrath,", "RÜFÜS DU SOL"],
+    "DREAM_POP": [
+        "Gracie Abrams", "Clairo", "The Marias", "Mk.gee", "Still Woozy",
+        "Wave to Earth", "Flowerovlove", "Yana", "Julie", "Alex Warren", 
+        "Rachel Grae", "Sofia Camara", "Cassandra Coleman"],
+    "K_POP": ["TWICE", "Boynextdoor", "Kickflip", "Fujii Kaze"],
+    # ROCK
+    "ROCK": ["Glass Beams", "benches", "Orla Gartland", 
+             "Ole 60", "The Droptines", "Winyah",
+             "Xdinary Heroes"],
+    "ALT" : ["Cage the Elephant", 
+            "Gigi Perez", "Wunderhorse", "hey, nothing",
+            "Ratboys", "Bôa", "Old Mervs", "Jesse Detor", "Junior Varsity",
+            "ALEXSUCKS", "Girl Tones", "Eddie and the Getaway"],
+    "PUNK": ["Landon Barker", "People R Ugly", "Sunami", 
+             "The Criticals", "Otoboke Beaver", "Bilmuri"],
+    "NU_METAL": ["Korn", "Silly Goose"],
+    "PSYCH_ROCK": ["DJO", "Ocean Alley", "La Femme", "The Symposium"],
+    #EDM
+    "HOUSE": ["Martin Garrix", "Two Friends", "The Blessed Madonna",
+              "Barry Can't Swim", "Prospa", "Azzecca", "DJ Heather",
+              "Tessla", "Aliyah's Interlude", "BUNT.", "Salute",
+              "Nimino", "Jigitz", "Daniel Allan", "Jev", "Dom Dolla",
+              "Mau P", "Cloonee", "Torren Foot , Airwolf Paradise",
+              "Raecola"],
+    "DUBSTEP": ["ISOxo", "Tape B", "Flux Pavilion", "Levity",
+                "Layz", "ALLEYCVT", "Hex Cougar", "Viperactive"],
+    "BASS": ["KNOCK2", "Dr. Fresch", "Gryffin", "Mary Droppinz"],
+    "TECHNO": ["Marlon Hoffstadt", "Rebecca Black"],
+    "DnB": ["Sammy Virji", "Overmono", "Chase & Status"],
+    "DANCE": ["Fcukers", "Maribou State"],
+    # RAP
+    "RAP": ["Tyler, the Creator", "Doechii", "Isaiah Rashad", "Joey Valence & Brae",
+        "Matt Champion", "Kenny Mason", "Kaicrewsade", "JPEGMafia", "Young Miko"],
+    "TRAP": ["A$AP Rocky", "Ian", "Bossman Dlow", "Murda Beatz", "Star Bandz"],
+    "EMORAP": ["Bladee", "2Hollis", "Jane Remover", "Xaviersobased"],
+    # R&B
+    "SOUL": ["Ravyn Lenae", "Montell Fish", "BLK Odyssy", "Lekan", "Ca7riel y Paco Amoroso"],
+    "RnB": ["T-Pain", "Durand Bernarr", "Zinadelphia", "Mariah the Scientist",
+            "Orion Sun", "Laila!", "Black Party", "Dua Saleh", "Latin Mafia"],
+    # OTHER
+    "COUNTRY": ["Luke Combs", "Wyatt Flores", "Max McNown", "Willow Avalon",
+                "Colby Acuff", "Graham Barham", "Tanner Adell"],
+    "FOLK": ["Sierra Ferrell", "Wild Rivers", "Mark Ambor"],
+    "OTHER": ["Chicago Youth Symphony Orchestra", "Amaarae", "Chicago Made", "Midnight Generation"],
+}
 
-                 "The Disco Biscuits",
-                 "The String Cheese Incident",
-                 "Umphrey's McGee",
-                 "Jjuujjuu",
-                 "Próxima Parada",
-                 "League of Sound Disciples",
-                 "Boogie T.rio",
-                 "Dave Yaden"],
-         "CHILL": ["INZO",
-                  "Juelz",
-                  "Maddy O'Neal",
-                  "Redrum",
-                  "Thought process",
-                  "Tripp St.",
-                  "Politik",
-                  "Le Youth",
-                  "Sultan + Shepard",
-                  ],
-         "RAP": ["Kenny Beats",
-                 "Libianca",
-                 "Ludacris",
-                 "PAPERWATER",
-                 "Little stranger",],
-         "SOUL": ["Dixon's Violin",
-                  "Rawayana",
-                  "Hiatus Kaiyote",
-                  "Polyrhythmics",
-                  "Moontricks"],
-         GENRE_DEFAULT : ["Yoga",
-                          "Rumble in the Bumble",
-                          "Exclusive: 6 in the Forest",
-                          "Pride Party",
-                          "Cardio",
-                          "Closing Party",
-                          "Femme Identifying Circle",
-                          "Humanity Circle",
-                          "Lightcode by LSDream",
-                          "TBA"
-                          ]
-         }
+duoActs = {"Torren Foot B2B Airwolf Paradise" : ["Torren Foot", "Airwolf Paradise"]}
 
-
-duoActs = {"Gigantic NGHTMRE" : ["Big Gigantic","NGHTMRE"],
-              "EVERYTHING ALWAYS" : ["Dom Dolla","John Summit"],
-              "LSZEE": ["CloZee","LSDREAM"],
-              "VNSSA B2B Nala" : ["VNSSA","Nala"],
-              "Hyperbeam" : ["odd Mob", "Omnom"]}
-
-forClashFinder = {"Odd Mob & Omnom present Hyperbeam" : "Hyperbeam"} # k:v is name in clash finder : name in genre list
+forClashFinder = {} # k:v is name in clash finder : name in genre list
 
 def get_client_credentials(file_path="creds.json"):
     try:
@@ -341,13 +305,13 @@ def get_artist(artist_name, client_id, client_secret):
 
 def get_artist_followers_popularity(artist_name, client_id, client_secret):
     if findGenre(artist_name) == GENRE_DEFAULT:
-        return 0,0
+        return 0,0, True
     artist_info = get_artist(artist_name, client_id, client_secret)
     if artist_info is None:
-        return 0,0
+        return 0,0, False
     followers = artist_info['followers']['total']
     popularity = artist_info['popularity']
-    return followers, popularity
+    return followers, popularity, True
 
 def strip_word(text, words_to_remove):
     words = text.split()
@@ -398,13 +362,12 @@ def get_html_data(content):
     fullData = {}
     # Parsing the HTML
     soup = BeautifulSoup(content, 'html.parser')
-    day_div = soup.find_all('div', class_='day')
-    for day in day_div:
-        # Extracting stages and acts
-        stages = day.find_all('div', class_='stage')
-        for stage in stages:
-            stage_name = stage.find('h3', class_='stageName').text.strip()
-            acts = stage.find_all('div', class_='act')
+    stage_div = soup.find_all('div', class_='stage')
+    for stage in stage_div:
+        stage_name = stage.find('h2', class_='stageName').text.strip()
+        day_div = stage.find_all('div', class_='day')
+        for day in day_div:
+            acts = day.find_all('div', class_='act')
             for act in acts:
                 artist = act.find('span', class_='actNm').text.strip()
                 
@@ -430,6 +393,7 @@ def getFullArray(listActs):
     # Spits out the array of acts in alphabetically order
     duo_mult = 1.2  # Since duos are more hype, add a multiplier to their popularity and follower averages
     listActsPop = []
+    listActsNotFound = []
     listActsInListDuos = []
     client_id, client_secret = get_client_credentials()
     if client_id is None and client_secret is None:  # If there aren't any Spotify credentials, just set the popularity of all acts to zero
@@ -441,8 +405,10 @@ def getFullArray(listActs):
         if isinstance(act_spot,list):
             listActsInListDuos.append(act)
             continue # We'll get and average the duos later.
-        followers, popularity = get_artist_followers_popularity(act_spot, client_id, client_secret)
+        followers, popularity, found = get_artist_followers_popularity(act_spot, client_id, client_secret)
         listActsPop.append({'name':act, 'followers' : followers, "popularity" : popularity})
+        if not found:
+            listActsNotFound.append(act_spot)
     # This logic is to average duos
     for duo in duoActs:
         if duo not in listActsInListDuos:
@@ -453,13 +419,16 @@ def getFullArray(listActs):
         followers = 0
         popularity = 0
         for artist in artists:
-            fol, pop = get_artist_followers_popularity(artist, client_id, client_secret)
+            fol, pop, found = get_artist_followers_popularity(artist, client_id, client_secret)
             followers += fol
             popularity += pop
         followers = int((followers / len(artists)) * duo_mult)
         popularity = int((popularity / len(artists)) * duo_mult)
         listActsPop.append({'name':duo, 'followers' : followers, "popularity" : popularity})
-    listActsPop = set_pop_follow_manually(listActsPop, "Cuco", 32, 1059)  # Wrong Cuco is the first option in Spotify query.
+        if not found:
+            listActsNotFound.append(act_spot)
+    if PRINT_SEARCH_RESULTS and len(listActsNotFound) > 0:
+        print(f"Unable to find the following Acts in Spotify: {listActsNotFound}")            
     return listActsPop
 
 def dates_to_act(act, day_info, genre_list, element = 0):
@@ -566,7 +535,7 @@ def writeAndPrint(file, text):
 def print_array_for_watch(listActs, sorted_listing, day_info, filename, genre_list):
     with open(f'{filename}.txt', 'w') as f:
         artistDateNotFound = []
-        writeAndPrint(f, "// Genre - https://old.reddit.com/r/ElectricForest/comments/1bqbwlv/electric_forest_2024_lineup_broken_down_by_genre/")
+        writeAndPrint(f, f"// Genre - {genre_source}")
         writeAndPrint(f, f"// Line-up - {URL}")
         writeAndPrint(f, '#include "festival_schedule_face.h"')
         writeAndPrint(f, "")
@@ -643,7 +612,7 @@ if __name__ == "__main__":
            
     in_genre_list = sorted(in_genre_list, key=lambda x: x.lower().replace("the ", "") if x[0].startswith("the ") else x[0].lower())
     not_in_genre_list = sorted(not_in_genre_list, key=lambda x: x.lower().replace("the ", "") if x[0].startswith("the ") else x[0].lower())
-    listActsPop = junNine if USE_TEST_ARR else getFullArray(listActs)
+    listActsPop = testPop if USE_TEST_ARR else getFullArray(listActs)
     listActsPopMissing = [] if USE_TEST_ARR else getFullArray(not_in_genre_list)
 
     if SORT_POP_BY_FOLLOWERS:  

@@ -28,35 +28,47 @@
 #include "festival_schedule_arr.h"
 #include "watch_utility.h"
 
-const char festival_name[2] = "EF";
+const char festival_name[2] = "LA";
 
 const char festival_stage[STAGE_COUNT + 1][2] =
 {
     [NO_STAGE] = "  ",
-    [RANCH_ARENA] = "Rn",
-    [SHERWOOD_COURT] = "SH",
-    [TRIPOLEE] = "TR",
-    [CAROUSEL_CLUB] = "CC",
-    [OBSERVATORY] = "OB",
-    [HONEYCOMB] = "HC",
+    [T_MOBILE] = "TM",
+    [COINBASE] = "CB",
+    [BUD_LIGHT] = "BL",
+    [TITOS] = "TO",
+    [PERRYS] = "PR",
+    [BACARDI] = "BA",
+    [BMI] = "BM",
     [STAGE_COUNT] = "  "
 };
 
 const char festival_genre[GENRE_COUNT + 1][6] =
 {
     [NO_GENRE] = " NONE ",
-    [BASS] = " BASS ",
-    [DUBSTEP] = "DUBStP",
-    [DnB] = " dnB  ",
-    [HOUSE] = " HOUSE",
-    [DANCE] = " DaNCE",
-    [TECHNO] = " tECNO",
-    [INDIE] = " INdIE",
     [POP] = " POP  ",
-    [JAM] = " Jan& ",
-    [CHILL] = " Chill",
+    [INDIE] = " INdIE",
+    [DREAM_POP] = "dream7",
+    [K_POP] = " K-POP",
+    [ROCK] = " ROCK ",
+    [ALT] = "   ALT",
+    [PUNK] = "PUNK  ",
+    [NU_METAL] = "Num&tL",
+    [PSYCH_ROCK] = " PSYCH",
+    [HOUSE] = " HOUSE",
+    [DUBSTEP] = "DUBStP",
+    [TECHNO] = " tECNO",
+    [BASS] = " BASS ",
+    [DnB] = " dnB  ",
+    [DANCE] = " DaNCE",
     [RAP] = "  rAP ",
+    [TRAP] = " trAP ",
+    [EMORAP] = "sdcld ",
     [SOUL] = " SOUL ",
+    [RnB] = " rnb  ",
+    [COUNTRY] = "Cuntry",
+    [FOLK] = " FOLK ",
+    [OTHER] = "OTHEr ",
     [GENRE_COUNT] = "      "
 };
 
