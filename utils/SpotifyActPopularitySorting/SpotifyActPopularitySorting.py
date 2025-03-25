@@ -189,7 +189,7 @@ genre_source =  "https://docs.google.com/document/d/1aEJK7fxm-8BUmWOp24QD2GEpIR2
 dicto = { # POP
     "POP": [
         "Sabrina Carpenter", "The Dare", "KATSEYE", "Charlotte Lawrence",
-        "Isabel LaRosa", "Naomi Scott", "Jade LeMac", "Zoe Ko"
+        "Isabel LaRosa", "Naomi Scott", "Jade LeMac", "Zoe Ko",
         "MARINA", "Artemas", "Nourished By Time", "Caroline Kingsbury",
         "Olivia Rodrigo", "Damiano David", "Remi Wolf", "Magdalena Bay", 
         "Sam Austins", "Wasia Project", "Vincent Lima", "Bo Staloch"],
@@ -198,7 +198,7 @@ dicto = { # POP
         "Role Model", "Finneas", "Royel Otis", "Flipturn", "Half Alive",
         "Del Water Gap", "Alemeda", "New Dad", "Dogpark", "Joe P",
         "Winnetka Bowling League", "Carole Ades", "Carter Vail",
-        "Landon Conrath,", "RÜFÜS DU SOL"],
+        "Landon Conrath", "RÜFÜS DU SOL"],
     "DREAM_POP": [
         "Gracie Abrams", "Clairo", "The Marias", "Mk.gee", "Still Woozy",
         "Wave to Earth", "Flowerovlove", "Yana", "Julie", "Alex Warren", 
@@ -313,7 +313,12 @@ def get_artist_followers_popularity(artist_name, client_id, client_secret):
     popularity = artist_info['popularity']
     return followers, popularity, True
 
-def strip_word(text, words_to_remove):
+def strip_word(text, words_to_remove, startsWithOnly=False):
+    if startsWithOnly:
+        for word in words_to_remove:
+            if text.lower().startswith(f"{word.lower()} "):
+                return text[len(word)+1:]
+        return text
     words = text.split()
     stripped_words = [word for word in words if word.lower() not in map(str.lower, words_to_remove)]
     stripped_text = ' '.join(stripped_words)
@@ -508,23 +513,15 @@ def print_md_lst(sorted_listing, genre_list):
         stage = stageDict[act]
         print(f"| {num + 1 : ^{longestNum}} | {act : ^{longestAct}} | {popularity : ^{longestPop}} | {followers : ^{longestFol}} | {stage : ^{longestStg}} |")
 
+replaceWords = {"RUFUS" : "R;F;S", "BOA" : "B:A"}
 
 def get_name_to_display(act, i=0):
+    maxDisplayLen = 21
     actToDisp = unidecode(act)
-    actToDisp = strip_word(actToDisp,["The"])
-    actToDisp = f"{actToDisp.upper()[:6]: <6}"
-    if act == "Yoga":
-        actToDisp = f" YOGA{i+1}"
-    elif act == "Pretty Lights":
-        actToDisp = "PRETYL"
-    elif act == "Pretty Pink":
-        actToDisp = "PRETYP"
-    elif act == "TBA":
-        actToDisp = " TBA  "
-    elif act == "it's murph":
-        actToDisp = "MURPH"
-    elif act == "Exclusive: 6 in the Forest":
-        actToDisp = "6,nFor"
+    actToDisp = strip_word(actToDisp,["The"], True)
+    actToDisp = f"{actToDisp.upper()[:maxDisplayLen]: <6}"  # <6 makes it so text that won't fill the whole watch screen will be filled with spaces
+    for was, want in replaceWords.items():
+        actToDisp = actToDisp.replace(was, want)
     return actToDisp
 
 def writeAndPrint(file, text):

@@ -72,6 +72,11 @@ const char festival_genre[GENRE_COUNT + 1][6] =
     [GENRE_COUNT] = "      "
 };
 
+#define FREQ_FAST 8
+#define FREQ 2
+
+static int16_t _text_pos;
+static const char* _text_looping;
 static watch_date_time _starting_time;
 static watch_date_time _ending_time;
 static bool _quick_ticks_running;
@@ -84,7 +89,7 @@ static uint8_t _get_next_act_num(uint8_t act_num, bool get_prev){
     int increment = get_prev ? -1 : 1;
     uint8_t next_act = act_num;
     do{
-       next_act = (next_act + increment + _act_arr_size) % _act_arr_size;
+    next_act = (next_act + increment + _act_arr_size) % _act_arr_size;
     }
     while (festival_acts[next_act].start_time.reg == 0);
     return next_act;
@@ -153,6 +158,8 @@ static void _display_act(festival_schedule_state_t *state){
     char buf[11];
     uint8_t popularity = festival_acts[state->curr_act].popularity;
     state->curr_screen = SCREEN_ACT;
+    _text_looping = festival_acts[state->curr_act].artist;
+    _text_pos = FREQ * -1;
     if (popularity > 0 && popularity < 40)
         sprintf(buf, "%.2s%2d%.6s", festival_stage[state->curr_stage], festival_acts[state->curr_act].popularity, festival_acts[state->curr_act].artist);
     else
@@ -345,7 +352,26 @@ static void _show_title(festival_schedule_state_t *state){
 
 static void start_quick_cyc(void){
     _quick_ticks_running = true;
-    movement_request_tick_frequency(8);
+    movement_request_tick_frequency(FREQ_FAST);
+}
+
+static int16_t _loop_text(const char* text, int8_t curr_loc, uint8_t char_len){
+    // if curr_loc is negative, then use that many ticks as a delay before looping
+    char buf[15];
+    uint8_t text_len = strlen(text);
+    uint8_t pos = 10 - char_len;
+    if (curr_loc == -1) curr_loc = 0;  // To avoid double-showing the 0
+    if (char_len >= text_len || curr_loc < 0) {
+        sprintf(buf, "%s", text);
+        watch_display_string(buf, pos);
+        if (curr_loc < 0) return ++curr_loc;
+        return 0;
+    }
+    else if (curr_loc == (text_len + 1))
+        curr_loc = 0;
+    sprintf(buf, "%.6s %.6s", text + curr_loc, text);
+    watch_display_string(buf, pos);
+    return ++curr_loc;
 }
 
 static void handle_ts_ticks(festival_schedule_state_t *state, bool clock_mode_24h){
@@ -405,6 +431,7 @@ void festival_schedule_face_activate(movement_settings_t *settings, void *contex
     _quick_ticks_running = false;
     _ts_ticks = 0;
     _ts_ticks_purpose = TICK_NONE;
+    movement_request_tick_frequency(FREQ);
 }
 
 bool festival_schedule_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
@@ -415,13 +442,14 @@ bool festival_schedule_face_loop(movement_event_t event, movement_settings_t *se
             _show_title(state);
             break;
         case EVENT_TICK:
+            if (state->curr_screen == SCREEN_ACT && !_quick_ticks_running) _text_pos = _loop_text(_text_looping, _text_pos, 6);
         case EVENT_LOW_ENERGY_UPDATE:
             if (_quick_ticks_running) {
                 if (watch_get_pin_level(BTN_LIGHT)) _handle_btn_up(state, settings->bit.clock_mode_24h, true);
                 else if (watch_get_pin_level(BTN_ALARM)) _handle_btn_up(state, settings->bit.clock_mode_24h, false);
                 else{
                     _quick_ticks_running = false;
-                    movement_request_tick_frequency(1);
+                    movement_request_tick_frequency(FREQ);
                 }
             }
             handle_ts_ticks(state, settings->bit.clock_mode_24h);
