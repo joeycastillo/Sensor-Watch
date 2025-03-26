@@ -1087,14 +1087,6 @@ const schedule_t festival_acts[NUM_ACTS + 1]=
         .popularity = 29
     },
     {
-        .artist = "ROYEL OTIS",
-        .stage = NO_STAGE,
-        .start_time = {.unit.year = 4, .unit.month = 6, .unit.day = 20, .unit.hour = 15, .unit.minute = 0},
-        .end_time = {.unit.year = 4, .unit.month = 6, .unit.day = 20, .unit.hour = 16, .unit.minute = 0},
-        .genre = INDIE,
-        .popularity = 38
-    },
-    {
         .artist = "SABRINA CARPENTER",
         .stage = T_MOBILE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 20, .unit.minute = 45},
