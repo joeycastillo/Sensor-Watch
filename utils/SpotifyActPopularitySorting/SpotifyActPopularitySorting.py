@@ -33,7 +33,7 @@ testPop = [
     {'name': 'Bo Staloch', 'followers': 19093, 'popularity': 48}, {'name': 'Bossman Dlow', 'followers': 625379, 'popularity': 72},
     {'name': 'Boynextdoor', 'followers': 1316289, 'popularity': 70}, {'name': 'BUNT.', 'followers': 224449, 'popularity': 69},
     {'name': 'Bôa', 'followers': 1054227, 'popularity': 71}, {'name': 'Ca7riel y Paco Amoroso', 'followers': 0, 'popularity': 0},
-    {'name': 'Cage the Elephant', 'followers': 4080179, 'popularity': 75}, {'name': 'Carole Ades', 'followers': 0, 'popularity': 0},
+    {'name': 'Cage the Elephant', 'followers': 4080179, 'popularity': 75}, {'name': 'Ccarol Ades', 'followers': 0, 'popularity': 0},
     {'name': 'Caroline Kingsbury', 'followers': 20217, 'popularity': 46}, {'name': 'Carter Vail', 'followers': 109493, 'popularity': 48},
     {'name': 'Cassandra Coleman', 'followers': 0, 'popularity': 0}, {'name': 'Charlotte Lawrence', 'followers': 1180094, 'popularity': 57},
     {'name': 'Chase & Status', 'followers': 1126432, 'popularity': 71}, {'name': 'Chicago Made', 'followers': 0, 'popularity': 0},
@@ -77,7 +77,7 @@ testPop = [
     {'name': 'Mau P', 'followers': 150564, 'popularity': 65}, {'name': 'Max McNown', 'followers': 443103, 'popularity': 72},
     {'name': 'Midnight Generation', 'followers': 82113, 'popularity': 52}, {'name': 'Mk.gee', 'followers': 351347, 'popularity': 64},
     {'name': 'Montell Fish', 'followers': 1924827, 'popularity': 75}, {'name': 'Murda Beatz', 'followers': 167094, 'popularity': 58},
-    {'name': 'Naomi Scott', 'followers': 382345, 'popularity': 62}, {'name': 'New Dad', 'followers': 985, 'popularity': 0},
+    {'name': 'Naomi Scott', 'followers': 382345, 'popularity': 62}, {'name': 'NewDad', 'followers': 985, 'popularity': 0},
     {'name': 'Nimino', 'followers': 113867, 'popularity': 66}, {'name': 'Nourished By Time', 'followers': 29797, 'popularity': 44},
     {'name': 'Ocean Alley', 'followers': 620717, 'popularity': 64}, {'name': 'Old Mervs', 'followers': 37575, 'popularity': 53},
     {'name': 'Ole 60', 'followers': 271599, 'popularity': 64}, {'name': 'Olivia Rodrigo', 'followers': 44539271, 'popularity': 87},
@@ -96,7 +96,7 @@ testPop = [
     {'name': 'Sunami', 'followers': 150013, 'popularity': 50}, {'name': 'The Symposium', 'followers': 95546, 'popularity': 47},
     {'name': 'T-Pain', 'followers': 5367567, 'popularity': 79}, {'name': 'Tanner Adell', 'followers': 116218, 'popularity': 54},
     {'name': 'Tape B', 'followers': 72494, 'popularity': 53}, {'name': 'Tessla', 'followers': 358, 'popularity': 4},
-    {'name': 'Torren Foot , Airwolf Paradise', 'followers': 0, 'popularity': 0}, {'name': 'TWICE', 'followers': 21586371, 'popularity': 79},
+    {'name': 'Torren Foot B2B Airwolf Paradise', 'followers': 23415, 'popularity': 54}, {'name': 'TWICE', 'followers': 21586371, 'popularity': 79},
     {'name': 'Two Friends', 'followers': 237167, 'popularity': 56}, {'name': 'Tyler, the Creator', 'followers': 20926976, 'popularity': 91},
     {'name': 'Vincent Lima', 'followers': 60660, 'popularity': 54}, {'name': 'Viperactive', 'followers': 13688, 'popularity': 40},
     {'name': 'Wallows', 'followers': 2922933, 'popularity': 72}, {'name': 'Wasia Project', 'followers': 335672, 'popularity': 57},
@@ -196,8 +196,8 @@ dicto = { # POP
     "INDIE": [
         "Dominic Fike", "Bleachers", "Wallows", "Foster the People",
         "Role Model", "Finneas", "Royel Otis", "Flipturn", "Half Alive",
-        "Del Water Gap", "Alemeda", "New Dad", "Dogpark", "Joe P",
-        "Winnetka Bowling League", "Carole Ades", "Carter Vail",
+        "Del Water Gap", "Alemeda", "NewDad", "Dogpark", "Joe P",
+        "Winnetka Bowling League", "Ccarol Ades", "Carter Vail",
         "Landon Conrath", "RÜFÜS DU SOL"],
     "DREAM_POP": [
         "Gracie Abrams", "Clairo", "The Marias", "Mk.gee", "Still Woozy",
@@ -221,7 +221,7 @@ dicto = { # POP
               "Barry Can't Swim", "Prospa", "Azzecca", "DJ Heather",
               "Tessla", "Aliyah's Interlude", "BUNT.", "Salute",
               "Nimino", "Jigitz", "Daniel Allan", "Jev", "Dom Dolla",
-              "Mau P", "Cloonee", "Torren Foot , Airwolf Paradise",
+              "Mau P", "Cloonee", "Torren Foot B2B Airwolf Paradise",
               "Raecola"],
     "DUBSTEP": ["ISOxo", "Tape B", "Flux Pavilion", "Levity",
                 "Layz", "ALLEYCVT", "Hex Cougar", "Viperactive"],
@@ -347,8 +347,6 @@ def findGenre(act):
 def get_ranking(artists, name):
     for artist in artists:
         if artist['name'].lower() == name.lower():
-            if artist['popularity'] == 0:
-                return 0
             return artist['overall']
     return 0
 
@@ -460,28 +458,22 @@ def dates_to_act(act, day_info, genre_list, element = 0):
     return stage, datInfoAct["start_time"], datInfoAct["end_time"], timesTheyPlay
     
 
-def slow_sort(popList):
-    sortedFully = False
-    pop_priority = 0.4  # Sorts the acts combining the followers and popularity and weighting the popularity by this amount.
-    maxPop = 0
-    maxFol = 0
-    for pop in popList:
-        maxPop = max(maxPop, pop['popularity'])
-        maxFol = max(maxFol, pop['followers'])
-    if maxPop == 0:
+def popularity_sort(popList):
+    if not popList:
         return popList
-    fol_pop_ratio = int((pop_priority / (1 - pop_priority)) * (maxFol / maxPop))
+    pop_weights = [0.4, 0.6]  # populary, follower
+    maxPop = max(artist['popularity'] for artist in popList)
+    maxFol = max(artist['followers'] for artist in popList)
+    fol_pop_ratio = int((pop_weights[0] / pop_weights[1]) * (maxFol / maxPop))
     print(f"Ratio for prioritizing followers to popularity: {fol_pop_ratio} followers for 1 pop")
-    while not sortedFully:
-        sortedFully = True
-        for i, _ in enumerate(popList):
-            if i + 1 == len(popList):
-                break
-            scoreCurr = (pop_priority * (popList[i]['popularity']/maxPop)) + ((1 - pop_priority) * (popList[i]['followers']/maxFol))
-            scoreNext = (pop_priority * (popList[i+1]['popularity']/maxPop)) + ((1 - pop_priority) * (popList[i+1]['followers']/maxFol))
-            if scoreNext > scoreCurr:
-                sortedFully = False
-                popList[i+1], popList[i] = popList[i], popList[i+1]
+    for pop in popList:
+        popPercent = pop['popularity']/maxPop
+        folPercent = pop['followers']/maxFol
+        values = [popPercent, folPercent]
+        pop["fullPop"] = sum(v * w for v, w in zip(values, pop_weights))
+    popList = sorted(popList, key=lambda x: x["fullPop"], reverse=True)
+    for i, artist in enumerate(popList):
+        artist['overall'] = i + 1 
     return popList
         
 
@@ -619,13 +611,9 @@ if __name__ == "__main__":
     else:
         sortKey = lambda x: (x['popularity'], x['followers']) # Sort by Spotify popularity w/ followers being the tie-breaker
         sorted_listing = sorted(listActsPop, key=sortKey, reverse=True)
-        sorted_listing = slow_sort(sorted_listing)
+        sorted_listing = popularity_sort(sorted_listing)
         sorted_listing_missing = sorted(listActsPopMissing, key=sortKey, reverse=True)
-        sorted_listing_missing = slow_sort(sorted_listing_missing)
-    
-    for i, artist in enumerate(sorted_listing):
-        artist['overall'] = i + 1
-
+        sorted_listing_missing = popularity_sort(sorted_listing_missing)
     
     for i, artist in enumerate(sorted_listing_missing):
         artist['overall'] = i + 1 
