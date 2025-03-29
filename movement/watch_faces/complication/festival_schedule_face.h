@@ -84,7 +84,7 @@ typedef enum FestivalTickReason {
 } FestivalTickReason;
 
 typedef struct {
-    char artist[21];
+    char artist[25];
     FestivalStage stage;
     watch_date_time start_time;
     watch_date_time end_time;

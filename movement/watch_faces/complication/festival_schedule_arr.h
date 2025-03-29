@@ -191,7 +191,7 @@ const schedule_t festival_acts[NUM_ACTS + 1]=
         .popularity = 44
     },
     {
-        .artist = "Ca7RIEL Y PaCO aMOROS",
+        .artist = "Ca7RIEL Y PaCO aMOROSO",
         .stage = COINBASE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 14, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 14, .unit.minute = 45},
@@ -247,7 +247,7 @@ const schedule_t festival_acts[NUM_ACTS + 1]=
         .popularity = 87
     },
     {
-        .artist = "CHaSE & STaTUS",
+        .artist = "CHaSE `n STaTUS",
         .stage = PERRYS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 18, .unit.minute = 15},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 19, .unit.minute = 15},
@@ -263,7 +263,7 @@ const schedule_t festival_acts[NUM_ACTS + 1]=
         .popularity = 174
     },
     {
-        .artist = "CHICaGO YOUTH SYMPHON",
+        .artist = "CHICaGO YOUTH ORCHESTRa",
         .stage = BUD_LIGHT,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 13, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 13, .unit.minute = 45},
@@ -631,7 +631,7 @@ const schedule_t festival_acts[NUM_ACTS + 1]=
         .popularity = 131
     },
     {
-        .artist = "JOEY VaLENCE & BRaE",
+        .artist = "JOEY VaLENCE `n BRaE",
         .stage = COINBASE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 14, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 14, .unit.minute = 45},
@@ -1207,7 +1207,7 @@ const schedule_t festival_acts[NUM_ACTS + 1]=
         .popularity = 171
     },
     {
-        .artist = "TORREN FOOT B2B aIRWO",
+        .artist = "TORREN B2B aIRWOLF",
         .stage = PERRYS,
         .start_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 12, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 13, .unit.minute = 0},
@@ -1295,7 +1295,7 @@ const schedule_t festival_acts[NUM_ACTS + 1]=
         .popularity = 124
     },
     {
-        .artist = "WINNETKa BOWLING LEaG",
+        .artist = "WINNETKa BOWLING LEaGUE",
         .stage = BACARDI,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 14, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 14, .unit.minute = 45},
