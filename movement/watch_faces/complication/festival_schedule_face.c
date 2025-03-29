@@ -83,6 +83,7 @@ static bool _quick_ticks_running;
 static uint8_t _ts_ticks;
 static uint8_t _ts_ticks_purpose;
 static const uint8_t _act_arr_size = sizeof(festival_acts) / sizeof(schedule_t);
+static bool in_le;
 
 
 static uint8_t _get_next_act_num(uint8_t act_num, bool get_prev){
@@ -430,6 +431,44 @@ static void handle_ts_ticks(festival_schedule_state_t *state, bool clock_mode_24
     }
 }
 
+static bool handle_tick(festival_schedule_state_t *state, movement_settings_t *settings){
+    // Returns true if something on the screen changed.
+    watch_date_time curr_time;
+    if (_quick_ticks_running) {
+        if (watch_get_pin_level(BTN_LIGHT)) _handle_btn_up(state, settings->bit.clock_mode_24h, true);
+        else if (watch_get_pin_level(BTN_ALARM)) _handle_btn_up(state, settings->bit.clock_mode_24h, false);
+        else{
+            _quick_ticks_running = false;
+            movement_request_tick_frequency(FREQ);
+        }
+    }
+    handle_ts_ticks(state, settings->bit.clock_mode_24h);
+
+    if (state->cyc_through_all_acts) return false;
+    curr_time = movement_get_local_date_time();
+    bool newDay = ((curr_time.reg >> 17) != (state -> prev_day));
+    state -> prev_day = (curr_time.reg >> 17);
+    state -> festival_occurring = _festival_occurring(curr_time, (newDay && !state->cyc_through_all_acts));
+    if (!state->festival_occurring) return false;
+    if(state->showing_title){
+        if (newDay) _display_curr_day(curr_time);
+        return false;
+    }
+    if (!_act_is_playing(state->curr_act, curr_time)){
+        if (SHOW_EMPTY_STAGES)   
+            state->curr_act = NUM_ACTS;
+        else{
+            state->curr_act = _find_first_available_act(state->curr_stage, curr_time, false);
+            state->curr_stage = festival_acts[state->curr_act].stage;
+        } 
+    }
+    if ((state->curr_stage == state->prev_stage) && (state->curr_act == state->prev_act)) return false;
+    state->prev_stage = state->curr_stage;
+    state->prev_act = state->curr_act;
+    _display_act(state);
+    return true;
+}
+
 void festival_schedule_face_activate(movement_settings_t *settings, void *context) {
     (void) settings;
     (void) context;
@@ -443,47 +482,26 @@ void festival_schedule_face_activate(movement_settings_t *settings, void *contex
 
 bool festival_schedule_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     festival_schedule_state_t *state = (festival_schedule_state_t *)context;
-    watch_date_time curr_time;
+    bool changed_from_handle_ticks;
     switch (event.event_type) {
         case EVENT_ACTIVATE:
+            in_le = false;
             _show_title(state);
             break;
         case EVENT_TICK:
-            if (state->curr_screen == SCREEN_ACT && !state->showing_title && !_quick_ticks_running)
-                _text_pos = _loop_text(_text_looping, _text_pos, 6);
-        case EVENT_LOW_ENERGY_UPDATE:
-            if (_quick_ticks_running) {
-                if (watch_get_pin_level(BTN_LIGHT)) _handle_btn_up(state, settings->bit.clock_mode_24h, true);
-                else if (watch_get_pin_level(BTN_ALARM)) _handle_btn_up(state, settings->bit.clock_mode_24h, false);
-                else{
-                    _quick_ticks_running = false;
-                    movement_request_tick_frequency(FREQ);
-                }
-            }
-            handle_ts_ticks(state, settings->bit.clock_mode_24h);
-
-            if (state->cyc_through_all_acts) break;
-            curr_time = watch_rtc_get_date_time();
-            bool newDay = ((curr_time.reg >> 17) != (state -> prev_day));
-            state -> prev_day = (curr_time.reg >> 17);
-            state -> festival_occurring = _festival_occurring(curr_time, (newDay && !state->cyc_through_all_acts));
-            if (!state->festival_occurring) break;
-            if(state->showing_title){
-                if (newDay) _display_curr_day(curr_time);
+            changed_from_handle_ticks = handle_tick(state, settings);
+            if (!changed_from_handle_ticks && state->curr_screen == SCREEN_ACT 
+                && !state->showing_title && !_quick_ticks_running)
+                    _text_pos = _loop_text(_text_looping, _text_pos, 6);
                 break;
+        case EVENT_LOW_ENERGY_UPDATE:
+            changed_from_handle_ticks = handle_tick(state, settings);
+            if (!changed_from_handle_ticks && !in_le 
+                && event.event_type == EVENT_LOW_ENERGY_UPDATE 
+                && state->curr_screen == SCREEN_ACT) {
+                in_le = true;
+                _display_act(state);  // Resets the act name in LE mode so the beginning of it is shown
             }
-            if (!_act_is_playing(state->curr_act, curr_time)){
-                if (SHOW_EMPTY_STAGES)   
-                    state->curr_act = NUM_ACTS;
-                else{
-                    state->curr_act = _find_first_available_act(state->curr_stage, curr_time, false);
-                    state->curr_stage = festival_acts[state->curr_act].stage;
-                } 
-            }
-            if ((state->curr_stage == state->prev_stage) && (state->curr_act == state->prev_act)) break;
-            state->prev_stage = state->curr_stage;
-            state->prev_act = state->curr_act;
-            _display_act(state);
             break;
         case EVENT_LIGHT_BUTTON_UP:
             _handle_btn_up(state, settings->bit.clock_mode_24h, true);
