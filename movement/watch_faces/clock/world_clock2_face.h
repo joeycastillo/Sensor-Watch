@@ -57,7 +57,10 @@
  *  * A long press on the LIGHT button selects the current time zone, and
  *    the signal indicator appears at the top left. Another long press of
  *    the LIGHT button deselects the time zone.
- *  * A long press on the ALARM button exits settings mode and returns to
+ *  * A long press on the ALARM button toggles daylight saving for the 
+ *    current time zone, and the lap indicator appears at the top right.
+ *    Another long press of the ALARM button toggles daylight saving off.
+ *  * A press on the MODE button exits settings mode and returns to
  *    display mode.
  *
  * Display mode
@@ -97,6 +100,7 @@ typedef enum {
 
 typedef struct {
     bool selected;
+    bool daylight_saving;
 } world_clock2_zone_t;
 
 typedef struct {
