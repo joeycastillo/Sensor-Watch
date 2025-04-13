@@ -43,6 +43,8 @@ typedef struct {
     bool signal_enabled;
     bool battery_low;
     bool alarm_enabled;
+    void *set_time_context;
+    bool setting_mode;
 } simple_clock_state_t;
 
 void simple_clock_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);

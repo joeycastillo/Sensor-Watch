@@ -27,6 +27,7 @@
 #include "watch.h"
 #include "watch_utility.h"
 #include "watch_private_display.h"
+#include "../settings/set_time_face.h"
 
 static void _update_alarm_indicator(bool settings_alarm_enabled, simple_clock_state_t *state) {
     state->alarm_enabled = settings_alarm_enabled;
@@ -43,6 +44,7 @@ void simple_clock_face_setup(movement_settings_t *settings, uint8_t watch_face_i
         simple_clock_state_t *state = (simple_clock_state_t *)*context_ptr;
         state->signal_enabled = false;
         state->watch_face_index = watch_face_index;
+	set_time_face.setup(settings, -1, &state->set_time_context);
     }
 }
 
@@ -68,12 +70,27 @@ void simple_clock_face_activate(movement_settings_t *settings, void *context) {
 
     // this ensures that none of the timestamp fields will match, so we can re-render them all.
     state->previous_date_time = 0xFFFFFFFF;
+
+    state->setting_mode = false;
 }
 
 bool simple_clock_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     simple_clock_state_t *state = (simple_clock_state_t *)context;
     char buf[11];
     uint8_t pos;
+
+    if(state->setting_mode) {
+       if(event.event_type != EVENT_MODE_BUTTON_UP) {
+           return set_time_face.loop(event, settings, state->set_time_context);
+       } else {
+           // We have to trigger an end to fastticks first.. bit hacky
+           event.event_type = EVENT_ALARM_LONG_UP;
+           set_time_face.loop(event, settings, state->set_time_context);
+
+           state->setting_mode = false;
+           event.event_type = EVENT_LOW_ENERGY_UPDATE; // This forces a full refresh
+       }
+    }
 
     watch_date_time date_time;
     uint32_t previous_date_time;
@@ -145,6 +162,10 @@ bool simple_clock_face_loop(movement_event_t event, movement_settings_t *setting
             if (state->alarm_enabled != settings->bit.alarm_enabled) _update_alarm_indicator(settings->bit.alarm_enabled, state);
             break;
         case EVENT_ALARM_LONG_PRESS:
+             state->setting_mode = true;
+             set_time_face.activate(settings, state->set_time_context);
+             break;
+	case EVENT_LIGHT_LONG_PRESS:
             state->signal_enabled = !state->signal_enabled;
             if (state->signal_enabled) watch_set_indicator(WATCH_INDICATOR_BELL);
             else watch_clear_indicator(WATCH_INDICATOR_BELL);
@@ -163,13 +184,15 @@ bool simple_clock_face_loop(movement_event_t event, movement_settings_t *setting
 
 void simple_clock_face_resign(movement_settings_t *settings, void *context) {
     (void) settings;
-    (void) context;
+    simple_clock_state_t *state = (simple_clock_state_t *) context;
+    set_time_face.resign(settings, state->set_time_context);
 }
 
 bool simple_clock_face_wants_background_task(movement_settings_t *settings, void *context) {
     (void) settings;
     simple_clock_state_t *state = (simple_clock_state_t *)context;
     if (!state->signal_enabled) return false;
+    if (state->setting_mode) return true;
 
     watch_date_time date_time = watch_rtc_get_date_time();
 
