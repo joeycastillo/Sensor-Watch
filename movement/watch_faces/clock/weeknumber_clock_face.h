@@ -58,4 +58,4 @@ bool weeknumber_clock_face_wants_background_task(movement_settings_t *settings, 
     weeknumber_clock_face_wants_background_task, \
 })
 
-#endif // SIMPLE_CLOCK_FACE_H_
+#endif // WEEKNUMBER_CLOCK_FACE_H_
