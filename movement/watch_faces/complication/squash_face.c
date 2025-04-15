@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2025 <#author_name#>
+ * Copyright (c) 2025 Johan Oskarsson
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,16 +27,20 @@
 #include <stdio.h>
 #include "squash_face.h"
 
+// https://en.wikipedia.org/wiki/Squash_(sport)#Scoring_system
+// Using "point-a-rally scoring (PARS)" to 11 below.
 #define POINTS_TO_WIN_GAME 11
+// For example if both players have 10 points one of them has to get to 12, not 11, to win.
 #define MIN_POINT_DIFFERENCE 2
+// First to 3 games won (max 5 games played)
 #define GAMES_TO_WIN_MATCH 3
 
 static void update_display(squash_state_t *state) {
     char buf[16];
     
-    // Clear the display
     watch_clear_display();
     
+    // The colon makes it easier to distinguis each players score
     watch_set_colon();
     
     // Show games won in small digits
