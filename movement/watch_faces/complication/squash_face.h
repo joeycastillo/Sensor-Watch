@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2025 <#author_name#>
+ * Copyright (c) 2025 Johan Oskarsson
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -43,7 +43,6 @@ typedef struct {
     uint8_t player1_games;
     uint8_t player2_games;
     bool is_game_over;
-    uint8_t display_mode;  // 0 = current score, 1 = games won
 } squash_state_t;
 
 void squash_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
