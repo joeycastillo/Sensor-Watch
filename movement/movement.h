@@ -313,4 +313,6 @@ void movement_play_alarm_beeps(uint8_t rounds, BuzzerNote alarm_note);
 
 uint8_t movement_claim_backup_register(void);
 
+#define MOVEMENT_SETTINGS_FILE "settings.bin"
+
 #endif // MOVEMENT_H_
