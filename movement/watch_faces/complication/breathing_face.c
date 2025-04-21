@@ -27,8 +27,14 @@
 #include "breathing_face.h"
 #include "watch.h"
 
+#define BREATHING_DEFAULT_SOUND_ON true
+#define BREATHING_MIN_LENGTH 4
+#define BREATHING_DEFAULT_LENGTH 4
+#define BREATHING_MAX_LENGTH 10
+
 typedef struct {
-    uint8_t current_stage;
+    uint8_t ticks;
+    uint8_t count_seconds;
     bool sound_on;
 } breathing_state_t;
 
@@ -55,8 +61,9 @@ void breathing_face_activate(movement_settings_t *settings, void *context) {
     // we do however need to set some things in our context. Here we cast it to the correct type...
     breathing_state_t *state = (breathing_state_t *)context;
     // ...and set the initial state of our watch face.
-    state->current_stage = 0;
-    state->sound_on = true;
+    state->ticks = 0;
+    state->count_seconds = BREATHING_DEFAULT_LENGTH;
+    state->sound_on = BREATHING_DEFAULT_SOUND_ON;
 }
 
 const int NOTE_LENGTH = 80;
@@ -139,33 +146,33 @@ bool breathing_face_loop(movement_event_t event, movement_settings_t *settings, 
                 watch_clear_indicator(WATCH_INDICATOR_BELL); 
             }
 
-            switch (state->current_stage)
-            {
-            case 0: { watch_display_string("Breath", 4); if (state->sound_on) beep_in(); } break;
-            case 1: watch_display_string("In   3", 4); break;
-            case 2: watch_display_string("In   2", 4); break;
-            case 3: watch_display_string("In   1", 4); break;
-            
-            case 4: { watch_display_string("Hold 4", 4); if (state->sound_on) beep_in_hold(); } break;
-            case 5: watch_display_string("Hold 3", 4); break;
-            case 6: watch_display_string("Hold 2", 4); break;               
-            case 7:  watch_display_string("Hold 1", 4); break;
+            char buf[9];
 
-            case 8: { watch_display_string("Ou t 4", 4); if (state->sound_on) beep_out(); } break;
-            case 9: watch_display_string("Ou t 3", 4); break;
-            case 10: watch_display_string("Ou t 2", 4); break;
-            case 11: watch_display_string("Ou t 1", 4); break;         
-            
-            case 12: { watch_display_string("Hold 4", 4); if (state->sound_on) beep_out_hold(); } break;
-            case 13: watch_display_string("Hold 3", 4); break;
-            case 14: watch_display_string("Hold 2", 4); break;     
-            case 15: watch_display_string("Hold 1", 4); break;     
-            default:
-                break;
+            if (state->ticks == 0) {
+                sprintf(buf, "%2iBreath", state->count_seconds%100);
+            } else {
+                uint8_t count = state->count_seconds - (state->ticks % state->count_seconds);
+                switch (state->ticks / state->count_seconds) {
+                    case 0: sprintf(buf, "%2iIn  %2i", state->count_seconds%100, count%100); break;
+                    case 1: sprintf(buf, "%2iHold%2i", state->count_seconds%100, count%100); break;
+                    case 2: sprintf(buf, "%2iOu t%2i", state->count_seconds%100, count%100); break;
+                    case 3: sprintf(buf, "%2iHold%2i", state->count_seconds%100, count%100); break;
+                }
             }
 
+            if (state->sound_on && state->ticks % state->count_seconds == 0) {
+                switch (state->ticks / state->count_seconds) {
+                    case 0: beep_in(); break;
+                    case 1: beep_in_hold(); break;
+                    case 2: beep_out(); break;
+                    case 3: beep_out_hold(); break;
+                }
+            }
+
+            watch_display_string(buf, 2);
+
             // and increment it so that it will update on the next tick.
-            state->current_stage = (state->current_stage + 1) % 16;
+            state->ticks = (state->ticks + 1) % (state->count_seconds * 4);
 
             break;
         case EVENT_ALARM_BUTTON_UP:
@@ -176,6 +183,18 @@ bool breathing_face_loop(movement_event_t event, movement_settings_t *settings, 
                 watch_clear_indicator(WATCH_INDICATOR_BELL); 
             }
             break;
+        case EVENT_LIGHT_LONG_PRESS:
+            {
+                uint8_t stage = state->ticks / state->count_seconds;
+                uint8_t num = state->ticks % state->count_seconds;
+                if (state->count_seconds++ > BREATHING_MAX_LENGTH) {
+                    state->count_seconds = BREATHING_MIN_LENGTH;
+                    state->ticks = 0;
+                } else {
+                    state->ticks = (stage * state->count_seconds) + num;
+                }
+                break;
+            }
         case EVENT_LOW_ENERGY_UPDATE:
             // This low energy mode update occurs once a minute, if the watch face is in the
             // foreground when Movement enters low energy mode. We have the option of supporting
