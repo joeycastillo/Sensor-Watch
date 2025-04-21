@@ -136,6 +136,9 @@ bool simple_clock_face_loop(movement_event_t event, movement_settings_t *setting
                     sprintf(buf, "%s%2d%2d%02d%02d", watch_utility_get_weekday(date_time), date_time.unit.day, date_time.unit.hour, date_time.unit.minute, date_time.unit.second);
                 }
             }
+            //printf("%d-%d-%2d %2d:%02d:%02d\n", date_time.unit.year, date_time.unit.month, date_time.unit.day, date_time.unit.hour, date_time.unit.minute, date_time.unit.second);
+            //printf("unix time: %lu\n", watch_rtc_get_unix_time());
+            //printf("unix time raw: %llu\n", watch_rtc_get_unix_time_raw());
             watch_display_string(buf, pos);
 
             if (set_leading_zero)
