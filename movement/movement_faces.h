@@ -93,6 +93,8 @@
 #include "toss_up_face.h"
 #include "geomancy_face.h"
 #include "dual_timer_face.h"
+#include "place_face.h"
+#include "places_face.h"
 #include "simple_clock_bin_led_face.h"
 #include "menstrual_cycle_face.h"
 #include "flashlight_face.h"
