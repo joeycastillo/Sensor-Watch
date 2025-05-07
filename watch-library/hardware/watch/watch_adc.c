@@ -97,6 +97,16 @@ void watch_enable_analog_input(const uint8_t pin) {
         case A4:
             gpio_set_pin_function(pin, PINMUX_PB00B_ADC_AIN8);
             break;
+#ifdef TEMPSENSE
+        case TEMPSENSE:
+            gpio_set_pin_function(pin, PINMUX_PA03B_ADC_AIN1);
+            break;
+#endif
+#ifdef IRSENSE
+        case IRSENSE:
+            gpio_set_pin_function(pin, PINMUX_PA04B_ADC_AIN4);
+            break;
+#endif
         default:
             return;
     }
@@ -114,7 +124,15 @@ uint16_t watch_get_analog_pin_level(const uint8_t pin) {
             return _watch_get_analog_value(ADC_INPUTCTRL_MUXPOS_AIN11_Val);
         case A4:
             return _watch_get_analog_value(ADC_INPUTCTRL_MUXPOS_AIN8_Val);
-        default:
+#ifdef TEMPSENSE
+        case TEMPSENSE:
+            return _watch_get_analog_value(ADC_INPUTCTRL_MUXPOS_AIN1_Val);
+#endif
+#ifdef IRSENSE
+        case IRSENSE:
+            return _watch_get_analog_value(ADC_INPUTCTRL_MUXPOS_AIN4_Val);
+#endif
+            default:
             return 0;
     }
 }

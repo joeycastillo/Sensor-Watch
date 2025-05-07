@@ -223,7 +223,7 @@ ifndef COLOR
 $(error Set the COLOR variable to RED, BLUE, or GREEN depending on what board you have.)
 endif
 
-COLOR_VALID := $(filter $(COLOR),RED BLUE GREEN)
+COLOR_VALID := $(filter $(COLOR),RED BLUE GREEN PRO)
 
 ifeq ($(COLOR_VALID),)
 $(error COLOR must be RED, BLUE, or GREEN)
