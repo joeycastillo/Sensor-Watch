@@ -25,6 +25,7 @@ INCLUDES += \
   -I../lib/astrolib/ \
   -I../lib/morsecalc/ \
   -I../lib/smallchesslib/ \
+  -I../lib/flowtime/ \
 
 # If you add any other source files you wish to compile, add them after ../app.c
 # Note that you will need to add a backslash at the end of any line you wish to continue, i.e.
@@ -46,6 +47,7 @@ SRCS += \
   ../lib/morsecalc/calc_fns.c \
   ../lib/morsecalc/calc_strtof.c \
   ../lib/morsecalc/morsecalc_display.c \
+  ../lib/flowtime/flowtime.c \
   ../../littlefs/lfs.c \
   ../../littlefs/lfs_util.c \
   ../movement.c \
@@ -149,6 +151,7 @@ SRCS += \
   ../watch_faces/sensor/accel_interrupt_count_face.c \
   ../watch_faces/complication/metronome_face.c \
   ../watch_faces/complication/smallchess_face.c \
+  ../watch_faces/clock/flowtime_clock_face.c \
 # New watch faces go above this line.
 
 # Leave this line at the bottom of the file; it has all the targets for making your project.
