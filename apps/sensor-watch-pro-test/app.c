@@ -164,7 +164,6 @@ bool app_loop(void) {
     printf("%s\n", (const char *)buf);
 
     if (strcmp((const char *)buf, "BEEP") == 0) {
-        watch_set_led_yellow();
         watch_buzzer_play_note(BUZZER_NOTE_C5, 150);
         watch_buzzer_play_note(BUZZER_NOTE_REST, 25);
         watch_buzzer_play_note(BUZZER_NOTE_E5, 150);
@@ -180,7 +179,7 @@ bool app_loop(void) {
         watch_storage_read(10, 0, buf, 4);
         delay_ms(10);
         if(strcmp((const char *)buf, (const char *)"9PIN") == 0) {
-            watch_set_led_off();
+            watch_set_led_color_rgb(64, 0, 128);
             while(1);
         }
     }
@@ -369,19 +368,19 @@ bool app_loop(void) {
             /// TODO: LED
             case 'r':
                 watch_set_led_color_rgb(255, 0, 0);
-                delay_ms(100);
+                delay_ms(150);
                 watch_set_led_color_rgb(0, 0, 0);
                 // It is the tester's responsibility to check the LED color.
                 break;
             case 'g':
                 watch_set_led_color_rgb(0, 255, 0);
-                delay_ms(100);
+                delay_ms(150);
                 watch_set_led_color_rgb(0, 0, 0);
                 // It is the tester's responsibility to check the LED color.
                 break;
             case 'b':
                 watch_set_led_color_rgb(0, 0, 255);
-                delay_ms(100);
+                delay_ms(150);
                 watch_set_led_color_rgb(0, 0, 0);
                 // It is the tester's responsibility to check the LED color.
                 break;
@@ -411,6 +410,7 @@ bool app_loop(void) {
                 watch_storage_sync();
                 watch_storage_read(10, 0, buf, 4);
                 delay_ms(10);
+                pass_if(strcmp((const char *)buf, (const char *)"BEEP") == 0);
                 // No need to do anything here; comparison with 'beep' happens at next loop invocation.
                 break;
         }
