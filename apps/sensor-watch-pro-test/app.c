@@ -256,11 +256,15 @@ bool app_loop(void) {
                         gpio_set_pin_direction(lcd_pins[i], GPIO_DIRECTION_IN);
                         gpio_set_pin_pull_mode(lcd_pins[i], GPIO_PULL_UP);
                     }
-                    // SEG23 is adjacent to the green LED.
+                    // SEG23 and SEG22 are adjacent to the green LED.
                     // setting the LED green drives GREEN low.
                     watch_set_led_green();
                     if (!gpio_get_pin_level(SLCD26)) {
                         // If SEG23 is low, then it must be bridged to the green pin
+                        pass_if(false);
+                    }
+                    if (!gpio_get_pin_level(SLCD25)) {
+                        // If SEG22 is low, then it must be bridged to the green pin
                         pass_if(false);
                     }
                     // SEG13 is adjacent to the blue LED.
@@ -294,6 +298,12 @@ bool app_loop(void) {
                     gpio_set_pin_direction(SLCD0, GPIO_DIRECTION_IN);
                     gpio_set_pin_pull_mode(SLCD0, GPIO_PULL_DOWN);
                     if (gpio_get_pin_level(SLCD0)) {
+                        passed = false;
+                    }
+                    // SLCD10 neighbors VCC
+                    gpio_set_pin_direction(SLCD10, GPIO_DIRECTION_IN);
+                    gpio_set_pin_pull_mode(SLCD10, GPIO_PULL_DOWN);
+                    if (gpio_get_pin_level(SLCD10)) {
                         passed = false;
                     }
                     // SLCD18 neighbors VCC
