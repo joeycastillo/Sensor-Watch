@@ -31,11 +31,11 @@
 typedef enum FestivalStage {
     NO_STAGE = 0,
     T_MOBILE,
-    COINBASE,
+    LAKESHORE,
     BUD_LIGHT,
     TITOS,
     PERRYS,
-    BACARDI,
+    THE_GROVE,
     BMI,
     STAGE_COUNT
 } FestivalStage;

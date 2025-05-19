@@ -34,11 +34,11 @@ const char festival_stage[STAGE_COUNT + 1][2] =
 {
     [NO_STAGE] = "  ",
     [T_MOBILE] = "TM",
-    [COINBASE] = "CB",
+    [LAKESHORE] = "L ",
     [BUD_LIGHT] = "BL",
     [TITOS] = "TO",
     [PERRYS] = "PR",
-    [BACARDI] = "BA",
+    [THE_GROVE] = "GR",
     [BMI] = "BM",
     [STAGE_COUNT] = "  "
 };
