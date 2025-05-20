@@ -69,7 +69,8 @@ typedef enum FestivalGenre {
 } FestivalGenre;
 
 typedef enum FestivalScreens {
-    SCREEN_ACT = 0,
+    SCREEN_TITLE = 0,
+    SCREEN_ACT,
     SCREEN_GENRE,
     SCREEN_START_TIME,
     SCREEN_END_TIME,    
@@ -103,7 +104,6 @@ typedef struct {
     uint16_t prev_day : 15;
     FestivalScreens curr_screen;
     bool cyc_through_all_acts;
-    bool showing_title;
     bool festival_occurring;
     
 } festival_schedule_state_t;

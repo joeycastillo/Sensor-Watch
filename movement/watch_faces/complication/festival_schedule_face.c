@@ -81,7 +81,7 @@ static watch_date_time _starting_time;
 static watch_date_time _ending_time;
 static bool _quick_ticks_running;
 static uint8_t _ts_ticks;
-static uint8_t _ts_ticks_purpose;
+static FestivalTickReason _ts_ticks_purpose;
 static const uint8_t _act_arr_size = sizeof(festival_acts) / sizeof(schedule_t);
 static bool in_le;
 
@@ -301,10 +301,7 @@ void festival_schedule_face_setup(movement_settings_t *settings, uint8_t watch_f
         state->prev_act = NUM_ACTS + 1;
         state -> prev_day = 0;
         state->cyc_through_all_acts = false;
-        state->curr_screen = SCREEN_ACT;
-        // Do any one-time tasks in here; the inside of this conditional happens only at boot.
     }
-    // Do any pin or peripheral setup here; this will be called whenever the watch wakes from deep sleep.
 }
 
 static void _cyc_all_acts(festival_schedule_state_t *state, bool clock_mode_24h, bool handling_light){
@@ -312,9 +309,8 @@ static void _cyc_all_acts(festival_schedule_state_t *state, bool clock_mode_24h,
     watch_set_indicator(WATCH_INDICATOR_LAP);
     state->curr_act = _get_next_act_num(state->curr_act, handling_light);
     state->curr_stage = festival_acts[state->curr_act].stage;
-    state->curr_screen = SCREEN_ACT;
+    state->curr_screen = SCREEN_TITLE;
     _display_screen(state, clock_mode_24h);
-    state->showing_title = false;
     return; 
 }
 
@@ -327,8 +323,8 @@ static void _handle_btn_up(festival_schedule_state_t *state, bool clock_mode_24h
     }
     if (!state->festival_occurring) return;
     watch_date_time curr_time = watch_rtc_get_date_time();
-    if (!state->showing_title) state->curr_stage = handling_light ? (state->curr_stage - 1 + STAGE_COUNT) % STAGE_COUNT : (state->curr_stage + 1) % STAGE_COUNT;
-    else state->showing_title = false;
+    if (state->curr_screen != SCREEN_TITLE) 
+        state->curr_stage = handling_light ? (state->curr_stage - 1 + STAGE_COUNT) % STAGE_COUNT : (state->curr_stage + 1) % STAGE_COUNT;
     if (SHOW_EMPTY_STAGES)
         state->curr_act = _act_performing_on_stage(state->curr_stage, curr_time);
     else{
@@ -340,7 +336,7 @@ static void _handle_btn_up(festival_schedule_state_t *state, bool clock_mode_24h
 }
 
 static void _show_title(festival_schedule_state_t *state){
-    state->showing_title = true;
+    state->curr_screen = SCREEN_TITLE;
     state->curr_act = NUM_ACTS;
     watch_clear_colon();
     watch_clear_all_indicators();
@@ -395,7 +391,7 @@ static void handle_ts_ticks(festival_schedule_state_t *state, bool clock_mode_24
                 _ts_ticks = 0;
                 break;
             case TICK_SCREEN:
-                if (state->showing_title || state->curr_screen == SCREEN_ACT){
+                if (state->curr_screen == SCREEN_TITLE || state->curr_screen == SCREEN_ACT){
                     _ts_ticks = 0;
                 }
                 else if (_ts_ticks == 0){
@@ -413,7 +409,7 @@ static void handle_ts_ticks(festival_schedule_state_t *state, bool clock_mode_24
             case TICK_LEAVE:
                 if (!watch_get_pin_level(BTN_MODE))_ts_ticks = 0;
                 else if (_ts_ticks == 0){
-                    if(state -> showing_title) movement_move_to_face(0);
+                    if(state->curr_screen == SCREEN_TITLE) movement_move_to_face(0);
                     else{
                         _ts_ticks_purpose = TICK_LEAVE;  // This is unneeded, but explicit that we remain in TICK_LEAVE
                         _ts_ticks = 2 * FREQ;
@@ -450,7 +446,7 @@ static bool handle_tick(festival_schedule_state_t *state, movement_settings_t *s
     state -> prev_day = (curr_time.reg >> 17);
     state -> festival_occurring = _festival_occurring(curr_time, (newDay && !state->cyc_through_all_acts));
     if (!state->festival_occurring) return false;
-    if(state->showing_title){
+    if(state->curr_screen == SCREEN_TITLE) {
         if (newDay) _display_curr_day(curr_time);
         return false;
     }
@@ -490,8 +486,8 @@ bool festival_schedule_face_loop(movement_event_t event, movement_settings_t *se
             break;
         case EVENT_TICK:
             changed_from_handle_ticks = handle_tick(state, settings);
-            if (!changed_from_handle_ticks && state->curr_screen == SCREEN_ACT 
-                && !state->showing_title && !_quick_ticks_running)
+            if (!changed_from_handle_ticks && state->curr_screen == SCREEN_ACT
+                && !_quick_ticks_running)
                     _text_pos = _loop_text(_text_looping, _text_pos, 6);
                 break;
         case EVENT_LOW_ENERGY_UPDATE:
@@ -500,7 +496,7 @@ bool festival_schedule_face_loop(movement_event_t event, movement_settings_t *se
                 && event.event_type == EVENT_LOW_ENERGY_UPDATE 
                 && state->curr_screen == SCREEN_ACT) {
                 in_le = true;
-                if (!state->showing_title && state->curr_screen == SCREEN_ACT)
+                if (state->curr_screen == SCREEN_ACT)
                     _display_act(state);  // Resets the act name in LE mode so the beginning of it is shown
             }
             break;
@@ -511,7 +507,7 @@ bool festival_schedule_face_loop(movement_event_t event, movement_settings_t *se
             _handle_btn_up(state, settings->bit.clock_mode_24h, false);
             break;
         case EVENT_ALARM_LONG_PRESS:
-            if (state->showing_title){
+            if (state->curr_screen == SCREEN_TITLE){
                 _cyc_all_acts(state, settings->bit.clock_mode_24h, false);
                 _ts_ticks = 2 * FREQ;
                 _ts_ticks_purpose = TICK_CYCLE;
@@ -522,7 +518,7 @@ bool festival_schedule_face_loop(movement_event_t event, movement_settings_t *se
         case EVENT_LIGHT_BUTTON_DOWN:
             break;  // To overwrite the default LED on
         case EVENT_LIGHT_LONG_PRESS:
-            if (state->showing_title){
+            if (state->curr_screen == SCREEN_TITLE){
                 _cyc_all_acts(state, settings->bit.clock_mode_24h, true);
                 _ts_ticks = 2 * FREQ;
                 _ts_ticks_purpose = TICK_CYCLE;
@@ -538,7 +534,7 @@ bool festival_schedule_face_loop(movement_event_t event, movement_settings_t *se
                 _ts_ticks = 2 * FREQ;
                 _ts_ticks_purpose = TICK_LEAVE;
             }
-            else if (!state->showing_title){
+            else if (state->curr_screen != SCREEN_TITLE){
                 _ts_ticks = 2 * FREQ;
                 _ts_ticks_purpose = TICK_LEAVE;
                 _show_title(state);
@@ -546,7 +542,7 @@ bool festival_schedule_face_loop(movement_event_t event, movement_settings_t *se
             else movement_move_to_face(0);
             break;
         case EVENT_MODE_BUTTON_UP:
-            if (state->showing_title) movement_move_to_next_face();
+            if (state->curr_screen == SCREEN_TITLE) movement_move_to_next_face();
             else if (state->curr_act != NUM_ACTS){
                 state->curr_screen = (state->curr_screen + 1) % SCREENS_COUNT;
                 _display_screen(state, settings->bit.clock_mode_24h);
