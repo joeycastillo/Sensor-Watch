@@ -500,7 +500,8 @@ bool festival_schedule_face_loop(movement_event_t event, movement_settings_t *se
                 && event.event_type == EVENT_LOW_ENERGY_UPDATE 
                 && state->curr_screen == SCREEN_ACT) {
                 in_le = true;
-                _display_act(state);  // Resets the act name in LE mode so the beginning of it is shown
+                if (!state->showing_title && state->curr_screen == SCREEN_ACT)
+                    _display_act(state);  // Resets the act name in LE mode so the beginning of it is shown
             }
             break;
         case EVENT_LIGHT_BUTTON_UP:
