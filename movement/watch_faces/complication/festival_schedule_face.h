@@ -28,81 +28,81 @@
 #include "movement.h"
 
 
-typedef enum FestivalStage {
-    NO_STAGE = 0,
-    T_MOBILE,
-    LAKESHORE,
-    BUD_LIGHT,
-    TITOS,
-    PERRYS,
-    THE_GROVE,
-    BMI,
-    STAGE_COUNT
-} FestivalStage;
+typedef enum {
+    FESTIVAL_SCHEDULE_NO_STAGE = 0,
+    FESTIVAL_SCHEDULE_T_MOBILE,
+    FESTIVAL_SCHEDULE_LAKESHORE,
+    FESTIVAL_SCHEDULE_BUD_LIGHT,
+    FESTIVAL_SCHEDULE_TITOS,
+    FESTIVAL_SCHEDULE_PERRYS,
+    FESTIVAL_SCHEDULE_THE_GROVE,
+    FESTIVAL_SCHEDULE_BMI,
+    FESTIVAL_SCHEDULE_STAGE_COUNT
+} festival_schedule_stage;
 
-typedef enum FestivalGenre {
-    NO_GENRE = 0,
-    POP,
-    INDIE,
-    DREAM_POP,
-    K_POP,
-    ROCK,
-    ALT,
-    PUNK,
-    NU_METAL,
-    PSYCH_ROCK,
-    HOUSE,
-    DUBSTEP,
-    BASS,
-    TECHNO,
-    DnB,
-    DANCE,
-    RAP,
-    TRAP,
-    EMORAP,
-    SOUL,
-    RnB,
-    COUNTRY,
-    FOLK,
-    OTHER,
-    GENRE_COUNT
-} FestivalGenre;
+typedef enum {
+    FESTIVAL_SCHEDULE_NO_GENRE = 0,
+    FESTIVAL_SCHEDULE_POP,
+    FESTIVAL_SCHEDULE_INDIE,
+    FESTIVAL_SCHEDULE_DREAM_POP,
+    FESTIVAL_SCHEDULE_K_POP,
+    FESTIVAL_SCHEDULE_ROCK,
+    FESTIVAL_SCHEDULE_ALT,
+    FESTIVAL_SCHEDULE_PUNK,
+    FESTIVAL_SCHEDULE_NU_METAL,
+    FESTIVAL_SCHEDULE_PSYCH_ROCK,
+    FESTIVAL_SCHEDULE_HOUSE,
+    FESTIVAL_SCHEDULE_DUBSTEP,
+    FESTIVAL_SCHEDULE_BASS,
+    FESTIVAL_SCHEDULE_TECHNO,
+    FESTIVAL_SCHEDULE_DnB,
+    FESTIVAL_SCHEDULE_DANCE,
+    FESTIVAL_SCHEDULE_RAP,
+    FESTIVAL_SCHEDULE_TRAP,
+    FESTIVAL_SCHEDULE_EMORAP,
+    FESTIVAL_SCHEDULE_SOUL,
+    FESTIVAL_SCHEDULE_RnB,
+    FESTIVAL_SCHEDULE_COUNTRY,
+    FESTIVAL_SCHEDULE_FOLK,
+    FESTIVAL_SCHEDULE_OTHER,
+    FESTIVAL_SCHEDULE_GENRE_COUNT
+} festival_schedule_genre;
 
-typedef enum FestivalScreens {
-    SCREEN_TITLE = 0,
-    SCREEN_ACT,
-    SCREEN_GENRE,
-    SCREEN_START_TIME,
-    SCREEN_END_TIME,    
-    SCREENS_COUNT
-} FestivalScreens;
+typedef enum {
+    FESTIVAL_SCHEDULE_SCREEN_TITLE = 0,
+    FESTIVAL_SCHEDULE_SCREEN_ACT,
+    FESTIVAL_SCHEDULE_SCREEN_GENRE,
+    FESTIVAL_SCHEDULE_SCREEN_START_TIME,
+    FESTIVAL_SCHEDULE_SCREEN_END_TIME,    
+    FESTIVAL_SCHEDULE_SCREENS_COUNT
+} festival_schedule_screens;
 
-typedef enum FestivalTickReason {
-    TICK_NONE = 0,
-    TICK_SCREEN,
-    TICK_LEAVE,
-    TICK_CYCLE
-} FestivalTickReason;
+typedef enum {
+    FESTIVAL_SCHEDULE_TICK_NONE = 0,
+    FESTIVAL_SCHEDULE_TICK_SCREEN,
+    FESTIVAL_SCHEDULE_TICK_LEAVE,
+    FESTIVAL_SCHEDULE_TICK_CYCLE
+} festival_schedule_tick_reason;
 
 typedef struct {
     char artist[25];
-    FestivalStage stage;
+    festival_schedule_stage stage;
     watch_date_time start_time;
     watch_date_time end_time;
-    FestivalGenre genre;
+    festival_schedule_genre genre;
     uint8_t popularity;
-} schedule_t;
+} festival_schedule_t;
 
 #define SHOW_EMPTY_STAGES false
 
 typedef struct {
     // Anything you need to keep track of, put it here!
-    FestivalStage curr_stage;
-    FestivalStage prev_stage;
+    festival_schedule_stage curr_stage;
+    festival_schedule_genre prev_stage;
     uint8_t curr_act;
     uint8_t prev_act;
     uint16_t prev_day : 15;
-    FestivalScreens curr_screen;
+    festival_schedule_screens curr_screen;
     bool cyc_through_all_acts;
     bool festival_occurring;
     

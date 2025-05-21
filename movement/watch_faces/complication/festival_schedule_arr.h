@@ -8,1386 +8,1386 @@ const schedule_t festival_acts[NUM_ACTS + 1]=
 {
     {
         .artist = "2HOLLIS",
-        .stage = THE_GROVE,
+        .stage = FESTIVAL_SCHEDULE_THE_GROVE,
         .start_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 19, .unit.minute = 45},
         .end_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 20, .unit.minute = 30},
-        .genre = EMORAP,
+        .genre = FESTIVAL_SCHEDULE_EMORAP,
         .popularity = 49
     },
     {
         .artist = "a$aP ROCKY",
-        .stage = BUD_LIGHT,
+        .stage = FESTIVAL_SCHEDULE_BUD_LIGHT,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 20, .unit.minute = 45},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 22, .unit.minute = 0},
-        .genre = TRAP,
+        .genre = FESTIVAL_SCHEDULE_TRAP,
         .popularity = 4
     },
     {
         .artist = "aLEMEda",
-        .stage = TITOS,
+        .stage = FESTIVAL_SCHEDULE_TITOS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 12, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 12, .unit.minute = 45},
-        .genre = INDIE,
+        .genre = FESTIVAL_SCHEDULE_INDIE,
         .popularity = 152
     },
     {
         .artist = "aLEX WaRREN",
-        .stage = TITOS,
+        .stage = FESTIVAL_SCHEDULE_TITOS,
         .start_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 19, .unit.minute = 45},
         .end_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 20, .unit.minute = 30},
-        .genre = DREAM_POP,
+        .genre = FESTIVAL_SCHEDULE_DREAM_POP,
         .popularity = 10
     },
     {
         .artist = "aLEXSUCKS",
-        .stage = BMI,
+        .stage = FESTIVAL_SCHEDULE_BMI,
         .start_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 14, .unit.minute = 10},
         .end_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 14, .unit.minute = 50},
-        .genre = ALT,
+        .genre = FESTIVAL_SCHEDULE_ALT,
         .popularity = 142
     },
     {
         .artist = "aLIYaH'S INTERLUdE",
-        .stage = BMI,
+        .stage = FESTIVAL_SCHEDULE_BMI,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 16, .unit.minute = 30},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 17, .unit.minute = 10},
-        .genre = HOUSE,
+        .genre = FESTIVAL_SCHEDULE_HOUSE,
         .popularity = 87
     },
     {
         .artist = "aLLEYCVT",
-        .stage = PERRYS,
+        .stage = FESTIVAL_SCHEDULE_PERRYS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 15, .unit.minute = 30},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 16, .unit.minute = 15},
-        .genre = DUBSTEP,
+        .genre = FESTIVAL_SCHEDULE_DUBSTEP,
         .popularity = 109
     },
     {
         .artist = "aMaaRaE",
-        .stage = LAKESHORE,
+        .stage = FESTIVAL_SCHEDULE_LAKESHORE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 17, .unit.minute = 40},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 18, .unit.minute = 40},
-        .genre = OTHER,
+        .genre = FESTIVAL_SCHEDULE_OTHER,
         .popularity = 52
     },
     {
         .artist = "aRTEMaS",
-        .stage = THE_GROVE,
+        .stage = FESTIVAL_SCHEDULE_THE_GROVE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 19, .unit.minute = 45},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 20, .unit.minute = 30},
-        .genre = POP,
+        .genre = FESTIVAL_SCHEDULE_POP,
         .popularity = 22
     },
     {
         .artist = "aZZECCa",
-        .stage = PERRYS,
+        .stage = FESTIVAL_SCHEDULE_PERRYS,
         .start_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 13, .unit.minute = 10},
         .end_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 13, .unit.minute = 45},
-        .genre = HOUSE,
+        .genre = FESTIVAL_SCHEDULE_HOUSE,
         .popularity = 138
     },
     {
         .artist = "B:a   ",
-        .stage = BUD_LIGHT,
+        .stage = FESTIVAL_SCHEDULE_BUD_LIGHT,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 14, .unit.minute = 30},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 15, .unit.minute = 30},
-        .genre = ALT,
+        .genre = FESTIVAL_SCHEDULE_ALT,
         .popularity = 165
     },
     {
         .artist = "BaRRY CaN'T SWIM",
-        .stage = T_MOBILE,
+        .stage = FESTIVAL_SCHEDULE_T_MOBILE,
         .start_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 17, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 18, .unit.minute = 0},
-        .genre = HOUSE,
-        .popularity = 58
+        .genre = FESTIVAL_SCHEDULE_HOUSE,
+        .popularity = 63
     },
     {
         .artist = "BENCHES",
-        .stage = BMI,
+        .stage = FESTIVAL_SCHEDULE_BMI,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 13, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 13, .unit.minute = 40},
-        .genre = ROCK,
+        .genre = FESTIVAL_SCHEDULE_ROCK,
         .popularity = 123
     },
     {
         .artist = "BILMURI",
-        .stage = THE_GROVE,
+        .stage = FESTIVAL_SCHEDULE_THE_GROVE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 18, .unit.minute = 30},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 19, .unit.minute = 15},
-        .genre = PUNK,
+        .genre = FESTIVAL_SCHEDULE_PUNK,
         .popularity = 77
     },
     {
         .artist = "BLaCK PaRTY",
-        .stage = THE_GROVE,
+        .stage = FESTIVAL_SCHEDULE_THE_GROVE,
         .start_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 13, .unit.minute = 50},
         .end_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 14, .unit.minute = 30},
-        .genre = RnB,
+        .genre = FESTIVAL_SCHEDULE_RnB,
         .popularity = 134
     },
     {
         .artist = "BLadEE",
-        .stage = THE_GROVE,
+        .stage = FESTIVAL_SCHEDULE_THE_GROVE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 21, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 22, .unit.minute = 0},
-        .genre = EMORAP,
+        .genre = FESTIVAL_SCHEDULE_EMORAP,
         .popularity = 45
     },
     {
         .artist = "BLEaCHERS",
-        .stage = BUD_LIGHT,
+        .stage = FESTIVAL_SCHEDULE_BUD_LIGHT,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 18, .unit.minute = 30},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 19, .unit.minute = 30},
-        .genre = INDIE,
+        .genre = FESTIVAL_SCHEDULE_INDIE,
         .popularity = 43
     },
     {
         .artist = "BLESSEd MadONNa",
-        .stage = PERRYS,
+        .stage = FESTIVAL_SCHEDULE_PERRYS,
         .start_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 15, .unit.minute = 55},
         .end_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 16, .unit.minute = 50},
-        .genre = HOUSE,
+        .genre = FESTIVAL_SCHEDULE_HOUSE,
         .popularity = 55
     },
     {
         .artist = "BLK OdYSSY",
-        .stage = BMI,
+        .stage = FESTIVAL_SCHEDULE_BMI,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 17, .unit.minute = 40},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 18, .unit.minute = 20},
-        .genre = SOUL,
+        .genre = FESTIVAL_SCHEDULE_SOUL,
         .popularity = 106
     },
     {
         .artist = "BO STaLOCH",
-        .stage = BMI,
+        .stage = FESTIVAL_SCHEDULE_BMI,
         .start_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 16, .unit.minute = 30},
         .end_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 17, .unit.minute = 10},
-        .genre = POP,
+        .genre = FESTIVAL_SCHEDULE_POP,
         .popularity = 133
     },
     {
         .artist = "BOSSMaN dLOW",
-        .stage = LAKESHORE,
+        .stage = FESTIVAL_SCHEDULE_LAKESHORE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 17, .unit.minute = 45},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 18, .unit.minute = 45},
-        .genre = TRAP,
-        .popularity = 37
+        .genre = FESTIVAL_SCHEDULE_TRAP,
+        .popularity = 36
     },
     {
         .artist = "BOYNEXTdOOR",
-        .stage = LAKESHORE,
+        .stage = FESTIVAL_SCHEDULE_LAKESHORE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 14, .unit.minute = 15},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 15, .unit.minute = 15},
-        .genre = K_POP,
+        .genre = FESTIVAL_SCHEDULE_K_POP,
         .popularity = 35
     },
     {
         .artist = "BUNT_ ",
-        .stage = PERRYS,
+        .stage = FESTIVAL_SCHEDULE_PERRYS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 16, .unit.minute = 30},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 17, .unit.minute = 30},
-        .genre = HOUSE,
+        .genre = FESTIVAL_SCHEDULE_HOUSE,
         .popularity = 44
     },
     {
         .artist = "Ca7RIEL Y PaCO aMOROSO",
-        .stage = LAKESHORE,
+        .stage = FESTIVAL_SCHEDULE_LAKESHORE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 15, .unit.minute = 45},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 16, .unit.minute = 45},
-        .genre = SOUL,
+        .genre = FESTIVAL_SCHEDULE_SOUL,
         .popularity = 166
     },
     {
         .artist = "CaGE THE ELEPHaNT",
-        .stage = BUD_LIGHT,
+        .stage = FESTIVAL_SCHEDULE_BUD_LIGHT,
         .start_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 18, .unit.minute = 45},
         .end_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 19, .unit.minute = 45},
-        .genre = ALT,
+        .genre = FESTIVAL_SCHEDULE_ALT,
         .popularity = 20
     },
     {
         .artist = "CaROL adES",
-        .stage = BMI,
+        .stage = FESTIVAL_SCHEDULE_BMI,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 17, .unit.minute = 40},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 18, .unit.minute = 20},
-        .genre = INDIE,
+        .genre = FESTIVAL_SCHEDULE_INDIE,
         .popularity = 147
     },
     {
         .artist = "CaROLINE KINGSBURY",
-        .stage = BMI,
+        .stage = FESTIVAL_SCHEDULE_BMI,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 15, .unit.minute = 20},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 16, .unit.minute = 0},
-        .genre = POP,
+        .genre = FESTIVAL_SCHEDULE_POP,
         .popularity = 143
     },
     {
         .artist = "CaRTER VaIL",
-        .stage = BMI,
+        .stage = FESTIVAL_SCHEDULE_BMI,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 14, .unit.minute = 10},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 14, .unit.minute = 50},
-        .genre = INDIE,
+        .genre = FESTIVAL_SCHEDULE_INDIE,
         .popularity = 128
     },
     {
         .artist = "CaSSaNdRa COLEMaN",
-        .stage = BMI,
+        .stage = FESTIVAL_SCHEDULE_BMI,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 14, .unit.minute = 10},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 14, .unit.minute = 50},
-        .genre = DREAM_POP,
+        .genre = FESTIVAL_SCHEDULE_DREAM_POP,
         .popularity = 167
     },
     {
         .artist = "CHaRLOTTE LaWRENCE",
-        .stage = LAKESHORE,
+        .stage = FESTIVAL_SCHEDULE_LAKESHORE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 13, .unit.minute = 45},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 14, .unit.minute = 45},
-        .genre = POP,
+        .genre = FESTIVAL_SCHEDULE_POP,
         .popularity = 86
     },
     {
         .artist = "CHaSE `n STaTUS",
-        .stage = PERRYS,
+        .stage = FESTIVAL_SCHEDULE_PERRYS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 19, .unit.minute = 30},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 20, .unit.minute = 30},
-        .genre = DnB,
-        .popularity = 36
+        .genre = FESTIVAL_SCHEDULE_DnB,
+        .popularity = 37
     },
     {
         .artist = "CHICaGO MadE",
-        .stage = TITOS,
+        .stage = FESTIVAL_SCHEDULE_TITOS,
         .start_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 14, .unit.minute = 15},
         .end_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 15, .unit.minute = 0},
-        .genre = OTHER,
+        .genre = FESTIVAL_SCHEDULE_OTHER,
         .popularity = 168
     },
     {
         .artist = "CHICaGO YOUTH ORCHESTRa",
-        .stage = TITOS,
+        .stage = FESTIVAL_SCHEDULE_TITOS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 19, .unit.minute = 30},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 20, .unit.minute = 30},
-        .genre = OTHER,
+        .genre = FESTIVAL_SCHEDULE_OTHER,
         .popularity = 169
     },
     {
         .artist = "CLaIRO",
-        .stage = BUD_LIGHT,
+        .stage = FESTIVAL_SCHEDULE_BUD_LIGHT,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 18, .unit.minute = 30},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 19, .unit.minute = 30},
-        .genre = DREAM_POP,
+        .genre = FESTIVAL_SCHEDULE_DREAM_POP,
         .popularity = 11
     },
     {
         .artist = "CLOONEE",
-        .stage = PERRYS,
+        .stage = FESTIVAL_SCHEDULE_PERRYS,
         .start_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 18, .unit.minute = 25},
         .end_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 19, .unit.minute = 25},
-        .genre = HOUSE,
-        .popularity = 59
+        .genre = FESTIVAL_SCHEDULE_HOUSE,
+        .popularity = 58
     },
     {
         .artist = "COLBY aCUFF",
-        .stage = BMI,
+        .stage = FESTIVAL_SCHEDULE_BMI,
         .start_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 17, .unit.minute = 40},
         .end_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 18, .unit.minute = 20},
-        .genre = COUNTRY,
+        .genre = FESTIVAL_SCHEDULE_COUNTRY,
         .popularity = 96
     },
     {
         .artist = "CRITICaLS",
-        .stage = THE_GROVE,
+        .stage = FESTIVAL_SCHEDULE_THE_GROVE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 12, .unit.minute = 50},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 13, .unit.minute = 30},
-        .genre = PUNK,
+        .genre = FESTIVAL_SCHEDULE_PUNK,
         .popularity = 155
     },
     {
         .artist = "daMIaNO daVId",
-        .stage = THE_GROVE,
+        .stage = FESTIVAL_SCHEDULE_THE_GROVE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 19, .unit.minute = 45},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 20, .unit.minute = 30},
-        .genre = POP,
-        .popularity = 33
+        .genre = FESTIVAL_SCHEDULE_POP,
+        .popularity = 31
     },
     {
         .artist = "daNIEL aLLaN",
-        .stage = PERRYS,
+        .stage = FESTIVAL_SCHEDULE_PERRYS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 13, .unit.minute = 30},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 14, .unit.minute = 15},
-        .genre = HOUSE,
+        .genre = FESTIVAL_SCHEDULE_HOUSE,
         .popularity = 126
     },
     {
         .artist = "daRE  ",
-        .stage = THE_GROVE,
+        .stage = FESTIVAL_SCHEDULE_THE_GROVE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 17, .unit.minute = 15},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 18, .unit.minute = 0},
-        .genre = POP,
+        .genre = FESTIVAL_SCHEDULE_POP,
         .popularity = 90
     },
     {
         .artist = "dEL WaTER GaP",
-        .stage = TITOS,
+        .stage = FESTIVAL_SCHEDULE_TITOS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 15, .unit.minute = 30},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 16, .unit.minute = 30},
-        .genre = INDIE,
+        .genre = FESTIVAL_SCHEDULE_INDIE,
         .popularity = 70
     },
     {
         .artist = "dJO   ",
-        .stage = T_MOBILE,
+        .stage = FESTIVAL_SCHEDULE_T_MOBILE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 18, .unit.minute = 40},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 19, .unit.minute = 40},
-        .genre = PSYCH_ROCK,
+        .genre = FESTIVAL_SCHEDULE_PSYCH_ROCK,
         .popularity = 170
     },
     {
         .artist = "dOECHII",
-        .stage = T_MOBILE,
+        .stage = FESTIVAL_SCHEDULE_T_MOBILE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 18, .unit.minute = 45},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 19, .unit.minute = 45},
-        .genre = RAP,
+        .genre = FESTIVAL_SCHEDULE_RAP,
         .popularity = 9
     },
     {
         .artist = "dOGPaRK",
-        .stage = LAKESHORE,
+        .stage = FESTIVAL_SCHEDULE_LAKESHORE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 12, .unit.minute = 30},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 13, .unit.minute = 15},
-        .genre = INDIE,
+        .genre = FESTIVAL_SCHEDULE_INDIE,
         .popularity = 140
     },
     {
         .artist = "dOM dOLLa",
-        .stage = PERRYS,
+        .stage = FESTIVAL_SCHEDULE_PERRYS,
         .start_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 20, .unit.minute = 45},
         .end_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 22, .unit.minute = 0},
-        .genre = HOUSE,
-        .popularity = 32
+        .genre = FESTIVAL_SCHEDULE_HOUSE,
+        .popularity = 33
     },
     {
         .artist = "dOMINIC FIKE",
-        .stage = T_MOBILE,
+        .stage = FESTIVAL_SCHEDULE_T_MOBILE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 19, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 20, .unit.minute = 0},
-        .genre = INDIE,
-        .popularity = 17
+        .genre = FESTIVAL_SCHEDULE_INDIE,
+        .popularity = 16
     },
     {
         .artist = "dR_ FRESCH",
-        .stage = PERRYS,
+        .stage = FESTIVAL_SCHEDULE_PERRYS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 16, .unit.minute = 45},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 17, .unit.minute = 45},
-        .genre = BASS,
+        .genre = FESTIVAL_SCHEDULE_BASS,
         .popularity = 117
     },
     {
         .artist = "dROPTINES",
-        .stage = THE_GROVE,
+        .stage = FESTIVAL_SCHEDULE_THE_GROVE,
         .start_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 12, .unit.minute = 50},
         .end_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 13, .unit.minute = 30},
-        .genre = ROCK,
+        .genre = FESTIVAL_SCHEDULE_ROCK,
         .popularity = 127
     },
     {
         .artist = "dUa SaLEH",
-        .stage = THE_GROVE,
+        .stage = FESTIVAL_SCHEDULE_THE_GROVE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 12, .unit.minute = 50},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 13, .unit.minute = 30},
-        .genre = RnB,
+        .genre = FESTIVAL_SCHEDULE_RnB,
         .popularity = 135
     },
     {
         .artist = "dURaNd BERNaRR",
-        .stage = T_MOBILE,
+        .stage = FESTIVAL_SCHEDULE_T_MOBILE,
         .start_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 15, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 16, .unit.minute = 0},
-        .genre = RnB,
+        .genre = FESTIVAL_SCHEDULE_RnB,
         .popularity = 99
     },
     {
         .artist = "EddIE aNd THE GETaWaY",
-        .stage = BMI,
+        .stage = FESTIVAL_SCHEDULE_BMI,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 13, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 13, .unit.minute = 40},
-        .genre = ALT,
+        .genre = FESTIVAL_SCHEDULE_ALT,
         .popularity = 107
     },
     {
         .artist = "FCUKERS",
-        .stage = THE_GROVE,
+        .stage = FESTIVAL_SCHEDULE_THE_GROVE,
         .start_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 16, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 16, .unit.minute = 45},
-        .genre = DANCE,
+        .genre = FESTIVAL_SCHEDULE_DANCE,
         .popularity = 130
     },
     {
         .artist = "FINNEaS",
-        .stage = LAKESHORE,
+        .stage = FESTIVAL_SCHEDULE_LAKESHORE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 18, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 19, .unit.minute = 0},
-        .genre = INDIE,
+        .genre = FESTIVAL_SCHEDULE_INDIE,
         .popularity = 38
     },
     {
         .artist = "FLIPTURN",
-        .stage = TITOS,
+        .stage = FESTIVAL_SCHEDULE_TITOS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 17, .unit.minute = 30},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 18, .unit.minute = 30},
-        .genre = INDIE,
+        .genre = FESTIVAL_SCHEDULE_INDIE,
         .popularity = 71
     },
     {
         .artist = "FLOWEROVLOVE",
-        .stage = BUD_LIGHT,
+        .stage = FESTIVAL_SCHEDULE_BUD_LIGHT,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 13, .unit.minute = 15},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 14, .unit.minute = 0},
-        .genre = DREAM_POP,
+        .genre = FESTIVAL_SCHEDULE_DREAM_POP,
         .popularity = 112
     },
     {
         .artist = "FLUX PaVILION",
-        .stage = PERRYS,
+        .stage = FESTIVAL_SCHEDULE_PERRYS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 15, .unit.minute = 30},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 16, .unit.minute = 30},
-        .genre = DUBSTEP,
+        .genre = FESTIVAL_SCHEDULE_DUBSTEP,
         .popularity = 84
     },
     {
         .artist = "FOSTER THE PEOPLE",
-        .stage = T_MOBILE,
+        .stage = FESTIVAL_SCHEDULE_T_MOBILE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 16, .unit.minute = 40},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 17, .unit.minute = 40},
-        .genre = INDIE,
+        .genre = FESTIVAL_SCHEDULE_INDIE,
         .popularity = 26
     },
     {
         .artist = "FUJII KaZE",
-        .stage = TITOS,
+        .stage = FESTIVAL_SCHEDULE_TITOS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 17, .unit.minute = 30},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 18, .unit.minute = 30},
-        .genre = K_POP,
+        .genre = FESTIVAL_SCHEDULE_K_POP,
         .popularity = 24
     },
     {
         .artist = "GIGI PEREZ",
-        .stage = T_MOBILE,
+        .stage = FESTIVAL_SCHEDULE_T_MOBILE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 14, .unit.minute = 45},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 15, .unit.minute = 40},
-        .genre = ALT,
-        .popularity = 16
+        .genre = FESTIVAL_SCHEDULE_ALT,
+        .popularity = 15
     },
     {
         .artist = "GIRL TONES",
-        .stage = BMI,
+        .stage = FESTIVAL_SCHEDULE_BMI,
         .start_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 13, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 13, .unit.minute = 40},
-        .genre = ALT,
+        .genre = FESTIVAL_SCHEDULE_ALT,
         .popularity = 159
     },
     {
         .artist = "GLaSS BEaMS",
-        .stage = THE_GROVE,
+        .stage = FESTIVAL_SCHEDULE_THE_GROVE,
         .start_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 17, .unit.minute = 15},
         .end_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 18, .unit.minute = 0},
-        .genre = ROCK,
+        .genre = FESTIVAL_SCHEDULE_ROCK,
         .popularity = 103
     },
     {
         .artist = "GRaCIE aBRaMS",
-        .stage = T_MOBILE,
+        .stage = FESTIVAL_SCHEDULE_T_MOBILE,
         .start_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 19, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 20, .unit.minute = 0},
-        .genre = DREAM_POP,
+        .genre = FESTIVAL_SCHEDULE_DREAM_POP,
         .popularity = 7
     },
     {
         .artist = "GRaHaM BaRHaM",
-        .stage = BMI,
+        .stage = FESTIVAL_SCHEDULE_BMI,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 18, .unit.minute = 50},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 19, .unit.minute = 30},
-        .genre = COUNTRY,
+        .genre = FESTIVAL_SCHEDULE_COUNTRY,
         .popularity = 68
     },
     {
         .artist = "GRYFFIN",
-        .stage = PERRYS,
+        .stage = FESTIVAL_SCHEDULE_PERRYS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 19, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 20, .unit.minute = 0},
-        .genre = BASS,
+        .genre = FESTIVAL_SCHEDULE_BASS,
         .popularity = 42
     },
     {
         .artist = "HaLF aLIVE",
-        .stage = TITOS,
+        .stage = FESTIVAL_SCHEDULE_TITOS,
         .start_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 15, .unit.minute = 45},
         .end_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 16, .unit.minute = 45},
-        .genre = INDIE,
+        .genre = FESTIVAL_SCHEDULE_INDIE,
         .popularity = 163
     },
     {
         .artist = "HEX COUGaR",
-        .stage = PERRYS,
+        .stage = FESTIVAL_SCHEDULE_PERRYS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 12, .unit.minute = 40},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 13, .unit.minute = 15},
-        .genre = DUBSTEP,
+        .genre = FESTIVAL_SCHEDULE_DUBSTEP,
         .popularity = 148
     },
     {
         .artist = "HEY, NOTHING",
-        .stage = THE_GROVE,
+        .stage = FESTIVAL_SCHEDULE_THE_GROVE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 13, .unit.minute = 50},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 14, .unit.minute = 30},
-        .genre = ALT,
+        .genre = FESTIVAL_SCHEDULE_ALT,
         .popularity = 110
     },
     {
         .artist = "IaN   ",
-        .stage = TITOS,
+        .stage = FESTIVAL_SCHEDULE_TITOS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 18, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 19, .unit.minute = 0},
-        .genre = TRAP,
+        .genre = FESTIVAL_SCHEDULE_TRAP,
         .popularity = 171
     },
     {
         .artist = "ISaBEL LaROSa",
-        .stage = LAKESHORE,
+        .stage = FESTIVAL_SCHEDULE_LAKESHORE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 14, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 14, .unit.minute = 45},
-        .genre = POP,
-        .popularity = 27
+        .genre = FESTIVAL_SCHEDULE_POP,
+        .popularity = 28
     },
     {
         .artist = "ISaIaH RaSHad",
-        .stage = T_MOBILE,
+        .stage = FESTIVAL_SCHEDULE_T_MOBILE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 17, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 18, .unit.minute = 0},
-        .genre = RAP,
+        .genre = FESTIVAL_SCHEDULE_RAP,
         .popularity = 41
     },
     {
         .artist = "ISOXO ",
-        .stage = PERRYS,
+        .stage = FESTIVAL_SCHEDULE_PERRYS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 19, .unit.minute = 15},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 20, .unit.minute = 15},
-        .genre = DUBSTEP,
+        .genre = FESTIVAL_SCHEDULE_DUBSTEP,
         .popularity = 101
     },
     {
         .artist = "JadE LEMaC",
-        .stage = TITOS,
+        .stage = FESTIVAL_SCHEDULE_TITOS,
         .start_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 12, .unit.minute = 45},
         .end_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 13, .unit.minute = 30},
-        .genre = POP,
-        .popularity = 63
+        .genre = FESTIVAL_SCHEDULE_POP,
+        .popularity = 62
     },
     {
         .artist = "JaNE REMOVER",
-        .stage = BUD_LIGHT,
+        .stage = FESTIVAL_SCHEDULE_BUD_LIGHT,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 12, .unit.minute = 45},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 13, .unit.minute = 30},
-        .genre = EMORAP,
+        .genre = FESTIVAL_SCHEDULE_EMORAP,
         .popularity = 78
     },
     {
         .artist = "JESSE dETOR",
-        .stage = THE_GROVE,
+        .stage = FESTIVAL_SCHEDULE_THE_GROVE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 12, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 12, .unit.minute = 30},
-        .genre = ALT,
+        .genre = FESTIVAL_SCHEDULE_ALT,
         .popularity = 157
     },
     {
         .artist = "JEV   ",
-        .stage = PERRYS,
+        .stage = FESTIVAL_SCHEDULE_PERRYS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 12, .unit.minute = 40},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 13, .unit.minute = 20},
-        .genre = HOUSE,
+        .genre = FESTIVAL_SCHEDULE_HOUSE,
         .popularity = 172
     },
     {
         .artist = "JIGITZ",
-        .stage = PERRYS,
+        .stage = FESTIVAL_SCHEDULE_PERRYS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 12, .unit.minute = 45},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 13, .unit.minute = 30},
-        .genre = HOUSE,
+        .genre = FESTIVAL_SCHEDULE_HOUSE,
         .popularity = 81
     },
     {
         .artist = "JOE P ",
-        .stage = LAKESHORE,
+        .stage = FESTIVAL_SCHEDULE_LAKESHORE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 12, .unit.minute = 45},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 13, .unit.minute = 30},
-        .genre = INDIE,
+        .genre = FESTIVAL_SCHEDULE_INDIE,
         .popularity = 118
     },
     {
         .artist = "JOEY VaLENCE `n BRaE",
-        .stage = THE_GROVE,
+        .stage = FESTIVAL_SCHEDULE_THE_GROVE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 17, .unit.minute = 15},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 18, .unit.minute = 0},
-        .genre = RAP,
+        .genre = FESTIVAL_SCHEDULE_RAP,
         .popularity = 50
     },
     {
         .artist = "JPEGMaFIa",
-        .stage = LAKESHORE,
+        .stage = FESTIVAL_SCHEDULE_LAKESHORE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 19, .unit.minute = 45},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 20, .unit.minute = 45},
-        .genre = RAP,
+        .genre = FESTIVAL_SCHEDULE_RAP,
         .popularity = 48
     },
     {
         .artist = "JULIE ",
-        .stage = LAKESHORE,
+        .stage = FESTIVAL_SCHEDULE_LAKESHORE,
         .start_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 14, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 15, .unit.minute = 0},
-        .genre = DREAM_POP,
+        .genre = FESTIVAL_SCHEDULE_DREAM_POP,
         .popularity = 93
     },
     {
         .artist = "JUNIOR VaRSITY",
-        .stage = BMI,
+        .stage = FESTIVAL_SCHEDULE_BMI,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 16, .unit.minute = 30},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 17, .unit.minute = 10},
-        .genre = ALT,
+        .genre = FESTIVAL_SCHEDULE_ALT,
         .popularity = 124
     },
     {
         .artist = "KaICREWSadE",
-        .stage = THE_GROVE,
+        .stage = FESTIVAL_SCHEDULE_THE_GROVE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 12, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 12, .unit.minute = 30},
-        .genre = RAP,
+        .genre = FESTIVAL_SCHEDULE_RAP,
         .popularity = 158
     },
     {
         .artist = "KaTSEYE",
-        .stage = T_MOBILE,
+        .stage = FESTIVAL_SCHEDULE_T_MOBILE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 15, .unit.minute = 15},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 16, .unit.minute = 0},
-        .genre = POP,
-        .popularity = 30
+        .genre = FESTIVAL_SCHEDULE_POP,
+        .popularity = 27
     },
     {
         .artist = "KENNY MaSON",
-        .stage = TITOS,
+        .stage = FESTIVAL_SCHEDULE_TITOS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 13, .unit.minute = 30},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 14, .unit.minute = 30},
-        .genre = RAP,
+        .genre = FESTIVAL_SCHEDULE_RAP,
         .popularity = 82
     },
     {
         .artist = "KICKFLIP",
-        .stage = BUD_LIGHT,
+        .stage = FESTIVAL_SCHEDULE_BUD_LIGHT,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 13, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 13, .unit.minute = 45},
-        .genre = K_POP,
+        .genre = FESTIVAL_SCHEDULE_K_POP,
         .popularity = 119
     },
     {
         .artist = "KNOCK2",
-        .stage = PERRYS,
+        .stage = FESTIVAL_SCHEDULE_PERRYS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 20, .unit.minute = 30},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 21, .unit.minute = 45},
-        .genre = BASS,
+        .genre = FESTIVAL_SCHEDULE_BASS,
         .popularity = 75
     },
     {
         .artist = "KORN  ",
-        .stage = BUD_LIGHT,
+        .stage = FESTIVAL_SCHEDULE_BUD_LIGHT,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 20, .unit.minute = 30},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 22, .unit.minute = 0},
-        .genre = NU_METAL,
+        .genre = FESTIVAL_SCHEDULE_NU_METAL,
         .popularity = 12
     },
     {
         .artist = "La FEMME",
-        .stage = THE_GROVE,
+        .stage = FESTIVAL_SCHEDULE_THE_GROVE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 16, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 16, .unit.minute = 45},
-        .genre = PSYCH_ROCK,
+        .genre = FESTIVAL_SCHEDULE_PSYCH_ROCK,
         .popularity = 80
     },
     {
         .artist = "LaILa!",
-        .stage = T_MOBILE,
+        .stage = FESTIVAL_SCHEDULE_T_MOBILE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 13, .unit.minute = 30},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 14, .unit.minute = 15},
-        .genre = RnB,
+        .genre = FESTIVAL_SCHEDULE_RnB,
         .popularity = 105
     },
     {
         .artist = "LaNdON BaRKER",
-        .stage = TITOS,
+        .stage = FESTIVAL_SCHEDULE_TITOS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 12, .unit.minute = 30},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 13, .unit.minute = 15},
-        .genre = PUNK,
+        .genre = FESTIVAL_SCHEDULE_PUNK,
         .popularity = 146
     },
     {
         .artist = "LaNdON CONRaTH",
-        .stage = THE_GROVE,
+        .stage = FESTIVAL_SCHEDULE_THE_GROVE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 12, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 12, .unit.minute = 30},
-        .genre = INDIE,
+        .genre = FESTIVAL_SCHEDULE_INDIE,
         .popularity = 129
     },
     {
         .artist = "LaTIN MaFIa",
-        .stage = THE_GROVE,
+        .stage = FESTIVAL_SCHEDULE_THE_GROVE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 21, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 22, .unit.minute = 0},
-        .genre = RnB,
+        .genre = FESTIVAL_SCHEDULE_RnB,
         .popularity = 21
     },
     {
         .artist = "LaYZ  ",
-        .stage = PERRYS,
+        .stage = FESTIVAL_SCHEDULE_PERRYS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 14, .unit.minute = 30},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 15, .unit.minute = 15},
-        .genre = DUBSTEP,
+        .genre = FESTIVAL_SCHEDULE_DUBSTEP,
         .popularity = 149
     },
     {
         .artist = "LEKaN ",
-        .stage = BMI,
+        .stage = FESTIVAL_SCHEDULE_BMI,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 14, .unit.minute = 10},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 14, .unit.minute = 50},
-        .genre = SOUL,
+        .genre = FESTIVAL_SCHEDULE_SOUL,
         .popularity = 141
     },
     {
         .artist = "LEVITY",
-        .stage = PERRYS,
+        .stage = FESTIVAL_SCHEDULE_PERRYS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 18, .unit.minute = 15},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 19, .unit.minute = 15},
-        .genre = DUBSTEP,
+        .genre = FESTIVAL_SCHEDULE_DUBSTEP,
         .popularity = 97
     },
     {
         .artist = "LUKE COMBS",
-        .stage = BUD_LIGHT,
+        .stage = FESTIVAL_SCHEDULE_BUD_LIGHT,
         .start_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 20, .unit.minute = 30},
         .end_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 22, .unit.minute = 0},
-        .genre = COUNTRY,
+        .genre = FESTIVAL_SCHEDULE_COUNTRY,
         .popularity = 6
     },
     {
         .artist = "MaGdaLENa BaY",
-        .stage = LAKESHORE,
+        .stage = FESTIVAL_SCHEDULE_LAKESHORE,
         .start_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 18, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 19, .unit.minute = 0},
-        .genre = POP,
+        .genre = FESTIVAL_SCHEDULE_POP,
         .popularity = 47
     },
     {
         .artist = "MaRIaH THE SCIENTIST",
-        .stage = LAKESHORE,
+        .stage = FESTIVAL_SCHEDULE_LAKESHORE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 16, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 17, .unit.minute = 0},
-        .genre = RnB,
+        .genre = FESTIVAL_SCHEDULE_RnB,
         .popularity = 39
     },
     {
         .artist = "MaRIaS",
-        .stage = BUD_LIGHT,
+        .stage = FESTIVAL_SCHEDULE_BUD_LIGHT,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 19, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 20, .unit.minute = 0},
-        .genre = DREAM_POP,
+        .genre = FESTIVAL_SCHEDULE_DREAM_POP,
         .popularity = 164
     },
     {
         .artist = "MaRIBOU STaTE",
-        .stage = THE_GROVE,
+        .stage = FESTIVAL_SCHEDULE_THE_GROVE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 18, .unit.minute = 30},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 19, .unit.minute = 15},
-        .genre = DANCE,
+        .genre = FESTIVAL_SCHEDULE_DANCE,
         .popularity = 46
     },
     {
         .artist = "MaRINa",
-        .stage = T_MOBILE,
+        .stage = FESTIVAL_SCHEDULE_T_MOBILE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 16, .unit.minute = 45},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 17, .unit.minute = 45},
-        .genre = POP,
-        .popularity = 15
+        .genre = FESTIVAL_SCHEDULE_POP,
+        .popularity = 17
     },
     {
         .artist = "MaRK aMBOR",
-        .stage = BUD_LIGHT,
+        .stage = FESTIVAL_SCHEDULE_BUD_LIGHT,
         .start_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 15, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 15, .unit.minute = 45},
-        .genre = FOLK,
-        .popularity = 31
+        .genre = FESTIVAL_SCHEDULE_FOLK,
+        .popularity = 32
     },
     {
         .artist = "MaRLON HOFFSTadT",
-        .stage = PERRYS,
+        .stage = FESTIVAL_SCHEDULE_PERRYS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 16, .unit.minute = 15},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 17, .unit.minute = 15},
-        .genre = TECHNO,
+        .genre = FESTIVAL_SCHEDULE_TECHNO,
         .popularity = 67
     },
     {
         .artist = "MaRTIN GaRRIX",
-        .stage = PERRYS,
+        .stage = FESTIVAL_SCHEDULE_PERRYS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 20, .unit.minute = 30},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 21, .unit.minute = 45},
-        .genre = HOUSE,
+        .genre = FESTIVAL_SCHEDULE_HOUSE,
         .popularity = 8
     },
     {
         .artist = "MaRY dROPPINZ",
-        .stage = TITOS,
+        .stage = FESTIVAL_SCHEDULE_TITOS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 19, .unit.minute = 30},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 20, .unit.minute = 30},
-        .genre = BASS,
+        .genre = FESTIVAL_SCHEDULE_BASS,
         .popularity = 153
     },
     {
         .artist = "MaRY dROPPINZ 2",
-        .stage = PERRYS,
+        .stage = FESTIVAL_SCHEDULE_PERRYS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 12, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 12, .unit.minute = 35},
-        .genre = BASS,
+        .genre = FESTIVAL_SCHEDULE_BASS,
         .popularity = 153
     },
     {
         .artist = "MaTT CHaMPION",
-        .stage = LAKESHORE,
+        .stage = FESTIVAL_SCHEDULE_LAKESHORE,
         .start_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 16, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 17, .unit.minute = 0},
-        .genre = RAP,
+        .genre = FESTIVAL_SCHEDULE_RAP,
         .popularity = 122
     },
     {
         .artist = "MaU P ",
-        .stage = PERRYS,
+        .stage = FESTIVAL_SCHEDULE_PERRYS,
         .start_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 19, .unit.minute = 35},
         .end_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 20, .unit.minute = 35},
-        .genre = HOUSE,
+        .genre = FESTIVAL_SCHEDULE_HOUSE,
         .popularity = 54
     },
     {
         .artist = "MaX MCNOWN",
-        .stage = T_MOBILE,
+        .stage = FESTIVAL_SCHEDULE_T_MOBILE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 14, .unit.minute = 45},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 15, .unit.minute = 45},
-        .genre = COUNTRY,
+        .genre = FESTIVAL_SCHEDULE_COUNTRY,
         .popularity = 34
     },
     {
         .artist = "MIdNIGHT GENERaTION",
-        .stage = BMI,
+        .stage = FESTIVAL_SCHEDULE_BMI,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 16, .unit.minute = 30},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 17, .unit.minute = 10},
-        .genre = OTHER,
+        .genre = FESTIVAL_SCHEDULE_OTHER,
         .popularity = 113
     },
     {
         .artist = "MK_GEE",
-        .stage = THE_GROVE,
+        .stage = FESTIVAL_SCHEDULE_THE_GROVE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 21, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 22, .unit.minute = 0},
-        .genre = DREAM_POP,
+        .genre = FESTIVAL_SCHEDULE_DREAM_POP,
         .popularity = 65
     },
     {
         .artist = "MONTELL FISH",
-        .stage = TITOS,
+        .stage = FESTIVAL_SCHEDULE_TITOS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 15, .unit.minute = 30},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 16, .unit.minute = 30},
-        .genre = SOUL,
+        .genre = FESTIVAL_SCHEDULE_SOUL,
         .popularity = 23
     },
     {
         .artist = "MURda BEaTZ",
-        .stage = PERRYS,
+        .stage = FESTIVAL_SCHEDULE_PERRYS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 14, .unit.minute = 30},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 15, .unit.minute = 15},
-        .genre = TRAP,
+        .genre = FESTIVAL_SCHEDULE_TRAP,
         .popularity = 83
     },
     {
         .artist = "NaOMI SCOTT",
-        .stage = THE_GROVE,
+        .stage = FESTIVAL_SCHEDULE_THE_GROVE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 16, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 16, .unit.minute = 45},
-        .genre = POP,
+        .genre = FESTIVAL_SCHEDULE_POP,
         .popularity = 72
     },
     {
         .artist = "NEWdad",
-        .stage = TITOS,
+        .stage = FESTIVAL_SCHEDULE_TITOS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 12, .unit.minute = 15},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 13, .unit.minute = 0},
-        .genre = INDIE,
+        .genre = FESTIVAL_SCHEDULE_INDIE,
         .popularity = 111
     },
     {
         .artist = "NIMINO",
-        .stage = PERRYS,
+        .stage = FESTIVAL_SCHEDULE_PERRYS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 13, .unit.minute = 45},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 14, .unit.minute = 45},
-        .genre = HOUSE,
-        .popularity = 61
+        .genre = FESTIVAL_SCHEDULE_HOUSE,
+        .popularity = 60
     },
     {
         .artist = "NOURISHEd BY TIME",
-        .stage = T_MOBILE,
+        .stage = FESTIVAL_SCHEDULE_T_MOBILE,
         .start_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 13, .unit.minute = 15},
         .end_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 14, .unit.minute = 0},
-        .genre = POP,
+        .genre = FESTIVAL_SCHEDULE_POP,
         .popularity = 137
     },
     {
         .artist = "OCEaN aLLEY",
-        .stage = THE_GROVE,
+        .stage = FESTIVAL_SCHEDULE_THE_GROVE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 18, .unit.minute = 30},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 19, .unit.minute = 15},
-        .genre = PSYCH_ROCK,
+        .genre = FESTIVAL_SCHEDULE_PSYCH_ROCK,
         .popularity = 64
     },
     {
         .artist = "OLd MERVS",
-        .stage = THE_GROVE,
+        .stage = FESTIVAL_SCHEDULE_THE_GROVE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 12, .unit.minute = 50},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 13, .unit.minute = 30},
-        .genre = ALT,
+        .genre = FESTIVAL_SCHEDULE_ALT,
         .popularity = 115
     },
     {
         .artist = "OLE 60",
-        .stage = THE_GROVE,
+        .stage = FESTIVAL_SCHEDULE_THE_GROVE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 14, .unit.minute = 45},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 15, .unit.minute = 30},
-        .genre = ROCK,
+        .genre = FESTIVAL_SCHEDULE_ROCK,
         .popularity = 57
     },
     {
         .artist = "OLIVIa ROdRIGO",
-        .stage = T_MOBILE,
+        .stage = FESTIVAL_SCHEDULE_T_MOBILE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 20, .unit.minute = 40},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 22, .unit.minute = 0},
-        .genre = POP,
+        .genre = FESTIVAL_SCHEDULE_POP,
         .popularity = 1
     },
     {
         .artist = "ORION SUN",
-        .stage = THE_GROVE,
+        .stage = FESTIVAL_SCHEDULE_THE_GROVE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 17, .unit.minute = 15},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 18, .unit.minute = 0},
-        .genre = RnB,
+        .genre = FESTIVAL_SCHEDULE_RnB,
         .popularity = 76
     },
     {
         .artist = "ORLa GaRTLaNd",
-        .stage = THE_GROVE,
+        .stage = FESTIVAL_SCHEDULE_THE_GROVE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 16, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 16, .unit.minute = 45},
-        .genre = ROCK,
+        .genre = FESTIVAL_SCHEDULE_ROCK,
         .popularity = 104
     },
     {
         .artist = "OTOBOKE BEaVER",
-        .stage = BUD_LIGHT,
+        .stage = FESTIVAL_SCHEDULE_BUD_LIGHT,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 14, .unit.minute = 30},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 15, .unit.minute = 30},
-        .genre = PUNK,
+        .genre = FESTIVAL_SCHEDULE_PUNK,
         .popularity = 154
     },
     {
         .artist = "OVERMONO",
-        .stage = THE_GROVE,
+        .stage = FESTIVAL_SCHEDULE_THE_GROVE,
         .start_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 18, .unit.minute = 30},
         .end_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 19, .unit.minute = 15},
-        .genre = DnB,
+        .genre = FESTIVAL_SCHEDULE_DnB,
         .popularity = 95
     },
     {
         .artist = "PEOPLE R UGLY",
-        .stage = BMI,
+        .stage = FESTIVAL_SCHEDULE_BMI,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 18, .unit.minute = 50},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 19, .unit.minute = 30},
-        .genre = PUNK,
+        .genre = FESTIVAL_SCHEDULE_PUNK,
         .popularity = 132
     },
     {
         .artist = "PROSPa",
-        .stage = PERRYS,
+        .stage = FESTIVAL_SCHEDULE_PERRYS,
         .start_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 13, .unit.minute = 50},
         .end_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 14, .unit.minute = 35},
-        .genre = HOUSE,
+        .genre = FESTIVAL_SCHEDULE_HOUSE,
         .popularity = 79
     },
     {
         .artist = "R;F;S dU SOL",
-        .stage = T_MOBILE,
+        .stage = FESTIVAL_SCHEDULE_T_MOBILE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 20, .unit.minute = 45},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 22, .unit.minute = 0},
-        .genre = INDIE,
+        .genre = FESTIVAL_SCHEDULE_INDIE,
         .popularity = 19
     },
     {
         .artist = "RaCHEL GRaE",
-        .stage = BMI,
+        .stage = FESTIVAL_SCHEDULE_BMI,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 15, .unit.minute = 20},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 16, .unit.minute = 0},
-        .genre = DREAM_POP,
+        .genre = FESTIVAL_SCHEDULE_DREAM_POP,
         .popularity = 89
     },
     {
         .artist = "RaECOLa",
-        .stage = PERRYS,
+        .stage = FESTIVAL_SCHEDULE_PERRYS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 12, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 12, .unit.minute = 30},
-        .genre = HOUSE,
+        .genre = FESTIVAL_SCHEDULE_HOUSE,
         .popularity = 160
     },
     {
         .artist = "RaTBOYS",
-        .stage = BUD_LIGHT,
+        .stage = FESTIVAL_SCHEDULE_BUD_LIGHT,
         .start_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 13, .unit.minute = 30},
         .end_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 14, .unit.minute = 15},
-        .genre = ALT,
+        .genre = FESTIVAL_SCHEDULE_ALT,
         .popularity = 150
     },
     {
         .artist = "RaVYN LENaE",
-        .stage = LAKESHORE,
+        .stage = FESTIVAL_SCHEDULE_LAKESHORE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 15, .unit.minute = 40},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 16, .unit.minute = 40},
-        .genre = SOUL,
+        .genre = FESTIVAL_SCHEDULE_SOUL,
         .popularity = 25
     },
     {
         .artist = "REBECCa BLaCK",
-        .stage = TITOS,
+        .stage = FESTIVAL_SCHEDULE_TITOS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 20, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 20, .unit.minute = 45},
-        .genre = TECHNO,
+        .genre = FESTIVAL_SCHEDULE_TECHNO,
         .popularity = 98
     },
     {
         .artist = "REBECCa BLaCK 2",
-        .stage = PERRYS,
+        .stage = FESTIVAL_SCHEDULE_PERRYS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 15, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 16, .unit.minute = 0},
-        .genre = TECHNO,
+        .genre = FESTIVAL_SCHEDULE_TECHNO,
         .popularity = 98
     },
     {
         .artist = "REMI WOLF",
-        .stage = BUD_LIGHT,
+        .stage = FESTIVAL_SCHEDULE_BUD_LIGHT,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 17, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 18, .unit.minute = 0},
-        .genre = POP,
+        .genre = FESTIVAL_SCHEDULE_POP,
         .popularity = 51
     },
     {
         .artist = "ROLE MOdEL",
-        .stage = TITOS,
+        .stage = FESTIVAL_SCHEDULE_TITOS,
         .start_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 17, .unit.minute = 45},
         .end_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 18, .unit.minute = 45},
-        .genre = INDIE,
-        .popularity = 28
+        .genre = FESTIVAL_SCHEDULE_INDIE,
+        .popularity = 30
     },
     {
         .artist = "ROYEL OTIS",
-        .stage = LAKESHORE,
+        .stage = FESTIVAL_SCHEDULE_LAKESHORE,
         .start_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 20, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 21, .unit.minute = 0},
-        .genre = INDIE,
+        .genre = FESTIVAL_SCHEDULE_INDIE,
         .popularity = 40
     },
     {
         .artist = "SaBRINa CaRPENTER",
-        .stage = T_MOBILE,
+        .stage = FESTIVAL_SCHEDULE_T_MOBILE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 21, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 22, .unit.minute = 0},
-        .genre = POP,
+        .genre = FESTIVAL_SCHEDULE_POP,
         .popularity = 2
     },
     {
         .artist = "SaLUTE",
-        .stage = THE_GROVE,
+        .stage = FESTIVAL_SCHEDULE_THE_GROVE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 13, .unit.minute = 45},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 14, .unit.minute = 30},
-        .genre = HOUSE,
+        .genre = FESTIVAL_SCHEDULE_HOUSE,
         .popularity = 108
     },
     {
         .artist = "SaM aUSTINS",
-        .stage = T_MOBILE,
+        .stage = FESTIVAL_SCHEDULE_T_MOBILE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 13, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 13, .unit.minute = 45},
-        .genre = POP,
+        .genre = FESTIVAL_SCHEDULE_POP,
         .popularity = 92
     },
     {
         .artist = "SaMMY VIRJI",
-        .stage = PERRYS,
+        .stage = FESTIVAL_SCHEDULE_PERRYS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 17, .unit.minute = 45},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 18, .unit.minute = 45},
-        .genre = DnB,
-        .popularity = 60
+        .genre = FESTIVAL_SCHEDULE_DnB,
+        .popularity = 59
     },
     {
         .artist = "SIERRa FERRELL",
-        .stage = BUD_LIGHT,
+        .stage = FESTIVAL_SCHEDULE_BUD_LIGHT,
         .start_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 16, .unit.minute = 45},
         .end_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 17, .unit.minute = 45},
-        .genre = FOLK,
+        .genre = FESTIVAL_SCHEDULE_FOLK,
         .popularity = 66
     },
     {
         .artist = "SOFIa CaMaRa",
-        .stage = BMI,
+        .stage = FESTIVAL_SCHEDULE_BMI,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 15, .unit.minute = 20},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 16, .unit.minute = 0},
-        .genre = DREAM_POP,
+        .genre = FESTIVAL_SCHEDULE_DREAM_POP,
         .popularity = 91
     },
     {
         .artist = "STaR BaNdZ",
-        .stage = BMI,
+        .stage = FESTIVAL_SCHEDULE_BMI,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 18, .unit.minute = 50},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 19, .unit.minute = 30},
-        .genre = TRAP,
+        .genre = FESTIVAL_SCHEDULE_TRAP,
         .popularity = 121
     },
     {
         .artist = "STILL WOOZY",
-        .stage = LAKESHORE,
+        .stage = FESTIVAL_SCHEDULE_LAKESHORE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 20, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 21, .unit.minute = 0},
-        .genre = DREAM_POP,
+        .genre = FESTIVAL_SCHEDULE_DREAM_POP,
         .popularity = 56
     },
     {
         .artist = "SUNaMI",
-        .stage = THE_GROVE,
+        .stage = FESTIVAL_SCHEDULE_THE_GROVE,
         .start_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 14, .unit.minute = 50},
         .end_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 15, .unit.minute = 30},
-        .genre = PUNK,
+        .genre = FESTIVAL_SCHEDULE_PUNK,
         .popularity = 120
     },
     {
         .artist = "SYMPOSIUM",
-        .stage = LAKESHORE,
+        .stage = FESTIVAL_SCHEDULE_LAKESHORE,
         .start_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 12, .unit.minute = 30},
         .end_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 13, .unit.minute = 15},
-        .genre = PSYCH_ROCK,
+        .genre = FESTIVAL_SCHEDULE_PSYCH_ROCK,
         .popularity = 131
     },
     {
         .artist = "T-PaIN",
-        .stage = BUD_LIGHT,
+        .stage = FESTIVAL_SCHEDULE_BUD_LIGHT,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 16, .unit.minute = 30},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 17, .unit.minute = 30},
-        .genre = RnB,
+        .genre = FESTIVAL_SCHEDULE_RnB,
         .popularity = 13
     },
     {
         .artist = "TaNNER adELL",
-        .stage = T_MOBILE,
+        .stage = FESTIVAL_SCHEDULE_T_MOBILE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 13, .unit.minute = 15},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 14, .unit.minute = 0},
-        .genre = COUNTRY,
+        .genre = FESTIVAL_SCHEDULE_COUNTRY,
         .popularity = 100
     },
     {
         .artist = "TaPE B",
-        .stage = PERRYS,
+        .stage = FESTIVAL_SCHEDULE_PERRYS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 18, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 19, .unit.minute = 0},
-        .genre = DUBSTEP,
+        .genre = FESTIVAL_SCHEDULE_DUBSTEP,
         .popularity = 114
     },
     {
         .artist = "TESSLa",
-        .stage = PERRYS,
+        .stage = FESTIVAL_SCHEDULE_PERRYS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 12, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 12, .unit.minute = 35},
-        .genre = HOUSE,
+        .genre = FESTIVAL_SCHEDULE_HOUSE,
         .popularity = 162
     },
     {
         .artist = "TORREN B2B aIRWOLF",
-        .stage = PERRYS,
+        .stage = FESTIVAL_SCHEDULE_PERRYS,
         .start_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 12, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 13, .unit.minute = 0},
-        .genre = HOUSE,
+        .genre = FESTIVAL_SCHEDULE_HOUSE,
         .popularity = 116
     },
     {
         .artist = "TWICE ",
-        .stage = BUD_LIGHT,
+        .stage = FESTIVAL_SCHEDULE_BUD_LIGHT,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 20, .unit.minute = 30},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 22, .unit.minute = 0},
-        .genre = K_POP,
+        .genre = FESTIVAL_SCHEDULE_K_POP,
         .popularity = 5
     },
     {
         .artist = "TWO FRIENdS",
-        .stage = PERRYS,
+        .stage = FESTIVAL_SCHEDULE_PERRYS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 20, .unit.minute = 45},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 22, .unit.minute = 0},
-        .genre = HOUSE,
+        .genre = FESTIVAL_SCHEDULE_HOUSE,
         .popularity = 88
     },
     {
         .artist = "TYLER, THE CREaTOR",
-        .stage = T_MOBILE,
+        .stage = FESTIVAL_SCHEDULE_T_MOBILE,
         .start_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 21, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 22, .unit.minute = 0},
-        .genre = RAP,
+        .genre = FESTIVAL_SCHEDULE_RAP,
         .popularity = 3
     },
     {
         .artist = "VINCENT LIMa",
-        .stage = THE_GROVE,
+        .stage = FESTIVAL_SCHEDULE_THE_GROVE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 13, .unit.minute = 50},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 14, .unit.minute = 30},
-        .genre = POP,
+        .genre = FESTIVAL_SCHEDULE_POP,
         .popularity = 102
     },
     {
         .artist = "VIPERaCTIVE",
-        .stage = PERRYS,
+        .stage = FESTIVAL_SCHEDULE_PERRYS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 13, .unit.minute = 30},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 14, .unit.minute = 15},
-        .genre = DUBSTEP,
+        .genre = FESTIVAL_SCHEDULE_DUBSTEP,
         .popularity = 151
     },
     {
         .artist = "WaLLOWS",
-        .stage = LAKESHORE,
+        .stage = FESTIVAL_SCHEDULE_LAKESHORE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 19, .unit.minute = 40},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 20, .unit.minute = 40},
-        .genre = INDIE,
+        .genre = FESTIVAL_SCHEDULE_INDIE,
         .popularity = 29
     },
     {
         .artist = "WaSIa PROJECT",
-        .stage = TITOS,
+        .stage = FESTIVAL_SCHEDULE_TITOS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 13, .unit.minute = 45},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 14, .unit.minute = 30},
-        .genre = POP,
+        .genre = FESTIVAL_SCHEDULE_POP,
         .popularity = 94
     },
     {
         .artist = "WaVE TO EaRTH",
-        .stage = TITOS,
+        .stage = FESTIVAL_SCHEDULE_TITOS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 16, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 17, .unit.minute = 0},
-        .genre = DREAM_POP,
+        .genre = FESTIVAL_SCHEDULE_DREAM_POP,
         .popularity = 18
     },
     {
         .artist = "WILd RIVERS",
-        .stage = BUD_LIGHT,
+        .stage = FESTIVAL_SCHEDULE_BUD_LIGHT,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 15, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 16, .unit.minute = 0},
-        .genre = FOLK,
-        .popularity = 62
+        .genre = FESTIVAL_SCHEDULE_FOLK,
+        .popularity = 61
     },
     {
         .artist = "WILLOW aVaLON",
-        .stage = THE_GROVE,
+        .stage = FESTIVAL_SCHEDULE_THE_GROVE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 14, .unit.minute = 50},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 15, .unit.minute = 30},
-        .genre = COUNTRY,
+        .genre = FESTIVAL_SCHEDULE_COUNTRY,
         .popularity = 85
     },
     {
         .artist = "WINNETKa BOWLING LEaGUE",
-        .stage = LAKESHORE,
+        .stage = FESTIVAL_SCHEDULE_LAKESHORE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 12, .unit.minute = 15},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 13, .unit.minute = 0},
-        .genre = INDIE,
+        .genre = FESTIVAL_SCHEDULE_INDIE,
         .popularity = 136
     },
     {
         .artist = "WINYaH",
-        .stage = BMI,
+        .stage = FESTIVAL_SCHEDULE_BMI,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 13, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 13, .unit.minute = 40},
-        .genre = ROCK,
+        .genre = FESTIVAL_SCHEDULE_ROCK,
         .popularity = 145
     },
     {
         .artist = "WUNdERHORSE",
-        .stage = TITOS,
+        .stage = FESTIVAL_SCHEDULE_TITOS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 14, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 3, .unit.hour = 15, .unit.minute = 0},
-        .genre = ALT,
+        .genre = FESTIVAL_SCHEDULE_ALT,
         .popularity = 73
     },
     {
         .artist = "WYaTT FLORES",
-        .stage = THE_GROVE,
+        .stage = FESTIVAL_SCHEDULE_THE_GROVE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 19, .unit.minute = 45},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 20, .unit.minute = 30},
-        .genre = COUNTRY,
+        .genre = FESTIVAL_SCHEDULE_COUNTRY,
         .popularity = 53
     },
     {
         .artist = "XaVIERSOBaSEd",
-        .stage = BMI,
+        .stage = FESTIVAL_SCHEDULE_BMI,
         .start_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 18, .unit.minute = 50},
         .end_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 19, .unit.minute = 30},
-        .genre = EMORAP,
+        .genre = FESTIVAL_SCHEDULE_EMORAP,
         .popularity = 74
     },
     {
         .artist = "XdINaRY HEROES",
-        .stage = THE_GROVE,
+        .stage = FESTIVAL_SCHEDULE_THE_GROVE,
         .start_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 21, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 22, .unit.minute = 0},
-        .genre = ROCK,
+        .genre = FESTIVAL_SCHEDULE_ROCK,
         .popularity = 69
     },
     {
         .artist = "YaNa  ",
-        .stage = BMI,
+        .stage = FESTIVAL_SCHEDULE_BMI,
         .start_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 15, .unit.minute = 20},
         .end_time = {.unit.year = 5, .unit.month = 7, .unit.day = 31, .unit.hour = 16, .unit.minute = 0},
-        .genre = DREAM_POP,
+        .genre = FESTIVAL_SCHEDULE_DREAM_POP,
         .popularity = 125
     },
     {
         .artist = "YOUNG MIKO",
-        .stage = BUD_LIGHT,
+        .stage = FESTIVAL_SCHEDULE_BUD_LIGHT,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 16, .unit.minute = 30},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 17, .unit.minute = 30},
-        .genre = RAP,
+        .genre = FESTIVAL_SCHEDULE_RAP,
         .popularity = 14
     },
     {
         .artist = "ZINadELPHIa",
-        .stage = THE_GROVE,
+        .stage = FESTIVAL_SCHEDULE_THE_GROVE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 14, .unit.minute = 50},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 15, .unit.minute = 30},
-        .genre = RnB,
+        .genre = FESTIVAL_SCHEDULE_RnB,
         .popularity = 139
     },
     {
         .artist = "ZOE KO",
-        .stage = BMI,
+        .stage = FESTIVAL_SCHEDULE_BMI,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 17, .unit.minute = 40},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 18, .unit.minute = 20},
-        .genre = POP,
+        .genre = FESTIVAL_SCHEDULE_POP,
         .popularity = 144
     },
     [NUM_ACTS]  = { //Fall back
         .artist = "No Act",
-        .stage = STAGE_COUNT,
+        .stage = FESTIVAL_SCHEDULE_STAGE_COUNT,
         .start_time = {.unit.year = 0, .unit.month = 0, .unit.day = 0, .unit.hour = 0, .unit.minute = 0},
         .end_time = {.unit.year = 63, .unit.month = 15, .unit.day = 31, .unit.hour = 31, .unit.minute = 63},
-        .genre = GENRE_COUNT,
+        .genre = FESTIVAL_SCHEDULE_GENRE_COUNT,
         .popularity = 0
     }
 };

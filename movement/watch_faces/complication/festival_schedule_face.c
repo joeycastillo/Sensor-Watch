@@ -30,46 +30,46 @@
 
 const char festival_name[2] = "LA";
 
-const char festival_stage[STAGE_COUNT + 1][2] =
+const char festival_stage[FESTIVAL_SCHEDULE_STAGE_COUNT + 1][2] =
 {
-    [NO_STAGE] = "  ",
-    [T_MOBILE] = "TM",
-    [LAKESHORE] = "L ",
-    [BUD_LIGHT] = "BL",
-    [TITOS] = "TO",
-    [PERRYS] = "PR",
-    [THE_GROVE] = "GR",
-    [BMI] = "BM",
-    [STAGE_COUNT] = "  "
+    [FESTIVAL_SCHEDULE_NO_STAGE] = "  ",
+    [FESTIVAL_SCHEDULE_T_MOBILE] = "TM",
+    [FESTIVAL_SCHEDULE_LAKESHORE] = "L ",
+    [FESTIVAL_SCHEDULE_BUD_LIGHT] = "BL",
+    [FESTIVAL_SCHEDULE_TITOS] = "TO",
+    [FESTIVAL_SCHEDULE_PERRYS] = "PR",
+    [FESTIVAL_SCHEDULE_THE_GROVE] = "GR",
+    [FESTIVAL_SCHEDULE_BMI] = "BM",
+    [FESTIVAL_SCHEDULE_STAGE_COUNT] = "  "
 };
 
-const char festival_genre[GENRE_COUNT + 1][6] =
+const char festival_genre[FESTIVAL_SCHEDULE_GENRE_COUNT + 1][6] =
 {
-    [NO_GENRE] = " NONE ",
-    [POP] = " POP  ",
-    [INDIE] = " INdIE",
-    [DREAM_POP] = "dream7",
-    [K_POP] = " K-POP",
-    [ROCK] = " ROCK ",
-    [ALT] = "   ALT",
-    [PUNK] = "PUNK  ",
-    [NU_METAL] = "Num&tL",
-    [PSYCH_ROCK] = " PSYCH",
-    [HOUSE] = " HOUSE",
-    [DUBSTEP] = "DUBStP",
-    [TECHNO] = " tECNO",
-    [BASS] = " BASS ",
-    [DnB] = " dnB  ",
-    [DANCE] = " DaNCE",
-    [RAP] = "  rAP ",
-    [TRAP] = " trAP ",
-    [EMORAP] = "sdcld ",
-    [SOUL] = " SOUL ",
-    [RnB] = " rnb  ",
-    [COUNTRY] = "Cuntry",
-    [FOLK] = " FOLK ",
-    [OTHER] = "OTHEr ",
-    [GENRE_COUNT] = "      "
+    [FESTIVAL_SCHEDULE_NO_GENRE] = " NONE ",
+    [FESTIVAL_SCHEDULE_POP] = " POP  ",
+    [FESTIVAL_SCHEDULE_INDIE] = " INdIE",
+    [FESTIVAL_SCHEDULE_DREAM_POP] = "dream7",
+    [FESTIVAL_SCHEDULE_K_POP] = " K-POP",
+    [FESTIVAL_SCHEDULE_ROCK] = " ROCK ",
+    [FESTIVAL_SCHEDULE_ALT] = "   ALT",
+    [FESTIVAL_SCHEDULE_PUNK] = "PUNK  ",
+    [FESTIVAL_SCHEDULE_NU_METAL] = "Num&tL",
+    [FESTIVAL_SCHEDULE_PSYCH_ROCK] = " PSYCH",
+    [FESTIVAL_SCHEDULE_HOUSE] = " HOUSE",
+    [FESTIVAL_SCHEDULE_DUBSTEP] = "DUBStP",
+    [FESTIVAL_SCHEDULE_TECHNO] = " tECNO",
+    [FESTIVAL_SCHEDULE_BASS] = " BASS ",
+    [FESTIVAL_SCHEDULE_DnB] = " dnB  ",
+    [FESTIVAL_SCHEDULE_DANCE] = " DaNCE",
+    [FESTIVAL_SCHEDULE_RAP] = "  rAP ",
+    [FESTIVAL_SCHEDULE_TRAP] = " trAP ",
+    [FESTIVAL_SCHEDULE_EMORAP] = "sdcld ",
+    [FESTIVAL_SCHEDULE_SOUL] = " SOUL ",
+    [FESTIVAL_SCHEDULE_RnB] = " rnb  ",
+    [FESTIVAL_SCHEDULE_COUNTRY] = "Cuntry",
+    [FESTIVAL_SCHEDULE_FOLK] = " FOLK ",
+    [FESTIVAL_SCHEDULE_OTHER] = "OTHEr ",
+    [FESTIVAL_SCHEDULE_GENRE_COUNT] = "      "
 };
 
 #define FREQ_FAST 8
@@ -81,8 +81,8 @@ static watch_date_time _starting_time;
 static watch_date_time _ending_time;
 static bool _quick_ticks_running;
 static uint8_t _ts_ticks;
-static FestivalTickReason _ts_ticks_purpose;
-static const uint8_t _act_arr_size = sizeof(festival_acts) / sizeof(schedule_t);
+static festival_schedule_tick_reason _ts_ticks_purpose;
+static const uint8_t _act_arr_size = sizeof(festival_acts) / sizeof(festival_schedule_t);
 static bool in_le;
 
 
@@ -145,8 +145,8 @@ static uint8_t _act_performing_on_stage(uint8_t stage, watch_date_time curr_time
 static uint8_t _find_first_available_act(uint8_t first_stage_to_check, watch_date_time curr_time, bool reverse)
 {
     int increment = reverse ? -1 : 1;
-    uint8_t last_stage = (first_stage_to_check - increment + STAGE_COUNT) % STAGE_COUNT;
-    for (int i = first_stage_to_check;; i = (i + increment + STAGE_COUNT) % STAGE_COUNT) {
+    uint8_t last_stage = (first_stage_to_check - increment + FESTIVAL_SCHEDULE_STAGE_COUNT) % FESTIVAL_SCHEDULE_STAGE_COUNT;
+    for (int i = first_stage_to_check;; i = (i + increment + FESTIVAL_SCHEDULE_STAGE_COUNT) % FESTIVAL_SCHEDULE_STAGE_COUNT) {
         uint8_t act_num = _act_performing_on_stage(i, curr_time);
         if (act_num != NUM_ACTS)
             return act_num;
@@ -158,7 +158,7 @@ static uint8_t _find_first_available_act(uint8_t first_stage_to_check, watch_dat
 static void _display_act(festival_schedule_state_t *state){
     char buf[11];
     uint8_t popularity = festival_acts[state->curr_act].popularity;
-    state->curr_screen = SCREEN_ACT;
+    state->curr_screen = FESTIVAL_SCHEDULE_SCREEN_ACT;
     _text_looping = festival_acts[state->curr_act].artist;
     _text_pos = FREQ * -1;
     if (popularity > 0 && popularity < 40)
@@ -208,8 +208,8 @@ static void _display_act_time(uint8_t act_num, bool clock_mode_24h, bool display
 
 static void _display_screen(festival_schedule_state_t *state, bool clock_mode_24h){
     _ts_ticks = 10 * FREQ;
-    _ts_ticks_purpose = TICK_SCREEN;
-    if (state->curr_screen != SCREEN_START_TIME && state->curr_screen != SCREEN_END_TIME)
+    _ts_ticks_purpose = FESTIVAL_SCHEDULE_TICK_SCREEN;
+    if (state->curr_screen != FESTIVAL_SCHEDULE_SCREEN_START_TIME && state->curr_screen != FESTIVAL_SCHEDULE_SCREEN_END_TIME)
     {
         watch_clear_colon();
         watch_clear_indicator(WATCH_INDICATOR_24H);
@@ -217,17 +217,17 @@ static void _display_screen(festival_schedule_state_t *state, bool clock_mode_24
     }
     switch (state->curr_screen)
     {
-    case SCREEN_ACT:
-    case SCREENS_COUNT:
+    case FESTIVAL_SCHEDULE_SCREEN_ACT:
+    case FESTIVAL_SCHEDULE_SCREENS_COUNT:
         _display_act(state);
         break;
-    case SCREEN_GENRE:
+    case FESTIVAL_SCHEDULE_SCREEN_GENRE:
         _display_act_genre(state->curr_act, state->cyc_through_all_acts);
         break;
-    case SCREEN_START_TIME:
+    case FESTIVAL_SCHEDULE_SCREEN_START_TIME:
         _display_act_time(state->curr_act, clock_mode_24h, false);
         break;
-    case SCREEN_END_TIME:
+    case FESTIVAL_SCHEDULE_SCREEN_END_TIME:
         _display_act_time(state->curr_act, clock_mode_24h, true);
         break;
     }
@@ -309,34 +309,38 @@ static void _cyc_all_acts(festival_schedule_state_t *state, bool clock_mode_24h,
     watch_set_indicator(WATCH_INDICATOR_LAP);
     state->curr_act = _get_next_act_num(state->curr_act, handling_light);
     state->curr_stage = festival_acts[state->curr_act].stage;
-    state->curr_screen = SCREEN_TITLE;
+    state->curr_screen = FESTIVAL_SCHEDULE_SCREEN_TITLE;
     _display_screen(state, clock_mode_24h);
     return; 
 }
 
 static void _handle_btn_up(festival_schedule_state_t *state, bool clock_mode_24h, bool handling_light){
     _ts_ticks = 0;
-    _ts_ticks_purpose = TICK_NONE;
+    _ts_ticks_purpose = FESTIVAL_SCHEDULE_TICK_NONE;
     if (state->cyc_through_all_acts){
         _cyc_all_acts(state, clock_mode_24h, handling_light);
         return;
     }
     if (!state->festival_occurring) return;
     watch_date_time curr_time = watch_rtc_get_date_time();
-    if (state->curr_screen != SCREEN_TITLE) 
-        state->curr_stage = handling_light ? (state->curr_stage - 1 + STAGE_COUNT) % STAGE_COUNT : (state->curr_stage + 1) % STAGE_COUNT;
-    if (SHOW_EMPTY_STAGES)
+    if (state->curr_screen != FESTIVAL_SCHEDULE_SCREEN_TITLE) {
+        state->curr_stage = handling_light ? 
+                        (state->curr_stage - 1 + FESTIVAL_SCHEDULE_STAGE_COUNT) % FESTIVAL_SCHEDULE_STAGE_COUNT :
+                        (state->curr_stage + 1) % FESTIVAL_SCHEDULE_STAGE_COUNT;
+    }
+    if (SHOW_EMPTY_STAGES) {
         state->curr_act = _act_performing_on_stage(state->curr_stage, curr_time);
+    }
     else{
         state->curr_act = _find_first_available_act(state->curr_stage, curr_time, handling_light);
         state->curr_stage = festival_acts[state->curr_act].stage;
     }
-    state->curr_screen = SCREEN_ACT;
+    state->curr_screen = FESTIVAL_SCHEDULE_SCREEN_ACT;
     _display_screen(state, clock_mode_24h);
 }
 
 static void _show_title(festival_schedule_state_t *state){
-    state->curr_screen = SCREEN_TITLE;
+    state->curr_screen = FESTIVAL_SCHEDULE_SCREEN_TITLE;
     state->curr_act = NUM_ACTS;
     watch_clear_colon();
     watch_clear_all_indicators();
@@ -387,11 +391,11 @@ static void handle_ts_ticks(festival_schedule_state_t *state, bool clock_mode_24
     if (_ts_ticks != 0){
         --_ts_ticks;
         switch (_ts_ticks_purpose){
-            case TICK_NONE:
+            case FESTIVAL_SCHEDULE_TICK_NONE:
                 _ts_ticks = 0;
                 break;
-            case TICK_SCREEN:
-                if (state->curr_screen == SCREEN_TITLE || state->curr_screen == SCREEN_ACT){
+            case FESTIVAL_SCHEDULE_TICK_SCREEN:
+                if (state->curr_screen == FESTIVAL_SCHEDULE_SCREEN_TITLE || state->curr_screen == FESTIVAL_SCHEDULE_SCREEN_ACT){
                     _ts_ticks = 0;
                 }
                 else if (_ts_ticks == 0){
@@ -400,26 +404,26 @@ static void handle_ts_ticks(festival_schedule_state_t *state, bool clock_mode_24
                         _light_held = true;
                     }
                     else{
-                        _ts_ticks_purpose = TICK_NONE;
-                        state->curr_screen = SCREEN_ACT;
+                        _ts_ticks_purpose = FESTIVAL_SCHEDULE_TICK_NONE;
+                        state->curr_screen = FESTIVAL_SCHEDULE_SCREEN_ACT;
                         _display_screen(state, clock_mode_24h);
                     }
                 }
                 break;
-            case TICK_LEAVE:
+            case FESTIVAL_SCHEDULE_TICK_LEAVE:
                 if (!watch_get_pin_level(BTN_MODE))_ts_ticks = 0;
                 else if (_ts_ticks == 0){
-                    if(state->curr_screen == SCREEN_TITLE) movement_move_to_face(0);
+                    if(state->curr_screen == FESTIVAL_SCHEDULE_SCREEN_TITLE) movement_move_to_face(0);
                     else{
-                        _ts_ticks_purpose = TICK_LEAVE;  // This is unneeded, but explicit that we remain in TICK_LEAVE
+                        _ts_ticks_purpose = FESTIVAL_SCHEDULE_TICK_LEAVE;  // This is unneeded, but explicit that we remain in TICK_LEAVE
                         _ts_ticks = 2 * FREQ;
                         _show_title(state);
                     }
                 }
                 break;
-            case TICK_CYCLE:
+            case FESTIVAL_SCHEDULE_TICK_CYCLE:
                 if (_ts_ticks == 0){
-                    _ts_ticks_purpose = TICK_NONE;
+                    _ts_ticks_purpose = FESTIVAL_SCHEDULE_TICK_NONE;
                     start_quick_cyc();
                 }
                 break;
@@ -446,7 +450,7 @@ static bool handle_tick(festival_schedule_state_t *state, movement_settings_t *s
     state -> prev_day = (curr_time.reg >> 17);
     state -> festival_occurring = _festival_occurring(curr_time, (newDay && !state->cyc_through_all_acts));
     if (!state->festival_occurring) return false;
-    if(state->curr_screen == SCREEN_TITLE) {
+    if(state->curr_screen == FESTIVAL_SCHEDULE_SCREEN_TITLE) {
         if (newDay) _display_curr_day(curr_time);
         return false;
     }
@@ -472,7 +476,7 @@ void festival_schedule_face_activate(movement_settings_t *settings, void *contex
     _ending_time = _get_ending_time();
     _quick_ticks_running = false;
     _ts_ticks = 0;
-    _ts_ticks_purpose = TICK_NONE;
+    _ts_ticks_purpose = FESTIVAL_SCHEDULE_TICK_NONE;
     movement_request_tick_frequency(FREQ);
 }
 
@@ -486,7 +490,7 @@ bool festival_schedule_face_loop(movement_event_t event, movement_settings_t *se
             break;
         case EVENT_TICK:
             changed_from_handle_ticks = handle_tick(state, settings);
-            if (!changed_from_handle_ticks && state->curr_screen == SCREEN_ACT
+            if (!changed_from_handle_ticks && state->curr_screen == FESTIVAL_SCHEDULE_SCREEN_ACT
                 && !_quick_ticks_running)
                     _text_pos = _loop_text(_text_looping, _text_pos, 6);
                 break;
@@ -494,9 +498,9 @@ bool festival_schedule_face_loop(movement_event_t event, movement_settings_t *se
             changed_from_handle_ticks = handle_tick(state, settings);
             if (!changed_from_handle_ticks && !in_le 
                 && event.event_type == EVENT_LOW_ENERGY_UPDATE 
-                && state->curr_screen == SCREEN_ACT) {
+                && state->curr_screen == FESTIVAL_SCHEDULE_SCREEN_ACT) {
                 in_le = true;
-                if (state->curr_screen == SCREEN_ACT)
+                if (state->curr_screen == FESTIVAL_SCHEDULE_SCREEN_ACT)
                     _display_act(state);  // Resets the act name in LE mode so the beginning of it is shown
             }
             break;
@@ -507,10 +511,10 @@ bool festival_schedule_face_loop(movement_event_t event, movement_settings_t *se
             _handle_btn_up(state, settings->bit.clock_mode_24h, false);
             break;
         case EVENT_ALARM_LONG_PRESS:
-            if (state->curr_screen == SCREEN_TITLE){
+            if (state->curr_screen == FESTIVAL_SCHEDULE_SCREEN_TITLE){
                 _cyc_all_acts(state, settings->bit.clock_mode_24h, false);
                 _ts_ticks = 2 * FREQ;
-                _ts_ticks_purpose = TICK_CYCLE;
+                _ts_ticks_purpose = FESTIVAL_SCHEDULE_TICK_CYCLE;
             }
             else if (state->festival_occurring && !state->cyc_through_all_acts) break;
             else start_quick_cyc();
@@ -518,33 +522,33 @@ bool festival_schedule_face_loop(movement_event_t event, movement_settings_t *se
         case EVENT_LIGHT_BUTTON_DOWN:
             break;  // To overwrite the default LED on
         case EVENT_LIGHT_LONG_PRESS:
-            if (state->curr_screen == SCREEN_TITLE){
+            if (state->curr_screen == FESTIVAL_SCHEDULE_SCREEN_TITLE){
                 _cyc_all_acts(state, settings->bit.clock_mode_24h, true);
                 _ts_ticks = 2 * FREQ;
-                _ts_ticks_purpose = TICK_CYCLE;
+                _ts_ticks_purpose = FESTIVAL_SCHEDULE_TICK_CYCLE;
             }
-            else if (state->curr_screen != SCREEN_ACT || (state->festival_occurring && !state->cyc_through_all_acts))
+            else if (state->curr_screen != FESTIVAL_SCHEDULE_SCREEN_ACT || (state->festival_occurring && !state->cyc_through_all_acts))
                 movement_illuminate_led(); // Will allow led for see acts' genre and times
             else start_quick_cyc();
             break;
         case EVENT_MODE_LONG_PRESS:
-            if (state->curr_screen != SCREEN_ACT){
-                state->curr_screen = SCREEN_ACT;
+            if (state->curr_screen != FESTIVAL_SCHEDULE_SCREEN_ACT){
+                state->curr_screen = FESTIVAL_SCHEDULE_SCREEN_ACT;
                 _display_screen(state, settings->bit.clock_mode_24h);
                 _ts_ticks = 2 * FREQ;
-                _ts_ticks_purpose = TICK_LEAVE;
+                _ts_ticks_purpose = FESTIVAL_SCHEDULE_TICK_LEAVE;
             }
-            else if (state->curr_screen != SCREEN_TITLE){
+            else if (state->curr_screen != FESTIVAL_SCHEDULE_SCREEN_TITLE){
                 _ts_ticks = 2 * FREQ;
-                _ts_ticks_purpose = TICK_LEAVE;
+                _ts_ticks_purpose = FESTIVAL_SCHEDULE_TICK_LEAVE;
                 _show_title(state);
             }
             else movement_move_to_face(0);
             break;
         case EVENT_MODE_BUTTON_UP:
-            if (state->curr_screen == SCREEN_TITLE) movement_move_to_next_face();
+            if (state->curr_screen == FESTIVAL_SCHEDULE_SCREEN_TITLE) movement_move_to_next_face();
             else if (state->curr_act != NUM_ACTS){
-                state->curr_screen = (state->curr_screen + 1) % SCREENS_COUNT;
+                state->curr_screen = (state->curr_screen + 1) % FESTIVAL_SCHEDULE_SCREENS_COUNT;
                 _display_screen(state, settings->bit.clock_mode_24h);
             }
             break;
