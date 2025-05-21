@@ -96,9 +96,8 @@ typedef struct {
 #define SHOW_EMPTY_STAGES false
 
 typedef struct {
-    // Anything you need to keep track of, put it here!
     festival_schedule_stage curr_stage;
-    festival_schedule_genre prev_stage;
+    festival_schedule_stage prev_stage;
     uint8_t curr_act;
     uint8_t prev_act;
     uint16_t prev_day : 15;

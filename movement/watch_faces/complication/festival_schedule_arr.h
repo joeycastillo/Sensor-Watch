@@ -4,7 +4,7 @@
 
 #define NUM_ACTS 172
 
-const schedule_t festival_acts[NUM_ACTS + 1]=
+const festival_schedule_t festival_acts[NUM_ACTS + 1]=
 {
     {
         .artist = "2HOLLIS",
