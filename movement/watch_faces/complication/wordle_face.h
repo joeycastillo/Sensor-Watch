@@ -84,6 +84,14 @@
  *  3 = Allow using a random guess of any value that can be an answer, and it's considered one of the best initial choices.
 */
 #define WORDLE_USE_RANDOM_GUESS 2
+#define WORDLE_FREQ 2
+// To avoid a button press immedietly skipping a screen, we wait this many ticks
+#define WORDLE_TICKS_RESULT 4  
+#define WORDLE_TICK_WIN_LOSE 2
+#define WORDLE_TICK_BAD_GUESS 0
+
+// Store this many words in our list of words that were already used to avoid too much repetition of guesses
+#define WORDLE_MAX_BETWEEN_REPEATS 50
 #include "wordle_face_dict.h"
 
 #define WORDLE_NUM_WORDS (sizeof(_valid_words) / sizeof(_valid_words[0]))
@@ -95,28 +103,28 @@ typedef enum {
     WORDLE_LETTER_WRONG_LOC,
     WORDLE_LETTER_CORRECT,
     WORDLE_LETTER_COUNT
-} WordleLetterResult;
+} wordle_letter_result;
 
 typedef enum {
-    SCREEN_TITLE = 0,
-    SCREEN_STREAK,
-    SCREEN_CONTINUE,
+    WORDLE_SCREEN_TITLE = 0,
+    WORDLE_SCREEN_STREAK,
+    WORDLE_SCREEN_CONTINUE,
 #if WORDLE_USE_DAILY_STREAK
-    SCREEN_WAIT,
+    WORDLE_SCREEN_WAIT,
 #endif
-    SCREEN_PLAYING,
-    SCREEN_RESULT,
-    SCREEN_WIN,
-    SCREEN_LOSE,
-    SCREEN_NO_DICT,
-    SCREEN_ALREADY_GUESSED,
-    SCREEN_COUNT
-} WordleScreen;
+    WORDLE_SCREEN_PLAYING,
+    WORDLE_SCREEN_RESULT,
+    WORDLE_SCREEN_WIN,
+    WORDLE_SCREEN_LOSE,
+    WORDLE_SCREEN_NO_DICT,
+    WORDLE_SCREEN_ALREADY_GUESSED,
+    WORDLE_SCREEN_COUNT
+} wordle_screen;
 
 typedef struct {
     // Anything you need to keep track of, put it here!
     uint8_t word_elements[WORDLE_LENGTH];
-    WordleLetterResult word_elements_result[WORDLE_LENGTH];
+    wordle_letter_result word_elements_result[WORDLE_LENGTH];
 #if !WORDLE_ALLOW_NON_WORD_AND_REPEAT_GUESSES
     uint16_t guessed_words[WORDLE_MAX_ATTEMPTS];
 #endif
@@ -127,9 +135,12 @@ typedef struct {
     bool continuing : 1;
     bool skip_wrong_letter : 1;
     uint8_t streak;
-    WordleScreen curr_screen;
+    wordle_screen curr_screen;
     bool known_wrong_letters[WORDLE_NUM_VALID_LETTERS];
     uint32_t day_last_game_started;
+    uint8_t ignore_btn_ticks;
+    uint16_t not_to_use[WORDLE_MAX_BETWEEN_REPEATS];
+    uint8_t not_to_use_position;
 } wordle_state_t;
 
 void wordle_face_setup(movement_settings_t *settings, uint8_t watch_face_index, void ** context_ptr);
