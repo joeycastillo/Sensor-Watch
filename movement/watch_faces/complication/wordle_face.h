@@ -103,28 +103,28 @@ typedef enum {
     WORDLE_LETTER_WRONG_LOC,
     WORDLE_LETTER_CORRECT,
     WORDLE_LETTER_COUNT
-} WordleLetterResult;
+} wordle_letter_result;
 
 typedef enum {
-    SCREEN_TITLE = 0,
-    SCREEN_STREAK,
-    SCREEN_CONTINUE,
+    WORDLE_SCREEN_TITLE = 0,
+    WORDLE_SCREEN_STREAK,
+    WORDLE_SCREEN_CONTINUE,
 #if WORDLE_USE_DAILY_STREAK
-    SCREEN_WAIT,
+    WORDLE_SCREEN_WAIT,
 #endif
-    SCREEN_PLAYING,
-    SCREEN_RESULT,
-    SCREEN_WIN,
-    SCREEN_LOSE,
-    SCREEN_NO_DICT,
-    SCREEN_ALREADY_GUESSED,
-    SCREEN_COUNT
-} WordleScreen;
+    WORDLE_SCREEN_PLAYING,
+    WORDLE_SCREEN_RESULT,
+    WORDLE_SCREEN_WIN,
+    WORDLE_SCREEN_LOSE,
+    WORDLE_SCREEN_NO_DICT,
+    WORDLE_SCREEN_ALREADY_GUESSED,
+    WORDLE_SCREEN_COUNT
+} wordle_screen;
 
 typedef struct {
     // Anything you need to keep track of, put it here!
     uint8_t word_elements[WORDLE_LENGTH];
-    WordleLetterResult word_elements_result[WORDLE_LENGTH];
+    wordle_letter_result word_elements_result[WORDLE_LENGTH];
 #if !WORDLE_ALLOW_NON_WORD_AND_REPEAT_GUESSES
     uint16_t guessed_words[WORDLE_MAX_ATTEMPTS];
 #endif
@@ -135,7 +135,7 @@ typedef struct {
     bool continuing : 1;
     bool skip_wrong_letter : 1;
     uint8_t streak;
-    WordleScreen curr_screen;
+    wordle_screen curr_screen;
     bool known_wrong_letters[WORDLE_NUM_VALID_LETTERS];
     uint32_t day_last_game_started;
     uint8_t ignore_btn_ticks;
