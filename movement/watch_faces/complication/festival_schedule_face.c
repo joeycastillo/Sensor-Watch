@@ -536,18 +536,21 @@ bool festival_schedule_face_loop(movement_event_t event, movement_settings_t *se
             else start_quick_cyc();
             break;
         case EVENT_MODE_LONG_PRESS:
+
+            if (state->curr_screen == FESTIVAL_SCHEDULE_SCREEN_TITLE){
+                movement_move_to_face(0);
+            }
             if (state->curr_screen != FESTIVAL_SCHEDULE_SCREEN_ACT){
                 state->curr_screen = FESTIVAL_SCHEDULE_SCREEN_ACT;
                 _display_screen(state, settings->bit.clock_mode_24h);
                 _ts_ticks = 2 * FREQ;
                 _ts_ticks_purpose = FESTIVAL_SCHEDULE_TICK_LEAVE;
             }
-            else if (state->curr_screen != FESTIVAL_SCHEDULE_SCREEN_TITLE){
+            else {
                 _ts_ticks = 2 * FREQ;
                 _ts_ticks_purpose = FESTIVAL_SCHEDULE_TICK_LEAVE;
                 _display_title(state);
             }
-            else movement_move_to_face(0);
             break;
         case EVENT_MODE_BUTTON_UP:
             if (state->curr_screen == FESTIVAL_SCHEDULE_SCREEN_TITLE) movement_move_to_next_face();
