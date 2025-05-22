@@ -492,7 +492,9 @@ bool festival_schedule_face_loop(movement_event_t event, movement_settings_t *se
     switch (event.event_type) {
         case EVENT_ACTIVATE:
             in_le = false;
-            _display_title(state);
+            if (state->curr_act == FESTIVAL_SCHEDULE_NUM_ACTS) {
+                _display_title(state);
+            }
             break;
         case EVENT_TICK:
             changed_from_handle_ticks = handle_tick(state, settings);
