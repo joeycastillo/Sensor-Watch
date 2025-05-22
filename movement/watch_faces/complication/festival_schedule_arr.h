@@ -2,9 +2,9 @@
 // Line-up - https://clashfinder.com/data/event/lolla2025.json
 #include "festival_schedule_face.h"
 
-#define NUM_ACTS 172
+#define FESTIVAL_SCHEDULE_NUM_ACTS 172
 
-const festival_schedule_t festival_acts[NUM_ACTS + 1]=
+const festival_schedule_t festival_acts[FESTIVAL_SCHEDULE_NUM_ACTS + 1]=
 {
     {
         .artist = "2HOLLIS",
@@ -1382,7 +1382,7 @@ const festival_schedule_t festival_acts[NUM_ACTS + 1]=
         .genre = FESTIVAL_SCHEDULE_POP,
         .popularity = 144
     },
-    [NUM_ACTS]  = { //Fall back
+    [FESTIVAL_SCHEDULE_NUM_ACTS]  = { //Fall back
         .artist = "No Act",
         .stage = FESTIVAL_SCHEDULE_STAGE_COUNT,
         .start_time = {.unit.year = 0, .unit.month = 0, .unit.day = 0, .unit.hour = 0, .unit.minute = 0},
