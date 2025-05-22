@@ -230,8 +230,8 @@ static watch_date_time _get_ending_time(void){
 static bool _festival_occurring(watch_date_time curr_time, bool update_display){
     char buf[15];
     if (_compare_dates_times(_starting_time, curr_time) > 0){
+        int16_t days_until = _get_days_until(_starting_time, curr_time);
         if (update_display){
-            int16_t days_until = _get_days_until(_starting_time, curr_time);
             if (days_until == 0) return true;
             if (days_until <= 999){
                 if (days_until > 99) sprintf(buf, "%.2s%02d%3dday", festival_name, _starting_time.unit.year + 20, days_until);
@@ -240,7 +240,7 @@ static bool _festival_occurring(watch_date_time curr_time, bool update_display){
             else sprintf(buf, "%.2s%02dWAIT  ", festival_name, _starting_time.unit.year + 20);
             watch_display_string(buf , 0);
         }
-        return false;
+        return days_until == 0;
     }
     else if (_compare_dates_times(_ending_time, curr_time) <= 0){
         if (update_display){
@@ -449,6 +449,7 @@ static bool handle_tick(festival_schedule_state_t *state, movement_settings_t *s
 
     if (state->cyc_through_all_acts) return false;
     curr_time = movement_get_local_date_time();
+    if (curr_time.unit.second != 0) return false;
     bool newDay = ((curr_time.reg >> 17) != (state -> prev_day));
     state -> prev_day = (curr_time.reg >> 17);
     state -> festival_occurring = _festival_occurring(curr_time, (newDay && !state->cyc_through_all_acts));
@@ -458,8 +459,9 @@ static bool handle_tick(festival_schedule_state_t *state, movement_settings_t *s
         return false;
     }
     if (!_act_is_playing(state->curr_act, curr_time)){
-        if (SHOW_EMPTY_STAGES)   
+        if (SHOW_EMPTY_STAGES) {
             state->curr_act = NUM_ACTS;
+        }   
         else{
             state->curr_act = _find_first_available_act(state->curr_stage, curr_time, false);
             state->curr_stage = festival_acts[state->curr_act].stage;
@@ -504,8 +506,10 @@ bool festival_schedule_face_loop(movement_event_t event, movement_settings_t *se
                 && event.event_type == EVENT_LOW_ENERGY_UPDATE 
                 && state->curr_screen == FESTIVAL_SCHEDULE_SCREEN_ACT) {
                 in_le = true;
-                if (state->curr_screen == FESTIVAL_SCHEDULE_SCREEN_ACT) 
-                    _display_screen(state, settings->bit.clock_mode_24h); // Resets the act name in LE mode so the beginning of it is shown
+                if (state->curr_screen == FESTIVAL_SCHEDULE_SCREEN_ACT) {
+                    // Resets the act name in LE mode so the beginning of it is shown
+                    _display_screen(state, settings->bit.clock_mode_24h);
+                }
             }
             break;
         case EVENT_LIGHT_BUTTON_UP:
