@@ -32,48 +32,51 @@ const char festival_name[2] = "LA";
 
 const char festival_stage[FESTIVAL_SCHEDULE_STAGE_COUNT + 1][2] =
 {
-    [FESTIVAL_SCHEDULE_NO_STAGE] = "  ",
-    [FESTIVAL_SCHEDULE_T_MOBILE] = "TM",
-    [FESTIVAL_SCHEDULE_LAKESHORE] = "L ",
-    [FESTIVAL_SCHEDULE_BUD_LIGHT] = "BL",
-    [FESTIVAL_SCHEDULE_TITOS] = "TO",
-    [FESTIVAL_SCHEDULE_PERRYS] = "PR",
-    [FESTIVAL_SCHEDULE_THE_GROVE] = "GR",
-    [FESTIVAL_SCHEDULE_BMI] = "BM",
+    [FESTIVAL_SCHEDULE_NO_STAGE]    = "  ",
+    [FESTIVAL_SCHEDULE_T_MOBILE]    = "TM",
+    [FESTIVAL_SCHEDULE_LAKESHORE]   = "L ",
+    [FESTIVAL_SCHEDULE_BUD_LIGHT]   = "BL",
+    [FESTIVAL_SCHEDULE_TITOS]       = "TO",
+    [FESTIVAL_SCHEDULE_PERRYS]      = "PR",
+    [FESTIVAL_SCHEDULE_THE_GROVE]   = "GR",
+    [FESTIVAL_SCHEDULE_BMI]         = "BM",
     [FESTIVAL_SCHEDULE_STAGE_COUNT] = "  "
 };
 
 const char festival_genre[FESTIVAL_SCHEDULE_GENRE_COUNT + 1][6] =
 {
-    [FESTIVAL_SCHEDULE_NO_GENRE] = " NONE ",
-    [FESTIVAL_SCHEDULE_POP] = " POP  ",
-    [FESTIVAL_SCHEDULE_INDIE] = " INdIE",
-    [FESTIVAL_SCHEDULE_DREAM_POP] = "dream7",
-    [FESTIVAL_SCHEDULE_K_POP] = " K-POP",
-    [FESTIVAL_SCHEDULE_ROCK] = " ROCK ",
-    [FESTIVAL_SCHEDULE_ALT] = "   ALT",
-    [FESTIVAL_SCHEDULE_PUNK] = "PUNK  ",
-    [FESTIVAL_SCHEDULE_NU_METAL] = "Num&tL",
-    [FESTIVAL_SCHEDULE_PSYCH_ROCK] = " PSYCH",
-    [FESTIVAL_SCHEDULE_HOUSE] = " HOUSE",
-    [FESTIVAL_SCHEDULE_DUBSTEP] = "DUBStP",
-    [FESTIVAL_SCHEDULE_TECHNO] = " tECNO",
-    [FESTIVAL_SCHEDULE_BASS] = " BASS ",
-    [FESTIVAL_SCHEDULE_DnB] = " dnB  ",
-    [FESTIVAL_SCHEDULE_DANCE] = " DaNCE",
-    [FESTIVAL_SCHEDULE_RAP] = "  rAP ",
-    [FESTIVAL_SCHEDULE_TRAP] = " trAP ",
-    [FESTIVAL_SCHEDULE_EMORAP] = "sdcld ",
-    [FESTIVAL_SCHEDULE_SOUL] = " SOUL ",
-    [FESTIVAL_SCHEDULE_RnB] = " rnb  ",
-    [FESTIVAL_SCHEDULE_COUNTRY] = "Cuntry",
-    [FESTIVAL_SCHEDULE_FOLK] = " FOLK ",
-    [FESTIVAL_SCHEDULE_OTHER] = "OTHEr ",
+    [FESTIVAL_SCHEDULE_NO_GENRE]    = " NONE ",
+    [FESTIVAL_SCHEDULE_POP]         = " POP  ",
+    [FESTIVAL_SCHEDULE_INDIE]       = " INdIE",
+    [FESTIVAL_SCHEDULE_DREAM_POP]   = "dream7",
+    [FESTIVAL_SCHEDULE_K_POP]       = " K-POP",
+    [FESTIVAL_SCHEDULE_ROCK]        = " ROCK ",
+    [FESTIVAL_SCHEDULE_ALT]         = "   ALT",
+    [FESTIVAL_SCHEDULE_PUNK]        = "PUNK  ",
+    [FESTIVAL_SCHEDULE_NU_METAL]    = "Num&tL",
+    [FESTIVAL_SCHEDULE_PSYCH_ROCK]  = " PSYCH",
+    [FESTIVAL_SCHEDULE_HOUSE]       = " HOUSE",
+    [FESTIVAL_SCHEDULE_DUBSTEP]     = "DUBStP",
+    [FESTIVAL_SCHEDULE_TECHNO]      = " tECNO",
+    [FESTIVAL_SCHEDULE_BASS]        = " BASS ",
+    [FESTIVAL_SCHEDULE_DnB]         = " dnB  ",
+    [FESTIVAL_SCHEDULE_DANCE]       = " DaNCE",
+    [FESTIVAL_SCHEDULE_RAP]         = "  rAP ",
+    [FESTIVAL_SCHEDULE_TRAP]        = " trAP ",
+    [FESTIVAL_SCHEDULE_EMORAP]      = "sdcld ",
+    [FESTIVAL_SCHEDULE_SOUL]        = " SOUL ",
+    [FESTIVAL_SCHEDULE_RnB]         = " rnb  ",
+    [FESTIVAL_SCHEDULE_COUNTRY]     = "Cuntry",
+    [FESTIVAL_SCHEDULE_FOLK]        = " FOLK ",
+    [FESTIVAL_SCHEDULE_OTHER]       = "OTHEr ",
     [FESTIVAL_SCHEDULE_GENRE_COUNT] = "      "
 };
 
 #define FREQ_FAST 8
 #define FREQ 4
+
+#define TIMEOUT_SEC 10
+#define TIMEOUT_HELD_SEC 2
 
 static int16_t _text_pos;
 static const char* _text_looping;
@@ -263,6 +266,22 @@ static void _display_curr_day(watch_date_time curr_time){  // Assumes festival_o
     return;
 }
 
+static void set_ticks_purpose(festival_schedule_tick_reason purpose) {
+    _ts_ticks_purpose = purpose;
+    switch (purpose) {
+        case FESTIVAL_SCHEDULE_TICK_NONE:
+            _ts_ticks = 0;
+            break;
+        case FESTIVAL_SCHEDULE_TICK_SCREEN:
+            _ts_ticks = TIMEOUT_SEC * FREQ;
+            break;
+        case FESTIVAL_SCHEDULE_TICK_LEAVE:
+        case FESTIVAL_SCHEDULE_TICK_CYCLE:
+            _ts_ticks = TIMEOUT_HELD_SEC * FREQ;
+            break;
+    }
+}
+
 static void _display_title(festival_schedule_state_t *state){
     state->curr_screen = FESTIVAL_SCHEDULE_SCREEN_TITLE;
     state->curr_act = FESTIVAL_SCHEDULE_NUM_ACTS;
@@ -276,8 +295,7 @@ static void _display_title(festival_schedule_state_t *state){
 }
 
 static void _display_screen(festival_schedule_state_t *state, bool clock_mode_24h){
-    _ts_ticks = 10 * FREQ;
-    _ts_ticks_purpose = FESTIVAL_SCHEDULE_TICK_SCREEN;
+    set_ticks_purpose(FESTIVAL_SCHEDULE_TICK_SCREEN);
     if (state->curr_screen != FESTIVAL_SCHEDULE_SCREEN_START_TIME && state->curr_screen != FESTIVAL_SCHEDULE_SCREEN_END_TIME)
     {
         watch_clear_colon();
@@ -330,8 +348,7 @@ static void _cyc_all_acts(festival_schedule_state_t *state, bool clock_mode_24h,
 }
 
 static void _handle_btn_up(festival_schedule_state_t *state, bool clock_mode_24h, bool handling_light){
-    _ts_ticks = 0;
-    _ts_ticks_purpose = FESTIVAL_SCHEDULE_TICK_NONE;
+    set_ticks_purpose(FESTIVAL_SCHEDULE_TICK_NONE);
     if (state->cyc_through_all_acts){
         _cyc_all_acts(state, clock_mode_24h, handling_light);
         return;
@@ -407,7 +424,7 @@ static void handle_ts_ticks(festival_schedule_state_t *state, bool clock_mode_24
                         _light_held = true;
                     }
                     else{
-                        _ts_ticks_purpose = FESTIVAL_SCHEDULE_TICK_NONE;
+                        set_ticks_purpose(FESTIVAL_SCHEDULE_TICK_NONE);
                         state->curr_screen = FESTIVAL_SCHEDULE_SCREEN_ACT;
                         _display_screen(state, clock_mode_24h);
                     }
@@ -418,15 +435,14 @@ static void handle_ts_ticks(festival_schedule_state_t *state, bool clock_mode_24
                 else if (_ts_ticks == 0){
                     if(state->curr_screen == FESTIVAL_SCHEDULE_SCREEN_TITLE) movement_move_to_face(0);
                     else{
-                        _ts_ticks_purpose = FESTIVAL_SCHEDULE_TICK_LEAVE;  // This is unneeded, but explicit that we remain in TICK_LEAVE
-                        _ts_ticks = 2 * FREQ;
+                        set_ticks_purpose(FESTIVAL_SCHEDULE_TICK_LEAVE);  // This is unneeded, but explicit that we remain in TICK_LEAVE
                         _display_title(state);
                     }
                 }
                 break;
             case FESTIVAL_SCHEDULE_TICK_CYCLE:
                 if (_ts_ticks == 0){
-                    _ts_ticks_purpose = FESTIVAL_SCHEDULE_TICK_NONE;
+                    set_ticks_purpose(FESTIVAL_SCHEDULE_TICK_NONE);
                     start_quick_cyc();
                 }
                 break;
@@ -481,8 +497,7 @@ void festival_schedule_face_activate(movement_settings_t *settings, void *contex
     _starting_time = _get_starting_time();
     _ending_time = _get_ending_time();
     _quick_ticks_running = false;
-    _ts_ticks = 0;
-    _ts_ticks_purpose = FESTIVAL_SCHEDULE_TICK_NONE;
+    set_ticks_purpose(FESTIVAL_SCHEDULE_TICK_NONE);
     movement_request_tick_frequency(FREQ);
 }
 
@@ -523,8 +538,7 @@ bool festival_schedule_face_loop(movement_event_t event, movement_settings_t *se
         case EVENT_ALARM_LONG_PRESS:
             if (state->curr_screen == FESTIVAL_SCHEDULE_SCREEN_TITLE){
                 _cyc_all_acts(state, settings->bit.clock_mode_24h, false);
-                _ts_ticks = 2 * FREQ;
-                _ts_ticks_purpose = FESTIVAL_SCHEDULE_TICK_CYCLE;
+                set_ticks_purpose(FESTIVAL_SCHEDULE_TICK_CYCLE);
             }
             else if (state->festival_occurring && !state->cyc_through_all_acts) break;
             else start_quick_cyc();
@@ -534,8 +548,7 @@ bool festival_schedule_face_loop(movement_event_t event, movement_settings_t *se
         case EVENT_LIGHT_LONG_PRESS:
             if (state->curr_screen == FESTIVAL_SCHEDULE_SCREEN_TITLE){
                 _cyc_all_acts(state, settings->bit.clock_mode_24h, true);
-                _ts_ticks = 2 * FREQ;
-                _ts_ticks_purpose = FESTIVAL_SCHEDULE_TICK_CYCLE;
+                set_ticks_purpose(FESTIVAL_SCHEDULE_TICK_CYCLE);
             }
             else if (state->curr_screen != FESTIVAL_SCHEDULE_SCREEN_ACT || (state->festival_occurring && !state->cyc_through_all_acts))
                 movement_illuminate_led(); // Will allow led for see acts' genre and times
@@ -549,12 +562,10 @@ bool festival_schedule_face_loop(movement_event_t event, movement_settings_t *se
             if (state->curr_screen != FESTIVAL_SCHEDULE_SCREEN_ACT){
                 state->curr_screen = FESTIVAL_SCHEDULE_SCREEN_ACT;
                 _display_screen(state, settings->bit.clock_mode_24h);
-                _ts_ticks = 2 * FREQ;
-                _ts_ticks_purpose = FESTIVAL_SCHEDULE_TICK_LEAVE;
+                set_ticks_purpose(FESTIVAL_SCHEDULE_TICK_LEAVE);
             }
             else {
-                _ts_ticks = 2 * FREQ;
-                _ts_ticks_purpose = FESTIVAL_SCHEDULE_TICK_LEAVE;
+                set_ticks_purpose(FESTIVAL_SCHEDULE_TICK_LEAVE);
                 _display_title(state);
             }
             break;
@@ -575,20 +586,8 @@ bool festival_schedule_face_loop(movement_event_t event, movement_settings_t *se
             }
             break;
         default:
-            // Movement's default loop handler will step in for any cases you don't handle above:
-            // * EVENT_LIGHT_BUTTON_DOWN lights the LED
-            // * EVENT_MODE_BUTTON_UP moves to the next watch face in the list
-            // * EVENT_MODE_LONG_PRESS returns to the first watch face (or skips to the secondary watch face, if configured)
-            // You can override any of these behaviors by adding a case for these events to this switch statement.
             return movement_default_loop_handler(event, settings);
     }
-
-    // return true if the watch can enter standby mode. Generally speaking, you should always return true.
-    // Exceptions:
-    //  * If you are displaying a color using the low-level watch_set_led_color function, you should return false.
-    //  * If you are sounding the buzzer using the low-level watch_set_buzzer_on function, you should return false.
-    // Note that if you are driving the LED or buzzer using Movement functions like movement_illuminate_led or
-    // movement_play_alarm, you can still return true. This guidance only applies to the low-level watch_ functions.
     return true;
 }
 
@@ -598,7 +597,5 @@ void festival_schedule_face_resign(movement_settings_t *settings, void *context)
     state->curr_act = FESTIVAL_SCHEDULE_NUM_ACTS;
     state->cyc_through_all_acts = false;
     state->prev_act = FESTIVAL_SCHEDULE_NUM_ACTS + 1;
-
-    // handle any cleanup before your watch face goes off-screen.
 }
 
