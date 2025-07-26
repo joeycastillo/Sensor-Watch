@@ -78,8 +78,13 @@ const char festival_genre[FESTIVAL_SCHEDULE_GENRE_COUNT + 1][6] =
 #define TIMEOUT_SEC 10
 #define TIMEOUT_HELD_SEC 2
 
+#define MAX_LENGTH 6
+#define LOOP_AMOUNT 2
+
 static int16_t _text_pos;
 static const char* _text_looping;
+static bool _is_text_looping;
+static uint8_t loops_occurred;
 static watch_date_time _starting_time;
 static watch_date_time _ending_time;
 static bool _quick_ticks_running;
@@ -136,6 +141,11 @@ static bool _act_is_playing(uint8_t act_num, watch_date_time curr_time){
     return _compare_dates_times(festival_acts[act_num].start_time, curr_time) <= 0 && _compare_dates_times(curr_time, festival_acts[act_num].end_time) < 0;
 }
 
+static bool _text_can_loop(const char* text, uint8_t char_len) {
+    uint8_t text_len = strlen(text);
+    return char_len < text_len;
+}
+
 static uint8_t _act_performing_on_stage(uint8_t stage, watch_date_time curr_time)
 {
     for (int i = 0; i < FESTIVAL_SCHEDULE_NUM_ACTS; i++) {
@@ -169,6 +179,8 @@ static void _display_act(festival_schedule_state_t *state){
     else
         sprintf(buf, "%.2s  %.6s", festival_stage[state->curr_stage], festival_acts[state->curr_act].artist);
     watch_display_string(buf , 0);
+    _is_text_looping = _text_can_loop(_text_looping, MAX_LENGTH);
+    loops_occurred = 0;
 }
 
 static void _display_act_genre(uint8_t act_num, bool show_weekday){
@@ -513,9 +525,17 @@ bool festival_schedule_face_loop(movement_event_t event, movement_settings_t *se
             break;
         case EVENT_TICK:
             changed_from_handle_ticks = handle_tick(state, settings);
+            if (changed_from_handle_ticks) _is_text_looping = _text_can_loop(_text_looping, MAX_LENGTH);
             if (!changed_from_handle_ticks && state->curr_screen == FESTIVAL_SCHEDULE_SCREEN_ACT
-                && !_quick_ticks_running)
-                    _text_pos = _loop_text(_text_looping, _text_pos, 6);
+                && !_quick_ticks_running && _is_text_looping) {
+                    int16_t prev_text_pos = _text_pos;
+                    _text_pos = _loop_text(_text_looping, _text_pos, MAX_LENGTH);
+                    if (prev_text_pos > _text_pos) loops_occurred++;
+                    if (loops_occurred >= LOOP_AMOUNT) {
+                        loops_occurred = 0;
+                        _is_text_looping = false;
+                    }
+                }
                 break;
         case EVENT_LOW_ENERGY_UPDATE:
             changed_from_handle_ticks = handle_tick(state, settings);
@@ -571,7 +591,9 @@ bool festival_schedule_face_loop(movement_event_t event, movement_settings_t *se
             break;
         case EVENT_MODE_BUTTON_UP:
             if (state->curr_screen == FESTIVAL_SCHEDULE_SCREEN_TITLE) movement_move_to_next_face();
-            else if (state->curr_act != FESTIVAL_SCHEDULE_NUM_ACTS){
+            else if (state->curr_act == FESTIVAL_SCHEDULE_NUM_ACTS) break;
+            else if (!_is_text_looping && _text_can_loop(_text_looping, MAX_LENGTH)) _is_text_looping = true;
+            else {
                 do
                 {
                     state->curr_screen = (state->curr_screen + 1) % FESTIVAL_SCHEDULE_SCREENS_COUNT;
@@ -598,4 +620,3 @@ void festival_schedule_face_resign(movement_settings_t *settings, void *context)
     state->cyc_through_all_acts = false;
     state->prev_act = FESTIVAL_SCHEDULE_NUM_ACTS + 1;
 }
-
