@@ -181,7 +181,7 @@ static void _display_act(festival_schedule_state_t *state){
     else
         sprintf(buf, "%.2s  %.6s", festival_stage[state->curr_stage], festival_acts[state->curr_act].artist);
     watch_display_string(buf , 0);
-    _is_text_looping = _text_can_loop(_text_looping, MAX_LENGTH);
+    _is_text_looping = !in_le && _text_can_loop(_text_looping, MAX_LENGTH);
     loops_occurred = 0;
 }
 
@@ -541,8 +541,7 @@ bool festival_schedule_face_loop(movement_event_t event, movement_settings_t *se
                 break;
         case EVENT_LOW_ENERGY_UPDATE:
             changed_from_handle_ticks = handle_tick(state, settings);
-            if (!changed_from_handle_ticks && !in_le 
-                && event.event_type == EVENT_LOW_ENERGY_UPDATE 
+            if (!changed_from_handle_ticks && !in_le
                 && state->curr_screen == FESTIVAL_SCHEDULE_SCREEN_ACT) {
                 in_le = true;
                 if (state->curr_screen == FESTIVAL_SCHEDULE_SCREEN_ACT) {
