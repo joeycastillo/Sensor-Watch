@@ -181,7 +181,7 @@ static void _display_act(festival_schedule_state_t *state){
     else
         sprintf(buf, "%.2s  %.6s", festival_stage[state->curr_stage], festival_acts[state->curr_act].artist);
     watch_display_string(buf , 0);
-    _is_text_looping = !in_le && _text_can_loop(_text_looping, MAX_LENGTH);
+    _is_text_looping = _text_can_loop(_text_looping, MAX_LENGTH);
     loops_occurred = 0;
 }
 
