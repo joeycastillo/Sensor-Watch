@@ -22,6 +22,52 @@
  * SOFTWARE.
  */
 
+
+ /*
+ * Festival Schedule Face
+ * Shows acts performing in different stages at a Festival
+ * Use festival_act_popularity_sorter.ipynb to create the Festival array
+ * 
+ * Screens:
+ *    Title - Shows the either what day of the festival it is or how many days until the festival
+ *    Act - Displays the name of the performing act. The top shows the stage they're on
+ *    Genre - Displays the act's genre
+ *    Start Time - Displays the act's start time
+ *    End Time - Displays the act's end time
+ * 
+ * Loop Through All Acts:
+ *    Normally, you can only view acts that are currently performing. If no acts are currently performing,
+ *    you'll see 'no Act'. But by holding the Light of Alarm button on the title will allow you to loop through
+ *    all acts in alphabetical order (or whatever order they are in festival_schedule_arr.h).
+ *    Looping through all acts will be indicated by LAP.
+ *    Most of the screens will be the same, except the Genre screen will now show the weekday that the act is performing at.
+ * 
+ * Controls:
+ *    Alarm Press
+ *        Show next act
+ *    Alarm Hold
+ *        If on Title: Enter looping through all acts, displaying the last act alphabetically
+ *        Else: Fast-scroll through acts forward
+ * 
+ *    Light Press
+ *        Show previous act
+ *    Light Hold
+ *        If on Title: Enter looping through all acts, displaying the first act alphabetically
+ *        If diplaying Genre of Start/End times: Turn on LED
+ *        Else: Fast-scroll through acts backwards
+ * 
+ *    Mode Press
+ *        If on Title: Move to next watch face
+ *        If text is not looping but can: Loop text.
+ *        If text is looping or is too small to loop: show Genre -> Start Time -> End Time
+ *    Mode Hold
+ *        If on Title: Jump to first movement on watch; normally the watch face
+ *        Else: Move out of current screen
+ *     Holding mode will chain its action. So if you're in Genre, if you keep holding Mode, 
+ *     then Genre will move to Act, which will move to Title, which will leave the face.
+ */
+
+
 #ifndef FESTIVAL_SCHEDULE_FACE_H_
 #define FESTIVAL_SCHEDULE_FACE_H_
 
