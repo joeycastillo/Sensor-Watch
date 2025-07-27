@@ -520,10 +520,10 @@ bool festival_schedule_face_loop(movement_event_t event, movement_settings_t *se
     bool changed_from_handle_ticks;
     switch (event.event_type) {
         case EVENT_ACTIVATE:
-            in_le = false;
-            if (state->curr_act == FESTIVAL_SCHEDULE_NUM_ACTS) {
+            if (!in_le && state->curr_act == FESTIVAL_SCHEDULE_NUM_ACTS) {
                 _display_title(state);
             }
+            in_le = false;
             break;
         case EVENT_TICK:
             changed_from_handle_ticks = handle_tick(state, settings);
