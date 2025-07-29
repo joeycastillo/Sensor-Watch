@@ -70,6 +70,7 @@ const char festival_genre[FESTIVAL_SCHEDULE_GENRE_COUNT + 1][6] =
     [FESTIVAL_SCHEDULE_RnB]         = " rnb  ",
     [FESTIVAL_SCHEDULE_COUNTRY]     = "Cuntry",
     [FESTIVAL_SCHEDULE_FOLK]        = " FOLK ",
+    [FESTIVAL_SCHEDULE_CLASSICAL]   = " ClASS",
     [FESTIVAL_SCHEDULE_OTHER]       = "OTHEr ",
     [FESTIVAL_SCHEDULE_GENRE_COUNT] = "      "
 };

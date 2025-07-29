@@ -67,7 +67,7 @@ const festival_schedule_t festival_acts[FESTIVAL_SCHEDULE_NUM_ACTS + 1]=
         .stage = FESTIVAL_SCHEDULE_LAKESHORE,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 17, .unit.minute = 40},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 18, .unit.minute = 40},
-        .genre = FESTIVAL_SCHEDULE_OTHER,
+        .genre = FESTIVAL_SCHEDULE_RnB,
         .popularity = 54
     },
     {
@@ -299,7 +299,7 @@ const festival_schedule_t festival_acts[FESTIVAL_SCHEDULE_NUM_ACTS + 1]=
         .stage = FESTIVAL_SCHEDULE_TITOS,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 19, .unit.minute = 30},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 2, .unit.hour = 20, .unit.minute = 30},
-        .genre = FESTIVAL_SCHEDULE_OTHER,
+        .genre = FESTIVAL_SCHEDULE_CLASSICAL,
         .popularity = 172
     },
     {
@@ -1019,7 +1019,7 @@ const festival_schedule_t festival_acts[FESTIVAL_SCHEDULE_NUM_ACTS + 1]=
         .stage = FESTIVAL_SCHEDULE_BMI,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 16, .unit.minute = 30},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 17, .unit.minute = 10},
-        .genre = FESTIVAL_SCHEDULE_OTHER,
+        .genre = FESTIVAL_SCHEDULE_POP,
         .popularity = 121
     },
     {
@@ -1027,7 +1027,7 @@ const festival_schedule_t festival_acts[FESTIVAL_SCHEDULE_NUM_ACTS + 1]=
         .stage = FESTIVAL_SCHEDULE_MUSIC_DEN,
         .start_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 18, .unit.minute = 0},
         .end_time = {.unit.year = 5, .unit.month = 8, .unit.day = 1, .unit.hour = 18, .unit.minute = 30},
-        .genre = FESTIVAL_SCHEDULE_OTHER,
+        .genre = FESTIVAL_SCHEDULE_POP,
         .popularity = 121
     },
     {
