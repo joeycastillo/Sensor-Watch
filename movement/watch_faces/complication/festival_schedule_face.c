@@ -28,7 +28,7 @@
 #include "festival_schedule_arr.h"
 #include "watch_utility.h"
 
-const char festival_name[2] = "LA";
+const char festival_name[2] = "LO";
 
 const char festival_stage[FESTIVAL_SCHEDULE_STAGE_COUNT + 1][2] =
 {
@@ -38,7 +38,7 @@ const char festival_stage[FESTIVAL_SCHEDULE_STAGE_COUNT + 1][2] =
     [FESTIVAL_SCHEDULE_PERRYS]      = "PR",
     [FESTIVAL_SCHEDULE_THE_GROVE]   = "GR",
     [FESTIVAL_SCHEDULE_LAKESHORE]   = "L ",
-    [FESTIVAL_SCHEDULE_TITOS]       = "TO",
+    [FESTIVAL_SCHEDULE_TITOS]       = "TI",
     [FESTIVAL_SCHEDULE_BMI]         = "BM",
     [FESTIVAL_SCHEDULE_MUSIC_DEN]   = "dE",
     [FESTIVAL_SCHEDULE_BACKYARD]    = "YD",
