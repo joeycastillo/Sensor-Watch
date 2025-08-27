@@ -324,6 +324,9 @@ static void display_time(watch_date_time date_time, bool clock_mode_24h) {
     static watch_date_time previous_date_time;
     char buf[6 + 1];
 
+    if (!watch_sleep_animation_is_running()) {
+        watch_start_indicator_blink_if_possible(WATCH_INDICATOR_COLON, 500);
+    }
     // If the hour needs updating or it's the first time displaying the time
     if ((game_state.curr_screen != ENDLESS_RUNNER_SCREEN_TIME) || (date_time.unit.hour != previous_date_time.unit.hour)) {
         uint8_t hour = date_time.unit.hour;
