@@ -35,16 +35,34 @@
 
 /*
 
-XYZZY Micro-adventure.
+The Cave.
 
-A lightning-quick tribute to the original game.
+Venture into a cave where each press of the left or right button takes you one step
+deeper towards danger.
 
-Full acknowledgements to Will Crowther 1976 and Don Woods 1977 for
-"Colossal Cave Adventure", which started this genre of games.
+Your goal is to reach the 'Final Room'. ( and ace the quiz )
 
-Tiny cave hint: The keywords always appear at locations 3 and 6.
+Loosely based on "Colossal Cave Adventure", by Will Crowther 1976 and
+Don Woods 1977.
 
-Thankfully; keywords only appear on the main path in all caves.
+In the standard and colossal caves, teleporting will be possible once you
+reach the "XYZZY" room, about halfway through the main path.  Use long button
+presses to jump back here, or back to the main entrance.
+
+Hint: Thankfully; keywords only appear on the main path in all caves.
+
+For additional pressure, your journey is being timed.  You animal speed rating will
+improve as your times do.
+
+Final destination and item rewards are totally random for slowpokes; even the ideal
+outcome is possible.  Rewards tend to improve with better speeds.
+
+It turns out that the planet Vulcan is quite cozy: nicer than Idaho but not quite
+as nice as Fiji.  Sharon Stone was right about Mars.
+
+The ultimate outcome is to have a castle in Aruba.
+
+Good luck.
 
 */
 
@@ -89,6 +107,7 @@ typedef struct {
     uint8_t hours;              // For display of solve times
     uint8_t minutes;            // For display of solve times
     uint8_t seconds;            // For display of solve times
+    uint8_t lastAnimalIndex;    // For display of last animal name
     uint8_t tdLevel;            // For time display
     uint8_t tdSubLevel;         // For time display
     bool alarmWasPressed;       // Was the alarm button down previously?

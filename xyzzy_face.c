@@ -47,7 +47,7 @@
 #define XY_MODE_CODE_ENTRY 3
 #define XY_MODE_TIME_DISPLAY 4
 
-#define XY_VERSION_NUMBER 17
+#define XY_VERSION_NUMBER 43
 // Joey Castillo to oversee storage allocation row
 #define XY_STORAGE_ROW 5
 #define XY_STORAGE_KEY_NUMBER 11
@@ -71,10 +71,17 @@ char teleportStrings[XY_NUM_TELEPORT][7] =
 // Final items/countries rewards not relavent to game play.
 #define XY_NUM_COUNTRIES 6
 char xyzzy_countries[XY_NUM_COUNTRIES][7] =
-    { " EntEr", "IdaHO ", "VULCAN", " MarS ", " ArUbA", " FIJI " };
+    { " EntEr",  " MarS ", "IdaHO ", "VULCAN", " FIJI ", " ArUbA" };
 #define XY_NUM_REWARDS 7
 char xyzzy_rewards[XY_NUM_REWARDS][7] =
-    { "HUmAn ", "StICk ", " PEbbL", "rAnCH ", "CASTLE", " YaCHT", "CHatEU" };
+    { "HUmAn ", " PEbbL", "StICk ", " YaCHT", "CHatEU", "rAnCH ", "CASTLE" };
+#define XY_NUM_ANIMALS 8
+char xyzzy_animals[XY_NUM_ANIMALS][7] =
+    { "Ea6LE ", "CHEEta", "rabbIt", "CHIPMU", " LEMUr", " PaNdA", "SLOtH ", "SLu6  " };
+uint16_t xyzzy_animal_times[XY_NUM_ANIMALS] =
+    { 390, 450, 510, 600, 690, 810, 960, 29999 };
+uint16_t xyzzy_best_times[XY_NUM_ANIMALS] =        // Different scale when considering high scores
+    { 210, 224, 238, 253, 270, 324, 432, 29999 };
 
 // Some arbitrary branch value for main path
 #define XY_MAIN_PATH 37
@@ -134,7 +141,7 @@ static void write_to_xyzzy_EEPROM(xyzzy_state_t *state) {
     uint8_t piece;   // The current 8-bit piece
 
     // 1st page
-    size = base + XY_MAX_PATH_LENGTH + ( XY_MAX_CODES * 3 ) + ( XY_MAX_BRANCHES * 2 ); // (55 bytes)
+    size = base + XY_MAX_PATH_LENGTH + ( XY_MAX_CODES * 3 ) + ( XY_MAX_BRANCHES * 2 ) + 1; // (56 bytes)
     offset = 0;
     output_array [  0 ] = XY_STORAGE_KEY_NUMBER;
     output_array [  1 ] = state->mode;
@@ -162,6 +169,8 @@ static void write_to_xyzzy_EEPROM(xyzzy_state_t *state) {
     index += XY_MAX_BRANCHES; // Advance to next array output start location
     for ( i = 0; i < XY_MAX_BRANCHES; i++ ) output_array [ index + i ] = state->locBranchEnd[i];
     index += XY_MAX_BRANCHES; // Advance to next array output start location
+    output_array [ index ] = state->lastAnimalIndex;
+    index++;
 
     // Erase full row before first write only
     watch_storage_erase ( XY_STORAGE_ROW );
@@ -238,7 +247,7 @@ static void read_from_xyzzy_EEPROM(xyzzy_state_t *state) {
     uint32_t bigNum;
 
     // Read 1st page
-    size = base + XY_MAX_PATH_LENGTH + ( XY_MAX_CODES * 3 ) + ( XY_MAX_BRANCHES * 2 ); // (55 bytes)
+    size = base + XY_MAX_PATH_LENGTH + ( XY_MAX_CODES * 3 ) + ( XY_MAX_BRANCHES * 2 ) + 1; // (56 bytes)
     offset = 0;
     watch_storage_read (XY_STORAGE_ROW, offset, stored_data, size);
     // See if data was ever written to EEPROM storage
@@ -269,6 +278,9 @@ static void read_from_xyzzy_EEPROM(xyzzy_state_t *state) {
         index += XY_MAX_BRANCHES; // Advance to next array output start location
         for ( i = 0; i < XY_MAX_BRANCHES; i++  )  state->locBranchEnd[i] = stored_data [ index + i ];
         index += XY_MAX_BRANCHES; // Advance to next array output start location
+        state->lastAnimalIndex = stored_data [ index ];
+        index++;
+        if ( state->lastAnimalIndex > XY_NUM_ANIMALS - 1 ) state->lastAnimalIndex = XY_NUM_ANIMALS - 1; 
 
         // Read 2nd page
         size = ( XY_MAX_THREATS * 6 ) + ( XY_MAX_BRANCHES * XY_MAX_BRANCH_LENGTH ); // (54 bytes)
@@ -329,6 +341,7 @@ static void read_from_xyzzy_EEPROM(xyzzy_state_t *state) {
         state->mode = XY_MODE_WAITING_TO_START;
         state->secretDestination = 0;
         state->secretItem = 0;
+        state->lastAnimalIndex = XY_NUM_ANIMALS - 1;
         for ( i = 0; i < XY_NUM_LEVELS; i++ ) {
             state->bestTime[i] = 0;
         }
@@ -355,18 +368,16 @@ static void xyzzy_gen_new_cave(xyzzy_state_t *state) {
     state->totalCodesSeen = 0;
     state->xyzzyKnown = 0;
     state->onMainPath = true;
-    state->brIndex = 0; // Not meaningful yet
+    state->brIndex = XY_MAIN_PATH;
     state->shortcutCounter = 0;
     state->tickCounter = 0;
     state->writePending = true;
-    state->secretDestination = gen_random_int ( 1, XY_NUM_COUNTRIES - 1 );
-    state->secretItem = gen_random_int ( 1, XY_NUM_REWARDS - 1 );
+    state->secretDestination = 1; // Now set at end of game
+    state->secretItem = 1; // Now set at end of game
     state->resetCounter = 0;
 
 // INITIALIZE CAVE
 
-    // Remember when this cave was generated - I.E. right now.
-    state->startTime = watch_utility_date_time_to_unix_time ( watch_rtc_get_date_time(), 0 );
     // Generate all paths at full length
     for ( i = 0; i < XY_MAX_PATH_LENGTH; i++ ) state->mainPath[i] = gen_random_int(0,1); // Main path
     for ( j = 0; j < XY_MAX_BRANCHES; j++ ) {
@@ -452,7 +463,7 @@ static void xyzzy_gen_new_cave(xyzzy_state_t *state) {
         done = false;
         while ( ! done ) {
             valOK = true;
-            newLoc = gen_random_int ( 2, maxBranchPoint );
+            newLoc = gen_random_int ( 1, maxBranchPoint );
             if ( newLoc == state->locXyzzy ) valOK = false;
             for ( j = 0; j < XY_MAX_BRANCHES; j++ ) {
                 if ( newLoc == state->locBranchPoint[j] ) valOK = false;
@@ -467,17 +478,16 @@ static void xyzzy_gen_new_cave(xyzzy_state_t *state) {
     for ( i = 0; i < numThreats; i++ ) {
         state->brItem[i] = i; // Simply assign one item per branch 
         // Usually place item right at end of branch+1 ( discover item AND dead end )
-        if ( gen_random_int ( 0, 2 ) != 1 ) {
+        if ( gen_random_int ( 0, 4 ) != 1 ) {
             state->locItem[i] = state->locBranchEnd[i] + 1; // Friendly
         } else {
             state->locItem[i] = state->locBranchEnd[i] - gen_random_int ( 0, 2 ); // Half friendly
-            state->locItem[i] = max ( state->locBranchPoint[i] + 2, state->locItem[i] ); // Safety
+            state->locItem[i] = max ( state->locBranchPoint[i] + 1, state->locItem[i] ); // Safety
         }
         // Place a threat at the front of this branch, if applicable
        if ( ( i + 1 ) < numThreats ) {
            state->brThreat[i+1] = i;
            state->locThreat[i+1] = gen_random_int ( state->locBranchPoint[i]+1, state->locItem[i]-1 );
-           state->locThreat[i+1] = max ( state->locBranchPoint[i]+1, state->locThreat[i+1] ); // Safety
        }
     }
     // Assign all locCodes to be at unique locations, and not at any branch path start.
@@ -513,7 +523,6 @@ static void xyzzy_gen_new_cave(xyzzy_state_t *state) {
         state->locCodes[1] = 6;
     }
 }
-
 
 // ---------------------------
 // Standard watch face methods
@@ -570,14 +579,12 @@ bool xyzzy_face_loop(movement_event_t event, movement_settings_t *settings, void
     bool userPickedRight = false; // During gameplay
     bool displayLocation = false;
     bool correctPick;   // Did user make 'correct' choice - advance further into cave
-    bool branchMatch = false; // There is a path branch at this location
     bool codeMatch = false;   // There is a keyword at this location
     bool valOK;
     uint8_t codeMatchIndex;   // Which keyword is at this location?
     uint16_t i;
     uint8_t j;
     uint8_t branchInd;   // Index when on a branch - starts at 0
-    uint8_t oldVal;
     uint32_t bigNum;
     bool jumpToXyzzy;	// Jump to xyzzy instead of entrance
     int8_t itemIndex;   // Index if item was found, or -1
@@ -595,6 +602,13 @@ bool xyzzy_face_loop(movement_event_t event, movement_settings_t *settings, void
     uint16_t days;
     uint8_t codePending[XY_MAX_CODES]; // Check user code entries
     bool codeEntryCompleted = false;   // Did user just finish entering a code?
+    bool done;
+    int8_t index;
+    uint32_t adjustedSolveTime; // For selecting animal
+    float adjustedSolveFloat;   // For selecting animal on best scores time list
+    uint16_t timeDelay;        // For display delays in milliseconds
+    uint8_t thisDest;
+    uint8_t thisItem;
 
     switch (event.event_type) {
         case EVENT_TICK:
@@ -604,25 +618,32 @@ bool xyzzy_face_loop(movement_event_t event, movement_settings_t *settings, void
             if ( state->mode == XY_MODE_WAITING_TO_START ) {
                 // While waiting, we display the high score list and other items until
                 // the user starts the next game.
-                if ( state->tickCounter == 1 ) {
+                if ( state->tickCounter == 1 ) {                                      // 'The'
                     watch_display_string ( " tHE  ", 4 );
-                } else if ( state->tickCounter == (int) (XY_TICK_FREQUENCY * 1.6) ) { // Blank space
+                } else if ( state->tickCounter == (int) (XY_TICK_FREQUENCY * 1.1) ) { // Blank space
                     watch_display_string ( "      ", 4 );
-                } else if ( state->tickCounter == XY_TICK_FREQUENCY * 2 ) { 
+                } else if ( state->tickCounter == (int) (XY_TICK_FREQUENCY * 1.3) ) {  // 'Cave'
                     watch_display_string ( "CAVE  ", 4 );
-                } else if ( state->tickCounter == (int) (XY_TICK_FREQUENCY * 5.9) ) { // Blank space
+                } else if ( state->tickCounter == (int) (XY_TICK_FREQUENCY * 4.0) ) { // Blank space
                     watch_display_string ( "      ", 4 );
-                } else if ( state->tickCounter == XY_TICK_FREQUENCY * 7 ) { // Show 'Enter ' or reward destination 
+                } else if ( state->tickCounter == (int) (XY_TICK_FREQUENCY * 4.3) ) { // Show last animal speed
+                    if ( state->secretDestination != 0 ) { 
+                        sprintf ( buf, "%s", xyzzy_animals[state->lastAnimalIndex] );
+                        watch_display_string ( buf, 4 );
+                    } else state->tickCounter = (int) ( XY_TICK_FREQUENCY *  6.6 ) - 1;
+                } else if ( state->tickCounter == (int) (XY_TICK_FREQUENCY * 6.4) ) { // Blank space
+                    watch_display_string ( "      ", 4 );
+                } else if ( state->tickCounter == (int) (XY_TICK_FREQUENCY * 6.6 ) ) { // Show 'Enter ' or reward destination 
                     sprintf ( buf, "%s", xyzzy_countries[state->secretDestination] );
                     watch_display_string ( buf, 4 );
-                } else if ( state->tickCounter == (int) (XY_TICK_FREQUENCY * 9.6) ) { // Blank space
+                } else if ( state->tickCounter == (int) (XY_TICK_FREQUENCY * 8.4) ) { // Blank space
                     watch_display_string ( "      ", 4 );
-                } else if ( state->tickCounter == XY_TICK_FREQUENCY * 10 ) { // Show 'Human ' or reward item
+                } else if ( state->tickCounter == (int) (XY_TICK_FREQUENCY * 8.6) ) { // Show 'Human ' or reward item
                     sprintf ( buf, "%s", xyzzy_rewards[state->secretItem] );
                     watch_display_string ( buf, 4 );
-                } else if ( state->tickCounter == (int) (XY_TICK_FREQUENCY * 12.6) ) { // Blank space
+                } else if ( state->tickCounter == (int) (XY_TICK_FREQUENCY * 10.4) ) { // Blank space
                     watch_display_string ( "      ", 4 );
-                } else if ( state->tickCounter >= XY_TICK_FREQUENCY * 14 ) state->tickCounter = 0;
+                } else if ( state->tickCounter >= (int) (XY_TICK_FREQUENCY * 10.7) ) state->tickCounter = 0;
             } else if ( state->mode == XY_MODE_TIME_DISPLAY ) {
                 if ( state->tickCounter == 1 ) { // Display the currently selected request
                     if ( state->tdSubLevel == 0 ) { // Beginning of a new level, ex: tiny level
@@ -674,6 +695,46 @@ bool xyzzy_face_loop(movement_event_t event, movement_settings_t *settings, void
                         state->tdSubLevel = 0;   // Advance to next level display
                         state->tdLevel++;
                         if ( state->tdLevel > XY_NUM_LEVELS ) {
+                            // All done time display except for overall animal speed
+                            // and version number
+                            // Based on actual play, set weighting of skill levels as
+                            // 1, 2 and 3 for tiny, standard and colossal respectively.  That is,
+                            // the colossal best time counts for half after everything considered.
+                            adjustedSolveFloat = (133.33*state->bestTime[0]) +
+                                                 ( 22.16*state->bestTime[1]) +
+                                                 ( 11.10*state->bestTime[2]);
+                            adjustedSolveFloat /= 22.20;	// Puts average time in colossal time frame.
+                            // Never completed levels have a time of zero. Compensate.
+                            for ( i = 0; i < XY_NUM_LEVELS; i++ ) {
+                                if ( state->bestTime[i]== 0 ) { 
+                                    adjustedSolveFloat += xyzzy_best_times [ XY_NUM_ANIMALS - 2 ] / 2.0; // Borderline worst.
+                                }
+                            }
+                            // We are assessing the average of the high-scores.
+                            adjustedSolveTime = adjustedSolveFloat + 0.5;
+                            done = false;
+                            index = 0;
+                            while ( ! done ) {
+                                if ( ( xyzzy_best_times[index] >= adjustedSolveTime ) ||
+                                     ( index >= XY_NUM_ANIMALS - 1 ) ) {
+                                    done = true;
+                                } else {
+                                    index++;
+                                }
+                            }
+                            watch_display_string ( " YOU  ", 4 );
+                            delay_ms ( 600 );
+                            watch_display_string ( " ArE  ", 4 );
+                            delay_ms ( 600 );
+                            if ( index != 0 ) {
+                                watch_display_string ( "   A  ", 4 );
+                            } else watch_display_string ( " An   ", 4 );
+                            delay_ms ( 600 );
+                            watch_display_string ( xyzzy_animals[index], 4 );
+                            delay_ms ( 2500 );
+                            sprintf ( buf, "%4ld%02ld", adjustedSolveTime/60, adjustedSolveTime%60 );
+                            watch_display_string ( buf, 4 );
+                            delay_ms ( 1500 );
                             state->mode = XY_MODE_WAITING_TO_START; // All done time display
                             sprintf ( buf, " vEr%2d", XY_VERSION_NUMBER );
                             watch_display_string ( buf, 4 );
@@ -796,6 +857,7 @@ bool xyzzy_face_loop(movement_event_t event, movement_settings_t *settings, void
             watch_display_string ( buf, 4 );
         } else if ( state->mode == XY_MODE_PLAYING ) {
             state->onMainPath = 1;
+            state->brIndex = XY_MAIN_PATH;
             state->xyzzyCounter = 0;
             displayLocation = true;
             if ( ( state->loc != state->locXyzzy ) && state->xyzzyKnown ) { // Jump to xyzzy location
@@ -809,7 +871,14 @@ bool xyzzy_face_loop(movement_event_t event, movement_settings_t *settings, void
     }
 
     if ( lightUpShort ) {
-        if ( state->mode == XY_MODE_LEVEL_SELECT ) {
+        if ( ( state->mode == XY_MODE_WAITING_TO_START ) ||
+             ( state->mode == XY_MODE_TIME_DISPLAY ) ) {
+            // Advance to level select menu
+            state->mode = XY_MODE_LEVEL_SELECT;
+            state->levelSelected = XY_NUM_LEVELS;  // Shows "SELECT"
+            sprintf ( buf, "%s", xyzzy_select_names[state->levelSelected] );
+            watch_display_string ( buf, 4 );
+        } else if ( state->mode == XY_MODE_LEVEL_SELECT ) {
             // User made a level selection
             if ( state->levelSelected != XY_NUM_LEVELS ) { // Ignore when menu says 'Select'
                 // NEW CAVE - NEW GAME
@@ -823,6 +892,8 @@ bool xyzzy_face_loop(movement_event_t event, movement_settings_t *settings, void
                 // The game is starting
                 state->mode = XY_MODE_PLAYING;
                 displayLocation = true;
+		// Remember when this cave was generated - I.E. right now.
+    		state->startTime = watch_utility_date_time_to_unix_time ( watch_rtc_get_date_time(), 0 );
             }
         } else if ( state->mode == XY_MODE_PLAYING ) {
             userPickedLeft = true;
@@ -836,6 +907,7 @@ bool xyzzy_face_loop(movement_event_t event, movement_settings_t *settings, void
     if ( alarmDownLong ) {
         if ( state->mode == XY_MODE_PLAYING ) {
             state->onMainPath = 1;
+            state->brIndex = XY_MAIN_PATH;
             state->xyzzyCounter = 0;
             displayLocation = true;
             if ( state->loc != 0 ) {
@@ -878,6 +950,14 @@ bool xyzzy_face_loop(movement_event_t event, movement_settings_t *settings, void
             if ( ( userPickedLeft  && ( state->mainPath[state->loc] == 0 ) ) ||
                  ( userPickedRight && ( state->mainPath[state->loc] == 1 ) ) ) {
                 correctPick = true;
+            } else { // Check for entry into branch
+                for ( i = 0; i < XY_MAX_BRANCHES; i++ ) {
+                    if ( state->loc == state->locBranchPoint[i] ) {
+                        correctPick = true;
+                        state->brIndex = i;
+                        state->onMainPath = false;
+                    }
+                }
             }
         } else { // On branches use relative index
             branchInd = state->loc - state->locBranchPoint[state->brIndex] - 1;
@@ -905,38 +985,30 @@ bool xyzzy_face_loop(movement_event_t event, movement_settings_t *settings, void
             bool bItem = false;
 
             if ( state->onMainPath ) {
-                if ( state->loc >= state->locMainPathEnd ) bFinalRoom = true;
+                if ( state->loc >= state->locMainPathEnd ) bFinalRoom = true; // Final room check
                 // No need to check deadEnd
-                threatIndex = -1;
-                for ( i = 0; i < XY_MAX_THREATS; i++ ) {
-                    if ( state->loc == state->locThreat[i] ) {
-                        if ( state->brThreat[i] == XY_MAIN_PATH ) {
-                            bThreat = true;
-                            threatIndex = i;
-                        }
-                    }
-                }
-                // No need to check item on main branch ( yet )
             } else {
                 // No need to check finalRoom
-                // Check for dead end
-                if ( state->loc > ( state->locBranchEnd[state->brIndex] ) ) bDeadEnd = true;
-                threatIndex = -1;
-                for ( i = 0; i < XY_MAX_THREATS; i++ ) {
-                    if ( ( state->loc == state->locThreat[i] ) && ( state->brIndex == state->brThreat[i] ) ) {
-                        bThreat = true;
-                        threatIndex = i;
-                    }
-                }
-                itemIndex = -1;
-                for ( i = 0; i < XY_MAX_THREATS; i++ ) { // Item match?
-                    if ( ( state->brIndex == state->brItem[i] ) && ( state->loc == state->locItem[i] ) ) {
-                        // Found an item!!
-                        itemIndex = i;
-                        bItem = true;
-                    }
+                if ( state->loc > ( state->locBranchEnd[state->brIndex] ) ) bDeadEnd = true; // Dead end check
+            }
+            // Threat check
+            threatIndex = -1;
+            for ( i = 0; i < XY_MAX_THREATS; i++ ) {
+                if ( ( state->loc == state->locThreat[i] ) && ( state->brIndex == state->brThreat[i] ) ) {
+                    bThreat = true;
+                    threatIndex = i;
                 }
             }
+            // Item check
+            itemIndex = -1;
+            for ( i = 0; i < XY_MAX_THREATS; i++ ) {
+                if ( ( state->brIndex == state->brItem[i] ) && ( state->loc == state->locItem[i] ) ) {
+                    // Found an item!!
+                    itemIndex = i;
+                    bItem = true;
+                }
+            }
+
             if ( bFinalRoom ) {  // Entering final room
                 watch_display_string ( " FINAL", 4 );
                 delay_ms ( 1500 );
@@ -973,13 +1045,16 @@ bool xyzzy_face_loop(movement_event_t event, movement_settings_t *settings, void
                 delay_ms ( 1000 );
                 watch_display_string ( " End  ", 4 );
                 delay_ms ( 1000 );
-                state->onMainPath = 1;
                 state->xyzzyCounter = 0;
                 if ( ( state->xyzzyKnown ) && ( state->locBranchPoint[state->brIndex] > state->locXyzzy ) ) {
                     // Return to xyzzy
                     state->loc = state->locXyzzy;
+                    state->onMainPath = 1;
+                    state->brIndex = XY_MAIN_PATH;
                 } else { // Return to entrance
                     state->loc = 0;
+                    state->onMainPath = 1;
+                    state->brIndex = XY_MAIN_PATH;
                 }
             }
             if ( bThreat ) {
@@ -1006,18 +1081,12 @@ bool xyzzy_face_loop(movement_event_t event, movement_settings_t *settings, void
                 } else { // Kicked back to entrance
                     state->loc = 0;
                     state->onMainPath = 1;
+                    state->brIndex = XY_MAIN_PATH;
                 }
             }
         } else { // User picked 'incorrectly'
-            branchMatch = false;
             codeMatch = false;
             if ( state->onMainPath ) {
-                for ( i = 0; i < XY_MAX_BRANCHES; i++ ) {
-                    if ( state->loc == state->locBranchPoint[i] ) {
-                        branchMatch = true;
-                        state->brIndex = i;
-                    }
-                }
                 for ( i = 0; i < state->numCodes; i++ ) {
                     if ( ( state->loc == state->locCodes[i] ) && state->onMainPath ) {
                         codeMatch = true;
@@ -1025,11 +1094,7 @@ bool xyzzy_face_loop(movement_event_t event, movement_settings_t *settings, void
                     }
                 }
             }
-            if ( branchMatch ) {
-                // Begin proceeding down other path
-                state->loc++;
-                state->onMainPath = false;
-            } else if ( codeMatch ) {
+            if ( codeMatch ) {
                 // Stay at this position, display code segment
                 if ( state->codesSeen[codeMatchIndex] == 0 ) {
                     state->totalCodesSeen++;
@@ -1058,6 +1123,7 @@ bool xyzzy_face_loop(movement_event_t event, movement_settings_t *settings, void
                     }
                 }
                 state->onMainPath = 1;
+                state->brIndex = XY_MAIN_PATH;
                 if ( jumpToXyzzy )  {
                      state->loc = state->locXyzzy;
                      state->xyzzyCounter++;
@@ -1089,61 +1155,108 @@ bool xyzzy_face_loop(movement_event_t event, movement_settings_t *settings, void
             delay_ms ( 1000 );
             displayLocation = true;
         } else {  // They did it - winner!
+
+            // Capture current time
             nowSeconds = watch_utility_date_time_to_unix_time ( watch_rtc_get_date_time(), 0 );
+            deltaSeconds = nowSeconds - state->startTime;
+            deltaSeconds -= 3;  // Exact allowance for "Final Room" message
+            state->lastSolveTime = deltaSeconds;
+
+            // Calculate animal speed-rating
+            done = false;
+            index = 0;
+            adjustedSolveTime = state->lastSolveTime;
+            // For easier levels, project time out to full-length game.
+            if ( state->levelSelected == 0 ) {
+                adjustedSolveTime *= 30;
+            } else if ( state->levelSelected == 1 ) {
+                adjustedSolveTime *= 3;
+            }
+            while ( ! done ) {
+                if ( ( xyzzy_animal_times[index] >= adjustedSolveTime ) ||
+                     ( index >= XY_NUM_ANIMALS - 1 ) ) {
+                    done = true;
+                } else {
+                    index++;
+                }
+            }
+            state->lastAnimalIndex = index;
+
+            // Calculate destination and item rewards. Better chances for better performance
+            state->secretDestination = 1; 
+            state->secretItem = 1; 
+            if ( state->lastAnimalIndex == 0 ) i = 3;
+            else if ( state->lastAnimalIndex <= 4 ) i = 2;
+            else i = 1;
+            for ( j = 0; j < i; j++ )
+            {
+                thisDest = gen_random_int ( 1, XY_NUM_COUNTRIES - 1 );
+                if ( thisDest > state->secretDestination ) state->secretDestination = thisDest;
+                thisItem = gen_random_int ( 1, XY_NUM_REWARDS - 1 );
+                if ( thisItem > state->secretItem ) state->secretItem = thisItem;
+            }
+
+            // End of game messages start here
             if ( state->totalCodesSeen > 0 ) {
                 watch_display_string ( "   YES  ", 2 );
                 delay_ms ( 1100 );
                 watch_display_string ( "      ", 4 );
                 delay_ms ( 200 );
             }
-            watch_display_string ( "  6AME  ", 2 );
-            delay_ms ( 1000 );
-            watch_display_string ( "      ", 4 );
-            delay_ms ( 200 );
-            watch_display_string ( "OvEr   ", 4 );
-            delay_ms ( 1000 );
-            watch_display_string ( "      ", 4 );
-            delay_ms ( 200 );
-            watch_clear_all_indicators ( );
-            watch_display_string ( " TELE ", 4 );
-            delay_ms ( 700 );
-            watch_display_string ( " POrt ", 4 );
-            delay_ms ( 700 );
-            watch_display_string ( "      ", 4 );
-            delay_ms ( 200 );
-            oldVal = 100;
-            for ( i = 0; i < 15; i++ ) {
-                do {
-                    j = gen_random_int ( 0, XY_NUM_TELEPORT - 1 );
-                } while ( j == oldVal );
-                oldVal = j;
-                watch_display_string ( teleportStrings[j], 4 );
-                delay_ms ( 100 );
+            if ( state->levelSelected > 0 ) {  // Hurry it up on easy mode.
+                watch_display_string ( "  6AME  ", 2 );
+                delay_ms ( 1000 );
+                watch_display_string ( "      ", 4 );
+                delay_ms ( 200 );
+                watch_display_string ( "OvEr   ", 4 );
+                delay_ms ( 1000 );
+                watch_display_string ( "      ", 4 );
+                delay_ms ( 200 );
             }
-            watch_display_string ( "      ", 4 );
-            delay_ms ( 350 );
-            watch_display_string ( " dESt ", 4 );
-            delay_ms ( 800 );
-            watch_display_string ( "      ", 4 );
-            delay_ms ( 1500 );
+            watch_clear_all_indicators ( );
+            timeDelay = 2500;
+            if ( state->levelSelected == 0 ) timeDelay = 800;  // Hurry it up on easy mode.
             sprintf ( buf, "%s", xyzzy_countries[state->secretDestination] );
             watch_display_string ( buf, 4 );
-            delay_ms ( 4000 );
+            delay_ms ( timeDelay );
             watch_display_string ( "      ", 4 );
-            delay_ms ( 300 );
-            watch_display_string ( " YOU  ", 4 );
-            delay_ms ( 800 );
-            watch_display_string ( " 6Et  ", 4 );
-            delay_ms ( 800 );
-            watch_display_string ( "      ", 4 );
-            delay_ms ( 600 );
+            delay_ms ( timeDelay / 10 );
             sprintf ( buf, "%s", xyzzy_rewards[state->secretItem] );
             watch_display_string ( buf, 4 );
-            delay_ms ( 2500 );
+            delay_ms ( timeDelay );
             watch_display_string ( "      ", 4 );
-            delay_ms ( 400 );
-            deltaSeconds = nowSeconds - state->startTime;
-            state->lastSolveTime = deltaSeconds;
+            delay_ms ( timeDelay / 10 );
+            // Check for big winner ( Aruba, Castle )
+            if ( ( state->secretDestination == ( XY_NUM_COUNTRIES - 1 ) ) &&
+                 ( state->secretItem == ( XY_NUM_REWARDS - 1 ) ) ) {
+                for ( i = 0; i < 3; i++ ) {
+                    watch_display_string ( " YES  ", 4 );
+                    delay_ms ( 400 );
+                    watch_display_string ( "      ", 4 );
+                    delay_ms ( 200 );
+                }
+                for ( i = 0; i < 3; i++ ) {
+                    watch_display_string ( "      ", 4 );
+                    delay_ms ( 250 );
+                    watch_display_string ( "HErO  ", 4 );
+                    delay_ms ( 700 );
+                }
+                delay_ms ( 500 );
+            }
+            // Check for big loser ( Mars, Yacht ) Worst combination
+            if ( ( state->secretDestination == 1 ) &&
+                 ( state->secretItem == 3 ) ) {
+                watch_display_string ( " LOSEr", 4 );
+                delay_ms ( 1500 );
+                for ( i = 0; i < 5; i++ ) {
+                    watch_display_string ( "HA    ", 4 );
+                    delay_ms ( 300 );
+                    watch_display_string ( "  HA  ", 4 );
+                    delay_ms ( 300 );
+                }
+                delay_ms ( 400 );  // Okay, enough torture. Continue to time display
+            }
+
             // Check for fastest run at this level
             if ( ( deltaSeconds < state->bestTime[state->levelSelected] ) || ( state->bestTime[state->levelSelected]==0 ) ) {
                 // New fastest time for at this cave size
@@ -1182,6 +1295,22 @@ bool xyzzy_face_loop(movement_event_t event, movement_settings_t *settings, void
             sprintf ( buf, "%4dSE", seconds );
             watch_display_string ( buf, 4 );
             delay_ms ( 2500 );
+            // Cap ultra-fast (easy) scores
+            if ( state->bestTime[state->levelSelected] < 6 ) {
+                state->bestTime[state->levelSelected] = 6;
+                watch_display_string ( "      ", 4 );
+                delay_ms ( 500 );
+                for ( i = 0; i < 12; i++ ) {
+                    sprintf ( buf, "%4ldSE", state->bestTime[state->levelSelected] );
+                    watch_display_string ( buf, 4 );
+                    delay_ms ( 250 );
+                    watch_display_string ( "      ", 4 );
+                    delay_ms ( 250 );
+                }
+            }
+            watch_display_string ( xyzzy_animals[state->lastAnimalIndex], 4 );
+            delay_ms ( 3500 );
+            watch_clear_all_indicators ( );  // Incorrect place is here, will re-introduce after debug.
             state->mode = XY_MODE_WAITING_TO_START;
             state->tickCounter = 0;
             displayLocation = false;
