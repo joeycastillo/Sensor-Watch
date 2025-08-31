@@ -50,13 +50,10 @@
 #define CREWS_COMPLIMENT 13
 // Granularity is divisions per foot - height display
 #define GRANUL 40
-#define GRANUL_GALACTICA 80
-#define GRANUL_CRINGEWORTHY_MIN 37
-#define GRANUL_CRINGEWORTHY_MAX 44
 // Next lines for repeat heroes only.
 #define PROMOTION_INTERVAL	3
 #define LEVEL_ACE 8
-#define LEVEL_STARBUCK 11
+#define LEVEL_SPENCER 11
 #define HARD_EARTH_INCREMENTS 11
 #define MAX_HARD_EARTH_CHANCE 6
 
@@ -65,7 +62,6 @@
 #define SPEED_FATALITY_NONE 26
 #define SPEED_NO_DAMAGE 21
 #define SPEED_LEVEL_INCREMENTS 2
-#define SPEED_LEVEL_INCREMENTS_GALACTICA 4
 #define SPEED_MAJOR_CRASH 73
 #define MAJOR_CRASH_INCREMENTS 65
 #define SPEED_INJURY_NONE 20
@@ -75,7 +71,7 @@
 #define FUEL_SCORE_GREAT 131
 #define FUEL_SCORE_FANTASTIC 125
 
-#define VERSION_NUMBER 13
+#define VERSION_NUMBER 19
 // Joey Castillo to oversee storage allocation row
 #define LANDER_STORAGE_ROW 2
 #define STORAGE_KEY_NUMBER 126
@@ -99,9 +95,6 @@ char lander_monster_names[MONSTER_TYPES][7] = {
 char lander_monster_actions[MONSTER_ACTIONS][7] = {
     "HUn6ry", "  EAtS", "6Reedy", "annoYd", "nASty ", "SAVOry", "HO66SH", " pI66Y"
 };
-
-bool Cringeworthy = true;
-bool Galactica = false;
 
 
 // --------------
@@ -170,18 +163,6 @@ static void lander_reset(lander_state_t *state) {
     state->start_month = 12;
 }
 
-// To transfer existing progress onto a different motherboard - hardcode here.
-static void lander_super_reset(lander_state_t *state) {  // Introduce in version 13b
-    state->pilot_rating = 232;
-    state->pilot_rating_highest = 249;
-    state->rating_overflow_count = 2;
-    state->game_counter = 1941;
-    state->start_year = 2024;
-    state->start_month = 10;
-    state->hero_counter = 20;
-    state->legend_counter = 13;
-    state->difficulty_level = 2;
-}
 
 // ---------------------------
 // Standard watch face methods
@@ -206,7 +187,6 @@ void lander_face_setup(movement_settings_t *settings, uint8_t watch_face_index, 
     watch_storage_read (LANDER_STORAGE_ROW, offset, stored_data, size);
     if ( ( stored_data[0] <= STORAGE_KEY_NUMBER ) &&
          ( stored_data[0] >= STORAGE_KEY_RATE_2000 ) )
-
     {
         state->hero_counter          = stored_data [1]; // There's real data in there.
         state->legend_counter        = stored_data [2];
@@ -245,7 +225,6 @@ void lander_face_setup(movement_settings_t *settings, uint8_t watch_face_index, 
         }
     }
     state->granularity = GRANUL;
-    if ( Galactica ) state->granularity = GRANUL_GALACTICA;
 }
 
 void lander_face_activate(movement_settings_t *settings, void *context) {
@@ -269,7 +248,7 @@ void lander_face_activate(movement_settings_t *settings, void *context) {
     }
     if ( state->hero_counter >= 100 ) sprintf ( buf, "Str%3d", state->hero_counter );
     else if ( state->hero_counter >= 40 ) sprintf ( buf, "Strb%2d", state->hero_counter );
-    else if ( state->hero_counter >= LEVEL_STARBUCK ) sprintf ( buf, "StrbUC" );
+    else if ( state->hero_counter >= LEVEL_SPENCER ) sprintf ( buf, "StrbUC" );
     else if ( state->hero_counter >= LEVEL_ACE ) sprintf ( buf, " ACE  " ); // This human is good
     else if ( state->difficulty_level == 0 ) sprintf ( buf, "     " );
     else sprintf ( buf, "%s", lander_difficulty_names[state->difficulty_level] );
@@ -372,14 +351,6 @@ bool lander_face_loop(movement_event_t event, movement_settings_t *settings, voi
                         state->tick_counter = 0;
                         state->mode = MODE_WAITING_TO_START;
                     }
-                    else if ( state->reset_counter == 11 ) {
-                        lander_super_reset(state);
-                        watch_display_string ( "  OvErrd", 2 );
-                        delay_ms(2000);
-                        watch_display_string ( "      ", 4 );
-                        state->tick_counter = 0;
-                        state->mode = MODE_WAITING_TO_START;
-                    }
                 }
                 // Wait until time for next display
                 if ( state->tick_counter >= ( 1 * LANDER_TICK_FREQUENCY ) ) {
@@ -394,16 +365,15 @@ bool lander_face_loop(movement_event_t event, movement_settings_t *settings, voi
                 if ( state->tick_counter == 1 ) {
                     // Calculate many attributes
                     // 1) Display touchdown speed - upper right, may get overwritten
-                    // 2) Check for major malfunction
-                    // 3) Check for major crash: bug, crater, vaporized (gone).
-                    // 4) Rank ship's health 0 to 8
-                    // 5) Calculate pilot ranking
-                    // 6) Special conditions: hero, stellar and Earth
-                    // 7) Crew fatalities and injuries
-                    // 8) Set fuel conservation indicators as appropriate
-                    // 9) Set coffee maker OK indicator as appropriate
-                    // 10) Green light if ship intact
-                    // 11) Set standard display if not preempted.
+                    // 2) Check for major crash: bug, crater, vaporized (gone).
+                    // 3) Rank ship's health 0 to 8
+                    // 4) Calculate pilot ranking
+                    // 5) Special conditions: hero, stellar and Earth
+                    // 6) Crew fatalities and injuries
+                    // 7) Set fuel conservation indicators as appropriate
+                    // 8) Set coffee maker OK indicator as appropriate
+                    // 9) Green light if ship intact
+                    // 10) Set standard display if not preempted.
 
                     bool shipDestroyed, stellarPilot, foundEarth, disableText;
                     int16_t actSpeed, adjSpeed, dispSpeed, tempSpeed, levelsDamage;
@@ -435,19 +405,7 @@ bool lander_face_loop(movement_event_t event, movement_settings_t *settings, voi
                     else if ( dispSpeed > 39 ) dispSpeed = dispSpeed / 10;
                     sprintf ( buf2, "%2d", dispSpeed );
                     watch_display_string ( buf2, 2 );
-                    // 2) Check for major malfunction
-                    if ( Cringeworthy ) {
-                        // Maybe blow up on otherwise safe landing
-                        if ( ( (adjSpeed==SPEED_NO_DAMAGE) && ( gen_random_int(1,5) == 2 ) ) ||
-                             ( (adjSpeed==SPEED_NO_DAMAGE-1) && ( gen_random_int(1,7) == 2 ) ) )
-                       {
-                           shipDestroyed = true;
-                           disableText = true;
-                           sprintf ( buf, " booM " );
-                           if ( fuel_score_adj <= FUEL_SCORE_FANTASTIC ) sprintf ( buf, "-booM-" );
-                       }
-                    }
-                    // 3) Check for major crash: bug, crater, vaporized (gone).
+                    // 2) Check for major crash: bug, crater, vaporized (gone).
                     if ( (!shipDestroyed) && adjSpeed >= SPEED_MAJOR_CRASH ) {
                         shipDestroyed = true;
                         disableText = true;
@@ -455,7 +413,7 @@ bool lander_face_loop(movement_event_t event, movement_settings_t *settings, voi
                         else if ( adjSpeed >= ( SPEED_MAJOR_CRASH + MAJOR_CRASH_INCREMENTS ) ) sprintf ( buf, " CrAtr" );
                         else sprintf ( buf, "   bU6" );
                     }
-                    // 4) Rank ship's health 0 to 8
+                    // 3) Rank ship's health 0 to 8
                     shipsHealth = -1;
                     if ( !shipDestroyed ) {
                         tempSpeed = adjSpeed + SPEED_LEVEL_INCREMENTS - 1;
@@ -465,17 +423,9 @@ bool lander_face_loop(movement_event_t event, movement_settings_t *settings, voi
                         shipsHealth = max ( shipsHealth, 0 );
                     }
                     state->ships_health = shipsHealth;    // Remember ships health
-                    shipsHealthDisp = shipsHealth;        // The same, except onboard Galactica
-                    if ( !shipDestroyed && Galactica ) {
-                        tempSpeed = adjSpeed +  SPEED_LEVEL_INCREMENTS_GALACTICA - 1;
-                        levelsDamage = (int) ( ( tempSpeed - SPEED_NO_DAMAGE ) / SPEED_LEVEL_INCREMENTS_GALACTICA );
-                        shipsHealthDisp = 5 - levelsDamage;
-                        shipsHealthDisp = min ( shipsHealthDisp, 5 );	// Keep between 0 and 5
-                        shipsHealthDisp = max ( shipsHealthDisp, 0 );
-                        if ( ( shipsHealthDisp == 5 ) && ( fuel_score_adj <= FUEL_SCORE_GOOD ) ) shipsHealthDisp = 6;
-                    }
+                    shipsHealthDisp = shipsHealth;
                     state->ships_health_disp = shipsHealthDisp;  // Remember ships displayed health
-                    // 5) Calculate pilot ranking
+                    // 4) Calculate pilot ranking
                     tempSpeed = actSpeed + SPEED_LEVEL_INCREMENTS - 1;
                     levelsDamage = (int) ( ( tempSpeed - ( SPEED_NO_DAMAGE - 8 ) ) / SPEED_LEVEL_INCREMENTS );
                     landing_points = 8 - levelsDamage;
@@ -506,7 +456,7 @@ bool lander_face_loop(movement_event_t event, movement_settings_t *settings, voi
                            watch_display_string("HI", 0);
                         }
                     }
-                    // 6) Special conditions: hero, stellar and Earth
+                    // 5) Special conditions: hero, stellar and Earth
                     if ( (shipsHealth >= 8) && ( fuel_score_adj <= FUEL_SCORE_FANTASTIC ) ) {  // A hero's landing!!
                         state->hero_counter++;
                         disableText = true; // Suppress usual ship and crew count status message
@@ -514,18 +464,18 @@ bool lander_face_loop(movement_event_t event, movement_settings_t *settings, voi
                         // Did we happen to find Earth?
                         // Two rule sets for finding Earth.  Alternate between easy and hard.
                         int16_t my_odds, temp;
-                        if ( state->legend_counter %2 == 0 ) my_odds = (int8_t) state->hero_counter - LEVEL_STARBUCK; // Easy
+                        if ( state->legend_counter %2 == 0 ) my_odds = (int8_t) state->hero_counter - LEVEL_SPENCER; // Easy
                         else {
-                            temp = ( state->hero_counter - LEVEL_STARBUCK ) + HARD_EARTH_INCREMENTS - 1;
+                            temp = ( state->hero_counter - LEVEL_SPENCER ) + HARD_EARTH_INCREMENTS - 1;
                             my_odds = temp / HARD_EARTH_INCREMENTS;
                             my_odds = min ( my_odds, MAX_HARD_EARTH_CHANCE );
                         }
-                        // Display odds in weekday region if positive value
+                        // Display odds in weekday region if positive value - overwrites touch-down speed
                         if ( my_odds > 0 ) {
                             char buff3 [ 3 ];
                             sprintf ( buff3, "%2d", my_odds );
                             watch_display_string ( buff3, 2 );
-                        } else watch_display_string ( "  ", 2 );
+                        }
                         // Check if we found Earth 
                         if ( my_odds >= gen_random_int ( 1, 200 ) ) {  // EARTH!!!!  The final objective.
                             // last chance to remind user which heroic landing this was prior
@@ -543,7 +493,7 @@ bool lander_face_loop(movement_event_t event, movement_settings_t *settings, voi
                         else {
                             if ( state->hero_counter==1 ) sprintf ( buf, "HErO  " );
                             else if ( state->hero_counter == LEVEL_ACE ) sprintf ( buf, " ACE  " );
-                            else if ( state->hero_counter == LEVEL_STARBUCK ) sprintf ( buf, "STrbUC" );
+                            else if ( state->hero_counter == LEVEL_SPENCER ) sprintf ( buf, "STrbUC" );
                             else if ( state->hero_counter>99 ) sprintf ( buf, "HEr%3d", state->hero_counter );
                             else sprintf ( buf, "HErO%2d", state->hero_counter );	// Typical case
                         }
@@ -553,7 +503,7 @@ bool lander_face_loop(movement_event_t event, movement_settings_t *settings, voi
                         // Write to EEPROM on resigning
                         state->write_pending=true;
                     }
-                    // 7) Crew fatalities and injuries
+                    // 6) Crew fatalities and injuries
                     if (!disableText) {
                         // Fatalies
                         probFatal = assignProb ( 0, 92, SPEED_FATALITY_NONE, SPEED_FATALITY_ALL, adjSpeed );
@@ -572,20 +522,20 @@ bool lander_face_loop(movement_event_t event, movement_settings_t *settings, voi
                         }
                         state->uninjured = CREWS_COMPLIMENT - fatalities - state->injured;
                     }
-                    // 8) Set fuel conservation indicators as appropriate
+                    // 7) Set fuel conservation indicators as appropriate
                     if ( shipsHealth >= 1 && ( fuel_score_adj <= FUEL_SCORE_FANTASTIC ) ) watch_set_indicator ( WATCH_INDICATOR_LAP );
                     if ( shipsHealth >= 1 && ( fuel_score_adj <= FUEL_SCORE_GREAT     ) ) watch_set_indicator ( WATCH_INDICATOR_24H );
                     if ( shipsHealth >= 1 && ( fuel_score_adj <= FUEL_SCORE_GOOD      ) ) watch_set_indicator ( WATCH_INDICATOR_PM );
-                    // 9) Set coffee maker OK indicator as appropriate
+                    // 8) Set coffee maker OK indicator as appropriate
                     if ( shipsHealth >= 5 || ( shipsHealth >= 0 && ( gen_random_int ( 0, 3 ) != 1 ) ) ){
                         watch_set_indicator ( WATCH_INDICATOR_SIGNAL );
                     }
-                    // 10) Green light if ship intact
+                    // 9) Green light if ship intact
                     if ( shipsHealth >= 8 ) {
                         watch_set_led_green ( );
                         state->led_active = true;
                     }
-                    // 11) Set standard display if not preempted.
+                    // 10) Set standard display if not preempted.
                     if (!disableText) {
                         if ( ( state->injured > 0 ) || ( state->uninjured == 0 ) ) {
                             sprintf ( buf, "%d %2d%2d",  shipsHealthDisp, state->uninjured, state->injured );
@@ -707,10 +657,9 @@ bool lander_face_loop(movement_event_t event, movement_settings_t *settings, voi
                 state->height = gen_random_int ( 131, 181 ) * 80;
                 // Per line below; see Mars Orbiter September 23, 1999
                 if ( gen_random_int ( 0, 8 ) == 5 ) state->height = gen_random_int ( 240, 800 ) * 80;
-                if ( Cringeworthy && ( gen_random_int ( 0, 88 ) == 5 ) ) state->height = gen_random_int ( 800, 1800 ) * 80;
-                state->speed = gen_random_int ( -120, 35 );		// Positive is up
+                state->speed = gen_random_int ( -120, 35 );     // Positive is up
                 state->gravity = gen_random_int ( -3, -2 ) * 2;	// negative downwards value
-                skill_level = gen_random_int ( 1, 4 );			// Precursor to fuel allocation
+                skill_level = gen_random_int ( 1, 4 );          // Precursor to fuel allocation
                 // Theoretical Perfect Landing (TPL) calculations start here.
                 myTime = (float) state->speed / (float) state->gravity;	// How long to reach this speed? Don't care which way sign is.
                 distToTop = fabs ( 0.5 * state->gravity * myTime * myTime );
@@ -730,9 +679,6 @@ bool lander_face_loop(movement_event_t event, movement_settings_t *settings, voi
                 state->fuel_remaining = state->fuel_start;
                 state->skill_level = skill_level;
                 state->tick_counter = 0;
-                if ( Cringeworthy ) {
-                    state->granularity = gen_random_int ( GRANUL_CRINGEWORTHY_MIN, GRANUL_CRINGEWORTHY_MAX );
-                }
                 // Early update to pilot ranking here to prevent cheating
                 if ( state->pilot_rating > 0 ) state->pilot_rating--;
                 state->pilot_rating = (int) ( state->pilot_rating * 0.9627 + 0.5 ); // Dec 2024 - even tougher! 
@@ -820,4 +766,3 @@ void lander_face_resign(movement_settings_t *settings, void *context) {
         state->write_pending=false;
     }
 }
-

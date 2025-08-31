@@ -28,65 +28,29 @@
 #include "movement.h"
 
 /*
- 
-My remake of a classic planet landing game.
 
-Objective: Safely land the Cringeworthy.
-Use your limited fuel supply to achieve a soft touch-down.
+A single button game to land your spacecraft on the planet Cringeworthy.
 
+Fuel supply is a moderate concern.
 
-*** START of stardard training manual ***
+Starting parameters are randomized each round:
+- fuel from 1 to 4. Shown at start of round. 4 is tight but doable.
+- height
+- initial speed
+- gravity. Only 2 choices, light (4 units/sec sq.) or heavy (6 units/sec sq.)
 
-Scenarios:
+Crew of 13, maximum ship's health is 8.
+Engine thrust acceleration is 11 units/sec sq., before gravity.
 
-Hero    They name this planet after you.
-8       Life is very cozy.
-7
-6
-5       Life is tolerable, plus some creature comforts.
-4       Six months to repair ship.
-3       Marooned.
-2
-1
-0       Ship destroyed. Life is harsh, no shelter. Giant hamsters are cute. **
-Bug     As in squished.
-Crater  They name this crater after you.
-Gone    As in vapourized.
+End of game displays
+"8 13  "   - a safe/perfect landing
+"5  7 4"   - ship damaged, 7 astronauts OK, 4 injured. ( Looks like you lost 2 )
 
-Landing display format:
-Ship's health, intact crewmen, injured crewmen.
+That's all most people need to know to play.
 
-Crew's compliment: 13.
-Low fuel warning icons: activates when 3 seconds of thrust remains.
-** Yes, hamsters are very cute. However; some eating of astronauts may occur.
+Don't be a hero.
 
-Starting velocity, height and gravity are randomized each scenario.
-Fuel levels randomly assigned from 1 to 4 (hardest) to match starting parameters.
-
-A safe landing is always possible.
-
-End of game icons:
-PM -  Good budgeting of fuel supply
-24H - Great budgeting of fuel supply
-LAP - Fantastic budgeting of fuel supply ( Required for heroic landing status. )
-SIGNAL - The combination coffee and tea maker survived
-
-Landings get progressively harder with the number of heroic landings made.
-
-Heroic
-Landings   Status
-     0     Normal
-     3     Hard   ( first difficulty increase )
-     6     Harder ( final difficulty increase )
-     8     Ace
-    11     ??????
-
-Successive long presses of the alarm button before the start of a mission will
-cycle through the pilot ranking screens
-
-Save yourself.  Save the coffee maker.
-
-*** END of standard training manual ***
+END OF BASICS
 
 */
 
@@ -137,74 +101,63 @@ void lander_face_resign(movement_settings_t *settings, void *context);
     NULL, \
 })
 
-#endif // LANDER_FACE_H_
 
 
+/*
 
+ADVANCED
 
+There is more for the hardcore players.
 
+You'll need a safe landing plus fuel.  Indicators:
+Good - PM
+Great - 24H
+Fantastic - LAP ( required for Hero status )
+Coffee maker survived - SIGNAL
 
+Touchdown speed shown in upper right corner.  In harsh landings where the
+speed exceeds 39, the displayed speed is reduced by a factor of 10.
+Ex. 187 = 18
 
+Scenarios:
 
+Hero    They name this planet after you.
+8       Life is very cozy.
+7
+6
+5       Life is tolerable, plus some creature comforts.
+4       Six months to repair ship.
+3       Marooned.
+2
+1
+0       Ship destroyed. Life is harsh, no shelter. Giant hamsters are cute. **
+Bug     As in squished.
+Crater  They name this crater after you.
+Gone    As in vapourized.
 
+Low fuel warning icons: activates when 3 seconds of thrust remains.
+** Yes, hamsters are very cute. However; some eating of astronauts may occur.
 
+Landings get progressively harder with the number of heroic landings made.
 
+Heroic
+Landings   Status
+     0     Normal
+     3     Hard   ( first difficulty increase )
+     6     Harder ( final difficulty increase )
+     8     Ace
+    11     ??????
 
+Successive long presses of the alarm button before the start of a mission will
+cycle through the pilot ranking screens
 
+Save yourself.  Save the coffee maker.
 
+Be a hero.
 
+END OF ADVANCED TIPS
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+*/
 
 
 /*
@@ -236,3 +189,6 @@ Find Earth. Save Humanity.
 *** END of legendary/dubious/veiled training manual ***
 
 */
+
+#endif // LANDER_FACE_H_
+
