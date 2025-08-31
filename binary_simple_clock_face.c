@@ -30,6 +30,7 @@
 
 
 #include <stdlib.h>
+#include <string.h>
 #include "binary_simple_clock_face.h"
 #include "watch.h"
 #include "watch_utility.h"
@@ -118,6 +119,7 @@ void binary_simple_clock_face_activate(movement_settings_t *settings, void *cont
 bool binary_simple_clock_face_loop(movement_event_t event, movement_settings_t *settings, void *context) {
     binary_simple_clock_state_t *state = (binary_simple_clock_state_t *)context;
     char buf[11];
+    char myName[7];
     uint8_t pos;
 
     watch_date_time date_time;
@@ -139,7 +141,7 @@ bool binary_simple_clock_face_loop(movement_event_t event, movement_settings_t *
                 // 2.2 volts will happen when the battery has maybe 5-10% remaining?
                 // we can refine this later.
 //              state->battery_low = (voltage < 2200);
-                state->battery_low = (voltage < 2700);
+                state->battery_low = (voltage < 2700); // Timelords may want to know sooner
             }
 
             // ...and set the LAP indicator if low.
@@ -193,9 +195,6 @@ bool binary_simple_clock_face_loop(movement_event_t event, movement_settings_t *
                         build_hours_string ( state, date_time.unit.hour );
                         build_minutes_string ( state, date_time.unit.minute );
                         sprintf ( buf, "%s%s", state->binary_hours_string, state->binary_minutes_string );
-                        // Low energy update, keep last two digits blank. - sort of wrong/weird. Removed Aug 2024.
-                        // buf [ 8 ] = ' ';
-                        // buf [ 9 ] = ' ';
                     }
                 } else {
                     if ( state->simple_mode )
@@ -222,6 +221,18 @@ bool binary_simple_clock_face_loop(movement_event_t event, movement_settings_t *
             state->previous_date_time = 0xFFFFFFFF; // Force a full refresh next second.
             if ( state->simple_mode ) watch_set_colon ();
             else watch_clear_colon ();
+            break;
+        case EVENT_LIGHT_LONG_PRESS:
+            strcpy ( myName, "" ); // Your name here.
+//          strcpy ( myName, "COOPEr" );
+            if ( strlen ( myName ) > 0 ) {
+                watch_clear_colon ();
+                watch_display_string ( myName, 4 ); // Your name here.
+                delay_ms ( 2000 );
+                state->previous_date_time = 0xFFFFFFFF; // Force a full refresh next second.
+                if ( state->simple_mode ) watch_set_colon ();
+                else watch_clear_colon ();
+            }
             break;
         case EVENT_BACKGROUND_TASK:
             // uncomment this line to snap back to the clock face when the hour signal sounds:
