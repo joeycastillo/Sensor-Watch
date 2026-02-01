@@ -31,6 +31,7 @@ const watch_face_t watch_faces[] = {
     simple_clock_face,
     tap_tempo_face,
     stebbs_face,
+    tiberium_face,
     preferences_face,
     set_time_face,
 };
