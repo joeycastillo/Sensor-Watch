@@ -124,6 +124,7 @@
 #include "metronome_face.h"
 #include "smallchess_face.h"
 #include "tap_tempo_face.h"
+#include "stebbs_face.h"
 // New includes go above this line.
 
 #endif // MOVEMENT_FACES_H_
