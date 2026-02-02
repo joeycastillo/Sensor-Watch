@@ -126,6 +126,7 @@
 #include "tap_tempo_face.h"
 #include "stebbs_face.h"
 #include "tiberium_face.h"
+#include "love_alarm_face.h"
 // New includes go above this line.
 
 #endif // MOVEMENT_FACES_H_
