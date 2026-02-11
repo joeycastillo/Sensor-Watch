@@ -128,6 +128,7 @@
 #include "tiberium_face.h"
 #include "love_alarm_face.h"
 #include "interval_chime_face.h"
+#include "melody_face.h"
 // New includes go above this line.
 
 #endif // MOVEMENT_FACES_H_

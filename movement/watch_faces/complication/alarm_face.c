@@ -26,6 +26,7 @@
 #include <string.h>
 
 #include "alarm_face.h"
+#include "melody_library.h"
 #include "watch.h"
 #include "watch_utility.h"
 #include "watch_private_display.h"
@@ -106,12 +107,27 @@ static void _alarm_face_draw(movement_settings_t *settings, alarm_state_t *state
     if (state->is_setting) {
     // draw pitch level indicator
         if ((subsecond % 2) == 0 || (state->setting_state != alarm_setting_idx_pitch)) {
-        for (i = 0; i <= state->alarm[state->alarm_idx].pitch && i < 3; i++)
-            watch_set_pixel(_buzzer_segdata[i][0], _buzzer_segdata[i][1]);
+        if (state->alarm[state->alarm_idx].pitch == 3) {
+            // melody mode: show bell indicator and all 3 pitch pixels
+            watch_set_indicator(WATCH_INDICATOR_BELL);
+            for (i = 0; i < 3; i++)
+                watch_set_pixel(_buzzer_segdata[i][0], _buzzer_segdata[i][1]);
+        } else {
+            watch_clear_indicator(WATCH_INDICATOR_BELL);
+            for (i = 0; i <= state->alarm[state->alarm_idx].pitch && i < 3; i++)
+                watch_set_pixel(_buzzer_segdata[i][0], _buzzer_segdata[i][1]);
+        }
     }
-        // draw beep rounds indicator
+        // draw beep rounds / melody indicator
         if ((subsecond % 2) == 0 || (state->setting_state != alarm_setting_idx_beeps)) {
-            if (state->alarm[state->alarm_idx].beeps == ALARM_MAX_BEEP_ROUNDS - 1)
+            if (state->alarm[state->alarm_idx].pitch == 3) {
+                // melody mode: show melody abbreviation character
+                uint8_t melody_idx = state->alarm[state->alarm_idx].beeps;
+                if (melody_idx < MELODY_NUM_TUNES)
+                    watch_display_character(melody_tunes[melody_idx].short_char, _blink_idx[alarm_setting_idx_beeps]);
+                else
+                    watch_display_character('0', _blink_idx[alarm_setting_idx_beeps]);
+            } else if (state->alarm[state->alarm_idx].beeps == ALARM_MAX_BEEP_ROUNDS - 1)
                 watch_display_character('L', _blink_idx[alarm_setting_idx_beeps]);
             else {
                 if (state->alarm[state->alarm_idx].beeps == 0)
@@ -187,8 +203,13 @@ static void _alarm_play_short_beep(uint8_t pitch_idx) {
 }
 
 static void _alarm_indicate_beep(alarm_state_t *state) {
-    // play an example for the current beep setting
-    if (state->alarm[state->alarm_idx].beeps == 0) {
+    if (state->alarm[state->alarm_idx].pitch == 3) {
+        // melody mode: play a short preview of the selected melody
+        uint8_t melody_idx = state->alarm[state->alarm_idx].beeps;
+        if (melody_idx < MELODY_NUM_TUNES) {
+            watch_buzzer_play_sequence((int8_t *)melody_tunes[melody_idx].sequence, NULL);
+        }
+    } else if (state->alarm[state->alarm_idx].beeps == 0) {
         // short double beep
         _alarm_play_short_beep(state->alarm[state->alarm_idx].pitch);
     } else {
@@ -347,16 +368,27 @@ bool alarm_face_loop(movement_event_t event, movement_settings_t *settings, void
                 state->alarm[state->alarm_idx].minute = (state->alarm[state->alarm_idx].minute + 1) % 60;
                 break;
             case alarm_setting_idx_pitch:
-                // pitch level
-                state->alarm[state->alarm_idx].pitch = (state->alarm[state->alarm_idx].pitch + 1) % 3;
+                // pitch level: 0-2 = beep pitches, 3 = melody mode
+                state->alarm[state->alarm_idx].pitch = (state->alarm[state->alarm_idx].pitch + 1) % 4;
+                if (state->alarm[state->alarm_idx].pitch == 3) {
+                    // entering melody mode: clamp beeps to valid melody index
+                    if (state->alarm[state->alarm_idx].beeps >= MELODY_NUM_TUNES)
+                        state->alarm[state->alarm_idx].beeps = 0;
+                }
                 // play sound to show user what this is for
                 _alarm_indicate_beep(state);
                 break;
             case alarm_setting_idx_beeps:
-                // number of beeping rounds selection
-                state->alarm[state->alarm_idx].beeps = (state->alarm[state->alarm_idx].beeps + 1) % ALARM_MAX_BEEP_ROUNDS;
-                // play sounds when user reaches 'short' length and also one time on regular beep length
-                if (state->alarm[state->alarm_idx].beeps <= 1) _alarm_indicate_beep(state);
+                if (state->alarm[state->alarm_idx].pitch == 3) {
+                    // melody mode: cycle through available melodies
+                    state->alarm[state->alarm_idx].beeps = (state->alarm[state->alarm_idx].beeps + 1) % MELODY_NUM_TUNES;
+                    _alarm_indicate_beep(state);
+                } else {
+                    // number of beeping rounds selection
+                    state->alarm[state->alarm_idx].beeps = (state->alarm[state->alarm_idx].beeps + 1) % ALARM_MAX_BEEP_ROUNDS;
+                    // play sounds when user reaches 'short' length and also one time on regular beep length
+                    if (state->alarm[state->alarm_idx].beeps <= 1) _alarm_indicate_beep(state);
+                }
                 break;
             default:
                 break;
@@ -399,7 +431,16 @@ bool alarm_face_loop(movement_event_t event, movement_settings_t *settings, void
         break;
     case EVENT_BACKGROUND_TASK:
         // play alarm
-        if (state->alarm[state->alarm_playing_idx].beeps == 0) {
+        if (state->alarm[state->alarm_playing_idx].pitch == 3) {
+            // melody mode: play the selected melody
+            uint8_t melody_idx = state->alarm[state->alarm_playing_idx].beeps;
+            if (melody_idx < MELODY_NUM_TUNES) {
+                if (!watch_is_buzzer_or_led_enabled()) {
+                    watch_enable_buzzer();
+                }
+                watch_buzzer_play_sequence((int8_t *)melody_tunes[melody_idx].sequence, NULL);
+            }
+        } else if (state->alarm[state->alarm_playing_idx].beeps == 0) {
             // short beep
             if (watch_is_buzzer_or_led_enabled()) {
                 _alarm_play_short_beep(state->alarm[state->alarm_playing_idx].pitch);
@@ -411,7 +452,7 @@ bool alarm_face_loop(movement_event_t event, movement_settings_t *settings, void
             }
         } else {
             // regular alarm beeps
-            movement_play_alarm_beeps((state->alarm[state->alarm_playing_idx].beeps == (ALARM_MAX_BEEP_ROUNDS - 1) ? 20 : state->alarm[state->alarm_playing_idx].beeps), 
+            movement_play_alarm_beeps((state->alarm[state->alarm_playing_idx].beeps == (ALARM_MAX_BEEP_ROUNDS - 1) ? 20 : state->alarm[state->alarm_playing_idx].beeps),
                                   _buzzer_notes[state->alarm[state->alarm_playing_idx].pitch]);
         }
         // one time alarm? -> erase it

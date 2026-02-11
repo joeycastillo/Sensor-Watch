@@ -153,7 +153,9 @@ SRCS += \
   ../watch_faces/complication/stebbs_face.c \
   ../watch_faces/complication/tiberium_face.c \
   ../watch_faces/complication/love_alarm_face.c \
-  ../watch_faces/complication/interval_chime_face.c
+  ../watch_faces/complication/interval_chime_face.c \
+  ../watch_faces/complication/melody_library.c \
+  ../watch_faces/complication/melody_face.c
 # New watch faces go above this line.
 
 # Leave this line at the bottom of the file; it has all the targets for making your project.

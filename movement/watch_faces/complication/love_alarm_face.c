@@ -71,7 +71,7 @@ static const int8_t _gambler_melody[] = {
     BUZZER_NOTE_REST, 16,
 
     // Repeat once more
-    -46, 1,
+   // -46, 1,
 
     // End
     0

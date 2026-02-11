@@ -84,8 +84,8 @@ void day_one_face_setup(movement_settings_t *settings, uint8_t watch_face_index,
             // if birth date is totally blank, set a reasonable starting date. this works well for anyone under 63, but
             // you can keep pressing to go back to 1900; just pass the year 2080. also picked this date because if you
             // set it to 1959-01-02, it counts up from the launch of Luna-1, the first spacecraft to leave the well.
-            movement_birthdate.bit.year = 1959;
-            movement_birthdate.bit.month = 1;
+            movement_birthdate.bit.year = 1989;
+            movement_birthdate.bit.month = 11;
             movement_birthdate.bit.day = 1;
             watch_store_backup_data(movement_birthdate.reg, 2);
         }

@@ -29,13 +29,26 @@
 
 const watch_face_t watch_faces[] = {
     simple_clock_face,
-    interval_chime_face,
-    tap_tempo_face,
     stebbs_face,
-    tiberium_face,
-    love_alarm_face,
+    sunrise_sunset_face,
+    moon_phase_face,
+    day_night_percentage_face,
+    day_one_face,
+    alarm_face,
+    interval_chime_face,
+    stock_stopwatch_face,
+    countdown_face,
+    tally_face,
+    toss_up_face,
+    tap_tempo_face,
+    melody_face,
+    butterfly_game_face,
+    endless_runner_face,
+    wyoscan_face,
     preferences_face,
     set_time_face,
+
+
 };
 
 #define MOVEMENT_NUM_FACES (sizeof(watch_faces) / sizeof(watch_face_t))
@@ -70,7 +83,7 @@ const watch_face_t watch_faces[] = {
  * 2: 5 minutes
  * 3: 30 minutes
  */
-#define MOVEMENT_DEFAULT_TIMEOUT_INTERVAL 0
+#define MOVEMENT_DEFAULT_TIMEOUT_INTERVAL 2
 
 /* Set the timeout before switching to low energy mode
  * Valid values are:
@@ -92,6 +105,6 @@ const watch_face_t watch_faces[] = {
  * 2: 3 seconds
  * 3: 5 seconds
  */
-#define MOVEMENT_DEFAULT_LED_DURATION 1
+#define MOVEMENT_DEFAULT_LED_DURATION 2
 
 #endif // MOVEMENT_CONFIG_H_
