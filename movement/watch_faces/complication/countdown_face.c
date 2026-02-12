@@ -31,7 +31,8 @@
 #include "watch_utility.h"
 
 #define CD_SELECTIONS 3
-#define DEFAULT_MINUTES 3
+#define DEFAULT_MINUTES 0
+#define DEFAULT_SECONDS 30
 
 static bool quick_ticks_running;
 
@@ -192,6 +193,7 @@ void countdown_face_setup(movement_settings_t *settings, uint8_t watch_face_inde
         countdown_state_t *state = (countdown_state_t *)*context_ptr;
         memset(*context_ptr, 0, sizeof(countdown_state_t));
         state->minutes = DEFAULT_MINUTES;
+        state->seconds = DEFAULT_SECONDS;
         state->mode = cd_reset;
         state->watch_face_index = watch_face_index;
         store_countdown(state);

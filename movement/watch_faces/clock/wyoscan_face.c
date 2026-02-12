@@ -122,8 +122,15 @@ bool wyoscan_face_loop(movement_event_t event, movement_settings_t *settings, vo
                 state->end = 0;
                 state->animation = 0;
                 state->animate = true;
-                state->time_digits[0] = date_time.unit.hour / 10;
-                state->time_digits[1] = date_time.unit.hour % 10;
+                {
+                    uint8_t hour = date_time.unit.hour;
+                    if (!settings->bit.clock_mode_24h) {
+                        hour = hour % 12;
+                        if (hour == 0) hour = 12;
+                    }
+                    state->time_digits[0] = hour / 10;
+                    state->time_digits[1] = hour % 10;
+                }
                 state->time_digits[2] = date_time.unit.minute / 10;
                 state->time_digits[3] = date_time.unit.minute % 10;
                 state->time_digits[4] = date_time.unit.second / 10;

@@ -60,34 +60,67 @@ static const int8_t _gambler_sequence[] = {
     0 // end
 };
 
-// --- Melody 2: "Who Wants to Be a Millionaire" - rising tension motif ---
+// --- Melody 2: "Who Wants to Be a Millionaire" - tension sting ---
+// Transcribed from MIDI (milli.mid track 1), 0.7x tempo
 static const int8_t _millionaire_sequence[] = {
-    BUZZER_NOTE_F5, 22,
-    BUZZER_NOTE_REST, 4,
-    BUZZER_NOTE_G5, 22,
-    BUZZER_NOTE_REST, 4,
-    BUZZER_NOTE_G5SHARP_A5FLAT, 20,
-    BUZZER_NOTE_REST, 4,
+    // Phrase 1: G5, pause, F5 F5, dramatic pause
+    BUZZER_NOTE_G5, 9,
+    BUZZER_NOTE_REST, 18,
+    BUZZER_NOTE_F5, 9,
+    BUZZER_NOTE_F5, 9,
+    BUZZER_NOTE_REST, 46,
 
-    BUZZER_NOTE_F5, 18,
-    BUZZER_NOTE_REST, 3,
-    BUZZER_NOTE_G5, 16,
-    BUZZER_NOTE_REST, 3,
-    BUZZER_NOTE_G5SHARP_A5FLAT, 8,
-    BUZZER_NOTE_REST, 2,
-    BUZZER_NOTE_A5SHARP_B5FLAT, 8,
-    BUZZER_NOTE_REST, 2,
+    // F5-G5-G#5 ascending
+    BUZZER_NOTE_F5, 9,
+    BUZZER_NOTE_REST, 9,
+    BUZZER_NOTE_G5, 9,
+    BUZZER_NOTE_REST, 9,
+    BUZZER_NOTE_G5SHARP_A5FLAT, 9,
+    BUZZER_NOTE_REST, 9,
 
-    BUZZER_NOTE_C6, 40,
-    BUZZER_NOTE_REST, 6,
+    // Phrase 2: G5, pause, F5 F5, dramatic pause
+    BUZZER_NOTE_G5, 9,
+    BUZZER_NOTE_REST, 18,
+    BUZZER_NOTE_F5, 9,
+    BUZZER_NOTE_F5, 9,
+    BUZZER_NOTE_REST, 46,
 
-    BUZZER_NOTE_A5SHARP_B5FLAT, 6,
-    BUZZER_NOTE_REST, 2,
-    BUZZER_NOTE_G5SHARP_A5FLAT, 6,
-    BUZZER_NOTE_REST, 2,
-    BUZZER_NOTE_G5, 14,
-    BUZZER_NOTE_REST, 1,
-    BUZZER_NOTE_F5, 22,
+    // Escalating: 3 ascending triplets + Bb5-C6 climax
+    BUZZER_NOTE_F5, 9,
+    BUZZER_NOTE_REST, 9,
+    BUZZER_NOTE_G5, 9,
+    BUZZER_NOTE_REST, 9,
+    BUZZER_NOTE_G5SHARP_A5FLAT, 9,
+    BUZZER_NOTE_REST, 9,
+
+    BUZZER_NOTE_F5, 9,
+    BUZZER_NOTE_REST, 18,
+    BUZZER_NOTE_G5, 9,
+    BUZZER_NOTE_REST, 18,
+    BUZZER_NOTE_G5SHARP_A5FLAT, 9,
+    BUZZER_NOTE_REST, 9,
+
+    BUZZER_NOTE_F5, 9,
+    BUZZER_NOTE_REST, 9,
+    BUZZER_NOTE_G5, 9,
+    BUZZER_NOTE_REST, 9,
+    BUZZER_NOTE_G5SHARP_A5FLAT, 9,
+    BUZZER_NOTE_REST, 9,
+    BUZZER_NOTE_A5SHARP_B5FLAT, 9,
+    BUZZER_NOTE_REST, 9,
+    BUZZER_NOTE_C6, 9,
+    BUZZER_NOTE_REST, 55,
+
+    // Trickle down
+    BUZZER_NOTE_C6SHARP_D6FLAT, 9,
+    BUZZER_NOTE_C6, 9,
+    BUZZER_NOTE_G5SHARP_A5FLAT, 9,
+    BUZZER_NOTE_F5, 9,
+    BUZZER_NOTE_B5, 9,
+    BUZZER_NOTE_A5SHARP_B5FLAT, 9,
+    BUZZER_NOTE_G5SHARP_A5FLAT, 9,
+    BUZZER_NOTE_F5, 9,
+    BUZZER_NOTE_C5, 30,
 
     BUZZER_NOTE_REST, 16,
 
@@ -211,44 +244,25 @@ static const int8_t _tetris_sequence[] = {
 };
 
 // --- Melody 5: Jeopardy Think Music ---
+// Transcribed from MIDI: opening phrase (C5-F5 bounce + descending run)
 static const int8_t _jeopardy_sequence[] = {
-    BUZZER_NOTE_A3SHARP_B3FLAT, 12,
-    BUZZER_NOTE_REST, 2,
-    BUZZER_NOTE_D4SHARP_E4FLAT, 12,
-    BUZZER_NOTE_REST, 2,
-    BUZZER_NOTE_A3SHARP_B3FLAT, 12,
-    BUZZER_NOTE_REST, 2,
-    BUZZER_NOTE_D4SHARP_E4FLAT, 12,
-    BUZZER_NOTE_REST, 2,
-
-    BUZZER_NOTE_A3SHARP_B3FLAT, 12,
-    BUZZER_NOTE_REST, 2,
-    BUZZER_NOTE_F4, 12,
-    BUZZER_NOTE_REST, 2,
-    BUZZER_NOTE_D4, 26,
-    BUZZER_NOTE_REST, 4,
-
-    BUZZER_NOTE_A3SHARP_B3FLAT, 12,
-    BUZZER_NOTE_REST, 2,
-    BUZZER_NOTE_D4SHARP_E4FLAT, 12,
-    BUZZER_NOTE_REST, 2,
-    BUZZER_NOTE_A3SHARP_B3FLAT, 12,
-    BUZZER_NOTE_REST, 2,
-    BUZZER_NOTE_D4SHARP_E4FLAT, 12,
-    BUZZER_NOTE_REST, 2,
-
-    BUZZER_NOTE_F4, 14,
-    BUZZER_NOTE_REST, 2,
-
-    BUZZER_NOTE_D4SHARP_E4FLAT, 10,
-    BUZZER_NOTE_REST, 2,
-    BUZZER_NOTE_D4, 10,
-    BUZZER_NOTE_REST, 2,
-    BUZZER_NOTE_C4, 10,
-    BUZZER_NOTE_REST, 2,
-    BUZZER_NOTE_A3SHARP_B3FLAT, 10,
-    BUZZER_NOTE_REST, 2,
-    BUZZER_NOTE_A3, 28,
+    BUZZER_NOTE_C5, 29,
+    BUZZER_NOTE_F5, 29,
+    BUZZER_NOTE_C5, 29,
+    BUZZER_NOTE_F4, 29,
+    BUZZER_NOTE_C5, 29,
+    BUZZER_NOTE_F5, 29,
+    BUZZER_NOTE_C5, 57,
+    BUZZER_NOTE_C5, 29,
+    BUZZER_NOTE_F5, 29,
+    BUZZER_NOTE_C5, 29,
+    BUZZER_NOTE_F5, 29,
+    BUZZER_NOTE_A5, 43,
+    BUZZER_NOTE_G5, 14,
+    BUZZER_NOTE_F5, 14,
+    BUZZER_NOTE_E5, 14,
+    BUZZER_NOTE_D5, 14,
+    BUZZER_NOTE_C5, 57,
 
     BUZZER_NOTE_REST, 16,
 
@@ -256,34 +270,100 @@ static const int8_t _jeopardy_sequence[] = {
 };
 
 // --- Melody 6: Nickelodeon Jingle ---
+// Transcribed from MIDI, transposed up 1 octave
 static const int8_t _nickelodeon_sequence[] = {
-    BUZZER_NOTE_G4, 8,
-    BUZZER_NOTE_REST, 4,
-    BUZZER_NOTE_G4, 8,
-    BUZZER_NOTE_REST, 4,
-    BUZZER_NOTE_G4, 8,
-    BUZZER_NOTE_REST, 4,
-    BUZZER_NOTE_G4, 8,
+    BUZZER_NOTE_C5,   9,
+    BUZZER_NOTE_C5,   9,
+    BUZZER_NOTE_REST, 9,
+    BUZZER_NOTE_C5,   9,
+    BUZZER_NOTE_REST, 9,
+    BUZZER_NOTE_G4,   9,
+    BUZZER_NOTE_REST, 9,
+    BUZZER_NOTE_G4,   9,
+    BUZZER_NOTE_C5,   9,
+    BUZZER_NOTE_REST, 9,
+    BUZZER_NOTE_E5,   9,
+    BUZZER_NOTE_REST, 9,
+    BUZZER_NOTE_C5,   9,
+    BUZZER_NOTE_REST, 26,
+    BUZZER_NOTE_A4,   9,
+    BUZZER_NOTE_REST, 9,
+    BUZZER_NOTE_A4,   9,
+    BUZZER_NOTE_REST, 9,
+    BUZZER_NOTE_B4,   9,
+    BUZZER_NOTE_REST, 9,
+    BUZZER_NOTE_B4,   9,
+    BUZZER_NOTE_C5,   79,
+
+    BUZZER_NOTE_REST, 16,
+
+    0 // end
+};
+
+// --- Melody 7: Carmen Sandiego Theme ---
+// Transcribed from MIDI (newcarmen.mid)
+static const int8_t _carmen_sequence[] = {
+    // Opening riff: da-da, DAH-DAH-DAH-DAH-DUH
+    BUZZER_NOTE_C4SHARP_D4FLAT, 6,
+    BUZZER_NOTE_REST, 6,
+    BUZZER_NOTE_C4SHARP_D4FLAT, 6,
+    BUZZER_NOTE_REST, 6,
+    BUZZER_NOTE_A4SHARP_B4FLAT, 6,
+    BUZZER_NOTE_REST, 6,
+    BUZZER_NOTE_A4SHARP_B4FLAT, 6,
+    BUZZER_NOTE_REST, 6,
+    BUZZER_NOTE_A4SHARP_B4FLAT, 6,
+    BUZZER_NOTE_REST, 6,
+    BUZZER_NOTE_A4SHARP_B4FLAT, 6,
+    BUZZER_NOTE_B4, 6,
+    BUZZER_NOTE_REST, 24,
+
+    // Response: B4 triplet into descending run
+    BUZZER_NOTE_B4, 6,
+    BUZZER_NOTE_REST, 6,
+    BUZZER_NOTE_B4, 6,
+    BUZZER_NOTE_REST, 6,
+    BUZZER_NOTE_G4SHARP_A4FLAT, 6,
+    BUZZER_NOTE_REST, 6,
+    BUZZER_NOTE_F4SHARP_G4FLAT, 6,
+    BUZZER_NOTE_REST, 6,
+    BUZZER_NOTE_G4SHARP_A4FLAT, 6,
+    BUZZER_NOTE_REST, 6,
+    BUZZER_NOTE_F4SHARP_G4FLAT, 6,
+
+    // High point + descent
+    BUZZER_NOTE_C5SHARP_D5FLAT, 6,
+    BUZZER_NOTE_REST, 12,
+    BUZZER_NOTE_A4SHARP_B4FLAT, 6,
+    BUZZER_NOTE_REST, 6,
+    BUZZER_NOTE_G4SHARP_A4FLAT, 6,
+    BUZZER_NOTE_REST, 6,
+    BUZZER_NOTE_F4SHARP_G4FLAT, 6,
     BUZZER_NOTE_REST, 6,
 
-    BUZZER_NOTE_E4, 6,
-    BUZZER_NOTE_REST, 1,
-    BUZZER_NOTE_G4, 8,
-    BUZZER_NOTE_REST, 4,
-    BUZZER_NOTE_A4, 8,
-    BUZZER_NOTE_REST, 4,
-    BUZZER_NOTE_G4, 12,
-    BUZZER_NOTE_REST, 10,
+    // Bridge: F#4 settle into G#4
+    BUZZER_NOTE_F4SHARP_G4FLAT, 6,
+    BUZZER_NOTE_REST, 18,
+    BUZZER_NOTE_F4SHARP_G4FLAT, 6,
+    BUZZER_NOTE_REST, 6,
+    BUZZER_NOTE_F4SHARP_G4FLAT, 6,
+    BUZZER_NOTE_REST, 6,
+    BUZZER_NOTE_G4SHARP_A4FLAT, 6,
+    BUZZER_NOTE_REST, 18,
+    BUZZER_NOTE_G4SHARP_A4FLAT, 6,
+    BUZZER_NOTE_REST, 18,
 
-    BUZZER_NOTE_C5, 10,
-    BUZZER_NOTE_REST, 2,
-    BUZZER_NOTE_C5, 10,
-    BUZZER_NOTE_REST, 2,
-    BUZZER_NOTE_E5, 10,
-    BUZZER_NOTE_REST, 2,
-    BUZZER_NOTE_E5, 10,
-    BUZZER_NOTE_REST, 2,
-    BUZZER_NOTE_F5, 26,
+    // Bass ending
+    BUZZER_NOTE_E2, 6,
+    BUZZER_NOTE_REST, 6,
+    BUZZER_NOTE_E2, 6,
+    BUZZER_NOTE_REST, 6,
+    BUZZER_NOTE_E2, 6,
+    BUZZER_NOTE_REST, 6,
+    BUZZER_NOTE_E2, 6,
+    BUZZER_NOTE_F2SHARP_G2FLAT, 6,
+    BUZZER_NOTE_REST, 6,
+    BUZZER_NOTE_F2SHARP_G2FLAT, 6,
 
     BUZZER_NOTE_REST, 16,
 
@@ -298,4 +378,5 @@ const melody_tune_t melody_tunes[MELODY_NUM_TUNES] = {
     { "      tEtrIS", 12, 'T', _tetris_sequence },
     { "      JPRDY ", 12, 'J', _jeopardy_sequence },
     { "      nICk  ", 12, 'N', _nickelodeon_sequence },
+    { "      CARMN ", 12, 'C', _carmen_sequence },
 };

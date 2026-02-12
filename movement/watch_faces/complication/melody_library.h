@@ -34,7 +34,7 @@ typedef struct {
     const int8_t *sequence;        // buzzer note sequence (terminated with 0)
 } melody_tune_t;
 
-#define MELODY_NUM_TUNES 6
+#define MELODY_NUM_TUNES 7
 
 extern const melody_tune_t melody_tunes[MELODY_NUM_TUNES];
 
