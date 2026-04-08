@@ -30,10 +30,12 @@
 
 #include "filesystem.h"
 #include "watch.h"
+#include "thermistor_driver.h"
 
 static int help_cmd(int argc, char *argv[]);
 static int flash_cmd(int argc, char *argv[]);
 static int stress_cmd(int argc, char *argv[]);
+static int thermistor_cmd_read(int argc, char *argv[]);
 
 shell_command_t g_shell_commands[] = {
     {
@@ -106,6 +108,13 @@ shell_command_t g_shell_commands[] = {
         .max_args = 2,
         .cb = stress_cmd,
     },
+    {
+        .name = "temp",
+        .help = "read thermistor temperature",
+        .min_args = 0,
+        .max_args = 0,
+        .cb = thermistor_cmd_read,
+    },
 };
 
 const size_t g_num_shell_commands = sizeof(g_shell_commands) / sizeof(shell_command_t);
@@ -161,5 +170,17 @@ static int stress_cmd(int argc, char *argv[]) {
         }
     }
 
+    return 0;
+}
+
+static int thermistor_cmd_read(int argc, char *argv[]) {
+    (void) argc;
+    (void) argv;
+
+    thermistor_driver_enable();
+    float temperature_c = thermistor_driver_get_temperature();
+    thermistor_driver_disable();
+
+    printf("Temperature: %4.1f#C\r\n", temperature_c);
     return 0;
 }
