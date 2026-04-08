@@ -214,12 +214,23 @@ void alarm_face_setup(movement_settings_t *settings, uint8_t watch_face_index, v
         *context_ptr = malloc(sizeof(alarm_state_t));
         alarm_state_t *state = (alarm_state_t *)*context_ptr;
         memset(*context_ptr, 0, sizeof(alarm_state_t));
-        // initialize the default alarm values
+        uint8_t num_presets = sizeof(alarm_presets) / sizeof(alarm_presets[0]);
         for (uint8_t i = 0; i < ALARM_ALARMS; i++) {
-            state->alarm[i].day = ALARM_DAY_EACH_DAY;
-            state->alarm[i].beeps = 5;
-            state->alarm[i].pitch = 1;
+            if (i < num_presets) {
+                state->alarm[i].day = alarm_presets[i].day;
+                state->alarm[i].hour = alarm_presets[i].hour;
+                state->alarm[i].minute = alarm_presets[i].minute;
+                state->alarm[i].beeps = alarm_presets[i].beeps;
+                state->alarm[i].pitch = alarm_presets[i].pitch;
+                state->alarm[i].enabled = alarm_presets[i].enabled;
+            } else {
+                // Default values for alarms without presets
+                state->alarm[i].day = ALARM_DAY_EACH_DAY;
+                state->alarm[i].beeps = 5;
+                state->alarm[i].pitch = 1;
+            }
         }
+
         state->alarm_handled_minute = -1;
         _wait_ticks = -1;
     }
