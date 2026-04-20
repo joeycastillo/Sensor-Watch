@@ -74,7 +74,7 @@ void watch_clear_pixel(uint8_t com, uint8_t seg);
 void watch_clear_display(void);
 
 /** @brief Displays a string at the given position, starting from the top left. There are ten digits.
-           A space in any position will clear that digit.
+  *        A space in any position will clear that digit.
   * @param string A null-terminated string.
   * @param position The position where you wish to start displaying the string. The day of week digits
   *                 are positions 0 and 1; the day of month digits are positions 2 and 3, and the main
@@ -83,6 +83,79 @@ void watch_clear_display(void);
           position 0, positions 2-9 will retain whatever state they were previously displaying.
   */
 void watch_display_string(char *string, uint8_t position);
+
+/** @brief Displays a character at the given position, starting from the top left. There are ten digits.
+  *        A space in any position will clear that digit.
+  * @param character A single character to display.
+  * @param position The position where you wish to display the character. The day of week digits
+  *                 are positions 0 and 1; the day of month digits are positions 2 and 3, and the main
+  *                 clock line occupies positions 4-9.
+  */
+void watch_display_character(uint8_t character, uint8_t position);
+
+/** @brief Displays a character at the given position, starting from the top left. There are ten digits.
+  *        lp refers to 'low-power', as this does _not_ do any special casing to try to handle the pecularities of each position,
+  *        This means it's best used to display numbers in the expected form.
+  * @param character A single character to display.
+  * @param position The position where you wish to display the character. The day of week digits
+  *                 are positions 0 and 1; the day of month digits are positions 2 and 3, and the main
+  *                 clock line occupies positions 4-9.
+  */
+void watch_display_character_lp(uint8_t character, uint8_t position);
+
+/** @brief Attempt to invert the display (i.e. rotate all characters 180 degrees).
+ *         As with watch_display_character_lp, due to the limitations of the display this works best
+ *         with numbers. This affects all subsequent calls to watch_display_string/character.
+ *  @param inv whether to invert (true) or not invert (false).
+ */
+void watch_display_invert(bool inv);
+
+/** @brief Display arbitrary segment data at a particular position.
+ *         cf watch_display_character.
+ *  @param segdata Raw bits which are mapped to the position. See below.
+ *  @param position The position where you wish to display the character. The day of week digits
+ *                  are positions 0 and 1; the day of month digits are positions 2 and 3, and the main
+ *                  clock line occupies positions 4-9.
+ *  @note The bits are mapped as follows:
+ *
+ *  --0-- 
+ * |     |
+ * 5     1
+ * |     |
+ *  --6--
+ * |     |
+ * 4     2
+ * |     |
+ *  --3--
+ *
+ * 7 is the middle divider. i.e. only position 0.
+ *
+ * If you want to display/clear an individual segment, use watch_display_segment.
+ */
+void watch_display_segdata(uint8_t segdata, uint8_t position);
+
+/** @brief Generate segdata for a position that could be used as input to watch_display_segdata.
+ *  @param character A single character to convert.
+ *  @param position The position to generate the character for.
+ *  @note You might wonder why the position is necessary for this function even though
+ *        we don't actually display the character here. This is because we generate different segment
+ *        data depending on the characte to handle the limitiations of the position.
+ */
+uint8_t watch_convert_char_to_segdata(uint8_t character, uint8_t position);
+
+/** @brief Generate segdata for a position that could be used as input to watch_display_segdata (lp).
+ *         This is analagous to watch_display_character_lp.
+ *  @param character A single character to convert.
+ */
+uint8_t watch_convert_char_to_segdata_lp(uint8_t character);
+
+/** @brief Map an individual segment to a particular position. See watch_display_segdata for segment info.
+ *         This is similar to watch_set_pixel, but maps the segments for an arbitrary spot on the display.
+ *  @param bit_pos Bit position (0 to 7).
+ *  @param position Character position.
+ *  @param on Whether to set or clear at that position.
+ */
+void watch_display_segment(uint8_t bit_pos, uint8_t position, bool on);
 
 /** @brief Turns the colon segment on.
   */
@@ -147,5 +220,6 @@ bool watch_tick_animation_is_running(void);
   * @details This will stop the animation and clear all segments in position 8.
   */
 void watch_stop_tick_animation(void);
+
 /// @}
 #endif
