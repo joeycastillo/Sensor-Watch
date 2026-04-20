@@ -110,8 +110,8 @@
  * 
  */
 
-static const char olc_alphabet[20] = "23456789CFGHJMPQRUWX";
-static const char geohash_alphabet[32] =  "0123456789bCdEfGhjkmnpqrstuVwxyz";
+static const char olc_alphabet[21] = "23456789CFGHJMPQRUWX";
+static const char geohash_alphabet[33] = "0123456789bCdEfGhjkmnpqrstuVwxyz";
 
 typedef struct {
     uint8_t sign: 1;        // 0-1
