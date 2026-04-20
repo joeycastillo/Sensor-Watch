@@ -2,6 +2,9 @@
 TOP = ../..
 include $(TOP)/make.mk
 
+CFLAGS += -flto=auto
+LDFLAGS += -flto
+
 # If you add any other subdirectories with header files you wish to include, add them after ../
 # Note that you will need to add a backslash at the end of any line you wish to continue, i.e.
 # INCLUDES += \
