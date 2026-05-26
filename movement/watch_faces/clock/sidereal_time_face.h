@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2024 Your Name
+ * Copyright (c) 2026 Jan Cerny
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,7 +32,7 @@
  *
  * Displays the Local Sidereal Time (LST).
  * LST is the Right Ascension that is currently on the local meridian.
- * It is useful for amateur astronomers to know which celestial objects are well-placed for observation.
+ * It is useful for amateur astronomers.
  */
 
 typedef struct {
