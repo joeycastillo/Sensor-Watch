@@ -168,6 +168,6 @@ uint32_t watch_utility_offset_timestamp(uint32_t now, int8_t hours, int8_t minut
  * @param month The month of the date (1-12)
  * @param year The year of the date (ex. 2022)
  */
-uint8_t days_in_month(uint8_t month, uint16_t year);
+uint8_t watch_utility_days_in_month(uint8_t month, uint16_t year);
 
 #endif
