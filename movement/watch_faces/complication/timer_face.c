@@ -109,6 +109,7 @@ static void _draw(timer_state_t *state, uint8_t subsecond) {
             sprintf(buf, " %02u%02u%02u", state->timers[state->current_timer].unit.hours,
                     state->timers[state->current_timer].unit.minutes,
                     state->timers[state->current_timer].unit.seconds);
+                watch_set_colon();
             break;
     }
     buf[0] = 49 + state->current_timer;
