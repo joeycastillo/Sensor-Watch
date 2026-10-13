@@ -74,6 +74,11 @@ typedef struct {
     bool enabled : 1;
 } alarm_setting_t;
 
+static const alarm_setting_t alarm_presets[] = {
+    //{ ALARM_DAY_WORKDAY, 6, 0, 5, 1, true },
+    //{ ALARM_DAY_WORKDAY, 16, 30, 5, 1, true },
+};
+
 typedef struct {
     uint8_t alarm_idx : 4;
     uint8_t alarm_playing_idx : 4;
