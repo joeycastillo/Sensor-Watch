@@ -2,7 +2,7 @@
   "schema": 1,
   "pcb": "OSO-SWAT-B1.kicad_pcb",
   "side": "F",
-  "pin": "C5157236",
+  "pin": "auto",
   "not_fitted": [],
   "test_points": {
     "a7582384-0cd5-4bbe-bcfb-018c82936021": {
@@ -13,10 +13,42 @@
       "use": true,
       "label": "VLCD"
     },
+    "88ac684b-dac2-456f-9447-50e5f2566f31": {
+      "ref": "TP2",
+      "net": "/SWDIO",
+      "x": 8.11,
+      "y": 18.4,
+      "use": true,
+      "label": "SWDIO"
+    },
+    "3838a58e-8e4d-44b2-90ac-a2ff217ce118": {
+      "ref": "TP3",
+      "net": "GND",
+      "x": 8.11,
+      "y": 15.86,
+      "use": true,
+      "label": "GND"
+    },
+    "abb1408b-a62a-4197-a2c1-869fb2a610b5": {
+      "ref": "TP4",
+      "net": "VCC",
+      "x": 5.57,
+      "y": 18.4,
+      "use": true,
+      "label": "VCC"
+    },
+    "df8fe548-bd29-4030-8b07-6d4c7cd7f888": {
+      "ref": "TP5",
+      "net": "/SWCLK",
+      "x": 5.57,
+      "y": 15.86,
+      "use": true,
+      "label": "SWCLK"
+    },
     "144a6187-c261-4e19-9793-b81b29ae0c94": {
       "ref": "TP6",
       "net": "/A4{slash}D1{slash}MISO",
-      "x": 13.1913,
+      "x": 13.0913,
       "y": 22.4616,
       "use": true,
       "label": "A4{slash}D1{slash}MISO"
@@ -24,7 +56,7 @@
     "6b2bc3a3-26ce-40bb-a7a5-16b6738f08fe": {
       "ref": "TP7",
       "net": "/A1_SCK",
-      "x": 15.4011,
+      "x": 15.5011,
       "y": 22.4616,
       "use": true,
       "label": "A1_SCK"
@@ -40,8 +72,8 @@
     "d5bb5f7b-7557-4c41-8e00-10696323de36": {
       "ref": "TP9",
       "net": "/MODE",
-      "x": 6.0793,
-      "y": 20.6836,
+      "x": 6.09,
+      "y": 20.77,
       "use": true,
       "label": "MODE"
     },
@@ -53,45 +85,13 @@
       "use": true,
       "label": "ALARM"
     },
-    "62182c50-8407-459f-874c-cd0a2e98c595": {
-      "ref": "TP100",
-      "net": "",
-      "x": 5.5713,
-      "y": 13.3176,
+    "6aef3515-24c6-4ca7-844f-00387213c03e": {
+      "ref": "TP11",
+      "net": "/~{RESET}",
+      "x": 5.57,
+      "y": 13.32,
       "use": true,
-      "label": "TP100"
-    },
-    "ced6876b-d8e4-4408-8c2e-316b39d8f24d": {
-      "ref": "TP101",
-      "net": "",
-      "x": 5.5713,
-      "y": 15.8576,
-      "use": true,
-      "label": "TP101"
-    },
-    "b24ed9d0-a3d1-48e6-ad46-785581fea290": {
-      "ref": "TP102",
-      "net": "",
-      "x": 5.5713,
-      "y": 18.3976,
-      "use": true,
-      "label": "TP102"
-    },
-    "b218ca2b-ce18-4b0b-82de-b4588815a36a": {
-      "ref": "TP103",
-      "net": "",
-      "x": 8.1113,
-      "y": 18.3976,
-      "use": true,
-      "label": "TP103"
-    },
-    "5e44702a-199e-480b-89d3-4cd685913964": {
-      "ref": "TP104",
-      "net": "",
-      "x": 8.1113,
-      "y": 15.8576,
-      "use": true,
-      "label": "TP104"
+      "label": "~{RESET}"
     }
   },
   "smtso": null,
@@ -99,8 +99,8 @@
   "header": {
     "rows": 1,
     "edge": "top",
-    "order": "ref",
-    "gnd_pins": 1
+    "order": "label",
+    "gnd_pins": 2
   },
   "print": {
     "bore_clearance": 0.15,
