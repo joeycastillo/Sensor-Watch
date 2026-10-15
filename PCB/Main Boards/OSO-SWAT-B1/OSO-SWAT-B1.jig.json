@@ -1,0 +1,116 @@
+{
+  "schema": 1,
+  "pcb": "OSO-SWAT-B1.kicad_pcb",
+  "side": "F",
+  "pin": "C5157236",
+  "not_fitted": [],
+  "test_points": {
+    "a7582384-0cd5-4bbe-bcfb-018c82936021": {
+      "ref": "TP1",
+      "net": "/VLCD",
+      "x": 19.7953,
+      "y": 1.8876,
+      "use": true,
+      "label": "VLCD"
+    },
+    "144a6187-c261-4e19-9793-b81b29ae0c94": {
+      "ref": "TP6",
+      "net": "/A4{slash}D1{slash}MISO",
+      "x": 13.1913,
+      "y": 22.4616,
+      "use": true,
+      "label": "A4{slash}D1{slash}MISO"
+    },
+    "6b2bc3a3-26ce-40bb-a7a5-16b6738f08fe": {
+      "ref": "TP7",
+      "net": "/A1_SCK",
+      "x": 15.4011,
+      "y": 22.4616,
+      "use": true,
+      "label": "A1_SCK"
+    },
+    "5d8630d5-609f-40a8-9730-10e98f536ef2": {
+      "ref": "TP8",
+      "net": "/LIGHT",
+      "x": 10.1433,
+      "y": 1.8876,
+      "use": true,
+      "label": "LIGHT"
+    },
+    "d5bb5f7b-7557-4c41-8e00-10696323de36": {
+      "ref": "TP9",
+      "net": "/MODE",
+      "x": 6.0793,
+      "y": 20.6836,
+      "use": true,
+      "label": "MODE"
+    },
+    "ca3c6fc4-bab2-4674-ad54-7902a2b0cc4b": {
+      "ref": "TP10",
+      "net": "/ALARM",
+      "x": 23.8593,
+      "y": 20.6836,
+      "use": true,
+      "label": "ALARM"
+    },
+    "62182c50-8407-459f-874c-cd0a2e98c595": {
+      "ref": "TP100",
+      "net": "",
+      "x": 5.5713,
+      "y": 13.3176,
+      "use": true,
+      "label": "TP100"
+    },
+    "ced6876b-d8e4-4408-8c2e-316b39d8f24d": {
+      "ref": "TP101",
+      "net": "",
+      "x": 5.5713,
+      "y": 15.8576,
+      "use": true,
+      "label": "TP101"
+    },
+    "b24ed9d0-a3d1-48e6-ad46-785581fea290": {
+      "ref": "TP102",
+      "net": "",
+      "x": 5.5713,
+      "y": 18.3976,
+      "use": true,
+      "label": "TP102"
+    },
+    "b218ca2b-ce18-4b0b-82de-b4588815a36a": {
+      "ref": "TP103",
+      "net": "",
+      "x": 8.1113,
+      "y": 18.3976,
+      "use": true,
+      "label": "TP103"
+    },
+    "5e44702a-199e-480b-89d3-4cd685913964": {
+      "ref": "TP104",
+      "net": "",
+      "x": 8.1113,
+      "y": 15.8576,
+      "use": true,
+      "label": "TP104"
+    }
+  },
+  "smtso": null,
+  "hold_down": "screws",
+  "header": {
+    "rows": 1,
+    "edge": "top",
+    "order": "ref",
+    "gnd_pins": 1
+  },
+  "print": {
+    "bore_clearance": 0.15,
+    "pocket_clearance": 0.4,
+    "edge_clearance": 0.2,
+    "min_wall": 0.6,
+    "lip_height": 1.2,
+    "wall": 2.0,
+    "height_margin": 0.3,
+    "lid_thickness": 3.0,
+    "press_rim": 1.5
+  }
+}

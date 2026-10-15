@@ -149,10 +149,6 @@
         [
           "starved_thermal|16600300|9596500|d88fe181-a965-45bb-b61b-0e5d5d101beb|79777112-3e43-419c-996d-3c67a3aede7b|F.Cu",
           ""
-        ],
-        [
-          "starved_thermal|24260900|9888600|d88fe181-a965-45bb-b61b-0e5d5d101beb|c8fabca9-57b7-4d36-85be-53fc68f72bc5|F.Cu",
-          ""
         ]
       ],
       "meta": {
@@ -783,6 +779,12 @@
           "label": "Description",
           "name": "Description",
           "show": false
+        },
+        {
+          "group_by": false,
+          "label": "Field4",
+          "name": "Field4",
+          "show": false
         }
       ],
       "filter_string": "",
@@ -790,7 +792,7 @@
       "include_excluded_from_bom": true,
       "name": "",
       "sort_asc": true,
-      "sort_field": "Description"
+      "sort_field": "LCSC Part"
     },
     "bus_aliases": {},
     "connection_grid_size": 50.0,
@@ -849,7 +851,7 @@
         "uuid": "3048f5e8-34bb-46da-8fa5-8c5aad2586f2"
       }
     ],
-    "used_designators": "TP2",
+    "used_designators": "#+3V1-2,#GND1-4,#SUPPLY1-6,#U$1-10,C1-10,D1-2,FID1-5,L1,LED0A1,LED0B1,R1-5,SW1-2,TP1-12,U1-3,U$1,X1",
     "variants": []
   },
   "sheets": [
