@@ -277,7 +277,8 @@ static bool mode_settings(movement_event_t event, movement_settings_t *settings,
     int8_t hours, minutes;
     uint8_t zone;
     div_t result;
-
+    int16_t tz_offset;
+    
     switch (event.event_type) {
 	case EVENT_ACTIVATE:
 	case EVENT_TICK:
@@ -289,7 +290,13 @@ static bool mode_settings(movement_event_t event, movement_settings_t *settings,
                 watch_clear_indicator(WATCH_INDICATOR_PM);
                 refresh_face = false;
             }
-	    result = div(movement_timezone_offsets[state->current_zone], 60);
+
+            tz_offset = movement_timezone_offsets[state->current_zone];
+            if (state->zones[state->current_zone].daylight_saving) {
+                tz_offset += 60;
+            }
+
+	    result = div(tz_offset, 60);
 	    hours = result.quot;
 	    minutes = result.rem;
 
@@ -314,6 +321,11 @@ static bool mode_settings(movement_event_t event, movement_settings_t *settings,
 	    else
 		watch_clear_indicator(WATCH_INDICATOR_SIGNAL);
 
+	    if (state->zones[state->current_zone].daylight_saving)
+        	watch_set_indicator(WATCH_INDICATOR_LAP);
+            else
+        	watch_clear_indicator(WATCH_INDICATOR_LAP);
+
 	    watch_display_string(buf, 0);
 	    break;
 	case EVENT_ALARM_BUTTON_UP:
@@ -326,6 +338,11 @@ static bool mode_settings(movement_event_t event, movement_settings_t *settings,
 	    /* Do nothing */
 	    break;
 	case EVENT_ALARM_LONG_PRESS:
+    	    /* Toggle daylight saving of current zone */
+	    zone = state->current_zone;
+	    state->zones[zone].daylight_saving = !state->zones[zone].daylight_saving;
+        break;
+    case EVENT_MODE_BUTTON_UP:
 	    /* Find next selected zone */
 	    if (!state->zones[state->current_zone].selected)
 		state->current_zone = find_selected_zone(state, FORWARD);
@@ -350,11 +367,6 @@ static bool mode_settings(movement_event_t event, movement_settings_t *settings,
                     beep_disable();
                 }
             }
-            break;
-        case EVENT_MODE_BUTTON_UP:
-            /* Reset frequency and move to next face */
-            movement_request_tick_frequency(1);
-            movement_move_to_next_face();
             break;
         default:
             return movement_default_loop_handler(event, settings);
