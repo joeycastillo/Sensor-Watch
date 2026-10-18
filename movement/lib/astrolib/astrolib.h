@@ -72,6 +72,10 @@ double astro_convert_date_to_julian_date(uint16_t year, uint8_t month, uint8_t d
 // Converts a Julan Date to Julian Millenia since J2000, which is what VSOP87 expects as input.
 double astro_convert_jd_to_julian_millenia_since_j2000(double jd);
 
+// Get Greenwich Mean Sidereal Time (GMST) for a given Julian Date (UT1).
+// Returns GMST in hours (0-24).
+double astro_get_GMST(double ut1);
+
 // Get right ascension / declination for a given body in the list above.
 astro_equatorial_coordinates_t astro_get_ra_dec(double jd, astro_body_t bodyNum, double lat, double lon, bool calculate_precession);
 
