@@ -752,16 +752,16 @@
       {
         "filename": "OSO-SWAT-C1.kicad_sch",
         "name": "OSO-SWAT-C1",
-        "uuid": "00000000-0000-0000-0000-000000000000"
+        "uuid": "3048f5e8-34bb-46da-8fa5-8c5aad2586f2"
       }
     ],
-    "used_designators": "",
+    "used_designators": "TP2-6",
     "variants": []
   },
   "sheets": [
     [
       "3048f5e8-34bb-46da-8fa5-8c5aad2586f2",
-      "Root"
+      "OSO-SWAT-C1"
     ]
   ],
   "text_variables": {},
