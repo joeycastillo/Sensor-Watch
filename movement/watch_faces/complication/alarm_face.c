@@ -39,7 +39,7 @@ typedef enum {
     alarm_setting_idx_beeps
 } alarm_setting_idx_t;
 
-static const char _dow_strings[ALARM_DAY_STATES + 1][2] ={"AL", "MO", "TU", "WE", "TH", "FR", "SA", "SO", "ED", "1t", "MF", "WN"};
+static const char _dow_strings[ALARM_DAY_STATES + 1][2] ={"AL", "MO", "TU", "WE", "TH", "FR", "SA", "SU", "ED", "1t", "MF", "WN"};
 static const uint8_t _blink_idx[ALARM_SETTING_STATES] = {2, 0, 4, 6, 8, 9};
 static const uint8_t _blink_idx2[ALARM_SETTING_STATES] = {3, 1, 5, 7, 8, 9};
 static const BuzzerNote _buzzer_notes[3] = {BUZZER_NOTE_B6, BUZZER_NOTE_C8, BUZZER_NOTE_A8};
