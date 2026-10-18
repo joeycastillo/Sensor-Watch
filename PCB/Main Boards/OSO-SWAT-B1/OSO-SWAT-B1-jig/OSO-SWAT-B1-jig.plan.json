@@ -911,15 +911,11 @@
    "floor": 0.955
   }
  ],
- "lid": {
-  "thickness": 3.0,
-  "rim": 1.5,
-  "pockets": []
- },
- "screw_len": 12,
+ "lid": null,
+ "screw_len": 8,
  "not_fitted": [],
  "notch_w": 14.0,
- "hold_down": "screws",
+ "hold_down": "none",
  "print": {
   "bore_clearance": 0.15,
   "pocket_clearance": 0.4,
@@ -936,8 +932,28 @@
   "edge": "top",
   "pins": [
    {
-    "label": "TP7/A1_SCK",
-    "net": "A1_SCK",
+    "label": "TP1/VLCD",
+    "net": "VLCD",
+    "gnd": false
+   },
+   {
+    "label": "TP2/SWDIO",
+    "net": "SWDIO",
+    "gnd": false
+   },
+   {
+    "label": "TP3/GND",
+    "net": "GND",
+    "gnd": true
+   },
+   {
+    "label": "TP4/VCC",
+    "net": "VCC",
+    "gnd": false
+   },
+   {
+    "label": "TP5/SWCLK",
+    "net": "SWCLK",
     "gnd": false
    },
    {
@@ -946,14 +962,9 @@
     "gnd": false
    },
    {
-    "label": "TP10/ALARM",
-    "net": "ALARM",
+    "label": "TP7/A1_SCK",
+    "net": "A1_SCK",
     "gnd": false
-   },
-   {
-    "label": "TP3/GND",
-    "net": "GND",
-    "gnd": true
    },
    {
     "label": "TP8/LIGHT",
@@ -966,34 +977,14 @@
     "gnd": false
    },
    {
-    "label": "TP5/SWCLK",
-    "net": "SWCLK",
-    "gnd": false
-   },
-   {
-    "label": "TP2/SWDIO",
-    "net": "SWDIO",
-    "gnd": false
-   },
-   {
-    "label": "TP4/VCC",
-    "net": "VCC",
-    "gnd": false
-   },
-   {
-    "label": "TP1/VLCD",
-    "net": "VLCD",
+    "label": "TP10/ALARM",
+    "net": "ALARM",
     "gnd": false
    },
    {
     "label": "TP11/~{RESET}",
     "net": "~{RESET}",
     "gnd": false
-   },
-   {
-    "label": "GND",
-    "net": "GND",
-    "gnd": true
    },
    {
     "label": "GND",

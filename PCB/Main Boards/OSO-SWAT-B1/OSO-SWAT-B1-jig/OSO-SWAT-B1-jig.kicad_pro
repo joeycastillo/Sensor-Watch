@@ -662,13 +662,22 @@
       {
         "filename": "OSO-SWAT-B1-jig.kicad_sch",
         "name": "OSO-SWAT-B1-jig",
-        "uuid": "00000000-0000-0000-0000-000000000000"
+        "uuid": "fe33f90d-92d4-503a-b987-4a1d6a49453e"
       }
     ],
-    "used_designators": "",
+    "used_designators": "J13",
     "variants": []
   },
-  "sheets": [],
+  "sheets": [
+    [
+      "fe33f90d-92d4-503a-b987-4a1d6a49453e",
+      "OSO-SWAT-B1-jig"
+    ],
+    [
+      "524ee46d-6db7-585a-a61c-54209fc0a8e6",
+      "Generated"
+    ]
+  ],
   "text_variables": {},
   "tuning_profiles": {
     "meta": {

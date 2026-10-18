@@ -95,12 +95,12 @@
     }
   },
   "smtso": null,
-  "hold_down": "screws",
+  "hold_down": "none",
   "header": {
     "rows": 1,
     "edge": "top",
-    "order": "label",
-    "gnd_pins": 2
+    "order": "ref",
+    "gnd_pins": 1
   },
   "print": {
     "bore_clearance": 0.15,
