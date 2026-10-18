@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "pcb": "OSO-SWAT-C1.kicad_pcb",
+  "side": "F",
+  "pin": "auto",
+  "not_fitted": [],
+  "test_points": {
+    "9404ebf8-c690-4a55-92df-6b32c2dd757b": {
+      "ref": "TP1",
+      "net": "/VLCD",
+      "x": 17.0015,
+      "y": 1.3025,
+      "use": true,
+      "label": "VLCD"
+    },
+    "6cb5a8b7-ef3f-4f21-8521-eab18c0fe571": {
+      "ref": "TP2",
+      "net": "/SWDIO_MODE",
+      "x": 5.3155,
+      "y": 17.8145,
+      "use": true,
+      "label": "SWDIO_MODE"
+    },
+    "22070471-d431-4e03-a338-8e68007cea26": {
+      "ref": "TP3",
+      "net": "GND",
+      "x": 5.3155,
+      "y": 15.2745,
+      "use": true,
+      "label": "GND"
+    },
+    "025ac8f5-fb71-4c13-ae2d-a5e9f3002ecd": {
+      "ref": "TP4",
+      "net": "VCC",
+      "x": 2.7755,
+      "y": 17.8145,
+      "use": true,
+      "label": "VCC"
+    },
+    "a3ffef3d-7d4d-408f-98bc-95487c762b6c": {
+      "ref": "TP5",
+      "net": "/SWCLK_LIGHT",
+      "x": 2.7755,
+      "y": 15.2745,
+      "use": true,
+      "label": "SWCLK_LIGHT"
+    },
+    "e76bc4f6-ff92-43c7-bfea-0b966e98c9ef": {
+      "ref": "TP6",
+      "net": "/~{RESET}",
+      "x": 2.7755,
+      "y": 12.7345,
+      "use": true,
+      "label": "~{RESET}"
+    },
+    "5d8630d5-609f-40a8-9730-10e98f536ef2": {
+      "ref": "TP8",
+      "net": "/SWCLK_LIGHT",
+      "x": 7.3495,
+      "y": 1.3025,
+      "use": true,
+      "label": "SWCLK_LIGHT"
+    },
+    "d5bb5f7b-7557-4c41-8e00-10696323de36": {
+      "ref": "TP9",
+      "net": "/SWDIO_MODE",
+      "x": 3.1,
+      "y": 20.275,
+      "use": true,
+      "label": "SWDIO_MODE"
+    },
+    "ca3c6fc4-bab2-4674-ad54-7902a2b0cc4b": {
+      "ref": "TP10",
+      "net": "/ALARM",
+      "x": 21.0655,
+      "y": 20.0985,
+      "use": true,
+      "label": "ALARM"
+    }
+  },
+  "smtso": null,
+  "hold_down": "none",
+  "header": {
+    "rows": 1,
+    "edge": "top",
+    "order": "ref",
+    "gnd_pins": 1
+  },
+  "print": {
+    "bore_clearance": 0.15,
+    "pocket_clearance": 0.4,
+    "edge_clearance": 0.2,
+    "min_wall": 0.6,
+    "lip_height": 1.2,
+    "wall": 2.0,
+    "height_margin": 0.3,
+    "lid_thickness": 3.0,
+    "press_rim": 1.5
+  }
+}

@@ -1,0 +1,7 @@
+(fp_lib_table
+	(version 7)
+	(lib (name "pogo") (type "KiCad") (uri "/home/evank/github/testjigulator/lib/pogo.pretty") (options "") (descr "testjigulator pogo pins"))
+	(lib (name "jig") (type "KiCad") (uri "${KIPRJMOD}/jig.pretty") (options "") (descr "this jig's generated footprints"))
+	(lib (name "OSO-SWAT-C1") (type "KiCad") (uri "/home/evank/github/swatch/Sensor-Watch/PCB/Main Boards/OSO-SWAT-C1/OSO-SWAT-C1.pretty") (options "") (descr ""))
+	(lib (name "Waveshare_Core2350B") (type "KiCad") (uri "${KIPRJMOD}/Waveshare_Core2350B.pretty") (options "") (descr ""))
+)
