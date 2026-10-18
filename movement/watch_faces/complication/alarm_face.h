@@ -52,7 +52,16 @@
  *      long ('L') and extra short ('o') alarms.
  *    - The simple watch face indicates if any alarm is set within the next 24h by showing the signal
  *      indicator.
+ *
+ *    TOMATO SETTING (OPTIONAL)
+ *    - Tomato is an additional setting(set with LAP indicator) that when enabled will open the
+ *      tomato_face on the corresponding alarm trigger. This allows you to start your focus session.
+ *    - Requires the tomato_face to be selected as a watch face in movement_config.h and its
+ *      index provided in alarm_face.h(line 65) as a macro.
  */
+
+// uncomment this line and replace value with tomato watch face index(zero-indexed)
+// #define TOMATO 1
 
 #include "movement.h"
 
@@ -63,7 +72,12 @@
 #define ALARM_DAY_WORKDAY 9
 #define ALARM_DAY_WEEKEND 10
 #define ALARM_MAX_BEEP_ROUNDS 11 // maximum number of beeping rounds for an alarm slot (including short and long alarms)
-#define ALARM_SETTING_STATES 6
+
+#ifdef TOMATO
+    #define ALARM_SETTING_STATES 7
+#else
+    #define ALARM_SETTING_STATES 6
+#endif
 
 typedef struct {
     uint8_t day : 4;    // day of week: 0=MO, 1=TU, 2=WE, 3=TH, 4=FR, 5=SA, 6=SU, 7=each day, 8=one time alarm, 9=Weekdays, 10=Weekend
@@ -71,6 +85,7 @@ typedef struct {
     uint8_t minute : 6;
     uint8_t beeps : 4;
     uint8_t pitch :2;
+    bool tomato: 1;
     bool enabled : 1;
 } alarm_setting_t;
 
