@@ -316,7 +316,7 @@ uint32_t watch_utility_offset_timestamp(uint32_t now, int8_t hours, int8_t minut
     return new;
 }
 
-uint8_t days_in_month(uint8_t month, uint16_t year) {
+uint8_t watch_utility_days_in_month(uint8_t month, uint16_t year) {
     static const uint8_t days_in_month[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
     uint8_t days = days_in_month[month - 1];
     if (month == 2 && is_leap(year))
